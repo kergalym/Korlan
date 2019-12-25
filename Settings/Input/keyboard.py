@@ -29,56 +29,38 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
-import json
-from os.path import isfile
-
-from direct.showbase.DirectObject import DirectObject
-from korlan_run import Main
 
 
-class Keyboard(DirectObject):
+class Keyboard:
     def __init__(self):
-        self.main = Main()
-        DirectObject.__init__(self)
+        self.base = base
+        self.keymap = {
+            "left": 0,
+            "right": 0,
+            "forward": 0,
+            "backward": 0,
+            "cam-left": 0,
+            "cam-right": 0
+        }
 
-    """ Runs tasks """
+    # Records the state of the arrow/actions keys
+    def set_key(self, key, value):
+        self.keymap[key] = value
 
-    def run_task(self, key, task_type, task):
+    def read_kbd_settings(self):
+        pass
 
-        if (isinstance(key, str)
-                and isinstance(task_type, str)
-                and task_type is None
-                and isinstance(task, str)):
-            self.accept(key, task)
-        elif (isinstance(key, str)
-              and isinstance(task_type, str)
-              and task_type is 'Once'
-              and isinstance(task, str)):
-            self.acceptOnce(key, task)
-
-    """ Sets the keyboard key in json """
-
-    def set_mice_key(self, key, action):
-        if (isinstance(key, str)
-                and isinstance(action, str)):
-            data = "{{}: {}}".format(key, action)
-            with open("{}/Configs/Keyboard/{}_bind.json".format(self.main.main(), key), 'w') as f:
-                f.write(data)
-
-    """ Loads the keymap from json """
-
-    def load_keymap(self, key):
-        if (isinstance(key, str)
-                and isfile("{}/Configs/Keyboard/{}_bind.json".format(self.main.main(), key))):
-            with open("{}/Configs/Keyboard/{}_bind.json".format(self.main.main(), key), 'r') as f:
-                conf = f.read()
-            print(json.loads(conf))
-
-    """ Loads the default keymap from json """
-
-    def load_keymap_default(self, key):
-        if (isinstance(key, str)
-                and isfile("{}/Configs/Keyboard/{}_default_bind.json".format(self.main.main(), key))):
-            with open("{}/Configs/Keyboard/{}_default_bind.json".format(self.main.main(), key), 'r') as f:
-                conf = f.read()
-            print(json.loads(conf))
+    def kbd_init(self):
+        # Accept the control keys for movement and rotation
+        self.base.accept("arrow_left", self.set_key, ["left", True])
+        self.base.accept("arrow_right", self.set_key, ["right", True])
+        self.base.accept("arrow_up", self.set_key, ["forward", True])
+        self.base.accept("arrow_down", self.set_key, ["backward", True])
+        self.base.accept("a", self.set_key, ["cam-left", True])
+        self.base.accept("s", self.set_key, ["cam-right", True])
+        self.base.accept("arrow_left-up", self.set_key, ["left", False])
+        self.base.accept("arrow_right-up", self.set_key, ["right", False])
+        self.base.accept("arrow_up-up", self.set_key, ["forward", False])
+        self.base.accept("arrow_down-up", self.set_key, ["backward", False])
+        self.base.accept("a-up", self.set_key, ["cam-left", False])
+        self.base.accept("s-up", self.set_key, ["cam-right", False])

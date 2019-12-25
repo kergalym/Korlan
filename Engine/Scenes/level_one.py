@@ -101,7 +101,7 @@ class LevelOne:
                                 "GAME_MODE",
                                 render,
                                 "Sky",
-                                [0.0, 10.0, -1.09], [0, 0, 0], [1.25, 1.25, 1.25], 'skybox')
+                                [0.0, 10.0, self.pos_z], [0, 0, 0], [1.25, 1.25, 1.25], 'skybox')
 
         self.scene_one.asset_load('Assets/Levels/Terrain/tress_grass.egg',
                                   GAME_DIR,
@@ -109,7 +109,7 @@ class LevelOne:
                                   GAME_SETTINGS,
                                   render,
                                   "Grass",
-                                  [20.0, 10.0, -1.09], [0, 0, 0], [1.25, 1.25, 1.25])
+                                  [20.0, 10.0, self.pos_z], [0, 0, 0], [1.25, 1.25, 1.25])
 
         self.scene_one.asset_load('Assets/Levels/Environment/Nomad house/Nomad_house.egg',
                                   GAME_DIR,
@@ -117,7 +117,7 @@ class LevelOne:
                                   GAME_SETTINGS,
                                   render,
                                   "Nomad_house",
-                                  [0.0, 20.0, -1.09], [65, 0, 0], [1.25, 1.25, 1.25])
+                                  [0.0, 20.0, self.pos_z], [65, 0, 0], [1.25, 1.25, 1.25])
 
         self.scene_one.env_load('Assets/Levels/Terrain/ground.egg',
                                 GAME_DIR,
@@ -125,7 +125,7 @@ class LevelOne:
                                 GAME_SETTINGS,
                                 render,
                                 "Ground",
-                                [0.0, 10.0, -1.09], [0, 0, 0], [1.25, 1.25, 1.25], 'ground')
+                                [0.0, 10.0, self.pos_z], [0, 0, 0], [1.25, 1.25, 1.25], 'ground')
 
         self.scene_one.env_load('Assets/Levels/Terrain/mountains.egg',
                                 GAME_DIR,
@@ -133,12 +133,12 @@ class LevelOne:
                                 GAME_SETTINGS,
                                 render,
                                 "Mountains",
-                                [0.0, 20.0, -1.09], [0, 0, 0], [1.25, 1.25, 1.25], 'mountains')
+                                [0.0, 20.0, self.pos_z], [0, 0, 0], [1.25, 1.25, 1.25], 'mountains')
 
         self.korlan.set_character_game("game",
                                        GAME_SETTINGS,
                                        "Korlan",
-                                       [0.0, 8.0, -1.10], [270.0, 0, 0], [1.25, 1.25, 1.25],
+                                       [0.0, 8.0, self.pos_z], [270.0, 0, 0], [1.25, 1.25, 1.25],
                                        GAME_DIR,
                                        self.player_settings.set_player_path(GAME_DIR),
                                        CFG_PATH,
