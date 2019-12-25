@@ -1,0 +1,17 @@
+{
+  "forward": "W",
+  "backward": "S",
+  "left": "A",
+  "right": "D",
+  "crouch": "C",
+  "jump": "Space",
+  "use": "E",
+  "attack": "Mouse-1",
+  "h_attack": "H",
+  "f_attack": "F",
+  "block": "Mouse-2",
+  "sword": "1",
+  "bow": "2",
+  "tengri": "3",
+  "umai": "4"
+}

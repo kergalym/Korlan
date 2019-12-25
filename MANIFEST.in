@@ -1,0 +1,5 @@
+recursive-include Assets
+recursive-include Configs
+recursive-include Engine
+recursive-include RenderPipeline
+recursive-include Settings

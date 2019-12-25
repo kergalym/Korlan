@@ -1,0 +1,13 @@
+﻿Pmw
+PyQt5
+Panda3D
+Panda3D-gltf
+panda3d-simplepbr
+jsonlib-python3
+python3-xlib
+Kivy
+urllib3
+pybullet
+wecs
+setuptools
+configparser
