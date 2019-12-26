@@ -210,9 +210,8 @@ class Korlan:
                 render.analyze()
                 render.explore()
 
-            taskMgr.add(self.mouse.mouse_task,
-                        'mouse_task',
-                        extraArgs=[self.korlan],
+            taskMgr.add(self.mouse.mouse_look_cam,
+                        "camera-task",
                         appendTask=True)
 
             self.movement.movement_init(self.korlan, anim)

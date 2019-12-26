@@ -55,7 +55,7 @@ class Movement:
                 and anim
                 and isinstance(anim, str)):
 
-            self.mouse.set_floater(self.korlan)
+            # self.mouse.set_floater(self.korlan)
 
             self.kbd.kbd_init()
 

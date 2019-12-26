@@ -30,7 +30,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
-from panda3d.core import WindowProperties
+from panda3d.core import WindowProperties, LVector3
 from direct.showbase import DirectObject
 from panda3d.core import NodePath, PandaNode
 
@@ -42,6 +42,15 @@ class Mouse:
         self.korlan = None
         self.floater = None
         self.pos_z = 2.0
+        # Set the current viewing target
+        # self.focus = LVector3(55, -55, 20)
+        self.focus = LVector3(0, 0, 0)
+        self.heading = 180
+        self.pitch = 0
+        self.mousex = 0
+        self.mousey = 0
+        self.last = 0
+        self.mousebtn = [0, 0, 0]
 
     # Create a floater object, which floats 2 units above Korlan.
     # We use this as a target for the camera to look at.
@@ -61,81 +70,35 @@ class Mouse:
             wp.setCursorHidden(True)
             self.base.win.requestProperties(wp)
 
-            # These changes may require a tick to apply
-            self.base.taskMgr.doMethodLater(0, self.resolve_mouse, "Resolve mouse setting")
-
-    def resolve_mouse(self, t):
-        wp = self.base.win.getProperties()
-
-        actualMode = wp.getMouseMode()
-        if self.base.mouseMode != actualMode:
-            self.base.mouseMode = actualMode
-
-        self.base.rotateX, self.base.rotateY = -.5, -.5
-        self.base.lastMouseX, self.base.lastMouseY = None, None
-        self.recenter_mouse()
-
-        # return task.cont
-
-    def recenter_mouse(self):
-        self.base.win.movePointer(0,
-                                  int(self.base.win.getProperties().getXSize() / 2),
-                                  int(self.base.win.getProperties().getYSize() / 2))
-
-    def toggle_recenter(self):
-        self.base.manualRecenterMouse = not self.base.manualRecenterMouse
-
-    def toggle_mouse(self, korlan):
-        if korlan:
-            self.korlan = korlan
-            self.korlan.hideMouse = not base.hideMouse
-
-            wp = WindowProperties()
-            wp.setCursorHidden(self.korlan.hideMouse)
-            self.korlan.win.requestProperties(wp)
-
-    def mouse_task(self, korlan, task):
-        if korlan:
-            self.korlan = korlan
-            mw = self.base.mouseWatcherNode
-
-            hasMouse = mw.hasMouse()
-            if hasMouse:
-                # get the window manager's idea of the mouse position
-                x, y = mw.getMouseX(), mw.getMouseY()
-
-                if self.base.lastMouseX is not None:
-                    # get the delta
-                    if self.base.manualRecenterMouse:
-                        # when recentering, the position IS the delta
-                        # since the center is reported as 0, 0
-                        dx, dy = x, y
-                    else:
-                        dx, dy = x - self.base.lastMouseX, y - self.base.lastMouseY
-                else:
-                    # no data to compare with yet
-                    dx, dy = 0, 0
-
-                self.base.lastMouseX, self.base.lastMouseY = x, y
-
-            else:
-                x, y, dx, dy = 0, 0, 0, 0
-
-            if self.base.manualRecenterMouse:
-                # move mouse back to center
-                self.recenter_mouse()
-                self.base.lastMouseX, self.base.lastMouseY = 0, 0
-
-                # scale position and delta to pixels for user
-                w, h = self.base.win.getSize()
-
-                # rotate player by delta
-                self.base.rotateX += dx * 10 * self.base.mouseMagnitude
-                self.base.rotateY += dy * 10 * self.base.mouseMagnitude
-
-                """ enable it only for accept('mouse-3', command=self.korlan.setH(self.base.rotateX))"""
-                self.d_object.accept('mouse-1', self.korlan.setH, extraArgs=[self.base.rotateX])
-                self.base.cam.setH(self.base.rotateX)
-
-                return task.cont
-
+    def mouse_look_cam(self, task):
+        # figure out how much the mouse has moved (in pixels)
+        md = self.base.win.getPointer(0)
+        x = md.getX()
+        y = md.getY()
+        if self.base.win.movePointer(0, 100, 100):
+            self.heading = self.heading - (x - 100) * 0.2
+        self.base.camera.setHpr(self.heading, self.pitch, 0)
+        dir = self.base.camera.getMat().getRow3(1)
+        elapsed = task.time - self.last
+        if self.last == 0:
+            elapsed = 0
+        if self.mousebtn[0]:
+            self.focus = self.focus + dir * elapsed * 30
+        if self.mousebtn[1] or self.mousebtn[2]:
+            self.focus = self.focus - dir * elapsed * 30
+        self.base.camera.setPos(self.focus - (dir * 5))
+        if self.base.camera.getX() < -59.0:
+            self.base.camera.setX(-59)
+        if self.base.camera.getX() > 59.0:
+            self.base.camera.setX(59)
+        if self.base.camera.getY() < -59.0:
+            self.base.camera.setY(-59)
+        if self.base.camera.getY() > 59.0:
+            self.base.camera.setY(59)
+        if self.base.camera.getZ() < 5.0:
+            self.base.camera.setZ(5)
+        if self.base.camera.getZ() > 45.0:
+            self.base.camera.setZ(45)
+        self.focus = self.base.camera.getPos() + (dir * 5)
+        self.last = task.time
+        return task.cont
