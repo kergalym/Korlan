@@ -146,7 +146,7 @@ class Movement:
         entries.sort(key=lambda x: x.getSurfacePoint(render).getZ())
 
         if len(entries) > 0 and entries[0].getIntoNode().getName() == 'mountain':
-            player.setZ(entries[0].getSurfacePoint(render).getZ())
+            player.setZ(0.0)
         else:
             player.setPos(startpos)
 
