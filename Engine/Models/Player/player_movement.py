@@ -95,11 +95,11 @@ class Movement:
         speed = 25
 
         if self.kbd.keymap["left"]:
-            player.setH(player.getH() + 300 * dt)
-            # player.setX(player, speed * dt)
+            player.setH(player.getH() + 180 * dt)
+            player.setX(player, speed * dt)
         if self.kbd.keymap["right"]:
-            player.setH(player.getH() - 300 * dt)
-            # self.korlan.setX(self.korlan, -speed * dt)
+            player.setH(player.getH() - 180 * dt)
+            player.setX(player, -speed * dt)
         if self.kbd.keymap["forward"]:
             player.setY(player, -speed * dt)
         if self.kbd.keymap["backward"]:
