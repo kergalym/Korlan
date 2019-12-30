@@ -65,6 +65,7 @@ class Movement:
 
             # Set up the camera
             self.base.camera.setPos(player.getX(), player.getY() + 10, 2)
+            base.camLens.setFov(80)
 
             self.col.set_inter_collision(player)
 
@@ -79,7 +80,7 @@ class Movement:
 
         # If the camera-left key is pressed, move camera left.
         # If the camera-right key is pressed, move camera right.
-
+        base.camera.lookAt(player)
         if self.kbd.keymap["cam-left"]:
             self.base.camera.setX(self.base.camera, -20 * dt)
         if self.kbd.keymap["cam-right"]:
@@ -92,16 +93,16 @@ class Movement:
 
         # If a move-key is pressed, move the player in the specified direction.
 
-        speed = 25
+        speed = 5
 
+        print(player.getH())
         if self.kbd.keymap["left"]:
-            player.setH(player.getH() + 180 * dt)
-            # player.setX(player, 5 * dt)
+            player.setH(player.getH() + 300 * dt)
         if self.kbd.keymap["right"]:
-            player.setH(player.getH() - 180 * dt)
-            # player.setX(player, -5 * dt)
+            player.setH(player.getH() - 300 * dt)
         if self.kbd.keymap["forward"]:
             player.setY(player, -speed * dt)
+            print(player.getH())
         if self.kbd.keymap["backward"]:
             player.setY(player, speed * dt)
 

@@ -92,7 +92,7 @@ GAME_SETTINGS['Debug'] = {'set_debug_mode': 'NO',
                           'player_pos_x': '0.0',
                           'player_pos_y': '8.0',
                           'player_pos_z': '-1.09',
-                          'player_rot_h': '-270.0',
+                          'player_rot_h': '0.0',
                           'player_rot_p': '0.0',
                           'player_rot_r': '-0.0'
                           }
