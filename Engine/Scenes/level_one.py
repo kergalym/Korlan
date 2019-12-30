@@ -138,7 +138,7 @@ class LevelOne:
         self.korlan.set_character_game("game",
                                        GAME_SETTINGS,
                                        "Korlan",
-                                       [0.0, 8.0, self.pos_z], [270.0, 0, 0], [1.25, 1.25, 1.25],
+                                       [0.0, 8.0, self.pos_z], [0, 0, 0], [1.25, 1.25, 1.25],
                                        GAME_DIR,
                                        self.player_settings.set_player_path(GAME_DIR),
                                        CFG_PATH,
