@@ -44,7 +44,7 @@ class Mouse:
         self.pos_z = 2.0
         # Set the current viewing target
         # self.focus = LVector3(55, -55, 20)
-        self.focus = LVector3(55, -55, 20)
+        self.focus = LVector3(0, 0, 0)
         self.heading = 180
         self.pitch = 150
         self.rotation = 0

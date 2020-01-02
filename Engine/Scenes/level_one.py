@@ -35,28 +35,22 @@ from Engine.Models.Player.korlan import Korlan
 from Settings.Player.korlan_settings import Player
 from Engine.Scenes.scene_01 import SceneOne
 from Engine.World import World
-from pathlib import Path
 from os.path import isfile
 import configparser
 from sys import exit as sys_exit
-
-""" Engine Built-in Objects"""
-
-GAME_DIR = str(Path.cwd())
-GAME_CFG = '{0}/Korlan - Daughter of the Steppes/settings.ini'.format(str(Path.home()))
-
-GAME_SETTINGS = configparser.ConfigParser()
-GAME_CFG_DIR = '{0}/Korlan - Daughter of the Steppes'.format(str(Path.home()))
-GAME_SETTINGS_FILENAME = 'settings.ini'
-
-""" Create game config first! """
-CFG_PATH = {"game_config_path": "{0}/{1}".format(GAME_CFG_DIR, GAME_SETTINGS_FILENAME)}
 
 
 class LevelOne:
 
     def __init__(self):
+        self.game_settings = base.game_settings
+        self.game_dir = base.game_dir
+        self.game_cfg = base.game_cfg
+        self.game_cfg_dir = base.game_cfg_dir
+        self.game_settings_filename = base.game_settings_filename
+        self.cfg_path = {"game_config_path": "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
         self.loader = base.loader
+
         self.node_path = NodePath()
         self.scene_one = SceneOne()
         self.world = World()
@@ -67,7 +61,6 @@ class LevelOne:
         self.pos_z = 0.0
 
     def load_new_game(self):
-
         render.find("**/Korlan").removeNode()
         render.find("**/Sky").removeNode()
         render.find("**/Grass").removeNode()
@@ -75,73 +68,72 @@ class LevelOne:
         render.find("**/Ground").removeNode()
         render.find("**/Mountains").removeNode()
 
-        self.loader.unloadModel('{0}/Assets/Models/Korlan/Korlan.egg'.format(GAME_DIR))
-        self.loader.unloadModel('{0}/Assets/Levels/Terrain/sky.egg'.format(GAME_DIR))
-        self.loader.unloadModel('{0}/Assets/Levels/Terrain/tress_grass.egg'.format(GAME_DIR))
-        self.loader.unloadModel('{0}/Assets/Levels/Environment/Nomad house/Nomad_house.egg'.format(GAME_DIR))
-        self.loader.unloadModel('{0}/Assets/Levels/Terrain/ground.egg'.format(GAME_DIR))
-        self.loader.unloadModel('{0}/Assets/Levels/Terrain/mountains.egg'.format(GAME_DIR))
+        self.loader.unloadModel('{0}/Assets/Models/Korlan/Korlan.egg'.format(self.game_dir))
+        self.loader.unloadModel('{0}/Assets/Levels/Terrain/sky.egg'.format(self.game_dir))
+        self.loader.unloadModel('{0}/Assets/Levels/Terrain/tress_grass.egg'.format(self.game_dir))
+        self.loader.unloadModel('{0}/Assets/Levels/Environment/Nomad house/Nomad_house.egg'.format(self.game_dir))
+        self.loader.unloadModel('{0}/Assets/Levels/Terrain/ground.egg'.format(self.game_dir))
+        self.loader.unloadModel('{0}/Assets/Levels/Terrain/mountains.egg'.format(self.game_dir))
 
-        if isfile("{0}/{1}".format(GAME_CFG_DIR,
-                                   GAME_SETTINGS_FILENAME)):
+        if isfile("{0}/{1}".format(self.game_cfg_dir,
+                                   self.game_settings_filename)):
 
             try:
-                GAME_SETTINGS.read("{}/{}".format(GAME_CFG_DIR,
-                                                  GAME_SETTINGS_FILENAME))
-                self.player_settings.set_player(GAME_SETTINGS['Main']['player'])
+                self.game_settings.read("{}/{}".format(self.game_cfg_dir,
+                                                       self.game_settings_filename))
+                self.player_settings.set_player(self.game_settings['Main']['player'])
             except configparser.MissingSectionHeaderError:
                 sys_exit("\nFile contains no section headers. Exiting...")
-                sys_exit("\nFile: {0}/{1}".format(GAME_CFG_DIR,
-                                                  GAME_SETTINGS_FILENAME))
+                sys_exit("\nFile: {0}/{1}".format(self.game_cfg_dir,
+                                                  self.game_settings_filename))
 
         """ Assets """
         self.scene_one.env_load('Assets/Levels/Terrain/sky.egg',
-                                GAME_DIR,
-                                GAME_SETTINGS,
+                                self.game_dir,
+                                self.game_settings,
                                 "GAME_MODE",
                                 render,
                                 "Sky",
                                 [0.0, 10.0, self.pos_z], [0, 0, 0], [1.25, 1.25, 1.25], 'skybox')
 
         self.scene_one.asset_load('Assets/Levels/Terrain/tress_grass.egg',
-                                  GAME_DIR,
+                                  self.game_dir,
                                   "GAME_MODE",
-                                  GAME_SETTINGS,
+                                  self.game_settings,
                                   render,
                                   "Grass",
                                   [20.0, 10.0, self.pos_z], [0, 0, 0], [1.25, 1.25, 1.25])
 
         self.scene_one.asset_load('Assets/Levels/Environment/Nomad house/Nomad_house.egg',
-                                  GAME_DIR,
+                                  self.game_dir,
                                   "GAME_MODE",
-                                  GAME_SETTINGS,
+                                  self.game_settings,
                                   render,
                                   "Nomad_house",
                                   [0.0, 20.0, self.pos_z], [65, 0, 0], [1.25, 1.25, 1.25])
 
         self.scene_one.env_load('Assets/Levels/Terrain/ground.egg',
-                                GAME_DIR,
+                                self.game_dir,
                                 "GAME_MODE",
-                                GAME_SETTINGS,
+                                self.game_settings,
                                 render,
                                 "Ground",
                                 [0.0, 10.0, self.pos_z], [0, 0, 0], [1.25, 1.25, 1.25], 'ground')
 
         self.scene_one.env_load('Assets/Levels/Terrain/mountains.egg',
-                                GAME_DIR,
+                                self.game_dir,
                                 "GAME_MODE",
-                                GAME_SETTINGS,
+                                self.game_settings,
                                 render,
                                 "Mountains",
                                 [0.0, 20.0, self.pos_z], [0, 0, 0], [1.25, 1.25, 1.25], 'mountains')
 
         self.korlan.set_character_game("game",
-                                       GAME_SETTINGS,
+                                       self.game_settings,
                                        "Korlan",
                                        [0.0, 8.0, self.pos_z], [0, 0, 0], [1.25, 1.25, 1.25],
-                                       GAME_DIR,
-                                       self.player_settings.set_player_path(GAME_DIR),
-                                       CFG_PATH,
+                                       self.game_dir,
+                                       self.player_settings.set_player_path(self.game_dir),
+                                       self.cfg_path,
                                        render,
                                        "Korlan-Walking.egg")
-

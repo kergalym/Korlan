@@ -121,7 +121,7 @@ class Korlan:
                 self.korlan.setP(self.korlan, self.rot_p)
                 self.korlan.setR(self.korlan, self.rot_r)
                 self.korlan.loop(anim)
-                self.korlan.setPlayRate(8.0, anim)
+                self.korlan.setPlayRate(2.0, anim)
 
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 set_tex_transparency(self.korlan)
