@@ -31,7 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
 from panda3d.core import *
-from Engine.Models.Player.korlan import Korlan
+from Engine.Actors.Player.korlan import Korlan
 from Settings.Player.korlan_settings import Player
 from Engine.Scenes.scene_01 import SceneOne
 from Engine.World import World
@@ -68,7 +68,7 @@ class LevelOne:
         render.find("**/Ground").removeNode()
         render.find("**/Mountains").removeNode()
 
-        self.loader.unloadModel('{0}/Assets/Models/Korlan/Korlan.egg'.format(self.game_dir))
+        self.loader.unloadModel('{0}/Assets/Actors/Korlan/Korlan.egg'.format(self.game_dir))
         self.loader.unloadModel('{0}/Assets/Levels/Terrain/sky.egg'.format(self.game_dir))
         self.loader.unloadModel('{0}/Assets/Levels/Terrain/tress_grass.egg'.format(self.game_dir))
         self.loader.unloadModel('{0}/Assets/Levels/Environment/Nomad house/Nomad_house.egg'.format(self.game_dir))
@@ -89,51 +89,32 @@ class LevelOne:
 
         """ Assets """
         self.scene_one.env_load('Assets/Levels/Terrain/sky.egg',
-                                self.game_dir,
-                                self.game_settings,
                                 "GAME_MODE",
-                                render,
                                 "Sky",
                                 [0.0, 10.0, self.pos_z], [0, 0, 0], [1.25, 1.25, 1.25], 'skybox')
 
         self.scene_one.asset_load('Assets/Levels/Terrain/tress_grass.egg',
-                                  self.game_dir,
                                   "GAME_MODE",
-                                  self.game_settings,
-                                  render,
                                   "Grass",
                                   [20.0, 10.0, self.pos_z], [0, 0, 0], [1.25, 1.25, 1.25])
 
         self.scene_one.asset_load('Assets/Levels/Environment/Nomad house/Nomad_house.egg',
-                                  self.game_dir,
                                   "GAME_MODE",
-                                  self.game_settings,
-                                  render,
                                   "Nomad_house",
                                   [0.0, 20.0, self.pos_z], [65, 0, 0], [1.25, 1.25, 1.25])
 
         self.scene_one.env_load('Assets/Levels/Terrain/ground.egg',
-                                self.game_dir,
                                 "GAME_MODE",
-                                self.game_settings,
-                                render,
                                 "Ground",
                                 [0.0, 10.0, self.pos_z], [0, 0, 0], [1.25, 1.25, 1.25], 'ground')
 
         self.scene_one.env_load('Assets/Levels/Terrain/mountains.egg',
-                                self.game_dir,
                                 "GAME_MODE",
-                                self.game_settings,
-                                render,
                                 "Mountains",
                                 [0.0, 20.0, self.pos_z], [0, 0, 0], [1.25, 1.25, 1.25], 'mountains')
 
         self.korlan.set_character_game("game",
-                                       self.game_settings,
                                        "Korlan",
                                        [0.0, 8.0, self.pos_z], [0, 0, 0], [1.25, 1.25, 1.25],
-                                       self.game_dir,
                                        self.player_settings.set_player_path(self.game_dir),
-                                       self.cfg_path,
-                                       render,
                                        "Korlan-Walking.egg")

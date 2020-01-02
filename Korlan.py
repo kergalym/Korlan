@@ -33,13 +33,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 import panda3d.core as p3d
 from panda3d.core import WindowProperties
-from direct.showbase.ShowBase import ShowBase
+from wecs.panda3d import ECSShowBase as ShowBase
 from panda3d.core import TextNode
 from pathlib import Path
-from os import path
-from Engine.Models.Player.korlan import Korlan
+from Engine.Actors.Player.korlan import Korlan
 from Engine.Scenes.scene_01 import SceneOne
-from Engine.Scenes.level_one import LevelOne
 from Settings.Player.korlan_settings import Player
 from Settings.Sound.sound import Sound
 from Settings.UI.menu import Menu
@@ -275,57 +273,34 @@ class Main(ShowBase):
         """ Assets """
         # Test scene
         self.scene_one.env_load('Assets/Levels/Terrain/sky.egg',
-                                self.game_dir,
                                 "MENU_MODE",
-                                self.game_settings,
-                                self.render,
                                 "Sky",
                                 [0.0, 10.0, -1.09], [0, 0, 0], [1.25, 1.25, 1.25], 'skybox')
 
         self.scene_one.asset_load('Assets/Levels/Terrain/tress_grass.egg',
-                                  self.game_dir,
                                   "MENU_MODE",
-                                  self.game_settings,
-                                  self.render,
                                   "Grass",
                                   [20.0, 10.0, -1.09], [0, 0, 0], [1.25, 1.25, 1.25])
 
         self.scene_one.asset_load('Assets/Levels/Environment/Nomad house/Nomad_house.egg',
-                                  self.game_dir,
                                   "MENU_MODE",
-                                  self.game_settings,
-                                  self.render,
                                   "Nomad_house",
                                   [1.0, 20.0, -1.09], [65, 0, 0], [1.25, 1.25, 1.25])
 
         self.scene_one.env_load('Assets/Levels/Terrain/ground.egg',
-                                self.game_dir,
                                 "MENU_MODE",
-                                self.game_settings,
-                                self.render,
                                 "Ground",
                                 [0.0, 10.0, -1.09], [0, 0, 0], [1.25, 1.25, 1.25], 'ground')
 
         self.scene_one.env_load('Assets/Levels/Terrain/mountains.egg',
-                                self.game_dir,
                                 "MENU_MODE",
-                                self.game_settings,
-                                self.render,
                                 "Mountains",
                                 [0.0, 20.0, -1.09], [0, 0, 0], [1.25, 1.25, 1.25], 'mountains')
 
         self.korlan.set_character("menu",
-                                  self.game_settings,
                                   "Korlan",
-                                  self.game_dir,
                                   self.player_settings.set_player_path(self.game_dir),
-                                  self.cfg_path,
-                                  self.render,
                                   "Korlan-Walking.egg")
-
-        # self.cam.reparentTo(self.render)
-        # self.cam.setPos(-8.0, -0.0, 2.0)
-        # self.cam.setHpr(318.0, -2.0, 0.0)
 
 
 app = Main()

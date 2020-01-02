@@ -45,14 +45,14 @@ class Player:
     def set_player_path(self, path):
         if path:
             self.path = path
-            player_asset_path = "{0}/Assets/Models/Korlan/{1}.egg".format(self.path,
+            player_asset_path = "{0}/Assets/Actors/Korlan/{1}.egg".format(self.path,
                                                                           self.set_player(self.player_asset_name))
             if exists(player_asset_path) and isfile(player_asset_path):
                 return player_asset_path
             else:
                 logging.critical("\nI'm trying to load Korlan player, but there is no suitable player asset. "
                                  "\nNo suitable player asset found!"
-                                 "\nPlayer path: {0}/Assets/Models/Korlan/".format(self.path))
+                                 "\nPlayer path: {0}/Assets/Actors/Korlan/".format(self.path))
                 sys_exit("\nSomething is getting wrong. Please, check the game log first")
 
     def set_player(self, player_asset_name):

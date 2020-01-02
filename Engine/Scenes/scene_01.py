@@ -30,10 +30,8 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 from panda3d.core import *
-from direct.task.TaskManagerGlobal import taskMgr
-
 from Engine.Collisions import Collisions
-from Engine.Models.Player.korlan import Korlan
+from Engine.Actors.Player.korlan import Korlan
 from Settings.Player.korlan_settings import Player
 from Engine import set_tex_transparency
 from Engine.World import World
@@ -46,7 +44,6 @@ class SceneOne:
         self.loader = None
         self.game_settings = None
         self.render_type = None
-        self.render = None
         self.render_pipeline = None
         self.model = None
         self.axis = None
@@ -62,21 +59,24 @@ class SceneOne:
         self.korlan = Korlan()
         self.player_settings = Player()
         self.base = base
+        self.render = render
+        self.game_settings = base.game_settings
+        self.game_dir = base.game_dir
+        self.game_cfg = base.game_cfg
+        self.game_cfg_dir = base.game_cfg_dir
+        self.game_settings_filename = base.game_settings_filename
+        self.cfg_path = {"game_config_path": "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
 
-    def asset_load(self, path, parent_path, mode, game_settings, render, model, axis, rotation, scale):
+    def asset_load(self, path, mode, model, axis, rotation, scale):
         if isinstance(mode, str) and mode == "MENU_MODE":
             if (isinstance(path, str)
-                    and game_settings
-                    and parent_path
-                    and render
                     and isinstance(model, str)
                     and isinstance(axis, list)
                     and isinstance(rotation, list)
                     and isinstance(scale, list)):
 
-                self.path = "{0}{1}".format(parent_path, path)
-                self.game_settings = game_settings
-                self.render = render
+                self.path = "{0}{1}".format(self.game_dir, path)
+                self.game_settings = self.game_settings
                 self.model = model
                 pos_x = axis[0]
                 pos_y = axis[1]
@@ -117,16 +117,12 @@ class SceneOne:
 
         elif isinstance(mode, str) and mode == "GAME_MODE":
             if (isinstance(path, str)
-                    and game_settings
-                    and parent_path
-                    and render
                     and isinstance(model, str)
                     and isinstance(axis, list)
                     and isinstance(rotation, list)
                     and isinstance(scale, list)):
 
-                self.path = "{0}{1}".format(parent_path, path)
-                self.game_settings = game_settings
+                self.path = "{0}{1}".format(self.game_dir, path)
                 self.render = render
                 self.model = model
                 pos_x = axis[0]
@@ -166,20 +162,16 @@ class SceneOne:
 
                 return scene
 
-    def env_load(self, path, parent_path, mode, game_settings, render, model, axis, rotation, scale, type):
+    def env_load(self, path, mode, model, axis, rotation, scale, type):
         if isinstance(mode, str) and mode == "MENU_MODE":
             if (isinstance(path, str)
-                    and game_settings
-                    and parent_path
-                    and render
                     and isinstance(model, str)
                     and isinstance(axis, list)
                     and isinstance(rotation, list)
                     and isinstance(scale, list)
                     and isinstance(type, str)):
 
-                self.path = "{}{}".format(parent_path, path)
-                self.game_settings = game_settings
+                self.path = "{}{}".format(self.game_dir, path)
                 self.render = render
                 self.model = model
                 pos_x = axis[0]
@@ -244,17 +236,13 @@ class SceneOne:
 
         elif isinstance(mode, str) and mode == "GAME_MODE":
             if (isinstance(path, str)
-                    and game_settings
-                    and parent_path
-                    and render
                     and isinstance(model, str)
                     and isinstance(axis, list)
                     and isinstance(rotation, list)
                     and isinstance(scale, list)
                     and isinstance(type, str)):
                 # Make them visible for other class members
-                self.path = "{0}{1}".format(parent_path, path)
-                self.game_settings = game_settings
+                self.path = "{0}{1}".format(self.game_dir, path)
                 self.render = render
                 self.model = model
                 pos_x = axis[0]

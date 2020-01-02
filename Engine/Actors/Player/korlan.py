@@ -41,7 +41,7 @@ from direct.task.TaskManagerGlobal import taskMgr
 from Engine.World import World
 from Settings.Input.keyboard import Keyboard
 from Settings.Input.mouse import Mouse
-from Engine.Models.Player.player_movement import Movement
+from Engine.Actors.Player.player_movement import Movement
 
 
 class Korlan:
@@ -58,6 +58,15 @@ class Korlan:
         self.rot_r = 0
         self.korlan = None
         self.base = base
+        self.render = render
+
+        self.game_settings = base.game_settings
+        self.game_dir = base.game_dir
+        self.game_cfg = base.game_cfg
+        self.game_cfg_dir = base.game_cfg_dir
+        self.game_settings_filename = base.game_settings_filename
+        self.cfg_path = {"game_config_path": "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
+
         self.taskMgr = taskMgr
         self.kbd = Keyboard()
         self.mouse = Mouse()
@@ -65,54 +74,49 @@ class Korlan:
         self.world = World()
         self.movement = Movement()
 
-    def set_character(self, render_type, game_settings, model_dir,
-                      game_dir, player_path, cfg_path, render, anim):
+    def set_character(self, render_type, model_dir, player_path, anim):
 
         # Disable the camera trackball controls.
         self.base.disableMouse()
         props = WindowProperties()
         props.setCursorHidden(False)
-        base.win.requestProperties(props)
+        self.base.win.requestProperties(props)
 
         if (isinstance(player_path, str)
-                and game_settings
                 and isinstance(model_dir, str)
-                and game_dir
                 and isinstance(render_type, str)
-                and isinstance(cfg_path, str)
                 and anim
-                and isinstance(anim, str)
-                and render):
+                and isinstance(anim, str)):
 
             if render_type == 'menu':
 
                 try:
-                    game_settings.read(cfg_path)
-                    self.pos_x = float(game_settings['Debug']['player_pos_x'])
-                    self.pos_y = float(game_settings['Debug']['player_pos_y'])
-                    self.pos_z = float(game_settings['Debug']['player_pos_z'])
-                    self.rot_h = float(game_settings['Debug']['player_rot_h'])
-                    self.rot_p = float(game_settings['Debug']['player_rot_p'])
-                    self.rot_r = float(game_settings['Debug']['player_rot_r'])
+                    self.game_settings.read(self.cfg_path)
+                    self.pos_x = float(self.game_settings['Debug']['player_pos_x'])
+                    self.pos_y = float(self.game_settings['Debug']['player_pos_y'])
+                    self.pos_z = float(self.game_settings['Debug']['player_pos_z'])
+                    self.rot_h = float(self.game_settings['Debug']['player_rot_h'])
+                    self.rot_p = float(self.game_settings['Debug']['player_rot_p'])
+                    self.rot_r = float(self.game_settings['Debug']['player_rot_r'])
                 except KeyError:
-                    game_settings.read("{}/Korlan/Configs/default_config.ini".format(str(Path.home())))
-                    self.pos_x = float(game_settings['Debug']['player_pos_x'])
-                    self.pos_y = float(game_settings['Debug']['player_pos_y'])
-                    self.pos_z = float(game_settings['Debug']['player_pos_z'])
-                    self.rot_h = float(game_settings['Debug']['player_rot_h'])
-                    self.rot_p = float(game_settings['Debug']['player_rot_p'])
-                    self.rot_r = float(game_settings['Debug']['player_rot_r'])
+                    self.game_settings.read("{}/Korlan/Configs/default_config.ini".format(str(Path.home())))
+                    self.pos_x = float(self.game_settings['Debug']['player_pos_x'])
+                    self.pos_y = float(self.game_settings['Debug']['player_pos_y'])
+                    self.pos_z = float(self.game_settings['Debug']['player_pos_z'])
+                    self.rot_h = float(self.game_settings['Debug']['player_rot_h'])
+                    self.rot_p = float(self.game_settings['Debug']['player_rot_p'])
+                    self.rot_r = float(self.game_settings['Debug']['player_rot_r'])
                 except ValueError:
-                    game_settings.read("{}/Korlan/Configs/default_config.ini".format(str(Path.home())))
-                    self.pos_x = float(game_settings['Debug']['player_pos_x'])
-                    self.pos_y = float(game_settings['Debug']['player_pos_y'])
-                    self.pos_z = float(game_settings['Debug']['player_pos_z'])
-                    self.rot_h = float(game_settings['Debug']['player_rot_h'])
-                    self.rot_p = float(game_settings['Debug']['player_rot_p'])
-                    self.rot_r = float(game_settings['Debug']['player_rot_r'])
+                    self.game_settings.read("{}/Korlan/Configs/default_config.ini".format(str(Path.home())))
+                    self.pos_x = float(self.game_settings['Debug']['player_pos_x'])
+                    self.pos_y = float(self.game_settings['Debug']['player_pos_y'])
+                    self.pos_z = float(self.game_settings['Debug']['player_pos_z'])
+                    self.rot_h = float(self.game_settings['Debug']['player_rot_h'])
+                    self.rot_p = float(self.game_settings['Debug']['player_rot_p'])
+                    self.rot_r = float(self.game_settings['Debug']['player_rot_r'])
 
                 self.korlan = Actor(player_path,
-                                    {anim: "{0}/Assets/Models/{1}/{2}".format(game_dir, model_dir, anim)})
+                                    {anim: "{0}/Assets/Actors/{1}/{2}".format(self.game_dir, model_dir, anim)})
 
                 self.korlan.setName(model_dir)
                 self.korlan.setScale(self.korlan, self.scale_x, self.scale_y, self.scale_z)
@@ -129,20 +133,19 @@ class Korlan:
                 self.korlan.reparentTo(render)
 
                 # Set lights and Shadows
-                if game_settings['Main']['postprocessing'] == 'off':
-                    # self.world.set_shadows(self.korlan, render)
-                    self.world.set_lighting(render, self.korlan)
+                if self.game_settings['Main']['postprocessing'] == 'off':
+                    # self.world.set_shadows(self.korlan, self.render)
+                    self.world.set_lighting(self.render, self.korlan)
                 # self.world.set_ssao(self.korlan)
 
-                if game_settings['Debug']['set_debug_mode'] == "YES":
-                    render.analyze()
-                    render.explore()
+                if self.game_settings['Debug']['set_debug_mode'] == "YES":
+                    self.render.analyze()
+                    self.render.explore()
 
                 self.col.set_inter_collision(self.korlan)
 
-    def set_character_game(self, render_type, game_settings, model_dir,
-                           axis, rotation, scale, game_dir,
-                           player_path, cfg_path, render, anim):
+    def set_character_game(self, render_type, model_dir,
+                           axis, rotation, scale, player_path, anim):
 
         wp = WindowProperties()
         wp.setCursorHidden(True)
@@ -169,9 +172,7 @@ class Korlan:
                 and isinstance(axis, list)
                 and isinstance(rotation, list)
                 and isinstance(scale, list)
-                and isinstance(game_dir, str)
                 and isinstance(render_type, str)
-                and isinstance(cfg_path, dict)
                 and isinstance(anim, str)
                 and render):
             self.pos_x = axis[0]
@@ -185,7 +186,7 @@ class Korlan:
             self.scale_z = scale[2]
 
             self.korlan = Actor(player_path,
-                                {anim: "{0}/Assets/Models/{1}/{2}".format(game_dir, model_dir, anim)})
+                                {anim: "{0}/Assets/Actors/{1}/{2}".format(self.game_dir, model_dir, anim)})
 
             self.korlan.setName(model_dir)
             self.korlan.setScale(self.korlan, self.scale_x, self.scale_y, self.scale_z)
@@ -201,14 +202,14 @@ class Korlan:
             self.korlan.reparentTo(render)
 
             # Set lights and Shadows
-            if game_settings['Main']['postprocessing'] == 'off':
-                # self.world.set_shadows(self.korlan, render)
+            if self.game_settings['Main']['postprocessing'] == 'off':
+                # self.world.set_shadows(self.korlan, self.render)
                 self.world.set_lighting(render, self.korlan)
             # self.world.set_ssao(self.korlan)
 
-            if game_settings['Debug']['set_debug_mode'] == "YES":
-                render.analyze()
-                render.explore()
+            if self.game_settings['Debug']['set_debug_mode'] == "YES":
+                self.render.analyze()
+                self.render.explore()
 
             taskMgr.add(self.mouse.mouse_look_cam,
                         "camera-task",
