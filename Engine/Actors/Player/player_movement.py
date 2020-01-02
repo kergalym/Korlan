@@ -43,6 +43,7 @@ class Movement:
     def __init__(self):
         self.isMoving = False
         self.base = base
+        self.render = render
         self.korlan = None
         self.taskMgr = taskMgr
         self.kbd = Keyboard()
@@ -134,13 +135,13 @@ class Movement:
             camdist = 5.0
 
         # We would have to call traverse() to check for collisions.
-        self.col.cTrav.traverse(render)
+        self.col.cTrav.traverse(self.render)
 
         # Adjust player's Z coordinate.  If player ray hit terrain,
         # update his Z. If it hit anything else, or didn't hit anything, put
         # him back where he was last frame.
         entries = list(self.col.korlanGroundHandler.getEntries())
-        entries.sort(key=lambda x: x.getSurfacePoint(render).getZ())
+        entries.sort(key=lambda x: x.getSurfacePoint(self.render).getZ())
 
         if len(entries) > 0 and entries[0].getIntoNode().getName() == 'mountain':
             player.setZ(0.0)
@@ -151,10 +152,10 @@ class Movement:
         # or two feet above player, whichever is greater.
 
         entries = list(self.col.camGroundHandler.getEntries())
-        entries.sort(key=lambda x: x.getSurfacePoint(render).getZ())
+        entries.sort(key=lambda x: x.getSurfacePoint(self.render).getZ())
 
         if len(entries) > 0 and entries[0].getIntoNode().getName() == 'mountain':
-            self.base.camera.setZ(entries[0].getSurfacePoint(render).getZ() + 1.0)
+            self.base.camera.setZ(entries[0].getSurfacePoint(self.render).getZ() + 1.0)
         if self.base.camera.getZ() < player.getZ() + 2.0:
             self.base.camera.setZ(player.getZ() + 2.0)
 
