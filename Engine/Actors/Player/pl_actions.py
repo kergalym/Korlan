@@ -83,7 +83,6 @@ class Actions:
 
         # If the camera is too far from player, move it closer.
         # If the camera is too close to player, move it farther.
-
         camvec = player.getPos() - self.base.camera.getPos()
         camvec.setZ(0)
         camdist = camvec.length()
