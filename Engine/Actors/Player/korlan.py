@@ -41,7 +41,7 @@ from direct.task.TaskManagerGlobal import taskMgr
 from Engine.World import World
 from Settings.Input.keyboard import Keyboard
 from Settings.Input.mouse import Mouse
-from Engine.Actors.Player.player_movement import Movement
+from Engine.Actors.Player.player_actions import Actions
 
 
 class Korlan:
@@ -72,7 +72,7 @@ class Korlan:
         self.mouse = Mouse()
         self.col = Collisions()
         self.world = World()
-        self.movement = Movement()
+        self.act = Actions()
 
     def set_character(self, render_type, model_dir, player_path, anim):
 
@@ -116,7 +116,7 @@ class Korlan:
                     self.rot_r = float(self.game_settings['Debug']['player_rot_r'])
 
                 self.korlan = Actor(player_path,
-                                    {anim: "{0}/Assets/Actors/{1}/{2}".format(self.game_dir, model_dir, anim)})
+                                    {anim: "{0}/Assets/Actors/Animations/{1}".format(self.game_dir, anim)})
 
                 self.korlan.setName(model_dir)
                 self.korlan.setScale(self.korlan, self.scale_x, self.scale_y, self.scale_z)
@@ -125,7 +125,7 @@ class Korlan:
                 self.korlan.setP(self.korlan, self.rot_p)
                 self.korlan.setR(self.korlan, self.rot_r)
                 self.korlan.loop(anim)
-                self.korlan.setPlayRate(2.0, anim)
+                self.korlan.setPlayRate(1.0, anim)
 
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 set_tex_transparency(self.korlan)
@@ -173,7 +173,7 @@ class Korlan:
                 and isinstance(rotation, list)
                 and isinstance(scale, list)
                 and isinstance(render_type, str)
-                and isinstance(anim, str)
+                and isinstance(anim, list)
                 and render):
             self.pos_x = axis[0]
             self.pos_y = axis[1]
@@ -185,8 +185,15 @@ class Korlan:
             self.scale_y = scale[1]
             self.scale_z = scale[2]
 
-            self.korlan = Actor(player_path,
-                                {anim: "{0}/Assets/Actors/{1}/{2}".format(self.game_dir, model_dir, anim)})
+            # Make animations dict containing full path and pass it to Actor
+            anims = {}
+            anim_values = {}
+            anim_path = "{0}/Assets/Actors/Animations/".format(self.game_dir)
+            for a in anim:
+                anims[a] = "{0}{1}".format(anim_path, a)
+                anim_values[a] = a
+
+            self.korlan = Actor(player_path, anims)
 
             self.korlan.setName(model_dir)
             self.korlan.setScale(self.korlan, self.scale_x, self.scale_y, self.scale_z)
@@ -215,4 +222,4 @@ class Korlan:
                         "camera-task",
                         appendTask=True)
 
-            self.movement.movement_init(self.korlan, anim)
+            self.act.actions_init(self.korlan, anim_values)

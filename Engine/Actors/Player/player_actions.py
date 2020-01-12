@@ -38,10 +38,11 @@ from Settings.Input.keyboard import Keyboard
 from Settings.Input.mouse import Mouse
 
 
-class Movement:
+class Actions:
 
     def __init__(self):
-        self.isMoving = False
+        self.is_moving = False
+        self.is_hitting = False
         self.base = base
         self.render = render
         self.korlan = None
@@ -51,16 +52,16 @@ class Movement:
         self.col = Collisions()
         self.world = World()
 
-    def movement_init(self, player, anim):
+    def actions_init(self, player, anim):
         if (player
                 and anim
-                and isinstance(anim, str)):
+                and isinstance(anim, dict)):
 
             # self.mouse.set_floater(self.korlan)
 
             self.kbd.kbd_init()
 
-            taskMgr.add(self.player_movement, "moveTask",
+            taskMgr.add(self.player_actions, "moveTask",
                         extraArgs=[player, anim],
                         appendTask=True)
 
@@ -72,7 +73,7 @@ class Movement:
             # Accepts arrow keys to move either the player or the menu cursor,
             # Also deals with grid checking and collision detection
 
-    def player_movement(self, player, anim, task):
+    def player_actions(self, player, anim, task):
         # Get the time that elapsed since last frame.  We multiply this with
         # the desired speed in order to find out with which distance to move
         # in order to achieve that desired speed.
@@ -110,15 +111,27 @@ class Movement:
                 or self.kbd.keymap["backward"]
                 or self.kbd.keymap["left"]
                 or self.kbd.keymap["right"]):
-            if self.isMoving is False:
-                player.loop(anim)
-                player.setPlayRate(2.0, anim)
-                self.isMoving = True
+            if self.is_moving is False:
+                player.loop(anim["Korlan-Walking.egg"])
+                player.setPlayRate(1.0, anim["Korlan-Walking.egg"])
+                self.is_moving = True
         else:
-            if self.isMoving:
+            if self.is_moving:
                 player.stop()
-                player.pose(anim, 0)
-                self.isMoving = False
+                player.pose(anim["Korlan-Walking.egg"], 0)
+                self.is_moving = False
+
+        # If the player is moving, loop the kick animation.
+        if self.kbd.keymap['attack']:
+            if self.is_hitting is False:
+                player.play(anim["Korlan-Kicking.egg"])
+                player.setPlayRate(1.0, anim["Korlan-Kicking.egg"])
+            self.is_hitting = True
+        else:
+            if self.is_hitting:
+                player.stop()
+                player.pose(anim["Korlan-Kicking.egg"], 0)
+                self.is_hitting = False
 
         # If the camera is too far from player, move it closer.
         # If the camera is too close to player, move it farther.

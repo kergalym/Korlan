@@ -36,6 +36,7 @@ from Settings.Player.korlan_settings import Player
 from Engine.Scenes.scene_01 import SceneOne
 from Engine.World import World
 from os.path import isfile
+from os import listdir
 import configparser
 from sys import exit as sys_exit
 
@@ -59,6 +60,7 @@ class LevelOne:
         self.pos_x = None
         self.pos_y = None
         self.pos_z = 0.0
+        self.anim = None
 
     def load_new_game(self):
         render.find("**/Korlan").removeNode()
@@ -113,8 +115,10 @@ class LevelOne:
                                 "Mountains",
                                 [0.0, 20.0, self.pos_z], [0, 0, 0], [1.25, 1.25, 1.25], 'mountains')
 
+        self.anim = listdir('{0}/Assets/Actors/Animations/'.format(self.game_dir))
+
         self.korlan.set_character_game("game",
                                        "Korlan",
                                        [0.0, 8.0, self.pos_z], [0, 0, 0], [1.25, 1.25, 1.25],
                                        self.player_settings.set_player_path(self.game_dir),
-                                       "Korlan-Walking.egg")
+                                       self.anim)
