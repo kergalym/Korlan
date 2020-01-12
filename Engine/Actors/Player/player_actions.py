@@ -104,34 +104,8 @@ class Actions:
         if self.kbd.keymap["backward"]:
             player.setY(player, speed * dt)
 
-        # If the player is moving, loop the run animation.
-        # If it is standing still, stop the animation.
-
-        if (self.kbd.keymap["forward"]
-                or self.kbd.keymap["backward"]
-                or self.kbd.keymap["left"]
-                or self.kbd.keymap["right"]):
-            if self.is_moving is False:
-                player.loop(anim["Korlan-Walking.egg"])
-                player.setPlayRate(1.0, anim["Korlan-Walking.egg"])
-                self.is_moving = True
-        else:
-            if self.is_moving:
-                player.stop()
-                player.pose(anim["Korlan-Walking.egg"], 0)
-                self.is_moving = False
-
-        # If the player is moving, loop the kick animation.
-        if self.kbd.keymap['attack']:
-            if self.is_hitting is False:
-                player.play(anim["Korlan-Kicking.egg"])
-                player.setPlayRate(1.0, anim["Korlan-Kicking.egg"])
-            self.is_hitting = True
-        else:
-            if self.is_hitting:
-                player.stop()
-                player.pose(anim["Korlan-Kicking.egg"], 0)
-                self.is_hitting = False
+        # Here we accept keys
+        self.key_events(player, anim)
 
         # If the camera is too far from player, move it closer.
         # If the camera is too close to player, move it farther.
@@ -179,3 +153,33 @@ class Actions:
         self.base.camera.lookAt(self.mouse.set_floater(player))
 
         return task.cont
+
+    def key_events(self, player, anim):
+        if player and isinstance(anim, dict):
+            # If the player is moving, loop the run animation.
+            # If it is standing still, stop the animation.
+            if (self.kbd.keymap["forward"]
+                    or self.kbd.keymap["backward"]
+                    or self.kbd.keymap["left"]
+                    or self.kbd.keymap["right"]):
+                if self.is_moving is False:
+                    player.loop(anim["Korlan-Walking.egg"])
+                    player.setPlayRate(1.0, anim["Korlan-Walking.egg"])
+                    self.is_moving = True
+            else:
+                if self.is_moving:
+                    player.stop()
+                    player.pose(anim["Korlan-Walking.egg"], 0)
+                    self.is_moving = False
+
+            # If the player is moving, loop the kick animation.
+            if self.kbd.keymap['attack']:
+                if self.is_hitting is False:
+                    player.play(anim["Korlan-Kicking.egg"])
+                    player.setPlayRate(1.0, anim["Korlan-Kicking.egg"])
+                self.is_hitting = True
+            else:
+                if self.is_hitting:
+                    player.stop()
+                    player.pose(anim["Korlan-Kicking.egg"], 0)
+                    self.is_hitting = False
