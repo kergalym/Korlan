@@ -57,9 +57,8 @@ class Actions:
                 and anim
                 and isinstance(anim, dict)):
 
-            # self.mouse.set_floater(self.korlan)
-
             self.kbd.kbd_init()
+            self.kbd.kbd_init_released()
 
             taskMgr.add(self.player_init, "moveTask",
                         extraArgs=[player, anim],

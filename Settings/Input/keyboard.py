@@ -71,6 +71,7 @@ class Keyboard:
         self.base.accept("arrow_right", self.set_key, ["cam-right", True])
         self.base.accept(self.k_attack_lo, self.set_key, ['attack', True])
 
+    def kbd_init_released(self):
         # Define released keys
         self.base.accept("{0}-up".format(self.k_left_lo), self.set_key, ['left', False])
         self.base.accept("{0}-up".format(self.k_right_lo), self.set_key, ['right', False])
