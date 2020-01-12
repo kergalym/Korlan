@@ -41,7 +41,7 @@ from direct.task.TaskManagerGlobal import taskMgr
 from Engine.World import World
 from Settings.Input.keyboard import Keyboard
 from Settings.Input.mouse import Mouse
-from Engine.Actors.Player.player_actions import Actions
+from Engine.Actors.Player.pl_actions import Actions
 
 
 class Korlan:

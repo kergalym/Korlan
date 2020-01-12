@@ -61,7 +61,7 @@ class Actions:
 
             self.kbd.kbd_init()
 
-            taskMgr.add(self.player_actions, "moveTask",
+            taskMgr.add(self.player_init, "moveTask",
                         extraArgs=[player, anim],
                         appendTask=True)
 
@@ -73,36 +73,10 @@ class Actions:
             # Accepts arrow keys to move either the player or the menu cursor,
             # Also deals with grid checking and collision detection
 
-    def player_actions(self, player, anim, task):
-        # Get the time that elapsed since last frame.  We multiply this with
-        # the desired speed in order to find out with which distance to move
-        # in order to achieve that desired speed.
-        dt = globalClock.getDt()
-
-        # If the camera-left key is pressed, move camera left.
-        # If the camera-right key is pressed, move camera right.
-        if self.kbd.keymap["cam-left"]:
-            self.base.camera.setX(self.base.camera, -20 * dt)
-        if self.kbd.keymap["cam-right"]:
-            self.base.camera.setX(self.base.camera, +20 * dt)
-
+    def player_init(self, player, anim, task):
         # Save the player initial position so that we can restore it,
         # in case he falls off the map or runs into something.
-
         startpos = player.getPos()
-
-        # If a move-key is pressed, move the player in the specified direction.
-
-        speed = 5
-
-        if self.kbd.keymap["left"]:
-            player.setH(player.getH() + 300 * dt)
-        if self.kbd.keymap["right"]:
-            player.setH(player.getH() - 300 * dt)
-        if self.kbd.keymap["forward"]:
-            player.setY(player, -speed * dt)
-        if self.kbd.keymap["backward"]:
-            player.setY(player, speed * dt)
 
         # Here we accept keys
         self.key_events(player, anim)
@@ -156,6 +130,31 @@ class Actions:
 
     def key_events(self, player, anim):
         if player and isinstance(anim, dict):
+            # Get the time that elapsed since last frame.  We multiply this with
+            # the desired speed in order to find out with which distance to move
+            # in order to achieve that desired speed.
+            dt = globalClock.getDt()
+
+            # If the camera-left key is pressed, move camera left.
+            # If the camera-right key is pressed, move camera right.
+            if self.kbd.keymap["cam-left"]:
+                self.base.camera.setX(self.base.camera, -20 * dt)
+            if self.kbd.keymap["cam-right"]:
+                self.base.camera.setX(self.base.camera, +20 * dt)
+
+            # If a move-key is pressed, move the player in the specified direction.
+
+            speed = 5
+
+            if self.kbd.keymap["left"]:
+                player.setH(player.getH() + 300 * dt)
+            if self.kbd.keymap["right"]:
+                player.setH(player.getH() - 300 * dt)
+            if self.kbd.keymap["forward"]:
+                player.setY(player, -speed * dt)
+            if self.kbd.keymap["backward"]:
+                player.setY(player, speed * dt)
+
             # If the player is moving, loop the run animation.
             # If it is standing still, stop the animation.
             if (self.kbd.keymap["forward"]
