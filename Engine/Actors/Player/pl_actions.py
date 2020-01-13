@@ -153,7 +153,7 @@ class Actions:
             if self.kbd.keymap["backward"]:
                 player.setY(player, speed * dt)
 
-            # If the player is moving, loop the run animation.
+            # If the player does action, loop the animation.
             # If it is standing still, stop the animation.
             if (self.kbd.keymap["forward"]
                     or self.kbd.keymap["backward"]
@@ -169,7 +169,17 @@ class Actions:
                     player.pose(anim["Korlan-Walking.egg"], 0)
                     self.is_moving = False
 
-            # If the player is moving, loop the kick animation.
+            if self.kbd.keymap['jump']:
+                if self.is_hitting is False:
+                    player.play(anim["Korlan-Jumping.egg"])
+                    player.setPlayRate(1.0, anim["Korlan-Jumping.egg"])
+                self.is_hitting = True
+            else:
+                if self.is_hitting:
+                    player.stop()
+                    player.pose(anim["Korlan-Jumping.egg"], 0)
+                    self.is_hitting = False
+
             if self.kbd.keymap['attack']:
                 if self.is_hitting is False:
                     player.play(anim["Korlan-Kicking.egg"])

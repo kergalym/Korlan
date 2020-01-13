@@ -406,43 +406,6 @@ class Graphics(MenuSettings):
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
 
-    def get_gfx_settings(self, data):
-        if data and self.load_settings() and isinstance(data, list):
-            loaded_settings = self.load_settings()
-
-            settings = []
-            for x in data:
-                if x['disp_res']:
-                    # TODO: check & fixme!
-                    settings = loaded_settings['Main']['disp_res']
-                elif x['fullscreen']:
-                    settings = loaded_settings['Main']['fullscreen']
-                elif x['lod']:
-                    settings = loaded_settings['Main']['lod']
-                elif x['antialiasing']:
-                    settings = loaded_settings['Main']['antialiasing']
-
-            self.set_gfx_settings(settings)
-
-    def set_gfx_settings(self, data):
-        if data and isinstance(data, list):
-            for x in data:
-                if x['disp_res']:
-                    # TODO: check & fixme!
-                    disp_res = x['disp_res'].split("x").split("x")
-                    self.props.set_fixed_size(False)
-                    self.props.setSize(str(disp_res[0]), str(disp_res[1]))  # 1920x1080 to # 1920,1080
-                elif x['fullscreen'] is 'on':
-                    self.props.set_fullscreen(x['fullscreen'])
-                elif x['fullscreen'] is 'off':
-                    self.props.set_fullscreen(x['fullscreen'])
-                elif x['lod']:
-                    self.lod.addSwitch(x)  # 50.0, 0.0
-                elif x['antialiasing'] is 'on':
-                    pass
-                elif x['antialiasing'] is 'off':
-                    pass
-
     def load_disp_res(self):
         disp = display.Display()
         scrn = disp.screen()
@@ -465,10 +428,9 @@ class Graphics(MenuSettings):
         loaded_settings = self.load_settings()
         disp_res_dict = self.load_disp_res()
         num = 0
-        for index, res in enumerate(disp_res_dict, 1):
-            if loaded_settings['Main']['disp_res'] == res:
+        for index in disp_res_dict:
+            if loaded_settings['Main']['disp_res'] == disp_res_dict[index]:
                 num = index
-
         return num
 
     def load_shadows_value(self):

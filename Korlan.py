@@ -97,8 +97,8 @@ disp_res = game_settings['Main']['disp_res']
 disp_res = disp_res.split("x")
 
 p3d.load_prc_file_data(
-    __file__,
-    'window-size {0} {1}\n'.format(disp_res[0], disp_res[1])
+    '',
+    'win-size {0} {1}\n'.format(disp_res[0], disp_res[1])
 )
 
 p3d.load_prc_file_data(
