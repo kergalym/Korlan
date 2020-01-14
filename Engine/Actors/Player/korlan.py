@@ -222,4 +222,4 @@ class Korlan:
                         "camera-task",
                         appendTask=True)
 
-            self.act.actions_init(self.korlan, anim_values)
+            self.act.scene_actions_init(self.korlan, anim_values)

@@ -42,6 +42,7 @@ class Actions:
 
     def __init__(self):
         self.is_moving = False
+        self.is_jumping = False
         self.is_hitting = False
         self.base = base
         self.render = render
@@ -52,16 +53,16 @@ class Actions:
         self.col = Collisions()
         self.world = World()
 
-    def actions_init(self, player, anim):
+    """ Prepares actions for scene"""
+    def scene_actions_init(self, player, anims):
         if (player
-                and anim
-                and isinstance(anim, dict)):
-
+                and anims
+                and isinstance(anims, dict)):
             self.kbd.kbd_init()
             self.kbd.kbd_init_released()
 
             taskMgr.add(self.player_init, "moveTask",
-                        extraArgs=[player, anim],
+                        extraArgs=[player, anims],
                         appendTask=True)
 
             # Set up the camera
@@ -72,13 +73,16 @@ class Actions:
             # Accepts arrow keys to move either the player or the menu cursor,
             # Also deals with grid checking and collision detection
 
-    def player_init(self, player, anim, task):
+    """ Prepares the player for scene """
+    def player_init(self, player, anims, task):
         # Save the player initial position so that we can restore it,
         # in case he falls off the map or runs into something.
         startpos = player.getPos()
 
         # Here we accept keys
-        self.key_events(player, anim)
+        self.player_movement_action(player, anims)
+        self.player_action(player, "attack", "Korlan-Kicking.egg", self.is_hitting)
+        self.player_action(player, "jump", "Korlan-Jumping.egg", self.is_jumping)
 
         # If the camera is too far from player, move it closer.
         # If the camera is too close to player, move it farther.
@@ -126,31 +130,26 @@ class Actions:
 
         return task.cont
 
-    def key_events(self, player, anim):
-        if player and isinstance(anim, dict):
+    def player_movement_action(self, player, anims):
+        if player and isinstance(anims, dict):
             # Get the time that elapsed since last frame.  We multiply this with
             # the desired speed in order to find out with which distance to move
             # in order to achieve that desired speed.
             dt = globalClock.getDt()
-
-            # If the camera-left key is pressed, move camera left.
-            # If the camera-right key is pressed, move camera right.
-            if self.kbd.keymap["cam-left"]:
-                self.base.camera.setX(self.base.camera, -20 * dt)
-            if self.kbd.keymap["cam-right"]:
-                self.base.camera.setX(self.base.camera, +20 * dt)
-
             # If a move-key is pressed, move the player in the specified direction.
-
             speed = 5
 
             if self.kbd.keymap["left"]:
+                self.set_player_pos(player, player.getY)
                 player.setH(player.getH() + 300 * dt)
             if self.kbd.keymap["right"]:
+                self.set_player_pos(player, player.getY)
                 player.setH(player.getH() - 300 * dt)
             if self.kbd.keymap["forward"]:
+                self.set_player_pos(player, player.getY)
                 player.setY(player, -speed * dt)
             if self.kbd.keymap["backward"]:
+                self.set_player_pos(player, player.getY)
                 player.setY(player, speed * dt)
 
             # If the player does action, loop the animation.
@@ -160,33 +159,39 @@ class Actions:
                     or self.kbd.keymap["left"]
                     or self.kbd.keymap["right"]):
                 if self.is_moving is False:
-                    player.loop(anim["Korlan-Walking.egg"])
-                    player.setPlayRate(1.0, anim["Korlan-Walking.egg"])
+                    player.loop(anims["Korlan-Walking.egg"])
+                    player.setPlayRate(1.0, anims["Korlan-Walking.egg"])
+                    self.set_player_pos(player, player.getY)
                     self.is_moving = True
             else:
                 if self.is_moving:
                     player.stop()
-                    player.pose(anim["Korlan-Walking.egg"], 0)
+                    player.pose(anims["Korlan-Walking.egg"], 0)
+                    self.set_player_pos(player, player.getY)
                     self.is_moving = False
 
-            if self.kbd.keymap['jump']:
-                if self.is_hitting is False:
-                    player.play(anim["Korlan-Jumping.egg"])
-                    player.setPlayRate(1.0, anim["Korlan-Jumping.egg"])
-                self.is_hitting = True
+    def player_action(self, player, key, action, state):
+        if (player and isinstance(action, str)
+                and isinstance(key, str)
+                and isinstance(state, bool)):
+            self.set_player_pos(player, player.getY)
+            if self.kbd.keymap[key]:
+                if state is False:
+                    player.play(action)
+                    player.setPlayRate(1.0, action)
+                    self.set_player_pos(player, player.getY)
+                    state = True
             else:
-                if self.is_hitting:
+                if state:
                     player.stop()
-                    player.pose(anim["Korlan-Jumping.egg"], 0)
-                    self.is_hitting = False
+                    player.pose(action, 0)
+                    self.set_player_pos(player, player.getY)
+                    state = False
 
-            if self.kbd.keymap['attack']:
-                if self.is_hitting is False:
-                    player.play(anim["Korlan-Kicking.egg"])
-                    player.setPlayRate(1.0, anim["Korlan-Kicking.egg"])
-                self.is_hitting = True
-            else:
-                if self.is_hitting:
-                    player.stop()
-                    player.pose(anim["Korlan-Kicking.egg"], 0)
-                    self.is_hitting = False
+    """ Sets current player position after action """
+    def set_player_pos(self, player, pos_y):
+        if (player and pos_y
+                and isinstance(pos_y, float)):
+            player.setY(pos_y)
+
+

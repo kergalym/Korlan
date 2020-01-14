@@ -58,8 +58,6 @@ class Keyboard:
         self.k_umai_lo = self.game_settings['Keymap']['umai'].lower()
 
         self.keymap = {
-            'cam-left': 0,
-            'cam-right': 0,
             'forward': 0,
             'backward': 0,
             'left': 0,
@@ -83,8 +81,6 @@ class Keyboard:
 
     def kbd_init(self):
         # Accept the control keys for movement and rotation
-        self.base.accept("arrow_left", self.set_key, ["cam-left", True])
-        self.base.accept("arrow_right", self.set_key, ["cam-right", True])
         self.base.accept(self.k_forward_lo, self.set_key, ['forward', True])
         self.base.accept(self.k_backward_lo, self.set_key, ['backward', True])
         self.base.accept(self.k_left_lo, self.set_key, ['left', True])
@@ -103,8 +99,6 @@ class Keyboard:
 
     def kbd_init_released(self):
         # Define released keys
-        self.base.accept("arrow_left-up", self.set_key, ["cam-left", False])
-        self.base.accept("arrow_right-up", self.set_key, ["cam-right", False])
         self.base.accept("{0}-up".format(self.k_forward_lo), self.set_key, ['forward', False])
         self.base.accept("{0}-up".format(self.k_backward_lo), self.set_key, ['backward', False])
         self.base.accept("{0}-up".format(self.k_left_lo), self.set_key, ['left', False])
