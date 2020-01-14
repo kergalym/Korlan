@@ -33,7 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from panda3d.core import *
 from Engine.Actors.Player.korlan import Korlan
 from Settings.Player.korlan_settings import Player
-from Engine.Scenes.scene_01 import SceneOne
+from Engine.Scenes.scene_one import SceneOne
 from Engine.World import World
 from os.path import isfile
 from os import listdir

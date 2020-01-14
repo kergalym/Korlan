@@ -89,7 +89,7 @@ class SceneOne:
                 # Load the scene.
                 scene = self.base.loader.loadModel(path)
                 scene.setName(model)
-                scene.reparentTo(render)
+                scene.reparentTo(self.render)
                 scene.setScale(self.scale_x, self.scale_y, self.scale_z)
                 scene.setPos(pos_x, pos_y, pos_z)
                 scene.setHpr(scene, rot_h, 0, 0)
@@ -136,7 +136,7 @@ class SceneOne:
                 # Load the scene.
                 scene = self.base.loader.loadModel(path)
                 scene.setName(model)
-                scene.reparentTo(render)
+                scene.reparentTo(self.render)
                 scene.setScale(self.scale_x, self.scale_y, self.scale_z)
                 scene.setPos(pos_x, pos_y, pos_z)
                 scene.setHpr(scene, rot_h, 0, 0)
@@ -189,7 +189,7 @@ class SceneOne:
                     scene.setBin('background', 1)
                     scene.setDepthWrite(0)
                     scene.setLightOff()
-                    scene.reparentTo(render)
+                    scene.reparentTo(self.render)
                     scene.setScale(self.scale_x, self.scale_y, self.scale_z)
                     scene.setPos(pos_x, pos_y, pos_z)
                     scene.setPos(self.base.camera, 0, 0, 0)
@@ -198,7 +198,7 @@ class SceneOne:
                     # Load the scene.
                     scene = self.base.loader.loadModel(path)
                     scene.setName(model)
-                    scene.reparentTo(render)
+                    scene.reparentTo(self.render)
                     scene.setScale(self.scale_x, self.scale_y, self.scale_z)
                     scene.setPos(pos_x, pos_y, pos_z)
                     scene.setHpr(scene, rot_h, 0, 0)
@@ -206,7 +206,7 @@ class SceneOne:
                     # Load the scene.
                     scene = self.base.loader.loadModel(path)
                     scene.setName(model)
-                    scene.reparentTo(render)
+                    scene.reparentTo(self.render)
                     scene.setScale(self.scale_x, self.scale_y, self.scale_z)
                     scene.setPos(pos_x, pos_y, pos_z)
                     scene.setHpr(scene, rot_h, 0, 0)
@@ -223,7 +223,7 @@ class SceneOne:
 
                 if self.game_settings['Main']['postprocessing'] == 'off':
                     # Set the lights
-                    self.world.set_lighting(render, scene)
+                    self.world.set_lighting(self.render, scene)
 
                     # If you don't do this, none of the features
                     # listed above will have any effect. Panda will
@@ -260,7 +260,7 @@ class SceneOne:
                     scene.setBin('background', 1)
                     scene.setDepthWrite(0)
                     scene.setLightOff()
-                    scene.reparentTo(render)
+                    scene.reparentTo(self.render)
                     scene.setScale(self.scale_x, self.scale_y, self.scale_z)
                     scene.setPos(pos_x, pos_y, pos_z)
                     scene.setPos(self.base.camera, 0, 0, 0)
@@ -269,7 +269,7 @@ class SceneOne:
                     # Load the scene.
                     scene = self.base.loader.loadModel(path)
                     scene.setName(model)
-                    scene.reparentTo(render)
+                    scene.reparentTo(self.render)
                     scene.setScale(self.scale_x, self.scale_y, self.scale_z)
                     scene.setPos(pos_x, pos_y, pos_z)
                     scene.setHpr(scene, rot_h, 0, 0)
@@ -286,7 +286,7 @@ class SceneOne:
 
                 if self.game_settings['Main']['postprocessing'] == 'off':
                     # Set the lights
-                    self.world.set_lighting(render, scene)
+                    self.world.set_lighting(self.render, scene)
 
                     # If you don't do this, none of the features
                     # listed above will have any effect. Panda will

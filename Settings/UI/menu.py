@@ -43,7 +43,7 @@ from panda3d.core import TextNode
 
 from Settings.menu_settings import MenuSettings, DevMode, Graphics, Sound, Keymap, Language
 
-from Engine.Scenes.scene_01 import SceneOne
+from Engine.Scenes.scene_one import SceneOne
 from Engine.Scenes.level_one import LevelOne
 
 

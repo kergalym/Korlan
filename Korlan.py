@@ -37,7 +37,7 @@ from wecs.panda3d import ECSShowBase as ShowBase
 from panda3d.core import TextNode
 from pathlib import Path
 from Engine.Actors.Player.korlan import Korlan
-from Engine.Scenes.scene_01 import SceneOne
+from Engine.Scenes.scene_one import SceneOne
 from Settings.Player.korlan_settings import Player
 from Settings.Sound.sound import Sound
 from Settings.UI.menu import Menu
