@@ -134,9 +134,10 @@ class Korlan:
 
                 # Set lights and Shadows
                 if self.game_settings['Main']['postprocessing'] == 'off':
+                    # TODO: uncomment if character has normals
                     # self.world.set_shadows(self.korlan, self.render)
+                    # self.world.set_ssao(self.korlan)
                     self.world.set_lighting(self.render, self.korlan)
-                # self.world.set_ssao(self.korlan)
 
                 if self.game_settings['Debug']['set_debug_mode'] == "YES":
                     self.render.analyze()
@@ -210,9 +211,10 @@ class Korlan:
 
             # Set lights and Shadows
             if self.game_settings['Main']['postprocessing'] == 'off':
+                # TODO: uncomment if character has normals
                 # self.world.set_shadows(self.korlan, self.render)
+                # self.world.set_ssao(self.korlan)
                 self.world.set_lighting(render, self.korlan)
-            # self.world.set_ssao(self.korlan)
 
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
                 self.render.analyze()

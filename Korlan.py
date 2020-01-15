@@ -45,8 +45,8 @@ from Settings.menu_settings import Graphics
 
 import json
 import sys
-from sys import exit as sys_exit
 import configparser
+from sys import exit as sys_exit
 from os import mkdir
 from os.path import isdir, isfile, exists
 
@@ -224,11 +224,11 @@ class Main(ShowBase):
         # Import the main render pipeline class
         from rpcore import RenderPipeline
         from rpcore import PointLight
-
-        self.game_settings.read("{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename))
-
+        
         # Construct and create the pipeline
         self.render_pipeline = RenderPipeline()
+
+        self.game_settings.read("{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename))
 
         if self.game_settings['Main']['postprocessing'] == 'on':
             self.render_pipeline.pre_showbase_init()
@@ -263,7 +263,6 @@ class Main(ShowBase):
         self.sound.openal_mgr(self, self.game_dir)
 
         """ Menu """
-
         self.menu.load_main_menu()
 
         # Set time of day

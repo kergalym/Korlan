@@ -97,11 +97,6 @@ class SceneOne:
                 if model == 'Grass':
                     scene.flattenStrong()
 
-                """if scene:
-                    scene = NodePath(scene)
-                    for tex in scene.findAllTextures():
-                        print(tex)"""
-
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 set_tex_transparency(scene)
 
@@ -143,11 +138,6 @@ class SceneOne:
 
                 if model == 'Grass':
                     scene.flattenStrong()
-
-                """if scene:
-                    scene = NodePath(scene)
-                    for tex in scene.findAllTextures():
-                        print(tex)"""
 
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 set_tex_transparency(scene)
@@ -211,11 +201,6 @@ class SceneOne:
                     scene.setPos(pos_x, pos_y, pos_z)
                     scene.setHpr(scene, rot_h, 0, 0)
 
-                """if scene:
-                    scene = NodePath(scene)
-                    for tex in scene.findAllTextures():
-                        print(tex)"""
-
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 set_tex_transparency(scene)
 
@@ -273,11 +258,6 @@ class SceneOne:
                     scene.setScale(self.scale_x, self.scale_y, self.scale_z)
                     scene.setPos(pos_x, pos_y, pos_z)
                     scene.setHpr(scene, rot_h, 0, 0)
-
-                """if scene:
-                    scene = NodePath(scene)
-                    for tex in scene.findAllTextures():
-                        print(tex)"""
 
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 set_tex_transparency(scene)

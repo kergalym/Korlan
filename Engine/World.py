@@ -57,20 +57,6 @@ class World:
             self.obj.setShaderAuto()
             base.shaderenable = 1
 
-            """"# Set light
-            my_light = self.render.attach_new_node(DirectionalLight('directionalLight'))
-            my_light.node().set_shadow_caster(True, self.shadow_size, self.shadow_size)
-            my_light.node().set_color((self.set_color, self.set_color, self.set_color, 1.0))
-            my_light.node().showFrustum()
-            # my_light.node().get_lens().set_fov(40)
-            # my_light.node().get_lens().set_near_far(0.1, 30)
-            self.render.setLight(my_light)
-            my_light.set_pos(-20, 0, 20)
-            my_light.look_at(0, 0, 0)
-            self.render.set_shader_input('my_light', my_light)
-            self.render.set_shader_input('shadow_blur', 0.1)
-            self.obj.setShader(self.shadows)"""
-
     def set_lighting(self, render, obj):
         if render and obj:
             self.render = render
