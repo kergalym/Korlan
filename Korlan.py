@@ -33,7 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 import panda3d.core as p3d
 from panda3d.core import WindowProperties
-from wecs.panda3d import ECSShowBase as ShowBase
+from direct.showbase.ShowBase import ShowBase
 from panda3d.core import TextNode
 from pathlib import Path
 from Engine.Actors.Player.korlan import Korlan
