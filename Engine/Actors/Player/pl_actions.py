@@ -224,7 +224,7 @@ class Actions:
                         and crouched_to_standing.isPlaying() is False
                         and self.is_crouching is True):
                     # TODO: Use blending for smooth transition between animations
-                    # Do next animation sequence if player is crouched.
+                    # Do animation sequence if player is crouched.
                     crouch_to_stand_seq = player.actorInterval(anims['Korlan-crouched_to_standing.egg'],
                                                                playRate=1.0)
                     any_action_seq = player.actorInterval(action, playRate=1.0)
