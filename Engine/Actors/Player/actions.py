@@ -30,10 +30,10 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
-from Engine.Collisions import Collisions
+from Engine.collisions import Collisions
 from direct.task.TaskManagerGlobal import taskMgr
 
-from Engine.World import World
+from Engine.world import World
 from Settings.Input.keyboard import Keyboard
 from Settings.Input.mouse import Mouse
 from direct.interval.MetaInterval import Sequence

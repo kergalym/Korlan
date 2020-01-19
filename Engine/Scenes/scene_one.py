@@ -30,11 +30,11 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 from panda3d.core import *
-from Engine.Collisions import Collisions
+from Engine.collisions import Collisions
 from Engine.Actors.Player.korlan import Korlan
 from Settings.Player.korlan_settings import Player
 from Engine import set_tex_transparency
-from Engine.World import World
+from Engine.world import World
 
 
 class SceneOne:

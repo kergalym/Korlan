@@ -41,6 +41,7 @@ from direct.gui.OnscreenImage import OnscreenImage, TransparencyAttrib
 from panda3d.core import FontPool
 from panda3d.core import TextNode
 
+from Engine.Scenes.playworker import PlayWorker
 from Settings.menu_settings import MenuSettings, DevMode, Graphics, Sound, Keymap, Language
 
 from Engine.Scenes.scene_one import SceneOne
@@ -228,6 +229,7 @@ class Menu:
         self.btn_save_changes = None
 
         """ Misc """
+        self.playworker = PlayWorker()
         self.m_settings = MenuSettings()
         self.dev_mode = DevMode()
         self.gfx = Graphics()
@@ -1392,6 +1394,29 @@ class Menu:
             self.game_mode = True
             self.menu_mode = False
             self.level_one.load_new_game()
+
+    def load_game_wrapper(self):
+        if isinstance(self.game_mode, bool):
+            self.main_menu_unload()
+            self.game_mode = True
+            self.menu_mode = False
+            self.playworker.load_game()
+
+    def save_game_wrapper(self):
+        if isinstance(self.game_mode, bool):
+            self.game_mode = False
+            self.menu_mode = True
+            self.playworker.save_game()
+            self.game_mode = True
+            self.menu_mode = False
+
+    def delete_game_wrapper(self):
+        if isinstance(self.game_mode, bool):
+            self.game_mode = False
+            self.menu_mode = True
+            self.playworker.delete_game()
+            self.game_mode = True
+            self.menu_mode = False
 
     def set_slider_disp_res_wrapper(self):
         # Make it int and then str

@@ -34,7 +34,7 @@ from panda3d.core import *
 from Engine.Actors.Player.korlan import Korlan
 from Settings.Player.korlan_settings import Player
 from Engine.Scenes.scene_one import SceneOne
-from Engine.World import World
+from Engine.world import World
 from os.path import isfile
 from os import listdir
 import configparser

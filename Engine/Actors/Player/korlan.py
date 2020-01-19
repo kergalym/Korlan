@@ -31,17 +31,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
 from pathlib import Path
-from Engine.Collisions import Collisions
+from Engine.collisions import Collisions
 from Engine import set_tex_transparency
 from direct.actor.Actor import Actor
 from panda3d.core import WindowProperties
 from panda3d.core import LPoint3f
 from direct.task.TaskManagerGlobal import taskMgr
 
-from Engine.World import World
+from Engine.world import World
 from Settings.Input.keyboard import Keyboard
 from Settings.Input.mouse import Mouse
-from Engine.Actors.Player.pl_actions import Actions
+from Engine.Actors.Player.actions import Actions
 
 
 class Korlan:
