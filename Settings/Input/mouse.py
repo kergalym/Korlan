@@ -64,21 +64,22 @@ class Mouse:
 
     def mouse_look_cam(self, task):
         # figure out how much the mouse has moved (in pixels)
-        md = self.base.win.getPointer(0)
-        x = md.getX()
-        y = md.getY()
-        if self.base.win.movePointer(0, 100, 100):
-            self.heading = self.heading - (x - 100) * 0.2
-        self.pitch = self.pitch - (y - 100) * 0.2
+        if self.base.game_mode:
+            md = self.base.win.getPointer(0)
+            x = md.getX()
+            y = md.getY()
+            if self.base.win.movePointer(0, 100, 100):
+                self.heading = self.heading - (x - 100) * 0.2
+            self.pitch = self.pitch - (y - 100) * 0.2
 
-        self.base.camera.setHpr(self.heading, self.pitch, self.rotation)
+            self.base.camera.setHpr(self.heading, self.pitch, self.rotation)
 
-        dir = self.base.camera.getMat().getRow3(1)
-        self.base.camera.setPos(self.focus - (dir * 180))
-        self.focus = self.base.camera.getPos() + (dir * 180)
-        self.last = task.time
+            dir = self.base.camera.getMat().getRow3(1)
+            self.base.camera.setPos(self.focus - (dir * 180))
+            self.focus = self.base.camera.getPos() + (dir * 180)
+            self.last = task.time
 
-        return task.cont
+            return task.cont
 
     def set_mouse_mode(self, mode):
         if mode:
@@ -87,4 +88,3 @@ class Mouse:
             self.base.mouseMode = mode
             wp.setCursorHidden(True)
             self.base.win.requestProperties(wp)
-

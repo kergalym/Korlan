@@ -134,6 +134,8 @@ class Main(ShowBase):
         self.game_settings = game_settings
         self.game_settings_filename = 'settings.ini'
         self.cfg_path = {"game_config_path": "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
+        self.game_mode = False
+        self.menu_mode = True
 
         """ Creating same Game Directory"""
 
@@ -224,7 +226,7 @@ class Main(ShowBase):
         # Import the main render pipeline class
         from rpcore import RenderPipeline
         from rpcore import PointLight
-        
+
         # Construct and create the pipeline
         self.render_pipeline = RenderPipeline()
 
@@ -239,7 +241,6 @@ class Main(ShowBase):
             self.render_pipeline.add_light(my_light)
 
         # Game scene loading definitions
-        self.accept("escape", sys.exit)
         self.scene_one = SceneOne()
         self.korlan = Korlan()
         self.player_settings = Player()
@@ -249,7 +250,7 @@ class Main(ShowBase):
         """ Create game config first! """
         if check_cfg(self):
             self.menu = Menu()
-        elif check_cfg(self) and self.menu.load_main_menu() is 'menu_is_on':
+        elif check_cfg(self) and self.game_mode is False:
             self.menu = Menu()
         else:
             sys_exit("\nNo game configuration file created. Please check your game log")
@@ -263,46 +264,50 @@ class Main(ShowBase):
         self.sound.openal_mgr(self, self.game_dir)
 
         """ Menu """
-        self.menu.load_main_menu()
+        if self.menu_mode:
+            self.menu.load_main_menu()
 
+    def menu_scene_load(self):
         # Set time of day
         if self.game_settings['Main']['postprocessing'] == 'on':
             self.render_pipeline.daytime_mgr.time = "15:25"
 
         """ Assets """
         # Test scene
-        self.scene_one.env_load('Assets/Levels/Terrain/sky.egg',
-                                "MENU_MODE",
-                                "Sky",
-                                [0.0, 10.0, -1.09], [0, 0, 0], [1.25, 1.25, 1.25], 'skybox')
+        if self.game_mode is False and self.menu_mode is True:
+            self.scene_one.env_load('Assets/Levels/Terrain/sky.egg',
+                                    "MENU_MODE",
+                                    "Sky",
+                                    [0.0, 10.0, -1.09], [0, 0, 0], [1.25, 1.25, 1.25], 'skybox')
 
-        self.scene_one.asset_load('Assets/Levels/Terrain/tress_grass.egg',
-                                  "MENU_MODE",
-                                  "Grass",
-                                  [20.0, 10.0, -1.09], [0, 0, 0], [1.25, 1.25, 1.25])
+            self.scene_one.asset_load('Assets/Levels/Terrain/tress_grass.egg',
+                                      "MENU_MODE",
+                                      "Grass",
+                                      [20.0, 10.0, -1.09], [0, 0, 0], [1.25, 1.25, 1.25])
 
-        self.scene_one.asset_load('Assets/Levels/Environment/Nomad house/Nomad_house.egg',
-                                  "MENU_MODE",
-                                  "Nomad_house",
-                                  [1.0, 20.0, -1.09], [65, 0, 0], [1.25, 1.25, 1.25])
+            self.scene_one.asset_load('Assets/Levels/Environment/Nomad house/Nomad_house.egg',
+                                      "MENU_MODE",
+                                      "Nomad_house",
+                                      [1.0, 20.0, -1.09], [65, 0, 0], [1.25, 1.25, 1.25])
 
-        self.scene_one.env_load('Assets/Levels/Terrain/ground.egg',
-                                "MENU_MODE",
-                                "Ground",
-                                [0.0, 10.0, -1.09], [0, 0, 0], [1.25, 1.25, 1.25], 'ground')
+            self.scene_one.env_load('Assets/Levels/Terrain/ground.egg',
+                                    "MENU_MODE",
+                                    "Ground",
+                                    [0.0, 10.0, -1.09], [0, 0, 0], [1.25, 1.25, 1.25], 'ground')
 
-        self.scene_one.env_load('Assets/Levels/Terrain/mountains.egg',
-                                "MENU_MODE",
-                                "Mountains",
-                                [0.0, 20.0, -1.09], [0, 0, 0], [1.25, 1.25, 1.25], 'mountains')
+            self.scene_one.env_load('Assets/Levels/Terrain/mountains.egg',
+                                    "MENU_MODE",
+                                    "Mountains",
+                                    [0.0, 20.0, -1.09], [0, 0, 0], [1.25, 1.25, 1.25], 'mountains')
 
-        self.korlan.set_character("menu",
-                                  "Korlan",
-                                  self.player_settings.set_player_path(self.game_dir),
-                                  "Korlan-Walking.egg")
+            self.korlan.set_character("menu",
+                                      "Korlan",
+                                      self.player_settings.set_player_path(self.game_dir),
+                                      "Korlan-Walking.egg")
 
 
 app = Main()
+app.menu_scene_load()
 
 if __name__ == '__main__':
     app.run()

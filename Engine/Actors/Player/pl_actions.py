@@ -56,6 +56,7 @@ class Actions:
         self.world = World()
 
     """ Prepares actions for scene"""
+
     def scene_actions_init(self, player, anims):
         if (player
                 and anims
@@ -76,6 +77,7 @@ class Actions:
             # Also deals with grid checking and collision detection
 
     """ Prepares the player for scene """
+
     def player_init(self, player, anims, task):
         # Save the player initial position so that we can restore it,
         # in case he falls off the map or runs into something.
@@ -239,9 +241,9 @@ class Actions:
                     self.set_player_pos(player, player.getY)
 
     """ Sets current player position after action """
+
     def set_player_pos(self, player, pos_y):
         if (player and pos_y
                 and isinstance(pos_y, float)):
             player.setY(pos_y)
-
 

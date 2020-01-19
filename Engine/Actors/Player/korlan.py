@@ -148,6 +148,7 @@ class Korlan:
     def set_character_game(self, render_type, model_dir,
                            axis, rotation, scale, player_path, anim):
 
+        self.base.game_mode = True
         wp = WindowProperties()
         wp.setCursorHidden(True)
         self.base.win.requestProperties(wp)

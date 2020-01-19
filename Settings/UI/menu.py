@@ -51,6 +51,7 @@ class Menu:
     def __init__(self):
 
         """ Imports, Variables, etc """
+        self.base = base
         self.scene_one = SceneOne()
         self.level_one = LevelOne()
         self.json = json
@@ -64,24 +65,25 @@ class Menu:
         self.node_frame_item = None
 
         self.rgba_gray_color = (.3, .3, .3, 1.)
-        self.g_mode = 'menu'
+        self.game_mode = base.game_mode
+        self.menu_mode = base.menu_mode
 
         """ Frames """
-        self.frame_int = None
-        self.frame_int_dev = None
-        self.frame_int_gfx = None
-        self.frame_int_snd = None
-        self.frame_int_keymap = None
-        self.frame_int_lang = None
+        self.base.frame_int = None
+        self.base.frame_int_dev = None
+        self.base.frame_int_gfx = None
+        self.base.frame_int_snd = None
+        self.base.frame_int_keymap = None
+        self.base.frame_int_lang = None
 
         """ Frame Sizes """
-        self.frame_size = [-3, -0.9, -1, 3]
-        self.frame_int_size = [-3, -0.9, -1, 3]
-        self.frame_int_dev_size = [-3, -0.2, -1, 3]
-        self.frame_int_gfx_size = [-3, -0.2, -1, 3]
-        self.frame_int_snd_size = [-3, -0.2, -1, 3]
-        self.frame_int_keymap_size = [-3, -0.1, -1, 3]
-        self.frame_int_lang_size = [-3, -0.3, -1, 3]
+        self.base.frame_size = [-3, -0.9, -1, 3]
+        self.base.frame_int_size = [-3, -0.9, -1, 3]
+        self.base.frame_int_dev_size = [-3, -0.2, -1, 3]
+        self.base.frame_int_gfx_size = [-3, -0.2, -1, 3]
+        self.base.frame_int_snd_size = [-3, -0.2, -1, 3]
+        self.base.frame_int_keymap_size = [-3, -0.1, -1, 3]
+        self.base.frame_int_lang_size = [-3, -0.3, -1, 3]
 
         """ Frame Colors """
         self.frm_opacity = 1
@@ -239,8 +241,8 @@ class Menu:
         self.logging = logging
         self.logging.basicConfig(filename="{}/critical.log".format(Path.home()), level=logging.CRITICAL)
 
-        self.frame = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
-                                 frameSize=self.frame_size)
+        self.base.frame = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
+                                      frameSize=self.base.frame_size)
 
         self.logo = OnscreenImage(image='Settings/UI/ui_tex/korlan_logo_tengri.png', pos=self.logo_pos)
         self.ornament_left = OnscreenImage(image='Settings/UI/ui_tex/ornament_kz.png',
@@ -274,7 +276,7 @@ class Menu:
                                          text_font=self.font.load_font(self.o_sans_font),
                                          frameColor=(255, 255, 255, self.frm_opacity),
                                          scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                         parent=self.frame,
+                                         parent=self.base.frame,
                                          command=self.load_new_game_wrapper)
 
         self.btn_load_game = DirectButton(text=self.language['load_game'], text_bg=(0, 0, 0, 1),
@@ -282,7 +284,7 @@ class Menu:
                                           text_font=self.font.load_font(self.o_sans_font),
                                           frameColor=(255, 255, 255, self.frm_opacity),
                                           scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                          parent=self.frame,
+                                          parent=self.base.frame,
                                           command="")
 
         self.btn_save_game = DirectButton(text=self.language['save_game'], text_bg=(0, 0, 0, 1),
@@ -290,7 +292,7 @@ class Menu:
                                           text_font=self.font.load_font(self.o_sans_font),
                                           frameColor=(255, 255, 255, self.frm_opacity),
                                           scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                          parent=self.frame,
+                                          parent=self.base.frame,
                                           command="")
 
         self.btn_options = DirectButton(text=self.language['options'], text_bg=(0, 0, 0, 1),
@@ -298,7 +300,7 @@ class Menu:
                                         text_font=self.font.load_font(self.o_sans_font),
                                         frameColor=(255, 255, 255, self.frm_opacity),
                                         scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                        parent=self.frame,
+                                        parent=self.base.frame,
                                         command=self.load_options_menu)
 
         self.btn_credits = DirectButton(text=self.language['credits'], text_bg=(0, 0, 0, 1),
@@ -306,7 +308,7 @@ class Menu:
                                         text_font=self.font.load_font(self.o_sans_font),
                                         frameColor=(255, 255, 255, self.frm_opacity),
                                         scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                        parent=self.frame,
+                                        parent=self.base.frame,
                                         command="")
 
         self.btn_dev_mode = DirectButton(text=self.language['dev_mode'], text_bg=(0, 0, 0, 1),
@@ -314,7 +316,7 @@ class Menu:
                                          text_font=self.font.load_font(self.o_sans_font),
                                          frameColor=(255, 255, 255, self.frm_opacity),
                                          scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                         parent=self.frame,
+                                         parent=self.base.frame,
                                          command=self.load_dev_mode_menu)
 
         self.btn_exit = DirectButton(text=self.language['exit'], text_bg=(0, 0, 0, 1),
@@ -322,18 +324,18 @@ class Menu:
                                      text_font=self.font.load_font(self.o_sans_font),
                                      frameColor=(255, 255, 255, self.frm_opacity),
                                      scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                     parent=self.frame,
+                                     parent=self.base.frame,
                                      command=sys.exit)
 
     def load_main_menu(self):
-        self.frame.setPos(self.pos_X, self.pos_Y, self.pos_Z)
-        self.logo.reparent_to(self.frame)
+        self.base.frame.setPos(self.pos_X, self.pos_Y, self.pos_Z)
+        self.logo.reparent_to(self.base.frame)
         self.logo.set_scale(self.logo_scale)
 
-        self.ornament_right.reparent_to(self.frame)
+        self.ornament_right.reparent_to(self.base.frame)
         self.ornament_right.set_scale(self.ornament_scale)
         self.ornament_right.setHpr(0.0, 0.0, -90.0)
-        self.ornament_left.reparent_to(self.frame)
+        self.ornament_left.reparent_to(self.base.frame)
         self.ornament_left.set_scale(self.ornament_scale)
         self.ornament_left.setHpr(0.0, 0.0, -90.0)
         self.ornament_right.setTransparency(TransparencyAttrib.MAlpha)
@@ -347,19 +349,19 @@ class Menu:
         self.btn_dev_mode.set_pos(-1.4, 0, -0.5)
         self.btn_exit.set_pos(-1.4, 0, -0.6)
 
-        return 'menu_is_on'
+        self.menu_mode = True
 
     def load_options_menu(self):
-        self.frame_int = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
-                                     frameSize=self.frame_int_size)
-        self.frame_int.setPos(self.pos_X, self.pos_Y, self.pos_Z)
+        self.base.frame_int = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
+                                          frameSize=self.base.frame_int_size)
+        self.base.frame_int.setPos(self.pos_X, self.pos_Y, self.pos_Z)
 
         self.btn_gfx = DirectButton(text=self.language['graphics'], text_bg=(0, 0, 0, 1),
                                     text_fg=(255, 255, 255, 0.9),
                                     text_font=self.font.load_font(self.o_sans_font),
                                     frameColor=(255, 255, 255, self.frm_opacity),
                                     scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                    parent=self.frame_int,
+                                    parent=self.base.frame_int,
                                     command=self.load_graphics_menu)
 
         self.btn_sound = DirectButton(text=self.language['sound'], text_bg=(0, 0, 0, 1),
@@ -367,7 +369,7 @@ class Menu:
                                       text_font=self.font.load_font(self.o_sans_font),
                                       frameColor=(255, 255, 255, self.frm_opacity),
                                       scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                      parent=self.frame_int,
+                                      parent=self.base.frame_int,
                                       command=self.load_sound_menu)
 
         self.btn_language = DirectButton(text=self.language['language'], text_bg=(0, 0, 0, 1),
@@ -375,7 +377,7 @@ class Menu:
                                          text_font=self.font.load_font(self.o_sans_font),
                                          frameColor=(255, 255, 255, self.frm_opacity),
                                          scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                         parent=self.frame_int,
+                                         parent=self.base.frame_int,
                                          command=self.load_language_menu)
 
         self.btn_keymap = DirectButton(text=self.language['keymap'], text_bg=(0, 0, 0, 1),
@@ -383,7 +385,7 @@ class Menu:
                                        text_font=self.font.load_font(self.o_sans_font),
                                        frameColor=(255, 255, 255, self.frm_opacity),
                                        scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                       parent=self.frame_int,
+                                       parent=self.base.frame_int,
                                        command=self.load_keymap_menu)
 
         self.btn_back_options = DirectButton(text=self.language['back'], text_bg=(0, 0, 0, 1),
@@ -391,7 +393,7 @@ class Menu:
                                              text_font=self.font.load_font(self.o_sans_font),
                                              frameColor=(255, 255, 255, self.frm_opacity),
                                              scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                             parent=self.frame_int,
+                                             parent=self.base.frame_int,
                                              command=self.options_menu_unload)
 
         self.btn_gfx.set_pos(-1.4, 0, 0)
@@ -399,133 +401,133 @@ class Menu:
         self.btn_language.set_pos(-1.4, 0, -0.2)
         self.btn_keymap.set_pos(-1.4, 0, -0.3)
         self.btn_back_options.set_pos(-1.4, 0, -0.4)
-        self.logo.reparent_to(self.frame_int)
+        self.logo.reparent_to(self.base.frame_int)
         self.logo.set_scale(self.logo_scale)
 
-        self.ornament_right.reparent_to(self.frame_int)
+        self.ornament_right.reparent_to(self.base.frame_int)
         self.ornament_right.set_scale(self.ornament_scale)
         self.ornament_right.setHpr(0.0, 0.0, -90.0)
-        self.ornament_left.reparent_to(self.frame_int)
+        self.ornament_left.reparent_to(self.base.frame_int)
         self.ornament_left.set_scale(self.ornament_scale)
         self.ornament_left.setHpr(0.0, 0.0, -90.0)
         self.ornament_right.setTransparency(TransparencyAttrib.MAlpha)
         self.ornament_left.setTransparency(TransparencyAttrib.MAlpha)
-        return 'menu_is_on'
+        self.menu_mode = True
 
     def load_graphics_menu(self):
-        self.frame_int_gfx = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
-                                         frameSize=self.frame_int_gfx_size)
-        self.frame_int_gfx.setPos(self.pos_X, self.pos_Y, self.pos_Z)
+        self.base.frame_int_gfx = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
+                                              frameSize=self.base.frame_int_gfx_size)
+        self.base.frame_int_gfx.setPos(self.pos_X, self.pos_Y, self.pos_Z)
 
         self.lbl_gfx_title = DirectLabel(text=self.language['graphics'], text_bg=(0, 0, 0, 1),
                                          text_fg=(255, 255, 255, 0.9),
                                          text_font=self.font.load_font(self.o_sans_font),
                                          frameColor=(255, 255, 255, self.frm_opacity),
                                          scale=.05, borderWidth=(self.w, self.h),
-                                         parent=self.frame_int_gfx)
+                                         parent=self.base.frame_int_gfx)
 
         self.lbl_disp_res = DirectLabel(text=self.language['disp_res'], text_bg=(0, 0, 0, 1),
                                         text_fg=(255, 255, 255, 0.9),
                                         text_font=self.font.load_font(self.o_sans_font),
                                         frameColor=(255, 255, 255, self.frm_opacity),
                                         scale=self.lbl_scale, borderWidth=(self.w, self.h),
-                                        parent=self.frame_int_gfx)
+                                        parent=self.base.frame_int_gfx)
 
         self.lbl_details = DirectLabel(text=self.language['details'], text_bg=(0, 0, 0, 1),
                                        text_fg=(255, 255, 255, 0.9),
                                        text_font=self.font.load_font(self.o_sans_font),
                                        frameColor=(255, 255, 255, self.frm_opacity),
                                        scale=self.lbl_scale, borderWidth=(self.w, self.h),
-                                       parent=self.frame_int_gfx)
+                                       parent=self.base.frame_int_gfx)
 
         self.lbl_shadows = DirectLabel(text=self.language['shadows'], text_bg=(0, 0, 0, 1),
                                        text_fg=(255, 255, 255, 0.9),
                                        text_font=self.font.load_font(self.o_sans_font),
                                        frameColor=(255, 255, 255, self.frm_opacity),
                                        scale=self.lbl_scale, borderWidth=(self.w, self.h),
-                                       parent=self.frame_int_gfx)
+                                       parent=self.base.frame_int_gfx)
 
         self.lbl_postprocessing = DirectLabel(text=self.language['postprocessing'], text_bg=(0, 0, 0, 1),
                                               text_fg=(255, 255, 255, 0.9),
                                               text_font=self.font.load_font(self.o_sans_font),
                                               frameColor=(255, 255, 255, self.frm_opacity),
                                               scale=self.lbl_scale, borderWidth=(self.w, self.h),
-                                              parent=self.frame_int_gfx)
+                                              parent=self.base.frame_int_gfx)
 
         self.lbl_antialiasing = DirectLabel(text=self.language['antialiasing'], text_bg=(0, 0, 0, 1),
                                             text_fg=(255, 255, 255, 0.9),
                                             text_font=self.font.load_font(self.o_sans_font),
                                             frameColor=(255, 255, 255, self.frm_opacity),
                                             scale=self.lbl_scale, borderWidth=(self.w, self.h),
-                                            parent=self.frame_int_gfx)
+                                            parent=self.base.frame_int_gfx)
 
         self.slider_disp_res = DirectSlider(frameColor=self.rgba_gray_color,
                                             range=(1, self.gfx.load_disp_res_value()),
                                             value=self.gfx.disp_res_value(),
                                             scale=.2, borderWidth=(self.w, self.h),
-                                            parent=self.frame_int_gfx,
+                                            parent=self.base.frame_int_gfx,
                                             orientation=DGG.HORIZONTAL,
                                             command=self.set_slider_disp_res_wrapper)
 
         self.slider_details = DirectSlider(frameColor=self.rgba_gray_color,
                                            range=(1, 100), value=50,
                                            scale=.2, borderWidth=(self.w, self.h),
-                                           parent=self.frame_int_gfx,
+                                           parent=self.base.frame_int_gfx,
                                            orientation=DGG.HORIZONTAL,
                                            command=self.set_slider_details_wrapper)
 
         self.slider_shadows = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
                                            value=self.gfx.shadows_value(),
                                            scale=.2, borderWidth=(self.w, self.h),
-                                           parent=self.frame_int_gfx,
+                                           parent=self.base.frame_int_gfx,
                                            orientation=DGG.HORIZONTAL,
                                            command=self.set_slider_shadows_wrapper)
 
         self.slider_postpro = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
                                            value=self.gfx.postpro_value(),
                                            scale=.2, borderWidth=(self.w, self.h),
-                                           parent=self.frame_int_gfx,
+                                           parent=self.base.frame_int_gfx,
                                            orientation=DGG.HORIZONTAL,
                                            command=self.set_slider_postpro_wrapper)
 
         self.slider_antial = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
                                           value=self.gfx.antial_value(),
                                           scale=.2, borderWidth=(self.w, self.h),
-                                          parent=self.frame_int_gfx,
+                                          parent=self.base.frame_int_gfx,
                                           orientation=DGG.HORIZONTAL,
                                           command=self.set_slider_antial_wrapper)
 
         self.lbl_perc_disp_res = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
                                               font=self.font.load_font(self.o_sans_font),
                                               scale=self.lbl_scale,
-                                              parent=self.frame_int_gfx, mayChange=True)
+                                              parent=self.base.frame_int_gfx, mayChange=True)
 
         self.lbl_perc_details = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
                                              font=self.font.load_font(self.o_sans_font),
                                              scale=self.lbl_scale,
-                                             parent=self.frame_int_gfx, mayChange=True)
+                                             parent=self.base.frame_int_gfx, mayChange=True)
 
         self.lbl_perc_shadows = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
                                              font=self.font.load_font(self.o_sans_font),
                                              scale=self.lbl_scale,
-                                             parent=self.frame_int_gfx, mayChange=True)
+                                             parent=self.base.frame_int_gfx, mayChange=True)
 
         self.lbl_perc_postpro = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
                                              font=self.font.load_font(self.o_sans_font),
                                              scale=self.lbl_scale,
-                                             parent=self.frame_int_gfx, mayChange=True)
+                                             parent=self.base.frame_int_gfx, mayChange=True)
 
         self.lbl_perc_antial = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
                                             font=self.font.load_font(self.o_sans_font),
                                             scale=self.lbl_scale,
-                                            parent=self.frame_int_gfx, mayChange=True)
+                                            parent=self.base.frame_int_gfx, mayChange=True)
 
         self.btn_param_defaults = DirectButton(text="Load defaults", text_bg=(0, 0, 0, 1),
                                                text_fg=(255, 255, 255, 0.9),
                                                text_font=self.font.load_font(self.o_sans_font),
                                                frameColor=(255, 255, 255, self.frm_opacity),
                                                scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                               parent=self.frame_int_gfx,
+                                               parent=self.base.frame_int_gfx,
                                                command=self.gfx.set_default_gfx)
 
         self.btn_param_accept = DirectButton(text="OK", text_bg=(0, 0, 0, 1),
@@ -533,20 +535,20 @@ class Menu:
                                              text_font=self.font.load_font(self.o_sans_font),
                                              frameColor=(255, 255, 255, self.frm_opacity),
                                              scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                             parent=self.frame_int_gfx,
+                                             parent=self.base.frame_int_gfx,
                                              command=self.gfx_menu_unload)
 
-        self.logo.reparent_to(self.frame_int_gfx)
+        self.logo.reparent_to(self.base.frame_int_gfx)
         self.logo.set_scale(self.logo_scale)
 
-        self.ornament_right.reparent_to(self.frame_int_gfx)
+        self.ornament_right.reparent_to(self.base.frame_int_gfx)
         self.ornament_right.set_scale(self.ornament_scale)
         self.ornament_right.setHpr(0.0, 0.0, -90.0)
 
         self.ornament_left.set_pos(self.ornament_l_gfx_pos)
         self.ornament_right.set_pos(self.ornament_r_gfx_pos)
 
-        self.ornament_left.reparent_to(self.frame_int_gfx)
+        self.ornament_left.reparent_to(self.base.frame_int_gfx)
         self.ornament_left.set_scale(self.ornament_scale)
         self.ornament_left.setHpr(0.0, 0.0, -90.0)
         self.ornament_right.setTransparency(TransparencyAttrib.MAlpha)
@@ -575,78 +577,78 @@ class Menu:
         self.btn_param_defaults.set_pos(-0.6, 0, -0.9)
         self.btn_param_accept.set_pos(-1.6, 0, -0.9)
 
-        return 'menu_is_on'
+        self.menu_mode = True
 
     def load_sound_menu(self):
-        self.frame_int_snd = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
-                                         frameSize=self.frame_int_snd_size)
-        self.frame_int_snd.setPos(self.pos_X, self.pos_Y, self.pos_Z)
+        self.base.frame_int_snd = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
+                                              frameSize=self.base.frame_int_snd_size)
+        self.base.frame_int_snd.setPos(self.pos_X, self.pos_Y, self.pos_Z)
 
         self.lbl_snd_title = DirectLabel(text=self.language['sound'], text_bg=(0, 0, 0, 1),
                                          text_fg=(255, 255, 255, 0.9),
                                          text_font=self.font.load_font(self.o_sans_font),
                                          frameColor=(255, 255, 255, self.frm_opacity),
                                          scale=.05, borderWidth=(self.w, self.h),
-                                         parent=self.frame_int_snd)
+                                         parent=self.base.frame_int_snd)
 
         self.lbl_sound = DirectLabel(text=self.language['sound'], text_bg=(0, 0, 0, 1),
                                      text_fg=(255, 255, 255, 0.9),
                                      text_font=self.font.load_font(self.o_sans_font),
                                      frameColor=(255, 255, 255, self.frm_opacity),
                                      scale=self.lbl_scale, borderWidth=(self.w, self.h),
-                                     parent=self.frame_int_snd)
+                                     parent=self.base.frame_int_snd)
 
         self.lbl_music = DirectLabel(text=self.language['music'], text_bg=(0, 0, 0, 1),
                                      text_fg=(255, 255, 255, 0.9),
                                      text_font=self.font.load_font(self.o_sans_font),
                                      frameColor=(255, 255, 255, self.frm_opacity),
                                      scale=self.lbl_scale, borderWidth=(self.w, self.h),
-                                     parent=self.frame_int_snd)
+                                     parent=self.base.frame_int_snd)
 
         self.lbl_effects = DirectLabel(text=self.language['effects'], text_bg=(0, 0, 0, 1),
                                        text_fg=(255, 255, 255, 0.9),
                                        text_font=self.font.load_font(self.o_sans_font),
                                        frameColor=(255, 255, 255, self.frm_opacity),
                                        scale=self.lbl_scale, borderWidth=(self.w, self.h),
-                                       parent=self.frame_int_snd)
+                                       parent=self.base.frame_int_snd)
 
         self.slider_sound = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
                                          value=self.snd.sound_value(),
                                          scale=.2, borderWidth=(self.w, self.h),
-                                         parent=self.frame_int_snd,
+                                         parent=self.base.frame_int_snd,
                                          command=self.set_slider_sound_wrapper)
         self.slider_music = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
                                          value=self.snd.music_value(),
                                          scale=.2, borderWidth=(self.w, self.h),
-                                         parent=self.frame_int_snd,
+                                         parent=self.base.frame_int_snd,
                                          command=self.set_slider_music_wrapper)
         self.slider_effects = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
                                            value=self.snd.sfx_value(),
                                            scale=.2, borderWidth=(self.w, self.h),
-                                           parent=self.frame_int_snd,
+                                           parent=self.base.frame_int_snd,
                                            command=self.set_slider_sfx_wrapper)
 
         self.lbl_perc_sound = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
                                            font=self.font.load_font(self.o_sans_font),
                                            scale=self.lbl_scale,
-                                           parent=self.frame_int_snd, mayChange=True)
+                                           parent=self.base.frame_int_snd, mayChange=True)
 
         self.lbl_perc_music = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
                                            font=self.font.load_font(self.o_sans_font),
                                            scale=self.lbl_scale,
-                                           parent=self.frame_int_snd, mayChange=True)
+                                           parent=self.base.frame_int_snd, mayChange=True)
 
         self.lbl_perc_effects = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
                                              font=self.font.load_font(self.o_sans_font),
                                              scale=self.lbl_scale,
-                                             parent=self.frame_int_snd, mayChange=True)
+                                             parent=self.base.frame_int_snd, mayChange=True)
 
         self.btn_param_defaults = DirectButton(text="Load defaults", text_bg=(0, 0, 0, 1),
                                                text_fg=(255, 255, 255, 0.9),
                                                text_font=self.font.load_font(self.o_sans_font),
                                                frameColor=(255, 255, 255, self.frm_opacity),
                                                scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                               parent=self.frame_int_snd,
+                                               parent=self.base.frame_int_snd,
                                                command=self.snd.set_default_snd)
 
         self.btn_param_accept = DirectButton(text="OK", text_bg=(0, 0, 0, 0.9),
@@ -654,16 +656,16 @@ class Menu:
                                              text_font=self.font.load_font(self.o_sans_font),
                                              frameColor=(255, 255, 255, self.frm_opacity),
                                              scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                             parent=self.frame_int_snd,
+                                             parent=self.base.frame_int_snd,
                                              command=self.sound_menu_unload)
 
-        self.logo.reparent_to(self.frame_int_snd)
+        self.logo.reparent_to(self.base.frame_int_snd)
         self.logo.set_scale(self.logo_scale)
 
-        self.ornament_right.reparent_to(self.frame_int_snd)
+        self.ornament_right.reparent_to(self.base.frame_int_snd)
         self.ornament_right.set_scale(self.ornament_scale)
         self.ornament_right.setHpr(0.0, 0.0, -90.0)
-        self.ornament_left.reparent_to(self.frame_int_snd)
+        self.ornament_left.reparent_to(self.base.frame_int_snd)
         self.ornament_left.set_scale(self.ornament_scale)
         self.ornament_left.setHpr(0.0, 0.0, -90.0)
         self.ornament_right.setTransparency(TransparencyAttrib.MAlpha)
@@ -687,229 +689,229 @@ class Menu:
 
         self.btn_param_defaults.set_pos(-0.7, 0, -0.9)
         self.btn_param_accept.set_pos(-1.6, 0, -0.9)
-        return 'menu_is_on'
+        self.menu_mode = True
 
     def load_keymap_menu(self):
-        self.frame_int_keymap = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
-                                            frameSize=self.frame_int_keymap_size)
-        self.frame_int_keymap.setPos(self.pos_X, self.pos_Y, self.pos_Z)
+        self.base.frame_int_keymap = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
+                                                 frameSize=self.base.frame_int_keymap_size)
+        self.base.frame_int_keymap.setPos(self.pos_X, self.pos_Y, self.pos_Z)
 
         self.lbl_keymap_title = DirectLabel(text=self.language['keymap'], text_bg=(0, 0, 0, 1),
                                             text_fg=(155, 155, 255, 0.9),
                                             text_font=self.font.load_font(self.o_sans_font),
                                             scale=.05, borderWidth=(self.w, self.h),
                                             frameColor=(255, 255, 255, self.frm_opacity),
-                                            parent=self.frame_int_keymap)
+                                            parent=self.base.frame_int_keymap)
 
         self.lbl_forward = DirectLabel(text=self.language['forward'], text_bg=(0, 0, 0, 1),
                                        text_fg=(255, 255, 255, 0.9),
                                        text_font=self.font.load_font(self.o_sans_font),
                                        frameColor=(255, 255, 255, self.frm_opacity),
                                        scale=self.lbl_scale, borderWidth=(self.w, self.h),
-                                       parent=self.frame_int_keymap)
+                                       parent=self.base.frame_int_keymap)
 
         self.lbl_backward = DirectLabel(text=self.language['backward'], text_bg=(0, 0, 0, 1),
                                         text_fg=(255, 255, 255, 0.9),
                                         text_font=self.font.load_font(self.o_sans_font),
                                         frameColor=(255, 255, 255, self.frm_opacity),
                                         scale=self.lbl_scale, borderWidth=(self.w, self.h),
-                                        parent=self.frame_int_keymap)
+                                        parent=self.base.frame_int_keymap)
 
         self.lbl_left = DirectLabel(text=self.language['left'], text_bg=(0, 0, 0, 1),
                                     text_fg=(255, 255, 255, 0.9),
                                     text_font=self.font.load_font(self.o_sans_font),
                                     frameColor=(255, 255, 255, self.frm_opacity),
                                     scale=self.lbl_scale, borderWidth=(self.w, self.h),
-                                    parent=self.frame_int_keymap)
+                                    parent=self.base.frame_int_keymap)
 
         self.lbl_right = DirectLabel(text=self.language['right'], text_bg=(0, 0, 0, 1),
                                      text_fg=(255, 255, 255, 0.9),
                                      text_font=self.font.load_font(self.o_sans_font),
                                      frameColor=(255, 255, 255, self.frm_opacity),
                                      scale=self.lbl_scale, borderWidth=(self.w, self.h),
-                                     parent=self.frame_int_keymap)
+                                     parent=self.base.frame_int_keymap)
 
         self.lbl_crouch = DirectLabel(text=self.language['crouch'], text_bg=(0, 0, 0, 1),
                                       text_fg=(255, 255, 255, 0.9),
                                       text_font=self.font.load_font(self.o_sans_font),
                                       frameColor=(255, 255, 255, self.frm_opacity),
                                       scale=self.lbl_scale, borderWidth=(self.w, self.h),
-                                      parent=self.frame_int_keymap)
+                                      parent=self.base.frame_int_keymap)
 
         self.lbl_jump = DirectLabel(text=self.language['jump'], text_bg=(0, 0, 0, 1),
                                     text_fg=(255, 255, 255, 0.9),
                                     text_font=self.font.load_font(self.o_sans_font),
                                     frameColor=(255, 255, 255, self.frm_opacity),
                                     scale=self.lbl_scale, borderWidth=(self.w, self.h),
-                                    parent=self.frame_int_keymap)
+                                    parent=self.base.frame_int_keymap)
 
         self.lbl_use = DirectLabel(text=self.language['use'], text_bg=(0, 0, 0, 1),
                                    text_fg=(255, 255, 255, 0.9),
                                    text_font=self.font.load_font(self.o_sans_font),
                                    frameColor=(255, 255, 255, self.frm_opacity),
                                    scale=self.lbl_scale, borderWidth=(self.w, self.h),
-                                   parent=self.frame_int_keymap)
+                                   parent=self.base.frame_int_keymap)
 
         self.lbl_attack = DirectLabel(text=self.language['attack'], text_bg=(0, 0, 0, 1),
                                       text_fg=(255, 255, 255, 0.9),
                                       text_font=self.font.load_font(self.o_sans_font),
                                       frameColor=(255, 255, 255, self.frm_opacity),
                                       scale=self.lbl_scale, borderWidth=(self.w, self.h),
-                                      parent=self.frame_int_keymap)
+                                      parent=self.base.frame_int_keymap)
 
         self.lbl_h_attack = DirectLabel(text=self.language['h_attack'], text_bg=(0, 0, 0, 1),
                                         text_fg=(255, 255, 255, 0.9),
                                         text_font=self.font.load_font(self.o_sans_font),
                                         frameColor=(255, 255, 255, self.frm_opacity),
                                         scale=self.lbl_scale, borderWidth=(self.w, self.h),
-                                        parent=self.frame_int_keymap)
+                                        parent=self.base.frame_int_keymap)
 
         self.lbl_f_attack = DirectLabel(text=self.language['f_attack'], text_bg=(0, 0, 0, 1),
                                         text_fg=(255, 255, 255, 0.9),
                                         text_font=self.font.load_font(self.o_sans_font),
                                         frameColor=(255, 255, 255, self.frm_opacity),
                                         scale=self.lbl_scale, borderWidth=(self.w, self.h),
-                                        parent=self.frame_int_keymap)
+                                        parent=self.base.frame_int_keymap)
 
         self.lbl_block = DirectLabel(text=self.language['block'], text_bg=(0, 0, 0, 1),
                                      text_fg=(255, 255, 255, 0.9),
                                      text_font=self.font.load_font(self.o_sans_font),
                                      frameColor=(255, 255, 255, self.frm_opacity),
                                      scale=self.lbl_scale, borderWidth=(self.w, self.h),
-                                     parent=self.frame_int_keymap)
+                                     parent=self.base.frame_int_keymap)
 
         self.lbl_sword = DirectLabel(text=self.language['sword'], text_bg=(0, 0, 0, 1),
                                      text_fg=(255, 255, 255, 0.9),
                                      text_font=self.font.load_font(self.o_sans_font),
                                      frameColor=(255, 255, 255, self.frm_opacity),
                                      scale=self.lbl_scale, borderWidth=(self.w, self.h),
-                                     parent=self.frame_int_keymap)
+                                     parent=self.base.frame_int_keymap)
 
         self.lbl_bow = DirectLabel(text=self.language['bow'], text_bg=(0, 0, 0, 1),
                                    text_fg=(255, 255, 255, 0.9),
                                    text_font=self.font.load_font(self.o_sans_font),
                                    frameColor=(255, 255, 255, self.frm_opacity),
                                    scale=self.lbl_scale, borderWidth=(self.w, self.h),
-                                   parent=self.frame_int_keymap)
+                                   parent=self.base.frame_int_keymap)
 
         self.lbl_tengri = DirectLabel(text=self.language['tengri'], text_bg=(0, 0, 0, 1),
                                       text_fg=(255, 255, 255, 0.9),
                                       text_font=self.font.load_font(self.o_sans_font),
                                       frameColor=(255, 255, 255, self.frm_opacity),
                                       scale=self.lbl_scale, borderWidth=(self.w, self.h),
-                                      parent=self.frame_int_keymap)
+                                      parent=self.base.frame_int_keymap)
 
         self.lbl_umay = DirectLabel(text=self.language['umai'], text_bg=(0, 0, 0, 1),
                                     text_fg=(255, 255, 255, 0.9),
                                     text_font=self.font.load_font(self.o_sans_font),
                                     frameColor=(255, 255, 255, self.frm_opacity),
                                     scale=self.lbl_scale, borderWidth=(self.w, self.h),
-                                    parent=self.frame_int_keymap)
+                                    parent=self.base.frame_int_keymap)
 
         kmp = self.m_settings.input_validate(self.cfg_path, 'kmp')
         self.inp_forward = DirectEntry(initialText=kmp['Keymap']['forward'], text_bg=(0, 0, 0, 1),
                                        entryFont=self.font.load_font(self.o_sans_font),
                                        text_align=TextNode.A_center,
                                        scale=.03, width=7, borderWidth=(self.w, self.h),
-                                       parent=self.frame_int_keymap,
+                                       parent=self.base.frame_int_keymap,
                                        command=self.kmp.set_key_forward)
 
         self.inp_backward = DirectEntry(initialText=kmp['Keymap']['backward'], text_bg=(0, 0, 0, 1),
                                         entryFont=self.font.load_font(self.o_sans_font),
                                         text_align=TextNode.A_center,
                                         scale=.03, width=7, borderWidth=(self.w, self.h),
-                                        parent=self.frame_int_keymap,
+                                        parent=self.base.frame_int_keymap,
                                         command=self.kmp.set_key_backward)
 
         self.inp_left = DirectEntry(initialText=kmp['Keymap']['left'], text_bg=(0, 0, 0, 1),
                                     entryFont=self.font.load_font(self.o_sans_font),
                                     text_align=TextNode.A_center,
                                     scale=.03, width=7, borderWidth=(self.w, self.h),
-                                    parent=self.frame_int_keymap,
+                                    parent=self.base.frame_int_keymap,
                                     command=self.kmp.set_key_left)
 
         self.inp_right = DirectEntry(initialText=kmp['Keymap']['right'], text_bg=(0, 0, 0, 1),
                                      entryFont=self.font.load_font(self.o_sans_font),
                                      text_align=TextNode.A_center,
                                      scale=.03, width=7, borderWidth=(self.w, self.h),
-                                     parent=self.frame_int_keymap,
+                                     parent=self.base.frame_int_keymap,
                                      command=self.kmp.set_key_right)
 
         self.inp_crouch = DirectEntry(initialText=kmp['Keymap']['crouch'], text_bg=(0, 0, 0, 1),
                                       entryFont=self.font.load_font(self.o_sans_font),
                                       text_align=TextNode.A_center,
                                       scale=.03, width=7, borderWidth=(self.w, self.h),
-                                      parent=self.frame_int_keymap,
+                                      parent=self.base.frame_int_keymap,
                                       command=self.kmp.set_key_crouch)
 
         self.inp_jump = DirectEntry(initialText=kmp['Keymap']['jump'], text_bg=(0, 0, 0, 1),
                                     entryFont=self.font.load_font(self.o_sans_font),
                                     text_align=TextNode.A_center,
                                     scale=.03, width=7, borderWidth=(self.w, self.h),
-                                    parent=self.frame_int_keymap,
+                                    parent=self.base.frame_int_keymap,
                                     command=self.kmp.set_key_jump)
 
         self.inp_use = DirectEntry(initialText=kmp['Keymap']['use'], text_bg=(0, 0, 0, 1),
                                    entryFont=self.font.load_font(self.o_sans_font),
                                    text_align=TextNode.A_center,
                                    scale=.03, width=7, borderWidth=(self.w, self.h),
-                                   parent=self.frame_int_keymap,
+                                   parent=self.base.frame_int_keymap,
                                    command=self.kmp.set_key_use)
 
         self.inp_attack = DirectEntry(initialText=kmp['Keymap']['attack'], text_bg=(0, 0, 0, 1),
                                       entryFont=self.font.load_font(self.o_sans_font),
                                       text_align=TextNode.A_center,
                                       scale=.03, width=7, borderWidth=(self.w, self.h),
-                                      parent=self.frame_int_keymap,
+                                      parent=self.base.frame_int_keymap,
                                       command=self.kmp.set_key_attack)
 
         self.inp_h_attack = DirectEntry(initialText=kmp['Keymap']['h_attack'], text_bg=(0, 0, 0, 1),
                                         entryFont=self.font.load_font(self.o_sans_font),
                                         text_align=TextNode.A_center,
                                         scale=.03, width=7, borderWidth=(self.w, self.h),
-                                        parent=self.frame_int_keymap,
+                                        parent=self.base.frame_int_keymap,
                                         command=self.kmp.set_key_h_attack)
 
         self.inp_f_attack = DirectEntry(initialText=kmp['Keymap']['f_attack'], text_bg=(0, 0, 0, 1),
                                         entryFont=self.font.load_font(self.o_sans_font),
                                         text_align=TextNode.A_center,
                                         scale=.03, width=7, borderWidth=(self.w, self.h),
-                                        parent=self.frame_int_keymap,
+                                        parent=self.base.frame_int_keymap,
                                         command=self.kmp.set_key_f_attack)
 
         self.inp_block = DirectEntry(initialText=kmp['Keymap']['block'], text_bg=(0, 0, 0, 1),
                                      entryFont=self.font.load_font(self.o_sans_font),
                                      text_align=TextNode.A_center,
                                      scale=.03, width=7, borderWidth=(self.w, self.h),
-                                     parent=self.frame_int_keymap,
+                                     parent=self.base.frame_int_keymap,
                                      command=self.kmp.set_key_block)
 
         self.inp_sword = DirectEntry(initialText=kmp['Keymap']['sword'], text_bg=(0, 0, 0, 1),
                                      entryFont=self.font.load_font(self.o_sans_font),
                                      text_align=TextNode.A_center,
                                      scale=.03, width=7, borderWidth=(self.w, self.h),
-                                     parent=self.frame_int_keymap,
+                                     parent=self.base.frame_int_keymap,
                                      command=self.kmp.set_key_sword)
 
         self.inp_bow = DirectEntry(initialText=kmp['Keymap']['bow'], text_bg=(0, 0, 0, 0.9),
                                    entryFont=self.font.load_font(self.o_sans_font),
                                    text_align=TextNode.A_center,
                                    scale=.03, width=7, borderWidth=(self.w, self.h),
-                                   parent=self.frame_int_keymap,
+                                   parent=self.base.frame_int_keymap,
                                    command=self.kmp.set_key_bow)
 
         self.inp_tengri = DirectEntry(initialText=kmp['Keymap']['tengri'], text_bg=(0, 0, 0, 1),
                                       entryFont=self.font.load_font(self.o_sans_font),
                                       text_align=TextNode.A_center,
                                       scale=.03, width=7, borderWidth=(self.w, self.h),
-                                      parent=self.frame_int_keymap,
+                                      parent=self.base.frame_int_keymap,
                                       command=self.kmp.set_key_tengri)
 
         self.inp_umay = DirectEntry(initialText=kmp['Keymap']['umai'], text_bg=(0, 0, 0, 1),
                                     entryFont=self.font.load_font(self.o_sans_font),
                                     text_align=TextNode.A_center,
                                     scale=.03, width=7, borderWidth=(self.w, self.h),
-                                    parent=self.frame_int_keymap,
+                                    parent=self.base.frame_int_keymap,
                                     command=self.kmp.set_key_umay)
 
         self.btn_param_decline = DirectButton(text="Back", text_bg=(0, 0, 0, 1),
@@ -917,7 +919,7 @@ class Menu:
                                               text_font=self.font.load_font(self.o_sans_font),
                                               frameColor=(255, 255, 255, self.frm_opacity),
                                               scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                              parent=self.frame_int_keymap,
+                                              parent=self.base.frame_int_keymap,
                                               command=self.keymap_menu_unload)
 
         self.btn_param_defaults = DirectButton(text="Load defaults", text_bg=(0, 0, 0, 1),
@@ -925,19 +927,19 @@ class Menu:
                                                text_font=self.font.load_font(self.o_sans_font),
                                                frameColor=(255, 255, 255, self.frm_opacity),
                                                scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                               parent=self.frame_int_keymap,
+                                               parent=self.base.frame_int_keymap,
                                                command=self.kmp.set_default_keymap)
 
         """ Positioning objects of the keymapping menu:
             for two blocks
         """
-        self.logo.reparent_to(self.frame_int_keymap)
+        self.logo.reparent_to(self.base.frame_int_keymap)
         self.logo.set_scale(self.logo_scale)
 
-        self.ornament_right.reparent_to(self.frame_int_keymap)
+        self.ornament_right.reparent_to(self.base.frame_int_keymap)
         self.ornament_right.set_scale(self.ornament_scale)
         self.ornament_right.setHpr(0.0, 0.0, -90.0)
-        self.ornament_left.reparent_to(self.frame_int_keymap)
+        self.ornament_left.reparent_to(self.base.frame_int_keymap)
         self.ornament_left.set_scale(self.ornament_scale)
         self.ornament_left.setHpr(0.0, 0.0, -90.0)
         self.ornament_right.setTransparency(TransparencyAttrib.MAlpha)
@@ -985,47 +987,47 @@ class Menu:
 
         self.btn_param_defaults.set_pos(-0.5, 0, -0.8)
         self.btn_param_decline.set_pos(-1.6, 0, -0.8)
-        return 'menu_is_on'
+        self.menu_mode = True
 
     def load_language_menu(self):
-        self.frame_int_lang = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
-                                          frameSize=self.frame_int_lang_size)
-        self.frame_int_lang.setPos(self.pos_X, self.pos_Y, self.pos_Z)
+        self.base.frame_int_lang = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
+                                               frameSize=self.base.frame_int_lang_size)
+        self.base.frame_int_lang.setPos(self.pos_X, self.pos_Y, self.pos_Z)
 
         self.lbl_lang_title = DirectLabel(text=self.language['language'], text_bg=(0, 0, 0, 1),
                                           text_fg=(155, 155, 255, 0.9),
                                           text_font=self.font.load_font(self.o_sans_font),
                                           frameColor=(255, 255, 255, self.frm_opacity),
                                           scale=.05, borderWidth=(self.w, self.h),
-                                          parent=self.frame_int_lang)
+                                          parent=self.base.frame_int_lang)
 
         self.lbl_english = DirectLabel(text=self.language['english'], text_bg=(0, 0, 0, 1),
                                        text_fg=(255, 255, 255, 0.9),
                                        text_font=self.font.load_font(self.o_sans_font),
                                        frameColor=(255, 255, 255, self.frm_opacity),
                                        scale=self.lbl_scale, borderWidth=(self.w, self.h),
-                                       parent=self.frame_int_lang)
+                                       parent=self.base.frame_int_lang)
 
         self.lbl_kazakh = DirectLabel(text=self.language['kazakh'], text_bg=(0, 0, 0, 1),
                                       text_fg=(255, 255, 255, 0.9),
                                       text_font=self.font.load_font(self.o_sans_font),
                                       frameColor=(255, 255, 255, self.frm_opacity),
                                       scale=self.lbl_scale, borderWidth=(self.w, self.h),
-                                      parent=self.frame_int_lang)
+                                      parent=self.base.frame_int_lang)
 
         self.lbl_russian = DirectLabel(text=self.language['russian'], text_bg=(0, 0, 0, 1),
                                        text_fg=(255, 255, 255, 0.9),
                                        text_font=self.font.load_font(self.o_sans_font),
                                        frameColor=(255, 255, 255, self.frm_opacity),
                                        scale=self.lbl_scale, borderWidth=(self.w, self.h),
-                                       parent=self.frame_int_lang)
+                                       parent=self.base.frame_int_lang)
 
         self.btn_param_defaults = DirectButton(text="Load defaults", text_bg=(0, 0, 0, 1),
                                                text_fg=(255, 255, 255, 0.9),
                                                text_font=self.font.load_font(self.o_sans_font),
                                                frameColor=(255, 255, 255, self.frm_opacity),
                                                scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                               parent=self.frame_int_lang,
+                                               parent=self.base.frame_int_lang,
                                                command=self.lng.set_default_language)
 
         self.btn_param_back = DirectButton(text="Back", text_bg=(0, 0, 0, 1),
@@ -1033,7 +1035,7 @@ class Menu:
                                            text_font=self.font.load_font(self.o_sans_font),
                                            frameColor=(255, 255, 255, self.frm_opacity),
                                            scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                           parent=self.frame_int_lang,
+                                           parent=self.base.frame_int_lang,
                                            command=self.language_menu_unload)
 
         lng_value = self.lng.get_selected_language()
@@ -1041,15 +1043,15 @@ class Menu:
         radbuttons = [
 
             DirectRadioButton(text='', variable=[0], value=[lng_value['english']], pos=(-0.7, 0, -0.0),
-                              parent=self.frame_int_lang, scale=.04,
+                              parent=self.base.frame_int_lang, scale=.04,
                               command=self.lng.set_language_english, color=(63.9, 63.9, 63.9, 1)),
 
             DirectRadioButton(text='', variable=[0], value=[lng_value['kazakh']], pos=(-0.7, 0, -0.1),
-                              parent=self.frame_int_lang, scale=.04,
+                              parent=self.base.frame_int_lang, scale=.04,
                               command=self.lng.set_language_kazakh, color=(63.9, 63.9, 63.9, 1)),
 
             DirectRadioButton(text='', variable=[0], value=[lng_value['russian']], pos=(-0.7, 0, -0.2),
-                              parent=self.frame_int_lang, scale=.04,
+                              parent=self.base.frame_int_lang, scale=.04,
                               command=self.lng.set_language_russian, color=(63.9, 63.9, 63.9, 1))
 
         ]
@@ -1060,13 +1062,13 @@ class Menu:
         """ Positioning objects of the language menu:
             for two blocks
         """
-        self.logo.reparent_to(self.frame_int_lang)
+        self.logo.reparent_to(self.base.frame_int_lang)
         self.logo.set_scale(self.logo_scale)
 
-        self.ornament_right.reparent_to(self.frame_int_lang)
+        self.ornament_right.reparent_to(self.base.frame_int_lang)
         self.ornament_right.set_scale(self.ornament_scale)
         self.ornament_right.setHpr(0.0, 0.0, -90.0)
-        self.ornament_left.reparent_to(self.frame_int_lang)
+        self.ornament_left.reparent_to(self.base.frame_int_lang)
         self.ornament_left.set_scale(self.ornament_scale)
         self.ornament_left.setHpr(0.0, 0.0, -90.0)
         self.ornament_right.setTransparency(TransparencyAttrib.MAlpha)
@@ -1083,14 +1085,14 @@ class Menu:
         """ Second block is here """
         self.btn_param_defaults.set_pos(-0.7, 0, -0.9)
         self.btn_param_back.set_pos(-1.6, 0, -0.9)
-        return 'menu_is_on'
+        self.menu_mode = True
 
     def load_dev_mode_menu(self):
-        self.g_mode = 'dev_mode'
+        self.game_mode = True
 
-        self.frame_int_dev = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
-                                         frameSize=self.frame_int_dev_size)
-        self.frame_int_dev.setPos(self.pos_X, self.pos_Y, self.pos_Z)
+        self.base.frame_int_dev = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
+                                              frameSize=self.base.frame_int_dev_size)
+        self.base.frame_int_dev.setPos(self.pos_X, self.pos_Y, self.pos_Z)
 
         self.lbl_dev_mode_title = DirectLabel(text="{}".format(self.language['dev_mode']),
                                               text_bg=(0, 0, 0, 1),
@@ -1098,7 +1100,7 @@ class Menu:
                                               text_font=self.font.load_font(self.o_sans_font),
                                               frameColor=(255, 255, 255, self.frm_opacity),
                                               scale=.05, borderWidth=(self.w, self.h),
-                                              parent=self.frame_int_dev)
+                                              parent=self.base.frame_int_dev)
 
         self.lbl_dev_mode_title_low = DirectLabel(text="{}".format(self.language['set_pos_title']),
                                                   text_bg=(0, 0, 0, 1),
@@ -1106,49 +1108,49 @@ class Menu:
                                                   text_font=self.font.load_font(self.o_sans_font),
                                                   frameColor=(255, 255, 255, self.frm_opacity),
                                                   scale=.03, borderWidth=(self.w, self.h),
-                                                  parent=self.frame_int_dev)
+                                                  parent=self.base.frame_int_dev)
 
         self.lbl_pos_x = DirectLabel(text=self.language['pos_x'], text_bg=(0, 0, 0, 1),
                                      text_fg=(255, 255, 255, 0.9),
                                      text_font=self.font.load_font(self.o_sans_font),
                                      frameColor=(255, 255, 255, self.frm_opacity),
                                      scale=.03, borderWidth=(self.w, self.h),
-                                     parent=self.frame_int_dev)
+                                     parent=self.base.frame_int_dev)
 
         self.lbl_pos_y = DirectLabel(text=self.language['pos_y'], text_bg=(0, 0, 0, 1),
                                      text_fg=(255, 255, 255, 0.9),
                                      text_font=self.font.load_font(self.o_sans_font),
                                      frameColor=(255, 255, 255, self.frm_opacity),
                                      scale=.03, borderWidth=(self.w, self.h),
-                                     parent=self.frame_int_dev)
+                                     parent=self.base.frame_int_dev)
 
         self.lbl_pos_z = DirectLabel(text=self.language['pos_z'], text_bg=(0, 0, 0, 1),
                                      text_fg=(255, 255, 255, 0.9),
                                      text_font=self.font.load_font(self.o_sans_font),
                                      frameColor=(255, 255, 255, self.frm_opacity),
                                      scale=.03, borderWidth=(self.w, self.h),
-                                     parent=self.frame_int_dev)
+                                     parent=self.base.frame_int_dev)
 
         self.lbl_rot_h = DirectLabel(text=self.language['rot_h'], text_bg=(0, 0, 0, 1),
                                      text_fg=(255, 255, 255, 0.9),
                                      text_font=self.font.load_font(self.o_sans_font),
                                      frameColor=(255, 255, 255, self.frm_opacity),
                                      scale=.03, borderWidth=(self.w, self.h),
-                                     parent=self.frame_int_dev)
+                                     parent=self.base.frame_int_dev)
 
         self.lbl_rot_p = DirectLabel(text=self.language['rot_p'], text_bg=(0, 0, 0, 1),
                                      text_fg=(255, 255, 255, 0.9),
                                      text_font=self.font.load_font(self.o_sans_font),
                                      frameColor=(255, 255, 255, self.frm_opacity),
                                      scale=.03, borderWidth=(self.w, self.h),
-                                     parent=self.frame_int_dev)
+                                     parent=self.base.frame_int_dev)
 
         self.lbl_rot_r = DirectLabel(text=self.language['rot_r'], text_bg=(0, 0, 0, 1),
                                      text_fg=(255, 255, 255, 0.9),
                                      text_font=self.font.load_font(self.o_sans_font),
                                      frameColor=(255, 255, 255, self.frm_opacity),
                                      scale=.03, borderWidth=(self.w, self.h),
-                                     parent=self.frame_int_dev)
+                                     parent=self.base.frame_int_dev)
 
         dev = self.m_settings.input_validate(self.cfg_path, 'dev')
         self.inp_pos_x = DirectEntry(initialText=dev['Debug']['player_pos_x'],
@@ -1156,7 +1158,7 @@ class Menu:
                                      entryFont=self.font.load_font(self.o_sans_font),
                                      text_align=TextNode.A_center,
                                      scale=.03, width=7, borderWidth=(self.w, self.h),
-                                     parent=self.frame_int_dev,
+                                     parent=self.base.frame_int_dev,
                                      command=self.dev_mode.set_node_pos_x)
 
         self.inp_pos_y = DirectEntry(initialText=dev['Debug']['player_pos_y'],
@@ -1164,7 +1166,7 @@ class Menu:
                                      entryFont=self.font.load_font(self.o_sans_font),
                                      text_align=TextNode.A_center,
                                      scale=.03, width=7, borderWidth=(self.w, self.h),
-                                     parent=self.frame_int_dev,
+                                     parent=self.base.frame_int_dev,
                                      command=self.dev_mode.set_node_pos_y)
 
         self.inp_pos_z = DirectEntry(initialText=dev['Debug']['player_pos_z'],
@@ -1172,7 +1174,7 @@ class Menu:
                                      entryFont=self.font.load_font(self.o_sans_font),
                                      text_align=TextNode.A_center,
                                      scale=.03, width=7, borderWidth=(self.w, self.h),
-                                     parent=self.frame_int_dev,
+                                     parent=self.base.frame_int_dev,
                                      command=self.dev_mode.set_node_pos_z)
 
         self.inp_rot_h = DirectEntry(initialText=dev['Debug']['player_rot_h'],
@@ -1180,7 +1182,7 @@ class Menu:
                                      entryFont=self.font.load_font(self.o_sans_font),
                                      text_align=TextNode.A_center,
                                      scale=.03, width=7, borderWidth=(self.w, self.h),
-                                     parent=self.frame_int_dev,
+                                     parent=self.base.frame_int_dev,
                                      command=self.dev_mode.set_node_rot_h)
 
         self.inp_rot_p = DirectEntry(initialText=dev['Debug']['player_rot_p'],
@@ -1188,7 +1190,7 @@ class Menu:
                                      entryFont=self.font.load_font(self.o_sans_font),
                                      text_align=TextNode.A_center,
                                      scale=.03, width=7, borderWidth=(self.w, self.h),
-                                     parent=self.frame_int_dev,
+                                     parent=self.base.frame_int_dev,
                                      command=self.dev_mode.set_node_rot_p)
 
         self.inp_rot_r = DirectEntry(initialText=dev['Debug']['player_rot_r'],
@@ -1196,7 +1198,7 @@ class Menu:
                                      entryFont=self.font.load_font(self.o_sans_font),
                                      text_align=TextNode.A_center,
                                      scale=.03, width=7, borderWidth=(self.w, self.h),
-                                     parent=self.frame_int_dev,
+                                     parent=self.base.frame_int_dev,
                                      command=self.dev_mode.set_node_rot_r)
 
         self.node_frame = DirectScrolledList(decButton_pos=(0.35, 0, 0.13),
@@ -1217,7 +1219,7 @@ class Menu:
                                              itemFrame_pos=(0.35, 0, 0.0),
 
                                              scale=.5,
-                                             parent=self.frame_int_dev,
+                                             parent=self.base.frame_int_dev,
                                              decButtonCallback=self.get_active_node_wrapper,
                                              incButtonCallback=self.get_active_node_wrapper)
 
@@ -1226,17 +1228,17 @@ class Menu:
                                         text_font=self.font.load_font(self.o_sans_font),
                                         frameColor=(255, 255, 255, self.frm_opacity),
                                         scale=self.lbl_scale, borderWidth=(self.w, self.h),
-                                        parent=self.frame_int_dev)
+                                        parent=self.base.frame_int_dev)
 
         self.lbl_perc_node_exp = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
                                               font=self.font.load_font(self.o_sans_font),
                                               scale=self.lbl_scale,
-                                              parent=self.frame_int_dev, mayChange=True)
+                                              parent=self.base.frame_int_dev, mayChange=True)
 
         self.slider_node_exp = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
                                             value=self.dev_mode.node_exp_value(),
                                             scale=.2, borderWidth=(self.w, self.h),
-                                            parent=self.frame_int_dev,
+                                            parent=self.base.frame_int_dev,
                                             orientation=DGG.HORIZONTAL,
                                             command=self.set_slider_node_exp_wrapper)
 
@@ -1245,7 +1247,7 @@ class Menu:
                                              text_font=self.font.load_font(self.o_sans_font),
                                              frameColor=(255, 255, 255, self.frm_opacity),
                                              scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                             parent=self.frame_int_dev,
+                                             parent=self.base.frame_int_dev,
                                              command=self.dev_menu_unload)
 
         self.btn_save_changes = DirectButton(text='OK', text_bg=(0, 0, 0, 1),
@@ -1253,13 +1255,13 @@ class Menu:
                                              text_font=self.font.load_font(self.o_sans_font),
                                              frameColor=(255, 255, 255, self.frm_opacity),
                                              scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                             parent=self.frame_int_dev,
+                                             parent=self.base.frame_int_dev,
                                              command=self.dev_mode.save_node_pos)
 
-        self.ornament_right.reparent_to(self.frame_int_dev)
+        self.ornament_right.reparent_to(self.base.frame_int_dev)
         self.ornament_right.set_scale(self.ornament_scale)
         self.ornament_right.setHpr(0.0, 0.0, -90.0)
-        self.ornament_left.reparent_to(self.frame_int_dev)
+        self.ornament_left.reparent_to(self.base.frame_int_dev)
         self.ornament_left.set_scale(self.ornament_scale)
         self.ornament_left.setHpr(0.0, 0.0, -90.0)
         self.ornament_right.setTransparency(TransparencyAttrib.MAlpha)
@@ -1291,7 +1293,7 @@ class Menu:
 
         self.btn_back_options.set_pos(-1.5, 0, -0.9)
         self.btn_save_changes.set_pos(-0.5, 0, -0.9)
-        self.logo.reparent_to(self.frame_int_dev)
+        self.logo.reparent_to(self.base.frame_int_dev)
         self.logo.set_scale(self.logo_scale)
 
         for x in self.dev_mode.check_game_assets():
@@ -1299,83 +1301,83 @@ class Menu:
                             parent=self.node_frame, scale=.5, )
             self.node_frame.addItem(l)
 
-        return 'menu_is_on'
+        self.menu_mode = True
 
     def get_active_node_wrapper(self):
         self.dev_mode.get_active_node(self.node_frame.getSelectedText())
 
     def main_menu_unload(self):
-        self.frame.destroy()
+        self.base.frame.hide()
 
     def options_menu_unload(self):
-        if self.g_mode is 'game':
-            self.frame_int.destroy()
-        self.frame_int.destroy()
+        if self.game_mode:
+            self.base.frame_int.destroy()
+        self.base.frame_int.destroy()
         """Reattach the destroyed logo to previous frame"""
-        self.logo.reparent_to(self.frame)
+        self.logo.reparent_to(self.base.frame)
         self.logo.set_scale(self.logo_scale)
-        self.ornament_left.reparent_to(self.frame)
-        self.ornament_right.reparent_to(self.frame)
+        self.ornament_left.reparent_to(self.base.frame)
+        self.ornament_right.reparent_to(self.base.frame)
         self.ornament_left.set_pos(self.ornament_l_pos)
         self.ornament_right.set_pos(self.ornament_r_pos)
 
     def gfx_menu_unload(self):
-        if self.g_mode is 'game':
-            self.frame_int_gfx.destroy()
-        self.frame_int_gfx.destroy()
+        if self.game_mode:
+            self.base.frame_int_gfx.destroy()
+        self.base.frame_int_gfx.destroy()
         """Reattach the destroyed logo to previous frame"""
-        self.logo.reparent_to(self.frame_int)
+        self.logo.reparent_to(self.base.frame_int)
         self.logo.set_scale(self.logo_scale)
-        self.ornament_left.reparent_to(self.frame_int)
-        self.ornament_right.reparent_to(self.frame_int)
+        self.ornament_left.reparent_to(self.base.frame_int)
+        self.ornament_right.reparent_to(self.base.frame_int)
         self.ornament_left.set_pos(self.ornament_l_pos)
         self.ornament_right.set_pos(self.ornament_r_pos)
 
     def sound_menu_unload(self):
-        if self.g_mode is 'game':
-            self.frame_int_snd.destroy()
-        self.frame_int_snd.destroy()
+        if self.game_mode:
+            self.base.frame_int_snd.destroy()
+        self.base.frame_int_snd.destroy()
         """Reattach the destroyed logo to previous frame"""
-        self.logo.reparent_to(self.frame_int)
+        self.logo.reparent_to(self.base.frame_int)
         self.logo.set_scale(self.logo_scale)
-        self.ornament_left.reparent_to(self.frame_int)
-        self.ornament_right.reparent_to(self.frame_int)
+        self.ornament_left.reparent_to(self.base.frame_int)
+        self.ornament_right.reparent_to(self.base.frame_int)
         self.ornament_left.set_pos(self.ornament_l_pos)
         self.ornament_right.set_pos(self.ornament_r_pos)
 
     def keymap_menu_unload(self):
-        if self.g_mode is 'game':
-            self.frame_int_keymap.destroy()
-        self.frame_int_keymap.destroy()
+        if self.game_mode:
+            self.base.frame_int_keymap.destroy()
+        self.base.frame_int_keymap.destroy()
         """Reattach the destroyed logo to previous frame"""
-        self.logo.reparent_to(self.frame_int)
+        self.logo.reparent_to(self.base.frame_int)
         self.logo.set_scale(self.logo_scale)
-        self.ornament_left.reparent_to(self.frame_int)
-        self.ornament_right.reparent_to(self.frame_int)
+        self.ornament_left.reparent_to(self.base.frame_int)
+        self.ornament_right.reparent_to(self.base.frame_int)
         self.ornament_left.set_pos(self.ornament_l_pos)
         self.ornament_right.set_pos(self.ornament_r_pos)
 
     def language_menu_unload(self):
-        if self.g_mode is 'game':
-            self.frame_int_lang.destroy()
-        self.frame_int_lang.destroy()
+        if self.game_mode:
+            self.base.frame_int_lang.destroy()
+        self.base.frame_int_lang.destroy()
         """Reattach the destroyed logo to previous frame"""
-        self.logo.reparent_to(self.frame_int)
+        self.logo.reparent_to(self.base.frame_int)
         self.logo.set_scale(self.logo_scale)
-        self.ornament_left.reparent_to(self.frame_int)
-        self.ornament_right.reparent_to(self.frame_int)
+        self.ornament_left.reparent_to(self.base.frame_int)
+        self.ornament_right.reparent_to(self.base.frame_int)
         self.ornament_left.set_pos(self.ornament_l_pos)
         self.ornament_right.set_pos(self.ornament_r_pos)
 
     def dev_menu_unload(self):
-        if self.g_mode is 'game':
-            self.frame_int_dev.destroy()
-        self.frame_int_dev.destroy()
+        if self.game_mode:
+            self.base.frame_int_dev.destroy()
+        self.base.frame_int_dev.destroy()
         """Reattach the destroyed logo to previous frame"""
-        self.logo.reparent_to(self.frame)
+        self.logo.reparent_to(self.base.frame)
         self.logo.set_scale(self.logo_scale)
-        self.ornament_left.reparent_to(self.frame)
-        self.ornament_right.reparent_to(self.frame)
+        self.ornament_left.reparent_to(self.base.frame)
+        self.ornament_right.reparent_to(self.base.frame)
         self.ornament_left.set_pos(self.ornament_l_pos)
         self.ornament_right.set_pos(self.ornament_r_pos)
 
@@ -1385,9 +1387,10 @@ class Menu:
     # So, we pass it through wrapper methods
 
     def load_new_game_wrapper(self):
-        if isinstance(self.g_mode, str):
-            self.g_mode = 'game'
+        if isinstance(self.game_mode, bool):
             self.main_menu_unload()
+            self.game_mode = True
+            self.menu_mode = False
             self.level_one.load_new_game()
 
     def set_slider_disp_res_wrapper(self):

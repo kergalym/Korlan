@@ -44,14 +44,15 @@ from sys import exit as sys_exit
 class LevelOne:
 
     def __init__(self):
+        self.game_mode = base.game_mode
         self.game_settings = base.game_settings
         self.game_dir = base.game_dir
         self.game_cfg = base.game_cfg
         self.game_cfg_dir = base.game_cfg_dir
         self.game_settings_filename = base.game_settings_filename
         self.cfg_path = {"game_config_path": "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
+        self.base = base
         self.loader = base.loader
-
         self.node_path = NodePath()
         self.scene_one = SceneOne()
         self.world = World()
@@ -62,7 +63,42 @@ class LevelOne:
         self.pos_z = 0.0
         self.anim = None
 
+    def reload_menu_scene(self):
+        self.base.game_mode = False
+        render.find("**/Korlan").removeNode()
+        render.find("**/Sky").removeNode()
+        render.find("**/Grass").removeNode()
+        render.find("**/Nomad_house").removeNode()
+        render.find("**/Ground").removeNode()
+        render.find("**/Mountains").removeNode()
+
+        self.loader.unloadModel('{0}/Assets/Actors/Korlan/Korlan.egg'.format(self.game_dir))
+        self.loader.unloadModel('{0}/Assets/Levels/Terrain/sky.egg'.format(self.game_dir))
+        self.loader.unloadModel('{0}/Assets/Levels/Terrain/tress_grass.egg'.format(self.game_dir))
+        self.loader.unloadModel('{0}/Assets/Levels/Environment/Nomad house/Nomad_house.egg'.format(self.game_dir))
+        self.loader.unloadModel('{0}/Assets/Levels/Terrain/ground.egg'.format(self.game_dir))
+        self.loader.unloadModel('{0}/Assets/Levels/Terrain/mountains.egg'.format(self.game_dir))
+
+        wp = WindowProperties()
+        wp.setCursorHidden(False)
+        self.base.win.requestProperties(wp)
+
+        # Disable the camera trackball controls.
+        self.base.disableMouse()
+
+        # Disable mouse camera
+        self.base.mouseMagnitude = 0
+        self.base.rotateX = 0
+        self.base.lastMouseX = None
+        self.base.hideMouse = False
+        self.base.manualRecenterMouse = False
+
+        self.base.menu_scene_load()
+        self.base.frame.show()
+
     def load_new_game(self):
+        self.game_mode = True
+        self.base.accept("escape", self.reload_menu_scene)
         render.find("**/Korlan").removeNode()
         render.find("**/Sky").removeNode()
         render.find("**/Grass").removeNode()
