@@ -287,7 +287,7 @@ class Menu:
                                           frameColor=(255, 255, 255, self.frm_opacity),
                                           scale=self.btn_scale, borderWidth=(self.w, self.h),
                                           parent=self.base.frame,
-                                          command="")
+                                          command=self.load_game_wrapper)
 
         self.btn_save_game = DirectButton(text=self.language['save_game'], text_bg=(0, 0, 0, 1),
                                           text_fg=(255, 255, 255, 0.9),
@@ -295,7 +295,7 @@ class Menu:
                                           frameColor=(255, 255, 255, self.frm_opacity),
                                           scale=self.btn_scale, borderWidth=(self.w, self.h),
                                           parent=self.base.frame,
-                                          command="")
+                                          command=self.save_game_wrapper)
 
         self.btn_options = DirectButton(text=self.language['options'], text_bg=(0, 0, 0, 1),
                                         text_fg=(255, 255, 255, 0.9),
@@ -1397,26 +1397,15 @@ class Menu:
 
     def load_game_wrapper(self):
         if isinstance(self.game_mode, bool):
-            self.main_menu_unload()
-            self.game_mode = True
-            self.menu_mode = False
             self.playworker.load_game()
 
     def save_game_wrapper(self):
         if isinstance(self.game_mode, bool):
-            self.game_mode = False
-            self.menu_mode = True
             self.playworker.save_game()
-            self.game_mode = True
-            self.menu_mode = False
 
     def delete_game_wrapper(self):
         if isinstance(self.game_mode, bool):
-            self.game_mode = False
-            self.menu_mode = True
             self.playworker.delete_game()
-            self.game_mode = True
-            self.menu_mode = False
 
     def set_slider_disp_res_wrapper(self):
         # Make it int and then str
