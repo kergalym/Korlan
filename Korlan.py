@@ -138,7 +138,6 @@ class Main(ShowBase):
         self.menu_mode = True
 
         """ Creating same Game Directory"""
-
         def check_cfg(super):
             if exists('Settings/UI/cfg_path.json'):
                 super.cfg_path = json.dumps({'game_config_path': '{0}/{1}'.format(
@@ -275,12 +274,12 @@ class Main(ShowBase):
         """ Assets """
         # Test scene
         if self.game_mode is False and self.menu_mode is True:
-            self.scene_one.env_load('Assets/Levels/Terrain/sky.egg',
+            self.scene_one.env_load('Assets/Levels/Terrain/Sky.egg',
                                     "MENU_MODE",
                                     "Sky",
                                     [0.0, 10.0, -1.09], [0, 0, 0], [1.25, 1.25, 1.25], 'skybox')
 
-            self.scene_one.asset_load('Assets/Levels/Terrain/tress_grass.egg',
+            self.scene_one.asset_load('Assets/Levels/Terrain/Grass.egg',
                                       "MENU_MODE",
                                       "Grass",
                                       [20.0, 10.0, -1.09], [0, 0, 0], [1.25, 1.25, 1.25])
@@ -290,12 +289,12 @@ class Main(ShowBase):
                                       "Nomad_house",
                                       [1.0, 20.0, -1.09], [65, 0, 0], [1.25, 1.25, 1.25])
 
-            self.scene_one.env_load('Assets/Levels/Terrain/ground.egg',
+            self.scene_one.env_load('Assets/Levels/Terrain/Ground.egg',
                                     "MENU_MODE",
                                     "Ground",
                                     [0.0, 10.0, -1.09], [0, 0, 0], [1.25, 1.25, 1.25], 'ground')
 
-            self.scene_one.env_load('Assets/Levels/Terrain/mountains.egg',
+            self.scene_one.env_load('Assets/Levels/Terrain/Mountains.egg',
                                     "MENU_MODE",
                                     "Mountains",
                                     [0.0, 20.0, -1.09], [0, 0, 0], [1.25, 1.25, 1.25], 'mountains')

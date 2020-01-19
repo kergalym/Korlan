@@ -207,32 +207,26 @@ class DevMode(MenuSettings):
 
         MenuSettings.__init__(self)
 
-    def check_game_assets(self):
-        model_path = "{}/Korlan/Assets".format(Path.home())
+    def check_game_assets_devmode(self, exclude):
+        asset_path = "{0}/Assets".format(Path.cwd())
 
-        modelpaths = []
-        modelnames = []
+        asset_names = []
 
-        if exists(model_path):
-            for r, d, f in walk(model_path):
-                for file in f:
-                    modelpaths.append(join(r, file))
+        if exists(asset_path):
+            for root, dirs, files in walk(asset_path, topdown=True):
+                if exclude in dirs:
+                    dirs.remove(exclude)
+                for file in files:
                     if '.egg' in file:
-                        modelnames.append(file.strip('.egg'))
-                    elif '.gltf' in file:
-                        modelnames.append(file.strip('.gltf'))
-                    for p, n in zip(modelpaths, modelnames):
-                        if 'jpg' and 'png' in p and n:
-                            modelpaths.remove(p)
-                            modelnames.remove(n)
+                        asset_names.append(file)
 
-            return modelnames
+        return asset_names
 
     def get_active_node(self, node_name):
         if node_name and isinstance(node_name, str):
             self.node = node_name
             t = None
-            for x in self.check_game_assets():
+            for x in self.check_game_assets_devmode(exclude='Animations'):
                 if x is node_name or 'Korlan':
                     t = render.find('**/{}'.format(node_name))
                 elif x is node_name:
@@ -299,7 +293,7 @@ class DevMode(MenuSettings):
                 and exists(self.cfg_path_default)
                 and isfile(self.cfg_path_default)):
 
-            for x in self.check_game_assets():
+            for x in self.check_game_assets_devmode():
                 if x is 'Korlan':
                     status = 'player'
                 else:
@@ -340,7 +334,7 @@ class DevMode(MenuSettings):
                 and isfile(self.cfg_path)
                 and node_name):
 
-            for x in self.check_game_assets():
+            for x in self.check_game_assets_devmode():
                 if x is node_name and 'Korlan':
                     self.cfg_parser = ConfigParser()
                     self.cfg_parser.read(self.cfg_path)

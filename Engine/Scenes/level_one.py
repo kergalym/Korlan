@@ -29,14 +29,15 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
+from pathlib import Path
 
 from panda3d.core import *
 from Engine.Actors.Player.korlan import Korlan
 from Settings.Player.korlan_settings import Player
 from Engine.Scenes.scene_one import SceneOne
 from Engine.world import World
-from os.path import isfile
-from os import listdir
+from os.path import isfile, exists, join
+from os import listdir, walk
 import configparser
 from sys import exit as sys_exit
 
@@ -63,10 +64,29 @@ class LevelOne:
         self.pos_z = 0.0
         self.anim = None
 
+    def get_game_assets(self, exclude):
+        asset_path = "{0}/Assets".format(Path.cwd())
+
+        asset_paths = []
+        asset_names = []
+
+        if exists(asset_path):
+            for root, dirs, files in walk(asset_path, topdown=True):
+                if exclude in dirs:
+                    dirs.remove(exclude)
+                for file in files:
+                    if '.egg' in file:
+                        asset_paths.append(join(root, file))
+                        asset_names.append(file.strip('.egg'))
+
+        return {'names': asset_names, 'path': asset_paths}
+
     def reload_menu_scene(self):
         if self.base.game_mode:
             self.base.game_mode = False
             self.base.menu_mode = True
+            assets = self.get_game_assets(exclude='Animations')
+
             render.find("**/Korlan").removeNode()
             render.find("**/Sky").removeNode()
             render.find("**/Grass").removeNode()
@@ -74,12 +94,8 @@ class LevelOne:
             render.find("**/Ground").removeNode()
             render.find("**/Mountains").removeNode()
 
-            self.loader.unloadModel('{0}/Assets/Actors/Korlan/Korlan.egg'.format(self.game_dir))
-            self.loader.unloadModel('{0}/Assets/Levels/Terrain/sky.egg'.format(self.game_dir))
-            self.loader.unloadModel('{0}/Assets/Levels/Terrain/tress_grass.egg'.format(self.game_dir))
-            self.loader.unloadModel('{0}/Assets/Levels/Environment/Nomad house/Nomad_house.egg'.format(self.game_dir))
-            self.loader.unloadModel('{0}/Assets/Levels/Terrain/ground.egg'.format(self.game_dir))
-            self.loader.unloadModel('{0}/Assets/Levels/Terrain/mountains.egg'.format(self.game_dir))
+            for path in assets['path']:
+                self.loader.unloadModel(path)
 
             wp = WindowProperties()
             wp.setCursorHidden(False)
@@ -94,13 +110,18 @@ class LevelOne:
             self.base.lastMouseX = None
             self.base.hideMouse = False
             self.base.manualRecenterMouse = False
-
+            self.base.camera.setPos(0, 0, 0)
+            self.base.camera.setHpr(0, 0, 0)
+            self.base.cam.setPos(0, 0, 0)
+            self.base.cam.setHpr(0, 0, 0)
             self.base.menu_scene_load()
             self.base.frame.show()
 
     def load_new_game(self):
         self.game_mode = True
         self.base.accept("escape", self.reload_menu_scene)
+        assets = self.get_game_assets(exclude='Animations')
+
         render.find("**/Korlan").removeNode()
         render.find("**/Sky").removeNode()
         render.find("**/Grass").removeNode()
@@ -108,12 +129,8 @@ class LevelOne:
         render.find("**/Ground").removeNode()
         render.find("**/Mountains").removeNode()
 
-        self.loader.unloadModel('{0}/Assets/Actors/Korlan/Korlan.egg'.format(self.game_dir))
-        self.loader.unloadModel('{0}/Assets/Levels/Terrain/sky.egg'.format(self.game_dir))
-        self.loader.unloadModel('{0}/Assets/Levels/Terrain/tress_grass.egg'.format(self.game_dir))
-        self.loader.unloadModel('{0}/Assets/Levels/Environment/Nomad house/Nomad_house.egg'.format(self.game_dir))
-        self.loader.unloadModel('{0}/Assets/Levels/Terrain/ground.egg'.format(self.game_dir))
-        self.loader.unloadModel('{0}/Assets/Levels/Terrain/mountains.egg'.format(self.game_dir))
+        for path in assets['path']:
+            self.loader.unloadModel(path)
 
         if isfile("{0}/{1}".format(self.game_cfg_dir,
                                    self.game_settings_filename)):
@@ -128,12 +145,12 @@ class LevelOne:
                                                   self.game_settings_filename))
 
         """ Assets """
-        self.scene_one.env_load('Assets/Levels/Terrain/sky.egg',
+        self.scene_one.env_load('Assets/Levels/Terrain/Sky.egg',
                                 "GAME_MODE",
                                 "Sky",
                                 [0.0, 10.0, self.pos_z], [0, 0, 0], [1.25, 1.25, 1.25], 'skybox')
 
-        self.scene_one.asset_load('Assets/Levels/Terrain/tress_grass.egg',
+        self.scene_one.asset_load('Assets/Levels/Terrain/Grass.egg',
                                   "GAME_MODE",
                                   "Grass",
                                   [20.0, 10.0, self.pos_z], [0, 0, 0], [1.25, 1.25, 1.25])
@@ -143,12 +160,12 @@ class LevelOne:
                                   "Nomad_house",
                                   [0.0, 20.0, self.pos_z], [65, 0, 0], [1.25, 1.25, 1.25])
 
-        self.scene_one.env_load('Assets/Levels/Terrain/ground.egg',
+        self.scene_one.env_load('Assets/Levels/Terrain/Ground.egg',
                                 "GAME_MODE",
                                 "Ground",
                                 [0.0, 10.0, self.pos_z], [0, 0, 0], [1.25, 1.25, 1.25], 'ground')
 
-        self.scene_one.env_load('Assets/Levels/Terrain/mountains.egg',
+        self.scene_one.env_load('Assets/Levels/Terrain/Mountains.egg',
                                 "GAME_MODE",
                                 "Mountains",
                                 [0.0, 20.0, self.pos_z], [0, 0, 0], [1.25, 1.25, 1.25], 'mountains')

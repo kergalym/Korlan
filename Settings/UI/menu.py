@@ -1258,7 +1258,7 @@ class Menu:
                                              frameColor=(255, 255, 255, self.frm_opacity),
                                              scale=self.btn_scale, borderWidth=(self.w, self.h),
                                              parent=self.base.frame_int_dev,
-                                             command=self.dev_mode.save_node_pos)
+                                             command=self.dev_mode_menu_save_changes)
 
         self.ornament_right.reparent_to(self.base.frame_int_dev)
         self.ornament_right.set_scale(self.ornament_scale)
@@ -1298,7 +1298,7 @@ class Menu:
         self.logo.reparent_to(self.base.frame_int_dev)
         self.logo.set_scale(self.logo_scale)
 
-        for x in self.dev_mode.check_game_assets():
+        for x in self.dev_mode.check_game_assets_devmode(exclude='Animations'):
             l = DirectLabel(text=x, text_scale=0.2, pos=(1.1, 1.0, -0.7),
                             parent=self.node_frame, scale=.5, )
             self.node_frame.addItem(l)
@@ -1370,6 +1370,10 @@ class Menu:
         self.ornament_right.reparent_to(self.base.frame_int)
         self.ornament_left.set_pos(self.ornament_l_pos)
         self.ornament_right.set_pos(self.ornament_r_pos)
+
+    def dev_mode_menu_save_changes(self):
+        self.dev_mode.save_node_pos()
+        self.dev_menu_unload()
 
     def dev_menu_unload(self):
         if self.game_mode:
