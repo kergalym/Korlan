@@ -222,7 +222,7 @@ class Korlan:
                 self.render.explore()
 
             taskMgr.add(self.mouse.mouse_look_cam,
-                        "camera-task",
+                        "mouse-look",
                         appendTask=True)
 
             self.act.scene_actions_init(self.korlan, anim_values)

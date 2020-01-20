@@ -64,7 +64,7 @@ class Actions:
             self.kbd.kbd_init()
             self.kbd.kbd_init_released()
 
-            taskMgr.add(self.player_init, "moveTask",
+            taskMgr.add(self.player_init, "player_init",
                         extraArgs=[player, anims],
                         appendTask=True)
 

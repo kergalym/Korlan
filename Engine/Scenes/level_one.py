@@ -31,6 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 from pathlib import Path
 
+from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import *
 from Engine.Actors.Player.korlan import Korlan
 from Settings.Player.korlan_settings import Player
@@ -85,6 +86,10 @@ class LevelOne:
         if self.base.game_mode:
             self.base.game_mode = False
             self.base.menu_mode = True
+
+            taskMgr.remove("player_init")
+            taskMgr.remove("mouse-look")
+
             assets = self.get_game_assets(exclude='Animations')
 
             render.find("**/Korlan").removeNode()

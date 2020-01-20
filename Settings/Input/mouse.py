@@ -70,7 +70,7 @@ class Mouse:
             y = md.getY()
             if self.base.win.movePointer(0, 100, 100):
                 self.heading = self.heading - (x - 100) * 0.2
-            self.pitch = self.pitch - (y - 100) * 0.2
+            # self.pitch = self.pitch - (y - 100) * 0.2
 
             self.base.camera.setHpr(self.heading, self.pitch, self.rotation)
 
