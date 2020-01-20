@@ -75,7 +75,7 @@ game_settings['Keymap'] = {'forward': 'W',
                            'attack': 'MOUSE1',
                            'h_attack': 'H',
                            'f_attack': 'F',
-                           'block': 'MOUSE2',
+                           'block': 'MOUSE3',
                            'sword': '1',
                            'bow': '2',
                            'tengri': '3',
@@ -138,6 +138,7 @@ class Main(ShowBase):
         self.menu_mode = True
 
         """ Creating same Game Directory"""
+
         def check_cfg(super):
             if exists('Settings/UI/cfg_path.json'):
                 super.cfg_path = json.dumps({'game_config_path': '{0}/{1}'.format(
@@ -274,35 +275,51 @@ class Main(ShowBase):
         """ Assets """
         # Test scene
         if self.game_mode is False and self.menu_mode is True:
-            self.scene_one.env_load('Assets/Levels/Terrain/Sky.egg',
-                                    "MENU_MODE",
-                                    "Sky",
-                                    [0.0, 10.0, -1.09], [0, 0, 0], [1.25, 1.25, 1.25], 'skybox')
+            self.scene_one.env_load(path='Assets/Levels/Terrain/Sky.egg',
+                                    mode="menu",
+                                    name="Sky",
+                                    axis=[0.0, 10.0, -1.09],
+                                    rotation=[0, 0, 0],
+                                    scale=[1.25, 1.25, 1.25],
+                                    type='skybox')
 
-            self.scene_one.asset_load('Assets/Levels/Terrain/Grass.egg',
-                                      "MENU_MODE",
-                                      "Grass",
-                                      [20.0, 10.0, -1.09], [0, 0, 0], [1.25, 1.25, 1.25])
+            self.scene_one.asset_load(path='Assets/Levels/Terrain/Grass.egg',
+                                      mode="menu",
+                                      name="Grass",
+                                      axis=[20.0, 10.0, -1.09],
+                                      rotation=[0, 0, 0],
+                                      scale=[1.25, 1.25, 1.25])
 
-            self.scene_one.asset_load('Assets/Levels/Environment/Nomad house/Nomad_house.egg',
-                                      "MENU_MODE",
-                                      "Nomad_house",
-                                      [1.0, 20.0, -1.09], [65, 0, 0], [1.25, 1.25, 1.25])
+            self.scene_one.asset_load(path='Assets/Levels/Environment/Nomad house/Nomad_house.egg',
+                                      mode="menu",
+                                      name="Nomad_house",
+                                      axis=[1.0, 20.0, -1.09],
+                                      rotation=[65, 0, 0],
+                                      scale=[1.25, 1.25, 1.25])
 
-            self.scene_one.env_load('Assets/Levels/Terrain/Ground.egg',
-                                    "MENU_MODE",
-                                    "Ground",
-                                    [0.0, 10.0, -1.09], [0, 0, 0], [1.25, 1.25, 1.25], 'ground')
+            self.scene_one.env_load(path='Assets/Levels/Terrain/Ground.egg',
+                                    mode="menu",
+                                    name="Ground",
+                                    axis=[0.0, 10.0, -1.09],
+                                    rotation=[0, 0, 0],
+                                    scale=[1.25, 1.25, 1.25],
+                                    type='ground')
 
-            self.scene_one.env_load('Assets/Levels/Terrain/Mountains.egg',
-                                    "MENU_MODE",
-                                    "Mountains",
-                                    [0.0, 20.0, -1.09], [0, 0, 0], [1.25, 1.25, 1.25], 'mountains')
+            self.scene_one.env_load(path='Assets/Levels/Terrain/Mountains.egg',
+                                    mode="menu",
+                                    name="Mountains",
+                                    axis=[0.0, 20.0, -1.09],
+                                    rotation=[0, 0, 0],
+                                    scale=[1.25, 1.25, 1.25],
+                                    type='mountains')
 
-            self.korlan.set_character("menu",
-                                      "Korlan",
-                                      self.player_settings.set_player_path(self.game_dir),
-                                      "Korlan-LookingAround.egg")
+            self.korlan.set_actor(mode="menu",
+                                  name="Korlan",
+                                  path=self.player_settings.set_player_path(self.game_dir),
+                                  animation="Korlan-LookingAround",
+                                  axis=[0, 8.0, -1.09],
+                                  rotation=[0, 0, 0],
+                                  scale=[1.25, 1.25, 1.25])
 
 
 app = Main()

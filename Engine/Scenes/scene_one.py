@@ -65,19 +65,20 @@ class SceneOne:
         self.game_cfg = base.game_cfg
         self.game_cfg_dir = base.game_cfg_dir
         self.game_settings_filename = base.game_settings_filename
-        self.cfg_path = {"game_config_path": "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
+        self.cfg_path = {"game_config_path":
+                         "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
 
-    def asset_load(self, path, mode, model, axis, rotation, scale):
-        if isinstance(mode, str) and mode == "MENU_MODE":
+    def asset_load(self, path, mode, name, axis, rotation, scale):
+        if isinstance(mode, str) and mode == "menu":
             if (isinstance(path, str)
-                    and isinstance(model, str)
+                    and isinstance(name, str)
                     and isinstance(axis, list)
                     and isinstance(rotation, list)
                     and isinstance(scale, list)):
 
                 self.path = "{0}{1}".format(self.game_dir, path)
                 self.game_settings = self.game_settings
-                self.model = model
+                self.model = name
                 pos_x = axis[0]
                 pos_y = axis[1]
                 pos_z = axis[2]
@@ -88,13 +89,13 @@ class SceneOne:
 
                 # Load the scene.
                 scene = self.base.loader.loadModel(path)
-                scene.setName(model)
+                scene.setName(name)
                 scene.reparentTo(self.render)
                 scene.setScale(self.scale_x, self.scale_y, self.scale_z)
                 scene.setPos(pos_x, pos_y, pos_z)
                 scene.setHpr(scene, rot_h, 0, 0)
 
-                if model == 'Grass':
+                if name == 'Grass':
                     scene.flattenStrong()
 
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
@@ -110,16 +111,16 @@ class SceneOne:
 
                 return scene
 
-        elif isinstance(mode, str) and mode == "GAME_MODE":
+        elif isinstance(mode, str) and mode == "game":
             if (isinstance(path, str)
-                    and isinstance(model, str)
+                    and isinstance(name, str)
                     and isinstance(axis, list)
                     and isinstance(rotation, list)
                     and isinstance(scale, list)):
 
                 self.path = "{0}{1}".format(self.game_dir, path)
                 self.render = render
-                self.model = model
+                self.model = name
                 pos_x = axis[0]
                 pos_y = axis[1]
                 pos_z = axis[2]
@@ -130,13 +131,13 @@ class SceneOne:
 
                 # Load the scene.
                 scene = self.base.loader.loadModel(path)
-                scene.setName(model)
+                scene.setName(name)
                 scene.reparentTo(self.render)
                 scene.setScale(self.scale_x, self.scale_y, self.scale_z)
                 scene.setPos(pos_x, pos_y, pos_z)
                 scene.setHpr(scene, rot_h, 0, 0)
 
-                if model == 'Grass':
+                if name == 'Grass':
                     scene.flattenStrong()
 
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
@@ -152,10 +153,10 @@ class SceneOne:
 
                 return scene
 
-    def env_load(self, path, mode, model, axis, rotation, scale, type):
-        if isinstance(mode, str) and mode == "MENU_MODE":
+    def env_load(self, path, mode, name, axis, rotation, scale, type):
+        if isinstance(mode, str) and mode == "menu":
             if (isinstance(path, str)
-                    and isinstance(model, str)
+                    and isinstance(name, str)
                     and isinstance(axis, list)
                     and isinstance(rotation, list)
                     and isinstance(scale, list)
@@ -163,7 +164,7 @@ class SceneOne:
 
                 self.path = "{}{}".format(self.game_dir, path)
                 self.render = render
-                self.model = model
+                self.model = name
                 pos_x = axis[0]
                 pos_y = axis[1]
                 pos_z = axis[2]
@@ -187,7 +188,7 @@ class SceneOne:
                 elif self.type == 'ground':
                     # Load the scene.
                     scene = self.base.loader.loadModel(path)
-                    scene.setName(model)
+                    scene.setName(name)
                     scene.reparentTo(self.render)
                     scene.setScale(self.scale_x, self.scale_y, self.scale_z)
                     scene.setPos(pos_x, pos_y, pos_z)
@@ -195,7 +196,7 @@ class SceneOne:
                 else:
                     # Load the scene.
                     scene = self.base.loader.loadModel(path)
-                    scene.setName(model)
+                    scene.setName(name)
                     scene.reparentTo(self.render)
                     scene.setScale(self.scale_x, self.scale_y, self.scale_z)
                     scene.setPos(pos_x, pos_y, pos_z)
@@ -219,9 +220,9 @@ class SceneOne:
 
                 return scene
 
-        elif isinstance(mode, str) and mode == "GAME_MODE":
+        elif isinstance(mode, str) and mode == "game":
             if (isinstance(path, str)
-                    and isinstance(model, str)
+                    and isinstance(name, str)
                     and isinstance(axis, list)
                     and isinstance(rotation, list)
                     and isinstance(scale, list)
@@ -229,7 +230,7 @@ class SceneOne:
                 # Make them visible for other class members
                 self.path = "{0}{1}".format(self.game_dir, path)
                 self.render = render
-                self.model = model
+                self.model = name
                 pos_x = axis[0]
                 pos_y = axis[1]
                 pos_z = axis[2]
@@ -253,7 +254,7 @@ class SceneOne:
                 else:
                     # Load the scene.
                     scene = self.base.loader.loadModel(path)
-                    scene.setName(model)
+                    scene.setName(name)
                     scene.reparentTo(self.render)
                     scene.setScale(self.scale_x, self.scale_y, self.scale_z)
                     scene.setPos(pos_x, pos_y, pos_z)

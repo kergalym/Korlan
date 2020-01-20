@@ -98,7 +98,7 @@ class Actions:
         self.fsmplayer.get_player(player=player)
 
         if self.is_idle and self.is_moving is False:
-            self.idleplayer.enter_idle(player=player, action='Korlan-LookingAround.egg')
+            self.idleplayer.enter_idle(player=player, action=anims['LookingAround'])
 
         # Here we accept keys
         self.player_movement_action(player, anims)
@@ -108,7 +108,7 @@ class Actions:
         self.player_any_action(player, "attack", anims, "Boxing", self.is_hitting)
         self.player_any_action(player, "h_attack", anims, "Kicking_3", self.is_hitting)
         self.player_any_action(player, "f_attack", anims, "Kicking_5", self.is_hitting)
-        self.player_any_action(player, "block", anims, "magic_block_idle", self.is_blocking)
+        self.player_any_action(player, "block", anims, "center_blocking", self.is_blocking)
         self.player_any_action(player, "sword", anims, "PickingUp", self.is_has_sword)
         self.player_any_action(player, "bow", anims, "PickingUp", self.is_has_bow)
         self.player_any_action(player, "tengri", anims, "PickingUp", self.is_has_tengri)

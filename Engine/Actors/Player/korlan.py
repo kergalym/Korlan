@@ -47,15 +47,15 @@ from Engine.Actors.Player.actions import Actions
 class Korlan:
 
     def __init__(self):
-        self.scale_x = 1.25
-        self.scale_y = 1.25
-        self.scale_z = 1.25
-        self.pos_x = -1.5
-        self.pos_y = 9.8
-        self.pos_z = -3.2
-        self.rot_h = -0.10
-        self.rot_p = 0
-        self.rot_r = 0
+        self.scale_x = None
+        self.scale_y = None
+        self.scale_z = None
+        self.pos_x = None
+        self.pos_y = None
+        self.pos_z = None
+        self.rot_h = None
+        self.rot_p = None
+        self.rot_r = None
         self.korlan = None
         self.base = base
         self.render = render
@@ -65,7 +65,8 @@ class Korlan:
         self.game_cfg = base.game_cfg
         self.game_cfg_dir = base.game_cfg_dir
         self.game_settings_filename = base.game_settings_filename
-        self.cfg_path = {"game_config_path": "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
+        self.cfg_path = {"game_config_path":
+                         "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
 
         self.taskMgr = taskMgr
         self.kbd = Keyboard()
@@ -74,137 +75,49 @@ class Korlan:
         self.world = World()
         self.act = Actions()
 
-    def set_character(self, render_type, model_dir, player_path, anim):
+    def actor_life(self, task):
+        pass
+        return task.cont
 
-        # Disable the camera trackball controls.
-        self.base.disableMouse()
-        props = WindowProperties()
-        props.setCursorHidden(False)
-        self.base.win.requestProperties(props)
+    def set_actor(self, mode, name, path, animation, axis, rotation, scale):
 
-        if (isinstance(player_path, str)
-                and isinstance(model_dir, str)
-                and isinstance(render_type, str)
-                and anim
-                and isinstance(anim, str)):
+        if mode == 'menu':
 
-            if render_type == 'menu':
+            # Disable the camera trackball controls.
+            self.base.disableMouse()
+            props = WindowProperties()
+            props.setCursorHidden(False)
+            self.base.win.requestProperties(props)
 
-                try:
-                    self.game_settings.read(self.cfg_path)
-                    self.pos_x = float(self.game_settings['Debug']['player_pos_x'])
-                    self.pos_y = float(self.game_settings['Debug']['player_pos_y'])
-                    self.pos_z = float(self.game_settings['Debug']['player_pos_z'])
-                    self.rot_h = float(self.game_settings['Debug']['player_rot_h'])
-                    self.rot_p = float(self.game_settings['Debug']['player_rot_p'])
-                    self.rot_r = float(self.game_settings['Debug']['player_rot_r'])
-                except KeyError:
-                    self.game_settings.read("{}/Korlan/Configs/default_config.ini".format(str(Path.home())))
-                    self.pos_x = float(self.game_settings['Debug']['player_pos_x'])
-                    self.pos_y = float(self.game_settings['Debug']['player_pos_y'])
-                    self.pos_z = float(self.game_settings['Debug']['player_pos_z'])
-                    self.rot_h = float(self.game_settings['Debug']['player_rot_h'])
-                    self.rot_p = float(self.game_settings['Debug']['player_rot_p'])
-                    self.rot_r = float(self.game_settings['Debug']['player_rot_r'])
-                except ValueError:
-                    self.game_settings.read("{}/Korlan/Configs/default_config.ini".format(str(Path.home())))
-                    self.pos_x = float(self.game_settings['Debug']['player_pos_x'])
-                    self.pos_y = float(self.game_settings['Debug']['player_pos_y'])
-                    self.pos_z = float(self.game_settings['Debug']['player_pos_z'])
-                    self.rot_h = float(self.game_settings['Debug']['player_rot_h'])
-                    self.rot_p = float(self.game_settings['Debug']['player_rot_p'])
-                    self.rot_r = float(self.game_settings['Debug']['player_rot_r'])
+            if (isinstance(path, str)
+                    and isinstance(name, str)
+                    and isinstance(axis, list)
+                    and isinstance(rotation, list)
+                    and isinstance(scale, list)
+                    and isinstance(mode, str)
+                    and animation
+                    and isinstance(animation, str)):
+                self.pos_x = axis[0]
+                self.pos_y = axis[1]
+                self.pos_z = axis[2]
+                self.rot_h = rotation[0]
+                self.rot_p = rotation[1]
+                self.rot_r = rotation[2]
+                self.scale_x = scale[0]
+                self.scale_y = scale[1]
+                self.scale_z = scale[2]
 
-                self.korlan = Actor(player_path,
-                                    {anim: "{0}/Assets/Actors/Animations/{1}".format(self.game_dir, anim)})
+            self.korlan = Actor(path,
+                                {animation: "{0}/Assets/Actors/Animations/{1}.egg".format(self.game_dir, animation)})
 
-                self.korlan.setName(model_dir)
-                self.korlan.setScale(self.korlan, self.scale_x, self.scale_y, self.scale_z)
-                self.korlan.setPos(self.pos_x, self.pos_y, self.pos_z)
-                self.korlan.setH(self.korlan, self.rot_h)
-                self.korlan.setP(self.korlan, self.rot_p)
-                self.korlan.setR(self.korlan, self.rot_r)
-                self.korlan.loop(anim)
-                self.korlan.setPlayRate(1.0, anim)
-
-                # Panda3D 1.10 doesn't enable alpha blending for textures by default
-                set_tex_transparency(self.korlan)
-
-                self.korlan.reparentTo(render)
-
-                # Set lights and Shadows
-                if self.game_settings['Main']['postprocessing'] == 'off':
-                    # TODO: uncomment if character has normals
-                    # self.world.set_shadows(self.korlan, self.render)
-                    # self.world.set_ssao(self.korlan)
-                    self.world.set_lighting(self.render, self.korlan)
-
-                if self.game_settings['Debug']['set_debug_mode'] == "YES":
-                    self.render.analyze()
-                    self.render.explore()
-
-                self.col.set_inter_collision(self.korlan)
-
-    def set_character_game(self, render_type, model_dir,
-                           axis, rotation, scale, player_path, anim):
-
-        self.base.game_mode = True
-        wp = WindowProperties()
-        wp.setCursorHidden(True)
-        self.base.win.requestProperties(wp)
-
-        # Disable the camera trackball controls.
-        self.base.disableMouse()
-
-        # control mapping of mouse movement to character movement
-        self.base.mouseMagnitude = 1
-
-        self.base.rotateX = 0
-
-        self.base.lastMouseX = None
-
-        self.base.hideMouse = False
-
-        self.base.manualRecenterMouse = True
-
-        self.mouse.set_mouse_mode(WindowProperties.M_absolute)
-
-        if (isinstance(player_path, str)
-                and isinstance(model_dir, str)
-                and isinstance(axis, list)
-                and isinstance(rotation, list)
-                and isinstance(scale, list)
-                and isinstance(render_type, str)
-                and isinstance(anim, list)
-                and render):
-            self.pos_x = axis[0]
-            self.pos_y = axis[1]
-            self.pos_z = axis[2]
-            self.rot_h = rotation[0]
-            self.rot_p = rotation[1]
-            self.rot_r = rotation[2]
-            self.scale_x = scale[0]
-            self.scale_y = scale[1]
-            self.scale_z = scale[2]
-
-            # Make animations dict containing full path and pass it to Actor
-            anims = {}
-            anim_values = {}
-            anim_path = "{0}/Assets/Actors/Animations/".format(self.game_dir)
-            for a in anim:
-                anims[a] = "{0}{1}".format(anim_path, a)
-                key = re.sub('Korlan-', '', a); key = re.sub('.egg', '', key)
-                anim_values[key] = a
-
-            self.korlan = Actor(player_path, anims)
-
-            self.korlan.setName(model_dir)
+            self.korlan.setName(name)
             self.korlan.setScale(self.korlan, self.scale_x, self.scale_y, self.scale_z)
-            self.KorlanStartPos = LPoint3f(self.pos_x, self.pos_y, 0.0)
-            self.korlan.setPos(self.KorlanStartPos + (0, 0, self.pos_z))
+            self.korlan.setPos(self.pos_x, self.pos_y, self.pos_z)
             self.korlan.setH(self.korlan, self.rot_h)
             self.korlan.setP(self.korlan, self.rot_p)
             self.korlan.setR(self.korlan, self.rot_r)
+            self.korlan.loop(animation)
+            self.korlan.setPlayRate(1.0, animation)
 
             # Panda3D 1.10 doesn't enable alpha blending for textures by default
             set_tex_transparency(self.korlan)
@@ -216,14 +129,95 @@ class Korlan:
                 # TODO: uncomment if character has normals
                 # self.world.set_shadows(self.korlan, self.render)
                 # self.world.set_ssao(self.korlan)
-                self.world.set_lighting(render, self.korlan)
+                self.world.set_lighting(self.render, self.korlan)
 
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
                 self.render.analyze()
                 self.render.explore()
 
-            taskMgr.add(self.mouse.mouse_look_cam,
-                        "mouse-look",
-                        appendTask=True)
+            self.col.set_inter_collision(self.korlan)
 
-            self.act.scene_actions_init(self.korlan, anim_values)
+        if mode == 'game':
+
+            self.base.game_mode = True
+            wp = WindowProperties()
+            wp.setCursorHidden(True)
+            self.base.win.requestProperties(wp)
+
+            # Disable the camera trackball controls.
+            self.base.disableMouse()
+
+            # control mapping of mouse movement to character movement
+            self.base.mouseMagnitude = 1
+
+            self.base.rotateX = 0
+
+            self.base.lastMouseX = None
+
+            self.base.hideMouse = False
+
+            self.base.manualRecenterMouse = True
+
+            self.mouse.set_mouse_mode(WindowProperties.M_absolute)
+
+            if (isinstance(path, str)
+                    and isinstance(name, str)
+                    and isinstance(axis, list)
+                    and isinstance(rotation, list)
+                    and isinstance(scale, list)
+                    and isinstance(mode, str)
+                    and isinstance(animation, list)):
+
+                self.pos_x = axis[0]
+                self.pos_y = axis[1]
+                self.pos_z = axis[2]
+                self.rot_h = rotation[0]
+                self.rot_p = rotation[1]
+                self.rot_r = rotation[2]
+                self.scale_x = scale[0]
+                self.scale_y = scale[1]
+                self.scale_z = scale[2]
+
+                # Make animations dict containing full path and pass it to Actor
+                anims = {}
+                anim_values = {}
+                anim_path = "{0}/Assets/Actors/Animations/".format(self.game_dir)
+                for a in animation:
+                    anims[a] = "{0}{1}".format(anim_path, a)
+                    key = re.sub('Korlan-', '', a)
+                    key = re.sub('.egg', '', key)
+                    anim_values[key] = a
+
+                self.korlan = Actor(path, anims)
+
+                self.korlan.setName(name)
+                self.korlan.setScale(self.korlan, self.scale_x, self.scale_y, self.scale_z)
+                self.KorlanStartPos = LPoint3f(self.pos_x, self.pos_y, 0.0)
+                self.korlan.setPos(self.KorlanStartPos + (0, 0, self.pos_z))
+                self.korlan.setH(self.korlan, self.rot_h)
+                self.korlan.setP(self.korlan, self.rot_p)
+                self.korlan.setR(self.korlan, self.rot_r)
+
+                # Panda3D 1.10 doesn't enable alpha blending for textures by default
+                set_tex_transparency(self.korlan)
+
+                self.korlan.reparentTo(render)
+
+                # Set lights and Shadows
+                if self.game_settings['Main']['postprocessing'] == 'off':
+                    # TODO: uncomment if character has normals
+                    # self.world.set_shadows(self.korlan, self.render)
+                    # self.world.set_ssao(self.korlan)
+                    self.world.set_lighting(render, self.korlan)
+
+                if self.game_settings['Debug']['set_debug_mode'] == "YES":
+                    self.render.analyze()
+                    self.render.explore()
+
+                taskMgr.add(self.mouse.mouse_look_cam,
+                            "mouse-look",
+                            appendTask=True)
+
+                self.act.scene_actions_init(self.korlan, anim_values)
+
+                taskMgr.add(self.actor_life, "actor_life")

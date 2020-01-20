@@ -136,6 +136,11 @@ class Interacting(FsmPlayer):
         FsmPlayer.__init__(self)
 
 
+class Life(FsmPlayer):
+    def __init__(self):
+        FsmPlayer.__init__(self)
+
+
 class Dying(FsmPlayer):
     def __init__(self):
 
@@ -152,3 +157,4 @@ class MiscActions(FsmPlayer):
     def __init__(self):
 
         FsmPlayer.__init__(self)
+

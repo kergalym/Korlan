@@ -52,7 +52,8 @@ class LevelOne:
         self.game_cfg = base.game_cfg
         self.game_cfg_dir = base.game_cfg_dir
         self.game_settings_filename = base.game_settings_filename
-        self.cfg_path = {"game_config_path": "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
+        self.cfg_path = {"game_config_path":
+                         "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
         self.base = base
         self.loader = base.loader
         self.node_path = NodePath()
@@ -150,35 +151,48 @@ class LevelOne:
                                                   self.game_settings_filename))
 
         """ Assets """
-        self.scene_one.env_load('Assets/Levels/Terrain/Sky.egg',
-                                "GAME_MODE",
-                                "Sky",
-                                [0.0, 10.0, self.pos_z], [0, 0, 0], [1.25, 1.25, 1.25], 'skybox')
+        self.scene_one.env_load(path='Assets/Levels/Terrain/Sky.egg',
+                                mode="game",
+                                name="Sky",
+                                axis=[0.0, 10.0, self.pos_z],
+                                rotation=[0, 0, 0],
+                                scale=[1.25, 1.25, 1.25],
+                                type='skybox')
 
-        self.scene_one.asset_load('Assets/Levels/Terrain/Grass.egg',
-                                  "GAME_MODE",
-                                  "Grass",
-                                  [20.0, 10.0, self.pos_z], [0, 0, 0], [1.25, 1.25, 1.25])
+        self.scene_one.asset_load(path='Assets/Levels/Terrain/Grass.egg',
+                                  mode="game",
+                                  name="Grass",
+                                  axis=[20.0, 10.0, self.pos_z],
+                                  rotation=[0, 0, 0],
+                                  scale=[1.25, 1.25, 1.25])
 
-        self.scene_one.asset_load('Assets/Levels/Environment/Nomad house/Nomad_house.egg',
-                                  "GAME_MODE",
-                                  "Nomad_house",
-                                  [0.0, 20.0, self.pos_z], [65, 0, 0], [1.25, 1.25, 1.25])
+        self.scene_one.asset_load(path='Assets/Levels/Environment/Nomad house/Nomad_house.egg',
+                                  mode="game",
+                                  name="Nomad_house",
+                                  axis=[0.0, 20.0, self.pos_z],
+                                  rotation=[65, 0, 0],
+                                  scale=[1.25, 1.25, 1.25])
 
-        self.scene_one.env_load('Assets/Levels/Terrain/Ground.egg',
-                                "GAME_MODE",
-                                "Ground",
-                                [0.0, 10.0, self.pos_z], [0, 0, 0], [1.25, 1.25, 1.25], 'ground')
+        self.scene_one.env_load(path='Assets/Levels/Terrain/Ground.egg',
+                                mode="game",
+                                name="Ground",
+                                axis=[0.0, 10.0, self.pos_z],
+                                rotation=[0, 0, 0],
+                                scale=[1.25, 1.25, 1.25],
+                                type='ground')
 
-        self.scene_one.env_load('Assets/Levels/Terrain/Mountains.egg',
-                                "GAME_MODE",
-                                "Mountains",
-                                [0.0, 20.0, self.pos_z], [0, 0, 0], [1.25, 1.25, 1.25], 'mountains')
+        self.scene_one.env_load(path='Assets/Levels/Terrain/Mountains.egg',
+                                mode="game",
+                                name="Mountains",
+                                axis=[0.0, 20.0, self.pos_z],
+                                rotation=[0, 0, 0],
+                                scale=[1.25, 1.25, 1.25],
+                                type='mountains')
 
-        self.anim = listdir('{0}/Assets/Actors/Animations/'.format(self.game_dir))
-
-        self.korlan.set_character_game("game",
-                                       "Korlan",
-                                       [0.0, 8.0, self.pos_z], [0, 0, 0], [1.25, 1.25, 1.25],
-                                       self.player_settings.set_player_path(self.game_dir),
-                                       self.anim)
+        self.korlan.set_actor(mode="game",
+                              name="Korlan",
+                              path=self.player_settings.set_player_path(self.game_dir),
+                              animation=listdir('{0}/Assets/Actors/Animations/'.format(self.game_dir)),
+                              axis=[0, 8.0, self.pos_z],
+                              rotation=[0, 0, 0],
+                              scale=[1.25, 1.25, 1.25])
