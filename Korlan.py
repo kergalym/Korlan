@@ -302,7 +302,7 @@ class Main(ShowBase):
             self.korlan.set_character("menu",
                                       "Korlan",
                                       self.player_settings.set_player_path(self.game_dir),
-                                      "Korlan-Walking.egg")
+                                      "Korlan-LookingAround.egg")
 
 
 app = Main()

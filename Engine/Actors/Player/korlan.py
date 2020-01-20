@@ -29,7 +29,7 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
-
+import re
 from pathlib import Path
 from Engine.collisions import Collisions
 from Engine import set_tex_transparency
@@ -193,7 +193,8 @@ class Korlan:
             anim_path = "{0}/Assets/Actors/Animations/".format(self.game_dir)
             for a in anim:
                 anims[a] = "{0}{1}".format(anim_path, a)
-                anim_values[a] = a
+                key = re.sub('Korlan-', '', a); key = re.sub('.egg', '', key)
+                anim_values[key] = a
 
             self.korlan = Actor(player_path, anims)
 

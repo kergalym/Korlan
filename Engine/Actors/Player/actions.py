@@ -30,6 +30,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
+from Engine.FSM.fsm_for_players import FsmPlayer, Idle
 from Engine.collisions import Collisions
 from direct.task.TaskManagerGlobal import taskMgr
 
@@ -42,10 +43,21 @@ from direct.interval.MetaInterval import Sequence
 class Actions:
 
     def __init__(self):
+        self.is_idle = True
         self.is_moving = False
         self.is_crouching = False
         self.is_jumping = False
         self.is_hitting = False
+        self.is_using = False
+        self.is_blocking = False
+        self.is_has_sword = False
+        self.is_has_bow = False
+        self.is_has_tengri = False
+        self.is_has_umai = False
+        self.walking_forward_action = "Walking"
+        self.crouch_walking_forward_action = 'crouch_walking_forward'
+        self.crouched_to_standing_action = "crouched_to_standing"
+        self.standing_to_crouch_action = "standing_to_crouch"
         self.base = base
         self.render = render
         self.korlan = None
@@ -54,6 +66,8 @@ class Actions:
         self.mouse = Mouse()
         self.col = Collisions()
         self.world = World()
+        self.fsmplayer = FsmPlayer()
+        self.idleplayer = Idle()
 
     """ Prepares actions for scene"""
 
@@ -73,9 +87,6 @@ class Actions:
 
             self.col.set_inter_collision(player)
 
-            # Accepts arrow keys to move either the player or the menu cursor,
-            # Also deals with grid checking and collision detection
-
     """ Prepares the player for scene """
 
     def player_init(self, player, anims, task):
@@ -83,13 +94,25 @@ class Actions:
         # in case he falls off the map or runs into something.
         startpos = player.getPos()
 
+        # Pass the player object to FSM
+        self.fsmplayer.get_player(player=player)
+
+        if self.is_idle and self.is_moving is False:
+            self.idleplayer.enter_idle(player=player, action='Korlan-LookingAround.egg')
+
         # Here we accept keys
         self.player_movement_action(player, anims)
-        self.player_any_action(player, "attack", anims, "Korlan-Boxing.egg", self.is_hitting)
-        self.player_any_action(player, "h_attack", anims, "Korlan-Kicking_3.egg", self.is_hitting)
-        self.player_any_action(player, "f_attack", anims, "Korlan-Kicking_5.egg", self.is_hitting)
         self.player_crouch_action(player, 'crouch', anims)
-        self.player_any_action(player, "jump", anims, "Korlan-Jumping.egg", self.is_jumping)
+        self.player_any_action(player, "jump", anims, "Jumping", self.is_jumping)
+        self.player_any_action(player, "use", anims, "PickingUp", self.is_using)
+        self.player_any_action(player, "attack", anims, "Boxing", self.is_hitting)
+        self.player_any_action(player, "h_attack", anims, "Kicking_3", self.is_hitting)
+        self.player_any_action(player, "f_attack", anims, "Kicking_5", self.is_hitting)
+        self.player_any_action(player, "block", anims, "magic_block_idle", self.is_blocking)
+        self.player_any_action(player, "sword", anims, "PickingUp", self.is_has_sword)
+        self.player_any_action(player, "bow", anims, "PickingUp", self.is_has_bow)
+        self.player_any_action(player, "tengri", anims, "PickingUp", self.is_has_tengri)
+        self.player_any_action(player, "umai", anims, "PickingUp", self.is_has_umai)
 
         # If the camera is too far from player, move it closer.
         # If the camera is too close to player, move it farther.
@@ -166,29 +189,33 @@ class Actions:
                     or self.kbd.keymap["left"]
                     or self.kbd.keymap["right"]):
                 if self.is_moving is False and self.is_crouching is False:
-                    player.loop(anims["Korlan-Walking.egg"])
-                    player.setPlayRate(1.0, anims["Korlan-Walking.egg"])
+                    player.loop(anims[self.walking_forward_action])
+                    player.setPlayRate(1.0, anims[self.walking_forward_action])
                     self.set_player_pos(player, player.getY)
+                    self.is_idle = False
                     self.is_moving = True
                     self.is_crouching = False
                 elif self.is_moving is False and self.is_crouching:
-                    player.loop(anims["Korlan-crouch_walking_forward.egg"])
-                    player.setPlayRate(1.0, anims["Korlan-crouch_walking_forward.egg"])
+                    player.loop(anims[self.crouch_walking_forward_action])
+                    player.setPlayRate(1.0, anims[self.crouch_walking_forward_action])
                     self.set_player_pos(player, player.getY)
                     self.is_moving = True
                     self.is_crouching = True
+                    self.is_idle = False
             else:
                 if self.is_moving and self.is_crouching is False:
                     player.stop()
-                    player.pose(anims["Korlan-Walking.egg"], 0)
+                    player.pose(anims[self.walking_forward_action], 0)
                     self.set_player_pos(player, player.getY)
                     self.is_moving = False
+                    self.is_idle = True
                     self.is_crouching = False
                 elif self.is_moving and self.is_crouching:
                     player.stop()
-                    player.pose(anims["Korlan-crouch_walking_forward.egg"], 0)
+                    player.pose(anims[self.crouch_walking_forward_action], 0)
                     self.set_player_pos(player, player.getY)
                     self.is_moving = False
+                    self.is_idle = True
                     self.is_crouching = False
 
     def player_crouch_action(self, player, key, anims):
@@ -200,17 +227,21 @@ class Actions:
 
             # If the player does action, play the animation.
             if self.kbd.keymap[key]:
-                crouched_to_standing = player.getAnimControl('Korlan-crouched_to_standing.egg')
-                standing_to_crouch = player.getAnimControl('Korlan-standing_to_crouch.egg')
+                self.is_idle = False
+                crouched_to_standing = player.getAnimControl(anims[self.crouched_to_standing_action])
+                standing_to_crouch = player.getAnimControl(anims[self.standing_to_crouch_action])
+
+                if crouched_to_standing.isPlaying() or standing_to_crouch.isPlaying():
+                    self.is_idle = False
 
                 if crouched_to_standing.isPlaying() is False and self.is_crouching is False:
-                    player.play(anims['Korlan-standing_to_crouch.egg'])
-                    player.setPlayRate(1.0, anims['Korlan-standing_to_crouch.egg'])
+                    player.play(anims[self.standing_to_crouch_action])
+                    player.setPlayRate(1.0, anims[self.standing_to_crouch_action])
                     self.set_player_pos(player, player.getY)
                     self.is_crouching = True
                 if standing_to_crouch.isPlaying() is False and self.is_crouching:
-                    player.play(anims['Korlan-crouched_to_standing.egg'])
-                    player.setPlayRate(1.0, anims['Korlan-crouched_to_standing.egg'])
+                    player.play(anims[self.crouched_to_standing_action])
+                    player.setPlayRate(1.0, anims[self.crouched_to_standing_action])
                     self.set_player_pos(player, player.getY)
                     self.is_crouching = False
 
@@ -220,28 +251,39 @@ class Actions:
                 and isinstance(key, str)
                 and isinstance(state, bool)):
             self.set_player_pos(player, player.getY)
-            crouched_to_standing = player.getAnimControl('Korlan-crouched_to_standing.egg')
+            crouched_to_standing = player.getAnimControl(anims[self.crouched_to_standing_action])
+            any_action = player.getAnimControl(anims[action])
+
             if self.kbd.keymap[key]:
+                self.is_idle = False
                 if (state is False
                         and crouched_to_standing.isPlaying() is False
                         and self.is_crouching is True):
                     # TODO: Use blending for smooth transition between animations
                     # Do an animation sequence if player is crouched.
-                    crouch_to_stand_seq = player.actorInterval(anims['Korlan-crouched_to_standing.egg'],
+                    crouch_to_stand_seq = player.actorInterval(anims[self.crouched_to_standing_action],
                                                                playRate=1.0)
-                    any_action_seq = player.actorInterval(action, playRate=1.0)
+                    any_action_seq = player.actorInterval(anims[action], playRate=1.0)
                     Sequence(crouch_to_stand_seq, any_action_seq).start()
                     self.is_crouching = False
                     self.set_player_pos(player, player.getY)
+
+                    if crouched_to_standing.isPlaying() or any_action.isPlaying():
+                        self.is_idle = True
+
                 elif (state is False
                       and crouched_to_standing.isPlaying() is False
                       and self.is_crouching is False):
-                    player.play(action)
-                    player.setPlayRate(1.0, action)
+
+                    if crouched_to_standing.isPlaying() or any_action.isPlaying():
+                        self.is_idle = True
+
+                    self.is_idle = False
+                    player.play(anims[action])
+                    player.setPlayRate(1.0, anims[action])
                     self.set_player_pos(player, player.getY)
 
     """ Sets current player position after action """
-
     def set_player_pos(self, player, pos_y):
         if (player and pos_y
                 and isinstance(pos_y, float)):
