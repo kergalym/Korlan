@@ -34,6 +34,10 @@ How does menu look right now?
 
 * No RenderPipeline icluded 
 
+### Game Code License ###
+
+MIT
+
 ==================================================================================================
 
 ### CREDIT LINKS FOR A SOFTWARE USED ###
