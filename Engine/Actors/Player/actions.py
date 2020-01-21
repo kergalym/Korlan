@@ -30,7 +30,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
-from Engine.FSM.fsm_for_player import FsmPlayer, Idle
+from Engine.FSM.player_ai import FsmPlayer, Idle
 from Engine.collisions import Collisions
 from direct.task.TaskManagerGlobal import taskMgr
 

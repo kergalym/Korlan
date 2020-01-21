@@ -37,7 +37,7 @@ from direct.actor.Actor import Actor
 from direct.task.TaskManagerGlobal import taskMgr
 
 from Engine.world import World
-from Engine.FSM.fsm_for_npc import Idle
+from Engine.FSM.npc_ai import Idle
 
 
 class NPC:
