@@ -50,6 +50,8 @@ class FsmPlayer(FSM):
         self.is_crouching = base.korlan_is_crouching
         self.is_jumping = base.korlan_is_jumping
         self.is_hitting = base.korlan_is_hitting
+        self.is_h_kicking = base.korlan_is_h_kicking
+        self.is_f_kicking = base.korlan_is_f_kicking
         self.is_using = base.korlan_is_using
         self.is_blocking = base.korlan_is_blocking
         self.has_sword = base.korlan_has_sword
