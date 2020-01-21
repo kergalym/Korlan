@@ -6,9 +6,6 @@ setup(
     options={
         'build_apps': {
             'include_patterns': [
-                'Assets/**/tex/*.png',
-                'Assets/**/tex/*.jpg',
-                'Assets/**/*.egg',
                 'Configs/Language/*.json',
                 'Configs/Keyboard/*.json',
                 'Configs/Mice/*.json',
@@ -22,7 +19,7 @@ setup(
                 'RenderPipeline/**/*',
             ],
             'gui_apps': {
-                'Korlan': 'Korlan.py',
+                'Korlan': 'main.py',
             },
             'platforms': [
                 'manylinux1_x86_64',
