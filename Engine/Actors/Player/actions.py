@@ -258,7 +258,6 @@ class Actions:
                     self.is_crouching = True
                     if (crouched_to_standing.isPlaying() is False
                             and self.is_crouching):
-                        # TODO: Watch if something is playing
                         self.is_idle = False
 
                 elif standing_to_crouch.isPlaying() is False and self.is_crouching:
@@ -269,7 +268,6 @@ class Actions:
                     self.is_crouching = False
                     if (crouched_to_standing.isPlaying() is False
                             and self.is_crouching is False):
-                        # TODO: Watch if something is playing
                         self.is_idle = True
 
     def player_any_action(self, player, key, anims, action, state):
@@ -298,7 +296,6 @@ class Actions:
                     self.is_crouching = False
                     if (any_action.isPlaying() is False
                             and self.is_crouching is False):
-                        # TODO: Watch if something is playing
                         self.is_idle = True
 
                 elif (state is False
@@ -308,7 +305,6 @@ class Actions:
                     Sequence(any_action_seq).start()
                     self.set_player_pos(player, player.getY)
                     if any_action.isPlaying() is False and self.is_crouching is False:
-                        # TODO: Watch if something is playing
                         self.is_idle = True
 
     def player_jump_action(self, player, key, anims, action):
@@ -337,7 +333,6 @@ class Actions:
                     self.is_jumping = False
                     if (any_action.isPlaying() is False
                             and self.is_crouching is False):
-                        # TODO: Watch if something is playing
                         self.is_idle = True
 
                 elif (self.is_jumping is False
@@ -350,7 +345,6 @@ class Actions:
                     self.is_crouching = False
                     self.is_jumping = False
                     if any_action.isPlaying() is False and self.is_jumping is False:
-                        # TODO: Watch if something is playing
                         self.is_idle = True
 
     """ Sets current player position after action """
