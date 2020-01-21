@@ -120,7 +120,7 @@ class Actions:
         # Here we accept keys
         self.player_movement_action(player, anims)
         self.player_crouch_action(player, 'crouch', anims)
-        self.player_any_action(player, "jump", anims, "Jumping", self.is_jumping)
+        self.player_jump_action(player, "jump", anims, "Jumping")
         self.player_any_action(player, "use", anims, "PickingUp", self.is_using)
         self.player_any_action(player, "attack", anims, "Boxing", self.is_hitting)
         self.player_any_action(player, "h_attack", anims, "Kicking_3", self.is_hitting)
@@ -130,6 +130,8 @@ class Actions:
         self.player_any_action(player, "bow", anims, "PickingUp", self.has_bow)
         self.player_any_action(player, "tengri", anims, "PickingUp", self.has_tengri)
         self.player_any_action(player, "umai", anims, "PickingUp", self.has_umai)
+
+        self.set_player_pos(player, player.getY)
 
         # If the camera is too far from player, move it closer.
         # If the camera is too close to player, move it farther.
@@ -254,13 +256,21 @@ class Actions:
                     player.setPlayRate(1.0, anims[self.standing_to_crouch_action])
                     self.set_player_pos(player, player.getY)
                     self.is_crouching = True
+                    if (crouched_to_standing.isPlaying() is False
+                            and self.is_crouching):
+                        # TODO: Watch if something is playing
+                        self.is_idle = False
+
                 elif standing_to_crouch.isPlaying() is False and self.is_crouching:
-                    player.play(anims[self.crouched_to_standing_action])
-                    player.setPlayRate(1.0, anims[self.crouched_to_standing_action])
+                    any_action_seq = player.actorInterval(
+                        anims[self.crouched_to_standing_action], playRate=1.0)
+                    Sequence(any_action_seq).start()
                     self.set_player_pos(player, player.getY)
                     self.is_crouching = False
-                    # TODO: Watch if something is playing
-                    # self.is_idle = True
+                    if (crouched_to_standing.isPlaying() is False
+                            and self.is_crouching is False):
+                        # TODO: Watch if something is playing
+                        self.is_idle = True
 
     def player_any_action(self, player, key, anims, action, state):
         if (player and isinstance(anims, dict)
@@ -269,6 +279,7 @@ class Actions:
                 and isinstance(state, bool)):
             self.set_player_pos(player, player.getY)
             crouched_to_standing = player.getAnimControl(anims[self.crouched_to_standing_action])
+            any_action = player.getAnimControl(anims[action])
 
             if self.kbd.keymap[key]:
                 self.is_idle = False
@@ -285,19 +296,62 @@ class Actions:
                     Sequence(crouch_to_stand_seq, any_action_seq).start()
                     self.set_player_pos(player, player.getY)
                     self.is_crouching = False
-                    Sequence(crouch_to_stand_seq, any_action_seq).finish()
-                    # TODO: Watch if something is playing
-                    # self.is_idle = True
+                    if (any_action.isPlaying() is False
+                            and self.is_crouching is False):
+                        # TODO: Watch if something is playing
+                        self.is_idle = True
 
                 elif (state is False
                       and crouched_to_standing.isPlaying() is False
                       and self.is_crouching is False):
-                    player.play(anims[action])
-                    player.setPlayRate(1.0, anims[action])
+                    any_action_seq = player.actorInterval(anims[action], playRate=1.0)
+                    Sequence(any_action_seq).start()
+                    self.set_player_pos(player, player.getY)
+                    if any_action.isPlaying() is False and self.is_crouching is False:
+                        # TODO: Watch if something is playing
+                        self.is_idle = True
+
+    def player_jump_action(self, player, key, anims, action):
+        if (player and isinstance(anims, dict)
+                and isinstance(action, str)
+                and isinstance(key, str)):
+            self.set_player_pos(player, player.getY)
+            crouched_to_standing = player.getAnimControl(anims[self.crouched_to_standing_action])
+            any_action = player.getAnimControl(anims[action])
+
+            if self.kbd.keymap[key]:
+                self.is_idle = False
+
+                if (self.is_jumping is False
+                        and crouched_to_standing.isPlaying() is False
+                        and self.is_crouching is True):
+                    self.is_standing = False
+                    # TODO: Use blending for smooth transition between animations
+                    # Do an animation sequence if player is crouched.
+                    crouch_to_stand_seq = player.actorInterval(anims[self.crouched_to_standing_action],
+                                                               playRate=1.0)
+                    any_action_seq = player.actorInterval(anims[action], playRate=1.0)
+                    Sequence(crouch_to_stand_seq, any_action_seq).start()
                     self.set_player_pos(player, player.getY)
                     self.is_crouching = False
-                    # TODO: Watch if something is playing
-                    # self.is_idle = True
+                    self.is_jumping = False
+                    if (any_action.isPlaying() is False
+                            and self.is_crouching is False):
+                        # TODO: Watch if something is playing
+                        self.is_idle = True
+
+                elif (self.is_jumping is False
+                      and crouched_to_standing.isPlaying() is False
+                      and self.is_crouching is False):
+                    self.is_jumping = True
+                    any_action_seq = player.actorInterval(anims[action], playRate=1.0)
+                    Sequence(any_action_seq).start()
+                    self.set_player_pos(player, player.getY)
+                    self.is_crouching = False
+                    self.is_jumping = False
+                    if any_action.isPlaying() is False and self.is_jumping is False:
+                        # TODO: Watch if something is playing
+                        self.is_idle = True
 
     """ Sets current player position after action """
     def set_player_pos(self, player, pos_y):
