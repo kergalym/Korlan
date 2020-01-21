@@ -29,12 +29,15 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
+import re
+
 from Engine.collisions import Collisions
 from Engine import set_tex_transparency
 from direct.actor.Actor import Actor
 from direct.task.TaskManagerGlobal import taskMgr
 
 from Engine.world import World
+from Engine.FSM.fsm_for_npc import Idle
 
 
 class NPC:
@@ -52,26 +55,65 @@ class NPC:
         self.actor = None
         self.base = base
         self.render = render
+        self.anims = None
 
         self.game_settings = base.game_settings
         self.game_dir = base.game_dir
         self.col = Collisions()
         self.world = World()
+        self.idle_player = Idle()
+        self.actor_life_perc = None
+        self.base.actor_is_dead = False
+        self.base.actor_is_alive = False
 
     def actor_life(self, task):
-        pass
+        self.has_actor_life()
         return task.cont
 
-    def set_actor(self, mode, name, path, anim):
+    def has_actor_life(self):
+        if (self.base.actor_is_dead is False
+                and self.base.actor_is_alive is False):
+            self.actor_life_perc = 100
+            self.base.actor_is_alive = True
+        else:
+            return False
+
+    def set_actor_task(self, animation, task):
+        if animation:
+            self.idle_player.enter_idle(player=self.actor, action=animation['LookingAround'])
+            return task.cont
+
+    def set_actor(self, mode, name, path, animation, axis, rotation, scale):
 
         if (isinstance(path, str)
                 and isinstance(name, str)
+                and isinstance(axis, list)
+                and isinstance(rotation, list)
+                and isinstance(scale, list)
                 and isinstance(mode, str)
-                and anim
-                and isinstance(anim, str)):
+                and isinstance(animation, list)):
 
-            self.actor = Actor(path,
-                               {anim: "{0}/Assets/Actors/Animations/{1}".format(self.game_dir, anim)})
+            self.pos_x = axis[0]
+            self.pos_y = axis[1]
+            self.pos_z = axis[2]
+            self.rot_h = rotation[0]
+            self.rot_p = rotation[1]
+            self.rot_r = rotation[2]
+            self.scale_x = scale[0]
+            self.scale_y = scale[1]
+            self.scale_z = scale[2]
+
+            # Make animations dict containing full path and pass it to Actor
+            anims = {}
+            anim_values = {}
+            anim_path = "{0}/Assets/Actors/Animations/".format(self.game_dir)
+            for a in animation:
+                anims[a] = "{0}{1}".format(anim_path, a)
+                key = re.sub('Korlan-', '', a)
+                key = re.sub('.egg', '', key)
+                anim_values[key] = a
+
+            self.actor = Actor(path, anims)
 
             self.actor.setName(name)
             self.actor.setScale(self.actor, self.scale_x, self.scale_y, self.scale_z)
@@ -79,8 +121,6 @@ class NPC:
             self.actor.setH(self.actor, self.rot_h)
             self.actor.setP(self.actor, self.rot_p)
             self.actor.setR(self.actor, self.rot_r)
-            self.actor.loop(anim)
-            self.actor.setPlayRate(1.0, anim)
 
             # Panda3D 1.10 doesn't enable alpha blending for textures by default
             set_tex_transparency(self.actor)
@@ -101,3 +141,5 @@ class NPC:
             self.col.set_inter_collision(self.actor)
 
             taskMgr.add(self.actor_life, "actor_life")
+
+            taskMgr.add(self.set_actor_task, 'actor_in_idle', extraArgs=[anim_values], appendTask=True)

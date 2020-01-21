@@ -45,17 +45,17 @@ class FsmPlayer(FSM):
     def __init__(self):
         self.d_object = DirectObject()
         self.cfg_parser = ConfigParser()
-        self.is_idle = True
-        self.is_moving = False
-        self.is_crouching = False
-        self.is_jumping = False
-        self.is_hitting = False
-        self.is_using = False
-        self.is_blocking = False
-        self.is_has_sword = False
-        self.is_has_bow = False
-        self.is_has_tengri = False
-        self.is_has_umai = False
+        self.is_idle = base.korlan_is_idle
+        self.is_moving = base.korlan_is_moving
+        self.is_crouching = base.korlan_is_crouching
+        self.is_jumping = base.korlan_is_jumping
+        self.is_hitting = base.korlan_is_hitting
+        self.is_using = base.korlan_is_using
+        self.is_blocking = base.korlan_is_blocking
+        self.has_sword = base.korlan_has_sword
+        self.has_bow = base.korlan_has_bow
+        self.has_tengri = base.korlan_has_tengri
+        self.has_umai = base.korlan_has_umai
         self.base = base
         self.render = render
         self.korlan = None
@@ -89,13 +89,10 @@ class Idle(FsmPlayer):
 
         FsmPlayer.__init__(self)
 
-    def enter_idle(self, player, action):
+    def enter_idle(self, player, action, state):
         if player and action:
-            self.avatar = player
-
-            any_action = self.avatar.getAnimControl(action)
-
-            if any_action.isPlaying() is False and self.is_idle:
+            if state:
+                self.avatar = player
                 self.avatar.play(action)
                 self.avatar.setPlayRate(1.0, action)
 

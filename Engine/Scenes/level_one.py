@@ -35,6 +35,7 @@ from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import *
 from Engine.Actors.Player.korlan import Korlan
 from Settings.Player.korlan_settings import Player
+from Engine.Actors.NPC.npc import NPC
 from Engine.Scenes.scene_one import SceneOne
 from Engine.world import World
 from os.path import isfile, exists, join
@@ -60,6 +61,7 @@ class LevelOne:
         self.scene_one = SceneOne()
         self.world = World()
         self.korlan = Korlan()
+        self.npc = NPC()
         self.player_settings = Player()
         self.pos_x = None
         self.pos_y = None
@@ -90,10 +92,12 @@ class LevelOne:
 
             taskMgr.remove("player_init")
             taskMgr.remove("mouse-look")
+            taskMgr.remove("actor_life")
 
             assets = self.get_game_assets(exclude='Animations')
 
             render.find("**/Korlan").removeNode()
+            render.find("**/NPC").removeNode()
             render.find("**/Sky").removeNode()
             render.find("**/Grass").removeNode()
             render.find("**/Nomad_house").removeNode()
@@ -196,3 +200,11 @@ class LevelOne:
                               axis=[0, 8.0, self.pos_z],
                               rotation=[0, 0, 0],
                               scale=[1.25, 1.25, 1.25])
+
+        self.npc.set_actor(mode="game",
+                           name="NPC",
+                           path=self.player_settings.set_player_path(self.game_dir),
+                           animation=listdir('{0}/Assets/Actors/Animations/'.format(self.game_dir)),
+                           axis=[-2.0, 8.0, self.pos_z],
+                           rotation=[0, 0, 0],
+                           scale=[1.25, 1.25, 1.25])
