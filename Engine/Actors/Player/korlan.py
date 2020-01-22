@@ -47,6 +47,7 @@ class Korlan:
         self.actor_life_perc = None
         self.base.actor_is_dead = False
         self.base.actor_is_alive = False
+        self.base.actor_play_rate = 1.0
 
     def actor_life(self, task):
         self.has_actor_life()
@@ -98,7 +99,7 @@ class Korlan:
             self.korlan.setP(self.korlan, self.rot_p)
             self.korlan.setR(self.korlan, self.rot_r)
             self.korlan.loop(animation)
-            self.korlan.setPlayRate(1.0, animation)
+            self.korlan.setPlayRate(self.base.actor_play_rate, animation)
 
             # Panda3D 1.10 doesn't enable alpha blending for textures by default
             set_tex_transparency(self.korlan)
