@@ -1,4 +1,3 @@
-
 from Engine.FSM.player_ai import FsmPlayer, Idle
 from Engine.collisions import Collisions
 from direct.task.TaskManagerGlobal import taskMgr
