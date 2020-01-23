@@ -5,7 +5,8 @@ from direct.task.TaskManagerGlobal import taskMgr
 from Engine.world import World
 from Settings.Input.keyboard import Keyboard
 from Settings.Input.mouse import Mouse
-from direct.interval.MetaInterval import Sequence
+# from direct.interval.MetaInterval import Sequence
+from direct.interval.IntervalGlobal import *
 
 
 class Actions:
@@ -408,7 +409,8 @@ class Actions:
                     self.is_h_kicking = True
                     any_action_seq = player.actorInterval(anims[action],
                                                           playRate=self.base.actor_play_rate)
-                    Sequence(any_action_seq).start()
+                    Sequence(any_action_seq,
+                             Func(player.setY, player, -0.5)).start()
                     print("When is pre-kicking: Current: ", player.getY())
                     # TODO: TEST: Save player position
                     # self.set_player_pos(player, -1.5)
