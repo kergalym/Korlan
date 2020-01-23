@@ -62,7 +62,6 @@ class Actions:
         if (player and pos_y
                 and isinstance(pos_y, float)):
             player.setY(player, pos_y)
-            print("When is kicking: Current: ", player.getY())
 
     def set_player_state(self, player):
         pass
@@ -119,8 +118,6 @@ class Actions:
         self.player_bow_action(player, "bow", anims, "PickingUp")
         self.player_tengri_action(player, "tengri", anims, "PickingUp")
         self.player_umai_action(player, "umai", anims, "PickingUp")
-
-        print("Current Y: ", player.getY())
 
         # If the camera is too far from player, move it closer.
         # If the camera is too close to player, move it farther.
