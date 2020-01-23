@@ -63,7 +63,7 @@ class Idle(FsmPlayer):
             if state:
                 self.avatar = player
                 self.avatar.play(action)
-                self.avatar.setPlayRate(1.0, action)
+                self.avatar.setPlayRate(self.base.actor_play_rate, action)
 
 
 class Swimming(FsmPlayer):

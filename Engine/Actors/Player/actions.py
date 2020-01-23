@@ -56,12 +56,18 @@ class Actions:
         self.idle_player = Idle()
 
     """ Sets current player position after action """
+
     def set_player_pos(self, player, pos_y):
         if (player and pos_y
                 and isinstance(pos_y, float)):
-            player.setY(pos_y)
+            player.setY(player, pos_y)
+            print("When is kicking: Current: ", player.getY())
+
+    def set_player_state(self, player):
+        pass
 
     """ Prepares actions for scene"""
+
     def scene_actions_init(self, player, anims):
         if (player
                 and anims
@@ -113,7 +119,7 @@ class Actions:
         self.player_tengri_action(player, "tengri", anims, "PickingUp")
         self.player_umai_action(player, "umai", anims, "PickingUp")
 
-        self.set_player_pos(player, player.getY)
+        print("Current Y: ", player.getY())
 
         # If the camera is too far from player, move it closer.
         # If the camera is too close to player, move it farther.
@@ -171,16 +177,12 @@ class Actions:
             speed = 5
 
             if self.kbd.keymap["left"]:
-                self.set_player_pos(player, player.getY)
                 player.setH(player.getH() + 300 * dt)
             if self.kbd.keymap["right"]:
-                self.set_player_pos(player, player.getY)
                 player.setH(player.getH() - 300 * dt)
             if self.kbd.keymap["forward"]:
-                self.set_player_pos(player, player.getY)
                 player.setY(player, -speed * dt)
             if self.kbd.keymap["backward"]:
-                self.set_player_pos(player, player.getY)
                 player.setY(player, speed * dt)
 
             # If the player does action, loop the animation.
@@ -191,15 +193,15 @@ class Actions:
                     or self.kbd.keymap["right"]):
                 if self.is_moving is False and self.is_crouching is False:
                     player.loop(anims[self.walking_forward_action])
-                    player.setPlayRate(self.base.actor_play_rate, anims[self.walking_forward_action])
-                    self.set_player_pos(player, player.getY)
+                    player.setPlayRate(self.base.actor_play_rate,
+                                       anims[self.walking_forward_action])
                     self.is_idle = False
                     self.is_moving = True
                     self.is_crouching = False
                 elif self.is_moving is False and self.is_crouching:
                     player.loop(anims[self.crouch_walking_forward_action])
-                    player.setPlayRate(self.base.actor_play_rate, anims[self.crouch_walking_forward_action])
-                    self.set_player_pos(player, player.getY)
+                    player.setPlayRate(self.base.actor_play_rate,
+                                       anims[self.crouch_walking_forward_action])
                     self.is_moving = True
                     self.is_crouching = True
                     self.is_idle = False
@@ -207,24 +209,24 @@ class Actions:
                 if self.is_moving and self.is_crouching is False:
                     player.stop()
                     player.pose(anims[self.walking_forward_action], 0)
-                    self.set_player_pos(player, player.getY)
                     self.is_moving = False
                     self.is_idle = True
                     self.is_crouching = False
                 elif self.is_moving and self.is_crouching:
                     player.stop()
                     player.pose(anims[self.crouch_walking_forward_action], 0)
-                    self.set_player_pos(player, player.getY)
                     self.is_moving = False
                     self.is_idle = True
                     self.is_crouching = False
 
+            # Actor backward movement
+            if self.kbd.keymap["backward"]:
+                player.setPlayRate(-1.0,
+                                   anims[self.walking_forward_action])
+
     def player_crouch_action(self, player, key, anims):
         if (player and isinstance(anims, dict)
                 and isinstance(key, str)):
-
-            # Save player position
-            self.set_player_pos(player, player.getY)
 
             crouched_to_standing = player.getAnimControl(anims[self.crouched_to_standing_action])
             standing_to_crouch = player.getAnimControl(anims[self.standing_to_crouch_action])
@@ -236,7 +238,6 @@ class Actions:
                 if crouched_to_standing.isPlaying() is False and self.is_crouching is False:
                     player.play(anims[self.standing_to_crouch_action])
                     player.setPlayRate(self.base.actor_play_rate, anims[self.standing_to_crouch_action])
-                    self.set_player_pos(player, player.getY)
                     self.is_crouching = True
                     if (crouched_to_standing.isPlaying() is False
                             and self.is_crouching):
@@ -247,7 +248,6 @@ class Actions:
                         anims[self.crouched_to_standing_action],
                         playRate=self.base.actor_play_rate)
                     Sequence(any_action_seq).start()
-                    self.set_player_pos(player, player.getY)
                     self.is_crouching = False
                     if (crouched_to_standing.isPlaying() is False
                             and self.is_crouching is False):
@@ -257,7 +257,6 @@ class Actions:
         if (player and isinstance(anims, dict)
                 and isinstance(action, str)
                 and isinstance(key, str)):
-            self.set_player_pos(player, player.getY)
             crouched_to_standing = player.getAnimControl(anims[self.crouched_to_standing_action])
             any_action = player.getAnimControl(anims[action])
 
@@ -268,6 +267,7 @@ class Actions:
                         and crouched_to_standing.isPlaying() is False
                         and self.is_crouching is True):
                     self.is_standing = False
+                    self.is_jumping = True
                     # TODO: Use blending for smooth transition between animations
                     # Do an animation sequence if player is crouched.
                     crouch_to_stand_seq = player.actorInterval(anims[self.crouched_to_standing_action],
@@ -275,9 +275,9 @@ class Actions:
                     any_action_seq = player.actorInterval(anims[action],
                                                           playRate=self.base.actor_play_rate)
                     Sequence(crouch_to_stand_seq, any_action_seq).start()
-                    self.set_player_pos(player, player.getY)
                     self.is_crouching = False
                     self.is_jumping = False
+                    self.is_standing = True
                     if (any_action.isPlaying() is False
                             and self.is_crouching is False):
                         self.is_idle = True
@@ -289,7 +289,6 @@ class Actions:
                     any_action_seq = player.actorInterval(anims[action],
                                                           playRate=self.base.actor_play_rate)
                     Sequence(any_action_seq).start()
-                    self.set_player_pos(player, player.getY)
                     self.is_crouching = False
                     self.is_jumping = False
                     if any_action.isPlaying() is False and self.is_jumping is False:
@@ -299,7 +298,6 @@ class Actions:
         if (player and isinstance(anims, dict)
                 and isinstance(action, str)
                 and isinstance(key, str)):
-            self.set_player_pos(player, player.getY)
             crouched_to_standing = player.getAnimControl(anims[self.crouched_to_standing_action])
             any_action = player.getAnimControl(anims[action])
 
@@ -317,7 +315,6 @@ class Actions:
                     any_action_seq = player.actorInterval(anims[action],
                                                           playRate=self.base.actor_play_rate)
                     Sequence(crouch_to_stand_seq, any_action_seq).start()
-                    self.set_player_pos(player, player.getY)
                     self.is_crouching = False
                     self.is_using = False
                     if (any_action.isPlaying() is False
@@ -330,7 +327,6 @@ class Actions:
                     self.is_using = True
                     any_action_seq = player.actorInterval(anims[action], playRate=1.0)
                     Sequence(any_action_seq).start()
-                    self.set_player_pos(player, player.getY)
                     self.is_crouching = False
                     self.is_using = False
                     if any_action.isPlaying() is False and self.is_using is False:
@@ -340,7 +336,6 @@ class Actions:
         if (player and isinstance(anims, dict)
                 and isinstance(action, str)
                 and isinstance(key, str)):
-            self.set_player_pos(player, player.getY)
             crouched_to_standing = player.getAnimControl(anims[self.crouched_to_standing_action])
             any_action = player.getAnimControl(anims[action])
 
@@ -358,7 +353,6 @@ class Actions:
                     any_action_seq = player.actorInterval(anims[action],
                                                           playRate=self.base.actor_play_rate)
                     Sequence(crouch_to_stand_seq, any_action_seq).start()
-                    self.set_player_pos(player, player.getY)
                     self.is_crouching = False
                     self.is_hitting = False
                     if (any_action.isPlaying() is False
@@ -372,7 +366,6 @@ class Actions:
                     any_action_seq = player.actorInterval(anims[action],
                                                           playRate=self.base.actor_play_rate)
                     Sequence(any_action_seq).start()
-                    self.set_player_pos(player, player.getY)
                     self.is_crouching = False
                     self.is_hitting = False
                     if any_action.isPlaying() is False and self.is_hitting is False:
@@ -382,7 +375,6 @@ class Actions:
         if (player and isinstance(anims, dict)
                 and isinstance(action, str)
                 and isinstance(key, str)):
-            self.set_player_pos(player, player.getY)
             crouched_to_standing = player.getAnimControl(anims[self.crouched_to_standing_action])
             any_action = player.getAnimControl(anims[action])
 
@@ -400,7 +392,10 @@ class Actions:
                     any_action_seq = player.actorInterval(anims[action],
                                                           playRate=self.base.actor_play_rate)
                     Sequence(crouch_to_stand_seq, any_action_seq).start()
-                    self.set_player_pos(player, player.getY)
+
+                    # TODO: TEST: Save player position
+                    # self.set_player_pos(player, -1.5)
+
                     self.is_crouching = False
                     self.is_h_kicking = False
                     if (any_action.isPlaying() is False
@@ -414,7 +409,10 @@ class Actions:
                     any_action_seq = player.actorInterval(anims[action],
                                                           playRate=self.base.actor_play_rate)
                     Sequence(any_action_seq).start()
-                    self.set_player_pos(player, player.getY)
+                    print("When is pre-kicking: Current: ", player.getY())
+                    # TODO: TEST: Save player position
+                    # self.set_player_pos(player, -1.5)
+                    print("When is kicked: Current: ", player.getY())
                     self.is_crouching = False
                     self.is_h_kicking = False
                     if any_action.isPlaying() is False and self.is_h_kicking is False:
@@ -424,7 +422,6 @@ class Actions:
         if (player and isinstance(anims, dict)
                 and isinstance(action, str)
                 and isinstance(key, str)):
-            self.set_player_pos(player, player.getY)
             crouched_to_standing = player.getAnimControl(anims[self.crouched_to_standing_action])
             any_action = player.getAnimControl(anims[action])
 
@@ -442,7 +439,6 @@ class Actions:
                     any_action_seq = player.actorInterval(anims[action],
                                                           playRate=self.base.actor_play_rate)
                     Sequence(crouch_to_stand_seq, any_action_seq).start()
-                    self.set_player_pos(player, player.getY)
                     self.is_crouching = False
                     self.is_f_kicking = False
                     if (any_action.isPlaying() is False
@@ -456,7 +452,6 @@ class Actions:
                     any_action_seq = player.actorInterval(anims[action],
                                                           playRate=self.base.actor_play_rate)
                     Sequence(any_action_seq).start()
-                    self.set_player_pos(player, player.getY)
                     self.is_crouching = False
                     self.is_f_kicking = False
                     if any_action.isPlaying() is False and self.is_f_kicking is False:
@@ -466,7 +461,6 @@ class Actions:
         if (player and isinstance(anims, dict)
                 and isinstance(action, str)
                 and isinstance(key, str)):
-            self.set_player_pos(player, player.getY)
             crouched_to_standing = player.getAnimControl(anims[self.crouched_to_standing_action])
             any_action = player.getAnimControl(anims[action])
 
@@ -484,7 +478,6 @@ class Actions:
                     any_action_seq = player.actorInterval(anims[action],
                                                           playRate=self.base.actor_play_rate)
                     Sequence(crouch_to_stand_seq, any_action_seq).start()
-                    self.set_player_pos(player, player.getY)
                     self.is_crouching = False
                     self.is_blocking = False
                     if (any_action.isPlaying() is False
@@ -498,7 +491,6 @@ class Actions:
                     any_action_seq = player.actorInterval(anims[action],
                                                           playRate=self.base.actor_play_rate)
                     Sequence(any_action_seq).start()
-                    self.set_player_pos(player, player.getY)
                     self.is_crouching = False
                     self.is_blocking = False
                     if any_action.isPlaying() is False and self.is_blocking is False:
@@ -508,7 +500,6 @@ class Actions:
         if (player and isinstance(anims, dict)
                 and isinstance(action, str)
                 and isinstance(key, str)):
-            self.set_player_pos(player, player.getY)
             crouched_to_standing = player.getAnimControl(anims[self.crouched_to_standing_action])
             any_action = player.getAnimControl(anims[action])
 
@@ -526,7 +517,6 @@ class Actions:
                     any_action_seq = player.actorInterval(anims[action],
                                                           playRate=self.base.actor_play_rate)
                     Sequence(crouch_to_stand_seq, any_action_seq).start()
-                    self.set_player_pos(player, player.getY)
                     self.is_crouching = False
                     self.has_sword = False
                     if (any_action.isPlaying() is False
@@ -540,7 +530,6 @@ class Actions:
                     any_action_seq = player.actorInterval(anims[action],
                                                           playRate=self.base.actor_play_rate)
                     Sequence(any_action_seq).start()
-                    self.set_player_pos(player, player.getY)
                     self.is_crouching = False
                     self.has_sword = False
                     if any_action.isPlaying() is False and self.has_sword is False:
@@ -550,7 +539,6 @@ class Actions:
         if (player and isinstance(anims, dict)
                 and isinstance(action, str)
                 and isinstance(key, str)):
-            self.set_player_pos(player, player.getY)
             crouched_to_standing = player.getAnimControl(anims[self.crouched_to_standing_action])
             any_action = player.getAnimControl(anims[action])
 
@@ -568,7 +556,6 @@ class Actions:
                     any_action_seq = player.actorInterval(anims[action],
                                                           playRate=self.base.actor_play_rate)
                     Sequence(crouch_to_stand_seq, any_action_seq).start()
-                    self.set_player_pos(player, player.getY)
                     self.is_crouching = False
                     self.has_bow = False
                     if (any_action.isPlaying() is False
@@ -582,7 +569,6 @@ class Actions:
                     any_action_seq = player.actorInterval(anims[action],
                                                           playRate=self.base.actor_play_rate)
                     Sequence(any_action_seq).start()
-                    self.set_player_pos(player, player.getY)
                     self.is_crouching = False
                     self.has_bow = False
                     if any_action.isPlaying() is False and self.has_bow is False:
@@ -592,7 +578,6 @@ class Actions:
         if (player and isinstance(anims, dict)
                 and isinstance(action, str)
                 and isinstance(key, str)):
-            self.set_player_pos(player, player.getY)
             crouched_to_standing = player.getAnimControl(anims[self.crouched_to_standing_action])
             any_action = player.getAnimControl(anims[action])
 
@@ -610,7 +595,6 @@ class Actions:
                     any_action_seq = player.actorInterval(anims[action],
                                                           playRate=self.base.actor_play_rate)
                     Sequence(crouch_to_stand_seq, any_action_seq).start()
-                    self.set_player_pos(player, player.getY)
                     self.is_crouching = False
                     self.has_tengri = False
                     if (any_action.isPlaying() is False
@@ -624,7 +608,6 @@ class Actions:
                     any_action_seq = player.actorInterval(anims[action],
                                                           playRate=self.base.actor_play_rate)
                     Sequence(any_action_seq).start()
-                    self.set_player_pos(player, player.getY)
                     self.is_crouching = False
                     self.has_tengri = False
                     if any_action.isPlaying() is False and self.has_tengri is False:
@@ -634,7 +617,6 @@ class Actions:
         if (player and isinstance(anims, dict)
                 and isinstance(action, str)
                 and isinstance(key, str)):
-            self.set_player_pos(player, player.getY)
             crouched_to_standing = player.getAnimControl(anims[self.crouched_to_standing_action])
             any_action = player.getAnimControl(anims[action])
 
@@ -652,7 +634,6 @@ class Actions:
                     any_action_seq = player.actorInterval(anims[action],
                                                           playRate=self.base.actor_play_rate)
                     Sequence(crouch_to_stand_seq, any_action_seq).start()
-                    self.set_player_pos(player, player.getY)
                     self.is_crouching = False
                     self.has_umai = False
                     if (any_action.isPlaying() is False
@@ -665,9 +646,7 @@ class Actions:
                     self.has_umai = True
                     any_action_seq = player.actorInterval(anims[action], playRate=self.base.actor_play_rate)
                     Sequence(any_action_seq).start()
-                    self.set_player_pos(player, player.getY)
                     self.is_crouching = False
                     self.has_umai = False
                     if any_action.isPlaying() is False and self.has_umai is False:
                         self.is_idle = True
-
