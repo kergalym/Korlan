@@ -389,10 +389,9 @@ class Actions:
                                                                playRate=self.base.actor_play_rate)
                     any_action_seq = player.actorInterval(anims[action],
                                                           playRate=self.base.actor_play_rate)
-                    Sequence(crouch_to_stand_seq, any_action_seq).start()
-
-                    # TODO: TEST: Save player position
-                    # self.set_player_pos(player, -1.5)
+                    Sequence(crouch_to_stand_seq,
+                             any_action_seq,
+                             Func(self.set_player_pos, player, -1.5)).start()
 
                     self.is_crouching = False
                     self.is_h_kicking = False
@@ -407,11 +406,8 @@ class Actions:
                     any_action_seq = player.actorInterval(anims[action],
                                                           playRate=self.base.actor_play_rate)
                     Sequence(any_action_seq,
-                             Func(player.setY, player, -0.5)).start()
-                    print("When is pre-kicking: Current: ", player.getY())
-                    # TODO: TEST: Save player position
-                    # self.set_player_pos(player, -1.5)
-                    print("When is kicked: Current: ", player.getY())
+                             Func(self.set_player_pos, player, -1.5)).start()
+
                     self.is_crouching = False
                     self.is_h_kicking = False
                     if any_action.isPlaying() is False and self.is_h_kicking is False:

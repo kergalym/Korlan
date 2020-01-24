@@ -1,3 +1,5 @@
+from os.path import isfile, exists
+
 from panda3d.core import *
 from Engine.collisions import Collisions
 from Engine.Actors.Player.korlan import Korlan
@@ -56,8 +58,15 @@ class SceneOne:
                 self.scale_y = scale[1]
                 self.scale_z = scale[2]
 
+                scene = None
+
                 # Load the scene.
-                scene = self.base.loader.loadModel(path)
+                if isfile(path) and exists(path):
+                    scene = self.base.loader.loadModel(path)
+
+                if isfile("{0}.bam".format(path)) and exists("{0}.bam".format(path)):
+                    scene = self.base.loader.loadModel("{0}.bam".format(path))
+
                 scene.setName(name)
                 scene.reparentTo(self.render)
                 scene.setScale(self.scale_x, self.scale_y, self.scale_z)
@@ -98,8 +107,15 @@ class SceneOne:
                 self.scale_y = scale[1]
                 self.scale_z = scale[2]
 
+                scene = None
+
                 # Load the scene.
-                scene = self.base.loader.loadModel(path)
+                if isfile(path) and exists(path):
+                    scene = self.base.loader.loadModel(path)
+
+                if isfile("{0}.bam".format(path)) and exists("{0}.bam".format(path)):
+                    scene = self.base.loader.loadModel("{0}.bam".format(path))
+
                 scene.setName(name)
                 scene.reparentTo(self.render)
                 scene.setScale(self.scale_x, self.scale_y, self.scale_z)
@@ -155,16 +171,30 @@ class SceneOne:
                     scene.setPos(self.base.camera, 0, 0, 0)
                     scene.setHpr(scene, rot_h, 0, 0)
                 elif self.type == 'ground':
+                    scene = None
+
                     # Load the scene.
-                    scene = self.base.loader.loadModel(path)
+                    if isfile(path) and exists(path):
+                        scene = self.base.loader.loadModel(path)
+
+                    if isfile("{0}.bam".format(path)) and exists("{0}.bam".format(path)):
+                        scene = self.base.loader.loadModel("{0}.bam".format(path))
+
                     scene.setName(name)
                     scene.reparentTo(self.render)
                     scene.setScale(self.scale_x, self.scale_y, self.scale_z)
                     scene.setPos(pos_x, pos_y, pos_z)
                     scene.setHpr(scene, rot_h, 0, 0)
                 else:
+                    scene = None
+
                     # Load the scene.
-                    scene = self.base.loader.loadModel(path)
+                    if isfile(path) and exists(path):
+                        scene = self.base.loader.loadModel(path)
+
+                    if isfile("{0}.bam".format(path)) and exists("{0}.bam".format(path)):
+                        scene = self.base.loader.loadModel("{0}.bam".format(path))
+
                     scene.setName(name)
                     scene.reparentTo(self.render)
                     scene.setScale(self.scale_x, self.scale_y, self.scale_z)
@@ -210,8 +240,15 @@ class SceneOne:
                 self.type = type
 
                 if self.type == 'skybox':
+                    scene = None
+
                     # Load the scene.
-                    scene = self.base.loader.loadModel(path)
+                    if isfile(path) and exists(path):
+                        scene = self.base.loader.loadModel(path)
+
+                    if isfile("{0}.bam".format(path)) and exists("{0}.bam".format(path)):
+                        scene = self.base.loader.loadModel("{0}.bam".format(path))
+
                     scene.setBin('background', 1)
                     scene.setDepthWrite(0)
                     scene.setLightOff()
@@ -221,8 +258,15 @@ class SceneOne:
                     scene.setPos(self.base.camera, 0, 0, 0)
                     scene.setHpr(scene, rot_h, 0, 0)
                 else:
+                    scene = None
+
                     # Load the scene.
-                    scene = self.base.loader.loadModel(path)
+                    if isfile(path) and exists(path):
+                        scene = self.base.loader.loadModel(path)
+
+                    if isfile("{0}.bam".format(path)) and exists("{0}.bam".format(path)):
+                        scene = self.base.loader.loadModel("{0}.bam".format(path))
+
                     scene.setName(name)
                     scene.reparentTo(self.render)
                     scene.setScale(self.scale_x, self.scale_y, self.scale_z)

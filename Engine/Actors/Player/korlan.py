@@ -167,7 +167,10 @@ class Korlan:
                 for a in animation:
                     anims[a] = "{0}{1}".format(anim_path, a)
                     key = re.sub('Korlan-', '', a)
-                    key = re.sub('.egg', '', key)
+                    if '.egg' and '.egg.bam' not in key:
+                        key = re.sub('.egg', '', key)
+                    elif '.egg.bam' in key:
+                        key = re.sub('.egg.bam', '', key)
                     anim_values[key] = a
 
                 base.anims = anims

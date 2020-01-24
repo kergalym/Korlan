@@ -79,9 +79,13 @@ class NPC:
             for a in animation:
                 anims[a] = "{0}{1}".format(anim_path, a)
                 key = re.sub('Korlan-', '', a)
-                key = re.sub('.egg', '', key)
+                if '.egg' and '.egg.bam' not in key:
+                    key = re.sub('.egg', '', key)
+                elif '.egg.bam' in key:
+                    key = re.sub('.egg.bam', '', key)
                 anim_values[key] = a
 
+            # TODO: Add checks for egg or bam file existence
             self.actor = Actor(path, anims)
 
             self.actor.setName(name)

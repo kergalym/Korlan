@@ -189,7 +189,8 @@ class Main(ShowBase):
         # Insert the pipeline path to the system path, this is required to be
         # pipeline in a subfolder of your project, you have to adjust this.
 
-        sys.path.insert(0, ".")
+        # Commented to prevent using it by deploying system
+        """sys.path.insert(0, ".")
         sys.path.insert(0, "RenderPipeline")
 
         # Import the main render pipeline class
@@ -197,17 +198,18 @@ class Main(ShowBase):
         from rpcore import PointLight
 
         # Construct and create the pipeline
-        self.render_pipeline = RenderPipeline()
+        self.render_pipeline = RenderPipeline()"""
 
         self.game_settings.read("{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename))
 
-        if self.game_settings['Main']['postprocessing'] == 'on':
+        # Commented to prevent using it by deploying system
+        """if self.game_settings['Main']['postprocessing'] == 'on':
             self.render_pipeline.pre_showbase_init()
             self.render_pipeline.create(self)
 
             my_light = PointLight()
             # set desired properties, see below
-            self.render_pipeline.add_light(my_light)
+            self.render_pipeline.add_light(my_light)"""
 
         # Game scene loading definitions
         self.scene_one = SceneOne()
@@ -237,9 +239,11 @@ class Main(ShowBase):
             self.menu.load_main_menu()
 
     def menu_scene_load(self):
-        # Set time of day
+        # Commented to prevent using it by deploying system
+        """"# Set time of day
         if self.game_settings['Main']['postprocessing'] == 'on':
-            self.render_pipeline.daytime_mgr.time = "15:25"
+            self.render_pipeline.daytime_mgr.time = "15:25
+        """
 
         """ Assets """
         # Test scene

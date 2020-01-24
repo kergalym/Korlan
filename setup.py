@@ -6,6 +6,8 @@ setup(
     options={
         'build_apps': {
             'include_patterns': [
+                'Assets/**/*.egg',
+                'Assets/**/tex/*',
                 'Configs/Language/*.json',
                 'Configs/Keyboard/*.json',
                 'Configs/Mice/*.json',
@@ -16,7 +18,6 @@ setup(
                 'Settings/Sound/*.ogg',
                 'Engine/Shaders/**/*.frag',
                 'Engine/Shaders/**/*.vert',
-                'RenderPipeline/**/*',
             ],
             'gui_apps': {
                 'Korlan': 'main.py',

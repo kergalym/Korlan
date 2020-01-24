@@ -51,6 +51,9 @@ class LevelOne:
                     if '.egg' in file:
                         asset_paths.append(join(root, file))
                         asset_names.append(file.strip('.egg'))
+                    elif '.bam' in file:
+                        asset_paths.append(join(root, file))
+                        asset_names.append(file.strip('.bam'))
 
         return {'names': asset_names, 'path': asset_paths}
 
