@@ -186,7 +186,9 @@ class DevMode(MenuSettings):
                 if exclude in dirs:
                     dirs.remove(exclude)
                 for file in files:
-                    if '.egg' in file:
+                    if '.egg' and '.egg.bam' not in file:
+                        asset_names.append(file)
+                    elif '.egg.bam' in file:
                         asset_names.append(file)
 
         return asset_names

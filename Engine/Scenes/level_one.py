@@ -3,7 +3,6 @@ from pathlib import Path
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import *
 from Engine.Actors.Player.korlan import Korlan
-from Settings.Player.player_settings import Player
 from Engine.Actors.NPC.npc import NPC
 from Engine.Scenes.scene_one import SceneOne
 from Engine.world import World
@@ -31,7 +30,6 @@ class LevelOne:
         self.world = World()
         self.korlan = Korlan()
         self.npc = NPC()
-        self.player_settings = Player()
         self.pos_x = None
         self.pos_y = None
         self.pos_z = 0.0
@@ -111,6 +109,13 @@ class LevelOne:
         render.find("**/Ground").removeNode()
         render.find("**/Mountains").removeNode()
 
+        """render.find("**/Korlan").cleanup()
+        render.find("**/Sky").cleanup()
+        render.find("**/Grass").cleanup()
+        render.find("**/Nomad_house").cleanup()
+        render.find("**/Ground").cleanup()
+        render.find("**/Mountains").cleanup()"""
+
         for path in assets['path']:
             self.loader.unloadModel(path)
 
@@ -120,14 +125,20 @@ class LevelOne:
             try:
                 self.game_settings.read("{}/{}".format(self.game_cfg_dir,
                                                        self.game_settings_filename))
-                self.player_settings.set_player(self.game_settings['Main']['player'])
             except configparser.MissingSectionHeaderError:
                 sys_exit("\nFile contains no section headers. Exiting...")
                 sys_exit("\nFile: {0}/{1}".format(self.game_cfg_dir,
                                                   self.game_settings_filename))
 
         """ Assets """
-        self.scene_one.env_load(path='Assets/Levels/Terrain/Sky.egg',
+        # assets is a dict containing paths + models
+        # anims is a list containing two dicts.
+        # anims[0] is a dict containing names of animations
+        # anims[1] is a dict containing paths + animations
+        assets = self.base.collect_assets()
+        anims = self.base.collect_anims()
+
+        self.scene_one.env_load(path=assets['Sky'],
                                 mode="game",
                                 name="Sky",
                                 axis=[0.0, 10.0, self.pos_z],
@@ -135,21 +146,21 @@ class LevelOne:
                                 scale=[1.25, 1.25, 1.25],
                                 type='skybox')
 
-        self.scene_one.asset_load(path='Assets/Levels/Terrain/Grass.egg',
+        self.scene_one.asset_load(path=assets['Grass'],
                                   mode="game",
                                   name="Grass",
                                   axis=[20.0, 10.0, self.pos_z],
                                   rotation=[0, 0, 0],
                                   scale=[1.25, 1.25, 1.25])
 
-        self.scene_one.asset_load(path='Assets/Levels/Environment/Nomad house/Nomad_house.egg',
+        self.scene_one.asset_load(path=assets['Nomad_house'],
                                   mode="game",
                                   name="Nomad_house",
                                   axis=[0.0, 20.0, self.pos_z],
                                   rotation=[65, 0, 0],
                                   scale=[1.25, 1.25, 1.25])
 
-        self.scene_one.env_load(path='Assets/Levels/Terrain/Ground.egg',
+        self.scene_one.env_load(path=assets['Ground'],
                                 mode="game",
                                 name="Ground",
                                 axis=[0.0, 10.0, self.pos_z],
@@ -157,7 +168,7 @@ class LevelOne:
                                 scale=[1.25, 1.25, 1.25],
                                 type='ground')
 
-        self.scene_one.env_load(path='Assets/Levels/Terrain/Mountains.egg',
+        self.scene_one.env_load(path=assets['Mountains'],
                                 mode="game",
                                 name="Mountains",
                                 axis=[0.0, 20.0, self.pos_z],
@@ -167,16 +178,16 @@ class LevelOne:
 
         self.korlan.set_actor(mode="game",
                               name="Korlan",
-                              path=self.player_settings.set_player_path(self.game_dir),
-                              animation=listdir('{0}/Assets/Actors/Animations/'.format(self.game_dir)),
+                              path=assets['Korlan'],
+                              animation=anims,
                               axis=[0, 8.0, self.pos_z],
                               rotation=[0, 0, 0],
                               scale=[1.25, 1.25, 1.25])
 
         self.npc.set_actor(mode="game",
                            name="NPC",
-                           path=self.player_settings.set_player_path(self.game_dir),
-                           animation=listdir('{0}/Assets/Actors/Animations/'.format(self.game_dir)),
+                           path=assets['Korlan'],
+                           animation=[anims[0]['LookingAround'], anims[1]['LookingAround']],
                            axis=[-2.0, 8.0, self.pos_z],
                            rotation=[0, 0, 0],
                            scale=[1.25, 1.25, 1.25])

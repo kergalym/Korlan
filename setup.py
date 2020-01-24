@@ -6,7 +6,6 @@ setup(
     options={
         'build_apps': {
             'include_patterns': [
-                'Assets/**/*.egg',
                 'Assets/**/tex/*',
                 'Configs/Language/*.json',
                 'Configs/Keyboard/*.json',
@@ -24,6 +23,7 @@ setup(
             },
             'platforms': [
                 'manylinux1_x86_64',
+                'win_amd64',
             ],
             'plugins': [
                 'pandagl',

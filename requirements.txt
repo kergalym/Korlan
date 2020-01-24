@@ -5,6 +5,5 @@ Panda3D-gltf
 panda3d-simplepbr
 xlib
 urllib3
-pybullet
 setuptools
 configparser

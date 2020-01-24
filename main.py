@@ -1,4 +1,6 @@
 #!/usr/bin/env python3.6
+import logging
+import re
 
 import panda3d.core as p3d
 from panda3d.core import WindowProperties
@@ -7,7 +9,6 @@ from panda3d.core import TextNode
 from pathlib import Path
 from Engine.Actors.Player.korlan import Korlan
 from Engine.Scenes.scene_one import SceneOne
-from Settings.Player.player_settings import Player
 from Settings.Sound.sound import Sound
 from Settings.UI.menu import Menu
 from Settings.menu_settings import Graphics
@@ -16,8 +17,8 @@ import json
 import sys
 import configparser
 from sys import exit as sys_exit
-from os import mkdir
-from os.path import isdir, isfile, exists
+from os import mkdir, listdir, walk
+from os.path import isdir, isfile, exists, join
 
 game_cfg = '{0}/Korlan - Daughter of the Steppes/settings.ini'.format(str(Path.home()))
 
@@ -93,6 +94,8 @@ class Main(ShowBase):
 
         ShowBase.__init__(self)
 
+        self.logging = logging
+        self.logging.basicConfig(filename="critical.log", level=logging.CRITICAL)
         self.backfaceCullingOff()
         self.props = WindowProperties()
 
@@ -133,7 +136,6 @@ class Main(ShowBase):
                         try:
                             self.game_settings.read("{0}/{1}".format(self.game_cfg_dir,
                                                                      self.game_settings_filename))
-                            self.player_settings.set_player(self.game_settings['Main']['player'])
                         except configparser.MissingSectionHeaderError:
                             sys_exit("\nFile contains no section headers. I'm bumping file again...")
                             sys_exit("\nFile: {0}/{1}".format(self.game_cfg_dir,
@@ -145,7 +147,6 @@ class Main(ShowBase):
 
                     try:
                         self.game_settings.read("{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename))
-                        self.player_settings.set_player(self.game_settings['Main']['player'])
                     except configparser.MissingSectionHeaderError:
                         sys_exit("\nFile contains no section headers. I'm bumping file again...")
                         sys_exit("\nFile: {0}/{1}".format(self.game_cfg_dir, self.game_settings_filename))
@@ -214,7 +215,6 @@ class Main(ShowBase):
         # Game scene loading definitions
         self.scene_one = SceneOne()
         self.korlan = Korlan()
-        self.player_settings = Player()
         self.sound = Sound()
         self.text = TextNode("TextNode")
 
@@ -238,6 +238,57 @@ class Main(ShowBase):
         if self.menu_mode:
             self.menu.load_main_menu()
 
+    def collect_assets(self):
+        asset_path = join(self.game_dir, "Assets")
+        assets = {}
+        exclude_anims = 'Animations'
+        exclude_tex = 'tex'
+        key = None
+
+        if exists(asset_path):
+            for root, dirs, files in walk(asset_path, topdown=True):
+                if exclude_anims in dirs:
+                    dirs.remove(exclude_anims)
+                if exclude_tex in dirs:
+                    dirs.remove(exclude_tex)
+                for file in files:
+                    if '.egg' and '.egg.bam' not in file:
+                        key = re.sub('.egg', '', file)
+                    elif '.egg.bam' in file:
+                        key = re.sub('.egg.bam', '', file)
+                    assets[key] = join(root, file)
+
+            return assets
+
+        else:
+            logging.critical("\nI'm trying to load Korlan player, but there is no suitable player asset. "
+                             "\nNo suitable player asset found!"
+                             "\nPlayer path: {0}".format(asset_path))
+            sys_exit("\nSomething is getting wrong. Please, check the game log first")
+
+    def collect_anims(self):
+        anims_path = join(self.game_dir, "Assets", "Actors", "Animations")
+        collected = listdir(anims_path)
+        path = {}
+        anims = {}
+        if exists(anims_path):
+            for a in collected:
+                key = re.sub('Korlan-', '', a)
+                if '.egg' and '.egg.bam' not in key:
+                    key = re.sub('.egg', '', key)
+                elif '.egg.bam' in key:
+                    key = re.sub('.egg.bam', '', key)
+                anims[key] = key
+                path[key] = join(anims_path, a)
+
+            return [anims, path]
+
+        else:
+            logging.critical("\nI'm trying to load Korlan player, but there is no suitable player asset. "
+                             "\nNo suitable player asset found!"
+                             "\nPlayer path: {0}".format(anims_path))
+            sys_exit("\nSomething is getting wrong. Please, check the game log first")
+
     def menu_scene_load(self):
         # Commented to prevent using it by deploying system
         """"# Set time of day
@@ -246,9 +297,16 @@ class Main(ShowBase):
         """
 
         """ Assets """
+        # assets is a dict containing paths + models
+        # anims is a list containing two dicts.
+        # anims[0] is a dict containing names of animations
+        # anims[1] is a dict containing paths + animations
+        assets = self.collect_assets()
+        anims = self.collect_anims()
+
         # Test scene
         if self.game_mode is False and self.menu_mode is True:
-            self.scene_one.env_load(path='Assets/Levels/Terrain/Sky.egg',
+            self.scene_one.env_load(path=assets['Sky'],
                                     mode="menu",
                                     name="Sky",
                                     axis=[0.0, 10.0, -1.09],
@@ -256,21 +314,21 @@ class Main(ShowBase):
                                     scale=[1.25, 1.25, 1.25],
                                     type='skybox')
 
-            self.scene_one.asset_load(path='Assets/Levels/Terrain/Grass.egg',
+            self.scene_one.asset_load(path=assets['Grass'],
                                       mode="menu",
                                       name="Grass",
                                       axis=[20.0, 10.0, -1.09],
                                       rotation=[0, 0, 0],
                                       scale=[1.25, 1.25, 1.25])
 
-            self.scene_one.asset_load(path='Assets/Levels/Environment/Nomad house/Nomad_house.egg',
+            self.scene_one.asset_load(path=assets['Nomad_house'],
                                       mode="menu",
                                       name="Nomad_house",
                                       axis=[1.0, 20.0, -1.09],
                                       rotation=[65, 0, 0],
                                       scale=[1.25, 1.25, 1.25])
 
-            self.scene_one.env_load(path='Assets/Levels/Terrain/Ground.egg',
+            self.scene_one.env_load(path=assets['Ground'],
                                     mode="menu",
                                     name="Ground",
                                     axis=[0.0, 10.0, -1.09],
@@ -278,7 +336,7 @@ class Main(ShowBase):
                                     scale=[1.25, 1.25, 1.25],
                                     type='ground')
 
-            self.scene_one.env_load(path='Assets/Levels/Terrain/Mountains.egg',
+            self.scene_one.env_load(path=assets['Mountains'],
                                     mode="menu",
                                     name="Mountains",
                                     axis=[0.0, 20.0, -1.09],
@@ -288,8 +346,8 @@ class Main(ShowBase):
 
             self.korlan.set_actor(mode="menu",
                                   name="Korlan",
-                                  path=self.player_settings.set_player_path(self.game_dir),
-                                  animation="Korlan-LookingAround",
+                                  path=assets['Korlan'],
+                                  animation=[anims[0]['LookingAround'], anims[1]['LookingAround']],
                                   axis=[0, 8.0, -1.09],
                                   rotation=[0, 0, 0],
                                   scale=[1.25, 1.25, 1.25])

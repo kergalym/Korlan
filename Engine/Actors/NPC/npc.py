@@ -49,7 +49,7 @@ class NPC:
 
     def set_actor_task(self, animation, task):
         if animation:
-            self.idle_player.enter_idle(player=self.actor, action=animation['LookingAround'])
+            self.idle_player.enter_idle(player=self.actor, action=animation)
             return task.cont
 
     def set_actor(self, mode, name, path, animation, axis, rotation, scale):
@@ -72,21 +72,11 @@ class NPC:
             self.scale_y = scale[1]
             self.scale_z = scale[2]
 
-            # Make animations dict containing full path and pass it to Actor
-            anims = {}
-            anim_values = {}
-            anim_path = "{0}/Assets/Actors/Animations/".format(self.game_dir)
-            for a in animation:
-                anims[a] = "{0}{1}".format(anim_path, a)
-                key = re.sub('Korlan-', '', a)
-                if '.egg' and '.egg.bam' not in key:
-                    key = re.sub('.egg', '', key)
-                elif '.egg.bam' in key:
-                    key = re.sub('.egg.bam', '', key)
-                anim_values[key] = a
+            anim_name = animation[0]
+            anim_path = animation[1]
 
-            # TODO: Add checks for egg or bam file existence
-            self.actor = Actor(path, anims)
+            self.actor = Actor(path,
+                               {anim_name: anim_path})
 
             self.actor.setName(name)
             self.actor.setScale(self.actor, self.scale_x, self.scale_y, self.scale_z)
@@ -115,4 +105,4 @@ class NPC:
 
             taskMgr.add(self.actor_life, "actor_life")
 
-            taskMgr.add(self.set_actor_task, 'actor_in_idle', extraArgs=[anim_values], appendTask=True)
+            taskMgr.add(self.set_actor_task, 'actor_in_idle', extraArgs=[animation[0]], appendTask=True)

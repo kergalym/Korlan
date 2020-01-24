@@ -78,7 +78,7 @@ class Korlan:
                     and isinstance(scale, list)
                     and isinstance(mode, str)
                     and animation
-                    and isinstance(animation, str)):
+                    and isinstance(animation, list)):
                 self.pos_x = axis[0]
                 self.pos_y = axis[1]
                 self.pos_z = axis[2]
@@ -88,36 +88,38 @@ class Korlan:
                 self.scale_x = scale[0]
                 self.scale_y = scale[1]
                 self.scale_z = scale[2]
+                anim_name = animation[0]
+                anim_path = animation[1]
 
-            self.korlan = Actor(path,
-                                {animation: "{0}/Assets/Actors/Animations/{1}.egg".format(self.game_dir, animation)})
+                self.korlan = Actor(path,
+                                    {anim_name: anim_path})
 
-            self.korlan.setName(name)
-            self.korlan.setScale(self.korlan, self.scale_x, self.scale_y, self.scale_z)
-            self.korlan.setPos(self.pos_x, self.pos_y, self.pos_z)
-            self.korlan.setH(self.korlan, self.rot_h)
-            self.korlan.setP(self.korlan, self.rot_p)
-            self.korlan.setR(self.korlan, self.rot_r)
-            self.korlan.loop(animation)
-            self.korlan.setPlayRate(self.base.actor_play_rate, animation)
+                self.korlan.setName(name)
+                self.korlan.setScale(self.korlan, self.scale_x, self.scale_y, self.scale_z)
+                self.korlan.setPos(self.pos_x, self.pos_y, self.pos_z)
+                self.korlan.setH(self.korlan, self.rot_h)
+                self.korlan.setP(self.korlan, self.rot_p)
+                self.korlan.setR(self.korlan, self.rot_r)
+                self.korlan.loop(animation)
+                self.korlan.setPlayRate(self.base.actor_play_rate, animation)
 
-            # Panda3D 1.10 doesn't enable alpha blending for textures by default
-            set_tex_transparency(self.korlan)
+                # Panda3D 1.10 doesn't enable alpha blending for textures by default
+                set_tex_transparency(self.korlan)
 
-            self.korlan.reparentTo(render)
+                self.korlan.reparentTo(render)
 
-            # Set lights and Shadows
-            if self.game_settings['Main']['postprocessing'] == 'off':
-                # TODO: uncomment if character has normals
-                # self.world.set_shadows(self.korlan, self.render)
-                # self.world.set_ssao(self.korlan)
-                self.world.set_lighting(self.render, self.korlan)
+                # Set lights and Shadows
+                if self.game_settings['Main']['postprocessing'] == 'off':
+                    # TODO: uncomment if character has normals
+                    # self.world.set_shadows(self.korlan, self.render)
+                    # self.world.set_ssao(self.korlan)
+                    self.world.set_lighting(self.render, self.korlan)
 
-            if self.game_settings['Debug']['set_debug_mode'] == "YES":
-                self.render.analyze()
-                self.render.explore()
+                if self.game_settings['Debug']['set_debug_mode'] == "YES":
+                    self.render.analyze()
+                    self.render.explore()
 
-            self.col.set_inter_collision(self.korlan)
+                self.col.set_inter_collision(self.korlan)
 
         if mode == 'game':
 
@@ -160,23 +162,7 @@ class Korlan:
                 self.scale_y = scale[1]
                 self.scale_z = scale[2]
 
-                # Make animations dict containing full path and pass it to Actor
-                anims = {}
-                anim_values = {}
-                anim_path = "{0}/Assets/Actors/Animations/".format(self.game_dir)
-                for a in animation:
-                    anims[a] = "{0}{1}".format(anim_path, a)
-                    key = re.sub('Korlan-', '', a)
-                    if '.egg' and '.egg.bam' not in key:
-                        key = re.sub('.egg', '', key)
-                    elif '.egg.bam' in key:
-                        key = re.sub('.egg.bam', '', key)
-                    anim_values[key] = a
-
-                base.anims = anims
-                self.anims = base.anims
-
-                self.korlan = Actor(path, anims)
+                self.korlan = Actor(path, animation[1])
 
                 self.korlan.setName(name)
                 self.korlan.setScale(self.korlan, self.scale_x, self.scale_y, self.scale_z)
@@ -206,6 +192,6 @@ class Korlan:
                             "mouse-look",
                             appendTask=True)
 
-                self.act.scene_actions_init(self.korlan, anim_values)
+                self.act.scene_actions_init(self.korlan, animation[0])
 
                 taskMgr.add(self.actor_life, "actor_life")

@@ -3,7 +3,6 @@ from os.path import isfile, exists
 from panda3d.core import *
 from Engine.collisions import Collisions
 from Engine.Actors.Player.korlan import Korlan
-from Settings.Player.player_settings import Player
 from Engine import set_tex_transparency
 from Engine.world import World
 
@@ -28,7 +27,6 @@ class SceneOne:
         self.col = Collisions()
         self.world = World()
         self.korlan = Korlan()
-        self.player_settings = Player()
         self.base = base
         self.render = render
         self.game_settings = base.game_settings
