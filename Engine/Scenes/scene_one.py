@@ -1,5 +1,3 @@
-from os.path import isfile, exists
-
 from panda3d.core import *
 from Engine.collisions import Collisions
 from Engine.Actors.Player.korlan import Korlan
@@ -59,12 +57,7 @@ class SceneOne:
                 scene = None
 
                 # Load the scene.
-                if isfile(path) and exists(path):
-                    scene = self.base.loader.loadModel(path)
-
-                if isfile("{0}.bam".format(path)) and exists("{0}.bam".format(path)):
-                    scene = self.base.loader.loadModel("{0}.bam".format(path))
-
+                scene = self.base.loader.loadModel(path)
                 scene.setName(name)
                 scene.reparentTo(self.render)
                 scene.setScale(self.scale_x, self.scale_y, self.scale_z)
@@ -108,12 +101,7 @@ class SceneOne:
                 scene = None
 
                 # Load the scene.
-                if isfile(path) and exists(path):
-                    scene = self.base.loader.loadModel(path)
-
-                if isfile("{0}.bam".format(path)) and exists("{0}.bam".format(path)):
-                    scene = self.base.loader.loadModel("{0}.bam".format(path))
-
+                scene = self.base.loader.loadModel(path)
                 scene.setName(name)
                 scene.reparentTo(self.render)
                 scene.setScale(self.scale_x, self.scale_y, self.scale_z)
@@ -172,12 +160,7 @@ class SceneOne:
                     scene = None
 
                     # Load the scene.
-                    if isfile(path) and exists(path):
-                        scene = self.base.loader.loadModel(path)
-
-                    if isfile("{0}.bam".format(path)) and exists("{0}.bam".format(path)):
-                        scene = self.base.loader.loadModel("{0}.bam".format(path))
-
+                    scene = self.base.loader.loadModel(path)
                     scene.setName(name)
                     scene.reparentTo(self.render)
                     scene.setScale(self.scale_x, self.scale_y, self.scale_z)
@@ -187,12 +170,7 @@ class SceneOne:
                     scene = None
 
                     # Load the scene.
-                    if isfile(path) and exists(path):
-                        scene = self.base.loader.loadModel(path)
-
-                    if isfile("{0}.bam".format(path)) and exists("{0}.bam".format(path)):
-                        scene = self.base.loader.loadModel("{0}.bam".format(path))
-
+                    scene = self.base.loader.loadModel(path)
                     scene.setName(name)
                     scene.reparentTo(self.render)
                     scene.setScale(self.scale_x, self.scale_y, self.scale_z)
@@ -241,12 +219,7 @@ class SceneOne:
                     scene = None
 
                     # Load the scene.
-                    if isfile(path) and exists(path):
-                        scene = self.base.loader.loadModel(path)
-
-                    if isfile("{0}.bam".format(path)) and exists("{0}.bam".format(path)):
-                        scene = self.base.loader.loadModel("{0}.bam".format(path))
-
+                    scene = self.base.loader.loadModel(path)
                     scene.setBin('background', 1)
                     scene.setDepthWrite(0)
                     scene.setLightOff()
@@ -259,12 +232,7 @@ class SceneOne:
                     scene = None
 
                     # Load the scene.
-                    if isfile(path) and exists(path):
-                        scene = self.base.loader.loadModel(path)
-
-                    if isfile("{0}.bam".format(path)) and exists("{0}.bam".format(path)):
-                        scene = self.base.loader.loadModel("{0}.bam".format(path))
-
+                    scene = self.base.loader.loadModel(path)
                     scene.setName(name)
                     scene.reparentTo(self.render)
                     scene.setScale(self.scale_x, self.scale_y, self.scale_z)

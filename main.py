@@ -3,10 +3,11 @@ import logging
 import re
 
 import panda3d.core as p3d
+from panda3d.core import Filename
 from panda3d.core import WindowProperties
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import TextNode
-from pathlib import Path
+from pathlib import Path, PurePath
 from Engine.Actors.Player.korlan import Korlan
 from Engine.Scenes.scene_one import SceneOne
 from Settings.Sound.sound import Sound
@@ -14,11 +15,11 @@ from Settings.UI.menu import Menu
 from Settings.menu_settings import Graphics
 
 import json
-import sys
 import configparser
 from sys import exit as sys_exit
 from os import mkdir, listdir, walk
-from os.path import isdir, isfile, exists, join
+from os.path import isdir, isfile, exists
+
 
 game_cfg = '{0}/Korlan - Daughter of the Steppes/settings.ini'.format(str(Path.home()))
 
@@ -239,12 +240,12 @@ class Main(ShowBase):
             self.menu.load_main_menu()
 
     def collect_assets(self):
-        asset_path = join(self.game_dir, "Assets")
+        asset_path = str(PurePath(self.game_dir, "Assets"))
+        asset_path = Filename.from_os_specific("{0}/".format(asset_path))
         assets = {}
         exclude_anims = 'Animations'
         exclude_tex = 'tex'
         key = None
-
         if exists(asset_path):
             for root, dirs, files in walk(asset_path, topdown=True):
                 if exclude_anims in dirs:
@@ -256,7 +257,8 @@ class Main(ShowBase):
                         key = re.sub('.egg', '', file)
                     elif '.egg.bam' in file:
                         key = re.sub('.egg.bam', '', file)
-                    assets[key] = join(root, file)
+                    path = str(PurePath("{0}/".format(root), file))
+                    assets[key] = Filename.from_os_specific(path).getFullpath()
 
             return assets
 
@@ -267,7 +269,8 @@ class Main(ShowBase):
             sys_exit("\nSomething is getting wrong. Please, check the game log first")
 
     def collect_anims(self):
-        anims_path = join(self.game_dir, "Assets", "Actors", "Animations")
+        anims_path = str(PurePath(self.game_dir, "Assets", "Actors", "Animations"))
+        anims_path = Filename.from_os_specific("{0}/".format(anims_path))
         collected = listdir(anims_path)
         path = {}
         anims = {}
@@ -279,7 +282,8 @@ class Main(ShowBase):
                 elif '.egg.bam' in key:
                     key = re.sub('.egg.bam', '', key)
                 anims[key] = key
-                path[key] = join(anims_path, a)
+                anim_path = str(PurePath("{0}/".format(anims_path), a))
+                path[key] = Filename.from_os_specific(anim_path).getFullpath()
 
             return [anims, path]
 
