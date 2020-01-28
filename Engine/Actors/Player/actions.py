@@ -5,7 +5,6 @@ from direct.task.TaskManagerGlobal import taskMgr
 from Engine.world import World
 from Settings.Input.keyboard import Keyboard
 from Settings.Input.mouse import Mouse
-# from direct.interval.MetaInterval import Sequence
 from direct.interval.IntervalGlobal import *
 
 
@@ -58,13 +57,17 @@ class Actions:
 
     """ Sets current player position after action """
 
+    def seq_idle_wrapper(self):
+        self.is_idle = True
+
+    def seq_kick_played_wrapper(self):
+        self.is_crouching = False
+        self.is_h_kicking = False
+
     def set_player_pos(self, player, pos_y):
         if (player and pos_y
                 and isinstance(pos_y, float)):
             player.setY(player, pos_y)
-
-    def set_player_state(self, player):
-        pass
 
     """ Prepares actions for scene"""
 
@@ -106,18 +109,37 @@ class Actions:
         # Here we accept keys
         # TODO: change animation and implement state for actions
         #  except movement, crouch and jump action
-        self.player_movement_action(player, anims)
-        self.player_crouch_action(player, 'crouch', anims)
-        self.player_jump_action(player, "jump", anims, "Jumping")
-        self.player_use_action(player, "use", anims, "PickingUp")
-        self.player_hit_action(player, "attack", anims, "Boxing")
-        self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
-        self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
-        self.player_block_action(player, "block", anims, "center_blocking")
-        self.player_sword_action(player, "sword", anims, "PickingUp")
-        self.player_bow_action(player, "bow", anims, "PickingUp")
-        self.player_tengri_action(player, "tengri", anims, "PickingUp")
-        self.player_umai_action(player, "umai", anims, "PickingUp")
+        if base.player_state_unarmed:
+            self.player_movement_action(player, anims)
+            self.player_crouch_action(player, 'crouch', anims)
+            self.player_jump_action(player, "jump", anims, "Jumping")
+            self.player_use_action(player, "use", anims, "PickingUp")
+            self.player_hit_action(player, "attack", anims, "Boxing")
+            self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
+            self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
+            self.player_block_action(player, "block", anims, "center_blocking")
+        if base.player_state_armed:
+            self.player_movement_action(player, anims)
+            self.player_crouch_action(player, 'crouch', anims)
+            self.player_jump_action(player, "jump", anims, "Jumping")
+            self.player_use_action(player, "use", anims, "PickingUp")
+            self.player_hit_action(player, "attack", anims, "Boxing")
+            self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
+            self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
+            self.player_block_action(player, "block", anims, "center_blocking")
+            self.player_sword_action(player, "sword", anims, "PickingUp")
+            self.player_bow_action(player, "bow", anims, "PickingUp")
+        if base.player_state_magic:
+            self.player_movement_action(player, anims)
+            self.player_crouch_action(player, 'crouch', anims)
+            self.player_jump_action(player, "jump", anims, "Jumping")
+            self.player_use_action(player, "use", anims, "PickingUp")
+            self.player_hit_action(player, "attack", anims, "Boxing")
+            self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
+            self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
+            self.player_block_action(player, "block", anims, "center_blocking")
+            self.player_tengri_action(player, "tengri", anims, "PickingUp")
+            self.player_umai_action(player, "umai", anims, "PickingUp")
 
         # If the camera is too far from player, move it closer.
         # If the camera is too close to player, move it farther.
@@ -406,12 +428,10 @@ class Actions:
                     any_action_seq = player.actorInterval(anims[action],
                                                           playRate=self.base.actor_play_rate)
                     Sequence(any_action_seq,
-                             Func(self.set_player_pos, player, -1.5)).start()
-
-                    self.is_crouching = False
-                    self.is_h_kicking = False
-                    if any_action.isPlaying() is False and self.is_h_kicking is False:
-                        self.is_idle = True
+                             Func(self.seq_kick_played_wrapper),
+                             Func(self.set_player_pos, player, -1.5),
+                             Func(self.seq_idle_wrapper)
+                             ).start()
 
     def player_f_kick_action(self, player, key, anims, action):
         if (player and isinstance(anims, dict)

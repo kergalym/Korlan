@@ -1,6 +1,6 @@
-import re
-
 from Engine.Actors.Player.actions import Actions
+from Engine.Actors.Player.state import PlayerState
+
 from Engine.collisions import Collisions
 from Engine import set_tex_transparency
 from direct.actor.Actor import Actor
@@ -44,22 +44,11 @@ class Korlan:
         self.col = Collisions()
         self.world = World()
         self.act = Actions()
+        self.state = PlayerState()
         self.actor_life_perc = None
         self.base.actor_is_dead = False
         self.base.actor_is_alive = False
         self.base.actor_play_rate = 1.0
-
-    def actor_life(self, task):
-        self.has_actor_life()
-        return task.cont
-
-    def has_actor_life(self):
-        if (self.base.actor_is_dead is False
-                and self.base.actor_is_alive is False):
-            self.actor_life_perc = 100
-            self.base.actor_is_alive = True
-        else:
-            return False
 
     def set_actor(self, mode, name, path, animation, axis, rotation, scale):
 
@@ -192,6 +181,11 @@ class Korlan:
                             "mouse-look",
                             appendTask=True)
 
+                # TODO: Add Scene task
+                taskMgr.add(self.state.set_player_state,
+                            "player_state",
+                            appendTask=True)
+
                 self.act.scene_actions_init(self.korlan, animation[0])
 
-                taskMgr.add(self.actor_life, "actor_life")
+                taskMgr.add(self.state.actor_life, "actor_life")
