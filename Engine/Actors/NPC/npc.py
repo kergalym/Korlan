@@ -1,6 +1,6 @@
 import re
 
-from Engine.collisions import Collisions
+from Engine.player_collisions import PlayerCollisions
 from Engine import set_tex_transparency
 from direct.actor.Actor import Actor
 from direct.task.TaskManagerGlobal import taskMgr
@@ -28,7 +28,7 @@ class NPC:
 
         self.game_settings = base.game_settings
         self.game_dir = base.game_dir
-        self.col = Collisions()
+        self.col = PlayerCollisions()
         self.world = World()
         self.idle_player = Idle()
         self.actor_life_perc = None

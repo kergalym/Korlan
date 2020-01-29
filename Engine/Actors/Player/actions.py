@@ -1,5 +1,8 @@
+from Engine.Actors.Player.state import PlayerState
 from Engine.FSM.player_ai import FsmPlayer, Idle
-from Engine.collisions import Collisions
+from Engine.Items.items import Items
+from Engine.Items.weapons import Weapons
+from Engine.player_collisions import PlayerCollisions
 from direct.task.TaskManagerGlobal import taskMgr
 
 from Engine.world import World
@@ -50,13 +53,15 @@ class Actions:
         self.taskMgr = taskMgr
         self.kbd = Keyboard()
         self.mouse = Mouse()
-        self.col = Collisions()
+        self.col = PlayerCollisions()
         self.world = World()
         self.fsmplayer = FsmPlayer()
         self.idle_player = Idle()
+        self.item_cls = Items()
+        self.weapons_cls = Weapons()
+        self.state = PlayerState()
 
     """ Sets current player position after action """
-
     def seq_idle_wrapper(self):
         self.is_idle = True
 
@@ -92,7 +97,7 @@ class Actions:
     def player_init(self, player, anims, task):
         # Save the player initial position so that we can restore it,
         # in case he falls off the map or runs into something.
-        startpos = player.getPos()
+        start_pos = player.getPos()
 
         # Pass the player object to FSM
         self.fsmplayer.get_player(player=player)
@@ -123,12 +128,12 @@ class Actions:
             self.player_crouch_action(player, 'crouch', anims)
             self.player_jump_action(player, "jump", anims, "Jumping")
             self.player_use_action(player, "use", anims, "PickingUp")
-            self.player_hit_action(player, "attack", anims, "Boxing")
-            self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
-            self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
-            self.player_block_action(player, "block", anims, "center_blocking")
-            self.player_sword_action(player, "sword", anims, "PickingUp")
-            self.player_bow_action(player, "bow", anims, "PickingUp")
+            # self.player_hit_action(player, "attack", anims, "Boxing")
+            # self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
+            # self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
+            # self.player_block_action(player, "block", anims, "center_blocking")
+            # self.player_sword_action(player, "sword", anims, "PickingUp")
+            # self.player_bow_action(player, "bow", anims, "PickingUp")
         if base.player_state_magic:
             self.player_movement_action(player, anims)
             self.player_crouch_action(player, 'crouch', anims)
@@ -154,30 +159,7 @@ class Actions:
             self.base.camera.setPos(self.base.camera.getPos() - camvec * (5 - camdist))
             camdist = 5.0
 
-        # We would have to call traverse() to check for collisions.
-        self.col.cTrav.traverse(self.render)
-
-        # Adjust player's Z coordinate.  If player ray hit terrain,
-        # update his Z. If it hit anything else, or didn't hit anything, put
-        # him back where he was last frame.
-        entries = list(self.col.korlanGroundHandler.getEntries())
-        entries.sort(key=lambda x: x.getSurfacePoint(self.render).getZ())
-
-        if len(entries) > 0 and entries[0].getIntoNode().getName() == 'mountain':
-            player.setZ(0.0)
-        else:
-            player.setPos(startpos)
-
-        # Keep the camera at one foot above the terrain,
-        # or two feet above player, whichever is greater.
-
-        entries = list(self.col.camGroundHandler.getEntries())
-        entries.sort(key=lambda x: x.getSurfacePoint(self.render).getZ())
-
-        if len(entries) > 0 and entries[0].getIntoNode().getName() == 'mountain':
-            self.base.camera.setZ(entries[0].getSurfacePoint(self.render).getZ() + 1.0)
-        if self.base.camera.getZ() < player.getZ() + 2.0:
-            self.base.camera.setZ(player.getZ() + 2.0)
+        self.col.collision_init(player, start_pos)
 
         # The camera should look in Korlan direction,
         # but it should also try to stay horizontal, so look at
@@ -345,8 +327,16 @@ class Actions:
                       and crouched_to_standing.isPlaying() is False
                       and self.is_crouching is False):
                     self.is_using = True
+                    if self.is_using:
+                        # TODO Check which item has distance enough to be picked up
+                        #  and if actor is unarmed
+                        #  and then assign item to an actor
+                        self.state.has_actor_item()
+                        self.item_cls.selector(player)
+                        self.weapons_cls.selector(player)
                     any_action_seq = player.actorInterval(anims[action], playRate=1.0)
                     Sequence(any_action_seq).start()
+                    base.player_state_armed = True
                     self.is_crouching = False
                     self.is_using = False
                     if any_action.isPlaying() is False and self.is_using is False:

@@ -35,47 +35,27 @@ class LevelOne:
         self.pos_z = 0.0
         self.anim = None
 
-    def get_game_assets(self, exclude):
-        asset_path = "{0}/Assets".format(Path.cwd())
-
-        asset_paths = []
-        asset_names = []
-
-        if exists(asset_path):
-            for root, dirs, files in walk(asset_path, topdown=True):
-                if exclude in dirs:
-                    dirs.remove(exclude)
-                for file in files:
-                    if '.egg' in file:
-                        asset_paths.append(join(root, file))
-                        asset_names.append(file.strip('.egg'))
-                    elif '.bam' in file:
-                        asset_paths.append(join(root, file))
-                        asset_names.append(file.strip('.bam'))
-
-        return {'names': asset_names, 'path': asset_paths}
-
     def reload_menu_scene(self):
         if self.base.game_mode:
             self.base.game_mode = False
             self.base.menu_mode = True
+            assets = self.base.collect_assets()
 
+            # TODO: make taskMgr list with task names strings
             taskMgr.remove("player_init")
             taskMgr.remove("mouse-look")
             taskMgr.remove("actor_life")
 
-            assets = self.get_game_assets(exclude='Animations')
+            # make pattern list from assets dict
+            pattern = [key for key in assets]
 
-            render.find("**/Korlan").removeNode()
-            render.find("**/NPC").removeNode()
-            render.find("**/Sky").removeNode()
-            render.find("**/Grass").removeNode()
-            render.find("**/Nomad_house").removeNode()
-            render.find("**/Ground").removeNode()
-            render.find("**/Mountains").removeNode()
+            # use pattern to remove nodes corresponding to asset names
+            for node in pattern:
+                if render.find("**/{0}".format(node)).isEmpty() is False:
+                    render.find("**/{0}".format(node)).removeNode()
 
-            for path in assets['path']:
-                self.loader.unloadModel(path)
+            for key in assets:
+                self.loader.unloadModel(assets[key])
 
             wp = WindowProperties()
             wp.setCursorHidden(False)
@@ -100,24 +80,23 @@ class LevelOne:
     def load_new_game(self):
         self.game_mode = True
         self.base.accept("escape", self.reload_menu_scene)
-        assets = self.get_game_assets(exclude='Animations')
+        assets = self.base.collect_assets()
 
-        render.find("**/Korlan").removeNode()
-        render.find("**/Sky").removeNode()
-        render.find("**/Grass").removeNode()
-        render.find("**/Nomad_house").removeNode()
-        render.find("**/Ground").removeNode()
-        render.find("**/Mountains").removeNode()
+        # TODO: make taskMgr list with task names strings
+        taskMgr.remove("player_init")
+        taskMgr.remove("mouse-look")
+        taskMgr.remove("actor_life")
 
-        """render.find("**/Korlan").cleanup()
-        render.find("**/Sky").cleanup()
-        render.find("**/Grass").cleanup()
-        render.find("**/Nomad_house").cleanup()
-        render.find("**/Ground").cleanup()
-        render.find("**/Mountains").cleanup()"""
+        # make pattern list from assets dict
+        pattern = [key for key in assets]
 
-        for path in assets['path']:
-            self.loader.unloadModel(path)
+        # use pattern to remove nodes corresponding to asset names
+        for node in pattern:
+            if render.find("**/{0}".format(node)).isEmpty() is False:
+                render.find("**/{0}".format(node)).removeNode()
+
+        for key in assets:
+            self.loader.unloadModel(assets[key])
 
         if isfile("{0}/{1}".format(self.game_cfg_dir,
                                    self.game_settings_filename)):
@@ -186,7 +165,7 @@ class LevelOne:
 
         self.npc.set_actor(mode="game",
                            name="NPC",
-                           path=assets['Korlan'],
+                           path=assets['NPC'],
                            animation=[anims[0]['LookingAround'], anims[1]['LookingAround']],
                            axis=[-2.0, 8.0, self.pos_z],
                            rotation=[0, 0, 0],

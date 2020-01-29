@@ -1,5 +1,5 @@
 from panda3d.core import *
-from Engine.collisions import Collisions
+from Engine.player_collisions import PlayerCollisions
 from Engine.Actors.Player.korlan import Korlan
 from Engine import set_tex_transparency
 from Engine.world import World
@@ -22,7 +22,7 @@ class SceneOne:
         self.type = None
         self.task_mgr = None
         self.node_path = NodePath()
-        self.col = Collisions()
+        self.col = PlayerCollisions()
         self.world = World()
         self.korlan = Korlan()
         self.base = base
@@ -53,8 +53,6 @@ class SceneOne:
                 self.scale_x = scale[0]
                 self.scale_y = scale[1]
                 self.scale_z = scale[2]
-
-                scene = None
 
                 # Load the scene.
                 scene = self.base.loader.loadModel(path)
@@ -97,8 +95,6 @@ class SceneOne:
                 self.scale_x = scale[0]
                 self.scale_y = scale[1]
                 self.scale_z = scale[2]
-
-                scene = None
 
                 # Load the scene.
                 scene = self.base.loader.loadModel(path)
@@ -157,7 +153,6 @@ class SceneOne:
                     scene.setPos(self.base.camera, 0, 0, 0)
                     scene.setHpr(scene, rot_h, 0, 0)
                 elif self.type == 'ground':
-                    scene = None
 
                     # Load the scene.
                     scene = self.base.loader.loadModel(path)
@@ -167,7 +162,6 @@ class SceneOne:
                     scene.setPos(pos_x, pos_y, pos_z)
                     scene.setHpr(scene, rot_h, 0, 0)
                 else:
-                    scene = None
 
                     # Load the scene.
                     scene = self.base.loader.loadModel(path)
@@ -216,7 +210,6 @@ class SceneOne:
                 self.type = type
 
                 if self.type == 'skybox':
-                    scene = None
 
                     # Load the scene.
                     scene = self.base.loader.loadModel(path)
@@ -229,7 +222,6 @@ class SceneOne:
                     scene.setPos(self.base.camera, 0, 0, 0)
                     scene.setHpr(scene, rot_h, 0, 0)
                 else:
-                    scene = None
 
                     # Load the scene.
                     scene = self.base.loader.loadModel(path)

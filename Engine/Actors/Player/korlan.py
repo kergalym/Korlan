@@ -1,7 +1,7 @@
 from Engine.Actors.Player.actions import Actions
 from Engine.Actors.Player.state import PlayerState
 
-from Engine.collisions import Collisions
+from Engine.player_collisions import PlayerCollisions
 from Engine import set_tex_transparency
 from direct.actor.Actor import Actor
 from panda3d.core import WindowProperties
@@ -41,7 +41,7 @@ class Korlan:
         self.taskMgr = taskMgr
         self.kbd = Keyboard()
         self.mouse = Mouse()
-        self.col = Collisions()
+        self.col = PlayerCollisions()
         self.world = World()
         self.act = Actions()
         self.state = PlayerState()

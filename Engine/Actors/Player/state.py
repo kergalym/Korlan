@@ -7,6 +7,9 @@ class PlayerState:
         base.player_state_armed = False
         base.player_state_magic = False
 
+    def get_matched_objects_pos(self):
+        pass
+
     def set_player_state(self, task):
         base.player_state_unarmed = True
         if base.player_state_armed:
@@ -31,3 +34,8 @@ class PlayerState:
             base.actor_is_alive = True
         else:
             return False
+
+    def has_actor_item(self):
+        # TODO: Check if item or weapon assigned to an actor arm joint
+        #   and return True
+        pass

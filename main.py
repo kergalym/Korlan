@@ -233,7 +233,7 @@ class Main(ShowBase):
         self.scene_mode = None
 
         """ Sounds """
-        self.sound.openal_mgr(self, self.game_dir)
+        self.sound.openal_mgr()
 
         """ Menu """
         if self.menu_mode:
@@ -263,13 +263,12 @@ class Main(ShowBase):
             return assets
 
         else:
-            logging.critical("\nI'm trying to load Korlan player, but there is no suitable player asset. "
-                             "\nNo suitable player asset found!"
-                             "\nPlayer path: {0}".format(asset_path))
+            logging.critical("\nI'm trying to load assets, but there aren't suitable assets. "
+                             "\nCurrent path: {0}".format(asset_path))
             sys_exit("\nSomething is getting wrong. Please, check the game log first")
 
     def collect_anims(self):
-        anims_path = str(PurePath(self.game_dir, "Assets", "Actors", "Animations"))
+        anims_path = str(PurePath(self.game_dir, "Assets", "Animations"))
         anims_path = Filename.from_os_specific("{0}/".format(anims_path))
         collected = listdir(anims_path)
         path = {}
@@ -292,6 +291,28 @@ class Main(ShowBase):
                              "\nNo suitable player asset found!"
                              "\nPlayer path: {0}".format(anims_path))
             sys_exit("\nSomething is getting wrong. Please, check the game log first")
+
+    def collect_sounds(self):
+        sound_path = str(PurePath(self.game_dir, "Assets", "Sounds"))
+        sound_path = Filename.from_os_specific("{0}/".format(sound_path))
+        sounds = {}
+        key = None
+        if exists(sound_path):
+            for root, dirs, files in walk(sound_path, topdown=True):
+                for file in files:
+                    if '.ogg' in file:
+                        key = re.sub('.ogg', '', file)
+                    path = str(PurePath("{0}/".format(root), file))
+                    sounds[key] = Filename.from_os_specific(path).getFullpath()
+
+            return sounds
+
+        """ Enable this when game will be ready for distribution
+        else:
+            logging.critical("\nI'm trying to load sound assets, but there aren't suitable sound assets. "
+                             "\nCurrent path: {0}".format(sound_path))
+            sys_exit("\nSomething is getting wrong. Please, check the game log first")
+        """
 
     def menu_scene_load(self):
         # Commented to prevent using it by deploying system
