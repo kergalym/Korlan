@@ -1,6 +1,3 @@
-import re
-
-from Engine.player_collisions import PlayerCollisions
 from Engine import set_tex_transparency
 from direct.actor.Actor import Actor
 from direct.task.TaskManagerGlobal import taskMgr
@@ -28,7 +25,6 @@ class NPC:
 
         self.game_settings = base.game_settings
         self.game_dir = base.game_dir
-        self.col = PlayerCollisions()
         self.world = World()
         self.idle_player = Idle()
         self.actor_life_perc = None
@@ -85,6 +81,9 @@ class NPC:
             self.actor.setP(self.actor, self.rot_p)
             self.actor.setR(self.actor, self.rot_r)
 
+            # Get actor joints
+            base.actor_joints = self.actor.getJoints()
+
             # Panda3D 1.10 doesn't enable alpha blending for textures by default
             set_tex_transparency(self.actor)
 
@@ -100,8 +99,6 @@ class NPC:
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
                 self.render.analyze()
                 self.render.explore()
-
-            self.col.set_inter_collision(self.actor)
 
             taskMgr.add(self.actor_life, "actor_life")
 

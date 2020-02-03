@@ -1,7 +1,7 @@
 from Engine.Actors.Player.actions import Actions
 from Engine.Actors.Player.state import PlayerState
 
-from Engine.player_collisions import PlayerCollisions
+from Engine.Collisions.collisions import Collisions
 from Engine import set_tex_transparency
 from direct.actor.Actor import Actor
 from panda3d.core import WindowProperties
@@ -41,7 +41,7 @@ class Korlan:
         self.taskMgr = taskMgr
         self.kbd = Keyboard()
         self.mouse = Mouse()
-        self.col = PlayerCollisions()
+        self.col = Collisions()
         self.world = World()
         self.act = Actions()
         self.state = PlayerState()
@@ -160,6 +160,9 @@ class Korlan:
                 self.korlan.setH(self.korlan, self.rot_h)
                 self.korlan.setP(self.korlan, self.rot_p)
                 self.korlan.setR(self.korlan, self.rot_r)
+
+                # Get actor joints
+                base.korlan_joints = self.korlan.getJoints()
 
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 set_tex_transparency(self.korlan)

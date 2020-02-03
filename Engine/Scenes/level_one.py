@@ -1,14 +1,11 @@
-from pathlib import Path
-
+import configparser
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import *
 from Engine.Actors.Player.korlan import Korlan
 from Engine.Actors.NPC.npc import NPC
 from Engine.Scenes.scene_one import SceneOne
 from Engine.world import World
-from os.path import isfile, exists, join
-from os import listdir, walk
-import configparser
+from os.path import isfile
 from sys import exit as sys_exit
 
 
@@ -52,6 +49,7 @@ class LevelOne:
             # use pattern to remove nodes corresponding to asset names
             for node in pattern:
                 if render.find("**/{0}".format(node)).isEmpty() is False:
+                    render.find("**/{0}".format(node)).detachNode()
                     render.find("**/{0}".format(node)).removeNode()
 
             for key in assets:

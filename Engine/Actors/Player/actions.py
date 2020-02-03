@@ -1,8 +1,7 @@
 from Engine.Actors.Player.state import PlayerState
 from Engine.FSM.player_ai import FsmPlayer, Idle
 from Engine.Items.items import Items
-from Engine.Items.weapons import Weapons
-from Engine.player_collisions import PlayerCollisions
+from Engine.Collisions.collisions import Collisions
 from direct.task.TaskManagerGlobal import taskMgr
 
 from Engine.world import World
@@ -53,13 +52,12 @@ class Actions:
         self.taskMgr = taskMgr
         self.kbd = Keyboard()
         self.mouse = Mouse()
-        self.col = PlayerCollisions()
         self.world = World()
         self.fsmplayer = FsmPlayer()
         self.idle_player = Idle()
         self.item_cls = Items()
-        self.weapons_cls = Weapons()
         self.state = PlayerState()
+        self.col = Collisions()
 
     """ Sets current player position after action """
     def seq_idle_wrapper(self):
@@ -90,7 +88,7 @@ class Actions:
             # Set up the camera
             self.base.camera.setPos(player.getX(), player.getY() + 40, 2)
 
-            self.col.set_inter_collision(player)
+            self.col.set_inter_collision(player=player)
 
     """ Prepares the player for scene """
 
@@ -159,7 +157,7 @@ class Actions:
             self.base.camera.setPos(self.base.camera.getPos() - camvec * (5 - camdist))
             camdist = 5.0
 
-        self.col.collision_init(player, start_pos)
+        self.col.collision_init(player=player, start_pos=start_pos)
 
         # The camera should look in Korlan direction,
         # but it should also try to stay horizontal, so look at
@@ -328,13 +326,11 @@ class Actions:
                       and self.is_crouching is False):
                     self.is_using = True
                     if self.is_using:
-                        # TODO Check which item has distance enough to be picked up
-                        #  and if actor is unarmed
-                        #  and then assign item to an actor
-                        self.state.has_actor_item()
-                        self.item_cls.selector(player)
-                        self.weapons_cls.selector(player)
-                    any_action_seq = player.actorInterval(anims[action], playRate=1.0)
+                        self.item_cls.item_selector(actor=player,
+                                                    anyjoint=["Korlan:LeftHand",
+                                                              "Korlan:RightHand"])
+                    any_action_seq = player.actorInterval(anims[action],
+                                                          playRate=self.base.actor_play_rate)
                     Sequence(any_action_seq).start()
                     base.player_state_armed = True
                     self.is_crouching = False

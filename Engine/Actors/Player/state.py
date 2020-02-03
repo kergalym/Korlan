@@ -1,14 +1,13 @@
-
-
 class PlayerState:
 
     def __init__(self):
         base.player_state_unarmed = False
         base.player_state_armed = False
         base.player_state_magic = False
-
-    def get_matched_objects_pos(self):
-        pass
+        base.item_player_access_codes = {'NOT_USABLE': 0,
+                                         'USABLE': 1,
+                                         'DEFORMED': 2
+                                         }
 
     def set_player_state(self, task):
         base.player_state_unarmed = True
@@ -35,7 +34,39 @@ class PlayerState:
         else:
             return False
 
-    def has_actor_item(self):
-        # TODO: Check if item or weapon assigned to an actor arm joint
-        #   and return True
-        pass
+    def has_actor_any_item(self):
+        children = base.asset_node_children_collector(
+            base.asset_nodes_collector(),
+            assoc_key=True
+        )
+        if children and isinstance(children, dict):
+            for child in children:
+                for joint in base.korlan_joints:
+                    if child == joint.getName():
+                        return True
+                    else:
+                        return False
+
+    def pick_up_item(self, player, anyjoint, item):
+        if (player
+                and isinstance(anyjoint, list)
+                and item):
+            for hand in anyjoint:
+                # TODO: check if any hand is free
+                exposed_joint = player.exposeJoint(None, "modelRoot", hand)
+                if self.has_actor_any_item() is False:
+                    item.reparentTo(exposed_joint)
+                elif self.has_actor_any_item() is True:
+                    item.detachNode()
+
+    def pass_item(self, player, anyjoint, item):
+        if (player
+                and isinstance(anyjoint, str)
+                and item):
+            exposed_joint = player.exposeJoint(None, "modelRoot", anyjoint)
+            item.reparentTo(exposed_joint)
+
+    def drop_item(self, object, item):
+        if object and item:
+            item.reparentTo(object)
+            item.setPos(object.getPos())

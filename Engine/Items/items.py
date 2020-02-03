@@ -1,7 +1,11 @@
+from Engine.Actors.Player.state import PlayerState
+
+
 class Items:
 
     def __init__(self):
         self.assets = base.collect_assets()
+        self.state = PlayerState()
         self.dombra = {
             'type': 'item',
             'name': 'dombra',
@@ -16,39 +20,57 @@ class Items:
             'in-use': False,
         }
 
+        self.sword = {
+            'type': 'weapon',
+            'name': 'sword',
+            'weight': 1.2,
+            'in-use': False,
+        }
+
+        self.axe = {
+            'type': 'weapon',
+            'name': 'axe',
+            'weight': 2.2,
+            'in-use': False,
+        }
+
         self.items = [
             self.dombra,
-            self.piala
+            self.piala,
+            self.sword,
+            self.axe
         ]
-
-    """ Get actor distance to item """
-
-    def get_distance_to(self, actor, items):
-        if actor and items:
-            for item in items:
-                item_pos = item.getPos()
-                item_pos_y = item.getY()
-                center_pos_y = 0.0
-                print(
-                    "item pos: ", item_pos, item_pos_y, "\n",
-                    "center pos: ", center_pos_y, "\n",
-                )
-                # TODO: get model by node and do calculate the distance between actor and item
 
     """ Assign any item which is close to an actor enough """
 
-    def selector(self, actor):
-        # make pattern list from assets dict
-        pattern = [key for key in self.assets]
+    def item_selector(self, actor, anyjoint):
+        if (actor and anyjoint
+                and isinstance(anyjoint, list)):
+            if (base.collide_item_name['name'] is not None
+                    and isinstance(base.collide_item_name['name'], str)
+                    and base.collide_item_name['type'] == 0):
+                item = base.collide_item_name['name']
+                self.state.pick_up_item(actor, anyjoint, item)
 
-        # use pattern to get all nodes corresponding to asset names
-        nodes = [render.find("**/{0}".format(node)) for node in pattern]
-
-        # pass nodes to get distance
-        for node in nodes:
-            self.get_distance_to(actor, node.getChildren())
-
-    def take_dombra(self):
+    def pick_up_dombra(self):
         if self.dombra['type'] == 'item':
             pass
             # TODO: Assign item to join below
+
+    def take_sword(self):
+        if self.sword['type'] == 'weapon':
+            pass
+            # TODO: Assign item to join below
+
+    def take_axe(self):
+        if self.axe['type'] == 'weapon':
+            pass
+            # TODO: Assign item to join below
+
+    def take_naiza(self):
+        # TODO: Put here joint controlling
+        pass
+
+    def take_bow(self):
+        # TODO: Put here joint controlling
+        pass

@@ -1,5 +1,5 @@
 from panda3d.core import *
-from Engine.player_collisions import PlayerCollisions
+from Engine.Collisions.collisions import Collisions
 from Engine.Actors.Player.korlan import Korlan
 from Engine import set_tex_transparency
 from Engine.world import World
@@ -22,7 +22,7 @@ class SceneOne:
         self.type = None
         self.task_mgr = None
         self.node_path = NodePath()
-        self.col = PlayerCollisions()
+        self.col = Collisions()
         self.world = World()
         self.korlan = Korlan()
         self.base = base

@@ -1,4 +1,3 @@
-
 class NpcState:
 
     def __init__(self):
@@ -7,6 +6,10 @@ class NpcState:
         base.actor_magic = False
         base.creature_unarmed = False
         base.creature_magic = False
+        base.item_npc_access_codes = {'NOT_USABLE': 0,
+                                      'USABLE': 1,
+                                      'DEFORMED': 2
+                                      }
 
     def set_actor_state(self, task):
         base.actor_state_unarmed = True

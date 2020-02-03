@@ -20,7 +20,6 @@ from sys import exit as sys_exit
 from os import mkdir, listdir, walk
 from os.path import isdir, isfile, exists
 
-
 game_cfg = '{0}/Korlan - Daughter of the Steppes/settings.ini'.format(str(Path.home()))
 
 game_settings = configparser.ConfigParser()
@@ -291,6 +290,56 @@ class Main(ShowBase):
                              "\nNo suitable player asset found!"
                              "\nPlayer path: {0}".format(anims_path))
             sys_exit("\nSomething is getting wrong. Please, check the game log first")
+
+    def asset_nodes_collector(self):
+        # make pattern list from assets dict
+        pattern = [key for key in self.collect_assets()]
+        # use pattern to get all nodes corresponding to asset names
+        return [render.find("**/{0}".format(node)) for node in pattern]
+
+    def asset_nodes_assoc_collector(self):
+        # make pattern list from assets dict
+        pattern = [key for key in self.collect_assets()]
+        parents = {}
+        # use pattern to get all nodes corresponding to associated asset names
+        for node in pattern:
+            parents[node] = render.find("**/{0}".format(node))
+        return parents
+
+    def asset_node_children_collector(self, nodes, assoc_key):
+        if nodes and isinstance(nodes, list):
+            if assoc_key:
+                children = {}
+                for node in nodes:
+                    for inner in node.getChildren():
+                        for num in range(len(inner.getChildren())):
+                            name = inner.getChildren().getPath(num).getName()
+                            node_path = inner.getChildren().getPath(num)
+                            children[name] = node_path
+                # Remove empty name key
+                children.pop('')
+                return children
+            if assoc_key is False:
+                children = []
+                for node in nodes:
+                    for inner in node.getChildren():
+                        for num in range(len(inner.getChildren())):
+                            name = inner.getChildren().getPath(num).getName()
+                            node_path = inner.getChildren().getPath(num)
+                            if name != '':
+                                children.append(node_path)
+                return children
+
+    def asset_pos_collector(self, nodes):
+        if isinstance(nodes, list):
+            asset_names = {}
+            asset_pos = {}
+            for node in nodes:
+                asset_pos['X'] = node.getX()
+                asset_pos['Y'] = node.getY()
+                asset_pos['Z'] = node.getZ()
+                asset_names[node.getName()] = asset_pos
+            return asset_names
 
     def collect_sounds(self):
         sound_path = str(PurePath(self.game_dir, "Assets", "Sounds"))
