@@ -15,6 +15,7 @@ class Actions:
     def __init__(self):
         self.is_idle = True
         self.is_moving = False
+        self.is_crouch_moving = False
         self.is_crouching = False
         self.is_standing = False
         self.is_jumping = False
@@ -60,6 +61,7 @@ class Actions:
         self.col = Collisions()
 
     """ Sets current player position after action """
+
     def seq_idle_wrapper(self):
         self.is_idle = True
 
@@ -162,7 +164,6 @@ class Actions:
         # The camera should look in Korlan direction,
         # but it should also try to stay horizontal, so look at
         # a floater which hovers above Korlan's head.
-
         self.base.camera.lookAt(self.mouse.set_floater(player))
 
         return task.cont
@@ -176,13 +177,20 @@ class Actions:
             # If a move-key is pressed, move the player in the specified direction.
             speed = 5
 
+            if self.is_crouching:
+                print("self.is_crouching", self.is_crouching, "\n")
+            elif self.is_standing:
+                print("self.is_standing", self.is_standing, "\n")
+            elif self.is_jumping:
+                print("self.is_jumping", self.is_jumping, "\n")
+
             if self.kbd.keymap["left"]:
                 player.setH(player.getH() + 300 * dt)
             if self.kbd.keymap["right"]:
                 player.setH(player.getH() - 300 * dt)
-            if self.kbd.keymap["forward"]:
+            if self.kbd.keymap["forward"] and self.is_moving:
                 player.setY(player, -speed * dt)
-            if self.kbd.keymap["backward"]:
+            if self.kbd.keymap["backward"] and self.is_moving:
                 player.setY(player, speed * dt)
 
             # If the player does action, loop the animation.

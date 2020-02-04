@@ -1,25 +1,15 @@
-import configparser
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import *
 from Engine.Actors.Player.korlan import Korlan
 from Engine.Actors.NPC.npc import NPC
 from Engine.Scenes.scene_one import SceneOne
 from Engine.world import World
-from os.path import isfile
-from sys import exit as sys_exit
 
 
 class LevelOne:
 
     def __init__(self):
         self.game_mode = base.game_mode
-        self.game_settings = base.game_settings
-        self.game_dir = base.game_dir
-        self.game_cfg = base.game_cfg
-        self.game_cfg_dir = base.game_cfg_dir
-        self.game_settings_filename = base.game_settings_filename
-        self.cfg_path = {"game_config_path":
-                         "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
         self.base = base
         self.loader = base.loader
         self.node_path = NodePath()
@@ -49,7 +39,6 @@ class LevelOne:
             # use pattern to remove nodes corresponding to asset names
             for node in pattern:
                 if render.find("**/{0}".format(node)).isEmpty() is False:
-                    render.find("**/{0}".format(node)).detachNode()
                     render.find("**/{0}".format(node)).removeNode()
 
             for key in assets:
@@ -96,17 +85,6 @@ class LevelOne:
         for key in assets:
             self.loader.unloadModel(assets[key])
 
-        if isfile("{0}/{1}".format(self.game_cfg_dir,
-                                   self.game_settings_filename)):
-
-            try:
-                self.game_settings.read("{}/{}".format(self.game_cfg_dir,
-                                                       self.game_settings_filename))
-            except configparser.MissingSectionHeaderError:
-                sys_exit("\nFile contains no section headers. Exiting...")
-                sys_exit("\nFile: {0}/{1}".format(self.game_cfg_dir,
-                                                  self.game_settings_filename))
-
         """ Assets """
         # assets is a dict containing paths + models
         # anims is a list containing two dicts.
@@ -134,6 +112,13 @@ class LevelOne:
                                   mode="game",
                                   name="Nomad_house",
                                   axis=[0.0, 20.0, self.pos_z],
+                                  rotation=[65, 0, 0],
+                                  scale=[1.25, 1.25, 1.25])
+
+        self.scene_one.asset_load(path=assets['Box'],
+                                  mode="game",
+                                  name="box",
+                                  axis=[0.0, 7.0, self.pos_z],
                                   rotation=[65, 0, 0],
                                   scale=[1.25, 1.25, 1.25])
 

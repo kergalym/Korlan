@@ -108,8 +108,6 @@ class Korlan:
                     self.render.analyze()
                     self.render.explore()
 
-                self.col.set_inter_collision(self.korlan)
-
         if mode == 'game':
 
             self.base.game_mode = True

@@ -109,80 +109,6 @@ class Main(ShowBase):
         self.game_mode = False
         self.menu_mode = True
 
-        """ Creating same Game Directory"""
-
-        def check_cfg(super):
-            if exists('Settings/UI/cfg_path.json'):
-                super.cfg_path = json.dumps({'game_config_path': '{0}/{1}'.format(
-                    self.game_cfg_dir,
-                    self.game_settings_filename),
-                    'game_dir': '{0}'.format(self.game_dir)})
-
-                with open('Settings/UI/cfg_path.json', 'w') as f:
-                    f.write(str(super.cfg_path))
-
-                if not exists("{0}/{1}".format(self.game_cfg_dir,
-                                               self.game_settings_filename)):
-
-                    do_cfg(super)
-
-                    if (isfile('Settings/UI/cfg_path.json') and
-                            isfile("{0}/{1}".format(self.game_cfg_dir,
-                                                    self.game_settings_filename))):
-
-                        with open('Settings/UI/cfg_path.json', 'w') as f:
-                            f.write(str(super.cfg_path))
-
-                        try:
-                            self.game_settings.read("{0}/{1}".format(self.game_cfg_dir,
-                                                                     self.game_settings_filename))
-                        except configparser.MissingSectionHeaderError:
-                            sys_exit("\nFile contains no section headers. I'm bumping file again...")
-                            sys_exit("\nFile: {0}/{1}".format(self.game_cfg_dir,
-                                                              self.game_settings_filename))
-
-                            force_do_cfg(super)
-
-                else:
-
-                    try:
-                        self.game_settings.read("{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename))
-                    except configparser.MissingSectionHeaderError:
-                        sys_exit("\nFile contains no section headers. I'm bumping file again...")
-                        sys_exit("\nFile: {0}/{1}".format(self.game_cfg_dir, self.game_settings_filename))
-
-                        force_do_cfg(super)
-
-                if isdir(self.game_dir) is False:
-                    mkdir(self.game_dir)
-                    do_cfg(super)
-                    return True
-                else:
-                    do_cfg(super)
-                    return True
-            else:
-                sys_exit("\nGame data is broken. Please, reinstall it")
-
-        def do_cfg(super):
-            if not exists('{0}/{1}'.format(self.game_cfg_dir, self.game_settings_filename)):
-                mkdir(self.game_cfg_dir)
-                with open('{0}/{1}'.format(self.game_cfg_dir, self.game_settings_filename), 'w') as config_ini:
-                    # Turn that setting dict to pass it further
-                    config_ini.write(self.cfg_warn_text)
-                    self.game_settings.write(config_ini)
-
-        def force_do_cfg(super):
-            if not exists('{0}/{1}'.format(self.game_cfg_dir, self.game_settings_filename)):
-                mkdir(self.game_cfg_dir)
-                with open('{0}/{1}'.format(self.game_cfg_dir, self.game_settings_filename), 'w') as config_ini:
-                    # Turn that setting dict to pass it further
-                    self.game_settings.write(config_ini)
-            else:
-
-                with open('{0}/{1}'.format(self.game_cfg_dir, self.game_settings_filename), 'w') as config_ini:
-                    # Turn that setting dict to pass it further
-                    self.game_settings.write(config_ini)
-
         # Notice that you must not call ShowBase.__init__ (or super), the
         # render pipeline does that for you. If this is unconvenient for you,
         # have a look at the other initialization possibilities.
@@ -219,9 +145,9 @@ class Main(ShowBase):
         self.text = TextNode("TextNode")
 
         """ Create game config first! """
-        if check_cfg(self):
+        if self.check_cfg():
             self.menu = Menu()
-        elif check_cfg(self) and self.game_mode is False:
+        elif self.check_cfg() and self.game_mode is False:
             self.menu = Menu()
         else:
             sys_exit("\nNo game configuration file created. Please check your game log")
@@ -237,6 +163,82 @@ class Main(ShowBase):
         """ Menu """
         if self.menu_mode:
             self.menu.load_main_menu()
+
+    """ Creating same Game Directory"""
+
+    def check_cfg(self):
+        if exists('Settings/UI/cfg_path.json'):
+            self.cfg_path = json.dumps({'game_config_path': '{0}/{1}'.format(
+                self.game_cfg_dir,
+                self.game_settings_filename),
+                'game_dir': '{0}'.format(self.game_dir)})
+
+            with open('Settings/UI/cfg_path.json', 'w') as f:
+                f.write(str(self.cfg_path))
+
+            if exists("{0}/{1}".format(self.game_cfg_dir,
+                                       self.game_settings_filename)) is False:
+
+                self.do_cfg()
+
+                if (isfile('Settings/UI/cfg_path.json') and
+                        isfile("{0}/{1}".format(self.game_cfg_dir,
+                                                self.game_settings_filename))):
+
+                    with open('Settings/UI/cfg_path.json', 'w') as f:
+                        f.write(str(self.cfg_path))
+
+                    try:
+                        self.game_settings.read("{0}/{1}".format(self.game_cfg_dir,
+                                                                 self.game_settings_filename))
+                    except configparser.MissingSectionHeaderError:
+                        sys_exit("\nFile contains no section headers. I'm bumping file again...")
+                        sys_exit("\nFile: {0}/{1}".format(self.game_cfg_dir,
+                                                          self.game_settings_filename))
+
+                        self.force_do_cfg()
+
+            else:
+
+                try:
+                    self.game_settings.read("{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename))
+                except configparser.MissingSectionHeaderError:
+                    sys_exit("\nFile contains no section headers. I'm bumping file again...")
+                    sys_exit("\nFile: {0}/{1}".format(self.game_cfg_dir, self.game_settings_filename))
+
+                    self.force_do_cfg()
+
+            if isdir(self.game_dir) is False:
+                mkdir(self.game_dir)
+                self.do_cfg()
+                return True
+            else:
+                self.do_cfg()
+                return True
+        else:
+            sys_exit("\nGame data is broken. Please, reinstall it")
+
+    def do_cfg(self):
+        if exists('{0}/{1}'.format(self.game_cfg_dir, self.game_settings_filename)) is False:
+            if exists(self.game_cfg_dir) is False and isdir(self.game_cfg_dir) is False:
+                mkdir(self.game_cfg_dir)
+            with open('{0}/{1}'.format(self.game_cfg_dir, self.game_settings_filename), 'w') as config_ini:
+                # Turn that setting dict to pass it further
+                config_ini.write(self.cfg_warn_text)
+                self.game_settings.write(config_ini)
+
+    def force_do_cfg(self):
+        if exists('{0}/{1}'.format(self.game_cfg_dir, self.game_settings_filename)) is False:
+            if exists(self.game_cfg_dir) is False and isdir(self.game_cfg_dir) is False:
+                mkdir(self.game_cfg_dir)
+            with open('{0}/{1}'.format(self.game_cfg_dir, self.game_settings_filename), 'w') as config_ini:
+                # Turn that setting dict to pass it further
+                self.game_settings.write(config_ini)
+        else:
+
+            with open('{0}/{1}'.format(self.game_cfg_dir, self.game_settings_filename), 'w') as config_ini:
+                # Turn that setting dict to pass it further
+                self.game_settings.write(config_ini)
 
     def collect_assets(self):
         asset_path = str(PurePath(self.game_dir, "Assets"))
