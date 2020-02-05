@@ -179,6 +179,9 @@ class Collisions:
                     self.korlanColNp[joint.getName()] = korlan[joint.getName()].attachNewNode(self.korlanCol)
 
             # Add only parent player collider because we have child colliders on it
+            self.pusher.addCollider(self.korlanColNp['Korlan:Hips'],
+                                    self.korlan)
+
             self.cTrav.addCollider(self.korlanColNp['Korlan:Hips'],
                                    self.pusher)
 
