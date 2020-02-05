@@ -1,4 +1,5 @@
-from panda3d.core import CollisionTraverser, CollisionNode, CollisionSphere, CollisionBox, BitMask32
+from panda3d.core import CollisionTraverser, CollisionNode, CollisionSphere, CollisionBox, BitMask32, \
+    CollisionHandlerPusher
 from panda3d.core import CollisionHandlerQueue, CollisionRay
 from panda3d.core import CollideMask
 
@@ -32,6 +33,7 @@ class Collisions:
         self.actorColHandler = None
 
         self.cTrav = None
+        self.pusher = CollisionHandlerPusher()
         self.korlan = None
         self.actor = None
 
@@ -48,7 +50,9 @@ class Collisions:
             # We would have to call traverse() to check for collisions.
             self.cTrav.traverse(self.render)
 
-            self.detect_player_in(start_pos=start_pos)
+            # TODO: fixme!
+            if self.game_settings['Debug']['set_debug_mode'] == "NO":
+                self.detect_player_in(start_pos=start_pos)
 
             self.detect_camera_in()
 
@@ -69,11 +73,16 @@ class Collisions:
             self.cTrav = CollisionTraverser()
 
             self.set_player_collider(col_name='KorlanCS')
+            # TODO: fixme!
+            if self.game_settings['Debug']['set_debug_mode'] == "YES":
+                self.set_player_collider_multi_test(col_name='KorlanCS')
 
             self.set_camera_collider(col_name="CamCS")
 
-            # TODO: import pdb; pdb.set_trace()
+            # TODO: fixme!
             # self.set_actor_collider(col_name="{0}CS".format(self.actor.getName()))
+            if self.game_settings['Debug']['set_debug_mode'] == "YES":
+                self.pusher.setHorizontal(True)
 
             # Show a visual representation of the collisions occuring
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
@@ -85,7 +94,7 @@ class Collisions:
 
     def detect_player_in(self, start_pos):
         if start_pos:
-            # Adjust player's Z coordinate.  If player ray hit terrain,
+            # Adjust player Z coordinate.  If player ray hit terrain,
             # update his Z. If it hit anything else, or didn't hit anything, put
             # him back where he was last frame.
             entries = list(self.korlanColHandler.getEntries())
@@ -135,13 +144,32 @@ class Collisions:
 
     def set_player_collider(self, col_name):
         if col_name and isinstance(col_name, str):
-            self.korlanCS = CollisionSphere(0, 0, 0, 2.25)
+            self.korlanCS = CollisionRay()
+            self.korlanCS.setOrigin(0, 0, 9)
+            self.korlanCS.setDirection(0, 0, -1)
             self.korlanCol = CollisionNode(col_name)
             self.korlanCol.addSolid(self.korlanCS)
             self.korlanCol.setFromCollideMask(CollideMask.bit(0))
             self.korlanCol.setIntoCollideMask(CollideMask.allOff())
 
+            self.korlanColNp = self.korlan.attachNewNode(self.korlanCol)
+            self.korlanColHandler = CollisionHandlerQueue()
+
+            self.cTrav.addCollider(self.korlanColNp,
+                                   self.korlanColHandler)
+
+            if self.game_settings['Debug']['set_debug_mode'] == "YES":
+                self.korlanColNp.show()
+
+    def set_player_collider_multi_test(self, col_name):
+        if col_name and isinstance(col_name, str):
+            self.korlanCS = CollisionSphere(0, 0, 0, 1)
+            self.korlanCol = CollisionNode(col_name)
+            self.korlanCol.addSolid(self.korlanCS)
+            self.korlanCol.setFromCollideMask(CollideMask.bit(0))
+            self.korlanCol.setIntoCollideMask(CollideMask.allOff())
             # Make self.korlanColNp a list including all joint collision solids
+
             korlan = {}
             self.korlanColNp = {}
 
@@ -150,17 +178,15 @@ class Collisions:
                     korlan[joint.getName()] = self.korlan.exposeJoint(None, "modelRoot", joint.getName())
                     self.korlanColNp[joint.getName()] = korlan[joint.getName()].attachNewNode(self.korlanCol)
 
-            self.korlanColHandler = CollisionHandlerQueue()
-
             # Add only parent player collider because we have child colliders on it
             self.cTrav.addCollider(self.korlanColNp['Korlan:Hips'],
-                                   self.korlanColHandler)
+                                   self.pusher)
 
             # Show the collision solids
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
                 for key in self.korlanColNp:
                     self.korlanColNp[key].show()
-    
+
     def set_camera_collider(self, col_name):
         if col_name and isinstance(col_name, str):
             self.camCS = CollisionRay()
