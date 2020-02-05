@@ -149,7 +149,6 @@ class Collisions:
                 if joint.getName():
                     korlan[joint.getName()] = self.korlan.exposeJoint(None, "modelRoot", joint.getName())
                     self.korlanColNp[joint.getName()] = korlan[joint.getName()].attachNewNode(self.korlanCol)
-            print(self.korlanColNp)
 
             self.korlanColHandler = CollisionHandlerQueue()
 
