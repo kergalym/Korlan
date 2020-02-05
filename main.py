@@ -297,7 +297,12 @@ class Main(ShowBase):
         # make pattern list from assets dict
         pattern = [key for key in self.collect_assets()]
         # use pattern to get all nodes corresponding to asset names
-        return [render.find("**/{0}".format(node)) for node in pattern]
+        nodes_cleaned = []
+        for node in [render.find("**/{0}".format(node)) for node in pattern]:
+            if str(node) != '**not found**':
+                nodes_cleaned.append(node)
+
+        return nodes_cleaned
 
     def asset_nodes_assoc_collector(self):
         # make pattern list from assets dict
@@ -305,7 +310,9 @@ class Main(ShowBase):
         parents = {}
         # use pattern to get all nodes corresponding to associated asset names
         for node in pattern:
-            parents[node] = render.find("**/{0}".format(node))
+            value = render.find("**/{0}".format(node))
+            if str(value) != '**not found**':
+                parents[node] = value
         return parents
 
     def asset_node_children_collector(self, nodes, assoc_key):

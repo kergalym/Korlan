@@ -58,7 +58,7 @@ class Collisions:
         if player:
             self.korlan = player
             assets = base.asset_nodes_assoc_collector()
-            self.actor = assets['NPC']
+            self.actor = assets.get('NPC')
 
             # We will detect the height of the terrain by creating a collision
             # solid and casting it downward toward the terrain.  One solid will
@@ -140,13 +140,27 @@ class Collisions:
             self.korlanCol.addSolid(self.korlanCS)
             self.korlanCol.setFromCollideMask(CollideMask.bit(0))
             self.korlanCol.setIntoCollideMask(CollideMask.allOff())
-            self.korlanColNp = self.korlan.attachNewNode(self.korlanCol)
-            self.korlanColHandler = CollisionHandlerQueue()
-            self.cTrav.addCollider(self.korlanColNp, self.korlanColHandler)
 
-            # Show the collision solid
+            # Make self.korlanColNp a list including all joint collision solids
+            korlan = {}
+            self.korlanColNp = {}
+
+            for joint in self.korlan.getJoints():
+                if joint.getName():
+                    korlan[joint.getName()] = self.korlan.exposeJoint(None, "modelRoot", joint.getName())
+                    self.korlanColNp[joint.getName()] = korlan[joint.getName()].attachNewNode(self.korlanCol)
+            print(self.korlanColNp)
+
+            self.korlanColHandler = CollisionHandlerQueue()
+
+            # Add only parent player collider because we have child colliders on it
+            self.cTrav.addCollider(self.korlanColNp['Korlan:Hips'],
+                                   self.korlanColHandler)
+
+            # Show the collision solids
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
-                self.korlanColNp.show()
+                for key in self.korlanColNp:
+                    self.korlanColNp[key].show()
     
     def set_camera_collider(self, col_name):
         if col_name and isinstance(col_name, str):
