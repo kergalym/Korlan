@@ -120,7 +120,7 @@ class LevelOne:
                                   name="box",
                                   axis=[0.0, 7.0, self.pos_z],
                                   rotation=[65, 0, 0],
-                                  scale=[1.25, 1.25, 1.25])
+                                  scale=[8.25, 8.25, 8.25])
 
         self.scene_one.env_load(path=assets['Ground'],
                                 mode="game",

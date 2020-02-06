@@ -1,7 +1,7 @@
 from Engine.Actors.Player.state import PlayerState
 from Engine.FSM.player_ai import FsmPlayer, Idle
 from Engine.Items.items import Items
-from Engine.Collisions.collisions import Collisions
+from Engine.Collisions.actor_collisions import Collisions
 from direct.task.TaskManagerGlobal import taskMgr
 
 from Engine.world import World
@@ -95,10 +95,6 @@ class Actions:
     """ Prepares the player for scene """
 
     def player_init(self, player, anims, task):
-        # Save the player initial position so that we can restore it,
-        # in case he falls off the map or runs into something.
-        start_pos = player.getPos()
-
         # Pass the player object to FSM
         self.fsmplayer.get_player(player=player)
 
@@ -159,7 +155,10 @@ class Actions:
             self.base.camera.setPos(self.base.camera.getPos() - camvec * (5 - camdist))
             camdist = 5.0
 
-        self.col.collision_init(player=player, start_pos=start_pos)
+        if self.base.camera.getZ() < player.getZ() + 2.0:
+            self.base.camera.setZ(player.getZ() + 2.0)
+
+        self.col.cTrav.traverse(self.render)
 
         # The camera should look in Korlan direction,
         # but it should also try to stay horizontal, so look at

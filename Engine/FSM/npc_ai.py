@@ -3,7 +3,7 @@ from configparser import ConfigParser
 from direct.fsm.FSM import FSM
 from direct.task.TaskManagerGlobal import taskMgr
 
-from Engine.Collisions.collisions import Collisions
+from Engine.Collisions.actor_collisions import Collisions
 
 
 class FsmPlayer(FSM):

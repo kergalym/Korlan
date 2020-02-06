@@ -1,7 +1,7 @@
 from Engine.Actors.Player.actions import Actions
 from Engine.Actors.Player.state import PlayerState
 
-from Engine.Collisions.collisions import Collisions
+from Engine.Collisions.actor_collisions import Collisions
 from Engine import set_tex_transparency
 from direct.actor.Actor import Actor
 from panda3d.core import WindowProperties

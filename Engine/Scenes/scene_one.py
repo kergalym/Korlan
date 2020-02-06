@@ -1,5 +1,5 @@
 from panda3d.core import *
-from Engine.Collisions.collisions import Collisions
+from Engine.Collisions.actor_collisions import Collisions
 from Engine.Actors.Player.korlan import Korlan
 from Engine import set_tex_transparency
 from Engine.world import World
