@@ -3,7 +3,7 @@ from configparser import ConfigParser
 from direct.fsm.FSM import FSM
 from direct.task.TaskManagerGlobal import taskMgr
 
-from Engine.Collisions.actor_collisions import Collisions
+from Engine.Collisions.from_collisions import FromCollisions
 
 
 class FsmPlayer(FSM):
@@ -30,7 +30,7 @@ class FsmPlayer(FSM):
         self.korlan = None
         self.avatar = None
         self.taskMgr = taskMgr
-        self.col = Collisions()
+        self.col = FromCollisions()
         FSM.__init__(self, 'FsmPlayer')
 
     def get_player(self, player):

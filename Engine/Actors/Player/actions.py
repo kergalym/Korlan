@@ -1,7 +1,7 @@
 from Engine.Actors.Player.state import PlayerState
 from Engine.FSM.player_ai import FsmPlayer, Idle
 from Engine.Items.items import Items
-from Engine.Collisions.actor_collisions import Collisions
+from Engine.Collisions.from_collisions import FromCollisions
 from direct.task.TaskManagerGlobal import taskMgr
 
 from Engine.world import World
@@ -58,7 +58,7 @@ class Actions:
         self.idle_player = Idle()
         self.item_cls = Items()
         self.state = PlayerState()
-        self.col = Collisions()
+        self.col = FromCollisions()
 
     """ Sets current player position after action """
 

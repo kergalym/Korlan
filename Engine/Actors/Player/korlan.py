@@ -1,7 +1,7 @@
 from Engine.Actors.Player.actions import Actions
 from Engine.Actors.Player.state import PlayerState
 
-from Engine.Collisions.actor_collisions import Collisions
+from Engine.Collisions.from_collisions import FromCollisions
 from Engine import set_tex_transparency
 from direct.actor.Actor import Actor
 from panda3d.core import WindowProperties
@@ -41,7 +41,7 @@ class Korlan:
         self.taskMgr = taskMgr
         self.kbd = Keyboard()
         self.mouse = Mouse()
-        self.col = Collisions()
+        self.col = FromCollisions()
         self.world = World()
         self.act = Actions()
         self.state = PlayerState()
@@ -100,8 +100,8 @@ class Korlan:
                 # Set lights and Shadows
                 if self.game_settings['Main']['postprocessing'] == 'off':
                     # TODO: uncomment if character has normals
-                    # self.world.set_shadows(self.korlan, self.render)
-                    # self.world.set_ssao(self.korlan)
+                    # self.world.set_shadows(self.scene, self.render)
+                    # self.world.set_ssao(self.scene)
                     self.world.set_lighting(self.render, self.korlan)
 
                 if self.game_settings['Debug']['set_debug_mode'] == "YES":
@@ -170,8 +170,8 @@ class Korlan:
                 # Set lights and Shadows
                 if self.game_settings['Main']['postprocessing'] == 'off':
                     # TODO: uncomment if character has normals
-                    # self.world.set_shadows(self.korlan, self.render)
-                    # self.world.set_ssao(self.korlan)
+                    # self.world.set_shadows(self.scene, self.render)
+                    # self.world.set_ssao(self.scene)
                     self.world.set_lighting(render, self.korlan)
 
                 if self.game_settings['Debug']['set_debug_mode'] == "YES":

@@ -4,10 +4,8 @@ from panda3d.core import CollisionTube, CollisionRay
 from panda3d.core import CollideMask, BitMask32
 from direct.showbase.PhysicsManagerGlobal import physicsMgr
 
-from Engine.Collisions.world_collisions import WorldCollisions
 
-
-class Collisions:
+class FromCollisions:
 
     def __init__(self):
         self.base = base
@@ -18,12 +16,12 @@ class Collisions:
         self.game_cfg_dir = base.game_cfg_dir
         self.game_settings_filename = base.game_settings_filename
         self.cfg_path = {"game_config_path":
-                             "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
-        self.world_col = WorldCollisions()
+                         "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
 
         self.camCS = None
         self.camColliderNode = None
         self.camCollider = None
+
         self.cTrav = CollisionTraverser()
         self.pusher = CollisionHandlerPusher()
         self.korlan = None
