@@ -78,6 +78,7 @@ p3d.load_prc_file_data(
     'audio-library-name p3openal_audio\n'
     'model-cache-dir Cache\n'
     'model-cache-textures t\n'
+    'want-pstats 0\n'
 )
 
 

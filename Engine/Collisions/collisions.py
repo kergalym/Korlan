@@ -27,11 +27,18 @@ class FromCollisions:
         self.korlan = None
         self.actor = None
 
+        self.no_mask = BitMask32.bit(0)
+        self.mask_floor = BitMask32.bit(1)
+        self.mask_walls = BitMask32.bit(2)
+
     def set_inter_collision(self, player):
         if player:
             self.korlan = player
+
+            # Octree-optimised "into" objects defined here
             assets = base.asset_nodes_assoc_collector()
-            self.actor = assets.get('NPC')
+            mountains = assets.get('Mountains')
+            mountains.setCollideMask(self.mask_walls)
 
             # Here we set collider for player-followed camera
             self.set_camera_collider(col_name="CamCS")
@@ -39,20 +46,58 @@ class FromCollisions:
             # Here we set collider for our actor
             actor_head_col = self.set_actor_collider(actor=self.korlan,
                                                      col_name='Korlan:head_CS',
-                                                     axis=(0, 0, 2),
-                                                     radius=0.5)
+                                                     axis=(0, -0.1, 1.3),
+                                                     radius=0.2)
 
-            actor_hips_col = self.set_actor_collider(actor=self.korlan,
-                                                     col_name='Korlan:hips_CS',
-                                                     axis=(0, 0, 1),
-                                                     radius=1.0)
+            actor_chest_col = self.set_actor_collider(actor=self.korlan,
+                                                      col_name='Korlan:chest_CS',
+                                                      axis=(0, 0, 1),
+                                                      radius=0.2)
+
+            actor_pelvis_col = self.set_actor_collider(actor=self.korlan,
+                                                       col_name='Korlan:pelvis_CS',
+                                                       axis=(0, 0, 0.7),
+                                                       radius=0.2)
+
+            actor_r_leg_col = self.set_actor_collider(actor=self.korlan,
+                                                      col_name='Korlan:r_leg_CS',
+                                                      axis=(0.1, -0.1, 0.4),
+                                                      radius=0.2)
+            actor_r_foot_col = self.set_actor_collider(actor=self.korlan,
+                                                       col_name='Korlan:r_foot_CS',
+                                                       axis=(0.1, -0.1, 0.2),
+                                                       radius=0.2)
+
+            actor_l_leg_col = self.set_actor_collider(actor=self.korlan,
+                                                      col_name='Korlan:l_leg_CS',
+                                                      axis=(-0.1, -0.1, 0.4),
+                                                      radius=0.2)
+            actor_l_foot_col = self.set_actor_collider(actor=self.korlan,
+                                                       col_name='Korlan:l_foot_CS',
+                                                       axis=(-0.1, -0.1, 0.2),
+                                                       radius=0.2)
 
             # Here we set collider handler for our actor
             self.set_actor_collider_handler(actor=self.korlan,
                                             player_collider=actor_head_col)
 
             self.set_actor_collider_handler(actor=self.korlan,
-                                            player_collider=actor_hips_col)
+                                            player_collider=actor_chest_col)
+
+            self.set_actor_collider_handler(actor=self.korlan,
+                                            player_collider=actor_pelvis_col)
+
+            self.set_actor_collider_handler(actor=self.korlan,
+                                            player_collider=actor_r_leg_col)
+
+            self.set_actor_collider_handler(actor=self.korlan,
+                                            player_collider=actor_r_foot_col)
+
+            self.set_actor_collider_handler(actor=self.korlan,
+                                            player_collider=actor_l_leg_col)
+
+            self.set_actor_collider_handler(actor=self.korlan,
+                                            player_collider=actor_l_foot_col)
 
             self.pusher.setHorizontal(True)
 
@@ -71,6 +116,7 @@ class FromCollisions:
             playerCS = CollisionSphere(axis, radius)
             playerColliderNode.addSolid(playerCS)
             playerCollider = actor.attachNewNode(playerColliderNode)
+
             return playerCollider
 
     def set_actor_collider_handler(self, actor, player_collider):
@@ -83,7 +129,6 @@ class FromCollisions:
 
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
                 player_collider.show()
-            player_collider.show()
 
     def set_camera_collider(self, col_name):
         if col_name and isinstance(col_name, str):

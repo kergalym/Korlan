@@ -1,5 +1,8 @@
+import re
+
 from panda3d.core import *
-from Engine.Collisions.from_collisions import FromCollisions
+
+from Engine.Collisions.collisions import FromCollisions
 from Engine.Actors.Player.korlan import Korlan
 from Engine import set_tex_transparency
 from Engine.world import World
@@ -153,6 +156,15 @@ class SceneOne:
                     scene.setPos(self.base.camera, 0, 0, 0)
                     scene.setHpr(scene, rot_h, 0, 0)
                 elif self.type == 'ground':
+
+                    # Load the scene.
+                    scene = self.base.loader.loadModel(path)
+                    scene.setName(name)
+                    scene.reparentTo(self.render)
+                    scene.setScale(self.scale_x, self.scale_y, self.scale_z)
+                    scene.setPos(pos_x, pos_y, pos_z)
+                    scene.setHpr(scene, rot_h, 0, 0)
+                elif self.type == 'mountains':
 
                     # Load the scene.
                     scene = self.base.loader.loadModel(path)

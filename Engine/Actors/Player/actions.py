@@ -1,7 +1,7 @@
 from Engine.Actors.Player.state import PlayerState
 from Engine.FSM.player_ai import FsmPlayer, Idle
 from Engine.Items.items import Items
-from Engine.Collisions.from_collisions import FromCollisions
+from Engine.Collisions.collisions import FromCollisions
 from direct.task.TaskManagerGlobal import taskMgr
 
 from Engine.world import World

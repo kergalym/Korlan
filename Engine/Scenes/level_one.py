@@ -130,7 +130,7 @@ class LevelOne:
                                 scale=[1.25, 1.25, 1.25],
                                 type='ground')
 
-        self.scene_one.env_load(path=assets['Mountains'],
+        self.scene_one.env_load(path=assets['Mountains_octree'],
                                 mode="game",
                                 name="Mountains",
                                 axis=[0.0, 20.0, self.pos_z],
