@@ -88,7 +88,7 @@ class Actions:
                         appendTask=True)
 
             # Set up the camera
-            self.base.camera.set_pos(player.getX(), player.getY() + 40, 2)
+            self.base.camera.set_pos(player.getX(), player.get_y() + 40, 2)
 
             self.col.set_inter_collision(player=player)
 
@@ -406,7 +406,7 @@ class Actions:
                                                            playRate=self.base.actor_play_rate)
                     Sequence(crouch_to_stand_seq,
                              any_action_seq,
-                             Func(self.set_player_pos, player, player.getNetTransform().getY())).start()
+                             Func(self.set_player_pos, player, player.get_net_transform().get_y())).start()
 
                     self.is_crouching = False
                     self.is_h_kicking = False
