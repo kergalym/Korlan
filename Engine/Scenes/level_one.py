@@ -38,29 +38,29 @@ class LevelOne:
 
             # use pattern to remove nodes corresponding to asset names
             for node in pattern:
-                if render.find("**/{0}".format(node)).isEmpty() is False:
-                    render.find("**/{0}".format(node)).removeNode()
+                if render.find("**/{0}".format(node)).is_empty() is False:
+                    render.find("**/{0}".format(node)).remove_node()
 
             for key in assets:
-                self.loader.unloadModel(assets[key])
+                self.loader.unload_model(assets[key])
 
             wp = WindowProperties()
-            wp.setCursorHidden(False)
-            self.base.win.requestProperties(wp)
+            wp.set_cursor_hidden(False)
+            self.base.win.request_properties(wp)
 
             # Disable the camera trackball controls.
-            self.base.disableMouse()
+            self.base.disable_mouse()
 
             # Disable mouse camera
-            self.base.mouseMagnitude = 0
-            self.base.rotateX = 0
-            self.base.lastMouseX = None
-            self.base.hideMouse = False
-            self.base.manualRecenterMouse = False
-            self.base.camera.setPos(0, 0, 0)
-            self.base.camera.setHpr(0, 0, 0)
-            self.base.cam.setPos(0, 0, 0)
-            self.base.cam.setHpr(0, 0, 0)
+            self.base.mouse_magnitude = 0
+            self.base.rotate_x = 0
+            self.base.last_mouse_x = None
+            self.base.hide_mouse = False
+            self.base.manual_recenter_Mouse = False
+            self.base.camera.set_pos(0, 0, 0)
+            self.base.camera.set_hpr(0, 0, 0)
+            self.base.cam.set_pos(0, 0, 0)
+            self.base.cam.set_hpr(0, 0, 0)
             self.base.menu_scene_load()
             self.base.frame.show()
 
@@ -79,11 +79,11 @@ class LevelOne:
 
         # use pattern to remove nodes corresponding to asset names
         for node in pattern:
-            if render.find("**/{0}".format(node)).isEmpty() is False:
-                render.find("**/{0}".format(node)).removeNode()
+            if render.find("**/{0}".format(node)).is_empty() is False:
+                render.find("**/{0}".format(node)).remove_node()
 
         for key in assets:
-            self.loader.unloadModel(assets[key])
+            self.loader.unload_model(assets[key])
 
         """ Assets """
         # assets is a dict containing paths + models

@@ -16,8 +16,8 @@ class Mouse:
         self.heading = 180
         self.pitch = 150
         self.rotation = 0
-        self.mousex = 0
-        self.mousey = 0
+        self.mouse_x = 0
+        self.mouse_y = 0
         self.last = 0
 
     # Create a floater object, which floats 2 units above Korlan.
@@ -26,25 +26,25 @@ class Mouse:
         if korlan:
             self.korlan = korlan
             self.floater = NodePath(PandaNode("floater"))
-            self.floater.reparentTo(self.korlan)
-            self.floater.setZ(self.pos_z)
+            self.floater.reparent_to(self.korlan)
+            self.floater.set_z(self.pos_z)
             return self.floater
 
     def mouse_look_cam(self, task):
         # figure out how much the mouse has moved (in pixels)
         if self.base.game_mode:
             md = self.base.win.getPointer(0)
-            x = md.getX()
-            y = md.getY()
-            if self.base.win.movePointer(0, 100, 100):
+            x = md.get_x()
+            y = md.get_y()
+            if self.base.win.move_pointer(0, 100, 100):
                 self.heading = self.heading - (x - 100) * 0.2
             # self.pitch = self.pitch - (y - 100) * 0.2
 
-            self.base.camera.setHpr(self.heading, self.pitch, self.rotation)
+            self.base.camera.set_hpr(self.heading, self.pitch, self.rotation)
 
-            dir = self.base.camera.getMat().getRow3(1)
-            self.base.camera.setPos(self.focus - (dir * 180))
-            self.focus = self.base.camera.getPos() + (dir * 180)
+            dir = self.base.camera.get_mat().getRow3(1)
+            self.base.camera.set_pos(self.focus - (dir * 180))
+            self.focus = self.base.camera.get_pos() + (dir * 180)
             self.last = task.time
 
             return task.cont
@@ -52,7 +52,7 @@ class Mouse:
     def set_mouse_mode(self, mode):
         if mode:
             wp = WindowProperties()
-            wp.setMouseMode(mode)
-            self.base.mouseMode = mode
-            wp.setCursorHidden(True)
-            self.base.win.requestProperties(wp)
+            wp.set_mouse_mode(mode)
+            self.base.mouse_mode = mode
+            wp.set_cursor_hidden(True)
+            self.base.win.request_properties(wp)

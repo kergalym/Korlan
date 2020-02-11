@@ -304,12 +304,12 @@ class Menu:
 
         self.ornament_right.reparent_to(self.base.frame)
         self.ornament_right.set_scale(self.ornament_scale)
-        self.ornament_right.setHpr(0.0, 0.0, -90.0)
+        self.ornament_right.set_hpr(0.0, 0.0, -90.0)
         self.ornament_left.reparent_to(self.base.frame)
         self.ornament_left.set_scale(self.ornament_scale)
-        self.ornament_left.setHpr(0.0, 0.0, -90.0)
-        self.ornament_right.setTransparency(TransparencyAttrib.MAlpha)
-        self.ornament_left.setTransparency(TransparencyAttrib.MAlpha)
+        self.ornament_left.set_hpr(0.0, 0.0, -90.0)
+        self.ornament_right.set_transparency(TransparencyAttrib.MAlpha)
+        self.ornament_left.set_transparency(TransparencyAttrib.MAlpha)
 
         self.btn_new_game.set_pos(-1.4, 0, 0)
         self.btn_load_game.set_pos(-1.4, 0, -0.1)
@@ -376,12 +376,12 @@ class Menu:
 
         self.ornament_right.reparent_to(self.base.frame_int)
         self.ornament_right.set_scale(self.ornament_scale)
-        self.ornament_right.setHpr(0.0, 0.0, -90.0)
+        self.ornament_right.set_hpr(0.0, 0.0, -90.0)
         self.ornament_left.reparent_to(self.base.frame_int)
         self.ornament_left.set_scale(self.ornament_scale)
-        self.ornament_left.setHpr(0.0, 0.0, -90.0)
-        self.ornament_right.setTransparency(TransparencyAttrib.MAlpha)
-        self.ornament_left.setTransparency(TransparencyAttrib.MAlpha)
+        self.ornament_left.set_hpr(0.0, 0.0, -90.0)
+        self.ornament_right.set_transparency(TransparencyAttrib.MAlpha)
+        self.ornament_left.set_transparency(TransparencyAttrib.MAlpha)
         self.menu_mode = True
 
     def load_graphics_menu(self):
@@ -513,16 +513,16 @@ class Menu:
 
         self.ornament_right.reparent_to(self.base.frame_int_gfx)
         self.ornament_right.set_scale(self.ornament_scale)
-        self.ornament_right.setHpr(0.0, 0.0, -90.0)
+        self.ornament_right.set_hpr(0.0, 0.0, -90.0)
 
         self.ornament_left.set_pos(self.ornament_l_gfx_pos)
         self.ornament_right.set_pos(self.ornament_r_gfx_pos)
 
         self.ornament_left.reparent_to(self.base.frame_int_gfx)
         self.ornament_left.set_scale(self.ornament_scale)
-        self.ornament_left.setHpr(0.0, 0.0, -90.0)
-        self.ornament_right.setTransparency(TransparencyAttrib.MAlpha)
-        self.ornament_left.setTransparency(TransparencyAttrib.MAlpha)
+        self.ornament_left.set_hpr(0.0, 0.0, -90.0)
+        self.ornament_right.set_transparency(TransparencyAttrib.MAlpha)
+        self.ornament_left.set_transparency(TransparencyAttrib.MAlpha)
 
         self.lbl_gfx_title.set_pos(-0.6, 0, 0.5)
 
@@ -634,12 +634,12 @@ class Menu:
 
         self.ornament_right.reparent_to(self.base.frame_int_snd)
         self.ornament_right.set_scale(self.ornament_scale)
-        self.ornament_right.setHpr(0.0, 0.0, -90.0)
+        self.ornament_right.set_hpr(0.0, 0.0, -90.0)
         self.ornament_left.reparent_to(self.base.frame_int_snd)
         self.ornament_left.set_scale(self.ornament_scale)
-        self.ornament_left.setHpr(0.0, 0.0, -90.0)
-        self.ornament_right.setTransparency(TransparencyAttrib.MAlpha)
-        self.ornament_left.setTransparency(TransparencyAttrib.MAlpha)
+        self.ornament_left.set_hpr(0.0, 0.0, -90.0)
+        self.ornament_right.set_transparency(TransparencyAttrib.MAlpha)
+        self.ornament_left.set_transparency(TransparencyAttrib.MAlpha)
 
         self.ornament_left.set_pos(self.ornament_l_snd_pos)
         self.ornament_right.set_pos(self.ornament_r_snd_pos)
@@ -908,12 +908,12 @@ class Menu:
 
         self.ornament_right.reparent_to(self.base.frame_int_keymap)
         self.ornament_right.set_scale(self.ornament_scale)
-        self.ornament_right.setHpr(0.0, 0.0, -90.0)
+        self.ornament_right.set_hpr(0.0, 0.0, -90.0)
         self.ornament_left.reparent_to(self.base.frame_int_keymap)
         self.ornament_left.set_scale(self.ornament_scale)
-        self.ornament_left.setHpr(0.0, 0.0, -90.0)
-        self.ornament_right.setTransparency(TransparencyAttrib.MAlpha)
-        self.ornament_left.setTransparency(TransparencyAttrib.MAlpha)
+        self.ornament_left.set_hpr(0.0, 0.0, -90.0)
+        self.ornament_right.set_transparency(TransparencyAttrib.MAlpha)
+        self.ornament_left.set_transparency(TransparencyAttrib.MAlpha)
 
         self.ornament_left.set_pos(self.ornament_l_kmp_pos)
         self.ornament_right.set_pos(self.ornament_r_kmp_pos)
@@ -1037,12 +1037,12 @@ class Menu:
 
         self.ornament_right.reparent_to(self.base.frame_int_lang)
         self.ornament_right.set_scale(self.ornament_scale)
-        self.ornament_right.setHpr(0.0, 0.0, -90.0)
+        self.ornament_right.set_hpr(0.0, 0.0, -90.0)
         self.ornament_left.reparent_to(self.base.frame_int_lang)
         self.ornament_left.set_scale(self.ornament_scale)
-        self.ornament_left.setHpr(0.0, 0.0, -90.0)
-        self.ornament_right.setTransparency(TransparencyAttrib.MAlpha)
-        self.ornament_left.setTransparency(TransparencyAttrib.MAlpha)
+        self.ornament_left.set_hpr(0.0, 0.0, -90.0)
+        self.ornament_right.set_transparency(TransparencyAttrib.MAlpha)
+        self.ornament_left.set_transparency(TransparencyAttrib.MAlpha)
 
         self.ornament_left.set_pos(self.ornament_l_lng_pos)
         self.ornament_right.set_pos(self.ornament_r_lng_pos)
@@ -1230,12 +1230,12 @@ class Menu:
 
         self.ornament_right.reparent_to(self.base.frame_int_dev)
         self.ornament_right.set_scale(self.ornament_scale)
-        self.ornament_right.setHpr(0.0, 0.0, -90.0)
+        self.ornament_right.set_hpr(0.0, 0.0, -90.0)
         self.ornament_left.reparent_to(self.base.frame_int_dev)
         self.ornament_left.set_scale(self.ornament_scale)
-        self.ornament_left.setHpr(0.0, 0.0, -90.0)
-        self.ornament_right.setTransparency(TransparencyAttrib.MAlpha)
-        self.ornament_left.setTransparency(TransparencyAttrib.MAlpha)
+        self.ornament_left.set_hpr(0.0, 0.0, -90.0)
+        self.ornament_right.set_transparency(TransparencyAttrib.MAlpha)
+        self.ornament_left.set_transparency(TransparencyAttrib.MAlpha)
 
         self.ornament_left.set_pos(self.ornament_l_dev_pos)
         self.ornament_right.set_pos(self.ornament_r_dev_pos)

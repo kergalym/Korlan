@@ -1,11 +1,12 @@
-from panda3d.core import CollisionTraverser, CollisionNode, CollisionHandlerPusher, Point3
+from panda3d.core import CollisionTraverser, CollisionHandlerPusher
 from panda3d.core import CollisionSphere, CollisionBox
 from panda3d.core import CollisionTube, CollisionRay
 from panda3d.core import CollideMask, BitMask32
+from panda3d.core import CollisionNode, Point3
 from direct.showbase.PhysicsManagerGlobal import physicsMgr
 
 
-class FromCollisions:
+class Collisions:
 
     def __init__(self):
         self.base = base
@@ -16,14 +17,14 @@ class FromCollisions:
         self.game_cfg_dir = base.game_cfg_dir
         self.game_settings_filename = base.game_settings_filename
         self.cfg_path = {"game_config_path":
-                         "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
+                             "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
 
-        self.camCS = None
-        self.camColliderNode = None
-        self.camCollider = None
+        self.cam_cs = None
+        self.cam_collider_node = None
+        self.cam_collider = None
 
-        self.cTrav = CollisionTraverser()
-        self.pusher = CollisionHandlerPusher()
+        self.c_trav = CollisionTraverser()
+        self.c_pusher = CollisionHandlerPusher()
         self.korlan = None
         self.actor = None
 
@@ -34,12 +35,14 @@ class FromCollisions:
     def set_inter_collision(self, player):
         if player:
             self.korlan = player
+            self.korlan.setTag(key=player.get_name(), value='1')
 
             # Octree-optimised "into" objects defined here
-            assets = base.asset_nodes_assoc_collector()
-            mountains = assets.get('Mountains')
-            mountains.setCollideMask(self.mask_walls)
-
+            assets_nodes = base.asset_nodes_assoc_collector()
+            mountains = assets_nodes.get('Mountains')
+            mountains.set_collide_mask(self.mask_walls)
+            box = assets_nodes.get('Box')
+            box.setTag(key=box.get_name(), value='1')
             # Here we set collider for player-followed camera
             self.set_camera_collider(col_name="CamCS")
 
@@ -99,11 +102,15 @@ class FromCollisions:
             self.set_actor_collider_handler(actor=self.korlan,
                                             player_collider=actor_l_foot_col)
 
-            self.pusher.setHorizontal(True)
+            self.c_pusher.add_in_pattern('into-%in')
+            # self.event.addAgainPattern('%fn-again-%in')
+            self.c_pusher.add_out_pattern('outof-%in')
+
+            self.c_pusher.set_horizontal(True)
 
             # Show a visual representation of the collisions occuring
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
-                self.cTrav.showCollisions(render)
+                self.c_trav.showCollisions(render)
 
     def set_actor_collider(self, actor, col_name, axis, radius):
         if (actor
@@ -112,41 +119,42 @@ class FromCollisions:
                 and isinstance(axis, tuple)
                 and isinstance(radius, float)
                 or isinstance(radius, int)):
-            playerColliderNode = CollisionNode(col_name)
-            playerCS = CollisionSphere(axis, radius)
-            playerColliderNode.addSolid(playerCS)
-            playerCollider = actor.attachNewNode(playerColliderNode)
+            player_collider_node = CollisionNode(col_name)
+            player_cs = CollisionSphere(axis, radius)
+            player_collider_node.addSolid(player_cs)
+            player_collider = actor.attachNewNode(player_collider_node)
 
-            return playerCollider
+            return player_collider
 
     def set_actor_collider_handler(self, actor, player_collider):
         if player_collider and actor:
-            self.pusher.addCollider(player_collider,
-                                    actor)
+            self.c_pusher.add_collider(player_collider,
+                                       actor)
 
-            self.cTrav.addCollider(player_collider,
-                                   self.pusher)
+            self.c_trav.add_collider(player_collider,
+                                     self.c_pusher)
 
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
                 player_collider.show()
 
     def set_camera_collider(self, col_name):
         if col_name and isinstance(col_name, str):
-            self.camCS = CollisionRay()
-            self.camCS.setOrigin(0, 0, 9)
-            self.camCS.setDirection(0, 0, -1)
-            self.camColliderNode = CollisionNode(col_name)
-            self.camColliderNode.addSolid(self.camCS)
-            self.camColliderNode.setFromCollideMask(CollideMask.bit(0))
-            self.camColliderNode.setIntoCollideMask(CollideMask.allOff())
+            self.cam_cs = CollisionRay()
+            self.cam_cs.set_origin(0, 0, 9)
+            self.cam_cs.set_direction(0, 0, -1)
+            self.cam_collider_node = CollisionNode(col_name)
+            self.cam_collider_node.add_solid(self.cam_cs)
+            self.cam_collider_node.set_from_collide_mask(CollideMask.bit(0))
+            self.cam_collider_node.set_into_collide_mask(CollideMask.allOff())
 
-            self.camCollider = self.base.camera.attachNewNode(self.camColliderNode)
+            self.cam_collider = self.base.camera.attach_new_node(self.cam_collider_node)
 
-            self.pusher.addCollider(self.camCollider,
-                                    self.korlan)
+            self.c_pusher.add_collider(self.cam_collider,
+                                       self.korlan)
 
-            self.cTrav.addCollider(self.camCollider,
-                                   self.pusher)
+            self.c_trav.add_collider(self.cam_collider,
+                                     self.c_pusher)
+
             # Show the collision solid
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
-                self.camCollider.show()
+                self.cam_collider.show()

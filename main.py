@@ -89,7 +89,7 @@ class Main(ShowBase):
 
         self.cfg_path = None
 
-        self.manualRecenterMouse = None
+        self.manual_recenter_Mouse = None
 
         self.gfx = Graphics()
 
@@ -321,10 +321,10 @@ class Main(ShowBase):
             if assoc_key:
                 children = {}
                 for node in nodes:
-                    for inner in node.getChildren():
-                        for num in range(len(inner.getChildren())):
-                            name = inner.getChildren().getPath(num).getName()
-                            node_path = inner.getChildren().getPath(num)
+                    for inner in node.get_children():
+                        for num in range(len(inner.get_children())):
+                            name = inner.get_children().get_path(num).get_name()
+                            node_path = inner.get_children().get_path(num)
                             children[name] = node_path
                 # Remove empty name key
                 children.pop('')
@@ -332,10 +332,10 @@ class Main(ShowBase):
             if assoc_key is False:
                 children = []
                 for node in nodes:
-                    for inner in node.getChildren():
-                        for num in range(len(inner.getChildren())):
-                            name = inner.getChildren().getPath(num).getName()
-                            node_path = inner.getChildren().getPath(num)
+                    for inner in node.get_children():
+                        for num in range(len(inner.get_children())):
+                            name = inner.get_children().get_path(num).get_name()
+                            node_path = inner.get_children().get_path(num)
                             if name != '':
                                 children.append(node_path)
                 return children
@@ -348,7 +348,7 @@ class Main(ShowBase):
                 asset_pos['X'] = node.getX()
                 asset_pos['Y'] = node.getY()
                 asset_pos['Z'] = node.getZ()
-                asset_names[node.getName()] = asset_pos
+                asset_names[node.get_name()] = asset_pos
             return asset_names
 
     def collect_sounds(self):
@@ -362,7 +362,7 @@ class Main(ShowBase):
                     if '.ogg' in file:
                         key = re.sub('.ogg', '', file)
                     path = str(PurePath("{0}/".format(root), file))
-                    sounds[key] = Filename.from_os_specific(path).getFullpath()
+                    sounds[key] = Filename.from_os_specific(path).get_full_path()
 
             return sounds
 

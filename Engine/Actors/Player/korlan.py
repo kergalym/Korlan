@@ -1,7 +1,7 @@
 from Engine.Actors.Player.actions import Actions
 from Engine.Actors.Player.state import PlayerState
 
-from Engine.Collisions.collisions import FromCollisions
+from Engine.Collisions.collisions import Collisions
 from Engine import set_tex_transparency
 from direct.actor.Actor import Actor
 from panda3d.core import WindowProperties
@@ -26,6 +26,7 @@ class Korlan:
         self.rot_p = None
         self.rot_r = None
         self.korlan = None
+        self.korlan_start_pos = None
         self.base = base
         self.render = render
         self.anims = None
@@ -41,7 +42,7 @@ class Korlan:
         self.taskMgr = taskMgr
         self.kbd = Keyboard()
         self.mouse = Mouse()
-        self.col = FromCollisions()
+        self.col = Collisions()
         self.world = World()
         self.act = Actions()
         self.state = PlayerState()
@@ -55,10 +56,10 @@ class Korlan:
         if mode == 'menu':
 
             # Disable the camera trackball controls.
-            self.base.disableMouse()
+            self.base.disable_mouse()
             props = WindowProperties()
-            props.setCursorHidden(False)
-            self.base.win.requestProperties(props)
+            props.set_cursor_hidden(False)
+            self.base.win.request_properties(props)
 
             if (isinstance(path, str)
                     and isinstance(name, str)
@@ -83,19 +84,19 @@ class Korlan:
                 self.korlan = Actor(path,
                                     {anim_name: anim_path})
 
-                self.korlan.setName(name)
-                self.korlan.setScale(self.korlan, self.scale_x, self.scale_y, self.scale_z)
-                self.korlan.setPos(self.pos_x, self.pos_y, self.pos_z)
-                self.korlan.setH(self.korlan, self.rot_h)
-                self.korlan.setP(self.korlan, self.rot_p)
-                self.korlan.setR(self.korlan, self.rot_r)
+                self.korlan.set_name(name)
+                self.korlan.set_scale(self.korlan, self.scale_x, self.scale_y, self.scale_z)
+                self.korlan.set_pos(self.pos_x, self.pos_y, self.pos_z)
+                self.korlan.set_h(self.korlan, self.rot_h)
+                self.korlan.set_p(self.korlan, self.rot_p)
+                self.korlan.set_r(self.korlan, self.rot_r)
                 self.korlan.loop(animation)
-                self.korlan.setPlayRate(self.base.actor_play_rate, animation)
+                self.korlan.set_play_rate(self.base.actor_play_rate, animation)
 
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 set_tex_transparency(self.korlan)
 
-                self.korlan.reparentTo(render)
+                self.korlan.reparent_to(render)
 
                 # Set lights and Shadows
                 if self.game_settings['Main']['postprocessing'] == 'off':
@@ -112,22 +113,22 @@ class Korlan:
 
             self.base.game_mode = True
             wp = WindowProperties()
-            wp.setCursorHidden(True)
-            self.base.win.requestProperties(wp)
+            wp.set_cursor_hidden(True)
+            self.base.win.request_properties(wp)
 
             # Disable the camera trackball controls.
-            self.base.disableMouse()
+            self.base.disable_mouse()
 
             # control mapping of mouse movement to character movement
-            self.base.mouseMagnitude = 1
+            self.base.mouse_magnitude = 1
 
-            self.base.rotateX = 0
+            self.base.rotate_x = 0
 
-            self.base.lastMouseX = None
+            self.base.last_mouse_x = None
 
-            self.base.hideMouse = False
+            self.base.hide_mouse = False
 
-            self.base.manualRecenterMouse = True
+            self.base.manual_recenter_mouse = True
 
             self.mouse.set_mouse_mode(WindowProperties.M_absolute)
 
@@ -151,21 +152,21 @@ class Korlan:
 
                 self.korlan = Actor(path, animation[1])
 
-                self.korlan.setName(name)
-                self.korlan.setScale(self.korlan, self.scale_x, self.scale_y, self.scale_z)
-                self.KorlanStartPos = LPoint3f(self.pos_x, self.pos_y, 0.0)
-                self.korlan.setPos(self.KorlanStartPos + (0, 0, self.pos_z))
-                self.korlan.setH(self.korlan, self.rot_h)
-                self.korlan.setP(self.korlan, self.rot_p)
-                self.korlan.setR(self.korlan, self.rot_r)
+                self.korlan.set_name(name)
+                self.korlan.set_scale(self.korlan, self.scale_x, self.scale_y, self.scale_z)
+                self.korlan_start_pos = LPoint3f(self.pos_x, self.pos_y, 0.0)
+                self.korlan.set_pos(self.korlan_start_pos + (0, 0, self.pos_z))
+                self.korlan.set_h(self.korlan, self.rot_h)
+                self.korlan.set_p(self.korlan, self.rot_p)
+                self.korlan.set_r(self.korlan, self.rot_r)
 
                 # Get actor joints
-                base.korlan_joints = self.korlan.getJoints()
+                base.korlan_joints = self.korlan.get_joints()
 
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 set_tex_transparency(self.korlan)
 
-                self.korlan.reparentTo(render)
+                self.korlan.reparent_to(render)
 
                 # Set lights and Shadows
                 if self.game_settings['Main']['postprocessing'] == 'off':

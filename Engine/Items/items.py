@@ -1,11 +1,15 @@
 from Engine.Actors.Player.state import PlayerState
+from Engine.Collisions.collisions import Collisions
 
 
 class Items:
 
     def __init__(self):
+        self.base = base
         self.assets = base.collect_assets()
         self.state = PlayerState()
+        self.col = Collisions()
+
         self.dombra = {
             'type': 'item',
             'name': 'dombra',
@@ -43,14 +47,10 @@ class Items:
 
     """ Assign any item which is close to an actor enough """
 
-    def item_selector(self, actor, anyjoint):
-        if (actor and anyjoint
-                and isinstance(anyjoint, list)):
-            if (base.collide_item_name['name'] is not None
-                    and isinstance(base.collide_item_name['name'], str)
-                    and base.collide_item_name['type'] == 0):
-                item = base.collide_item_name['name']
-                self.state.pick_up_item(actor, anyjoint, item)
+    def item_selector(self, actor, joint):
+        if (actor and joint
+                and isinstance(joint, str)):
+            self.base.accept('into-Box', self.state.pick_up_item, [actor, joint])
 
     def pick_up_dombra(self):
         if self.dombra['type'] == 'item':

@@ -34,39 +34,36 @@ class PlayerState:
         else:
             return False
 
-    def has_actor_any_item(self):
-        children = base.asset_node_children_collector(
-            base.asset_nodes_collector(),
-            assoc_key=True
-        )
-        if children and isinstance(children, dict):
-            for child in children:
-                for joint in base.korlan_joints:
-                    if child == joint.getName():
-                        return True
-                    else:
-                        return False
+    def has_actor_any_item(self, item, exposed_joint):
+        if item and exposed_joint:
+            if (exposed_joint.get_num_children() == 1
+                    and item.get_name() == exposed_joint.get_child(0).get_name()):
+                return True
+            else:
+                return False
 
-    def pick_up_item(self, player, anyjoint, item):
+    def pick_up_item(self, player, joint, entry):
         if (player
-                and isinstance(anyjoint, list)
-                and item):
-            for hand in anyjoint:
-                # TODO: check if any hand is free
-                exposed_joint = player.exposeJoint(None, "modelRoot", hand)
-                if self.has_actor_any_item() is False:
-                    item.reparentTo(exposed_joint)
-                elif self.has_actor_any_item() is True:
-                    item.detachNode()
+                and entry
+                and joint
+                and isinstance(joint, str)):
+            assets = base.asset_nodes_assoc_collector()
+            item = assets.get(entry.get_into_node().get_name())
+            exposed_joint = player.expose_joint(None, "modelRoot", joint)
+            if self.has_actor_any_item(item, exposed_joint) is False:
+                item.reparent_to(exposed_joint)
+                item.get_net_transform().set_scale(8.0)
+            elif self.has_actor_any_item(item, exposed_joint) is True:
+                item.detachNode()
 
-    def pass_item(self, player, anyjoint, item):
+    def pass_item(self, player, joint, item):
         if (player
-                and isinstance(anyjoint, str)
+                and isinstance(joint, str)
                 and item):
-            exposed_joint = player.exposeJoint(None, "modelRoot", anyjoint)
-            item.reparentTo(exposed_joint)
+            exposed_joint = player.expose_joint(None, "modelRoot", joint)
+            item.reparent_to(exposed_joint)
 
     def drop_item(self, object, item):
         if object and item:
-            item.reparentTo(object)
-            item.setPos(object.getPos())
+            item.reparent_to(object)
+            item.set_pos(object.get_pos())

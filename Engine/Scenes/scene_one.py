@@ -2,7 +2,7 @@ import re
 
 from panda3d.core import *
 
-from Engine.Collisions.collisions import FromCollisions
+from Engine.Collisions.collisions import Collisions
 from Engine.Actors.Player.korlan import Korlan
 from Engine import set_tex_transparency
 from Engine.world import World
@@ -25,7 +25,7 @@ class SceneOne:
         self.type = None
         self.task_mgr = None
         self.node_path = NodePath()
-        self.col = FromCollisions()
+        self.col = Collisions()
         self.world = World()
         self.korlan = Korlan()
         self.base = base
@@ -58,20 +58,21 @@ class SceneOne:
                 self.scale_z = scale[2]
 
                 # Load the scene.
-                scene = self.base.loader.loadModel(path)
-                scene.setName(name)
-                scene.reparentTo(self.render)
-                scene.setScale(self.scale_x, self.scale_y, self.scale_z)
-                scene.setPos(pos_x, pos_y, pos_z)
-                scene.setHpr(scene, rot_h, 0, 0)
+                scene = self.base.loader.load_model(path)
+                scene.set_name(name)
+                scene.reparent_to(self.render)
+                scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
+                scene.set_pos(pos_x, pos_y, pos_z)
+                scene.set_hpr(scene, rot_h, 0, 0)
+                base.scene = scene
 
                 if name == 'Grass':
-                    scene.flattenStrong()
+                    scene.flatten_strong()
 
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 set_tex_transparency(scene)
 
-                render.setAttrib(LightRampAttrib.makeHdr1())
+                render.set_attrib(LightRampAttrib.make_hdr1())
 
                 if self.game_settings['Main']['postprocessing'] == 'off':
                     # Set Lights and Shadows
@@ -100,20 +101,20 @@ class SceneOne:
                 self.scale_z = scale[2]
 
                 # Load the scene.
-                scene = self.base.loader.loadModel(path)
-                scene.setName(name)
-                scene.reparentTo(self.render)
-                scene.setScale(self.scale_x, self.scale_y, self.scale_z)
-                scene.setPos(pos_x, pos_y, pos_z)
-                scene.setHpr(scene, rot_h, 0, 0)
+                scene = self.base.loader.load_model(path)
+                scene.set_name(name)
+                scene.reparent_to(self.render)
+                scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
+                scene.set_pos(pos_x, pos_y, pos_z)
+                scene.set_hpr(scene, rot_h, 0, 0)
 
                 if name == 'Grass':
-                    scene.flattenStrong()
+                    scene.flatten_strong()
 
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 set_tex_transparency(scene)
 
-                render.setAttrib(LightRampAttrib.makeHdr1())
+                render.set_attrib(LightRampAttrib.make_hdr1())
 
                 if self.game_settings['Main']['postprocessing'] == 'off':
                     # Set Lights and Shadows
@@ -146,47 +147,47 @@ class SceneOne:
 
                 if self.type == 'skybox':
                     # Load the scene.
-                    scene = self.base.loader.loadModel(path)
-                    scene.setBin('background', 1)
-                    scene.setDepthWrite(0)
-                    scene.setLightOff()
-                    scene.reparentTo(self.render)
-                    scene.setScale(self.scale_x, self.scale_y, self.scale_z)
-                    scene.setPos(pos_x, pos_y, pos_z)
-                    scene.setPos(self.base.camera, 0, 0, 0)
-                    scene.setHpr(scene, rot_h, 0, 0)
+                    scene = self.base.loader.load_model(path)
+                    scene.set_bin('background', 1)
+                    scene.set_depth_write(0)
+                    scene.set_light_off()
+                    scene.reparent_to(self.render)
+                    scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
+                    scene.set_pos(pos_x, pos_y, pos_z)
+                    scene.set_pos(self.base.camera, 0, 0, 0)
+                    scene.set_hpr(scene, rot_h, 0, 0)
                 elif self.type == 'ground':
 
                     # Load the scene.
-                    scene = self.base.loader.loadModel(path)
-                    scene.setName(name)
-                    scene.reparentTo(self.render)
-                    scene.setScale(self.scale_x, self.scale_y, self.scale_z)
-                    scene.setPos(pos_x, pos_y, pos_z)
-                    scene.setHpr(scene, rot_h, 0, 0)
+                    scene = self.base.loader.load_model(path)
+                    scene.set_name(name)
+                    scene.reparent_to(self.render)
+                    scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
+                    scene.set_pos(pos_x, pos_y, pos_z)
+                    scene.set_hpr(scene, rot_h, 0, 0)
                 elif self.type == 'mountains':
 
                     # Load the scene.
-                    scene = self.base.loader.loadModel(path)
-                    scene.setName(name)
-                    scene.reparentTo(self.render)
-                    scene.setScale(self.scale_x, self.scale_y, self.scale_z)
-                    scene.setPos(pos_x, pos_y, pos_z)
-                    scene.setHpr(scene, rot_h, 0, 0)
+                    scene = self.base.loader.load_model(path)
+                    scene.set_name(name)
+                    scene.reparent_to(self.render)
+                    scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
+                    scene.set_pos(pos_x, pos_y, pos_z)
+                    scene.set_hpr(scene, rot_h, 0, 0)
                 else:
 
                     # Load the scene.
-                    scene = self.base.loader.loadModel(path)
-                    scene.setName(name)
-                    scene.reparentTo(self.render)
-                    scene.setScale(self.scale_x, self.scale_y, self.scale_z)
-                    scene.setPos(pos_x, pos_y, pos_z)
-                    scene.setHpr(scene, rot_h, 0, 0)
+                    scene = self.base.loader.load_model(path)
+                    scene.set_name(name)
+                    scene.reparent_to(self.render)
+                    scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
+                    scene.set_pos(pos_x, pos_y, pos_z)
+                    scene.set_hpr(scene, rot_h, 0, 0)
 
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 set_tex_transparency(scene)
 
-                render.setAttrib(LightRampAttrib.makeHdr1())
+                render.set_attrib(LightRampAttrib.make_hdr1())
 
                 if self.game_settings['Main']['postprocessing'] == 'off':
                     # Set the lights
@@ -197,7 +198,7 @@ class SceneOne:
                     # simply ignore normal maps, HDR, and so forth if
                     # shader generation is not enabled. It would be reasonable
                     # to enable shader generation for the entire game, using this call:
-                    scene.setShaderAuto()
+                    scene.set_shader_auto()
 
                 return scene
 
@@ -224,29 +225,29 @@ class SceneOne:
                 if self.type == 'skybox':
 
                     # Load the scene.
-                    scene = self.base.loader.loadModel(path)
-                    scene.setBin('background', 1)
-                    scene.setDepthWrite(0)
-                    scene.setLightOff()
-                    scene.reparentTo(self.render)
-                    scene.setScale(self.scale_x, self.scale_y, self.scale_z)
-                    scene.setPos(pos_x, pos_y, pos_z)
-                    scene.setPos(self.base.camera, 0, 0, 0)
-                    scene.setHpr(scene, rot_h, 0, 0)
+                    scene = self.base.loader.load_model(path)
+                    scene.set_bin('background', 1)
+                    scene.set_depth_write(0)
+                    scene.set_light_off()
+                    scene.reparent_to(self.render)
+                    scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
+                    scene.set_pos(pos_x, pos_y, pos_z)
+                    scene.set_pos(self.base.camera, 0, 0, 0)
+                    scene.set_hpr(scene, rot_h, 0, 0)
                 else:
 
                     # Load the scene.
-                    scene = self.base.loader.loadModel(path)
-                    scene.setName(name)
-                    scene.reparentTo(self.render)
-                    scene.setScale(self.scale_x, self.scale_y, self.scale_z)
-                    scene.setPos(pos_x, pos_y, pos_z)
-                    scene.setHpr(scene, rot_h, 0, 0)
+                    scene = self.base.loader.load_model(path)
+                    scene.set_name(name)
+                    scene.reparent_to(self.render)
+                    scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
+                    scene.set_pos(pos_x, pos_y, pos_z)
+                    scene.set_hpr(scene, rot_h, 0, 0)
 
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 set_tex_transparency(scene)
 
-                render.setAttrib(LightRampAttrib.makeHdr1())
+                render.set_attrib(LightRampAttrib.make_hdr1())
 
                 if self.game_settings['Main']['postprocessing'] == 'off':
                     # Set the lights
@@ -257,6 +258,6 @@ class SceneOne:
                     # simply ignore normal maps, HDR, and so forth if
                     # shader generation is not enabled. It would be reasonable
                     # to enable shader generation for the entire game, using this call:
-                    scene.setShaderAuto()
+                    scene.set_shader_auto()
 
                 return scene

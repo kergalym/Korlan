@@ -482,10 +482,10 @@ class Sound(MenuSettings):
     def sound_value(self):
         loaded_settings = self.load_settings()
         if loaded_settings['Main']['sound'] == 'on':
-            base.enableAllAudio()
+            base.enable_all_audio()
             return 1
         elif loaded_settings['Main']['sound'] == 'off':
-            base.disableAllAudio()
+            base.disable_all_audio()
             return 2
 
     def load_sound_value(self):
@@ -495,10 +495,10 @@ class Sound(MenuSettings):
     def music_value(self):
         loaded_settings = self.load_settings()
         if loaded_settings['Main']['music'] == 'on':
-            base.enableMusic(True)
+            base.enable_music(True)
             return 1
         elif loaded_settings['Main']['music'] == 'off':
-            base.enableMusic(False)
+            base.enable_music(False)
             return 2
 
     def load_music_value(self):
@@ -508,10 +508,10 @@ class Sound(MenuSettings):
     def sfx_value(self):
         loaded_settings = self.load_settings()
         if loaded_settings['Main']['sfx'] == 'on':
-            base.enableSoundEffects(True)
+            base.enable_sound_effects(True)
             return 1
         elif loaded_settings['Main']['sfx'] == 'off':
-            base.enableSoundEffects(False)
+            base.enable_sound_effects(False)
             return 2
 
     def load_sfx_value(self):
