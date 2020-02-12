@@ -55,7 +55,7 @@ class PlayerState:
                 item_np = exposed_joint.find("{0}.egg".format(item))
                 # After reparenting to joint the item inherits joint coordinates,
                 # so we find it in given joint and then do rotate and rescale the item
-                if item_np.is_empty() is False:
+                if not item_np.is_empty():
                     item_np.set_scale(8.0)
                     item_np.set_h(205.0)
             elif self.has_actor_any_item(item, exposed_joint) is True:

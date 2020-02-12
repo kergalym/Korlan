@@ -300,7 +300,7 @@ class Main(ShowBase):
         # use pattern to get all nodes corresponding to asset names
         nodes_cleaned = []
         for node in [render.find("**/{0}".format(node)) for node in pattern]:
-            if node.is_empty() is False:
+            if not node.is_empty():
                 nodes_cleaned.append(node)
         return nodes_cleaned
 
@@ -311,7 +311,7 @@ class Main(ShowBase):
         # use pattern to get all nodes corresponding to associated asset names
         for node in pattern:
             value = render.find("**/{0}".format(node))
-            if value.is_empty() is False:
+            if not value.is_empty():
                 parents[node] = value
         return parents
 
