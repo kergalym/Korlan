@@ -139,7 +139,7 @@ class Collisions:
                 if joint.get_name():
                     # import pdb;pdb.set_trace()
                     korlan[joint.get_name()] = self.korlan.expose_joint(None, "modelRoot", joint.get_name())
-                    player_collider[joint.get_name()] = korlan[joint.get_name()].attachNewNode(
+                    player_collider[joint.get_name()] = korlan[joint.get_name()].attach_new_node(
                         player_collider_node)
 
             # Add only parent player collider because we have child colliders on it
@@ -168,7 +168,7 @@ class Collisions:
             player_collider_node = CollisionNode(col_name)
             player_cs = CollisionSphere(axis, radius)
             player_collider_node.addSolid(player_cs)
-            player_collider = actor.attachNewNode(player_collider_node)
+            player_collider = actor.attach_new_node(player_collider_node)
 
             return player_collider
 
