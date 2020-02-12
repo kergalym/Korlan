@@ -144,11 +144,11 @@ class Collisions:
 
             # Add only parent player collider because we have child colliders on it
             for key in player_collider:
-                self.c_pusher.addCollider(player_collider[key],
-                                          self.korlan)
+                self.c_pusher.add_collider(player_collider[key],
+                                           self.korlan)
 
-                self.c_trav.addCollider(player_collider[key],
-                                        self.c_pusher)
+                self.c_trav.add_collider(player_collider[key],
+                                         self.c_pusher)
 
             # Show the collision solids
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
