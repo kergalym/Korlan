@@ -47,60 +47,12 @@ class Collisions:
             self.set_camera_collider(col_name="CamCS")
 
             # Here we set collider for our actor
-            actor_head_col = self.set_actor_collider(actor=self.korlan,
-                                                     col_name='Korlan:head_CS',
-                                                     axis=(0, -0.1, 1.3),
-                                                     radius=0.2)
+            # self.set_actor_collider_multi_solid()
 
-            actor_chest_col = self.set_actor_collider(actor=self.korlan,
-                                                      col_name='Korlan:chest_CS',
-                                                      axis=(0, 0, 1),
-                                                      radius=0.2)
-
-            actor_pelvis_col = self.set_actor_collider(actor=self.korlan,
-                                                       col_name='Korlan:pelvis_CS',
-                                                       axis=(0, 0, 0.7),
-                                                       radius=0.2)
-
-            actor_r_leg_col = self.set_actor_collider(actor=self.korlan,
-                                                      col_name='Korlan:r_leg_CS',
-                                                      axis=(0.1, -0.1, 0.4),
-                                                      radius=0.2)
-            actor_r_foot_col = self.set_actor_collider(actor=self.korlan,
-                                                       col_name='Korlan:r_foot_CS',
-                                                       axis=(0.1, -0.1, 0.2),
-                                                       radius=0.2)
-
-            actor_l_leg_col = self.set_actor_collider(actor=self.korlan,
-                                                      col_name='Korlan:l_leg_CS',
-                                                      axis=(-0.1, -0.1, 0.4),
-                                                      radius=0.2)
-            actor_l_foot_col = self.set_actor_collider(actor=self.korlan,
-                                                       col_name='Korlan:l_foot_CS',
-                                                       axis=(-0.1, -0.1, 0.2),
-                                                       radius=0.2)
-
-            # Here we set collider handler for our actor
-            self.set_actor_collider_handler(actor=self.korlan,
-                                            player_collider=actor_head_col)
-
-            self.set_actor_collider_handler(actor=self.korlan,
-                                            player_collider=actor_chest_col)
-
-            self.set_actor_collider_handler(actor=self.korlan,
-                                            player_collider=actor_pelvis_col)
-
-            self.set_actor_collider_handler(actor=self.korlan,
-                                            player_collider=actor_r_leg_col)
-
-            self.set_actor_collider_handler(actor=self.korlan,
-                                            player_collider=actor_r_foot_col)
-
-            self.set_actor_collider_handler(actor=self.korlan,
-                                            player_collider=actor_l_leg_col)
-
-            self.set_actor_collider_handler(actor=self.korlan,
-                                            player_collider=actor_l_foot_col)
+            self.set_actor_collider_multi_joint(actor=self.korlan,
+                                                col_name='Korlan:CS',
+                                                axis=(0, 0, 0),
+                                                radius=2.2)
 
             self.c_pusher.add_in_pattern('into-%in')
             # self.event.addAgainPattern('%fn-again-%in')
@@ -111,6 +63,100 @@ class Collisions:
             # Show a visual representation of the collisions occuring
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
                 self.c_trav.showCollisions(render)
+
+    def set_actor_collider_multi_solid(self):
+        actor_head_col = self.set_actor_collider(actor=self.korlan,
+                                                 col_name='Korlan:head_CS',
+                                                 axis=(0, -0.1, 1.3),
+                                                 radius=0.2)
+
+        actor_chest_col = self.set_actor_collider(actor=self.korlan,
+                                                  col_name='Korlan:chest_CS',
+                                                  axis=(0, 0, 1),
+                                                  radius=0.2)
+
+        actor_pelvis_col = self.set_actor_collider(actor=self.korlan,
+                                                   col_name='Korlan:pelvis_CS',
+                                                   axis=(0, 0, 0.7),
+                                                   radius=0.2)
+
+        actor_r_leg_col = self.set_actor_collider(actor=self.korlan,
+                                                  col_name='Korlan:r_leg_CS',
+                                                  axis=(0.1, -0.1, 0.4),
+                                                  radius=0.2)
+        actor_r_foot_col = self.set_actor_collider(actor=self.korlan,
+                                                   col_name='Korlan:r_foot_CS',
+                                                   axis=(0.1, -0.1, 0.2),
+                                                   radius=0.2)
+
+        actor_l_leg_col = self.set_actor_collider(actor=self.korlan,
+                                                  col_name='Korlan:l_leg_CS',
+                                                  axis=(-0.1, -0.1, 0.4),
+                                                  radius=0.2)
+        actor_l_foot_col = self.set_actor_collider(actor=self.korlan,
+                                                   col_name='Korlan:l_foot_CS',
+                                                   axis=(-0.1, -0.1, 0.2),
+                                                   radius=0.2)
+
+        # Here we set collider handler for our actor
+        self.set_actor_collider_handler(actor=self.korlan,
+                                        player_collider=actor_head_col)
+
+        self.set_actor_collider_handler(actor=self.korlan,
+                                        player_collider=actor_chest_col)
+
+        self.set_actor_collider_handler(actor=self.korlan,
+                                        player_collider=actor_pelvis_col)
+
+        self.set_actor_collider_handler(actor=self.korlan,
+                                        player_collider=actor_r_leg_col)
+
+        self.set_actor_collider_handler(actor=self.korlan,
+                                        player_collider=actor_r_foot_col)
+
+        self.set_actor_collider_handler(actor=self.korlan,
+                                        player_collider=actor_l_leg_col)
+
+        self.set_actor_collider_handler(actor=self.korlan,
+                                        player_collider=actor_l_foot_col)
+
+    def set_actor_collider_multi_joint(self, actor, col_name, axis, radius):
+        if (actor
+                and col_name
+                and isinstance(col_name, str)
+                and isinstance(axis, tuple)
+                and isinstance(radius, float)
+                or isinstance(radius, int)):
+            player_collider_node = CollisionNode(col_name)
+            player_cs = CollisionSphere(axis, radius)
+            player_collider_node.addSolid(player_cs)
+
+            # Make self.korlanCollider a list including all joint collision solids
+            korlan = {}
+            player_collider = {}
+
+            for joint in self.korlan.getJoints():
+                if joint.getName():
+                    # import pdb;pdb.set_trace()
+                    korlan[joint.getName()] = self.korlan.exposeJoint(None, "modelRoot", joint.getName())
+                    player_collider[joint.getName()] = korlan[joint.getName()].attachNewNode(
+                        player_collider_node)
+
+            # Add only parent player collider because we have child colliders on it
+            for key in player_collider:
+                self.c_pusher.addCollider(player_collider[key],
+                                          self.korlan)
+
+                self.c_trav.addCollider(player_collider[key],
+                                        self.c_pusher)
+
+            # Show the collision solids
+            if self.game_settings['Debug']['set_debug_mode'] == "YES":
+                for key in player_collider:
+                    player_collider[key].show()
+            else:
+                for key in player_collider:
+                    player_collider[key].show()
 
     def set_actor_collider(self, actor, col_name, axis, radius):
         if (actor
