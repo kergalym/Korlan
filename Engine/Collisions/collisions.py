@@ -135,11 +135,11 @@ class Collisions:
             korlan = {}
             player_collider = {}
 
-            for joint in self.korlan.getJoints():
-                if joint.getName():
+            for joint in self.korlan.get_joints():
+                if joint.get_name():
                     # import pdb;pdb.set_trace()
-                    korlan[joint.getName()] = self.korlan.exposeJoint(None, "modelRoot", joint.getName())
-                    player_collider[joint.getName()] = korlan[joint.getName()].attachNewNode(
+                    korlan[joint.get_name()] = self.korlan.expose_joint(None, "modelRoot", joint.get_name())
+                    player_collider[joint.get_name()] = korlan[joint.get_name()].attachNewNode(
                         player_collider_node)
 
             # Add only parent player collider because we have child colliders on it
