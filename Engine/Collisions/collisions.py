@@ -129,7 +129,7 @@ class Collisions:
                 or isinstance(radius, int)):
             player_collider_node = CollisionNode(col_name)
             player_cs = CollisionSphere(axis, radius)
-            player_collider_node.addSolid(player_cs)
+            player_collider_node.add_solid(player_cs)
 
             # Make self.korlanCollider a list including all joint collision solids
             korlan = {}
@@ -167,7 +167,7 @@ class Collisions:
                 or isinstance(radius, int)):
             player_collider_node = CollisionNode(col_name)
             player_cs = CollisionSphere(axis, radius)
-            player_collider_node.addSolid(player_cs)
+            player_collider_node.add_solid(player_cs)
             player_collider = actor.attach_new_node(player_collider_node)
 
             return player_collider
