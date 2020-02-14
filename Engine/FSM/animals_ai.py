@@ -18,6 +18,7 @@ class Swimming(FsmAnimals):
 
         FsmAnimals.__init__(self)
 
+
 class Staying(FsmAnimals):
     def __init__(self):
 
@@ -52,6 +53,7 @@ class Dying(FsmAnimals):
     def __init__(self):
 
         FsmAnimals.__init__(self)
+
 
 class MiscActions(FsmAnimals):
     def __init__(self):

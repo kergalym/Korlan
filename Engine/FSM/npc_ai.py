@@ -13,7 +13,7 @@ class FsmPlayer(FSM):
         self.d_object = DirectObject()
         self.cfg_parser = ConfigParser()
         self.is_idle = True
-        self.is_moving = base.korlan_is_moving
+        self.is_moving = False
         self.is_crouching = False
         self.is_jumping = False
         self.is_hitting = False

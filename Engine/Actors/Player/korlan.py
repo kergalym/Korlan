@@ -184,7 +184,7 @@ class Korlan:
                             appendTask=True)
 
                 # TODO: Add Scene task
-                taskMgr.add(self.state.set_player_state,
+                taskMgr.add(self.state.set_player_equip_state,
                             "player_state",
                             appendTask=True)
 

@@ -9,7 +9,13 @@ class PlayerState:
                                          'DEFORMED': 2
                                          }
 
-    def set_player_state(self, task):
+    def set_player_idle_state(self, state):
+        if state is False:
+            base.is_idle = False
+        else:
+            base.is_idle = True
+
+    def set_player_equip_state(self, task):
         base.player_state_unarmed = True
         if base.player_state_armed:
             base.player_state_unarmed = False
@@ -58,7 +64,7 @@ class PlayerState:
                 if not item_np.is_empty():
                     item_np.set_scale(8.0)
                     item_np.set_h(205.0)
-                print(item, type(item))
+                print("Info from PlayerState class: ", item, type(item))
             elif self.has_actor_any_item(item, exposed_joint) is True:
                 item.detachNode()
 
