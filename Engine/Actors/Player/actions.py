@@ -15,20 +15,20 @@ class Actions:
     def __init__(self):
         self.base = base
         base.is_idle = True
-        self.is_moving = False
-        self.is_crouch_moving = False
+        base.is_moving = False
+        base.is_crouch_moving = False
         base.is_crouching = False
-        self.is_standing = False
+        base.is_standing = False
         base.is_jumping = False
-        self.is_hitting = False
-        self.is_h_kicking = False
-        self.is_f_kicking = False
-        self.is_using = False
-        self.is_blocking = False
-        self.has_sword = False
-        self.has_bow = False
-        self.has_tengri = False
-        self.has_umai = False
+        base.is_hitting = False
+        base.is_h_kicking = False
+        base.is_f_kicking = False
+        base.is_using = False
+        base.is_blocking = False
+        base.has_sword = False
+        base.has_bow = False
+        base.has_tengri = False
+        base.has_umai = False
         self.actor_play_rate = None
         self.walking_forward_action = "Walking"
         self.crouch_walking_forward_action = 'crouch_walking_forward'
@@ -50,7 +50,7 @@ class Actions:
     
     def seq_kick_played_wrapper(self):
         base.is_crouching = False
-        self.is_h_kicking = False
+        base.is_h_kicking = False
 
     def set_player_pos(self, player, pos_y):
         if (player and pos_y
@@ -88,7 +88,7 @@ class Actions:
 
         if (any_action.is_playing() is False
                 and base.is_idle
-                and self.is_moving is False):
+                and base.is_moving is False):
             self.idle_player.enter_idle(player=player, action=anims['LookingAround'], state=True)
 
         # Here we accept keys
@@ -164,9 +164,9 @@ class Actions:
                 player.setH(player.getH() + 300 * dt)
             if self.kbd.keymap["right"]:
                 player.setH(player.getH() - 300 * dt)
-            if self.kbd.keymap["forward"] and self.is_moving:
+            if self.kbd.keymap["forward"] and base.is_moving:
                 player.setY(player, -speed * dt)
-            if self.kbd.keymap["backward"] and self.is_moving:
+            if self.kbd.keymap["backward"] and base.is_moving:
                 player.setY(player, speed * dt)
 
             # If the player does action, loop the animation.
@@ -175,32 +175,32 @@ class Actions:
                     or self.kbd.keymap["backward"]
                     or self.kbd.keymap["left"]
                     or self.kbd.keymap["right"]):
-                if self.is_moving is False and base.is_crouching is False:
+                if base.is_moving is False and base.is_crouching is False:
                     player.loop(anims[self.walking_forward_action])
                     player.set_play_rate(self.base.actor_play_rate,
                                          anims[self.walking_forward_action])
-                    self.is_moving = True
+                    base.is_moving = True
                     base.is_crouching = False
                     self.state.set_player_idle_state(False)
-                elif self.is_moving is False and base.is_crouching:
+                elif base.is_moving is False and base.is_crouching:
                     player.loop(anims[self.crouch_walking_forward_action])
                     player.set_play_rate(self.base.actor_play_rate,
                                          anims[self.crouch_walking_forward_action])
-                    self.is_moving = True
+                    base.is_moving = True
                     base.is_crouching = True
                     self.state.set_player_idle_state(False)
 
             else:
-                if self.is_moving and base.is_crouching is False:
+                if base.is_moving and base.is_crouching is False:
                     player.stop()
                     player.pose(anims[self.walking_forward_action], 0)
-                    self.is_moving = False
+                    base.is_moving = False
                     base.is_crouching = False
                     self.state.set_player_idle_state(True)
-                elif self.is_moving and base.is_crouching:
+                elif base.is_moving and base.is_crouching:
                     player.stop()
                     player.pose(anims[self.crouch_walking_forward_action], 0)
-                    self.is_moving = False
+                    base.is_moving = False
                     base.is_crouching = False
                     self.state.set_player_idle_state(True)
 
@@ -249,7 +249,7 @@ class Actions:
                 if (base.is_jumping is False
                         and crouched_to_standing.is_playing() is False
                         and base.is_crouching is True):
-                    self.is_standing = False
+                    base.is_standing = False
                     # TODO: Use blending for smooth transition between animations
                     # Do an animation sequence if player is crouched.
                     crouch_to_stand_seq = player.actor_interval(anims[self.crouched_to_standing_action],
@@ -285,10 +285,10 @@ class Actions:
             if self.kbd.keymap[key]:
                 base.is_idle = False
 
-                if (self.is_using is False
+                if (base.is_using is False
                         and crouched_to_standing.is_playing() is False
                         and base.is_crouching is True):
-                    self.is_standing = False
+                    base.is_standing = False
                     # TODO: Use blending for smooth transition between animations
                     # Do an animation sequence if player is crouched.
                     crouch_to_stand_seq = player.actor_interval(anims[self.crouched_to_standing_action],
@@ -297,16 +297,16 @@ class Actions:
                                                            playRate=self.base.actor_play_rate)
                     Sequence(crouch_to_stand_seq, any_action_seq).start()
                     base.is_crouching = False
-                    self.is_using = False
+                    base.is_using = False
                     if (any_action.is_playing() is False
                             and base.is_crouching is False):
                         base.is_idle = True
 
-                elif (self.is_using is False
+                elif (base.is_using is False
                       and crouched_to_standing.is_playing() is False
                       and base.is_crouching is False):
-                    self.is_using = True
-                    if self.is_using:
+                    base.is_using = True
+                    if base.is_using:
                         self.item_cls.item_selector(actor=player,
                                                     joint="Korlan:LeftHand")
 
@@ -315,8 +315,8 @@ class Actions:
                     Sequence(any_action_seq).start()
                     base.player_state_armed = True
                     base.is_crouching = False
-                    self.is_using = False
-                    if any_action.is_playing() is False and self.is_using is False:
+                    base.is_using = False
+                    if any_action.is_playing() is False and base.is_using is False:
                         base.is_idle = True
 
     def player_hit_action(self, player, key, anims, action):
@@ -329,10 +329,10 @@ class Actions:
             if self.kbd.keymap[key]:
                 base.is_idle = False
 
-                if (self.is_hitting is False
+                if (base.is_hitting is False
                         and crouched_to_standing.is_playing() is False
                         and base.is_crouching is True):
-                    self.is_standing = False
+                    base.is_standing = False
                     # TODO: Use blending for smooth transition between animations
                     # Do an animation sequence if player is crouched.
                     crouch_to_stand_seq = player.actor_interval(anims[self.crouched_to_standing_action],
@@ -341,21 +341,21 @@ class Actions:
                                                            playRate=self.base.actor_play_rate)
                     Sequence(crouch_to_stand_seq, any_action_seq).start()
                     base.is_crouching = False
-                    self.is_hitting = False
+                    base.is_hitting = False
                     if (any_action.is_playing() is False
                             and base.is_crouching is False):
                         base.is_idle = True
 
-                elif (self.is_hitting is False
+                elif (base.is_hitting is False
                       and crouched_to_standing.is_playing() is False
                       and base.is_crouching is False):
-                    self.is_hitting = True
+                    base.is_hitting = True
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
                     Sequence(any_action_seq).start()
                     base.is_crouching = False
-                    self.is_hitting = False
-                    if any_action.is_playing() is False and self.is_hitting is False:
+                    base.is_hitting = False
+                    if any_action.is_playing() is False and base.is_hitting is False:
                         base.is_idle = True
 
     def player_h_kick_action(self, player, key, anims, action):
@@ -368,10 +368,10 @@ class Actions:
             if self.kbd.keymap[key]:
                 base.is_idle = False
 
-                if (self.is_h_kicking is False
+                if (base.is_h_kicking is False
                         and crouched_to_standing.is_playing() is False
                         and base.is_crouching is True):
-                    self.is_standing = False
+                    base.is_standing = False
                     # TODO: Use blending for smooth transition between animations
                     # Do an animation sequence if player is crouched.
                     crouch_to_stand_seq = player.actor_interval(anims[self.crouched_to_standing_action],
@@ -383,15 +383,15 @@ class Actions:
                              Func(self.set_player_pos, player, -1.5)).start()
 
                     base.is_crouching = False
-                    self.is_h_kicking = False
+                    base.is_h_kicking = False
                     if (any_action.is_playing() is False
                             and base.is_crouching is False):
                         base.is_idle = True
 
-                elif (self.is_h_kicking is False
+                elif (base.is_h_kicking is False
                       and crouched_to_standing.is_playing() is False
                       and base.is_crouching is False):
-                    self.is_h_kicking = True
+                    base.is_h_kicking = True
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
                     Sequence(any_action_seq,
@@ -410,10 +410,10 @@ class Actions:
             if self.kbd.keymap[key]:
                 base.is_idle = False
 
-                if (self.is_f_kicking is False
+                if (base.is_f_kicking is False
                         and crouched_to_standing.is_playing() is False
                         and base.is_crouching is True):
-                    self.is_standing = False
+                    base.is_standing = False
                     # TODO: Use blending for smooth transition between animations
                     # Do an animation sequence if player is crouched.
                     crouch_to_stand_seq = player.actor_interval(anims[self.crouched_to_standing_action],
@@ -422,21 +422,21 @@ class Actions:
                                                            playRate=self.base.actor_play_rate)
                     Sequence(crouch_to_stand_seq, any_action_seq).start()
                     base.is_crouching = False
-                    self.is_f_kicking = False
+                    base.is_f_kicking = False
                     if (any_action.is_playing() is False
                             and base.is_crouching is False):
                         base.is_idle = True
 
-                elif (self.is_f_kicking is False
+                elif (base.is_f_kicking is False
                       and crouched_to_standing.is_playing() is False
                       and base.is_crouching is False):
-                    self.is_f_kicking = True
+                    base.is_f_kicking = True
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
                     Sequence(any_action_seq).start()
                     base.is_crouching = False
-                    self.is_f_kicking = False
-                    if any_action.is_playing() is False and self.is_f_kicking is False:
+                    base.is_f_kicking = False
+                    if any_action.is_playing() is False and base.is_f_kicking is False:
                         base.is_idle = True
 
     def player_block_action(self, player, key, anims, action):
@@ -449,10 +449,10 @@ class Actions:
             if self.kbd.keymap[key]:
                 base.is_idle = False
 
-                if (self.is_blocking is False
+                if (base.is_blocking is False
                         and crouched_to_standing.is_playing() is False
                         and base.is_crouching is True):
-                    self.is_standing = False
+                    base.is_standing = False
                     # TODO: Use blending for smooth transition between animations
                     # Do an animation sequence if player is crouched.
                     crouch_to_stand_seq = player.actor_interval(anims[self.crouched_to_standing_action],
@@ -461,21 +461,21 @@ class Actions:
                                                            playRate=self.base.actor_play_rate)
                     Sequence(crouch_to_stand_seq, any_action_seq).start()
                     base.is_crouching = False
-                    self.is_blocking = False
+                    base.is_blocking = False
                     if (any_action.is_playing() is False
                             and base.is_crouching is False):
                         base.is_idle = True
 
-                elif (self.is_blocking is False
+                elif (base.is_blocking is False
                       and crouched_to_standing.is_playing() is False
                       and base.is_crouching is False):
-                    self.is_blocking = True
+                    base.is_blocking = True
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
                     Sequence(any_action_seq).start()
                     base.is_crouching = False
-                    self.is_blocking = False
-                    if any_action.is_playing() is False and self.is_blocking is False:
+                    base.is_blocking = False
+                    if any_action.is_playing() is False and base.is_blocking is False:
                         base.is_idle = True
 
     def player_sword_action(self, player, key, anims, action):
@@ -488,10 +488,10 @@ class Actions:
             if self.kbd.keymap[key]:
                 base.is_idle = False
 
-                if (self.has_sword is False
+                if (base.has_sword is False
                         and crouched_to_standing.is_playing() is False
                         and base.is_crouching is True):
-                    self.is_standing = False
+                    base.is_standing = False
                     # TODO: Use blending for smooth transition between animations
                     # Do an animation sequence if player is crouched.
                     crouch_to_stand_seq = player.actor_interval(anims[self.crouched_to_standing_action],
@@ -500,21 +500,21 @@ class Actions:
                                                            playRate=self.base.actor_play_rate)
                     Sequence(crouch_to_stand_seq, any_action_seq).start()
                     base.is_crouching = False
-                    self.has_sword = False
+                    base.has_sword = False
                     if (any_action.is_playing() is False
                             and base.is_crouching is False):
                         base.is_idle = True
 
-                elif (self.has_sword is False
+                elif (base.has_sword is False
                       and crouched_to_standing.is_playing() is False
                       and base.is_crouching is False):
-                    self.has_sword = True
+                    base.has_sword = True
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
                     Sequence(any_action_seq).start()
                     base.is_crouching = False
-                    self.has_sword = False
-                    if any_action.is_playing() is False and self.has_sword is False:
+                    base.has_sword = False
+                    if any_action.is_playing() is False and base.has_sword is False:
                         base.is_idle = True
 
     def player_bow_action(self, player, key, anims, action):
@@ -527,10 +527,10 @@ class Actions:
             if self.kbd.keymap[key]:
                 base.is_idle = False
 
-                if (self.has_bow is False
+                if (base.has_bow is False
                         and crouched_to_standing.is_playing() is False
                         and base.is_crouching is True):
-                    self.is_standing = False
+                    base.is_standing = False
                     # TODO: Use blending for smooth transition between animations
                     # Do an animation sequence if player is crouched.
                     crouch_to_stand_seq = player.actor_interval(anims[self.crouched_to_standing_action],
@@ -539,21 +539,21 @@ class Actions:
                                                            playRate=self.base.actor_play_rate)
                     Sequence(crouch_to_stand_seq, any_action_seq).start()
                     base.is_crouching = False
-                    self.has_bow = False
+                    base.has_bow = False
                     if (any_action.is_playing() is False
                             and base.is_crouching is False):
                         base.is_idle = True
 
-                elif (self.has_bow is False
+                elif (base.has_bow is False
                       and crouched_to_standing.is_playing() is False
                       and base.is_crouching is False):
-                    self.has_bow = True
+                    base.has_bow = True
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
                     Sequence(any_action_seq).start()
                     base.is_crouching = False
-                    self.has_bow = False
-                    if any_action.is_playing() is False and self.has_bow is False:
+                    base.has_bow = False
+                    if any_action.is_playing() is False and base.has_bow is False:
                         base.is_idle = True
 
     def player_tengri_action(self, player, key, anims, action):
@@ -566,10 +566,10 @@ class Actions:
             if self.kbd.keymap[key]:
                 base.is_idle = False
 
-                if (self.has_tengri is False
+                if (base.has_tengri is False
                         and crouched_to_standing.is_playing() is False
                         and base.is_crouching is True):
-                    self.is_standing = False
+                    base.is_standing = False
                     # TODO: Use blending for smooth transition between animations
                     # Do an animation sequence if player is crouched.
                     crouch_to_stand_seq = player.actor_interval(anims[self.crouched_to_standing_action],
@@ -578,21 +578,21 @@ class Actions:
                                                            playRate=self.base.actor_play_rate)
                     Sequence(crouch_to_stand_seq, any_action_seq).start()
                     base.is_crouching = False
-                    self.has_tengri = False
+                    base.has_tengri = False
                     if (any_action.is_playing() is False
                             and base.is_crouching is False):
                         base.is_idle = True
 
-                elif (self.has_tengri is False
+                elif (base.has_tengri is False
                       and crouched_to_standing.is_playing() is False
                       and base.is_crouching is False):
-                    self.has_tengri = True
+                    base.has_tengri = True
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
                     Sequence(any_action_seq).start()
                     base.is_crouching = False
-                    self.has_tengri = False
-                    if any_action.is_playing() is False and self.has_tengri is False:
+                    base.has_tengri = False
+                    if any_action.is_playing() is False and base.has_tengri is False:
                         base.is_idle = True
 
     def player_umai_action(self, player, key, anims, action):
@@ -605,10 +605,10 @@ class Actions:
             if self.kbd.keymap[key]:
                 base.is_idle = False
 
-                if (self.has_umai is False
+                if (base.has_umai is False
                         and crouched_to_standing.is_playing() is False
                         and base.is_crouching is True):
-                    self.is_standing = False
+                    base.is_standing = False
                     # TODO: Use blending for smooth transition between animations
                     # Do an animation sequence if player is crouched.
                     crouch_to_stand_seq = player.actor_interval(anims[self.crouched_to_standing_action],
@@ -617,18 +617,18 @@ class Actions:
                                                            playRate=self.base.actor_play_rate)
                     Sequence(crouch_to_stand_seq, any_action_seq).start()
                     base.is_crouching = False
-                    self.has_umai = False
+                    base.has_umai = False
                     if (any_action.is_playing() is False
                             and base.is_crouching is False):
                         base.is_idle = True
 
-                elif (self.has_umai is False
+                elif (base.has_umai is False
                       and crouched_to_standing.is_playing() is False
                       and base.is_crouching is False):
-                    self.has_umai = True
+                    base.has_umai = True
                     any_action_seq = player.actor_interval(anims[action], playRate=self.base.actor_play_rate)
                     Sequence(any_action_seq).start()
                     base.is_crouching = False
-                    self.has_umai = False
-                    if any_action.is_playing() is False and self.has_umai is False:
+                    base.has_umai = False
+                    if any_action.is_playing() is False and base.has_umai is False:
                         base.is_idle = True
