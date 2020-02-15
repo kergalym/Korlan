@@ -229,11 +229,7 @@ class Actions:
                         and base.states['is_crouching'] is False):
                     # TODO: Use blending for smooth transition between animations
                     # Do an animation sequence if player is crouched.
-                    player.play(anims[self.standing_to_crouch_action])
-                    player.set_play_rate(self.base.actor_play_rate,
-                                         anims[self.standing_to_crouch_action])
-
-                    stand_to_crouch_seq = player.actor_interval(anims[self.crouched_to_standing_action],
+                    stand_to_crouch_seq = player.actor_interval(anims[self.standing_to_crouch_action],
                                                                 playRate=self.base.actor_play_rate)
 
                     Sequence(Parallel(stand_to_crouch_seq,
