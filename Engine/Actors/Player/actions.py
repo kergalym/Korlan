@@ -38,7 +38,7 @@ class Actions:
             self.item_cls.item_selector(actor=player,
                                         joint="Korlan:LeftHand")
 
-    def set_player_pos(self, player, pos_y):
+    def seq_set_player_pos_wrapper(self, player, pos_y):
         if (player and pos_y
                 and isinstance(pos_y, float)):
             player.setY(player, pos_y)
@@ -367,7 +367,7 @@ class Actions:
                     Sequence(crouch_to_stand_seq,
                              Parallel(any_action_seq,
                                       Func(self.state.set_action_state, "is_h_kicking", True)),
-                             Func(self.set_player_pos, player, -1.5),
+                             Func(self.seq_set_player_pos_wrapper, player, -1.5),
                              Func(self.state.set_action_state, "is_h_kicking", False)
                              ).start()
 
@@ -379,7 +379,7 @@ class Actions:
 
                     Sequence(Parallel(any_action_seq,
                                       Func(self.state.set_action_state, "is_h_kicking", True)),
-                             Func(self.set_player_pos, player, -1.5),
+                             Func(self.seq_set_player_pos_wrapper, player, -1.5),
                              Func(self.state.set_action_state, "is_h_kicking", False)
                              ).start()
 
