@@ -1,6 +1,23 @@
 class PlayerState:
 
     def __init__(self):
+        base.states = {
+            "is_idle": True,
+            "is_moving": False,
+            "is_crouch_moving": False,
+            "is_crouching": False,
+            "is_standing": False,
+            "is_jumping": False,
+            "is_hitting": False,
+            "is_h_kicking": False,
+            "is_f_kicking": False,
+            "is_using": False,
+            "is_blocking": False,
+            "has_sword": False,
+            "has_bow": False,
+            "has_tengri": False,
+            "has_umai": False,
+        }
         base.player_state_unarmed = False
         base.player_state_armed = False
         base.player_state_magic = False
@@ -11,9 +28,22 @@ class PlayerState:
 
     def set_player_idle_state(self, state):
         if state is False:
-            base.is_idle = False
+            base.states['is_idle'] = False
         else:
-            base.is_idle = True
+            base.states['is_idle'] = True
+
+    def set_action_state(self, state, boolean):
+        if (state
+                and isinstance(state, str)
+                and isinstance(boolean, bool)):
+            if state:
+                base.states[state] = boolean
+
+            for key in base.states:
+                if state is False and key == "is_idle":
+                    base.states[key] = True
+                elif state and key != state:
+                    base.states[key] = False
 
     def set_player_equip_state(self, task):
         base.player_state_unarmed = True
