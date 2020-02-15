@@ -218,6 +218,7 @@ class Actions:
 
             # If the player does action, play the animation.
             if self.kbd.keymap[key]:
+
                 if (crouched_to_standing.is_playing() is False
                         and base.is_crouching is False):
                     player.play(anims[self.standing_to_crouch_action])
@@ -244,7 +245,7 @@ class Actions:
             any_action = player.get_anim_control(anims[action])
 
             if self.kbd.keymap[key]:
-                base.is_idle = False
+                self.state.set_player_idle_state(False)
 
                 if (base.is_jumping is False
                         and crouched_to_standing.is_playing() is False
@@ -261,7 +262,7 @@ class Actions:
                     base.is_jumping = False
                     if (any_action.is_playing() is False
                             and base.is_crouching is False):
-                        base.is_idle = True
+                        self.state.set_player_idle_state(True)
 
                 elif (base.is_jumping is False
                       and crouched_to_standing.is_playing() is False
@@ -283,7 +284,7 @@ class Actions:
             any_action = player.get_anim_control(anims[action])
 
             if self.kbd.keymap[key]:
-                base.is_idle = False
+                self.state.set_player_idle_state(False)
 
                 if (base.is_using is False
                         and crouched_to_standing.is_playing() is False
@@ -300,7 +301,7 @@ class Actions:
                     base.is_using = False
                     if (any_action.is_playing() is False
                             and base.is_crouching is False):
-                        base.is_idle = True
+                        self.state.set_player_idle_state(True)
 
                 elif (base.is_using is False
                       and crouched_to_standing.is_playing() is False
@@ -312,12 +313,12 @@ class Actions:
 
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
-                    Sequence(any_action_seq).start()
+                    Sequence(any_action_seq,
+                             Func(self.state.set_player_idle_state, True)
+                             ).start()
                     base.player_state_armed = True
                     base.is_crouching = False
                     base.is_using = False
-                    if any_action.is_playing() is False and base.is_using is False:
-                        base.is_idle = True
 
     def player_hit_action(self, player, key, anims, action):
         if (player and isinstance(anims, dict)
@@ -327,7 +328,7 @@ class Actions:
             any_action = player.get_anim_control(anims[action])
 
             if self.kbd.keymap[key]:
-                base.is_idle = False
+                self.state.set_player_idle_state(False)
 
                 if (base.is_hitting is False
                         and crouched_to_standing.is_playing() is False
@@ -339,12 +340,12 @@ class Actions:
                                                                 playRate=self.base.actor_play_rate)
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
-                    Sequence(crouch_to_stand_seq, any_action_seq).start()
+                    Sequence(crouch_to_stand_seq,
+                             any_action_seq,
+                             Func(self.state.set_player_idle_state, True)
+                             ).start()
                     base.is_crouching = False
                     base.is_hitting = False
-                    if (any_action.is_playing() is False
-                            and base.is_crouching is False):
-                        base.is_idle = True
 
                 elif (base.is_hitting is False
                       and crouched_to_standing.is_playing() is False
@@ -352,11 +353,11 @@ class Actions:
                     base.is_hitting = True
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
-                    Sequence(any_action_seq).start()
+                    Sequence(any_action_seq,
+                             Func(self.state.set_player_idle_state, True)
+                             ).start()
                     base.is_crouching = False
                     base.is_hitting = False
-                    if any_action.is_playing() is False and base.is_hitting is False:
-                        base.is_idle = True
 
     def player_h_kick_action(self, player, key, anims, action):
         if (player and isinstance(anims, dict)
@@ -366,7 +367,7 @@ class Actions:
             any_action = player.get_anim_control(anims[action])
 
             if self.kbd.keymap[key]:
-                base.is_idle = False
+                self.state.set_player_idle_state(False)
 
                 if (base.is_h_kicking is False
                         and crouched_to_standing.is_playing() is False
@@ -380,13 +381,12 @@ class Actions:
                                                            playRate=self.base.actor_play_rate)
                     Sequence(crouch_to_stand_seq,
                              any_action_seq,
-                             Func(self.set_player_pos, player, -1.5)).start()
+                             Func(self.set_player_pos, player, -1.5),
+                             Func(self.state.set_player_idle_state, True)
+                             ).start()
 
                     base.is_crouching = False
                     base.is_h_kicking = False
-                    if (any_action.is_playing() is False
-                            and base.is_crouching is False):
-                        base.is_idle = True
 
                 elif (base.is_h_kicking is False
                       and crouched_to_standing.is_playing() is False
@@ -397,8 +397,10 @@ class Actions:
                     Sequence(any_action_seq,
                              Func(self.seq_kick_played_wrapper),
                              Func(self.set_player_pos, player, -1.5),
-                             Func(self.state.set_player_idle_state, False)
+                             Func(self.state.set_player_idle_state, True)
                              ).start()
+                    base.is_crouching = False
+                    base.is_h_kicking = False
 
     def player_f_kick_action(self, player, key, anims, action):
         if (player and isinstance(anims, dict)
@@ -408,7 +410,7 @@ class Actions:
             any_action = player.get_anim_control(anims[action])
 
             if self.kbd.keymap[key]:
-                base.is_idle = False
+                self.state.set_player_idle_state(False)
 
                 if (base.is_f_kicking is False
                         and crouched_to_standing.is_playing() is False
@@ -420,12 +422,12 @@ class Actions:
                                                                 playRate=self.base.actor_play_rate)
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
-                    Sequence(crouch_to_stand_seq, any_action_seq).start()
+                    Sequence(crouch_to_stand_seq,
+                             any_action_seq,
+                             Func(self.state.set_player_idle_state, True)
+                             ).start()
                     base.is_crouching = False
                     base.is_f_kicking = False
-                    if (any_action.is_playing() is False
-                            and base.is_crouching is False):
-                        base.is_idle = True
 
                 elif (base.is_f_kicking is False
                       and crouched_to_standing.is_playing() is False
@@ -433,11 +435,11 @@ class Actions:
                     base.is_f_kicking = True
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
-                    Sequence(any_action_seq).start()
+                    Sequence(any_action_seq,
+                             Func(self.state.set_player_idle_state, True)
+                             ).start()
                     base.is_crouching = False
                     base.is_f_kicking = False
-                    if any_action.is_playing() is False and base.is_f_kicking is False:
-                        base.is_idle = True
 
     def player_block_action(self, player, key, anims, action):
         if (player and isinstance(anims, dict)
@@ -447,7 +449,7 @@ class Actions:
             any_action = player.get_anim_control(anims[action])
 
             if self.kbd.keymap[key]:
-                base.is_idle = False
+                self.state.set_player_idle_state(False)
 
                 if (base.is_blocking is False
                         and crouched_to_standing.is_playing() is False
@@ -459,12 +461,12 @@ class Actions:
                                                                 playRate=self.base.actor_play_rate)
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
-                    Sequence(crouch_to_stand_seq, any_action_seq).start()
+                    Sequence(crouch_to_stand_seq,
+                             any_action_seq,
+                             Func(self.state.set_player_idle_state, True)
+                             ).start()
                     base.is_crouching = False
                     base.is_blocking = False
-                    if (any_action.is_playing() is False
-                            and base.is_crouching is False):
-                        base.is_idle = True
 
                 elif (base.is_blocking is False
                       and crouched_to_standing.is_playing() is False
@@ -472,11 +474,11 @@ class Actions:
                     base.is_blocking = True
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
-                    Sequence(any_action_seq).start()
+                    Sequence(any_action_seq,
+                             Func(self.state.set_player_idle_state, True)
+                             ).start()
                     base.is_crouching = False
                     base.is_blocking = False
-                    if any_action.is_playing() is False and base.is_blocking is False:
-                        base.is_idle = True
 
     def player_sword_action(self, player, key, anims, action):
         if (player and isinstance(anims, dict)
@@ -486,7 +488,7 @@ class Actions:
             any_action = player.get_anim_control(anims[action])
 
             if self.kbd.keymap[key]:
-                base.is_idle = False
+                self.state.set_player_idle_state(False)
 
                 if (base.has_sword is False
                         and crouched_to_standing.is_playing() is False
@@ -498,12 +500,12 @@ class Actions:
                                                                 playRate=self.base.actor_play_rate)
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
-                    Sequence(crouch_to_stand_seq, any_action_seq).start()
+                    Sequence(crouch_to_stand_seq,
+                             any_action_seq,
+                             Func(self.state.set_player_idle_state, True)
+                             ).start()
                     base.is_crouching = False
                     base.has_sword = False
-                    if (any_action.is_playing() is False
-                            and base.is_crouching is False):
-                        base.is_idle = True
 
                 elif (base.has_sword is False
                       and crouched_to_standing.is_playing() is False
@@ -511,11 +513,11 @@ class Actions:
                     base.has_sword = True
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
-                    Sequence(any_action_seq).start()
+                    Sequence(any_action_seq,
+                             Func(self.state.set_player_idle_state, True)
+                             ).start()
                     base.is_crouching = False
                     base.has_sword = False
-                    if any_action.is_playing() is False and base.has_sword is False:
-                        base.is_idle = True
 
     def player_bow_action(self, player, key, anims, action):
         if (player and isinstance(anims, dict)
@@ -525,7 +527,7 @@ class Actions:
             any_action = player.get_anim_control(anims[action])
 
             if self.kbd.keymap[key]:
-                base.is_idle = False
+                self.state.set_player_idle_state(False)
 
                 if (base.has_bow is False
                         and crouched_to_standing.is_playing() is False
@@ -537,12 +539,12 @@ class Actions:
                                                                 playRate=self.base.actor_play_rate)
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
-                    Sequence(crouch_to_stand_seq, any_action_seq).start()
+                    Sequence(crouch_to_stand_seq,
+                             any_action_seq,
+                             Func(self.state.set_player_idle_state, True)
+                             ).start()
                     base.is_crouching = False
                     base.has_bow = False
-                    if (any_action.is_playing() is False
-                            and base.is_crouching is False):
-                        base.is_idle = True
 
                 elif (base.has_bow is False
                       and crouched_to_standing.is_playing() is False
@@ -550,11 +552,11 @@ class Actions:
                     base.has_bow = True
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
-                    Sequence(any_action_seq).start()
+                    Sequence(any_action_seq,
+                             Func(self.state.set_player_idle_state, True)
+                             ).start()
                     base.is_crouching = False
                     base.has_bow = False
-                    if any_action.is_playing() is False and base.has_bow is False:
-                        base.is_idle = True
 
     def player_tengri_action(self, player, key, anims, action):
         if (player and isinstance(anims, dict)
@@ -564,7 +566,7 @@ class Actions:
             any_action = player.get_anim_control(anims[action])
 
             if self.kbd.keymap[key]:
-                base.is_idle = False
+                self.state.set_player_idle_state(False)
 
                 if (base.has_tengri is False
                         and crouched_to_standing.is_playing() is False
@@ -576,12 +578,12 @@ class Actions:
                                                                 playRate=self.base.actor_play_rate)
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
-                    Sequence(crouch_to_stand_seq, any_action_seq).start()
+                    Sequence(crouch_to_stand_seq,
+                             any_action_seq,
+                             Func(self.state.set_player_idle_state, True)
+                             ).start()
                     base.is_crouching = False
                     base.has_tengri = False
-                    if (any_action.is_playing() is False
-                            and base.is_crouching is False):
-                        base.is_idle = True
 
                 elif (base.has_tengri is False
                       and crouched_to_standing.is_playing() is False
@@ -589,11 +591,11 @@ class Actions:
                     base.has_tengri = True
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
-                    Sequence(any_action_seq).start()
+                    Sequence(any_action_seq,
+                             Func(self.state.set_player_idle_state, True)
+                             ).start()
                     base.is_crouching = False
                     base.has_tengri = False
-                    if any_action.is_playing() is False and base.has_tengri is False:
-                        base.is_idle = True
 
     def player_umai_action(self, player, key, anims, action):
         if (player and isinstance(anims, dict)
@@ -603,7 +605,7 @@ class Actions:
             any_action = player.get_anim_control(anims[action])
 
             if self.kbd.keymap[key]:
-                base.is_idle = False
+                self.state.set_player_idle_state(False)
 
                 if (base.has_umai is False
                         and crouched_to_standing.is_playing() is False
@@ -615,20 +617,21 @@ class Actions:
                                                                 playRate=self.base.actor_play_rate)
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
-                    Sequence(crouch_to_stand_seq, any_action_seq).start()
+                    Sequence(crouch_to_stand_seq,
+                             any_action_seq,
+                             Func(self.state.set_player_idle_state, True)
+                             ).start()
                     base.is_crouching = False
                     base.has_umai = False
-                    if (any_action.is_playing() is False
-                            and base.is_crouching is False):
-                        base.is_idle = True
 
                 elif (base.has_umai is False
                       and crouched_to_standing.is_playing() is False
                       and base.is_crouching is False):
                     base.has_umai = True
-                    any_action_seq = player.actor_interval(anims[action], playRate=self.base.actor_play_rate)
-                    Sequence(any_action_seq).start()
+                    any_action_seq = player.actor_interval(anims[action],
+                                                           playRate=self.base.actor_play_rate)
+                    Sequence(any_action_seq,
+                             Func(self.state.set_player_idle_state, True)
+                             ).start()
                     base.is_crouching = False
                     base.has_umai = False
-                    if any_action.is_playing() is False and base.has_umai is False:
-                        base.is_idle = True
