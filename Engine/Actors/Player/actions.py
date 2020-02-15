@@ -237,9 +237,8 @@ class Actions:
                     any_action_seq = player.actor_interval(anims[self.crouched_to_standing_action],
                                                            playRate=self.base.actor_play_rate)
                     Sequence(Parallel(any_action_seq, Func(self.state.set_action_state, "is_crouching", True)),
-                             Func(self.state.set_player_idle_state, True)
+                             Func(self.state.set_action_state, "is_crouching", False)
                              ).start()
-                    base.states['is_crouching'] = False
 
     def player_jump_action(self, player, key, anims, action):
         if (player and isinstance(anims, dict)

@@ -36,13 +36,12 @@ class PlayerState:
         if (state
                 and isinstance(state, str)
                 and isinstance(boolean, bool)):
-            if state:
+            if boolean:
                 base.states[state] = boolean
 
             for key in base.states:
-                if state is False and key == "is_idle":
-                    base.states[key] = True
-                elif state and key != state:
+                if boolean is False and key != "is_idle":
+                    base.states["is_idle"] = True
                     base.states[key] = False
 
     def set_player_equip_state(self, task):
