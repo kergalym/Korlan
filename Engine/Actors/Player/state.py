@@ -26,13 +26,6 @@ class PlayerState:
                                          'DEFORMED': 2
                                          }
 
-    # TODO: Planned to remove
-    def set_player_idle_state(self, state):
-        if state is False:
-            base.states['is_idle'] = False
-        else:
-            base.states['is_idle'] = True
-
     def set_action_state(self, state, boolean):
         if (state
                 and isinstance(state, str)
