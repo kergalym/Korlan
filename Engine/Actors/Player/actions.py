@@ -47,7 +47,7 @@ class Actions:
         self.col = Collisions()
 
     """ Sets current player position after action """
-    
+
     def seq_kick_played_wrapper(self):
         base.is_crouching = False
         base.is_h_kicking = False
@@ -56,7 +56,7 @@ class Actions:
         if (player and pos_y
                 and isinstance(pos_y, float)):
             player.setY(player, pos_y)
-    
+
     """ Prepares actions for scene"""
 
     def scene_actions_init(self, player, anims):
@@ -162,11 +162,28 @@ class Actions:
 
             if self.kbd.keymap["left"]:
                 player.setH(player.getH() + 300 * dt)
-            if self.kbd.keymap["right"]:
+            elif self.kbd.keymap["right"]:
                 player.setH(player.getH() - 300 * dt)
-            if self.kbd.keymap["forward"] and base.is_moving:
+
+            if (self.kbd.keymap["forward"]
+                    and base.is_moving
+                    and base.is_crouching is False
+                    and base.is_idle):
                 player.setY(player, -speed * dt)
-            if self.kbd.keymap["backward"] and base.is_moving:
+            elif (self.kbd.keymap["forward"]
+                    and base.is_moving
+                    and base.is_crouching
+                    and base.is_idle is False):
+                player.setY(player, -speed * dt)
+            elif (self.kbd.keymap["backward"]
+                    and base.is_moving
+                    and base.is_crouching is False
+                    and base.is_idle):
+                player.setY(player, speed * dt)
+            elif (self.kbd.keymap["backward"]
+                    and base.is_moving
+                    and base.is_crouching
+                    and base.is_idle is False):
                 player.setY(player, speed * dt)
 
             # If the player does action, loop the animation.
@@ -175,14 +192,18 @@ class Actions:
                     or self.kbd.keymap["backward"]
                     or self.kbd.keymap["left"]
                     or self.kbd.keymap["right"]):
-                if base.is_moving is False and base.is_crouching is False:
+                if (base.is_moving is False
+                        and base.is_crouching is False
+                        and base.is_idle):
                     player.loop(anims[self.walking_forward_action])
                     player.set_play_rate(self.base.actor_play_rate,
                                          anims[self.walking_forward_action])
                     base.is_moving = True
                     base.is_crouching = False
-                    self.state.set_player_idle_state(False)
-                elif base.is_moving is False and base.is_crouching:
+                    self.state.set_player_idle_state(True)
+                elif (base.is_moving is False
+                      and base.is_crouching
+                      and base.is_idle):
                     player.loop(anims[self.crouch_walking_forward_action])
                     player.set_play_rate(self.base.actor_play_rate,
                                          anims[self.crouch_walking_forward_action])
