@@ -364,7 +364,6 @@ class Actions:
                 and isinstance(action, str)
                 and isinstance(key, str)):
             crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
-            any_action = player.get_anim_control(anims[action])
 
             if self.kbd.keymap[key]:
                 self.state.set_player_idle_state(False)
@@ -407,7 +406,6 @@ class Actions:
                 and isinstance(action, str)
                 and isinstance(key, str)):
             crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
-            any_action = player.get_anim_control(anims[action])
 
             if self.kbd.keymap[key]:
                 self.state.set_player_idle_state(False)
@@ -446,7 +444,6 @@ class Actions:
                 and isinstance(action, str)
                 and isinstance(key, str)):
             crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
-            any_action = player.get_anim_control(anims[action])
 
             if self.kbd.keymap[key]:
                 self.state.set_player_idle_state(False)
@@ -485,7 +482,6 @@ class Actions:
                 and isinstance(action, str)
                 and isinstance(key, str)):
             crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
-            any_action = player.get_anim_control(anims[action])
 
             if self.kbd.keymap[key]:
                 self.state.set_player_idle_state(False)
@@ -524,7 +520,6 @@ class Actions:
                 and isinstance(action, str)
                 and isinstance(key, str)):
             crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
-            any_action = player.get_anim_control(anims[action])
 
             if self.kbd.keymap[key]:
                 self.state.set_player_idle_state(False)
@@ -563,7 +558,6 @@ class Actions:
                 and isinstance(action, str)
                 and isinstance(key, str)):
             crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
-            any_action = player.get_anim_control(anims[action])
 
             if self.kbd.keymap[key]:
                 self.state.set_player_idle_state(False)
@@ -602,7 +596,6 @@ class Actions:
                 and isinstance(action, str)
                 and isinstance(key, str)):
             crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
-            any_action = player.get_anim_control(anims[action])
 
             if self.kbd.keymap[key]:
                 self.state.set_player_idle_state(False)
