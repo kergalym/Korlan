@@ -31,12 +31,36 @@ class Actions:
         self.state = PlayerState()
         self.col = Collisions()
 
-    """ Sets current player position after action """
+    """ Play animation after action """
+
+    def seq_move_wrapper(self, player, anims, state):
+        if player and anims and isinstance(state, str):
+            if state == 'loop':
+                player.loop(anims[self.walking_forward_action])
+                player.set_play_rate(self.base.actor_play_rate,
+                                     anims[self.walking_forward_action])
+            elif state == 'stop':
+                player.stop()
+                player.pose(anims[self.walking_forward_action], 0)
+
+    def seq_crouch_move_wrapper(self, player, anims, state):
+        if player and anims and isinstance(state, str):
+            if state == 'loop':
+                player.loop(anims[self.crouch_walking_forward_action])
+                player.set_play_rate(self.base.actor_play_rate,
+                                     anims[self.crouch_walking_forward_action])
+            elif state == 'stop':
+                player.stop()
+                player.pose(anims[self.crouch_walking_forward_action], 0)
+
+    """ Sets current item after action """
 
     def seq_use_item_wrapper(self, player):
         if player and base.states['is_using']:
             self.item_cls.item_selector(actor=player,
                                         joint="Korlan:LeftHand")
+
+    """ Sets current player position after action """
 
     def seq_set_player_pos_wrapper(self, player, pos_y):
         if (player and pos_y
@@ -72,7 +96,9 @@ class Actions:
 
         if (any_action.is_playing() is False
                 and base.states['is_idle']
-                and base.states['is_moving'] is False):
+                and base.states['is_moving'] is False
+                and base.states['is_crouching'] is False
+                and base.states["is_crouch_moving"] is False):
             self.idle_player.enter_idle(player=player, action=anims['LookingAround'], state=True)
 
         # Here we accept keys
@@ -151,22 +177,22 @@ class Actions:
 
             if (self.kbd.keymap["forward"]
                     and base.states['is_moving']
-                    and base.states['is_crouching'] is False
+                    and base.states['is_crouch_moving'] is False
                     and base.states['is_idle']):
                 player.setY(player, -speed * dt)
             elif (self.kbd.keymap["forward"]
-                  and base.states['is_moving']
-                  and base.states['is_crouching']
+                  and base.states['is_moving'] is False
+                  and base.states['is_crouch_moving']
                   and base.states['is_idle'] is False):
                 player.setY(player, -speed * dt)
             elif (self.kbd.keymap["backward"]
                   and base.states['is_moving']
-                  and base.states['is_crouching'] is False
+                  and base.states['is_crouch_moving'] is False
                   and base.states['is_idle']):
                 player.setY(player, speed * dt)
             elif (self.kbd.keymap["backward"]
-                  and base.states['is_moving']
-                  and base.states['is_crouching']
+                  and base.states['is_moving'] is False
+                  and base.states['is_crouch_moving']
                   and base.states['is_idle'] is False):
                 player.setY(player, speed * dt)
 
@@ -177,37 +203,28 @@ class Actions:
                     or self.kbd.keymap["left"]
                     or self.kbd.keymap["right"]):
                 if (base.states['is_moving'] is False
-                        and base.states['is_crouching'] is False
+                        and base.states['is_crouch_moving'] is False
                         and base.states['is_idle']):
-                    player.loop(anims[self.walking_forward_action])
-                    player.set_play_rate(self.base.actor_play_rate,
-                                         anims[self.walking_forward_action])
-                    base.states['is_moving'] = True
-                    base.states['is_crouching'] = False
-                    base.states['is_idle'] = True
+                    Sequence(Parallel(Func(self.seq_move_wrapper, player, anims, 'loop'),
+                                      Func(self.state.set_action_state, "is_moving", True)),
+                             ).start()
                 elif (base.states['is_moving'] is False
-                      and base.states['is_crouching']
-                      and base.states['is_idle']):
-                    player.loop(anims[self.crouch_walking_forward_action])
-                    player.set_play_rate(self.base.actor_play_rate,
-                                         anims[self.crouch_walking_forward_action])
-                    base.states['is_moving'] = True
-                    base.states['is_crouching'] = True
-                    base.states['is_idle'] = False
-
+                      and base.states['is_crouch_moving']
+                      and base.states['is_idle'] is False):
+                    Sequence(Parallel(Func(self.seq_crouch_move_wrapper, player, anims, 'loop'),
+                                      Func(self.state.set_action_state, "is_crouch_moving", True)),
+                             ).start()
             else:
-                if base.states['is_moving'] and base.states['is_crouching'] is False:
-                    player.stop()
-                    player.pose(anims[self.walking_forward_action], 0)
-                    base.states['is_moving'] = False
-                    base.states['is_crouching'] = False
-                    base.states['is_idle'] = True
-                elif base.states['is_moving'] and base.states['is_crouching']:
-                    player.stop()
-                    player.pose(anims[self.crouch_walking_forward_action], 0)
-                    base.states['is_moving'] = False
-                    base.states['is_crouching'] = False
-                    base.states['is_idle'] = True
+                if (base.states['is_moving']
+                        and base.states['is_crouch_moving'] is False):
+                    Sequence(Func(self.seq_move_wrapper, player, anims, 'stop'),
+                             Func(self.state.set_action_state, "is_moving", False)
+                             ).start()
+                elif (base.states['is_moving'] is False
+                      and base.states['is_crouch_moving']):
+                    Sequence(Func(self.seq_crouch_move_wrapper, player, anims, 'stop'),
+                             Func(self.state.set_action_state, "is_crouch_moving", False)
+                             ).start()
 
             # Actor backward movement
             if self.kbd.keymap["backward"]:
@@ -226,7 +243,8 @@ class Actions:
                 base.states['is_idle'] = False
 
                 if (crouched_to_standing.is_playing() is False
-                        and base.states['is_crouching'] is False):
+                        and base.states['is_crouching'] is False
+                        and base.states['is_crouch_moving'] is False):
                     # TODO: Use blending for smooth transition between animations
                     # Do an animation sequence if player is crouched.
                     stand_to_crouch_seq = player.actor_interval(anims[self.standing_to_crouch_action],
@@ -234,13 +252,20 @@ class Actions:
 
                     Sequence(Parallel(stand_to_crouch_seq,
                                       Func(self.state.set_action_state, "is_crouching", True)),
+                             # Func(self.state.set_action_state, "is_crouching", False),
                              Func(self.state.set_action_state, "is_crouch_moving", True)
                              ).start()
 
-                elif standing_to_crouch.is_playing() is False and base.states['is_crouching']:
+                    print("1", base.states["is_crouch_moving"])
+                    print("2", base.states["is_crouching"])
+                    print("3", base.states["is_idle"])
+
+                elif (standing_to_crouch.is_playing() is False
+                      and base.states['is_crouching'] is False
+                      and base.states['is_crouch_moving']):
                     any_action_seq = player.actor_interval(anims[self.crouched_to_standing_action],
                                                            playRate=self.base.actor_play_rate)
-                    Sequence(Parallel(any_action_seq, Func(self.state.set_action_state, "is_crouching", True)),
+                    Sequence(Parallel(any_action_seq, Func(self.state.set_action_state, "is_standing", True)),
                              Func(self.state.set_action_state, "is_crouching", False)
                              ).start()
 

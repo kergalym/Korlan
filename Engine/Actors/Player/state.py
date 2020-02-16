@@ -32,11 +32,21 @@ class PlayerState:
                 and isinstance(boolean, bool)):
             if boolean:
                 base.states[state] = boolean
-
-            for key in base.states:
-                if boolean is False and key != "is_idle":
-                    base.states["is_idle"] = True
-                    base.states[key] = False
+                for key in base.states:
+                    if (boolean
+                            and key != "is_idle"
+                            and key != state):
+                        base.states[key] = False
+                    if key == "is_crouch_moving":
+                        print("1", base.states[key])
+                        print("2", base.states["is_idle"])
+            elif boolean is False:
+                for key in base.states:
+                    if (boolean is False
+                            and key != "is_idle"
+                            and key == state):
+                        base.states[key] = False
+                        base.states["is_idle"] = True
 
     def set_player_equip_state(self, task):
         base.player_state_unarmed = True
