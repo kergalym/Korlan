@@ -46,12 +46,12 @@ class Actions:
     def seq_crouch_move_wrapper(self, player, anims, state):
         if player and anims and isinstance(state, str):
             if state == 'loop':
+                # TODO: check animation
                 player.loop(anims[self.crouch_walking_forward_action])
                 player.set_play_rate(self.base.actor_play_rate,
                                      anims[self.crouch_walking_forward_action])
             elif state == 'stop':
                 player.stop()
-                player.pose(anims[self.crouch_walking_forward_action], 0)
 
     """ Sets current item after action """
 
@@ -208,11 +208,10 @@ class Actions:
                     Sequence(Parallel(Func(self.seq_move_wrapper, player, anims, 'loop'),
                                       Func(self.state.set_action_state, "is_moving", True)),
                              ).start()
-                elif (base.states['is_moving'] is False
-                      and base.states['is_crouch_moving']
-                      and base.states['is_idle'] is False):
-                    Sequence(Parallel(Func(self.seq_crouch_move_wrapper, player, anims, 'loop'),
-                                      Func(self.state.set_action_state, "is_crouch_moving", True)),
+                if (base.states['is_moving'] is False
+                        and base.states['is_crouch_moving']
+                        and base.states['is_idle'] is False):
+                    Sequence(Func(self.seq_crouch_move_wrapper, player, anims, 'loop')
                              ).start()
             else:
                 if (base.states['is_moving']
@@ -220,11 +219,9 @@ class Actions:
                     Sequence(Func(self.seq_move_wrapper, player, anims, 'stop'),
                              Func(self.state.set_action_state, "is_moving", False)
                              ).start()
-                elif (base.states['is_moving'] is False
-                      and base.states['is_crouch_moving']):
-                    Sequence(Func(self.seq_crouch_move_wrapper, player, anims, 'stop'),
-                             Func(self.state.set_action_state, "is_crouch_moving", False)
-                             ).start()
+                if (base.states['is_moving'] is False
+                        and base.states['is_crouch_moving']):
+                    Sequence(Func(self.seq_crouch_move_wrapper, player, anims, 'stop')).start()
 
             # Actor backward movement
             if self.kbd.keymap["backward"]:
@@ -242,7 +239,8 @@ class Actions:
             if self.kbd.keymap[key]:
                 base.states['is_idle'] = False
 
-                if (crouched_to_standing.is_playing() is False
+                if (standing_to_crouch.is_playing() is False
+                        and base.states['is_idle'] is False
                         and base.states['is_crouching'] is False
                         and base.states['is_crouch_moving'] is False):
                     # TODO: Use blending for smooth transition between animations
@@ -252,15 +250,18 @@ class Actions:
 
                     Sequence(Parallel(stand_to_crouch_seq,
                                       Func(self.state.set_action_state, "is_crouching", True)),
-                             Func(self.state.set_action_state, "is_crouch_moving", True)
+                             Func(self.state.set_action_state_crouched, "is_crouch_moving", True)
                              ).start()
-                elif (standing_to_crouch.is_playing() is False
+
+                # TODO: Check for is_crouch_moving is False
+                elif (crouched_to_standing.is_playing() is False
+                      and base.states['is_idle'] is False
                       and base.states['is_crouching'] is False
                       and base.states['is_crouch_moving']):
                     any_action_seq = player.actor_interval(anims[self.crouched_to_standing_action],
                                                            playRate=self.base.actor_play_rate)
-                    Sequence(Parallel(any_action_seq, Func(self.state.set_action_state, "is_standing", True)),
-                             Func(self.state.set_action_state, "is_crouching", False)
+                    Sequence(any_action_seq,
+                             Func(self.state.set_action_state_crouched, "is_crouch_moving", False)
                              ).start()
 
     def player_jump_action(self, player, key, anims, action):
