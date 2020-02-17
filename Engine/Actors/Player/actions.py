@@ -97,8 +97,8 @@ class Actions:
         if (any_action.is_playing() is False
                 and base.states['is_idle']
                 and base.states['is_moving'] is False
-                and base.states['is_crouching'] is False
-                and base.states["is_crouch_moving"] is False):
+                and base.states['is_crouch_moving'] is False
+                and base.states['is_crouching'] is False):
             self.idle_player.enter_idle(player=player, action=anims['LookingAround'], state=True)
 
         # Here we accept keys
@@ -252,14 +252,8 @@ class Actions:
 
                     Sequence(Parallel(stand_to_crouch_seq,
                                       Func(self.state.set_action_state, "is_crouching", True)),
-                             # Func(self.state.set_action_state, "is_crouching", False),
                              Func(self.state.set_action_state, "is_crouch_moving", True)
                              ).start()
-
-                    print("1", base.states["is_crouch_moving"])
-                    print("2", base.states["is_crouching"])
-                    print("3", base.states["is_idle"])
-
                 elif (standing_to_crouch.is_playing() is False
                       and base.states['is_crouching'] is False
                       and base.states['is_crouch_moving']):

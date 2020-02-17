@@ -28,7 +28,8 @@ class LevelOne:
             self.base.menu_mode = True
             assets = self.base.collect_assets()
 
-            # TODO: make taskMgr list with task names strings
+            # TODO: Disable lights
+            # TODO: Make taskMgr list with task names strings
             taskMgr.remove("player_init")
             taskMgr.remove("mouse-look")
             taskMgr.remove("actor_life")
@@ -69,7 +70,8 @@ class LevelOne:
         self.base.accept("escape", self.reload_menu_scene)
         assets = self.base.collect_assets()
 
-        # TODO: make taskMgr list with task names strings
+        # TODO: Disable lights
+        # TODO: Make taskMgr list with task names strings
         taskMgr.remove("player_init")
         taskMgr.remove("mouse-look")
         taskMgr.remove("actor_life")
