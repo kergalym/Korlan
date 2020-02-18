@@ -4,6 +4,7 @@ from panda3d.core import CollisionNode, Point3
 from Engine.Collisions.collision_solids import CollisionSolids
 from Engine.Collisions.collision_physics import CollisionPhysics
 
+
 class Collisions:
 
     def __init__(self):
@@ -48,9 +49,7 @@ class Collisions:
             self.set_camera_collider(col_name="CamCS")
 
             self.set_actor_collider(actor=self.korlan,
-                                    col_name='Korlan:CS',
-                                    axis=(0, 0, 0.8),
-                                    radius=0.6)
+                                    col_name='Korlan:CS')
 
             self.c_pusher.add_in_pattern('into-%in')
             # self.c_pusher.addAgainPattern('%fn-again-%in')
@@ -62,15 +61,12 @@ class Collisions:
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
                 self.c_trav.show_collisions(render)
 
-    def set_actor_collider(self, actor, col_name, axis, radius):
+    def set_actor_collider(self, actor, col_name):
         if (actor
                 and col_name
-                and isinstance(col_name, str)
-                and isinstance(axis, tuple)
-                and isinstance(radius, float)
-                or isinstance(radius, int)):
+                and isinstance(col_name, str)):
             player_collider_node = CollisionNode(col_name)
-            player_cs = self.cs.set_cs_sphere(axis, radius)
+            player_cs = self.cs.set_cs_capsule()
             player_collider_node.add_solid(player_cs)
 
             # Make player_collider a dict including collision solid
@@ -92,8 +88,7 @@ class Collisions:
 
     def set_camera_collider(self, col_name):
         if col_name and isinstance(col_name, str):
-            self.cam_cs = self.cs.set_cs_ray(origin=(0, 0, 9),
-                                             direction=(0, 0, -1))
+            self.cam_cs = self.cs.set_cs_ray()
             self.cam_collider_node = CollisionNode(col_name)
             self.cam_collider_node.add_solid(self.cam_cs)
             self.cam_collider_node.set_from_collide_mask(CollideMask.bit(0))

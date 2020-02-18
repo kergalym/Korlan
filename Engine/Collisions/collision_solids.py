@@ -1,4 +1,4 @@
-from panda3d.core import CollisionSphere
+from panda3d.core import CollisionSphere, Plane, Vec3, Point3
 from panda3d.core import CollisionCapsule
 from panda3d.core import CollisionInvSphere
 from panda3d.core import CollisionPlane
@@ -8,53 +8,68 @@ from panda3d.core import CollisionLine
 from panda3d.core import CollisionSegment
 from panda3d.core import CollisionParabola
 from panda3d.core import CollisionBox
-from panda3d.core import CollisionTube
 
 
 class CollisionSolids:
 
     def __init__(self):
-        self.base = base
-        self.render = render
+        pass
 
-    def set_cs_sphere(self, axis, radius):
-        if (isinstance(axis, tuple)
-                and isinstance(radius, float)
-                or isinstance(radius, int)):
-            cs = CollisionSphere(axis, radius)
-            return cs
+    def set_cs_sphere(self):
+        axis = (0, 0, 0.8)
+        radius = 0.6
+        sphere = CollisionSphere(axis, radius)
+        return sphere
 
     def set_cs_capsule(self):
-        pass
+        dimensions = (0, 0, 1.3)
+        axis = (0, 0, 0.4)
+        radius = 0.2
+        capsule = CollisionCapsule(dimensions, axis, radius)
+        return capsule
 
     def set_cs_invsphere(self):
-        pass
+        axis = (0, 0, 0.8)
+        radius = 0.6
+        inv_sphere = CollisionInvSphere(axis, radius)
+        return inv_sphere
 
     def set_cs_plane(self):
-        pass
+        plane = CollisionPlane(Plane(Vec3(0, 0, 1), Point3(0, 0, 0)))
+        return plane
 
     def set_cs_polygon(self):
-        pass
+        quad = CollisionPolygon(Point3(0, 0, 0), Point3(0, 0, 1),
+                                Point3(0, 1, 1), Point3(0, 1, 0))
+        return quad
 
-    def set_cs_ray(self, origin, direction):
-        if (isinstance(origin, tuple)
-                and isinstance(direction, tuple)):
-            cs = CollisionRay()
-            cs.set_origin(origin)
-            cs.set_direction(direction)
-            return cs
+    def set_cs_ray(self):
+        origin = (0, 0, 9)
+        direction = (0, 0, -1)
+        ray = CollisionRay(origin, direction)
+        return ray
 
     def set_cs_line(self):
-        pass
+        origin = (0, 0, 9)
+        direction = (0, 0, -1)
+        line = CollisionLine(origin, direction)
+        return line
 
     def set_cs_segment(self):
-        pass
+        axis_a = (0, 0, 9)
+        axis_b = (1, 0, 1)
+        segment = CollisionSegment(axis_a, axis_b)
+        return segment
 
     def set_cs_parabola(self):
-        pass
+        origin = (0, 0, 9)
+        direction = (0, 0, -1)
+        parabola = CollisionParabola(origin, direction)
+        return parabola
 
     def set_cs_cube(self):
-        pass
+        center = (0, 0, 0.2)
+        axis = (1, 1, 1)
+        box = CollisionBox(center, axis)
+        return box
 
-    def set_cs_tube(self):
-        pass
