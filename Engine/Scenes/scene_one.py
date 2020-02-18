@@ -64,7 +64,6 @@ class SceneOne:
                 scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
                 scene.set_pos(pos_x, pos_y, pos_z)
                 scene.set_hpr(scene, rot_h, 0, 0)
-                base.scene = scene
 
                 if name == 'Grass':
                     scene.flatten_strong()
@@ -116,7 +115,7 @@ class SceneOne:
                 render.set_attrib(LightRampAttrib.make_hdr1())
 
                 if self.game_settings['Main']['postprocessing'] == 'off':
-                    # Set Lights and Shadows
+                    # Set Shaders and Shadows
                     self.world.set_shadows(scene, render)
                     # self.world.set_ssao(scene)
 

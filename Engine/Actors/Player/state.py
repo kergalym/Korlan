@@ -95,7 +95,27 @@ class PlayerState:
             else:
                 return False
 
-    def pick_up_item(self, player, joint, entry):
+    def pick_up_item(self, player, joint):
+        if (player
+                and joint
+                and isinstance(joint, str)):
+            assets = base.asset_nodes_assoc_collector()
+            item = assets["Box"]
+            if item:
+                exposed_joint = player.expose_joint(None, "modelRoot", joint)
+                if self.has_actor_any_item(item, exposed_joint) is False:
+                    item.reparent_to(exposed_joint)
+                    item_np = exposed_joint.find(item.get_name())
+                    # After reparenting to joint the item inherits joint coordinates,
+                    # so we find it in given joint and then do rotate and rescale the item
+                    if not item_np.is_empty():
+                        item_np.set_scale(8.0)
+                        item_np.set_h(205.0)
+                    print("Info from PlayerState class: ", item, type(item))
+                elif self.has_actor_any_item(item, exposed_joint) is True:
+                    item.detachNode()
+
+    def pick_up_item_pusher(self, player, joint, entry):
         if (player
                 and entry
                 and joint
@@ -112,7 +132,6 @@ class PlayerState:
                     if not item_np.is_empty():
                         item_np.set_scale(8.0)
                         item_np.set_h(205.0)
-                    print("Info from PlayerState class: ", item, type(item))
                 elif self.has_actor_any_item(item, exposed_joint) is True:
                     item.detachNode()
 

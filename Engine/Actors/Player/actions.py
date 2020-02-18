@@ -152,13 +152,13 @@ class Actions:
         if self.base.camera.get_z() < player.get_z() + 2.0:
             self.base.camera.set_z(player.get_z() + 2.0)
 
-        # Do check for collisions
-        self.col.c_trav.traverse(self.render)
-
         # The camera should look in Korlan direction,
         # but it should also try to stay horizontal, so look at
         # a floater which hovers above Korlan's head.
         self.base.camera.look_at(self.mouse.set_floater(player))
+
+        # Do check for collisions
+        # self.col.traverser(player=player, handler="pusher")
 
         return task.cont
 
