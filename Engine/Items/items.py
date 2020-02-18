@@ -50,11 +50,7 @@ class Items:
     def item_selector(self, actor, joint):
         if (actor and joint
                 and isinstance(joint, str)):
-            if hasattr(base, "event_item"):
-                if base.event_item:
-                    self.state.pick_up_item_queue(player=actor, joint=joint, event=base.event_item)
-            else:
-                self.base.accept('into-Box', self.state.pick_up_item, [actor, joint])
+            self.base.accept('into-Box', self.state.pick_up_item, [actor, joint])
 
     def pick_up_dombra(self):
         if self.dombra['type'] == 'item':
