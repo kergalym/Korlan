@@ -78,7 +78,6 @@ class SceneOne:
                     # Set Lights and Shadows
                     self.world.set_shadows(scene, render)
                     # self.world.set_ssao(scene)
-                    self.world.set_lighting(render, scene)
 
                 return scene
 
@@ -120,7 +119,6 @@ class SceneOne:
                     # Set Lights and Shadows
                     self.world.set_shadows(scene, render)
                     # self.world.set_ssao(scene)
-                    self.world.set_lighting(render, scene)
 
                 return scene
 
@@ -190,9 +188,6 @@ class SceneOne:
                 render.set_attrib(LightRampAttrib.make_hdr1())
 
                 if self.game_settings['Main']['postprocessing'] == 'off':
-                    # Set the lights
-                    self.world.set_lighting(self.render, scene)
-
                     # If you don't do this, none of the features
                     # listed above will have any effect. Panda will
                     # simply ignore normal maps, HDR, and so forth if
@@ -250,9 +245,6 @@ class SceneOne:
                 render.set_attrib(LightRampAttrib.make_hdr1())
 
                 if self.game_settings['Main']['postprocessing'] == 'off':
-                    # Set the lights
-                    self.world.set_lighting(self.render, scene)
-
                     # If you don't do this, none of the features
                     # listed above will have any effect. Panda will
                     # simply ignore normal maps, HDR, and so forth if

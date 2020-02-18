@@ -94,7 +94,7 @@ class NPC:
                 # TODO: uncomment if character has normals
                 # self.world.set_shadows(self.actor, self.render)
                 # self.world.set_ssao(self.actor)
-                self.world.set_lighting(self.render, self.actor)
+                pass
 
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
                 self.render.analyze()

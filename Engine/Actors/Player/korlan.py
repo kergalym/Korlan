@@ -103,7 +103,7 @@ class Korlan:
                     # TODO: uncomment if character has normals
                     # self.world.set_shadows(self.scene, self.render)
                     # self.world.set_ssao(self.scene)
-                    self.world.set_lighting(self.render, self.korlan)
+                    pass
 
                 if self.game_settings['Debug']['set_debug_mode'] == "YES":
                     self.render.analyze()
@@ -173,7 +173,7 @@ class Korlan:
                     # TODO: uncomment if character has normals
                     # self.world.set_shadows(self.scene, self.render)
                     # self.world.set_ssao(self.scene)
-                    self.world.set_lighting(render, self.korlan)
+                    pass
 
                 if self.game_settings['Debug']['set_debug_mode'] == "YES":
                     self.render.analyze()

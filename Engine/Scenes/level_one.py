@@ -11,6 +11,7 @@ class LevelOne:
     def __init__(self):
         self.game_mode = base.game_mode
         self.base = base
+        self.render = render
         self.loader = base.loader
         self.node_path = NodePath()
         self.scene_one = SceneOne()
@@ -28,7 +29,8 @@ class LevelOne:
             self.base.menu_mode = True
             assets = self.base.collect_assets()
 
-            # TODO: Disable lights
+            render.clearLight()
+
             # TODO: Make taskMgr list with task names strings
             taskMgr.remove("player_init")
             taskMgr.remove("mouse-look")
@@ -36,7 +38,6 @@ class LevelOne:
 
             # make pattern list from assets dict
             pattern = [key for key in assets]
-
             # use pattern to remove nodes corresponding to asset names
             for node in pattern:
                 if render.find("**/{0}".format(node)).is_empty() is False:
@@ -70,7 +71,8 @@ class LevelOne:
         self.base.accept("escape", self.reload_menu_scene)
         assets = self.base.collect_assets()
 
-        # TODO: Disable lights
+        render.clearLight()
+
         # TODO: Make taskMgr list with task names strings
         taskMgr.remove("player_init")
         taskMgr.remove("mouse-look")
@@ -78,7 +80,6 @@ class LevelOne:
 
         # make pattern list from assets dict
         pattern = [key for key in assets]
-
         # use pattern to remove nodes corresponding to asset names
         for node in pattern:
             if render.find("**/{0}".format(node)).is_empty() is False:
@@ -88,6 +89,19 @@ class LevelOne:
             self.loader.unload_model(assets[key])
 
         """ Assets """
+        self.world.set_lighting(name='directionalLight',
+                                render=self.render,
+                                pos=[0, 0, 10],
+                                hpr=[180, -20, 0],
+                                color=[0.2],
+                                task="attach")
+        self.world.set_lighting(name='directionalLight',
+                                render=self.render,
+                                pos=[0, 0, 10],
+                                hpr=[0, -20, 0],
+                                color=[0.2],
+                                task="attach")
+
         # assets is a dict containing paths + models
         # anims is a list containing two dicts.
         # anims[0] is a dict containing names of animations

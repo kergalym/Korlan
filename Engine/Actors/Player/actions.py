@@ -152,7 +152,10 @@ class Actions:
         if self.base.camera.get_z() < player.get_z() + 2.0:
             self.base.camera.set_z(player.get_z() + 2.0)
 
+        # Do check for collisions
         self.col.c_trav.traverse(self.render)
+        if base.game_settings['Debug']['set_debug_mode'] == "NO":  # YES
+            self.col.get_queue_event(player)
 
         # The camera should look in Korlan direction,
         # but it should also try to stay horizontal, so look at
@@ -253,7 +256,6 @@ class Actions:
                              Func(self.state.set_action_state_crouched, "is_crouch_moving", True)
                              ).start()
 
-                # TODO: Check for is_crouch_moving is False
                 elif (crouched_to_standing.is_playing() is False
                       and base.states['is_idle'] is False
                       and base.states['is_crouching'] is False

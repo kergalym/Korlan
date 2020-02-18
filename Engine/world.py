@@ -25,34 +25,35 @@ class World:
             self.obj.set_shader_auto()
             base.shaderenable = 1
 
-    def set_lighting(self, render, obj):
-        if render and obj:
+    def set_lighting(self, name, render, pos, hpr, color, task):
+        if (render
+                and name
+                and isinstance(name, str)
+                and isinstance(pos, list)
+                and isinstance(hpr, list)
+                and isinstance(color, list)
+                and isinstance(task, str)):
+
             self.render = render
-            self.obj = obj
 
-            # Directional light 01
-            directional_light = DirectionalLight('directionalLight')
-            directional_light.set_color((self.set_color, self.set_color, self.set_color, 1))
-            directional_light_np = render.attach_new_node(directional_light)
-            # This light is facing backwards, towards the camera.
-            directional_light_np.set_hpr(180, -20, 0)
-            directional_light_np.set_z(10)
-            render.set_light(directional_light_np)
+            if task == 'attach':
+                # Directional light 01
+                directional_light = DirectionalLight(name)
+                directional_light.set_color((color[0], color[0], color[0], 1))
+                directional_light_np = self.render.attach_new_node(directional_light)
+                # This light is facing backwards, towards the camera.
+                directional_light_np.set_hpr(hpr[0], hpr[1], hpr[2])
+                directional_light_np.set_z(pos[2])
+                self.render.set_light(directional_light_np)
 
-            # Directional light 02
-            directional_light = DirectionalLight('directionalLight')
-            directional_light.set_color((self.set_color, self.set_color, self.set_color, 1))
-            directional_light_np = render.attach_new_node(directional_light)
-            # This light is facing forwards, away from the camera.
-            directional_light_np.set_hpr(0, -20, 0)
-            directional_light_np.set_z(10)
-            render.set_light(directional_light_np)
-
-            # Add an ambient light
-            alight = AmbientLight('alight')
-            alight.set_color((self.set_color, self.set_color, self.set_color, 1))
-            alnp = render.attach_new_node(alight)
-            render.set_light(alnp)
+            if task == 'attach':
+                # Add an ambient light
+                alight = AmbientLight('ambientLight')
+                alight.set_color((self.set_color, self.set_color, self.set_color, 1))
+                alnp = self.render.attach_new_node(alight)
+                self.render.set_light(alnp)
+                if task == 'detach':
+                    self.render.set_light_off(alnp)
 
     def set_ssao(self, obj):
         if obj:

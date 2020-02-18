@@ -10,6 +10,7 @@ from panda3d.core import TextNode
 from pathlib import Path, PurePath
 from Engine.Actors.Player.korlan import Korlan
 from Engine.Scenes.scene_one import SceneOne
+from Engine.world import World
 from Settings.Sound.sound import Sound
 from Settings.UI.menu import Menu
 from Settings.menu_settings import Graphics
@@ -141,6 +142,7 @@ class Main(ShowBase):
 
         # Game scene loading definitions
         self.scene_one = SceneOne()
+        self.world = World()
         self.korlan = Korlan()
         self.sound = Sound()
         self.text = TextNode("TextNode")
@@ -380,6 +382,19 @@ class Main(ShowBase):
         """
 
         """ Assets """
+        self.world.set_lighting(name='directionalLight',
+                                render=self.render,
+                                pos=[0, 0, 10],
+                                hpr=[180, -20, 0],
+                                color=[0.2],
+                                task="attach")
+        self.world.set_lighting(name='directionalLight',
+                                render=self.render,
+                                pos=[0, 0, 10],
+                                hpr=[0, -20, 0],
+                                color=[0.2],
+                                task="attach")
+
         # assets is a dict containing paths + models
         # anims is a list containing two dicts.
         # anims[0] is a dict containing names of animations
