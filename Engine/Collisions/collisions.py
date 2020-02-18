@@ -47,10 +47,10 @@ class Collisions:
                     base.event_item = event_y.get_into_node().get_name()
                     player.set_y(entries_y[0].getSurfacePoint(render).getY())
 
-                elif event_z.get_into_node().get_name() != "":
-                    player.set_z(entries_z[0].getSurfacePoint(render).getZ())
+                elif event_y.get_into_node().get_name() == "mountain":
+                    player.set_y(entries_y[0].getSurfacePoint(render).getY())
 
-                elif event_z.get_into_node().get_name() == "Ground":
+                elif event_y.get_into_node().get_name() == "Ground":
                     player.set_z(entries_z[0].getSurfacePoint(render).getZ())
 
     def get_event(self, player, entry):
@@ -73,13 +73,17 @@ class Collisions:
             # Here we set collider for player-followed camera
             self.set_camera_collider(col_name="CamCS")
 
-            if self.game_settings['Debug']['set_debug_mode'] == "NO":  # YES
+            # TODO: Debug & Fix
+            if self.game_settings['Debug']['set_debug_mode'] == "YES":  # YES
+
+                # TODO: Uncomment after debug & fix item attaching
 
                 self.set_actor_collider(actor=self.korlan,
                                         col_name='Korlan:CS',
                                         axis=(0, 0, 0.5),
                                         radius=20.2,
                                         handler='queue')
+
             else:
                 self.set_actor_collider(actor=self.korlan,
                                         col_name='Korlan:CS',
@@ -113,7 +117,6 @@ class Collisions:
             # Make player_collider a list including all joint collision solids
             actor_dict = {}
             player_collider_dict = {}
-
             if handler == "pusher":
                 for joint in actor.get_joints():
                     if (joint.get_name() != "Korlan:LeftToe_End"

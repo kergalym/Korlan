@@ -154,7 +154,7 @@ class Actions:
 
         # Do check for collisions
         self.col.c_trav.traverse(self.render)
-        if base.game_settings['Debug']['set_debug_mode'] == "NO":  # YES
+        if base.game_settings['Debug']['set_debug_mode'] == "YES":  # YES
             self.col.get_queue_event(player)
 
         # The camera should look in Korlan direction,
