@@ -95,11 +95,20 @@ class PlayerState:
             else:
                 return False
 
-    def distance_calculate(self, items):
-        if items and isinstance(items, dict):
+    def distance_calculate(self, items, actor):
+        if (items and actor
+                and isinstance(items, dict)):
             # Do some minimum distance calculate here
-            # ???
-            pass
+            # actor.get_y() - items[key][1]
+            # items[key][1] - actor.get_y()
+            remained = {}
+            for key in items:
+                # Subtract actor vector from item vector.
+                vect_x = items[key][0] - actor.get_x()
+                vect_y = items[key][1] - actor.get_y()
+                vect_z = items[key][2] - actor.get_z()
+                remained[key] = (vect_x, vect_y, vect_z)
+            return remained
 
     def pick_up_item(self, player, joint):
         if (player
