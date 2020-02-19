@@ -9,6 +9,7 @@ from Engine.world import World
 class LevelOne:
 
     def __init__(self):
+        self.game_settings = base.game_settings
         self.game_mode = base.game_mode
         self.base = base
         self.render = render
@@ -23,6 +24,15 @@ class LevelOne:
         self.pos_z = 0.0
         self.anim = None
 
+    def show_asset_pos_task(self, actor, task):
+        dist_vec = base.distance_calculate(
+            base.asset_pos_collector(), actor)
+        if hasattr(base, "player"):
+            if dist_vec:
+                if self.game_settings['Debug']['set_debug_mode'] == "YES":
+                    print(dist_vec)
+                    return task.cont
+
     def reload_menu_scene(self):
         if self.base.game_mode:
             self.base.game_mode = False
@@ -36,6 +46,7 @@ class LevelOne:
             taskMgr.remove("player_state")
             taskMgr.remove("actor_life")
             taskMgr.remove("mouse-look")
+            taskMgr.remove("show_asset_pos")
 
             # make pattern list from assets dict
             pattern = [key for key in assets]
@@ -79,6 +90,7 @@ class LevelOne:
         taskMgr.remove("player_state")
         taskMgr.remove("actor_life")
         taskMgr.remove("mouse-look")
+        taskMgr.remove("show_asset_pos")
 
         # make pattern list from assets dict
         pattern = [key for key in assets]
@@ -171,3 +183,8 @@ class LevelOne:
                            axis=[-2.0, 8.0, self.pos_z],
                            rotation=[0, 0, 0],
                            scale=[1.25, 1.25, 1.25])
+
+        """ Task for Debug mode """
+        taskMgr.add(self.show_asset_pos_task,
+                    "show_asset_pos",
+                    appendTask=True)

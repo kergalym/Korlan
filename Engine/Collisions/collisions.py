@@ -18,7 +18,7 @@ class Collisions:
         self.game_cfg_dir = base.game_cfg_dir
         self.game_settings_filename = base.game_settings_filename
         self.cfg_path = {"game_config_path":
-                             "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
+                         "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
 
         self.cam_cs = None
         self.cam_collider_node = None

@@ -176,6 +176,8 @@ class Korlan:
                     pass
 
                 if self.game_settings['Debug']['set_debug_mode'] == "YES":
+                    # Make actor global
+                    base.player = self.korlan
                     self.render.analyze()
                     self.render.explore()
 

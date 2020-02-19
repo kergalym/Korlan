@@ -377,8 +377,6 @@ class Main(ShowBase):
             assets, assoc_key=True)
 
         for key in assets_children:
-            # Do some minimum distance calculate here
-            # ???
             parent_node = assets_children[key].get_parent().get_parent()
             items[key] = (parent_node.get_pos())
 
