@@ -94,14 +94,16 @@ class PlayerState:
             else:
                 return False
 
-    def pick_up_item(self, player, joint):
-        if (player
+    def pick_up_item(self, player, joint, items_dist_vect):
+        if (player and items_dist_vect
                 and joint
-                and isinstance(joint, str)):
+                and isinstance(joint, str)
+                and isinstance(items_dist_vect, dict)):
             assets = base.asset_nodes_assoc_collector()
             item = assets["Box"]
-            assets_pos = base.asset_pos_collector()
-            calc_dist = base.distance_calculate(assets_pos)
+            for key in items_dist_vect:
+                if key:
+                    import pdb; pdb.set_trace()
             if item:
                 item_scale = item.get_scale()
                 exposed_joint = player.expose_joint(None, "modelRoot", joint)

@@ -77,13 +77,12 @@ class Items:
     def item_selector(self, actor, joint):
         if (actor and joint
                 and isinstance(joint, str)):
-            # TODO: DEBUG
-            import pdb; pdb.set_trace()
-            base.distance_calculate(self.usable_item_pos_collector(actor), actor)
-            base.distance_calculate_precise(self.usable_item_pos_collector(actor), actor)
-            self.state.pick_up_item(actor, joint)
-            # self.base.accept('into-Box', self.state.pick_up_item_pusher, [actor, joint])
-            # self.base.accept('into-Box', self.state.pick_up_item_queue, [actor, joint])
+            item_vect_dict = base.distance_calculate(
+                self.usable_item_pos_collector(actor), actor)
+            # TODO: self.state.pick_up_item() is for testing purposes, remove later
+            self.state.pick_up_item(actor, joint, item_vect_dict)
+            # self.base.accept('into-Box', self.state.pick_up_item_pusher, [actor, joint, item_vect_dict])
+            # self.base.accept('into-Box', self.state.pick_up_item_queue, [actor, joint, item_vect_dict])
 
     def pick_up_dombra(self):
         if self.dombra['type'] == 'item':
