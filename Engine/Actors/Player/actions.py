@@ -57,7 +57,6 @@ class Actions:
 
     def seq_use_item_wrapper_task(self, player, anims, task):
         if player and anims:
-            print(player.get_current_frame(anims["PickingUp"]))
             if player.get_current_frame(anims["PickingUp"]) == 69:
                 self.item_cls.item_selector(actor=player,
                                             joint="Korlan:RightHand")

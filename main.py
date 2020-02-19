@@ -374,6 +374,26 @@ class Main(ShowBase):
             sys_exit("\nSomething is getting wrong. Please, check the game log first")
         """
 
+    def collect_usable_item_distance(self, player):
+        if player:
+            assets = self.asset_node_children_collector(
+                self.asset_nodes_assoc_collector(),
+                assoc_key=True)
+            items = {}
+            for key in assets:
+                item = assets[key]
+                # We exclude any actor from assets,
+                # we need to retrieve the distance
+                if (item.get_name() != player.get_name()
+                        and item.get_name() != "NPC"
+                        and item.get_name() != "Mountains"
+                        and item.get_name() != "Ground"
+                        and item.get_name() != "Grass"
+                        and item.get_name() != "Nomad_House"):
+                    # Do some minimum distance calculate here
+                    # ???
+                    items[key] = (item.get_pos())
+
     def menu_scene_load(self):
         # Commented to prevent using it by deploying system
         """"# Set time of day
