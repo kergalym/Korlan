@@ -24,14 +24,13 @@ class LevelOne:
         self.pos_z = 0.0
         self.anim = None
 
-    def show_asset_pos_task(self, actor, task):
-        dist_vec = base.distance_calculate(
-            base.asset_pos_collector(), actor)
+    def show_asset_pos_task(self, task):
         if hasattr(base, "player"):
+            dist_vec = base.distance_calculate(
+                base.assets_pos_collector_no_actor(base.player), base.player)
             if dist_vec:
-                if self.game_settings['Debug']['set_debug_mode'] == "YES":
-                    print(dist_vec)
-                    return task.cont
+                print(dist_vec)
+        return task.cont
 
     def reload_menu_scene(self):
         if self.base.game_mode:

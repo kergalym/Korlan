@@ -382,6 +382,28 @@ class Main(ShowBase):
 
         return items
 
+    def assets_pos_collector_no_actor(self, player):
+        if player:
+            # parse player name to exclude them
+            assets = base.asset_nodes_collector()
+            t = []
+            items = {}
+
+            for asset in assets:
+                # We exclude any actor from assets,
+                # we need to retrieve the distance
+                if asset.get_name() != player.get_name():
+                    t.append(asset)
+
+            assets_children = base.asset_node_children_collector(
+                t, assoc_key=True)
+
+            for key in assets_children:
+                parent_node = assets_children[key].get_parent().get_parent()
+                items[key] = (parent_node.get_pos())
+
+            return items
+
     def distance_calculate(self, items, actor):
         if (items and actor
                 and isinstance(items, dict)):
