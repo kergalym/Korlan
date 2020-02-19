@@ -47,9 +47,37 @@ class Items:
 
     """ Assign any item which is close to an actor enough """
 
+    def usable_item_pos_collector(self, player):
+        if player:
+            # parse player name to exclude them
+            assets = base.asset_nodes_collector()
+            t = []
+            items = {}
+
+            for asset in assets:
+                # We exclude any actor from assets,
+                # we need to retrieve the distance
+                if (asset.get_name() != player.get_name()
+                        and asset.get_name() != "NPC"
+                        and asset.get_name() != "Sky"
+                        and asset.get_name() != "Mountains"
+                        and asset.get_name() != "Ground"
+                        and asset.get_name() != "Grass"):
+                    t.append(asset)
+
+            assets_children = base.asset_node_children_collector(
+                t, assoc_key=True)
+
+            for key in assets_children:
+                parent_node = assets_children[key].get_parent().get_parent()
+                items[key] = (parent_node.get_pos())
+
+            return items
+
     def item_selector(self, actor, joint):
         if (actor and joint
                 and isinstance(joint, str)):
+            self.state.distance_calculate(self.usable_item_pos_collector())
             self.state.pick_up_item(actor, joint)
             # self.base.accept('into-Box', self.state.pick_up_item_pusher, [actor, joint])
             # self.base.accept('into-Box', self.state.pick_up_item_queue, [actor, joint])

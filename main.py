@@ -317,6 +317,10 @@ class Main(ShowBase):
                 parents[node] = value
         return parents
 
+    """ Node children collector.
+        Accepts a list of asset parents 
+    """
+
     def asset_node_children_collector(self, nodes, assoc_key):
         if nodes and isinstance(nodes, list):
             if assoc_key:
@@ -341,17 +345,6 @@ class Main(ShowBase):
                                 children.append(node_path)
                 return children
 
-    def asset_pos_collector(self, nodes):
-        if isinstance(nodes, list):
-            asset_names = {}
-            asset_pos = {}
-            for node in nodes:
-                asset_pos['X'] = node.getX()
-                asset_pos['Y'] = node.getY()
-                asset_pos['Z'] = node.getZ()
-                asset_names[node.get_name()] = asset_pos
-            return asset_names
-
     def collect_sounds(self):
         sound_path = str(PurePath(self.game_dir, "Assets", "Sounds"))
         sound_path = Filename.from_os_specific("{0}/".format(sound_path))
@@ -374,25 +367,22 @@ class Main(ShowBase):
             sys_exit("\nSomething is getting wrong. Please, check the game log first")
         """
 
-    def collect_usable_item_distance(self, player):
-        if player:
-            assets = self.asset_node_children_collector(
-                self.asset_nodes_assoc_collector(),
-                assoc_key=True)
-            items = {}
-            for key in assets:
-                item = assets[key]
-                # We exclude any actor from assets,
-                # we need to retrieve the distance
-                if (item.get_name() != player.get_name()
-                        and item.get_name() != "NPC"
-                        and item.get_name() != "Mountains"
-                        and item.get_name() != "Ground"
-                        and item.get_name() != "Grass"
-                        and item.get_name() != "Nomad_House"):
-                    # Do some minimum distance calculate here
-                    # ???
-                    items[key] = (item.get_pos())
+    """ Get all assets position including their children """
+
+    def asset_pos_collector(self):
+        assets = self.asset_nodes_collector()
+        items = {}
+
+        assets_children = self.asset_node_children_collector(
+            assets, assoc_key=True)
+
+        for key in assets_children:
+            # Do some minimum distance calculate here
+            # ???
+            parent_node = assets_children[key].get_parent().get_parent()
+            items[key] = (parent_node.get_pos())
+
+        return items
 
     def menu_scene_load(self):
         # Commented to prevent using it by deploying system

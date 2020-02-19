@@ -89,13 +89,17 @@ class PlayerState:
 
     def has_actor_any_item(self, item, exposed_joint):
         if item and exposed_joint:
-            import pdb;
-            pdb.set_trace()
             if (exposed_joint.get_num_children() == 1
                     and item.get_name() == exposed_joint.get_child(0).get_name()):
                 return True
             else:
                 return False
+
+    def distance_calculate(self, items):
+        if items and isinstance(items, dict):
+            # Do some minimum distance calculate here
+            # ???
+            pass
 
     def pick_up_item(self, player, joint):
         if (player
@@ -103,6 +107,8 @@ class PlayerState:
                 and isinstance(joint, str)):
             assets = base.asset_nodes_assoc_collector()
             item = assets["Box"]
+            assets_pos = base.asset_pos_collector()
+            calc_dist = base.distance_calculate(assets_pos)
             if item:
                 item_scale = item.get_scale()
                 exposed_joint = player.expose_joint(None, "modelRoot", joint)
