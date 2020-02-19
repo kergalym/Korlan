@@ -79,7 +79,8 @@ class Items:
                 and isinstance(joint, str)):
             # TODO: DEBUG
             import pdb; pdb.set_trace()
-            self.state.distance_calculate(self.usable_item_pos_collector(actor), actor)
+            base.distance_calculate(self.usable_item_pos_collector(actor), actor)
+            base.distance_calculate_precise(self.usable_item_pos_collector(actor), actor)
             self.state.pick_up_item(actor, joint)
             # self.base.accept('into-Box', self.state.pick_up_item_pusher, [actor, joint])
             # self.base.accept('into-Box', self.state.pick_up_item_queue, [actor, joint])

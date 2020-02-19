@@ -384,6 +384,34 @@ class Main(ShowBase):
 
         return items
 
+    def distance_calculate(self, items, actor):
+        if (items and actor
+                and isinstance(items, dict)):
+            # Do some minimum distance calculate here
+            remained = {}
+            for key in items:
+                # Subtract actor vector from item vector.
+                vect_x = items[key][0] - actor.get_x()
+                vect_y = items[key][1] - actor.get_y()
+                vect_z = items[key][2] - actor.get_z()
+                remained[key] = (round(vect_x, 1),
+                                 round(vect_y, 1),
+                                 round(vect_z, 1))
+            return remained
+
+    def distance_calculate_precise(self, items, actor):
+        if (items and actor
+                and isinstance(items, dict)):
+            # Do some minimum distance calculate here
+            remained = {}
+            for key in items:
+                # Subtract actor vector from item vector.
+                vect_x = items[key][0] - actor.get_x()
+                vect_y = items[key][1] - actor.get_y()
+                vect_z = items[key][2] - actor.get_z()
+                remained[key] = (vect_x, vect_y, vect_z)
+            return remained
+
     def menu_scene_load(self):
         # Commented to prevent using it by deploying system
         """"# Set time of day
