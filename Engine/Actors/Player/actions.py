@@ -55,10 +55,22 @@ class Actions:
 
     """ Sets current item after action """
 
-    def seq_use_item_wrapper(self, player):
-        if player and base.states['is_using']:
-            self.item_cls.item_selector(actor=player,
-                                        joint="Korlan:LeftHand")
+    def seq_use_item_wrapper_task(self, player, anims, task):
+        if player and anims:
+            print(player.get_current_frame(anims["PickingUp"]))
+            if player.get_current_frame(anims["PickingUp"]) == 69:
+                self.item_cls.item_selector(actor=player,
+                                            joint="Korlan:RightHand")
+                return task.done
+        return task.cont
+
+    def seq_use_item_wrapper(self, player, anims):
+        if player and anims and base.states['is_using']:
+            # Do task every frame until we get a respective frame
+            taskMgr.add(self.seq_use_item_wrapper_task,
+                        "seq_use_item_wrapper_task",
+                        extraArgs=[player, anims],
+                        appendTask=True)
 
     """ Sets current player position after action """
 
@@ -321,7 +333,7 @@ class Actions:
                     Sequence(crouch_to_stand_seq,
                              Parallel(any_action_seq,
                                       Func(self.state.set_action_state, "is_using", True),
-                                      Func(self.seq_use_item_wrapper, player)),
+                                      Func(self.seq_use_item_wrapper, player, anims)),
                              Func(self.state.set_action_state, "is_using", False)
                              ).start()
 
@@ -332,7 +344,7 @@ class Actions:
                                                            playRate=self.base.actor_play_rate)
                     Sequence(Parallel(any_action_seq,
                                       Func(self.state.set_action_state, "is_using", True),
-                                      Func(self.seq_use_item_wrapper, player)),
+                                      Func(self.seq_use_item_wrapper, player, anims)),
                              Func(self.state.set_action_state, "is_using", False)
                              ).start()
 

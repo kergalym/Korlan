@@ -89,6 +89,8 @@ class PlayerState:
 
     def has_actor_any_item(self, item, exposed_joint):
         if item and exposed_joint:
+            import pdb;
+            pdb.set_trace()
             if (exposed_joint.get_num_children() == 1
                     and item.get_name() == exposed_joint.get_child(0).get_name()):
                 return True
@@ -102,18 +104,37 @@ class PlayerState:
             assets = base.asset_nodes_assoc_collector()
             item = assets["Box"]
             if item:
+                item_scale = item.get_scale()
                 exposed_joint = player.expose_joint(None, "modelRoot", joint)
-                if self.has_actor_any_item(item, exposed_joint) is False:
+
+                item_np_find = exposed_joint.find(item.get_name())
+                if item_np_find.is_empty() is False:
+                    if item_np_find.get_name() == item.get_name():
+                        print(1)
+
+                if exposed_joint.find(item.get_name()).is_empty():
                     item.reparent_to(exposed_joint)
                     item_np = exposed_joint.find(item.get_name())
                     # After reparenting to joint the item inherits joint coordinates,
                     # so we find it in given joint and then do rotate and rescale the item
-                    if not item_np.is_empty():
-                        item_np.set_scale(8.0)
+                    # by multiplying.
+                    if item_np.is_empty() is False:
+                        # scale = item_np.get_scale()[0] * item_scale[0]
+                        scale = 60.0
+                        item_np.set_scale(scale)
                         item_np.set_h(205.0)
-                    print("Info from PlayerState class: ", item, type(item))
-                elif self.has_actor_any_item(item, exposed_joint) is True:
-                    item.detachNode()
+                        item_np.set_y(-20.4)
+                        item_np.set_x(15.4)
+                elif (exposed_joint.find(item.get_name()).is_empty()
+                        and exposed_joint.find(item.get_name()).get_name() == item.get_name()):
+                    print(exposed_joint.find(item.get_name()))
+                    item_np = exposed_joint.find(item.get_name())
+                    item_np.detachNode()
+                    item_np.reparent_to(assets['Ground'])
+                    item_np.set_pos(player.get_pos())
+                    item_np.set_hpr(0, 0, 0)
+                    item_np.set_scale(1.25, 1.25, 1.25)
+                    # TODO: attach to Ground
 
     def pick_up_item_pusher(self, player, joint, entry):
         if (player
@@ -153,7 +174,6 @@ class PlayerState:
                     if not item_np.is_empty():
                         item_np.set_scale(8.0)
                         item_np.set_h(205.0)
-                    print("Info from PlayerState class: ", item, type(item))
                 elif self.has_actor_any_item(item, exposed_joint) is True:
                     item.detachNode()
 

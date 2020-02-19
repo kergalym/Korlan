@@ -33,8 +33,9 @@ class LevelOne:
 
             # TODO: Make taskMgr list with task names strings
             taskMgr.remove("player_init")
-            taskMgr.remove("mouse-look")
+            taskMgr.remove("player_state")
             taskMgr.remove("actor_life")
+            taskMgr.remove("mouse-look")
 
             # make pattern list from assets dict
             pattern = [key for key in assets]
@@ -75,8 +76,9 @@ class LevelOne:
 
         # TODO: Make taskMgr list with task names strings
         taskMgr.remove("player_init")
-        taskMgr.remove("mouse-look")
+        taskMgr.remove("player_state")
         taskMgr.remove("actor_life")
+        taskMgr.remove("mouse-look")
 
         # make pattern list from assets dict
         pattern = [key for key in assets]
@@ -136,7 +138,7 @@ class LevelOne:
                                   name="Box",
                                   axis=[0.0, -9.0, self.pos_z],
                                   rotation=[65, 0, 0],
-                                  scale=[8.25, 8.25, 8.25])
+                                  scale=[1.25, 1.25, 1.25])
 
         self.scene_one.env_load(path=assets['Ground'],
                                 mode="game",

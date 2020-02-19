@@ -182,11 +182,12 @@ class Collisions:
 
             # Show the collision solids
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
-                for key in player_collider_dict:
+                """    for key in player_collider_dict:
                     player_collider_dict[key].show()
-            """else:
+            else:
                 for key in player_collider_dict:
                     player_collider_dict[key].show()"""
+                pass
 
     def set_camera_collider(self, col_name, handler):
         if (col_name
