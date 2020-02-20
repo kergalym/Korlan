@@ -34,9 +34,10 @@ class Collisions:
         self.korlan = None
         self.actor = None
 
-        self.no_mask = BitMask32.bit(0)
-        self.mask_floor = BitMask32.bit(1)
-        self.mask_walls = BitMask32.bit(2)
+        self.no_mask = BitMask32.allOff()
+        self.mask_floor = BitMask32(0x1)
+        self.mask_walls = BitMask32(0x2)
+        self.mask = BitMask32.allOn()
 
     def get_queue_event(self, player):
         if player:

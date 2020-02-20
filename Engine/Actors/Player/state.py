@@ -1,3 +1,6 @@
+from Engine.Collisions.collisions import Collisions
+
+
 class PlayerState:
 
     def __init__(self):
@@ -25,6 +28,7 @@ class PlayerState:
                                          'USABLE': 1,
                                          'DEFORMED': 2
                                          }
+        self.col = Collisions()
 
     def set_action_state(self, action, state):
         if (action
@@ -37,6 +41,10 @@ class PlayerState:
                             and key != "is_idle"
                             and key != action):
                         base.states[key] = False
+
+                    # TODO:  Uncomment when it's checked to very close item
+                    """if key == 'is_using' and base.is_asset_close_to_use:
+                        base.states[action] = state"""
 
             elif state is False:
                 for key in base.states:
@@ -134,15 +142,19 @@ class PlayerState:
             if base.is_asset_close_to_use:
                 item_scale = item.get_scale()
                 exposed_joint = player.expose_joint(None, "modelRoot", joint)
-
                 item_np_find = exposed_joint.find(item.get_name())
 
                 # TODO: DEBUG
                 if item_np_find.is_empty() is False:
                     if item_np_find.get_name() == item.get_name():
+                        import pdb; pdb.set_trace()
                         print(1)
 
                 if exposed_joint.find(item.get_name()).is_empty():
+                    # Disable collide mask before attaching
+                    # because we don't want colliding
+                    # between character and item.
+                    item.set_collide_mask(self.col.no_mask)
                     item.reparent_to(exposed_joint)
                     item_np = exposed_joint.find(item.get_name())
                     # After reparenting to joint the item inherits joint coordinates,
@@ -163,6 +175,7 @@ class PlayerState:
                     item_np.set_pos(player.get_pos())
                     item_np.set_hpr(0, 0, 0)
                     item_np.set_scale(1.25, 1.25, 1.25)
+                    item_np.set_collide_mask(self.col.mask)
                     # TODO: attach to Ground
 
     def pick_up_item_pusher(self, player, joint, entry):
