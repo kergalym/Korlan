@@ -130,7 +130,8 @@ class Collisions:
 
             # Show the collision solids
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
-                player_collider_dict[actor.get_name()].show()
+                base.accept("y", player_collider_dict[actor.get_name()].show)
+                base.accept("n", player_collider_dict[actor.get_name()].hide)
 
     def set_actor_collider_multi(self, actor, col_name, axis, radius, handler):
         if (actor
