@@ -4,6 +4,9 @@ from Engine.Actors.Player.korlan import Korlan
 from Engine.Actors.NPC.npc import NPC
 from Engine.Scenes.scene_one import SceneOne
 from Engine.world import World
+from Settings.UI.ui_state import UIState
+from Settings.UI.ui_state import UIMisc
+from Settings.UI.hud import HUD
 
 
 class LevelOne:
@@ -19,6 +22,9 @@ class LevelOne:
         self.world = World()
         self.korlan = Korlan()
         self.npc = NPC()
+        self.hud = HUD()
+        self.ui_state = UIState()
+        self.ui_misc = UIMisc()
         self.pos_x = None
         self.pos_y = None
         self.pos_z = 0.0
@@ -28,8 +34,9 @@ class LevelOne:
         if hasattr(base, "player"):
             dist_vec = base.distance_calculate(
                 base.assets_pos_collector_no_actor(base.player), base.player)
-            if dist_vec:
-                print(dist_vec)
+            if dist_vec and base.game_mode:
+                dist_vec_fmt = self.ui_misc.state_text(dist_vec)
+                self.ui_state.set_state_text(dist_vec_fmt)
         return task.cont
 
     def reload_menu_scene(self):
@@ -76,6 +83,8 @@ class LevelOne:
             self.base.cam.set_hpr(0, 0, 0)
             self.base.menu_scene_load()
             self.base.frame.show()
+
+            base.game_mode = False
 
     def load_new_game(self):
         self.game_mode = True

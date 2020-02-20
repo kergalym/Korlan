@@ -21,6 +21,7 @@ class Menu:
 
         """ Imports, Variables, etc """
         self.base = base
+        self.game_dir = base.game_dir
         self.level_one = LevelOne()
         self.json = json
         self.pos_X = 0
@@ -204,6 +205,7 @@ class Menu:
         self.kmp = Keymap()
         self.lng = Language()
 
+        # instance of the abstract class
         self.font = FontPool
         self.text = TextNode("TextNode")
 
@@ -239,7 +241,7 @@ class Menu:
 
         """ Buttons & Fonts"""
         # self.menu_font = 'Settings/UI/Open_Sans/OpenSans-Regular.ttf'
-        self.menu_font = 'Settings/UI/JetBrainsMono-1.0.2/ttf/JetBrainsMono-Regular.ttf'
+        self.menu_font = '{0}/Settings/UI/JetBrainsMono-1.0.2/ttf/JetBrainsMono-Regular.ttf'.format(self.game_dir)
 
         self.btn_new_game = DirectButton(text=self.language['new_game'], text_bg=(0, 0, 0, 1),
                                          text_fg=(255, 255, 255, 0.9),
