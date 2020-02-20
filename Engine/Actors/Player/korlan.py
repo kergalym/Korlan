@@ -107,7 +107,7 @@ class Korlan:
 
                 if self.game_settings['Debug']['set_debug_mode'] == "YES":
                     self.render.analyze()
-                    self.render.explore()
+                    # self.render.explore()
 
         if mode == 'game':
 
@@ -179,7 +179,7 @@ class Korlan:
                     # Make actor global
                     base.player = self.korlan
                     self.render.analyze()
-                    self.render.explore()
+                    # self.render.explore()
 
                 taskMgr.add(self.mouse.mouse_look_cam,
                             "mouse-look",

@@ -98,7 +98,7 @@ class NPC:
 
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
                 self.render.analyze()
-                self.render.explore()
+                # self.render.explore()
 
             taskMgr.add(self.actor_life, "actor_life")
 

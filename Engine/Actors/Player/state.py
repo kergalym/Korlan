@@ -100,15 +100,44 @@ class PlayerState:
                 and isinstance(joint, str)
                 and isinstance(items_dist_vect, dict)):
             assets = base.asset_nodes_assoc_collector()
-            item = assets["Box"]
+            item = None
+            base.is_asset_close_to_use = False
+
             for key in items_dist_vect:
-                if key:
-                    import pdb; pdb.set_trace()
-            if item:
+                if key and assets.get(key):
+                    if key == assets[key].get_name():
+                        if items_dist_vect[key][1] == 0.0:
+                            base.is_asset_close_to_use = True
+                            item = assets[key]
+                        elif items_dist_vect[key][1] == 0.1:
+                            base.is_asset_close_to_use = True
+                            item = assets[key]
+                        elif items_dist_vect[key][1] == 0.2:
+                            base.is_asset_close_to_use = True
+                            item = assets[key]
+                        elif items_dist_vect[key][1] == 0.3:
+                            base.is_asset_close_to_use = True
+                            item = assets[key]
+                        elif items_dist_vect[key][1] == 0.4:
+                            base.is_asset_close_to_use = True
+                            item = assets[key]
+                        elif items_dist_vect[key][1] == 0.5:
+                            base.is_asset_close_to_use = True
+                            item = assets[key]
+                        elif items_dist_vect[key][1] == 0.6:
+                            base.is_asset_close_to_use = True
+                            item = assets[key]
+                        elif items_dist_vect[key][1] == 0.7:
+                            base.is_asset_close_to_use = True
+                            item = assets[key]
+
+            if base.is_asset_close_to_use:
                 item_scale = item.get_scale()
                 exposed_joint = player.expose_joint(None, "modelRoot", joint)
 
                 item_np_find = exposed_joint.find(item.get_name())
+
+                # TODO: DEBUG
                 if item_np_find.is_empty() is False:
                     if item_np_find.get_name() == item.get_name():
                         print(1)
@@ -127,8 +156,7 @@ class PlayerState:
                         item_np.set_y(-20.4)
                         item_np.set_x(15.4)
                 elif (exposed_joint.find(item.get_name()).is_empty()
-                        and exposed_joint.find(item.get_name()).get_name() == item.get_name()):
-                    print(exposed_joint.find(item.get_name()))
+                      and exposed_joint.find(item.get_name()).get_name() == item.get_name()):
                     item_np = exposed_joint.find(item.get_name())
                     item_np.detachNode()
                     item_np.reparent_to(assets['Ground'])

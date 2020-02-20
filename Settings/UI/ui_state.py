@@ -9,43 +9,42 @@ class UIState:
         # instance of the abstract class
         self.font = FontPool
         self.menu_font = '{0}/Settings/UI/JetBrainsMono-1.0.2/ttf/JetBrainsMono-Regular.ttf'.format(self.game_dir)
+        if self.game_settings['Debug']['set_debug_mode'] == "YES":
+            OnscreenText(text="DEBUG MODE: Object Position",
+                         pos=(-1.8, 0.9),
+                         scale=0.03,
+                         fg=(255, 255, 255, 0.9),
+                         font=self.font.load_font(self.menu_font),
+                         align=TextNode.ALeft,
+                         mayChange=False)
 
-        OnscreenText(text="DEBUG MODE: Object Position",
-                     pos=(-1.8, 0.9),
-                     scale=0.03,
-                     fg=(255, 255, 255, 0.9),
-                     font=self.font.load_font(self.menu_font),
-                     align=TextNode.ALeft,
-                     mayChange=False)
+            self.text_state_h = OnscreenText(text="_DEBUG_TEXT_",
+                                             pos=(-1.8, 0.8),
+                                             scale=0.03,
+                                             fg=(255, 255, 255, 0.9),
+                                             font=self.font.load_font(self.menu_font),
+                                             align=TextNode.ALeft,
+                                             mayChange=True)
 
-        self.text_state_h = OnscreenText(text="_DEBUG_TEXT_",
-                                         pos=(-1.8, 0.8),
-                                         scale=0.03,
-                                         fg=(255, 255, 255, 0.9),
-                                         font=self.font.load_font(self.menu_font),
-                                         align=TextNode.ALeft,
-                                         mayChange=True)
-
-        self.text_state_p = OnscreenText(text="_DEBUG_TEXT_",
-                                         pos=(-1.4, 0.8),
-                                         scale=0.03,
-                                         fg=(255, 255, 255, 0.9),
-                                         font=self.font.load_font(self.menu_font),
-                                         align=TextNode.ALeft,
-                                         mayChange=True)
+            self.text_state_p = OnscreenText(text="_DEBUG_TEXT_",
+                                             pos=(-1.4, 0.8),
+                                             scale=0.03,
+                                             fg=(255, 255, 255, 0.9),
+                                             font=self.font.load_font(self.menu_font),
+                                             align=TextNode.ALeft,
+                                             mayChange=True)
 
     def set_state_text(self, records_h, records_p):
         if (records_h and records_p
                 and isinstance(records_h, str)
                 and isinstance(records_p, str)):
-            if (self.game_settings['Debug']['set_debug_mode'] == "YES"
-                    and base.game_mode):
-                self.text_state_h.setText(records_h)
-                self.text_state_p.setText(records_p)
-            elif (self.game_settings['Debug']['set_debug_mode'] == "YES"
-                  and base.game_mode is False):
-                self.text_state_h.destroy()
-                self.text_state_p.destroy()
+            if self.game_settings['Debug']['set_debug_mode'] == "YES":
+                if base.game_mode:
+                    self.text_state_h.setText(records_h)
+                    self.text_state_p.setText(records_p)
+                elif base.game_mode is False:
+                    self.text_state_h.destroy()
+                    self.text_state_p.destroy()
 
 
 class UIMisc:
