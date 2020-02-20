@@ -395,7 +395,7 @@ class Main(ShowBase):
                 if asset.get_name() != player.get_name():
                     t.append(asset)
 
-            for n, x in enumerate(exclude, 1):
+            for n, x in enumerate(exclude, 0):
                 # We exclude any item from assets,
                 # we need to retrieve the distance
                 if t[n].get_name() == x:
