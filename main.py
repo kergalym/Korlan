@@ -382,8 +382,8 @@ class Main(ShowBase):
 
         return items
 
-    def assets_pos_collector_no_actor(self, player):
-        if player:
+    def assets_pos_collector_no_actor(self, player, exclude):
+        if player and exclude and isinstance(exclude, list):
             # parse player name to exclude them
             assets = base.asset_nodes_collector()
             t = []
@@ -394,6 +394,12 @@ class Main(ShowBase):
                 # we need to retrieve the distance
                 if asset.get_name() != player.get_name():
                     t.append(asset)
+
+            for n, x in enumerate(exclude, 1):
+                # We exclude any item from assets,
+                # we need to retrieve the distance
+                if t[n].get_name() == x:
+                    t.pop(n)
 
             assets_children = base.asset_node_children_collector(
                 t, assoc_key=True)

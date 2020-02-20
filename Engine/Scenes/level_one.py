@@ -32,8 +32,9 @@ class LevelOne:
 
     def show_asset_pos_task(self, task):
         if hasattr(base, "player"):
+            exclude = ['Sky', 'Mountains', 'Grass', 'Ground', 'NPC']
             dist_vec = base.distance_calculate(
-                base.assets_pos_collector_no_actor(base.player), base.player)
+                base.assets_pos_collector_no_actor(base.player, exclude), base.player)
             if dist_vec and base.game_mode:
                 dist_vec_fmt_h = self.ui_misc.state_text_h(dist_vec)
                 dist_vec_fmt_p = self.ui_misc.state_text_p(dist_vec)
