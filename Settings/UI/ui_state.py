@@ -9,8 +9,17 @@ class UIState:
         # instance of the abstract class
         self.font = FontPool
         self.menu_font = '{0}/Settings/UI/JetBrainsMono-1.0.2/ttf/JetBrainsMono-Regular.ttf'.format(self.game_dir)
+
+        OnscreenText(text="DEBUG MODE: Object Position",
+                     pos=(-1.8, 0.9),
+                     scale=0.03,
+                     fg=(255, 255, 255, 0.9),
+                     font=self.font.load_font(self.menu_font),
+                     align=TextNode.ALeft,
+                     mayChange=False)
+
         self.text_state_h = OnscreenText(text="_DEBUG_TEXT_",
-                                         pos=(-1.8, 0.9),
+                                         pos=(-1.8, 0.8),
                                          scale=0.03,
                                          fg=(255, 255, 255, 0.9),
                                          font=self.font.load_font(self.menu_font),
@@ -18,7 +27,7 @@ class UIState:
                                          mayChange=True)
 
         self.text_state_p = OnscreenText(text="_DEBUG_TEXT_",
-                                         pos=(-1.4, 0.9),
+                                         pos=(-1.4, 0.8),
                                          scale=0.03,
                                          fg=(255, 255, 255, 0.9),
                                          font=self.font.load_font(self.menu_font),
