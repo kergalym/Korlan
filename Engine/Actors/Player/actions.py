@@ -169,7 +169,7 @@ class Actions:
         self.base.camera.look_at(self.mouse.set_floater(player))
 
         # Do check for collisions
-        # self.col.traverser(player=player, handler="pusher")
+        self.col.traverser(player=player, handler="pusher")
 
         return task.cont
 

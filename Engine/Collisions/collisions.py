@@ -80,15 +80,15 @@ class Collisions:
             self.set_camera_collider(col_name="CamCS",
                                      handler="pusher")
 
-            """self.set_actor_collider(actor=self.korlan,
+            self.set_actor_collider(actor=self.korlan,
                                     col_name='Korlan:CS',
-                                    handler="pusher")"""
+                                    handler="pusher")
 
-            self.set_actor_collider_multi(actor=self.korlan,
+            """self.set_actor_collider_multi(actor=self.korlan,
                                           col_name='Korlan:CS',
                                           axis=(0, 0, 0),
                                           radius=20.2,
-                                          handler='pusher')
+                                          handler='pusher')"""
 
             """self.set_object_collider(col_name=box.get_name(),
                                      handler="pusher", obj=box)"""
@@ -130,8 +130,6 @@ class Collisions:
 
             # Show the collision solids
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
-                player_collider_dict[actor.get_name()].show()
-            else:
                 player_collider_dict[actor.get_name()].show()
 
     def set_actor_collider_multi(self, actor, col_name, axis, radius, handler):
@@ -182,12 +180,8 @@ class Collisions:
 
             # Show the collision solids
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
-                """    for key in player_collider_dict:
-                    player_collider_dict[key].show()
-            else:
                 for key in player_collider_dict:
-                    player_collider_dict[key].show()"""
-                pass
+                    player_collider_dict[key].show()
 
     def set_camera_collider(self, col_name, handler):
         if (col_name
