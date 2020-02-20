@@ -35,8 +35,9 @@ class LevelOne:
             dist_vec = base.distance_calculate(
                 base.assets_pos_collector_no_actor(base.player), base.player)
             if dist_vec and base.game_mode:
-                dist_vec_fmt = self.ui_misc.state_text(dist_vec)
-                self.ui_state.set_state_text(dist_vec_fmt)
+                dist_vec_fmt_h = self.ui_misc.state_text_h(dist_vec)
+                dist_vec_fmt_p = self.ui_misc.state_text_p(dist_vec)
+                self.ui_state.set_state_text(dist_vec_fmt_h, dist_vec_fmt_p)
         return task.cont
 
     def reload_menu_scene(self):
