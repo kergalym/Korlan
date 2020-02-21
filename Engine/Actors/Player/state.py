@@ -111,6 +111,8 @@ class PlayerState:
             item = None
             base.is_asset_close_to_use = False
 
+            # TODO: Do items_dist_vect as task.cont
+
             for key in items_dist_vect:
                 if key and assets.get(key):
                     if key == assets[key].get_name():
@@ -139,17 +141,10 @@ class PlayerState:
                             base.is_asset_close_to_use = True
                             item = assets[key]
 
+            exposed_joint = player.expose_joint(None, "modelRoot", joint)
+
             if base.is_asset_close_to_use:
                 item_scale = item.get_scale()
-                exposed_joint = player.expose_joint(None, "modelRoot", joint)
-                item_np_find = exposed_joint.find(item.get_name())
-
-                # TODO: DEBUG
-                if item_np_find.is_empty() is False:
-                    if item_np_find.get_name() == item.get_name():
-                        import pdb; pdb.set_trace()
-                        print(1)
-
                 if exposed_joint.find(item.get_name()).is_empty():
                     # Disable collide mask before attaching
                     # because we don't want colliding
@@ -167,36 +162,16 @@ class PlayerState:
                         item_np.set_h(205.0)
                         item_np.set_y(-20.4)
                         item_np.set_x(15.4)
-                elif (exposed_joint.find(item.get_name()).is_empty()
-                      and exposed_joint.find(item.get_name()).get_name() == item.get_name()):
-                    item_np = exposed_joint.find(item.get_name())
-                    item_np.detachNode()
-                    item_np.reparent_to(assets['Ground'])
-                    item_np.set_pos(player.get_pos())
-                    item_np.set_hpr(0, 0, 0)
-                    item_np.set_scale(1.25, 1.25, 1.25)
-                    item_np.set_collide_mask(self.col.mask)
-                    # TODO: attach to Ground
-
-    def pick_up_item_pusher(self, player, joint, entry):
-        if (player
-                and entry
-                and joint
-                and isinstance(joint, str)):
-            assets = base.asset_nodes_assoc_collector()
-            item = assets.get(entry.get_into_node().get_name())
-            if item:
-                exposed_joint = player.expose_joint(None, "modelRoot", joint)
-                if self.has_actor_any_item(item, exposed_joint) is False:
-                    item.reparent_to(exposed_joint)
-                    item_np = exposed_joint.find(item.get_name())
-                    # After reparenting to joint the item inherits joint coordinates,
-                    # so we find it in given joint and then do rotate and rescale the item
-                    if not item_np.is_empty():
-                        item_np.set_scale(8.0)
-                        item_np.set_h(205.0)
-                elif self.has_actor_any_item(item, exposed_joint) is True:
-                    item.detachNode()
+            elif exposed_joint.find(item.get_name()).is_empty() is False:
+                import pdb; pdb.set_trace()
+                item_np = exposed_joint.find(item.get_name())
+                item_np.detachNode()
+                item_np.reparent_to(assets['Ground'])
+                item_np.set_pos(player.get_pos())
+                item_np.set_hpr(0, 0, 0)
+                item_np.set_scale(1.25, 1.25, 1.25)
+                item_np.set_collide_mask(self.col.mask)
+                # TODO: attach to Ground
 
     def pick_up_item_queue(self, player, joint, event):
         if (player
