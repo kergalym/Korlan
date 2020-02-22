@@ -69,49 +69,17 @@ class Actions:
                 self.item_cls.usable_item_pos_collector(player), player)
             sorted_dict = {}
             for key in items_dist_vect:
-                if items_dist_vect[key][1] == self.item_cls.permitted_dist[0]:
-                    sorted_dict[key] = items_dist_vect[key]
-                elif items_dist_vect[key][1] == self.item_cls.permitted_dist[1]:
-                    sorted_dict[key] = items_dist_vect[key]
-                elif items_dist_vect[key][1] == self.item_cls.permitted_dist[2]:
-                    sorted_dict[key] = items_dist_vect[key]
-                elif items_dist_vect[key][1] == self.item_cls.permitted_dist[3]:
-                    sorted_dict[key] = items_dist_vect[key]
-                elif items_dist_vect[key][1] == self.item_cls.permitted_dist[4]:
-                    sorted_dict[key] = items_dist_vect[key]
-                elif items_dist_vect[key][1] == self.item_cls.permitted_dist[5]:
-                    sorted_dict[key] = items_dist_vect[key]
-                elif items_dist_vect[key][1] == self.item_cls.permitted_dist[6]:
-                    sorted_dict[key] = items_dist_vect[key]
+                for index in range(len(self.item_cls.permitted_dist)):
+                    if items_dist_vect[key][1] == self.item_cls.permitted_dist[index]:
+                        sorted_dict[key] = items_dist_vect[key]
 
             for key in sorted_dict:
-                if sorted_dict[key][1] == self.item_cls.permitted_dist[0]:
-                    base.is_asset_close_to_use = True
-                    base.close_item_name = key
-                elif sorted_dict[key][1] == self.item_cls.permitted_dist[1]:
-                    base.is_asset_close_to_use = True
-                    base.close_item_name = key
-                elif sorted_dict[key][1] == self.item_cls.permitted_dist[2]:
-                    base.is_asset_close_to_use = True
-                    base.close_item_name = key
-                elif sorted_dict[key][1] == self.item_cls.permitted_dist[3]:
-                    base.is_asset_close_to_use = True
-                    base.close_item_name = key
-                elif sorted_dict[key][1] == self.item_cls.permitted_dist[4]:
-                    base.is_asset_close_to_use = True
-                    base.close_item_name = key
-                elif sorted_dict[key][1] == self.item_cls.permitted_dist[5]:
-                    base.is_asset_close_to_use = True
-                    base.close_item_name = key
-                elif sorted_dict[key][1] == self.item_cls.permitted_dist[6]:
+                if key:
                     base.is_asset_close_to_use = True
                     base.close_item_name = key
                 else:
-                    # TODO: DEBUG
-                    # import pdb; pdb.set_trace()
                     base.is_asset_close_to_use = False
                     base.close_item_name = None
-
         return task.cont
 
     def seq_use_item_wrapper(self, player, anims):

@@ -111,30 +111,11 @@ class PlayerState:
                 and isinstance(permitted_dist, list)):
             assets = base.asset_nodes_assoc_collector()
             item = None
-            # TODO: Do items_dist_vect as task.cont
 
             for key in items_dist_vect:
                 if key and assets.get(key):
                     if key == assets[key].get_name():
-                        if items_dist_vect[key][1] == permitted_dist[0]:
-                            base.is_asset_close_to_use = True
-                            item = assets[key]
-                        elif items_dist_vect[key][1] == permitted_dist[1]:
-                            base.is_asset_close_to_use = True
-                            item = assets[key]
-                        elif items_dist_vect[key][1] == permitted_dist[2]:
-                            base.is_asset_close_to_use = True
-                            item = assets[key]
-                        elif items_dist_vect[key][1] == permitted_dist[3]:
-                            base.is_asset_close_to_use = True
-                            item = assets[key]
-                        elif items_dist_vect[key][1] == permitted_dist[4]:
-                            base.is_asset_close_to_use = True
-                            item = assets[key]
-                        elif items_dist_vect[key][1] == permitted_dist[5]:
-                            base.is_asset_close_to_use = True
-                            item = assets[key]
-                        elif items_dist_vect[key][1] == permitted_dist[6]:
+                        if not items_dist_vect[key][1] > permitted_dist[6]:
                             base.is_asset_close_to_use = True
                             item = assets[key]
                         else:
@@ -206,7 +187,7 @@ class PlayerState:
 
                 item_np.detachNode()
                 item_np.reparent_to(self.render)
-                item_np.set_pos(player.get_pos())
+                item_np.set_pos(player.get_pos() - (0.4, -1.0, 0))
                 item_np.set_hpr(0, 0, 0)
                 item_np.set_scale(1.25, 1.25, 1.25)
                 item_np.set_collide_mask(self.col.mask)
