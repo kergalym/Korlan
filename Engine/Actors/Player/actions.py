@@ -75,10 +75,10 @@ class Actions:
 
             for key in sorted_dict:
                 if key:
-                    base.is_asset_close_to_use = True
+                    base.is_item_close_to_use = True
                     base.close_item_name = key
                 else:
-                    base.is_asset_close_to_use = False
+                    base.is_item_close_to_use = False
                     base.close_item_name = None
         return task.cont
 
@@ -342,7 +342,7 @@ class Actions:
             crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
 
             if (self.kbd.keymap[key]
-                    and hasattr(base, "is_asset_close_to_use")):
+                    and hasattr(base, "is_item_close_to_use")):
 
                 base.states['is_idle'] = False
 

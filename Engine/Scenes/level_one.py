@@ -4,8 +4,7 @@ from Engine.Actors.Player.korlan import Korlan
 from Engine.Actors.NPC.npc import NPC
 from Engine.Scenes.scene_one import SceneOne
 from Engine.world import World
-from Settings.UI.ui_state import UIState
-from Settings.UI.ui_state import UIMisc
+from Settings.UI.ui_stat import UIStat
 from Settings.UI.hud import HUD
 
 
@@ -23,24 +22,11 @@ class LevelOne:
         self.korlan = Korlan()
         self.npc = NPC()
         self.hud = HUD()
-        self.ui_state = UIState()
-        self.ui_misc = UIMisc()
+        self.ui_stat = UIStat()
         self.pos_x = None
         self.pos_y = None
         self.pos_z = 0.0
         self.anim = None
-
-    def show_asset_pos_task(self, task):
-        if hasattr(base, "player"):
-            exclude = ['Sky', 'Mountains', 'Grass', 'Ground', 'NPC']
-            dist_vec = base.distance_calculate(
-                base.assets_pos_collector_no_actor(base.player, exclude), base.player)
-            if dist_vec and base.game_mode:
-                dist_vec_fmt_h = self.ui_misc.state_text_h(dist_vec)
-                dist_vec_fmt_p = self.ui_misc.state_text_p(dist_vec)
-                self.ui_state.set_state_text(dist_vec_fmt_h, dist_vec_fmt_p)
-
-        return task.cont
 
     def reload_menu_scene(self):
         if self.base.game_mode:
@@ -56,7 +42,7 @@ class LevelOne:
                      "player_state",
                      "actor_life",
                      "mouse_look",
-                     "show_asset_pos",
+                     "show_game_stat",
                      "check_distance"]
             for t in tasks:
                 taskMgr.remove(t)
@@ -106,7 +92,7 @@ class LevelOne:
                  "player_state",
                  "actor_life",
                  "mouse_look",
-                 "show_asset_pos",
+                 "show_game_stat",
                  "check_distance"]
         for t in tasks:
             taskMgr.remove(t)
@@ -207,6 +193,6 @@ class LevelOne:
                            scale=[1.25, 1.25, 1.25])
 
         """ Task for Debug mode """
-        taskMgr.add(self.show_asset_pos_task,
-                    "show_asset_pos",
+        taskMgr.add(self.ui_stat.show_game_stat_task,
+                    "show_game_stat",
                     appendTask=True)

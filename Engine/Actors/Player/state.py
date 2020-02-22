@@ -116,17 +116,17 @@ class PlayerState:
                 if key and assets.get(key):
                     if key == assets[key].get_name():
                         if not items_dist_vect[key][1] > permitted_dist[6]:
-                            base.is_asset_close_to_use = True
+                            base.is_item_close_to_use = True
                             item = assets[key]
                         else:
-                            base.is_asset_close_to_use = False
+                            base.is_item_close_to_use = False
                             # We'll use it later from here
                             item = assets[key]
 
             exposed_joint = player.expose_joint(None, "modelRoot", joint)
 
-            if (base.is_asset_close_to_use
-                    and hasattr(base, "is_asset_in_use_long") is False):
+            if (base.is_item_close_to_use
+                    and hasattr(base, "is_item_in_use_long") is False):
                 item_scale = item.get_scale()
 
                 if exposed_joint.find(item.get_name()).is_empty():
@@ -137,8 +137,8 @@ class PlayerState:
                     item.reparent_to(exposed_joint)
 
                     # Set item state
-                    base.is_asset_in_use = True
-                    base.is_asset_in_use_long = True
+                    base.is_item_in_use = True
+                    base.is_item_in_use_long = True
 
                     item_np = exposed_joint.find(item.get_name())
                     # After reparenting to joint the item inherits joint coordinates,
@@ -151,9 +151,9 @@ class PlayerState:
                         item_np.set_h(205.0)
                         item_np.set_y(-20.4)
                         item_np.set_x(15.4)
-            elif (base.is_asset_close_to_use
-                    and hasattr(base, "is_asset_in_use_long")
-                    and base.is_asset_in_use_long is False):
+            elif (base.is_item_close_to_use
+                  and hasattr(base, "is_item_in_use_long")
+                  and base.is_item_in_use_long is False):
                 item_scale = item.get_scale()
 
                 if exposed_joint.find(item.get_name()).is_empty():
@@ -164,8 +164,8 @@ class PlayerState:
                     item.reparent_to(exposed_joint)
 
                     # Set item state
-                    base.is_asset_in_use = True
-                    base.is_asset_in_use_long = True
+                    base.is_item_in_use = True
+                    base.is_item_in_use_long = True
 
                     item_np = exposed_joint.find(item.get_name())
                     # After reparenting to joint the item inherits joint coordinates,
@@ -178,14 +178,14 @@ class PlayerState:
                         item_np.set_h(205.0)
                         item_np.set_y(-20.4)
                         item_np.set_x(15.4)
-            elif (hasattr(base, "is_asset_in_use_long") is True
-                  and base.is_asset_in_use_long is True):
+            elif (hasattr(base, "is_item_in_use_long") is True
+                  and base.is_item_in_use_long is True):
                 item_np = self.render.find("**/{0}".format(item.get_name()))
 
                 # Remove previous node
-                item.removeNode()
+                item.remove_node()
 
-                item_np.detachNode()
+                item_np.detach_node()
                 item_np.reparent_to(self.render)
                 item_np.set_pos(player.get_pos() - (0.4, -1.0, 0))
                 item_np.set_hpr(0, 0, 0)
@@ -193,29 +193,8 @@ class PlayerState:
                 item_np.set_collide_mask(self.col.mask)
 
                 # Set item state
-                base.is_asset_in_use = False
-                base.is_asset_in_use_long = False
-
-    def pick_up_item_queue(self, player, joint, event):
-        if (player
-                and event
-                and isinstance(event, str)
-                and joint
-                and isinstance(joint, str)):
-            assets = base.asset_nodes_assoc_collector()
-            item = assets.get(event)
-            if item:
-                exposed_joint = player.expose_joint(None, "modelRoot", joint)
-                if self.has_actor_any_item(item, exposed_joint) is False:
-                    item.reparent_to(exposed_joint)
-                    item_np = exposed_joint.find(item.get_name())
-                    # After reparenting to joint the item inherits joint coordinates,
-                    # so we find it in given joint and then do rotate and rescale the item
-                    if not item_np.is_empty():
-                        item_np.set_scale(8.0)
-                        item_np.set_h(205.0)
-                elif self.has_actor_any_item(item, exposed_joint) is True:
-                    item.detachNode()
+                base.is_item_in_use = False
+                base.is_item_in_use_long = False
 
     def pass_item(self, player, joint, item):
         if (player
