@@ -1,3 +1,5 @@
+from direct.task.TaskManagerGlobal import taskMgr
+
 from Engine.Collisions.collisions import Collisions
 
 
@@ -28,6 +30,7 @@ class PlayerState:
                                          'USABLE': 1,
                                          'DEFORMED': 2
                                          }
+        self.render = render
         self.col = Collisions()
 
     def set_action_state(self, action, state):
@@ -41,10 +44,6 @@ class PlayerState:
                             and key != "is_idle"
                             and key != action):
                         base.states[key] = False
-
-                    # TODO:  Uncomment when it's checked to very close item
-                    """if key == 'is_using' and base.is_asset_close_to_use:
-                        base.states[action] = state"""
 
             elif state is False:
                 for key in base.states:
@@ -68,6 +67,14 @@ class PlayerState:
                 if action == "is_crouch_moving":
                     base.states["is_idle"] = True
                     base.states["is_crouch_moving"] = False
+
+    def set_action_use_state_task(self, task):
+        if hasattr(base, "is_asset_in_use"):
+            if base.is_asset_in_use:
+                base.is_asset_in_use_long = True
+            else:
+                base.is_asset_in_use_long = False
+        return task.cont
 
     def set_player_equip_state(self, task):
         base.player_state_unarmed = True
@@ -102,55 +109,61 @@ class PlayerState:
             else:
                 return False
 
-    def pick_up_item(self, player, joint, items_dist_vect):
+    def pick_up_item(self, player, joint, items_dist_vect, permitted_dist):
         if (player and items_dist_vect
                 and joint
                 and isinstance(joint, str)
-                and isinstance(items_dist_vect, dict)):
+                and isinstance(items_dist_vect, dict)
+                and isinstance(permitted_dist, list)):
             assets = base.asset_nodes_assoc_collector()
             item = None
-            base.is_asset_close_to_use = False
-
             # TODO: Do items_dist_vect as task.cont
 
             for key in items_dist_vect:
                 if key and assets.get(key):
                     if key == assets[key].get_name():
-                        if items_dist_vect[key][1] == 0.0:
+                        if items_dist_vect[key][1] == permitted_dist[0]:
                             base.is_asset_close_to_use = True
                             item = assets[key]
-                        elif items_dist_vect[key][1] == 0.1:
+                        elif items_dist_vect[key][1] == permitted_dist[1]:
                             base.is_asset_close_to_use = True
                             item = assets[key]
-                        elif items_dist_vect[key][1] == 0.2:
+                        elif items_dist_vect[key][1] == permitted_dist[2]:
                             base.is_asset_close_to_use = True
                             item = assets[key]
-                        elif items_dist_vect[key][1] == 0.3:
+                        elif items_dist_vect[key][1] == permitted_dist[3]:
                             base.is_asset_close_to_use = True
                             item = assets[key]
-                        elif items_dist_vect[key][1] == 0.4:
+                        elif items_dist_vect[key][1] == permitted_dist[4]:
                             base.is_asset_close_to_use = True
                             item = assets[key]
-                        elif items_dist_vect[key][1] == 0.5:
+                        elif items_dist_vect[key][1] == permitted_dist[5]:
                             base.is_asset_close_to_use = True
                             item = assets[key]
-                        elif items_dist_vect[key][1] == 0.6:
+                        elif items_dist_vect[key][1] == permitted_dist[6]:
                             base.is_asset_close_to_use = True
                             item = assets[key]
-                        elif items_dist_vect[key][1] == 0.7:
-                            base.is_asset_close_to_use = True
+                        else:
+                            base.is_asset_close_to_use = False
+                            # We'll use it later from here
                             item = assets[key]
 
             exposed_joint = player.expose_joint(None, "modelRoot", joint)
 
-            if base.is_asset_close_to_use:
+            if (base.is_asset_close_to_use
+                    and hasattr(base, "is_asset_in_use_long") is False):
                 item_scale = item.get_scale()
+
                 if exposed_joint.find(item.get_name()).is_empty():
                     # Disable collide mask before attaching
                     # because we don't want colliding
                     # between character and item.
                     item.set_collide_mask(self.col.no_mask)
                     item.reparent_to(exposed_joint)
+
+                    # Set item state
+                    base.is_asset_in_use = True
+
                     item_np = exposed_joint.find(item.get_name())
                     # After reparenting to joint the item inherits joint coordinates,
                     # so we find it in given joint and then do rotate and rescale the item
@@ -162,16 +175,49 @@ class PlayerState:
                         item_np.set_h(205.0)
                         item_np.set_y(-20.4)
                         item_np.set_x(15.4)
-            elif exposed_joint.find(item.get_name()).is_empty() is False:
-                import pdb; pdb.set_trace()
-                item_np = exposed_joint.find(item.get_name())
+            elif (base.is_asset_close_to_use
+                    and hasattr(base, "is_asset_in_use_long")
+                    and base.is_asset_in_use_long is False):
+                item_scale = item.get_scale()
+
+                if exposed_joint.find(item.get_name()).is_empty():
+                    # Disable collide mask before attaching
+                    # because we don't want colliding
+                    # between character and item.
+                    item.set_collide_mask(self.col.no_mask)
+                    item.reparent_to(exposed_joint)
+
+                    # Set item state
+                    base.is_asset_in_use = True
+
+                    item_np = exposed_joint.find(item.get_name())
+                    # After reparenting to joint the item inherits joint coordinates,
+                    # so we find it in given joint and then do rotate and rescale the item
+                    # by multiplying.
+                    if item_np.is_empty() is False:
+                        # scale = item_np.get_scale()[0] * item_scale[0]
+                        scale = 60.0
+                        item_np.set_scale(scale)
+                        item_np.set_h(205.0)
+                        item_np.set_y(-20.4)
+                        item_np.set_x(15.4)
+            elif (hasattr(base, "is_asset_in_use_long") is True
+                  and base.is_asset_in_use_long is True):
+                item_np = self.render.find("**/{0}".format(item.get_name()))
+
+                # Remove previous node
+                item.removeNode()
+
                 item_np.detachNode()
-                item_np.reparent_to(assets['Ground'])
+                item_np.reparent_to(self.render)
                 item_np.set_pos(player.get_pos())
                 item_np.set_hpr(0, 0, 0)
                 item_np.set_scale(1.25, 1.25, 1.25)
                 item_np.set_collide_mask(self.col.mask)
-                # TODO: attach to Ground
+
+                # Set item state
+                base.is_asset_in_use = False
+                base.is_asset_in_use_long = False
 
     def pick_up_item_queue(self, player, joint, event):
         if (player

@@ -9,6 +9,7 @@ class Items:
         self.assets = base.collect_assets()
         self.state = PlayerState()
         self.col = Collisions()
+        self.permitted_dist = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
 
         self.dombra = {
             'type': 'item',
@@ -80,7 +81,7 @@ class Items:
             item_vect_dict = base.distance_calculate(
                 self.usable_item_pos_collector(actor), actor)
             # TODO: self.state.pick_up_item() is for testing purposes, remove later
-            self.state.pick_up_item(actor, joint, item_vect_dict)
+            self.state.pick_up_item(actor, joint, item_vect_dict, self.permitted_dist)
             # self.base.accept('into-Box', self.state.pick_up_item_queue, [actor, joint, item_vect_dict])
 
     def pick_up_dombra(self):

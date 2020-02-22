@@ -55,6 +55,8 @@ class LevelOne:
             taskMgr.remove("actor_life")
             taskMgr.remove("mouse-look")
             taskMgr.remove("show_asset_pos")
+            taskMgr.remove("check_distance_task")
+            taskMgr.remove("action_use_state_task")
 
             # make pattern list from assets dict
             pattern = [key for key in assets]
