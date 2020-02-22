@@ -68,14 +68,6 @@ class PlayerState:
                     base.states["is_idle"] = True
                     base.states["is_crouch_moving"] = False
 
-    def set_action_use_state_task(self, task):
-        if hasattr(base, "is_asset_in_use"):
-            if base.is_asset_in_use:
-                base.is_asset_in_use_long = True
-            else:
-                base.is_asset_in_use_long = False
-        return task.cont
-
     def set_player_equip_state(self, task):
         base.player_state_unarmed = True
         if base.player_state_armed:
@@ -87,10 +79,12 @@ class PlayerState:
         elif base.player_state_unarmed:
             base.player_state_armed = False
             base.player_state_magic = False
+
         return task.cont
 
     def actor_life(self, task):
         self.has_actor_life()
+
         return task.cont
 
     def has_actor_life(self):
@@ -163,6 +157,7 @@ class PlayerState:
 
                     # Set item state
                     base.is_asset_in_use = True
+                    base.is_asset_in_use_long = True
 
                     item_np = exposed_joint.find(item.get_name())
                     # After reparenting to joint the item inherits joint coordinates,
@@ -189,6 +184,7 @@ class PlayerState:
 
                     # Set item state
                     base.is_asset_in_use = True
+                    base.is_asset_in_use_long = True
 
                     item_np = exposed_joint.find(item.get_name())
                     # After reparenting to joint the item inherits joint coordinates,

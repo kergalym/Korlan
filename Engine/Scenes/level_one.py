@@ -39,6 +39,7 @@ class LevelOne:
                 dist_vec_fmt_h = self.ui_misc.state_text_h(dist_vec)
                 dist_vec_fmt_p = self.ui_misc.state_text_p(dist_vec)
                 self.ui_state.set_state_text(dist_vec_fmt_h, dist_vec_fmt_p)
+
         return task.cont
 
     def reload_menu_scene(self):
@@ -47,16 +48,18 @@ class LevelOne:
             self.base.menu_mode = True
             assets = self.base.collect_assets()
 
+            # Remove all lights
             render.clearLight()
 
-            # TODO: Make taskMgr list with task names strings
-            taskMgr.remove("player_init")
-            taskMgr.remove("player_state")
-            taskMgr.remove("actor_life")
-            taskMgr.remove("mouse-look")
-            taskMgr.remove("show_asset_pos")
-            taskMgr.remove("check_distance_task")
-            taskMgr.remove("action_use_state_task")
+            # Remove all tasks except system
+            tasks = ["player_init",
+                     "player_state",
+                     "actor_life",
+                     "mouse_look",
+                     "show_asset_pos",
+                     "check_distance"]
+            for t in tasks:
+                taskMgr.remove(t)
 
             # make pattern list from assets dict
             pattern = [key for key in assets]
@@ -89,20 +92,27 @@ class LevelOne:
             self.base.frame.show()
 
             base.game_mode = False
+            base.menu_mode = True
 
     def load_new_game(self):
-        self.game_mode = True
         self.base.accept("escape", self.reload_menu_scene)
         assets = self.base.collect_assets()
 
+        # Remove all lights
         render.clearLight()
 
-        # TODO: Make taskMgr list with task names strings
-        taskMgr.remove("player_init")
-        taskMgr.remove("player_state")
-        taskMgr.remove("actor_life")
-        taskMgr.remove("mouse-look")
-        taskMgr.remove("show_asset_pos")
+        # Remove all tasks except system
+        tasks = ["player_init",
+                 "player_state",
+                 "actor_life",
+                 "mouse_look",
+                 "show_asset_pos",
+                 "check_distance"]
+        for t in tasks:
+            taskMgr.remove(t)
+
+        base.game_mode = True
+        base.menu_mode = False
 
         # make pattern list from assets dict
         pattern = [key for key in assets]

@@ -182,7 +182,7 @@ class Korlan:
                     # self.render.explore()
 
                 taskMgr.add(self.mouse.mouse_look_cam,
-                            "mouse-look",
+                            "mouse_look",
                             appendTask=True)
 
                 # TODO: Add Scene task

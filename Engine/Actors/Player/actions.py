@@ -67,22 +67,51 @@ class Actions:
         if player:
             items_dist_vect = base.distance_calculate(
                 self.item_cls.usable_item_pos_collector(player), player)
-
+            sorted_dict = {}
             for key in items_dist_vect:
                 if items_dist_vect[key][1] == self.item_cls.permitted_dist[0]:
-                    base.is_asset_close_to_use = True
+                    sorted_dict[key] = items_dist_vect[key]
                 elif items_dist_vect[key][1] == self.item_cls.permitted_dist[1]:
-                    base.is_asset_close_to_use = True
+                    sorted_dict[key] = items_dist_vect[key]
                 elif items_dist_vect[key][1] == self.item_cls.permitted_dist[2]:
-                    base.is_asset_close_to_use = True
+                    sorted_dict[key] = items_dist_vect[key]
                 elif items_dist_vect[key][1] == self.item_cls.permitted_dist[3]:
-                    base.is_asset_close_to_use = True
+                    sorted_dict[key] = items_dist_vect[key]
                 elif items_dist_vect[key][1] == self.item_cls.permitted_dist[4]:
-                    base.is_asset_close_to_use = True
+                    sorted_dict[key] = items_dist_vect[key]
                 elif items_dist_vect[key][1] == self.item_cls.permitted_dist[5]:
-                    base.is_asset_close_to_use = True
+                    sorted_dict[key] = items_dist_vect[key]
                 elif items_dist_vect[key][1] == self.item_cls.permitted_dist[6]:
+                    sorted_dict[key] = items_dist_vect[key]
+
+            for key in sorted_dict:
+                if sorted_dict[key][1] == self.item_cls.permitted_dist[0]:
                     base.is_asset_close_to_use = True
+                    base.close_item_name = key
+                elif sorted_dict[key][1] == self.item_cls.permitted_dist[1]:
+                    base.is_asset_close_to_use = True
+                    base.close_item_name = key
+                elif sorted_dict[key][1] == self.item_cls.permitted_dist[2]:
+                    base.is_asset_close_to_use = True
+                    base.close_item_name = key
+                elif sorted_dict[key][1] == self.item_cls.permitted_dist[3]:
+                    base.is_asset_close_to_use = True
+                    base.close_item_name = key
+                elif sorted_dict[key][1] == self.item_cls.permitted_dist[4]:
+                    base.is_asset_close_to_use = True
+                    base.close_item_name = key
+                elif sorted_dict[key][1] == self.item_cls.permitted_dist[5]:
+                    base.is_asset_close_to_use = True
+                    base.close_item_name = key
+                elif sorted_dict[key][1] == self.item_cls.permitted_dist[6]:
+                    base.is_asset_close_to_use = True
+                    base.close_item_name = key
+                else:
+                    # TODO: DEBUG
+                    # import pdb; pdb.set_trace()
+                    base.is_asset_close_to_use = False
+                    base.close_item_name = None
+
         return task.cont
 
     def seq_use_item_wrapper(self, player, anims):
@@ -114,12 +143,9 @@ class Actions:
                         appendTask=True)
 
             taskMgr.add(self.check_distance_task,
-                        "check_distance_task",
+                        "check_distance",
                         extraArgs=[player],
                         appendTask=True)
-
-            taskMgr.add(self.state.set_action_use_state_task,
-                        "action_use_state_task")
 
             # Set up the camera
             self.base.camera.set_pos(player.getX(), player.get_y() + 40, 2)
@@ -350,37 +376,35 @@ class Actions:
             if (self.kbd.keymap[key]
                     and hasattr(base, "is_asset_close_to_use")):
 
-                if base.is_asset_close_to_use:
+                base.states['is_idle'] = False
 
-                    base.states['is_idle'] = False
+                if (base.states['is_using'] is False
+                        and crouched_to_standing.is_playing() is False
+                        and base.states['is_crouching'] is True):
+                    base.states['is_standing'] = False
+                    # TODO: Use blending for smooth transition between animations
+                    # Do an animation sequence if player is crouched.
+                    crouch_to_stand_seq = player.actor_interval(anims[self.crouched_to_standing_action],
+                                                                playRate=self.base.actor_play_rate)
+                    any_action_seq = player.actor_interval(anims[action],
+                                                           playRate=self.base.actor_play_rate)
+                    Sequence(crouch_to_stand_seq,
+                             Parallel(any_action_seq,
+                                      Func(self.state.set_action_state, "is_using", True),
+                                      Func(self.seq_use_item_wrapper, player, anims)),
+                             Func(self.state.set_action_state, "is_using", False)
+                             ).start()
 
-                    if (base.states['is_using'] is False
-                            and crouched_to_standing.is_playing() is False
-                            and base.states['is_crouching'] is True):
-                        base.states['is_standing'] = False
-                        # TODO: Use blending for smooth transition between animations
-                        # Do an animation sequence if player is crouched.
-                        crouch_to_stand_seq = player.actor_interval(anims[self.crouched_to_standing_action],
-                                                                    playRate=self.base.actor_play_rate)
-                        any_action_seq = player.actor_interval(anims[action],
-                                                               playRate=self.base.actor_play_rate)
-                        Sequence(crouch_to_stand_seq,
-                                 Parallel(any_action_seq,
-                                          Func(self.state.set_action_state, "is_using", True),
-                                          Func(self.seq_use_item_wrapper, player, anims)),
-                                 Func(self.state.set_action_state, "is_using", False)
-                                 ).start()
-
-                    elif (base.states['is_using'] is False
-                          and crouched_to_standing.is_playing() is False
-                          and base.states['is_crouching'] is False):
-                        any_action_seq = player.actor_interval(anims[action],
-                                                               playRate=self.base.actor_play_rate)
-                        Sequence(Parallel(any_action_seq,
-                                          Func(self.state.set_action_state, "is_using", True),
-                                          Func(self.seq_use_item_wrapper, player, anims)),
-                                 Func(self.state.set_action_state, "is_using", False)
-                                 ).start()
+                elif (base.states['is_using'] is False
+                      and crouched_to_standing.is_playing() is False
+                      and base.states['is_crouching'] is False):
+                    any_action_seq = player.actor_interval(anims[action],
+                                                           playRate=self.base.actor_play_rate)
+                    Sequence(Parallel(any_action_seq,
+                                      Func(self.state.set_action_state, "is_using", True),
+                                      Func(self.seq_use_item_wrapper, player, anims)),
+                             Func(self.state.set_action_state, "is_using", False)
+                             ).start()
 
     def player_hit_action(self, player, key, anims, action):
         if (player and isinstance(anims, dict)

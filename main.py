@@ -398,8 +398,12 @@ class Main(ShowBase):
             for n, x in enumerate(exclude, 0):
                 # We exclude any item from assets,
                 # we need to retrieve the distance
-                if t[n].get_name() == x:
-                    t.pop(n)
+
+                try:
+                    if t[n].get_name() == x:
+                        t.pop(n)
+                except IndexError:
+                    pass
 
             assets_children = base.asset_node_children_collector(
                 t, assoc_key=True)
