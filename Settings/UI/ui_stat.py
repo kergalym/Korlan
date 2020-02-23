@@ -155,7 +155,7 @@ class UIStat:
                     self.text_stat_p.show()
                 elif (base.game_mode is False
                       and base.menu_mode is True
-                      and set_mode == 'destroy'):
+                      and set_mode == 'hide'):
                     self.title_dbg_mode_obj_pos.hide()
                     self.title_item_name.hide()
                     self.title_item_coord.hide()
@@ -182,10 +182,10 @@ class UIStat:
                     self.title_item_state.show()
                     self.text_obj_stat_h.show()
                     self.text_obj_stat_p.show()
-                    
+
                 elif (base.game_mode is False
                         and base.menu_mode is True
-                        and set_mode == 'destroy'):
+                        and set_mode == 'hide'):
                     self.title_dbg_mode_obj_state.hide()
                     self.title_inuse_item_name.hide()
                     self.title_item_state.hide()
@@ -211,7 +211,7 @@ class UIStat:
                 dist_vec_fmt_p = self.stat_text_p(dist_vec)
                 stat_obj_fmt_h = self.stat_obj_text_h()
                 stat_obj_fmt_p = self.stat_obj_text_p()
-                self.set_stat_text(dist_vec_fmt_h, dist_vec_fmt_p, set_mode='destroy')
-                self.set_obj_stat_text(stat_obj_fmt_h, stat_obj_fmt_p, set_mode='destroy')
+                self.set_stat_text(dist_vec_fmt_h, dist_vec_fmt_p, set_mode='hide')
+                self.set_obj_stat_text(stat_obj_fmt_h, stat_obj_fmt_p, set_mode='hide')
                 return task.done
         return task.cont
