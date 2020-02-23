@@ -32,20 +32,18 @@ class Actions:
         self.col = Collisions()
 
     def check_distance_task(self, player, task):
-        if player:
+        if player and base.game_mode and base.menu_mode is False:
             items_dist_vect = base.distance_calculate(
                 self.item_cls.usable_item_pos_collector(player), player)
             items_dist_vect_y = [items_dist_vect[k][1] for k in items_dist_vect]
             items_dist_vect_y.sort()
-
             for name, y_pos in zip(items_dist_vect, items_dist_vect_y):
-                if y_pos <= 0.6:
-                    if base.is_item_in_use is False:
+                if y_pos <= 0.6 and base.is_item_in_use is False:
                         base.is_item_close_to_use = True
                         base.is_item_far_to_use = False
                         base.close_item_name = name
                         base.in_use_item_name = None
-                    elif base.is_item_in_use:
+                elif y_pos <= 0.6 and base.is_item_in_use:
                         base.close_item_name = name
                         base.is_item_close_to_use = False
                         base.is_item_far_to_use = False
@@ -58,7 +56,14 @@ class Actions:
                 elif y_pos > -0.6:
                     # base.is_item_close_to_use = False
                     base.is_item_far_to_use = False
-        print(base.game_mode, base.menu_mode)
+            if base.game_mode is False and base.menu_mode:
+                base.is_item_close_to_use = False
+                base.is_item_far_to_use = False
+                base.is_item_in_use = False
+                base.is_item_in_use_long = False
+                base.in_use_item_name = None
+                return task.done
+
         return task.cont
 
     """ Play animation after action """

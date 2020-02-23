@@ -141,19 +141,26 @@ class UIStat:
                 if (base.game_mode
                         and base.menu_mode is False
                         and set_mode == 'show'):
+
                     self.title_dbg_mode_obj_pos.setText("DEBUG MODE: Object Position")
                     self.title_item_name.setText("ITEM NAME")
                     self.title_item_coord.setText("ITEM COORDINATES")
                     self.text_stat_h.setText(records_h)
                     self.text_stat_p.setText(records_p)
+
+                    self.title_dbg_mode_obj_pos.show()
+                    self.title_item_name.show()
+                    self.title_item_coord.show()
+                    self.text_stat_h.show()
+                    self.text_stat_p.show()
                 elif (base.game_mode is False
                       and base.menu_mode is True
                       and set_mode == 'destroy'):
-                    self.title_dbg_mode_obj_pos.destroy()
-                    self.title_item_name.destroy()
-                    self.title_item_coord.destroy()
-                    self.text_stat_h.destroy()
-                    self.text_stat_p.destroy()
+                    self.title_dbg_mode_obj_pos.hide()
+                    self.title_item_name.hide()
+                    self.title_item_coord.hide()
+                    self.text_stat_h.hide()
+                    self.text_stat_p.hide()
 
     def set_obj_stat_text(self, records_h, records_p, set_mode):
         if (records_h and records_p
@@ -169,14 +176,21 @@ class UIStat:
                     self.title_item_state.setText("ITEM STATE")
                     self.text_obj_stat_h.setText(records_h)
                     self.text_obj_stat_p.setText(records_p)
+
+                    self.title_dbg_mode_obj_state.show()
+                    self.title_inuse_item_name.show()
+                    self.title_item_state.show()
+                    self.text_obj_stat_h.show()
+                    self.text_obj_stat_p.show()
+                    
                 elif (base.game_mode is False
                         and base.menu_mode is True
                         and set_mode == 'destroy'):
-                    self.title_dbg_mode_obj_state.destroy()
-                    self.title_inuse_item_name.destroy()
-                    self.title_item_state.destroy()
-                    self.text_obj_stat_h.destroy()
-                    self.text_obj_stat_p.destroy()
+                    self.title_dbg_mode_obj_state.hide()
+                    self.title_inuse_item_name.hide()
+                    self.title_item_state.hide()
+                    self.text_obj_stat_h.hide()
+                    self.text_obj_stat_p.hide()
 
     def show_game_stat_task(self, task):
         if hasattr(base, "player"):
