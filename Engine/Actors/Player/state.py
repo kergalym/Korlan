@@ -119,7 +119,8 @@ class PlayerState:
             for key in items_dist_vect:
                 if key and assets.get(key):
                     if key == assets[key].get_name():
-                        if items_dist_vect[key][1] < 0.6:
+                        if (items_dist_vect[key][1] > 0.0
+                                and items_dist_vect[key][1] < 0.7):
                             if base.is_item_in_use is False:
                                 base.is_item_close_to_use = True
                                 base.is_item_far_to_use = False

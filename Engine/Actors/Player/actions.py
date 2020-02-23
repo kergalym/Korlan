@@ -38,23 +38,16 @@ class Actions:
             items_dist_vect_y = [items_dist_vect[k][1] for k in items_dist_vect]
             items_dist_vect_y.sort()
             for name, y_pos in zip(items_dist_vect, items_dist_vect_y):
-                if y_pos <= 0.6 and base.is_item_in_use is False:
-                        base.is_item_close_to_use = True
-                        base.is_item_far_to_use = False
-                        base.close_item_name = name
-                        base.in_use_item_name = None
-                elif y_pos <= 0.6 and base.is_item_in_use:
-                        base.close_item_name = name
-                        base.is_item_close_to_use = False
-                        base.is_item_far_to_use = False
-                elif y_pos > 0.6:
-                    # base.is_item_close_to_use = False
+                if (y_pos > 0.0 and y_pos < 0.7
+                        and base.is_item_in_use is False):
+                    base.is_item_close_to_use = True
                     base.is_item_far_to_use = False
-                elif y_pos < -0.6:
-                    # base.is_item_close_to_use = False
-                    base.is_item_far_to_use = False
-                elif y_pos > -0.6:
-                    # base.is_item_close_to_use = False
+                    base.close_item_name = name
+                    base.in_use_item_name = None
+                elif (y_pos > 0.0 and y_pos < 0.7
+                      and base.is_item_in_use):
+                    base.close_item_name = name
+                    base.is_item_close_to_use = False
                     base.is_item_far_to_use = False
             if base.game_mode is False and base.menu_mode:
                 base.is_item_close_to_use = False
@@ -393,9 +386,9 @@ class Actions:
                                  ).start()
 
                 elif (hasattr(base, "is_item_close_to_use")
-                        and base.is_item_close_to_use is False
-                        and hasattr(base, "is_item_in_use")
-                        and base.is_item_in_use is True):
+                      and base.is_item_close_to_use is False
+                      and hasattr(base, "is_item_in_use")
+                      and base.is_item_in_use is True):
                     base.states['is_idle'] = False
 
                     if (base.states['is_using'] is False
