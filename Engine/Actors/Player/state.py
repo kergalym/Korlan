@@ -107,12 +107,12 @@ class PlayerState:
             else:
                 return False
 
-    def pick_up_item(self, player, joint, items_dist_vect, permitted_dist):
-        if (player and items_dist_vect
+    def pick_up_item(self, player, joint, items_dist_vect):
+        if (player
+                and items_dist_vect
                 and joint
                 and isinstance(joint, str)
-                and isinstance(items_dist_vect, dict)
-                and isinstance(permitted_dist, list)):
+                and isinstance(items_dist_vect, dict)):
             assets = base.asset_nodes_assoc_collector()
             item = None
 

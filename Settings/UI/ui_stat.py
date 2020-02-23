@@ -10,32 +10,31 @@ class UIStat:
         self.font = FontPool
         self.menu_font = '{0}/Settings/UI/JetBrainsMono-1.0.2/ttf/JetBrainsMono-Regular.ttf'.format(self.game_dir)
         if self.game_settings['Debug']['set_debug_mode'] == "YES":
+            self.title_dbg_mode_obj_pos = OnscreenText(text="",
+                                                       pos=(-1.8, 0.9),
+                                                       scale=0.03,
+                                                       fg=(255, 255, 255, 0.9),
+                                                       font=self.font.load_font(self.menu_font),
+                                                       align=TextNode.ALeft,
+                                                       mayChange=True)
 
-            OnscreenText(text="DEBUG MODE: Object Position",
-                         pos=(-1.8, 0.9),
-                         scale=0.03,
-                         fg=(255, 255, 255, 0.9),
-                         font=self.font.load_font(self.menu_font),
-                         align=TextNode.ALeft,
-                         mayChange=False)
+            self.title_item_name = OnscreenText(text="",
+                                                pos=(-1.8, 0.85),
+                                                scale=0.03,
+                                                fg=(255, 255, 255, 0.9),
+                                                font=self.font.load_font(self.menu_font),
+                                                align=TextNode.ALeft,
+                                                mayChange=True)
 
-            OnscreenText(text="ITEM NAME",
-                         pos=(-1.8, 0.85),
-                         scale=0.03,
-                         fg=(255, 255, 255, 0.9),
-                         font=self.font.load_font(self.menu_font),
-                         align=TextNode.ALeft,
-                         mayChange=False)
+            self.title_item_coord = OnscreenText(text="",
+                                                 pos=(-1.35, 0.85),
+                                                 scale=0.03,
+                                                 fg=(255, 255, 255, 0.9),
+                                                 font=self.font.load_font(self.menu_font),
+                                                 align=TextNode.ALeft,
+                                                 mayChange=True)
 
-            OnscreenText(text="ITEM COORDINATES",
-                         pos=(-1.35, 0.85),
-                         scale=0.03,
-                         fg=(255, 255, 255, 0.9),
-                         font=self.font.load_font(self.menu_font),
-                         align=TextNode.ALeft,
-                         mayChange=False)
-
-            self.text_stat_h = OnscreenText(text="_DEBUG_TEXT_",
+            self.text_stat_h = OnscreenText(text="",
                                             pos=(-1.8, 0.8),
                                             scale=0.03,
                                             fg=(255, 255, 255, 0.9),
@@ -43,7 +42,7 @@ class UIStat:
                                             align=TextNode.ALeft,
                                             mayChange=True)
 
-            self.text_stat_p = OnscreenText(text="_DEBUG_TEXT_",
+            self.text_stat_p = OnscreenText(text="",
                                             pos=(-1.4, 0.8),
                                             scale=0.03,
                                             fg=(255, 255, 255, 0.9),
@@ -51,29 +50,29 @@ class UIStat:
                                             align=TextNode.ALeft,
                                             mayChange=True)
 
-            OnscreenText(text="DEBUG MODE: Object State",
-                         pos=(-0.6, 0.9),
-                         scale=0.03,
-                         fg=(255, 255, 255, 0.9),
-                         font=self.font.load_font(self.menu_font),
-                         align=TextNode.ALeft,
-                         mayChange=False)
+            self.title_dbg_mode_obj_state = OnscreenText(text="",
+                                                         pos=(-0.6, 0.9),
+                                                         scale=0.03,
+                                                         fg=(255, 255, 255, 0.9),
+                                                         font=self.font.load_font(self.menu_font),
+                                                         align=TextNode.ALeft,
+                                                         mayChange=True)
 
-            OnscreenText(text="IN-USE ITEM NAME",
-                         pos=(-0.6, 0.85),
-                         scale=0.03,
-                         fg=(255, 255, 255, 0.9),
-                         font=self.font.load_font(self.menu_font),
-                         align=TextNode.ALeft,
-                         mayChange=False)
+            self.title_inuse_item_name = OnscreenText(text="",
+                                                      pos=(-0.6, 0.85),
+                                                      scale=0.03,
+                                                      fg=(255, 255, 255, 0.9),
+                                                      font=self.font.load_font(self.menu_font),
+                                                      align=TextNode.ALeft,
+                                                      mayChange=True)
 
-            OnscreenText(text="ITEM STATE",
-                         pos=(-0.2, 0.85),
-                         scale=0.03,
-                         fg=(255, 255, 255, 0.9),
-                         font=self.font.load_font(self.menu_font),
-                         align=TextNode.ALeft,
-                         mayChange=False)
+            self.title_item_state = OnscreenText(text="",
+                                                 pos=(-0.2, 0.85),
+                                                 scale=0.03,
+                                                 fg=(255, 255, 255, 0.9),
+                                                 font=self.font.load_font(self.menu_font),
+                                                 align=TextNode.ALeft,
+                                                 mayChange=True)
 
             self.text_obj_stat_h = OnscreenText(text="",
                                                 pos=(-0.6, 0.8),
@@ -128,34 +127,54 @@ class UIStat:
                 text_in_use = "IN-USE: {0}: \n".format(base.is_item_in_use)
                 text_in_use_long = "LONG IN-USE: {0}: \n".format(base.is_item_in_use_long)
                 text_near_item = "IS ITEM CLOSE?: {0}: \n".format(base.is_item_close_to_use)
-                text_far_item = "IS ITEM FAR?: {0}: \n".format(base.is_item_far_to_use)
                 records_designed += text_in_use
                 records_designed += text_in_use_long
                 records_designed += text_near_item
-                records_designed += text_far_item
                 return records_designed
 
-    def set_stat_text(self, records_h, records_p):
+    def set_stat_text(self, records_h, records_p, set_mode):
         if (records_h and records_p
                 and isinstance(records_h, str)
-                and isinstance(records_p, str)):
+                and isinstance(records_p, str)
+                and isinstance(set_mode, str)):
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
-                if base.game_mode and base.menu_mode is False:
+                if (base.game_mode
+                        and base.menu_mode is False
+                        and set_mode == 'show'):
+                    self.title_dbg_mode_obj_pos.setText("DEBUG MODE: Object Position")
+                    self.title_item_name.setText("ITEM NAME")
+                    self.title_item_coord.setText("ITEM COORDINATES")
                     self.text_stat_h.setText(records_h)
                     self.text_stat_p.setText(records_p)
-                elif base.game_mode is False and base.menu_mode is True:
+                elif (base.game_mode is False
+                      and base.menu_mode is True
+                      and set_mode == 'destroy'):
+                    self.title_dbg_mode_obj_pos.destroy()
+                    self.title_item_name.destroy()
+                    self.title_item_coord.destroy()
                     self.text_stat_h.destroy()
                     self.text_stat_p.destroy()
 
-    def set_obj_stat_text(self, records_h, records_p):
+    def set_obj_stat_text(self, records_h, records_p, set_mode):
         if (records_h and records_p
                 and isinstance(records_h, str)
-                and isinstance(records_p, str)):
+                and isinstance(records_p, str)
+                and isinstance(set_mode, str)):
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
-                if base.game_mode and base.menu_mode is False:
+                if (base.game_mode
+                        and base.menu_mode is False
+                        and set_mode == 'show'):
+                    self.title_dbg_mode_obj_state.setText("DEBUG MODE: Object State")
+                    self.title_inuse_item_name.setText("IN-USE ITEM NAME")
+                    self.title_item_state.setText("ITEM STATE")
                     self.text_obj_stat_h.setText(records_h)
                     self.text_obj_stat_p.setText(records_p)
-                elif base.game_mode is False and base.menu_mode is True:
+                elif (base.game_mode is False
+                        and base.menu_mode is True
+                        and set_mode == 'destroy'):
+                    self.title_dbg_mode_obj_state.destroy()
+                    self.title_inuse_item_name.destroy()
+                    self.title_item_state.destroy()
                     self.text_obj_stat_h.destroy()
                     self.text_obj_stat_p.destroy()
 
@@ -164,12 +183,21 @@ class UIStat:
             exclude = ['Sky', 'Mountains', 'Grass', 'Ground', 'NPC']
             dist_vec = base.distance_calculate(
                 base.assets_pos_collector_no_actor(base.player, exclude), base.player)
-            if dist_vec and base.game_mode:
+            if (dist_vec and base.game_mode is True
+                    and base.menu_mode is False):
                 dist_vec_fmt_h = self.stat_text_h(dist_vec)
                 dist_vec_fmt_p = self.stat_text_p(dist_vec)
                 stat_obj_fmt_h = self.stat_obj_text_h()
                 stat_obj_fmt_p = self.stat_obj_text_p()
-                self.set_stat_text(dist_vec_fmt_h, dist_vec_fmt_p)
-                self.set_obj_stat_text(stat_obj_fmt_h, stat_obj_fmt_p)
-
+                self.set_stat_text(dist_vec_fmt_h, dist_vec_fmt_p, set_mode='show')
+                self.set_obj_stat_text(stat_obj_fmt_h, stat_obj_fmt_p, set_mode='show')
+            if (dist_vec and base.game_mode is False
+                    and base.menu_mode is True):
+                dist_vec_fmt_h = self.stat_text_h(dist_vec)
+                dist_vec_fmt_p = self.stat_text_p(dist_vec)
+                stat_obj_fmt_h = self.stat_obj_text_h()
+                stat_obj_fmt_p = self.stat_obj_text_p()
+                self.set_stat_text(dist_vec_fmt_h, dist_vec_fmt_p, set_mode='destroy')
+                self.set_obj_stat_text(stat_obj_fmt_h, stat_obj_fmt_p, set_mode='destroy')
+                return task.done
         return task.cont

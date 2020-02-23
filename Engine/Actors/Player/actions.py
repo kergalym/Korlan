@@ -39,7 +39,7 @@ class Actions:
             items_dist_vect_y.sort()
 
             for name, y_pos in zip(items_dist_vect, items_dist_vect_y):
-                if y_pos < 0.6:
+                if y_pos <= 0.6:
                     if base.is_item_in_use is False:
                         base.is_item_close_to_use = True
                         base.is_item_far_to_use = False
@@ -50,12 +50,15 @@ class Actions:
                         base.is_item_close_to_use = False
                         base.is_item_far_to_use = False
                 elif y_pos > 0.6:
-                    if base.is_item_close_to_use is False:
-                        base.is_item_far_to_use = True
+                    # base.is_item_close_to_use = False
+                    base.is_item_far_to_use = False
                 elif y_pos < -0.6:
-                    if base.is_item_close_to_use is False:
-                        base.is_item_far_to_use = True
-
+                    # base.is_item_close_to_use = False
+                    base.is_item_far_to_use = False
+                elif y_pos > -0.6:
+                    # base.is_item_close_to_use = False
+                    base.is_item_far_to_use = False
+        print(base.game_mode, base.menu_mode)
         return task.cont
 
     """ Play animation after action """

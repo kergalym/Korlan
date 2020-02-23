@@ -42,7 +42,6 @@ class LevelOne:
                      "player_state",
                      "actor_life",
                      "mouse_look",
-                     "show_game_stat",
                      "check_distance"]
             for t in tasks:
                 taskMgr.remove(t)
@@ -92,7 +91,6 @@ class LevelOne:
                  "player_state",
                  "actor_life",
                  "mouse_look",
-                 "show_game_stat",
                  "check_distance"]
         for t in tasks:
             taskMgr.remove(t)
