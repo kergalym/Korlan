@@ -1,5 +1,3 @@
-from direct.task.TaskManagerGlobal import taskMgr
-
 from Engine.Collisions.collisions import Collisions
 
 
@@ -30,6 +28,12 @@ class PlayerState:
                                          'USABLE': 1,
                                          'DEFORMED': 2
                                          }
+        base.is_item_close_to_use = False
+        base.is_item_far_to_use = False
+        base.is_item_in_use = False
+        base.is_item_in_use_long = False
+        base.in_use_item_name = None
+
         self.render = render
         self.col = Collisions()
 
@@ -115,19 +119,24 @@ class PlayerState:
             for key in items_dist_vect:
                 if key and assets.get(key):
                     if key == assets[key].get_name():
-                        if not items_dist_vect[key][1] > permitted_dist[6]:
-                            base.is_item_close_to_use = True
-                            item = assets[key]
+                        if items_dist_vect[key][1] < 0.6:
+                            if base.is_item_in_use is False:
+                                base.is_item_close_to_use = True
+                                base.is_item_far_to_use = False
+                                item = assets[key]
+                            elif base.is_item_in_use:
+                                base.is_item_close_to_use = False
+                                base.is_item_far_to_use = True
                         else:
                             base.is_item_close_to_use = False
-                            # We'll use it later from here
-                            item = assets[key]
+                            base.is_item_far_to_use = True
+                    # We'll use it later from here
 
             exposed_joint = player.expose_joint(None, "modelRoot", joint)
 
             if (base.is_item_close_to_use
-                    and hasattr(base, "is_item_in_use_long") is False):
-                item_scale = item.get_scale()
+                    and base.is_item_in_use is False
+                    and base.is_item_in_use_long is False):
 
                 if exposed_joint.find(item.get_name()).is_empty():
                     # Disable collide mask before attaching
@@ -135,10 +144,7 @@ class PlayerState:
                     # between character and item.
                     item.set_collide_mask(self.col.no_mask)
                     item.reparent_to(exposed_joint)
-
-                    # Set item state
-                    base.is_item_in_use = True
-                    base.is_item_in_use_long = True
+                    base.in_use_item_name = item.get_name()
 
                     item_np = exposed_joint.find(item.get_name())
                     # After reparenting to joint the item inherits joint coordinates,
@@ -151,39 +157,17 @@ class PlayerState:
                         item_np.set_h(205.0)
                         item_np.set_y(-20.4)
                         item_np.set_x(15.4)
-            elif (base.is_item_close_to_use
-                  and hasattr(base, "is_item_in_use_long")
-                  and base.is_item_in_use_long is False):
-                item_scale = item.get_scale()
 
-                if exposed_joint.find(item.get_name()).is_empty():
-                    # Disable collide mask before attaching
-                    # because we don't want colliding
-                    # between character and item.
-                    item.set_collide_mask(self.col.no_mask)
-                    item.reparent_to(exposed_joint)
+                        # Set item state
+                        base.is_item_in_use = True
+                        base.is_item_in_use_long = True
+                        base.is_item_close_to_use = False
+                        base.is_item_far_to_use = False
 
-                    # Set item state
-                    base.is_item_in_use = True
-                    base.is_item_in_use_long = True
-
-                    item_np = exposed_joint.find(item.get_name())
-                    # After reparenting to joint the item inherits joint coordinates,
-                    # so we find it in given joint and then do rotate and rescale the item
-                    # by multiplying.
-                    if item_np.is_empty() is False:
-                        # scale = item_np.get_scale()[0] * item_scale[0]
-                        scale = 60.0
-                        item_np.set_scale(scale)
-                        item_np.set_h(205.0)
-                        item_np.set_y(-20.4)
-                        item_np.set_x(15.4)
-            elif (hasattr(base, "is_item_in_use_long") is True
+            elif (base.is_item_close_to_use is False
+                  and base.is_item_in_use is True
                   and base.is_item_in_use_long is True):
-                item_np = self.render.find("**/{0}".format(item.get_name()))
-
-                # Remove previous node
-                item.remove_node()
+                item_np = self.render.find("**/{0}".format(base.in_use_item_name))
 
                 item_np.detach_node()
                 item_np.reparent_to(self.render)
@@ -195,6 +179,8 @@ class PlayerState:
                 # Set item state
                 base.is_item_in_use = False
                 base.is_item_in_use_long = False
+                base.is_item_close_to_use = False
+                base.is_item_far_to_use = False
 
     def pass_item(self, player, joint, item):
         if (player

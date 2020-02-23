@@ -31,6 +31,33 @@ class Actions:
         self.state = PlayerState()
         self.col = Collisions()
 
+    def check_distance_task(self, player, task):
+        if player:
+            items_dist_vect = base.distance_calculate(
+                self.item_cls.usable_item_pos_collector(player), player)
+            items_dist_vect_y = [items_dist_vect[k][1] for k in items_dist_vect]
+            items_dist_vect_y.sort()
+
+            for name, y_pos in zip(items_dist_vect, items_dist_vect_y):
+                if y_pos < 0.6:
+                    if base.is_item_in_use is False:
+                        base.is_item_close_to_use = True
+                        base.is_item_far_to_use = False
+                        base.close_item_name = name
+                        base.in_use_item_name = None
+                    elif base.is_item_in_use:
+                        base.close_item_name = name
+                        base.is_item_close_to_use = False
+                        base.is_item_far_to_use = False
+                elif y_pos > 0.6:
+                    if base.is_item_close_to_use is False:
+                        base.is_item_far_to_use = True
+                elif y_pos < -0.6:
+                    if base.is_item_close_to_use is False:
+                        base.is_item_far_to_use = True
+
+        return task.cont
+
     """ Play animation after action """
 
     def seq_move_wrapper(self, player, anims, state):
@@ -61,25 +88,6 @@ class Actions:
                 self.item_cls.item_selector(actor=player,
                                             joint="Korlan:RightHand")
                 return task.done
-        return task.cont
-
-    def check_distance_task(self, player, task):
-        if player:
-            items_dist_vect = base.distance_calculate(
-                self.item_cls.usable_item_pos_collector(player), player)
-            sorted_dict = {}
-            for key in items_dist_vect:
-                for index in range(len(self.item_cls.permitted_dist)):
-                    if items_dist_vect[key][1] == self.item_cls.permitted_dist[index]:
-                        sorted_dict[key] = items_dist_vect[key]
-
-            for key in sorted_dict:
-                if key:
-                    base.is_item_close_to_use = True
-                    base.close_item_name = key
-                else:
-                    base.is_item_close_to_use = False
-                    base.close_item_name = None
         return task.cont
 
     def seq_use_item_wrapper(self, player, anims):
@@ -341,38 +349,74 @@ class Actions:
 
             crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
 
-            if (self.kbd.keymap[key]
-                    and hasattr(base, "is_item_close_to_use")):
+            if self.kbd.keymap[key]:
+                if (hasattr(base, "is_item_close_to_use")
+                        and base.is_item_close_to_use is True
+                        and hasattr(base, "is_item_in_use")
+                        and base.is_item_in_use is False):
+                    base.states['is_idle'] = False
 
-                base.states['is_idle'] = False
+                    if (base.states['is_using'] is False
+                            and crouched_to_standing.is_playing() is False
+                            and base.states['is_crouching'] is True):
+                        base.states['is_standing'] = False
+                        # TODO: Use blending for smooth transition between animations
+                        # Do an animation sequence if player is crouched.
+                        crouch_to_stand_seq = player.actor_interval(anims[self.crouched_to_standing_action],
+                                                                    playRate=self.base.actor_play_rate)
+                        any_action_seq = player.actor_interval(anims[action],
+                                                               playRate=self.base.actor_play_rate)
+                        Sequence(crouch_to_stand_seq,
+                                 Parallel(any_action_seq,
+                                          Func(self.state.set_action_state, "is_using", True),
+                                          Func(self.seq_use_item_wrapper, player, anims)),
+                                 Func(self.state.set_action_state, "is_using", False)
+                                 ).start()
 
-                if (base.states['is_using'] is False
-                        and crouched_to_standing.is_playing() is False
-                        and base.states['is_crouching'] is True):
-                    base.states['is_standing'] = False
-                    # TODO: Use blending for smooth transition between animations
-                    # Do an animation sequence if player is crouched.
-                    crouch_to_stand_seq = player.actor_interval(anims[self.crouched_to_standing_action],
-                                                                playRate=self.base.actor_play_rate)
-                    any_action_seq = player.actor_interval(anims[action],
-                                                           playRate=self.base.actor_play_rate)
-                    Sequence(crouch_to_stand_seq,
-                             Parallel(any_action_seq,
-                                      Func(self.state.set_action_state, "is_using", True),
-                                      Func(self.seq_use_item_wrapper, player, anims)),
-                             Func(self.state.set_action_state, "is_using", False)
-                             ).start()
+                    elif (base.states['is_using'] is False
+                          and crouched_to_standing.is_playing() is False
+                          and base.states['is_crouching'] is False):
+                        any_action_seq = player.actor_interval(anims[action],
+                                                               playRate=self.base.actor_play_rate)
+                        Sequence(Parallel(any_action_seq,
+                                          Func(self.state.set_action_state, "is_using", True),
+                                          Func(self.seq_use_item_wrapper, player, anims)),
+                                 Func(self.state.set_action_state, "is_using", False)
+                                 ).start()
 
-                elif (base.states['is_using'] is False
-                      and crouched_to_standing.is_playing() is False
-                      and base.states['is_crouching'] is False):
-                    any_action_seq = player.actor_interval(anims[action],
-                                                           playRate=self.base.actor_play_rate)
-                    Sequence(Parallel(any_action_seq,
-                                      Func(self.state.set_action_state, "is_using", True),
-                                      Func(self.seq_use_item_wrapper, player, anims)),
-                             Func(self.state.set_action_state, "is_using", False)
-                             ).start()
+                elif (hasattr(base, "is_item_close_to_use")
+                        and base.is_item_close_to_use is False
+                        and hasattr(base, "is_item_in_use")
+                        and base.is_item_in_use is True):
+                    base.states['is_idle'] = False
+
+                    if (base.states['is_using'] is False
+                            and crouched_to_standing.is_playing() is False
+                            and base.states['is_crouching'] is True):
+                        base.states['is_standing'] = False
+                        # TODO: Use blending for smooth transition between animations
+                        # Do an animation sequence if player is crouched.
+                        crouch_to_stand_seq = player.actor_interval(anims[self.crouched_to_standing_action],
+                                                                    playRate=self.base.actor_play_rate)
+                        any_action_seq = player.actor_interval(anims[action],
+                                                               playRate=self.base.actor_play_rate)
+                        Sequence(crouch_to_stand_seq,
+                                 Parallel(any_action_seq,
+                                          Func(self.state.set_action_state, "is_using", True),
+                                          Func(self.seq_use_item_wrapper, player, anims)),
+                                 Func(self.state.set_action_state, "is_using", False)
+                                 ).start()
+
+                    elif (base.states['is_using'] is False
+                          and crouched_to_standing.is_playing() is False
+                          and base.states['is_crouching'] is False):
+                        any_action_seq = player.actor_interval(anims[action],
+                                                               playRate=self.base.actor_play_rate)
+                        Sequence(Parallel(any_action_seq,
+                                          Func(self.state.set_action_state, "is_using", True),
+                                          Func(self.seq_use_item_wrapper, player, anims)),
+                                 Func(self.state.set_action_state, "is_using", False)
+                                 ).start()
 
     def player_hit_action(self, player, key, anims, action):
         if (player and isinstance(anims, dict)

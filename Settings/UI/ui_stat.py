@@ -19,7 +19,7 @@ class UIStat:
                          align=TextNode.ALeft,
                          mayChange=False)
 
-            OnscreenText(text="Item Name",
+            OnscreenText(text="ITEM NAME",
                          pos=(-1.8, 0.85),
                          scale=0.03,
                          fg=(255, 255, 255, 0.9),
@@ -27,7 +27,7 @@ class UIStat:
                          align=TextNode.ALeft,
                          mayChange=False)
 
-            OnscreenText(text="Item Coordinates",
+            OnscreenText(text="ITEM COORDINATES",
                          pos=(-1.35, 0.85),
                          scale=0.03,
                          fg=(255, 255, 255, 0.9),
@@ -59,7 +59,7 @@ class UIStat:
                          align=TextNode.ALeft,
                          mayChange=False)
 
-            OnscreenText(text="Item Name",
+            OnscreenText(text="IN-USE ITEM NAME",
                          pos=(-0.6, 0.85),
                          scale=0.03,
                          fg=(255, 255, 255, 0.9),
@@ -67,7 +67,7 @@ class UIStat:
                          align=TextNode.ALeft,
                          mayChange=False)
 
-            OnscreenText(text="Item State",
+            OnscreenText(text="ITEM STATE",
                          pos=(-0.2, 0.85),
                          scale=0.03,
                          fg=(255, 255, 255, 0.9),
@@ -112,26 +112,28 @@ class UIStat:
             return records_designed
 
     def stat_obj_text_h(self):
-        if hasattr(base, "close_item_name"):
-            records_designed = ''
-            if base.close_item_name:
-                text_h = "{0}: \n".format(base.close_item_name)
-                records_designed += text_h
+        records_designed = ''
+        if hasattr(base, "in_use_item_name"):
+            text_h = "{0}: \n".format(base.in_use_item_name)
+            records_designed += text_h
             return records_designed
 
     def stat_obj_text_p(self):
         if (hasattr(base, "is_item_close_to_use")
+                and hasattr(base, "is_item_far_to_use")
                 and hasattr(base, "is_item_in_use")
                 and hasattr(base, "is_item_in_use_long")):
             records_designed = ''
-            if base.close_item_name:
+            if hasattr(base, "close_item_name"):
                 text_in_use = "IN-USE: {0}: \n".format(base.is_item_in_use)
                 text_in_use_long = "LONG IN-USE: {0}: \n".format(base.is_item_in_use_long)
-                text_near_item = "IS ITEM NEAR?: {0}: \n".format(base.is_item_close_to_use)
+                text_near_item = "IS ITEM CLOSE?: {0}: \n".format(base.is_item_close_to_use)
+                text_far_item = "IS ITEM FAR?: {0}: \n".format(base.is_item_far_to_use)
                 records_designed += text_in_use
                 records_designed += text_in_use_long
                 records_designed += text_near_item
-            return records_designed
+                records_designed += text_far_item
+                return records_designed
 
     def set_stat_text(self, records_h, records_p):
         if (records_h and records_p
