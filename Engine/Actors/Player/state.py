@@ -7,6 +7,7 @@ class PlayerState:
         base.states = {
             "is_idle": True,
             "is_moving": False,
+            "is_running": False,
             "is_crouch_moving": False,
             "is_crouching": False,
             "is_standing": False,

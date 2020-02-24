@@ -3,6 +3,7 @@
   "backward": "S",
   "left": "A",
   "right": "D",
+  "run": "shift",
   "crouch": "C",
   "jump": "Space",
   "use": "E",

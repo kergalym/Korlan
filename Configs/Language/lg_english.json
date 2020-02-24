@@ -23,6 +23,7 @@
   "backward": "Backward",
   "left": "Left",
   "right": "Right",
+  "run": "Run",
   "crouch": "Crouch",
   "jump": "Jump",
   "use": "Use",

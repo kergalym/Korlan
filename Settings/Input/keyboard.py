@@ -14,6 +14,7 @@ class Keyboard:
         self.k_backward_lo = self.game_settings['Keymap']['backward'].lower()
         self.k_left_lo = self.game_settings['Keymap']['left'].lower()
         self.k_right_lo = self.game_settings['Keymap']['right'].lower()
+        self.k_run_lo = self.game_settings['Keymap']['run'].lower()
         self.k_crouch_lo = self.game_settings['Keymap']['crouch'].lower()
         self.k_jump_lo = self.game_settings['Keymap']['jump'].lower()
         self.k_use_lo = self.game_settings['Keymap']['use'].lower()
@@ -31,6 +32,7 @@ class Keyboard:
             'backward': 0,
             'left': 0,
             'right': 0,
+            'run': 0,
             'crouch': 0,
             'jump': 0,
             'use': 0,
@@ -54,6 +56,7 @@ class Keyboard:
         self.base.accept(self.k_backward_lo, self.set_key, ['backward', True])
         self.base.accept(self.k_left_lo, self.set_key, ['left', True])
         self.base.accept(self.k_right_lo, self.set_key, ['right', True])
+        self.base.accept(self.k_run_lo, self.set_key, ['run', True])
         self.base.accept(self.k_crouch_lo, self.set_key, ['crouch', True])
         self.base.accept(self.k_jump_lo, self.set_key, ['jump', True])
         self.base.accept(self.k_use_lo, self.set_key, ['use', True])
@@ -72,6 +75,7 @@ class Keyboard:
         self.base.accept("{0}-up".format(self.k_backward_lo), self.set_key, ['backward', False])
         self.base.accept("{0}-up".format(self.k_left_lo), self.set_key, ['left', False])
         self.base.accept("{0}-up".format(self.k_right_lo), self.set_key, ['right', False])
+        self.base.accept("{0}-up".format(self.k_run_lo), self.set_key, ['run', False])
         self.base.accept("{0}-up".format(self.k_crouch_lo), self.set_key, ['crouch', False])
         self.base.accept("{0}-up".format(self.k_jump_lo), self.set_key, ['jump', False])
         self.base.accept("{0}-up".format(self.k_use_lo), self.set_key, ['use', False])

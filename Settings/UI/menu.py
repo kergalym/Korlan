@@ -134,6 +134,7 @@ class Menu:
         self.lbl_backward = None
         self.lbl_left = None
         self.lbl_right = None
+        self.lbl_run = None
         self.lbl_crouch = None
         self.lbl_jump = None
         self.lbl_use = None
@@ -150,6 +151,7 @@ class Menu:
         self.inp_backward = None
         self.inp_left = None
         self.inp_right = None
+        self.inp_run = None
         self.inp_crouch = None
         self.inp_jump = None
         self.inp_use = None
@@ -703,6 +705,13 @@ class Menu:
                                      scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                      parent=self.base.frame_int_keymap)
 
+        self.lbl_run = DirectLabel(text=self.language['run'], text_bg=(0, 0, 0, 1),
+                                   text_fg=(255, 255, 255, 0.9),
+                                   text_font=self.font.load_font(self.menu_font),
+                                   frameColor=(255, 255, 255, self.frm_opacity),
+                                   scale=self.lbl_scale, borderWidth=(self.w, self.h),
+                                   parent=self.base.frame_int_keymap)
+
         self.lbl_crouch = DirectLabel(text=self.language['crouch'], text_bg=(0, 0, 0, 1),
                                       text_fg=(255, 255, 255, 0.9),
                                       text_font=self.font.load_font(self.menu_font),
@@ -808,6 +817,13 @@ class Menu:
                                      scale=.03, width=7, borderWidth=(self.w, self.h),
                                      parent=self.base.frame_int_keymap,
                                      command=self.kmp.set_key_right)
+
+        self.inp_run = DirectEntry(initialText=kmp['Keymap']['run'], text_bg=(0, 0, 0, 1),
+                                   entryFont=self.font.load_font(self.menu_font),
+                                   text_align=TextNode.A_center,
+                                   scale=.03, width=7, borderWidth=(self.w, self.h),
+                                   parent=self.base.frame_int_keymap,
+                                   command=self.kmp.set_key_right)
 
         self.inp_crouch = DirectEntry(initialText=kmp['Keymap']['crouch'], text_bg=(0, 0, 0, 1),
                                       entryFont=self.font.load_font(self.menu_font),
@@ -925,9 +941,10 @@ class Menu:
         self.lbl_backward.set_pos(-1.6, 0, -0.1)
         self.lbl_left.set_pos(-1.6, 0, -0.2)
         self.lbl_right.set_pos(-1.6, 0, -0.3)
-        self.lbl_crouch.set_pos(-1.6, 0, -0.4)
-        self.lbl_jump.set_pos(-1.6, 0, -0.5)
-        self.lbl_use.set_pos(-1.6, 0, -0.6)
+        self.lbl_run.set_pos(-1.6, 0, -0.4)
+        self.lbl_crouch.set_pos(-1.6, 0, -0.5)
+        self.lbl_jump.set_pos(-1.6, 0, -0.6)
+        self.lbl_use.set_pos(-1.6, 0, -0.7)
 
         """ Second block is here """
         self.lbl_attack.set_pos(-0.8, 0, -0.0)
@@ -943,9 +960,10 @@ class Menu:
         self.inp_backward.set_pos(-1.3, 0, -0.1)
         self.inp_left.set_pos(-1.3, 0, -0.2)
         self.inp_right.set_pos(-1.3, 0, -0.3)
-        self.inp_crouch.set_pos(-1.3, 0, -0.4)
-        self.inp_jump.set_pos(-1.3, 0, -0.5)
-        self.inp_use.set_pos(-1.3, 0, -0.6)
+        self.inp_run.set_pos(-1.3, 0, -0.4)
+        self.inp_crouch.set_pos(-1.3, 0, -0.5)
+        self.inp_jump.set_pos(-1.3, 0, -0.6)
+        self.inp_use.set_pos(-1.3, 0, -0.7)
 
         """ Third block is here """
         self.inp_attack.set_pos(-0.5, 0, -0.0)
