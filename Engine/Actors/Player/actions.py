@@ -310,11 +310,6 @@ class Actions:
             # If a move-key is pressed, move the player in the specified direction.
             speed = 15
 
-            if self.kbd.keymap["left"]:
-                player.setH(player.getH() + 300 * dt)
-            elif self.kbd.keymap["right"]:
-                player.setH(player.getH() - 300 * dt)
-
             """ if (self.kbd.keymap["forward"]
                     and self.kbd.keymap["run"]
                     and base.states['is_moving'] is False
@@ -324,6 +319,16 @@ class Actions:
 
             if (self.kbd.keymap["forward"]
                     and self.kbd.keymap["run"]):
+                player.setY(player, -speed * dt)
+            elif (self.kbd.keymap["forward"]
+                    and self.kbd.keymap["run"]
+                    and self.kbd.keymap["left"]):
+                player.setH(player.getH() + 300 * dt)
+                player.setY(player, -speed * dt)
+            elif (self.kbd.keymap["forward"]
+                    and self.kbd.keymap["run"]
+                    and self.kbd.keymap["right"]):
+                player.setH(player.getH() - 300 * dt)
                 player.setY(player, -speed * dt)
 
             # If the player does action, loop the animation.
