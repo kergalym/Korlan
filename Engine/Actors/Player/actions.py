@@ -231,9 +231,9 @@ class Actions:
             speed = 5
 
             if self.kbd.keymap["left"]:
-                player.setH(player.getH() + 300 * dt)
+                player.setH(player.getH() + 200 * dt)
             elif self.kbd.keymap["right"]:
-                player.setH(player.getH() - 300 * dt)
+                player.setH(player.getH() - 200 * dt)
 
             if (self.kbd.keymap["forward"]
                     and self.kbd.keymap["run"] == 0
@@ -321,9 +321,9 @@ class Actions:
                     and self.kbd.keymap["run"]):
                 player.setY(player, -speed * dt)
                 if self.kbd.keymap["left"]:
-                    player.setH(player.getH() + 300 * dt)
+                    player.setH(player.getH() + 200 * dt)
                 if self.kbd.keymap["right"]:
-                    player.setH(player.getH() - 300 * dt)
+                    player.setH(player.getH() - 200 * dt)
 
             # If the player does action, loop the animation.
             # If it is standing still, stop the animation.
