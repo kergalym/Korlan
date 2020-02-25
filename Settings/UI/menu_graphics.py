@@ -187,7 +187,7 @@ class MenuGraphics:
 
         self.slider_disp_res = DirectSlider(frameColor=self.rgba_gray_color,
                                             range=(1, self.gfx.load_disp_res_value()),
-                                            value=self.gfx.disp_res_value(),
+                                            value=self.gfx.get_disp_res_value(),
                                             scale=.2, borderWidth=(self.w, self.h),
                                             parent=self.base.frame_int_gfx,
                                             orientation=DGG.HORIZONTAL,
@@ -201,21 +201,21 @@ class MenuGraphics:
                                            command=self.set_slider_details_wrapper)
 
         self.slider_shadows = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
-                                           value=self.gfx.shadows_value(),
+                                           value=self.gfx.get_shadows_value(),
                                            scale=.2, borderWidth=(self.w, self.h),
                                            parent=self.base.frame_int_gfx,
                                            orientation=DGG.HORIZONTAL,
                                            command=self.set_slider_shadows_wrapper)
 
         self.slider_postpro = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
-                                           value=self.gfx.postpro_value(),
+                                           value=self.gfx.get_postpro_value(),
                                            scale=.2, borderWidth=(self.w, self.h),
                                            parent=self.base.frame_int_gfx,
                                            orientation=DGG.HORIZONTAL,
                                            command=self.set_slider_postpro_wrapper)
 
         self.slider_antial = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
-                                          value=self.gfx.antial_value(),
+                                          value=self.gfx.get_antial_value(),
                                           scale=.2, borderWidth=(self.w, self.h),
                                           parent=self.base.frame_int_gfx,
                                           orientation=DGG.HORIZONTAL,

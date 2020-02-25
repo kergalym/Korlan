@@ -106,7 +106,17 @@ class UIStat:
                                                           align=TextNode.ALeft,
                                                           mayChange=True)
 
-    def stat_text_h(self, records):
+    def gen_stat_text_h(self, records):
+        """ Function    : gen_stat_text_h
+
+            Description : Generate stat text
+
+            Input       : None
+
+            Output      : None
+
+            Return      : String
+        """
         if records and isinstance(records, dict):
             records_designed = ''
             for state in records:
@@ -114,7 +124,17 @@ class UIStat:
                 records_designed += text_h
             return records_designed
 
-    def stat_text_p(self, records):
+    def gen_stat_text_p(self, records):
+        """ Function    : gen_stat_text_p
+
+            Description : Generate stat text
+
+            Input       : None
+
+            Output      : None
+
+            Return      : String
+        """
         if records and isinstance(records, dict):
             records_designed = ''
             for state in records:
@@ -126,14 +146,34 @@ class UIStat:
                 records_designed += text_z
             return records_designed
 
-    def stat_obj_text_h(self):
+    def gen_stat_obj_text_h(self):
+        """ Function    : gen_stat_obj_text_h
+
+            Description : Generate stat text
+
+            Input       : None
+
+            Output      : None
+
+            Return      : String
+        """
         records_designed = ''
         if hasattr(base, "in_use_item_name"):
             text_h = "{0}: \n".format(base.in_use_item_name)
             records_designed += text_h
             return records_designed
 
-    def stat_obj_text_p(self):
+    def gen_stat_obj_text_p(self):
+        """ Function    : gen_stat_obj_text_p
+
+            Description : Generate stat text
+
+            Input       : None
+
+            Output      : None
+
+            Return      : String
+        """
         if (hasattr(base, "is_item_close_to_use")
                 and hasattr(base, "is_item_far_to_use")
                 and hasattr(base, "is_item_in_use")
@@ -148,7 +188,17 @@ class UIStat:
                 records_designed += text_near_item
                 return records_designed
 
-    def stat_player_action_text_p(self):
+    def gen_stat_player_action_text_p(self):
+        """ Function    : gen_stat_player_action_text_p
+
+            Description : Generate stat text
+
+            Input       : None
+
+            Output      : None
+
+            Return      : String
+        """
         if hasattr(base, "states"):
             records_designed = ''
             for key in base.states:
@@ -156,6 +206,16 @@ class UIStat:
             return records_designed
 
     def set_stat_text(self, records_h, records_p, set_mode):
+        """ Function    : set_stat_text
+
+            Description : Set stat text
+
+            Input       : String
+
+            Output      : None
+
+            Return      : None
+        """
         if (records_h and records_p
                 and isinstance(records_h, str)
                 and isinstance(records_p, str)
@@ -186,6 +246,16 @@ class UIStat:
                     self.text_stat_p.hide()
 
     def set_obj_stat_text(self, records_h, records_p, set_mode):
+        """ Function    : set_obj_stat_text
+
+            Description : Set stat text
+
+            Input       : String
+
+            Output      : None
+
+            Return      : None
+        """
         if (records_h and records_p
                 and isinstance(records_h, str)
                 and isinstance(records_p, str)
@@ -216,6 +286,16 @@ class UIStat:
                     self.text_obj_stat_p.hide()
 
     def set_player_action_stat_text(self, records_p, set_mode):
+        """ Function    : set_player_action_stat_text
+
+            Description : Generate stat text
+
+            Input       : String
+
+            Output      : None
+
+            Return      : None
+        """
         if (records_p
                 and isinstance(records_p, str)
                 and isinstance(set_mode, str)):
@@ -236,27 +316,37 @@ class UIStat:
                     self.text_player_action_stat_p.hide()
 
     def show_game_stat_task(self, task):
+        """ Function    : show_game_stat_task
+
+            Description : Show the game stat every frame
+
+            Input       : Task
+
+            Output      : None
+
+            Return      : Task event
+        """
         if hasattr(base, "player"):
             exclude = ['Sky', 'Mountains', 'Grass', 'Ground', 'NPC']
             dist_vec = base.distance_calculate(
                 base.assets_pos_collector_no_actor(base.player, exclude), base.player)
             if (dist_vec and base.game_mode is True
                     and base.menu_mode is False):
-                dist_vec_fmt_h = self.stat_text_h(dist_vec)
-                dist_vec_fmt_p = self.stat_text_p(dist_vec)
-                stat_obj_fmt_h = self.stat_obj_text_h()
-                stat_obj_fmt_p = self.stat_obj_text_p()
-                stat_player_action_fmt_p = self.stat_player_action_text_p()
+                dist_vec_fmt_h = self.gen_stat_text_h(dist_vec)
+                dist_vec_fmt_p = self.gen_stat_text_p(dist_vec)
+                stat_obj_fmt_h = self.gen_stat_obj_text_h()
+                stat_obj_fmt_p = self.gen_stat_obj_text_p()
+                stat_player_action_fmt_p = self.gen_stat_player_action_text_p()
                 self.set_stat_text(dist_vec_fmt_h, dist_vec_fmt_p, set_mode='show')
                 self.set_obj_stat_text(stat_obj_fmt_h, stat_obj_fmt_p, set_mode='show')
                 self.set_player_action_stat_text(stat_player_action_fmt_p, set_mode='show')
             if (dist_vec and base.game_mode is False
                     and base.menu_mode is True):
-                dist_vec_fmt_h = self.stat_text_h(dist_vec)
-                dist_vec_fmt_p = self.stat_text_p(dist_vec)
-                stat_obj_fmt_h = self.stat_obj_text_h()
-                stat_obj_fmt_p = self.stat_obj_text_p()
-                stat_player_action_fmt_p = self.stat_player_action_text_p()
+                dist_vec_fmt_h = self.gen_stat_text_h(dist_vec)
+                dist_vec_fmt_p = self.gen_stat_text_p(dist_vec)
+                stat_obj_fmt_h = self.gen_stat_obj_text_h()
+                stat_obj_fmt_p = self.gen_stat_obj_text_p()
+                stat_player_action_fmt_p = self.gen_stat_player_action_text_p()
                 self.set_stat_text(dist_vec_fmt_h, dist_vec_fmt_p, set_mode='hide')
                 self.set_obj_stat_text(stat_obj_fmt_h, stat_obj_fmt_p, set_mode='hide')
                 self.set_player_action_stat_text(stat_player_action_fmt_p, set_mode='hide')

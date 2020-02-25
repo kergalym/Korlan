@@ -13,8 +13,8 @@ from panda3d.core import LODNode
 
 class MenuSettings:
     def __init__(self):
-        self.cfg_path_default = "{}/Korlan/Configs/default_config.ini".format(str(Path.home()))
-        self.cfg_path = "{}/Korlan - Daughter of the Steppes/settings.ini".format(str(Path.home()))
+        self.cfg_path_default = "{0}/Korlan/Configs/default_config.ini".format(str(Path.home()))
+        self.cfg_path = "{0}/Korlan - Daughter of the Steppes/settings.ini".format(str(Path.home()))
         self.node = None
         self.lod = None
         self.game_settings = None
@@ -28,10 +28,19 @@ class MenuSettings:
                              ]
 
     def input_validate(self, cfg_path, op_type):
+        """ Function    : input_validate
+
+            Description : Validate input.
+
+            Input       : String
+
+            Output      : None
+
+            Return      : Dictionary
+        """
         if cfg_path and isinstance(op_type, str):
             self.cfg_parser.read(cfg_path)
             data = self.cfg_parser
-
             if op_type is 'lng':
                 try:
                     if data['Main']['language'] == 'russian':
@@ -41,62 +50,64 @@ class MenuSettings:
                     elif data['Main']['language'] == 'english':
                         return data['Main']['language']
                 except KeyError or ValueError:
-                    sys_exit("\nConfiguration file '{}' is damaged. "
+                    sys_exit("\nConfiguration file '{0}' is damaged. "
                              "Please delete it and re-run the game again.\n".format(self.cfg_path))
-
             elif op_type is 'gfx':
-
                 gfx_dict = {}
                 gfx_dict_keys = {}
                 for x in data['Main']:
                     try:
                         gfx_dict_keys[x] = data['Main'][x]
                     except KeyError or ValueError:
-                        sys_exit("\nConfiguration file '{}' is damaged. "
+                        sys_exit("\nConfiguration file '{0}' is damaged. "
                                  "Please delete it and re-run the game again.\n".format(self.cfg_path))
                 gfx_dict['Keymap'] = gfx_dict_keys
                 return gfx_dict
-
             elif op_type is 'snd':
-
                 snd_dict = {}
                 snd_dict_keys = {}
                 for x in data['Main']:
                     try:
                         snd_dict_keys[x] = data['Main'][x]
                     except KeyError or ValueError:
-                        sys_exit("\nConfiguration file '{}' is damaged. "
+                        sys_exit("\nConfiguration file '{0}' is damaged. "
                                  "Please delete it and re-run the game again.\n".format(self.cfg_path))
                 snd_dict['Main'] = snd_dict_keys
                 return snd_dict
-
             elif op_type is 'kmp':
-
                 kmp_dict = {}
                 kmp_dict_keys = {}
                 for x in data['Keymap']:
                     try:
                         kmp_dict_keys[x] = data['Keymap'][x]
                     except KeyError or ValueError:
-                        sys_exit("\nConfiguration file '{}' is damaged. "
+                        sys_exit("\nConfiguration file '{0}' is damaged. "
                                  "Please delete it and re-run the game again.\n".format(self.cfg_path))
                 kmp_dict['Keymap'] = kmp_dict_keys
                 return kmp_dict
-
             elif op_type is 'dev':
-
                 dev_dict = {}
                 dev_dict_keys = {}
                 for x in data['Debug']:
                     try:
                         dev_dict_keys[x] = data['Debug'][x]
                     except KeyError or ValueError:
-                        sys_exit("\nConfiguration file '{}' is damaged. "
+                        sys_exit("\nConfiguration file '{0}' is damaged. "
                                  "Please delete it and re-run the game again.\n".format(self.cfg_path))
                 dev_dict['Debug'] = dev_dict_keys
                 return dev_dict
 
     def float_input_validate_dev_mode(self, data, numeric_type=float):
+        """ Function    : float_input_validate_dev_mode
+
+            Description : Validate input float.
+
+            Input       : String
+
+            Output      : None
+
+            Return      : None
+        """
         if (isinstance(data, str) and len(data) <= 5
                 or "-" in data):
             try:
@@ -108,6 +119,16 @@ class MenuSettings:
                 pass
 
     def int_input_validate(self, data, numeric_type=int):
+        """ Function    : int_input_validate
+
+            Description : Validate input int.
+
+            Input       : String
+
+            Output      : None
+
+            Return      : None
+        """
         if (isinstance(data, str) and len(data) <= 5
                 or "-" in data):
             try:
@@ -119,6 +140,16 @@ class MenuSettings:
                 pass
 
     def str_input_validate_keymap(self, data):
+        """ Function    : str_input_validate_keymap
+
+            Description : Validate input string.
+
+            Input       : String
+
+            Output      : None
+
+            Return      : String or None
+        """
         if isinstance(data, str) and len(data) == 1:
             if any(data in x for x in self.allowed_keys):
                 return data
@@ -126,61 +157,83 @@ class MenuSettings:
                 return None
 
     def duplicate_key_check(self, data, loaded_settings):
+        """ Function    : duplicate_key_check
+
+            Description : Check for duplicate key.
+
+            Input       : String, Dict
+
+            Output      : None
+
+            Return      : String or None
+        """
         if isinstance(data, str) and len(data) == 1:
             only_key_values = [v for x, v in loaded_settings['Keymap'].items()]
-
             n = 1
             for x in only_key_values:
                 if x is data:
                     n = n + 1
-
             if n == 2:
                 return None
             elif n == 1:
                 return data
 
     def load_settings(self):
+        """ Function    : load_settings
 
+            Description : Load settings.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : Object or None
+        """
         if exists(self.cfg_path) and isfile(self.cfg_path):
-
             try:
                 self.cfg_parser.read(self.cfg_path)
                 return self.cfg_parser
             except configparser.MissingSectionHeaderError:
                 sys_exit("\nNo configuration loaded. "
                          "Please delete damaged configuration file and restart the game."
-                         "\nFile: {}".format(self.cfg_path))
+                         "\nFile: {0}".format(self.cfg_path))
             except KeyError:
                 sys_exit("\nNo configuration loaded. "
                          "Please delete damaged configuration file and restart the game."
-                         "\nFile: {}".format(self.cfg_path))
-
+                         "\nFile: {0}".format(self.cfg_path))
         elif exists(self.cfg_path_default) and isfile(self.cfg_path_default):
-
             try:
                 self.cfg_parser.read(self.cfg_path_default)
                 return self.cfg_parser
             except configparser.MissingSectionHeaderError:
                 sys_exit("\nNo configuration loaded. "
                          "Please delete damaged configuration file and restart the game."
-                         "\nFile: {}".format(self.cfg_path_default))
+                         "\nFile: {0}".format(self.cfg_path_default))
             except KeyError:
                 sys_exit("\nNo configuration loaded. "
                          "Please delete damaged configuration file and restart the game."
-                         "\nFile: {}".format(self.cfg_path_default))
+                         "\nFile: {0}".format(self.cfg_path_default))
 
 
 class DevMode(MenuSettings):
     def __init__(self):
-
         MenuSettings.__init__(self)
 
     def check_game_assets_devmode(self, exclude):
+        """ Function    : check_game_assets_devmode
+
+            Description : Check game assets in Developer Mode
+
+            Input       : String
+
+            Output      : None
+
+            Return      : List
+        """
         asset_path = "{0}/Assets".format(Path.cwd())
-
         asset_names = []
-
-        if exists(asset_path):
+        if (exclude and isinstance(exclude, str)
+                and exists(asset_path)):
             for root, dirs, files in walk(asset_path, topdown=True):
                 if exclude in dirs:
                     dirs.remove(exclude)
@@ -189,25 +242,44 @@ class DevMode(MenuSettings):
                         asset_names.append(file)
                     elif '.egg.bam' in file:
                         asset_names.append(file)
-
         return asset_names
 
     def get_active_node(self, node_name):
+        """ Function    : get_active_node
+
+            Description : Get active node
+
+            Input       : String
+
+            Output      : None
+
+            Return      : Nodepath or None
+        """
         if node_name and isinstance(node_name, str):
             self.node = node_name
-            t = None
+            nodepath = None
             for x in self.check_game_assets_devmode(exclude='Animations'):
                 if x is node_name or 'Korlan':
-                    t = render.find('**/{}'.format(node_name))
+                    nodepath = render.find('**/{}'.format(node_name))
                 elif x is node_name:
-                    t = render.find('**/{}*'.format(node_name))
+                    nodepath = render.find('**/{}*'.format(node_name))
                 else:
                     return None
-            return t
+            return nodepath
         else:
             return False
 
     def set_node_pos_x(self, float_pos_x):
+        """ Function    : set_node_pos_x
+
+            Description : Set node pos by X coordinate
+
+            Input       : Float
+
+            Output      : None
+
+            Return      : None
+        """
         node = self.get_active_node(self.node)
         if node and self.float_input_validate_dev_mode(float_pos_x):
             float_pos_x = self.float_input_validate_dev_mode(float_pos_x)
@@ -216,6 +288,16 @@ class DevMode(MenuSettings):
             return None
 
     def set_node_pos_y(self, float_pos_y):
+        """ Function    : set_node_pos_y
+
+            Description : Set node pos by Y coordinate
+
+            Input       : Float
+
+            Output      : None
+
+            Return      : None
+        """
         node = self.get_active_node(self.node)
         if node and self.float_input_validate_dev_mode(float_pos_y):
             float_pos_y = self.float_input_validate_dev_mode(float_pos_y)
@@ -224,6 +306,16 @@ class DevMode(MenuSettings):
             return None
 
     def set_node_pos_z(self, float_pos_z):
+        """ Function    : set_node_pos_z
+
+            Description : Set node pos by Z coordinate
+
+            Input       : Float
+
+            Output      : None
+
+            Return      : None
+        """
         node = self.get_active_node(self.node)
         if node and self.float_input_validate_dev_mode(float_pos_z):
             float_pos_z = self.float_input_validate_dev_mode(float_pos_z)
@@ -232,6 +324,16 @@ class DevMode(MenuSettings):
             return None
 
     def set_node_rot_h(self, float_rot_h):
+        """ Function    : set_node_rot_h
+
+            Description : Set node pos by heading
+
+            Input       : Float
+
+            Output      : None
+
+            Return      : None
+        """
         node = self.get_active_node(self.node)
         if node and self.float_input_validate_dev_mode(float_rot_h):
             float_rot_h = self.float_input_validate_dev_mode(float_rot_h)
@@ -240,6 +342,16 @@ class DevMode(MenuSettings):
             return None
 
     def set_node_rot_p(self, float_rot_p):
+        """ Function    : set_node_rot_p
+
+            Description : Set node pos by pitch
+
+            Input       : Float
+
+            Output      : None
+
+            Return      : None
+        """
         node = self.get_active_node(self.node)
         if node and self.float_input_validate_dev_mode(float_rot_p):
             float_rot_p = self.float_input_validate_dev_mode(float_rot_p)
@@ -248,6 +360,16 @@ class DevMode(MenuSettings):
             return None
 
     def set_node_rot_r(self, float_rot_r):
+        """ Function    : set_node_rot_r
+
+            Description : Set node pos by roll
+
+            Input       : Float
+
+            Output      : None
+
+            Return      : None
+        """
         node = self.get_active_node(self.node)
         if node and self.float_input_validate_dev_mode(float_rot_r):
             float_rot_r = self.float_input_validate_dev_mode(float_rot_r)
@@ -256,19 +378,27 @@ class DevMode(MenuSettings):
             return None
 
     def save_node_pos(self):
+        """ Function    : save_node_pos
+
+            Description : Save node position
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None or False
+        """
         x = None
         status = None
         if (exists(self.cfg_path)
                 and isfile(self.cfg_path)
                 and exists(self.cfg_path_default)
                 and isfile(self.cfg_path_default)):
-
             for x in self.check_game_assets_devmode():
                 if x is 'Korlan':
                     status = 'player'
                 else:
                     status = 'env'
-
             if status is 'player':
                 self.cfg_parser = ConfigParser()
                 self.cfg_parser.read(self.cfg_path)
@@ -278,10 +408,8 @@ class DevMode(MenuSettings):
                 self.cfg_parser['Debug']['player_rot_h'] = str(render.find("**/{}".format(x)).getH())
                 self.cfg_parser['Debug']['player_rot_p'] = str(render.find("**/{}".format(x)).getP())
                 self.cfg_parser['Debug']['player_rot_r'] = str(render.find("**/{}".format(x)).getR())
-
                 with open(self.cfg_path, 'w') as cfg_file:
                     self.cfg_parser.write(cfg_file)
-
             if status is 'env':
                 self.cfg_parser = ConfigParser()
                 self.cfg_parser.read(self.cfg_path_default)
@@ -292,18 +420,25 @@ class DevMode(MenuSettings):
                                       'rot_p': str(render.find("**/{}".format(x)).getP()),
                                       'rot_r': str(render.find("**/{}".format(x)).getR())
                                       }
-
                 with open(self.cfg_path_default, "w") as cfg_file:
                     self.cfg_parser.write(cfg_file)
-
         else:
             return False
 
     def read_node_pos(self, node_name):
+        """ Function    : read_node_pos
+
+            Description : Read node position
+
+            Input       : String
+
+            Output      : None
+
+            Return      : None or False
+        """
         if (exists(self.cfg_path)
                 and isfile(self.cfg_path)
                 and node_name):
-
             for x in self.check_game_assets_devmode():
                 if x is node_name and 'Korlan':
                     self.cfg_parser = ConfigParser()
@@ -324,7 +459,6 @@ class DevMode(MenuSettings):
                     render.find("**/{}*".format(x)).setH(float(self.cfg_parser[x]['rot_h']))
                     render.find("**/{}*".format(x)).setP(float(self.cfg_parser[x]['rot_p']))
                     render.find("**/{}*".format(x)).setR(float(self.cfg_parser[x]['rot_r']))
-
         else:
             return False
 
@@ -344,7 +478,6 @@ class DevMode(MenuSettings):
         loaded_settings = self.load_settings()
         if isinstance(data, str):
             loaded_settings['Debug']['set_debug_mode'] = data
-
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
 
@@ -353,12 +486,21 @@ class Graphics(MenuSettings):
     def __init__(self):
         self.lod = LODNode('LOD')
         self.state_renderpipeline = 'OFF'
-
         MenuSettings.__init__(self)
 
     """ @var data is the nested list containing the game settings """
 
     def set_default_gfx(self):
+        """ Function    : set_default_gfx
+
+            Description : Set default graphics settings
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
         if self.load_settings():
             loaded_settings = self.load_settings()
             loaded_settings['Main']['dis_res'] = '1920x1080'
@@ -366,7 +508,6 @@ class Graphics(MenuSettings):
             loaded_settings['Main']['antialiasing'] = 'off'
             loaded_settings['Main']['postprocessing'] = 'off'
             loaded_settings['Main']['shadows'] = 'off'
-
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
 
@@ -374,11 +515,9 @@ class Graphics(MenuSettings):
         disp = display.Display()
         scrn = disp.screen()
         window = scrn.root.create_window(0, 0, 1, 1, 1, scrn.root_depth)
-
         res = randr.get_screen_resources(window)
         res_dict = {}
         res.modes.reverse()
-
         for index, mode in enumerate(res.modes, 1):
             res_dict[index] = "{}x{}".format(mode.width, mode.height)
         return res_dict
@@ -388,7 +527,7 @@ class Graphics(MenuSettings):
         if isinstance(disp_res_count, dict):
             return len(disp_res_count)
 
-    def disp_res_value(self):
+    def get_disp_res_value(self):
         loaded_settings = self.load_settings()
         disp_res_dict = self.load_disp_res()
         num = 0
@@ -401,7 +540,7 @@ class Graphics(MenuSettings):
         shadows_stat = {1: 'ON', 2: 'OFF'}
         return shadows_stat
 
-    def shadows_value(self):
+    def get_shadows_value(self):
         loaded_settings = self.load_settings()
         if loaded_settings['Main']['shadows'] == 'on':
             return 1
@@ -412,7 +551,7 @@ class Graphics(MenuSettings):
         postpro_stat = {1: 'ON', 2: 'OFF'}
         return postpro_stat
 
-    def postpro_value(self):
+    def get_postpro_value(self):
         loaded_settings = self.load_settings()
         if loaded_settings['Main']['postprocessing'] == 'on':
             return 1
@@ -423,7 +562,7 @@ class Graphics(MenuSettings):
         antial_stat = {1: 'ON', 2: 'OFF', 3: 'AUTO', 4: 'multisample'}
         return antial_stat
 
-    def antial_value(self):
+    def get_antial_value(self):
         loaded_settings = self.load_settings()
         if loaded_settings['Main']['antialiasing'] == 'on':
             return 1
@@ -434,7 +573,6 @@ class Graphics(MenuSettings):
         loaded_settings = self.load_settings()
         if isinstance(data, str):
             loaded_settings['Main']['disp_res'] = data.lower()
-
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
 
@@ -442,7 +580,6 @@ class Graphics(MenuSettings):
         loaded_settings = self.load_settings()
         if isinstance(data, str):
             loaded_settings['Main']['shadows'] = data.lower()
-
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
 
@@ -450,7 +587,6 @@ class Graphics(MenuSettings):
         loaded_settings = self.load_settings()
         if isinstance(data, str):
             loaded_settings['Main']['postprocessing'] = data.lower()
-
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
 
@@ -458,27 +594,34 @@ class Graphics(MenuSettings):
         loaded_settings = self.load_settings()
         if isinstance(data, str):
             loaded_settings['Main']['antialiasing'] = data.lower()
-
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
 
 
 class Sound(MenuSettings):
     def __init__(self):
-
         MenuSettings.__init__(self)
 
     def set_default_snd(self):
+        """ Function    : set_default_snd
+
+            Description : Set default sound settings
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
         if self.load_settings():
             loaded_settings = self.load_settings()
             loaded_settings['Main']['sound'] = 'on'
             loaded_settings['Main']['music'] = 'on'
             loaded_settings['Main']['sfx'] = 'on'
-
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
 
-    def sound_value(self):
+    def get_sound_value(self):
         loaded_settings = self.load_settings()
         if loaded_settings['Main']['sound'] == 'on':
             base.enable_all_audio()
@@ -491,7 +634,7 @@ class Sound(MenuSettings):
         sound_stat = {1: 'ON', 2: 'OFF'}
         return sound_stat
 
-    def music_value(self):
+    def get_music_value(self):
         loaded_settings = self.load_settings()
         if loaded_settings['Main']['music'] == 'on':
             base.enable_music(True)
@@ -504,7 +647,7 @@ class Sound(MenuSettings):
         music_stat = {1: 'ON', 2: 'OFF'}
         return music_stat
 
-    def sfx_value(self):
+    def get_sfx_value(self):
         loaded_settings = self.load_settings()
         if loaded_settings['Main']['sfx'] == 'on':
             base.enable_sound_effects(True)
@@ -521,7 +664,6 @@ class Sound(MenuSettings):
         loaded_settings = self.load_settings()
         if isinstance(data, str):
             loaded_settings['Main']['sound'] = data.lower()
-
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
 
@@ -529,7 +671,6 @@ class Sound(MenuSettings):
         loaded_settings = self.load_settings()
         if isinstance(data, str):
             loaded_settings['Main']['music'] = data.lower()
-
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
 
@@ -537,7 +678,6 @@ class Sound(MenuSettings):
         loaded_settings = self.load_settings()
         if isinstance(data, str):
             loaded_settings['Main']['sfx'] = data.lower()
-
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
 
@@ -545,7 +685,6 @@ class Sound(MenuSettings):
 class Keymap(MenuSettings):
     def __init__(self):
         self.settings = None
-
         MenuSettings.__init__(self)
 
     def set_key_forward(self, data):
@@ -554,7 +693,6 @@ class Keymap(MenuSettings):
             if self.duplicate_key_check(data, loaded_settings) is not None:
                 data = self.duplicate_key_check(data, loaded_settings)
                 loaded_settings['Keymap']['forward'] = self.str_input_validate_keymap(data)
-
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
 
@@ -564,7 +702,6 @@ class Keymap(MenuSettings):
             if self.duplicate_key_check(data, loaded_settings) is not None:
                 data = self.duplicate_key_check(data, loaded_settings)
                 loaded_settings['Keymap']['backward'] = self.str_input_validate_keymap(data)
-
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
 
@@ -574,7 +711,6 @@ class Keymap(MenuSettings):
             if self.duplicate_key_check(data, loaded_settings) is not None:
                 data = self.duplicate_key_check(data, loaded_settings)
                 loaded_settings['Keymap']['left'] = self.str_input_validate_keymap(data)
-
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
 
@@ -584,7 +720,6 @@ class Keymap(MenuSettings):
             if self.duplicate_key_check(data, loaded_settings) is not None:
                 data = self.duplicate_key_check(data, loaded_settings)
                 loaded_settings['Keymap']['right'] = self.str_input_validate_keymap(data)
-
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
 
@@ -594,7 +729,6 @@ class Keymap(MenuSettings):
             if self.duplicate_key_check(data, loaded_settings) is not None:
                 data = self.duplicate_key_check(data, loaded_settings)
                 loaded_settings['Keymap']['crouch'] = self.str_input_validate_keymap(data)
-
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
 
@@ -604,7 +738,6 @@ class Keymap(MenuSettings):
             if self.duplicate_key_check(data, loaded_settings) is not None:
                 data = self.duplicate_key_check(data, loaded_settings)
                 loaded_settings['Keymap']['jump'] = self.str_input_validate_keymap(data)
-
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
 
@@ -614,7 +747,6 @@ class Keymap(MenuSettings):
             if self.duplicate_key_check(data, loaded_settings) is not None:
                 data = self.duplicate_key_check(data, loaded_settings)
                 loaded_settings['Keymap']['use'] = self.str_input_validate_keymap(data)
-
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
 
@@ -624,7 +756,6 @@ class Keymap(MenuSettings):
             if self.duplicate_key_check(data, loaded_settings) is not None:
                 data = self.duplicate_key_check(data, loaded_settings)
                 loaded_settings['Keymap']['attack'] = self.str_input_validate_keymap(data)
-
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
 
@@ -634,7 +765,6 @@ class Keymap(MenuSettings):
             if self.duplicate_key_check(data, loaded_settings) is not None:
                 data = self.duplicate_key_check(data, loaded_settings)
                 loaded_settings['Keymap']['h_attack'] = self.str_input_validate_keymap(data)
-
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
 
@@ -644,7 +774,6 @@ class Keymap(MenuSettings):
             if self.duplicate_key_check(data, loaded_settings) is not None:
                 data = self.duplicate_key_check(data, loaded_settings)
                 loaded_settings['Keymap']['f_attack'] = self.str_input_validate_keymap(data)
-
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
 
@@ -654,7 +783,6 @@ class Keymap(MenuSettings):
             if self.duplicate_key_check(data, loaded_settings) is not None:
                 data = self.duplicate_key_check(data, loaded_settings)
                 loaded_settings['Keymap']['block'] = self.str_input_validate_keymap(data)
-
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
 
@@ -664,7 +792,6 @@ class Keymap(MenuSettings):
             if self.duplicate_key_check(data, loaded_settings) is not None:
                 data = self.duplicate_key_check(data, loaded_settings)
                 loaded_settings['Keymap']['sword'] = self.str_input_validate_keymap(data)
-
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
 
@@ -674,7 +801,6 @@ class Keymap(MenuSettings):
             if self.duplicate_key_check(data, loaded_settings) is not None:
                 data = self.duplicate_key_check(data, loaded_settings)
                 loaded_settings['Keymap']['bow'] = self.str_input_validate_keymap(data)
-
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
 
@@ -684,7 +810,6 @@ class Keymap(MenuSettings):
             if self.duplicate_key_check(data, loaded_settings) is not None:
                 data = self.duplicate_key_check(data, loaded_settings)
                 loaded_settings['Keymap']['tengri'] = self.str_input_validate_keymap(data)
-
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
 
@@ -694,7 +819,6 @@ class Keymap(MenuSettings):
             if self.duplicate_key_check(data, loaded_settings) is not None:
                 data = self.duplicate_key_check(data, loaded_settings)
                 loaded_settings['Keymap']['umai'] = self.str_input_validate_keymap(data)
-
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
 
@@ -716,75 +840,58 @@ class Keymap(MenuSettings):
             loaded_settings['Keymap']['bow'] = '2'
             loaded_settings['Keymap']['tengri'] = '3'
             loaded_settings['Keymap']['umai'] = '4'
-
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
 
 
 class Language(MenuSettings):
     def __init__(self):
-
         self.lng_en = 0
         self.lng_kz = 1
         self.lng_ru = 2
-
         MenuSettings.__init__(self)
 
     def get_selected_language(self):
         loaded_settings = self.load_settings()
-
         lng_dict = {'english': self.lng_en,
                     'kazakh': self.lng_kz,
                     'russian': self.lng_ru}
-
         if loaded_settings['Main']['language'] == 'english':
-
             lng_dict['english'] = 0
             lng_dict['kazakh'] = 1
             lng_dict['russian'] = 2
-
             return lng_dict
-
         elif loaded_settings['Main']['language'] == 'kazakh':
-
             lng_dict['kazakh'] = 0
             lng_dict['english'] = 1
             lng_dict['russian'] = 2
-
             return lng_dict
-
         elif loaded_settings['Main']['language'] == 'russian':
-
             lng_dict['russian'] = 0
             lng_dict['kazakh'] = 1
             lng_dict['english'] = 2
-
             return lng_dict
 
     def set_language_english(self):
         loaded_settings = self.load_settings()
         loaded_settings['Main']['language'] = 'english'
-
         with open(self.cfg_path, "w") as cfg_file:
             loaded_settings.write(cfg_file)
 
     def set_language_kazakh(self):
         loaded_settings = self.load_settings()
         loaded_settings['Main']['language'] = 'kazakh'
-
         with open(self.cfg_path, "w") as cfg_file:
             loaded_settings.write(cfg_file)
 
     def set_language_russian(self):
         loaded_settings = self.load_settings()
         loaded_settings['Main']['language'] = 'russian'
-
         with open(self.cfg_path, "w") as cfg_file:
             loaded_settings.write(cfg_file)
 
     def set_default_language(self):
         loaded_settings = self.load_settings()
         loaded_settings['Main']['language'] = 'english'
-
         with open(self.cfg_path, "w") as cfg_file:
             loaded_settings.write(cfg_file)

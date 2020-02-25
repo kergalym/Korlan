@@ -161,17 +161,17 @@ class MenuSound:
                                        parent=self.base.frame_int_snd)
 
         self.slider_sound = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
-                                         value=self.snd.sound_value(),
+                                         value=self.snd.get_sound_value(),
                                          scale=.2, borderWidth=(self.w, self.h),
                                          parent=self.base.frame_int_snd,
                                          command=self.set_slider_sound_wrapper)
         self.slider_music = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
-                                         value=self.snd.music_value(),
+                                         value=self.snd.get_music_value(),
                                          scale=.2, borderWidth=(self.w, self.h),
                                          parent=self.base.frame_int_snd,
                                          command=self.set_slider_music_wrapper)
         self.slider_effects = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
-                                           value=self.snd.sfx_value(),
+                                           value=self.snd.get_sfx_value(),
                                            scale=.2, borderWidth=(self.w, self.h),
                                            parent=self.base.frame_int_snd,
                                            command=self.set_slider_sfx_wrapper)
