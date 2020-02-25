@@ -15,7 +15,6 @@ from Settings.menu_settings import Sound
 
 class MenuSound:
     def __init__(self):
-        super().__init__()
         self.base = base
         self.game_dir = base.game_dir
         self.json = json
