@@ -123,8 +123,8 @@ class Actions:
         if (player
                 and anims
                 and isinstance(anims, dict)):
-            self.kbd.kbd_init()
-            self.kbd.kbd_init_released()
+            self.kbd.keymap_init()
+            self.kbd.keymap_init_released()
 
             taskMgr.add(self.player_init, "player_init",
                         extraArgs=[player, anims],

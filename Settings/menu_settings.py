@@ -1,12 +1,14 @@
 import configparser
 from configparser import ConfigParser
 from pathlib import Path
-from os.path import exists, isfile, join
+from os.path import exists
+from os.path import isfile
 from os import walk
 from sys import exit as sys_exit
 from Xlib import display
 from Xlib.ext import randr
-from panda3d.core import WindowProperties, LODNode
+from panda3d.core import WindowProperties
+from panda3d.core import LODNode
 
 
 class MenuSettings:
@@ -136,9 +138,6 @@ class MenuSettings:
                 return None
             elif n == 1:
                 return data
-
-    def wxMsg(self):
-        pass
 
     def load_settings(self):
 

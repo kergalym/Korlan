@@ -46,11 +46,32 @@ class Keyboard:
             'umai': 0
         }
 
-    # Records the state of the arrow/actions keys
     def set_key(self, key, value):
-        self.keymap[key] = value
+        """ Function    : set_key
 
-    def kbd_init(self):
+            Description : Set the state of the actions keys
+
+            Input       : String, Boolean
+
+            Output      : None
+
+            Return      : None
+        """
+        if (key and isinstance(key, str)
+                and isinstance(value, bool)):
+            self.keymap[key] = value
+
+    def keymap_init(self):
+        """ Function    : keymap_init
+
+            Description : Define the keymap for the actions keys
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
         # Accept the control keys for movement and rotation
         self.base.accept(self.k_forward_lo, self.set_key, ['forward', True])
         self.base.accept(self.k_backward_lo, self.set_key, ['backward', True])
@@ -69,8 +90,17 @@ class Keyboard:
         self.base.accept(self.k_tengri_lo, self.set_key, ['tengri', True])
         self.base.accept(self.k_umai_lo, self.set_key, ['umai', True])
 
-    def kbd_init_released(self):
-        # Define released keys
+    def keymap_init_released(self):
+        """ Function    : keymap_init_released
+
+            Description : Define the keymap for released actions keys
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
         self.base.accept("{0}-up".format(self.k_forward_lo), self.set_key, ['forward', False])
         self.base.accept("{0}-up".format(self.k_backward_lo), self.set_key, ['backward', False])
         self.base.accept("{0}-up".format(self.k_left_lo), self.set_key, ['left', False])

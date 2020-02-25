@@ -415,4 +415,3 @@ class MenuDev:
         self.lbl_perc_node_exp.setText(string)
         self.dev_mode.save_node_exp_value(string)
 
-

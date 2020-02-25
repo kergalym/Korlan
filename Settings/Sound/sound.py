@@ -9,6 +9,16 @@ class Sound:
         self.logging.basicConfig(filename="critical.log", level=logging.CRITICAL)
 
     def openal_mgr(self):
+        """ Function    : openal_mgr
+
+            Description : OpenAL manager
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
         self.base.enable_all_audio()
         self.base.enable_music(True)
         self.base.enable_sound_effects(True)
