@@ -127,16 +127,20 @@ class Main(ShowBase):
             # set desired properties, see below
             self.render_pipeline.add_light(my_light)"""
 
+        self.menu = Menu()
         self.scene_one = SceneOne()
         self.world = World()
         self.korlan = Korlan()
         self.sound = Sound()
         self.text = TextNode("TextNode")
 
+        """ Menu """
         if self.check_and_do_cfg():
-            self.menu = Menu()
+            if self.menu_mode:
+                self.menu.load_main_menu()
         elif self.check_and_do_cfg() and self.game_mode is False:
-            self.menu = Menu()
+            if self.menu_mode:
+                self.menu.load_main_menu()
         else:
             sys_exit("\nNo game configuration file created. Please check your game log")
 
@@ -147,10 +151,6 @@ class Main(ShowBase):
 
         """ Sounds """
         self.sound.openal_mgr()
-
-        """ Menu """
-        if self.menu_mode:
-            self.menu.load_main_menu()
 
     def check_and_do_cfg(self):
         """ Function    : check_and_do_cfg
