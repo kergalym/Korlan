@@ -122,6 +122,16 @@ class MenuGraphics:
         self.menu_font = '{0}/Settings/UI/JetBrainsMono-1.0.2/ttf/JetBrainsMono-Regular.ttf'.format(self.game_dir)
 
     def load_graphics_menu(self):
+        """ Function    : load_graphics_menu
+
+            Description : Load Graphics menu.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
         self.logo = OnscreenImage(image='{0}/Settings/UI/ui_tex/korlan_logo_tengri.png'.format(self.game_dir),
                                   pos=self.logo_pos)
         self.ornament_left = OnscreenImage(image='{0}/Settings/UI/ui_tex/ornament_kz.png'.format(self.game_dir),
@@ -250,7 +260,7 @@ class MenuGraphics:
                                              frameColor=(255, 255, 255, self.frm_opacity),
                                              scale=self.btn_scale, borderWidth=(self.w, self.h),
                                              parent=self.base.frame_int_gfx,
-                                             command=self.gfx_menu_unload)
+                                             command=self.unload_graphics_menu)
 
         self.logo.reparent_to(self.base.frame_int_gfx)
         self.logo.set_scale(self.logo_scale)
@@ -293,7 +303,40 @@ class MenuGraphics:
 
         self.menu_mode = True
 
+    def unload_graphics_menu(self):
+        """ Function    : unload_graphics_menu
+
+            Description : Unload Graphics menu.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
+        if self.game_mode:
+            self.base.frame_int_gfx.destroy()
+        self.base.frame_int_gfx.destroy()
+        self.logo.destroy()
+        self.ornament_left.destroy()
+        self.ornament_right.destroy()
+
+    """ Wrapper functions """
+    """ Direct* object doesn't allow passing it's instance directly before it created.
+        So, we pass it through wrapper methods
+    """
+
     def set_slider_disp_res_wrapper(self):
+        """ Function    : set_slider_disp_res_wrapper
+
+            Description : Wrapper function.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
         # Make it int and then str
         i = int(self.slider_disp_res['value'])
         disp_res_dict = self.gfx.load_disp_res()
@@ -302,12 +345,32 @@ class MenuGraphics:
         self.gfx.save_disp_res_value(string)
 
     def set_slider_details_wrapper(self):
+        """ Function    : set_slider_details_wrapper
+
+            Description : Wrapper function.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
         # Make it int and then str
         i = int(self.slider_details['value'])
         self.lbl_perc_details.setText(str(i))
         # self.gfx.save_details_value(i)
 
     def set_slider_shadows_wrapper(self):
+        """ Function    : set_slider_shadows_wrapper
+
+            Description : Wrapper function.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
         # Make it int and then str
         i = int(self.slider_shadows['value'])
         shadows_dict = self.gfx.load_shadows_value()
@@ -316,6 +379,16 @@ class MenuGraphics:
         self.gfx.save_shadows_value(string)
 
     def set_slider_postpro_wrapper(self):
+        """ Function    : set_slider_postpro_wrapper
+
+            Description : Wrapper function.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
         # Make it int and then str
         i = int(self.slider_postpro['value'])
         postpro_dict = self.gfx.load_postpro_value()
@@ -324,6 +397,16 @@ class MenuGraphics:
         self.gfx.save_postpro_value(string)
 
     def set_slider_antial_wrapper(self):
+        """ Function    : set_slider_antial_wrapper
+
+            Description : Wrapper function.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
         # Make it int and then str
         i = int(self.slider_antial['value'])
         antial_dict = self.gfx.load_antial_value()
@@ -331,10 +414,3 @@ class MenuGraphics:
         self.lbl_perc_antial.setText(string)
         self.gfx.save_antial_value(string)
 
-    def gfx_menu_unload(self):
-        if self.game_mode:
-            self.base.frame_int_gfx.destroy()
-        self.base.frame_int_gfx.destroy()
-        self.logo.destroy()
-        self.ornament_left.destroy()
-        self.ornament_right.destroy()

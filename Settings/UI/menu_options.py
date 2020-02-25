@@ -102,6 +102,16 @@ class MenuOptions:
         self.menu_font = '{0}/Settings/UI/JetBrainsMono-1.0.2/ttf/JetBrainsMono-Regular.ttf'.format(self.game_dir)
 
     def load_options_menu(self):
+        """ Function    : load_options_menu
+
+            Description : Load Options menu.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
         self.logo = OnscreenImage(image='{0}/Settings/UI/ui_tex/korlan_logo_tengri.png'.format(self.game_dir),
                                   pos=self.logo_pos)
         self.ornament_left = OnscreenImage(image='{0}/Settings/UI/ui_tex/ornament_kz.png'.format(self.game_dir),
@@ -151,7 +161,7 @@ class MenuOptions:
                                              frameColor=(255, 255, 255, self.frm_opacity),
                                              scale=self.btn_scale, borderWidth=(self.w, self.h),
                                              parent=self.base.frame_int,
-                                             command=self.options_menu_unload)
+                                             command=self.unload_options_menu)
 
         self.btn_gfx.set_pos(-1.4, 0, 0)
         self.btn_sound.set_pos(-1.4, 0, -0.1)
@@ -171,17 +181,20 @@ class MenuOptions:
         self.ornament_left.set_transparency(TransparencyAttrib.MAlpha)
         self.menu_mode = True
 
-    def options_menu_unload(self):
+    def unload_options_menu(self):
+        """ Function    : unload_options_menu
+
+            Description : Unload Options menu.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
         if self.game_mode:
             self.base.frame_int.destroy()
         self.base.frame_int.destroy()
-        """Reattach the destroyed logo to previous frame"""
-        # self.logo.reparent_to(self.base.frame)
-        # self.logo.set_scale(self.logo_scale)
-        # self.ornament_left.reparent_to(self.base.frame)
-        # self.ornament_right.reparent_to(self.base.frame)
-        # self.ornament_left.set_pos(self.ornament_l_pos)
-        # self.ornament_right.set_pos(self.ornament_r_pos)
         self.logo.destroy()
         self.ornament_left.destroy()
         self.ornament_right.destroy()

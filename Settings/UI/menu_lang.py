@@ -107,6 +107,16 @@ class MenuLanguage:
         self.menu_font = '{0}/Settings/UI/JetBrainsMono-1.0.2/ttf/JetBrainsMono-Regular.ttf'.format(self.game_dir)
 
     def load_language_menu(self):
+        """ Function    : load_language_menu
+
+            Description : Load Language menu.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
         self.logo = OnscreenImage(image='{0}/Settings/UI/ui_tex/korlan_logo_tengri.png'.format(self.game_dir),
                                   pos=self.logo_pos)
         self.ornament_left = OnscreenImage(image='{0}/Settings/UI/ui_tex/ornament_kz.png'.format(self.game_dir),
@@ -160,7 +170,7 @@ class MenuLanguage:
                                            frameColor=(255, 255, 255, self.frm_opacity),
                                            scale=self.btn_scale, borderWidth=(self.w, self.h),
                                            parent=self.base.frame_int_lang,
-                                           command=self.language_menu_unload)
+                                           command=self.unload_language_menu)
 
         lng_value = self.lng.get_selected_language()
 
@@ -211,7 +221,17 @@ class MenuLanguage:
         self.btn_param_back.set_pos(-1.6, 0, -0.9)
         self.menu_mode = True
 
-    def language_menu_unload(self):
+    def unload_language_menu(self):
+        """ Function    : unload_language_menu
+
+            Description : Unload Language menu.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
         if self.game_mode:
             self.base.frame_int_lang.destroy()
         self.base.frame_int_lang.destroy()

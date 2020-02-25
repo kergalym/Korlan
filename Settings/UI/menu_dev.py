@@ -117,6 +117,16 @@ class MenuDev:
         self.menu_font = '{0}/Settings/UI/JetBrainsMono-1.0.2/ttf/JetBrainsMono-Regular.ttf'.format(self.game_dir)
 
     def load_dev_mode_menu(self):
+        """ Function    : load_dev_mode_menu
+
+            Description : Load Developer Mode menu.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
         self.logo = OnscreenImage(image='{0}/Settings/UI/ui_tex/korlan_logo_tengri.png'.format(self.game_dir),
                                   pos=self.logo_pos)
         self.ornament_left = OnscreenImage(image='{0}/Settings/UI/ui_tex/ornament_kz.png'.format(self.game_dir),
@@ -282,7 +292,7 @@ class MenuDev:
                                              frameColor=(255, 255, 255, self.frm_opacity),
                                              scale=self.btn_scale, borderWidth=(self.w, self.h),
                                              parent=self.base.frame_int_dev,
-                                             command=self.dev_menu_unload)
+                                             command=self.unload_dev_mode_menu)
 
         self.btn_save_changes = DirectButton(text='OK', text_bg=(0, 0, 0, 1),
                                              text_fg=(255, 255, 255, 0.9),
@@ -337,14 +347,67 @@ class MenuDev:
 
         self.menu_mode = True
 
+    def unload_dev_mode_menu(self):
+        """ Function    : unload_dev_mode_menu
+
+            Description : Unload Developer Mode menu.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
+        if self.game_mode:
+            self.base.frame_int_dev.destroy()
+        self.base.frame_int_dev.destroy()
+        self.logo.destroy()
+        self.ornament_left.destroy()
+        self.ornament_right.destroy()
+
+    """ Wrapper functions """
+    """ Direct* object doesn't allow passing it's instance directly before it created.
+        So, we pass it through wrapper methods
+    """
+
     def get_active_node_wrapper(self):
+        """ Function    : get_active_node_wrapper
+
+            Description : Wrapper function.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
         self.dev_mode.get_active_node(self.node_frame.getSelectedText())
 
     def dev_mode_menu_save_changes(self):
+        """ Function    : dev_mode_menu_save_changes
+
+            Description : Wrapper function.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
         self.dev_mode.save_node_pos()
-        self.dev_menu_unload()
+        self.unload_dev_mode_menu()
 
     def set_slider_node_exp_wrapper(self):
+        """ Function    : set_slider_node_exp_wrapper
+
+            Description : Wrapper function.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
         # Make it int and then str
         i = int(self.slider_node_exp['value'])
         node_exp_dict = self.dev_mode.load_node_exp_value()
@@ -352,11 +415,4 @@ class MenuDev:
         self.lbl_perc_node_exp.setText(string)
         self.dev_mode.save_node_exp_value(string)
 
-    def dev_menu_unload(self):
-        if self.game_mode:
-            self.base.frame_int_dev.destroy()
-        self.base.frame_int_dev.destroy()
-        self.logo.destroy()
-        self.ornament_left.destroy()
-        self.ornament_right.destroy()
 

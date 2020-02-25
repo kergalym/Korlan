@@ -133,6 +133,16 @@ class MenuKeymap:
         self.menu_font = '{0}/Settings/UI/JetBrainsMono-1.0.2/ttf/JetBrainsMono-Regular.ttf'.format(self.game_dir)
 
     def load_keymap_menu(self):
+        """ Function    : load_keymap_menu
+
+            Description : Load Keymap menu.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
         self.logo = OnscreenImage(image='{0}/Settings/UI/ui_tex/korlan_logo_tengri.png'.format(self.game_dir),
                                   pos=self.logo_pos)
         self.ornament_left = OnscreenImage(image='{0}/Settings/UI/ui_tex/ornament_kz.png'.format(self.game_dir),
@@ -382,7 +392,7 @@ class MenuKeymap:
                                               frameColor=(255, 255, 255, self.frm_opacity),
                                               scale=self.btn_scale, borderWidth=(self.w, self.h),
                                               parent=self.base.frame_int_keymap,
-                                              command=self.keymap_menu_unload)
+                                              command=self.unload_keymap_menu)
 
         self.btn_param_defaults = DirectButton(text="Load defaults", text_bg=(0, 0, 0, 1),
                                                text_fg=(255, 255, 255, 0.9),
@@ -453,7 +463,17 @@ class MenuKeymap:
         self.btn_param_decline.set_pos(-1.6, 0, -0.8)
         self.menu_mode = True
 
-    def keymap_menu_unload(self):
+    def unload_keymap_menu(self):
+        """ Function    : unload_keymap_menu
+
+            Description : Unload Keymap menu.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
         if self.game_mode:
             self.base.frame_int_keymap.destroy()
         self.base.frame_int_keymap.destroy()

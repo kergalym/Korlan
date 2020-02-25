@@ -12,6 +12,7 @@ from panda3d.core import TextNode
 from Settings.menu_settings import MenuSettings
 from Settings.menu_settings import Sound
 
+
 class MenuSound:
     def __init__(self):
         super().__init__()
@@ -111,6 +112,16 @@ class MenuSound:
         self.menu_font = '{0}/Settings/UI/JetBrainsMono-1.0.2/ttf/JetBrainsMono-Regular.ttf'.format(self.game_dir)
 
     def load_sound_menu(self):
+        """ Function    : load_sound_menu
+
+            Description : Load Sound menu.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
         self.logo = OnscreenImage(image='{0}/Settings/UI/ui_tex/korlan_logo_tengri.png'.format(self.game_dir),
                                   pos=self.logo_pos)
         self.ornament_left = OnscreenImage(image='{0}/Settings/UI/ui_tex/ornament_kz.png'.format(self.game_dir),
@@ -195,7 +206,7 @@ class MenuSound:
                                              frameColor=(255, 255, 255, self.frm_opacity),
                                              scale=self.btn_scale, borderWidth=(self.w, self.h),
                                              parent=self.base.frame_int_snd,
-                                             command=self.sound_menu_unload)
+                                             command=self.unload_sound_menu)
 
         self.logo.reparent_to(self.base.frame_int_snd)
         self.logo.set_scale(self.logo_scale)
@@ -229,7 +240,40 @@ class MenuSound:
         self.btn_param_accept.set_pos(-1.6, 0, -0.9)
         self.menu_mode = True
 
+    def unload_sound_menu(self):
+        """ Function    : unload_sound_menu
+
+            Description : Unload Sound menu.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
+        if self.game_mode:
+            self.base.frame_int_snd.destroy()
+        self.base.frame_int_snd.destroy()
+        self.logo.destroy()
+        self.ornament_left.destroy()
+        self.ornament_right.destroy()
+
+    """ Wrapper functions """
+    """ Direct* object doesn't allow passing it's instance directly before it created.
+        So, we pass it through wrapper methods
+    """
+
     def set_slider_sound_wrapper(self):
+        """ Function    : set_slider_sound_wrapper
+
+            Description : Wrapper function.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
         # Make it int and then str
         i = int(self.slider_sound['value'])
         sound_dict = self.snd.load_sound_value()
@@ -238,6 +282,16 @@ class MenuSound:
         self.snd.save_sound_value(string)
 
     def set_slider_music_wrapper(self):
+        """ Function    : set_slider_music_wrapper
+
+            Description : Wrapper function.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
         # Make it int and then str
         i = int(self.slider_music['value'])
         music_dict = self.snd.load_music_value()
@@ -246,6 +300,16 @@ class MenuSound:
         self.snd.save_music_value(string)
 
     def set_slider_sfx_wrapper(self):
+        """ Function    : set_slider_sfx_wrapper
+
+            Description : Wrapper function.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
         # Make it int and then str
         i = int(self.slider_effects['value'])
         sfx_dict = self.snd.load_sfx_value()
@@ -253,10 +317,3 @@ class MenuSound:
         self.lbl_perc_effects.setText(string)
         self.snd.save_sfx_value(string)
 
-    def sound_menu_unload(self):
-        if self.game_mode:
-            self.base.frame_int_snd.destroy()
-        self.base.frame_int_snd.destroy()
-        self.logo.destroy()
-        self.ornament_left.destroy()
-        self.ornament_right.destroy()

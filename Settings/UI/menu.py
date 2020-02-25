@@ -122,6 +122,16 @@ class Menu:
         self.btn_exit = None
 
     def load_main_menu(self):
+        """ Function    : load_main_menu
+
+            Description : Load Main menu.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
         self.base.frame = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
                                       frameSize=self.base.frame_size)
 
@@ -210,30 +220,80 @@ class Menu:
 
         self.menu_mode = True
 
-    def main_menu_unload(self):
+    def unload_main_menu(self):
+        """ Function    : unload_main_menu
+
+            Description : Unload Main menu.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
         self.base.frame.hide()
 
     """ Wrapper functions """
-
-    # Direct* object doesn't allow passing it's instance directly before it created.
-    # So, we pass it through wrapper methods
+    """ Direct* object doesn't allow passing it's instance directly before it created.
+        So, we pass it through wrapper methods
+    """
 
     def load_new_game_wrapper(self):
+        """ Function    : load_new_game_wrapper
+
+            Description : Wrapper function.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
         if isinstance(self.game_mode, bool):
-            self.main_menu_unload()
+            self.unload_main_menu()
             self.game_mode = True
             self.menu_mode = False
             self.level_one.load_new_game()
 
     def load_game_wrapper(self):
+        """ Function    : load_game_wrapper
+
+            Description : Wrapper function.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
         if isinstance(self.game_mode, bool):
             self.playworker.load_game()
 
     def save_game_wrapper(self):
+        """ Function    : save_game_wrapper
+
+            Description : Wrapper function.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
         if isinstance(self.game_mode, bool):
             self.playworker.save_game()
 
     def delete_game_wrapper(self):
+        """ Function    : delete_game_wrapper
+
+            Description : Wrapper function.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
         if isinstance(self.game_mode, bool):
             self.playworker.delete_game()
 
