@@ -32,7 +32,7 @@ class LevelOne:
         if self.base.game_mode:
             self.base.game_mode = False
             self.base.menu_mode = True
-            assets = self.base.collect_assets()
+            assets = self.base.assets_collector()
 
             # Remove all lights
             render.clearLight()
@@ -80,7 +80,7 @@ class LevelOne:
 
     def load_new_game(self):
         self.base.accept("escape", self.reload_menu_scene)
-        assets = self.base.collect_assets()
+        assets = self.base.assets_collector()
 
         # Remove all lights
         render.clearLight()
@@ -124,8 +124,8 @@ class LevelOne:
         # anims is a list containing two dicts.
         # anims[0] is a dict containing names of animations
         # anims[1] is a dict containing paths + animations
-        assets = self.base.collect_assets()
-        anims = self.base.collect_anims()
+        assets = self.base.assets_collector()
+        anims = self.base.asset_animations_collector()
 
         self.scene_one.env_load(path=assets['Sky'],
                                 mode="game",

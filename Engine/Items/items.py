@@ -6,7 +6,7 @@ class Items:
 
     def __init__(self):
         self.base = base
-        self.assets = base.collect_assets()
+        self.assets = base.assets_collector()
         self.state = PlayerState()
         self.col = Collisions()
 

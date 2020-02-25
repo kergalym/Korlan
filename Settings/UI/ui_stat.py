@@ -91,7 +91,7 @@ class UIStat:
                                                 mayChange=True)
 
             self.title_dbg_mode_player_state = OnscreenText(text="",
-                                                            pos=(0.4, 0.9),
+                                                            pos=(0.5, 0.9),
                                                             scale=0.03,
                                                             fg=(255, 255, 255, 0.9),
                                                             font=self.font.load_font(self.menu_font),
@@ -99,7 +99,7 @@ class UIStat:
                                                             mayChange=True)
 
             self.text_player_action_stat_p = OnscreenText(text="",
-                                                          pos=(0.4, 0.8),
+                                                          pos=(0.5, 0.8),
                                                           scale=0.03,
                                                           fg=(255, 255, 255, 0.9),
                                                           font=self.font.load_font(self.menu_font),
