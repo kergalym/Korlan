@@ -1,4 +1,4 @@
-from panda3d.core.Vec3 import Vec3
+from panda3d.core import Vec3
 from panda3d.bullet import ZUp
 from panda3d.bullet import BulletSphereShape
 from panda3d.bullet import BulletCapsuleShape
