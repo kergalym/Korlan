@@ -1,6 +1,8 @@
 from panda3d.core import CollisionTraverser, CollisionHandlerPusher, CollisionSphere
 from panda3d.core import CollideMask, BitMask32
 from panda3d.core import CollisionNode
+from panda3d.physics import PhysicsCollisionHandler, ActorNode
+
 from Engine.Collisions.collision_solids import CollisionSolids
 from Engine.Collisions.collision_physics import CollisionPhysics
 from panda3d.core import CollisionTraverser, CollisionHandlerPusher
@@ -28,6 +30,7 @@ class Collisions:
         self.c_trav = CollisionTraverser()
         self.c_pusher = CollisionHandlerPusher()
         self.c_physx = CollisionPhysics()
+        self.c_pusher_physx = PhysicsCollisionHandler()
         self.c_event = CollisionHandlerEvent()
         self.c_queue = CollisionHandlerQueue()
 
@@ -113,22 +116,25 @@ class Collisions:
             player_collider_node = CollisionNode(col_name)
             player_cs = self.cs.set_cs_capsule()
             player_collider_node.add_solid(player_cs)
-            player_collider_node.set_from_collide_mask(CollideMask.bit(2))
-            player_collider_node.set_into_collide_mask(CollideMask.allOff())
             # Make player_collider a dict including collision solid
             player_collider_dict = {
                 actor.get_name(): actor.attach_new_node(player_collider_node)
             }
             # Add the pusher and traverser
             if handler == "pusher":
-                self.c_pusher.add_collider(player_collider_dict[actor.get_name()],
-                                           actor)
+                anp = render.attachNewNode(ActorNode('actor'))
+                # self.c_pusher.add_collider(player_collider_dict[actor.get_name()],
+                #                           actor)
+                self.c_pusher_physx.add_collider(player_collider_dict[actor.get_name()],
+                                                 anp)
+                # self.c_trav.add_collider(player_collider_dict[actor.get_name()],
+                                         # self.c_pusher)
                 self.c_trav.add_collider(player_collider_dict[actor.get_name()],
-                                         self.c_pusher)
+                                         self.c_pusher_physx)
+
             elif handler == "queue":
                 self.c_trav.add_collider(player_collider_dict[actor.get_name()],
                                          self.c_queue)
-
             # Show the collision solids
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
                 base.accept("y", player_collider_dict[actor.get_name()].show)

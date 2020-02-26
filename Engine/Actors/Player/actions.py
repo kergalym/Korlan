@@ -4,10 +4,10 @@ from Engine.Items.items import Items
 from Engine.Collisions.collisions import Collisions
 from direct.task.TaskManagerGlobal import taskMgr
 
-from Engine.world import World
 from Settings.Input.keyboard import Keyboard
 from Settings.Input.mouse import Mouse
 from direct.interval.IntervalGlobal import *
+from Engine.Physics.physics import PhysicsAttr
 
 
 class Actions:
@@ -25,7 +25,7 @@ class Actions:
         self.taskMgr = taskMgr
         self.kbd = Keyboard()
         self.mouse = Mouse()
-        self.world = World()
+        self.physics_attr = PhysicsAttr()
         self.fsmplayer = FsmPlayer()
         self.idle_player = Idle()
         self.item_cls = Items()
@@ -125,6 +125,7 @@ class Actions:
                 and isinstance(anims, dict)):
             self.kbd.keymap_init()
             self.kbd.keymap_init_released()
+            self.physics_attr.set_physics()
 
             taskMgr.add(self.player_init, "player_init",
                         extraArgs=[player, anims],
@@ -133,6 +134,10 @@ class Actions:
             taskMgr.add(self.check_distance_task,
                         "check_distance",
                         extraArgs=[player],
+                        appendTask=True)
+
+            taskMgr.add(self.physics_attr.update_physics_task,
+                        "update_physics",
                         appendTask=True)
 
             # Set up the camera

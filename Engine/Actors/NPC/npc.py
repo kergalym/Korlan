@@ -2,7 +2,7 @@ from Engine import set_tex_transparency
 from direct.actor.Actor import Actor
 from direct.task.TaskManagerGlobal import taskMgr
 
-from Engine.world import World
+from Engine.Render.render import RenderAttr
 from Engine.FSM.npc_ai import Idle
 
 
@@ -25,7 +25,7 @@ class NPC:
 
         self.game_settings = base.game_settings
         self.game_dir = base.game_dir
-        self.world = World()
+        self.render_attr = RenderAttr()
         self.idle_player = Idle()
         self.actor_life_perc = None
         self.base.actor_is_dead = False
@@ -92,8 +92,8 @@ class NPC:
             # Set lights and Shadows
             if self.game_settings['Main']['postprocessing'] == 'off':
                 # TODO: uncomment if character has normals
-                # self.world.set_shadows(self.actor, self.render)
-                # self.world.set_ssao(self.actor)
+                # self.render_attr.set_shadows(self.actor, self.render)
+                # self.render_attr.set_ssao(self.actor)
                 pass
 
             if self.game_settings['Debug']['set_debug_mode'] == "YES":

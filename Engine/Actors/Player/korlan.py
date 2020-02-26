@@ -8,7 +8,7 @@ from panda3d.core import WindowProperties
 from panda3d.core import LPoint3f
 from direct.task.TaskManagerGlobal import taskMgr
 
-from Engine.world import World
+from Engine.Render.render import RenderAttr
 from Settings.Input.keyboard import Keyboard
 from Settings.Input.mouse import Mouse
 
@@ -43,7 +43,7 @@ class Korlan:
         self.kbd = Keyboard()
         self.mouse = Mouse()
         self.col = Collisions()
-        self.world = World()
+        self.render_attr = RenderAttr()
         self.act = Actions()
         self.state = PlayerState()
         self.actor_life_perc = None
@@ -101,8 +101,8 @@ class Korlan:
                 # Set lights and Shadows
                 if self.game_settings['Main']['postprocessing'] == 'off':
                     # TODO: uncomment if character has normals
-                    # self.world.set_shadows(self.scene, self.render)
-                    # self.world.set_ssao(self.scene)
+                    # self.render_attr.set_shadows(self.scene, self.render)
+                    # self.render_attr.set_ssao(self.scene)
                     pass
 
                 if self.game_settings['Debug']['set_debug_mode'] == "YES":
@@ -171,8 +171,8 @@ class Korlan:
                 # Set lights and Shadows
                 if self.game_settings['Main']['postprocessing'] == 'off':
                     # TODO: uncomment if character has normals
-                    # self.world.set_shadows(self.scene, self.render)
-                    # self.world.set_ssao(self.scene)
+                    # self.render_attr.set_shadows(self.scene, self.render)
+                    # self.render_attr.set_ssao(self.scene)
                     pass
 
                 if self.game_settings['Debug']['set_debug_mode'] == "YES":

@@ -1,9 +1,10 @@
 from panda3d.core import *
 
 
-class World:
+class RenderAttr:
 
     def __init__(self):
+        self.world = None
         self.set_color = 0.2
         self.shadow_size = 1024
         self.obj = None
@@ -58,6 +59,3 @@ class World:
     def set_ssao(self, obj):
         if obj:
             obj.set_shader(self.ssao)
-
-    def set_physics(self):
-        pass

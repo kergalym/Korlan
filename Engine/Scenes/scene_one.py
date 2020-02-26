@@ -5,7 +5,7 @@ from panda3d.core import *
 from Engine.Collisions.collisions import Collisions
 from Engine.Actors.Player.korlan import Korlan
 from Engine import set_tex_transparency
-from Engine.world import World
+from Engine.Render.render import RenderAttr
 
 
 class SceneOne:
@@ -26,7 +26,7 @@ class SceneOne:
         self.task_mgr = None
         self.node_path = NodePath()
         self.col = Collisions()
-        self.world = World()
+        self.render_attr = RenderAttr()
         self.korlan = Korlan()
         self.base = base
         self.render = render
@@ -75,8 +75,8 @@ class SceneOne:
 
                 if self.game_settings['Main']['postprocessing'] == 'off':
                     # Set Lights and Shadows
-                    self.world.set_shadows(scene, render)
-                    # self.world.set_ssao(scene)
+                    self.render_attr.set_shadows(scene, render)
+                    # self.render_attr.set_ssao(scene)
 
                 return scene
 
@@ -116,8 +116,8 @@ class SceneOne:
 
                 if self.game_settings['Main']['postprocessing'] == 'off':
                     # Set Shaders and Shadows
-                    self.world.set_shadows(scene, render)
-                    # self.world.set_ssao(scene)
+                    self.render_attr.set_shadows(scene, render)
+                    # self.render_attr.set_ssao(scene)
 
                 return scene
 

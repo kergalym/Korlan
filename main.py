@@ -1,6 +1,7 @@
 #!/usr/bin/env python3.7
 import logging
 import re
+import sys
 import json
 import configparser
 from sys import exit as sys_exit
@@ -15,7 +16,7 @@ from panda3d.core import TextNode
 from pathlib import Path, PurePath
 from Engine.Actors.Player.korlan import Korlan
 from Engine.Scenes.scene_one import SceneOne
-from Engine.world import World
+from Engine.Render.render import RenderAttr
 from Settings.Sound.sound import Sound
 from Settings.UI.menu import Menu
 from Settings.menu_settings import Graphics
@@ -129,7 +130,7 @@ class Main(ShowBase):
 
         self.menu = Menu()
         self.scene_one = SceneOne()
-        self.world = World()
+        self.render_attr = RenderAttr()
         self.korlan = Korlan()
         self.sound = Sound()
         self.text = TextNode("TextNode")
@@ -550,18 +551,18 @@ class Main(ShowBase):
         """
 
         """ Assets """
-        self.world.set_lighting(name='directionalLight',
-                                render=self.render,
-                                pos=[0, 0, 10],
-                                hpr=[180, -20, 0],
-                                color=[0.2],
-                                task="attach")
-        self.world.set_lighting(name='directionalLight',
-                                render=self.render,
-                                pos=[0, 0, 10],
-                                hpr=[0, -20, 0],
-                                color=[0.2],
-                                task="attach")
+        self.render_attr.set_lighting(name='directionalLight',
+                                      render=self.render,
+                                      pos=[0, 0, 10],
+                                      hpr=[180, -20, 0],
+                                      color=[0.2],
+                                      task="attach")
+        self.render_attr.set_lighting(name='directionalLight',
+                                      render=self.render,
+                                      pos=[0, 0, 10],
+                                      hpr=[0, -20, 0],
+                                      color=[0.2],
+                                      task="attach")
 
         # assets is a dict containing paths + models
         # anims is a list containing two dicts.

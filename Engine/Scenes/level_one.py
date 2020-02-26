@@ -3,7 +3,7 @@ from panda3d.core import *
 from Engine.Actors.Player.korlan import Korlan
 from Engine.Actors.NPC.npc import NPC
 from Engine.Scenes.scene_one import SceneOne
-from Engine.world import World
+from Engine.Render.render import RenderAttr
 from Settings.UI.ui_stat import UIStat
 from Settings.UI.hud import HUD
 
@@ -18,7 +18,7 @@ class LevelOne:
         self.loader = base.loader
         self.node_path = NodePath()
         self.scene_one = SceneOne()
-        self.world = World()
+        self.render_attr = RenderAttr()
         self.korlan = Korlan()
         self.npc = NPC()
         self.hud = HUD()
@@ -107,18 +107,18 @@ class LevelOne:
             self.loader.unload_model(assets[key])
 
         """ Assets """
-        self.world.set_lighting(name='directionalLight',
-                                render=self.render,
-                                pos=[0, 0, 10],
-                                hpr=[180, -20, 0],
-                                color=[0.2],
-                                task="attach")
-        self.world.set_lighting(name='directionalLight',
-                                render=self.render,
-                                pos=[0, 0, 10],
-                                hpr=[0, -20, 0],
-                                color=[0.2],
-                                task="attach")
+        self.render_attr.set_lighting(name='directionalLight',
+                                      render=self.render,
+                                      pos=[0, 0, 10],
+                                      hpr=[180, -20, 0],
+                                      color=[0.2],
+                                      task="attach")
+        self.render_attr.set_lighting(name='directionalLight',
+                                      render=self.render,
+                                      pos=[0, 0, 10],
+                                      hpr=[0, -20, 0],
+                                      color=[0.2],
+                                      task="attach")
 
         # assets is a dict containing paths + models
         # anims is a list containing two dicts.
