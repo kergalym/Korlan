@@ -4,7 +4,7 @@ from panda3d.core import CollisionNode
 from panda3d.physics import PhysicsCollisionHandler, ActorNode
 
 from Engine.Collisions.collision_solids import CollisionSolids
-from Engine.Collisions.collision_physics import CollisionPhysics
+from Engine.Collisions.bullet_collision_solids import BulletCollisionSolids
 from panda3d.core import CollisionTraverser, CollisionHandlerPusher
 from panda3d.core import CollisionHandlerEvent, CollisionHandlerQueue
 
@@ -27,9 +27,9 @@ class Collisions:
         self.cam_collider = None
 
         self.cs = CollisionSolids()
+        self.bs = BulletCollisionSolids()
         self.c_trav = CollisionTraverser()
         self.c_pusher = CollisionHandlerPusher()
-        self.c_physx = CollisionPhysics()
         self.c_pusher_physx = PhysicsCollisionHandler()
         self.c_event = CollisionHandlerEvent()
         self.c_queue = CollisionHandlerQueue()

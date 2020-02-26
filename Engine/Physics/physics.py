@@ -6,7 +6,7 @@ class PhysicsAttr:
 
     def __init__(self):
         self.world = None
-        self.render = None
+        self.render = render
 
     def set_physics(self):
         """ Function    : set_physics

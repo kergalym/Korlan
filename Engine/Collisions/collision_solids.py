@@ -1,4 +1,6 @@
-from panda3d.core import CollisionSphere, Plane, Vec3, Point3, CollisionNode
+from panda3d.core import Vec3, Point3
+from panda3d.core import Plane
+from panda3d.core import CollisionSphere
 from panda3d.core import CollisionCapsule
 from panda3d.core import CollisionInvSphere
 from panda3d.core import CollisionPlane
@@ -8,13 +10,9 @@ from panda3d.core import CollisionLine
 from panda3d.core import CollisionSegment
 from panda3d.core import CollisionParabola
 from panda3d.core import CollisionBox
-from panda3d.core import CollisionTube
 
 
 class CollisionSolids:
-
-    def __init__(self):
-        pass
 
     def set_cs_sphere(self):
         axis = (0, 0, 0.8)
@@ -73,4 +71,3 @@ class CollisionSolids:
         axis = (-1, 0.5, 1)
         box = CollisionBox(center, axis)
         return box
-
