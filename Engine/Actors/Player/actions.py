@@ -323,22 +323,18 @@ class Actions:
             # in order to achieve that desired speed.
             dt = globalClock.getDt()
             # If a move-key is pressed, move the player in the specified direction.
-            speed = 15
-
-            """ if (self.kbd.keymap["forward"]
-                    and self.kbd.keymap["run"]
-                    and base.states['is_moving'] is False
-                    and base.states['is_running']
-                    and base.states['is_crouch_moving'] is False
-                    and base.states['is_idle'] is False): """
+            speed_unit = 15
+            if base.input_state.is_set('forward'):
+                self.speed.setY(-speed_unit)
 
             if (self.kbd.keymap["forward"]
                     and self.kbd.keymap["run"]):
-                player.setY(player, -speed * dt)
+                pass
                 if self.kbd.keymap["left"]:
                     player.setH(player.getH() + 200 * dt)
                 if self.kbd.keymap["right"]:
                     player.setH(player.getH() - 200 * dt)
+
             # If the player does action, loop the animation.
             # If it is standing still, stop the animation.
             if (self.kbd.keymap["forward"]
