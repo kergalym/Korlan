@@ -1,3 +1,5 @@
+from panda3d.core import Vec3
+
 from Engine.Actors.Player.state import PlayerState
 from Engine.FSM.player_ai import FsmPlayer, Idle
 from Engine.Items.items import Items
@@ -31,6 +33,8 @@ class Actions:
         self.item_cls = Items()
         self.state = PlayerState()
         self.col = Collisions()
+        self.speed = Vec3(0, 0, 0)
+        self.omega = 0.0
 
     def check_distance_task(self, player, task):
         if player and base.game_mode and base.menu_mode is False:
@@ -125,25 +129,17 @@ class Actions:
                 and isinstance(anims, dict)):
             self.kbd.keymap_init()
             self.kbd.keymap_init_released()
-            self.physics_attr.set_physics()
-
+            base.input_state = self.kbd.bullet_keymap_init()
             taskMgr.add(self.player_init, "player_init",
                         extraArgs=[player, anims],
                         appendTask=True)
-
             taskMgr.add(self.check_distance_task,
                         "check_distance",
                         extraArgs=[player],
                         appendTask=True)
-
-            taskMgr.add(self.physics_attr.update_physics_task,
-                        "update_physics",
-                        appendTask=True)
-
+            self.col.set_inter_collision(player=player)
             # Set up the camera
             self.base.camera.set_pos(player.getX(), player.get_y() + 40, 2)
-
-            self.col.set_inter_collision(player=player)
 
     """ Prepares the player for scene """
 
@@ -202,7 +198,7 @@ class Actions:
 
         # If the camera is too far from player, move it closer.
         # If the camera is too close to player, move it farther.
-        camvec = player.get_pos() - self.base.camera.get_pos()
+        camvec = player.get_parent().get_pos() - self.base.camera.get_pos()
         camvec.set_z(0)
         camdist = camvec.length()
         camvec.normalize()
@@ -213,16 +209,13 @@ class Actions:
             self.base.camera.set_pos(self.base.camera.get_pos() - camvec * (5 - camdist))
             camdist = 5.0
 
-        if self.base.camera.get_z() < player.get_z() + 2.0:
-            self.base.camera.set_z(player.get_z() + 2.0)
+        if self.base.camera.get_z() < player.get_parent().get_z() + 2.0:
+            self.base.camera.set_z(player.get_parent().get_z() + 2.0)
 
         # The camera should look in Korlan direction,
         # but it should also try to stay horizontal, so look at
         # a floater which hovers above Korlan's head.
-        self.base.camera.look_at(self.mouse.set_floater(player))
-
-        # Do check for collisions
-        self.col.traverser(player=player, handler="pusher")
+        self.base.camera.look_at(self.mouse.set_floater(player.get_parent()))
 
         return task.cont
 
@@ -233,12 +226,23 @@ class Actions:
             # in order to achieve that desired speed.
             dt = globalClock.getDt()
             # If a move-key is pressed, move the player in the specified direction.
-            speed = 5
-
+            speed_unit = 5
             if self.kbd.keymap["left"]:
                 player.setH(player.getH() + 200 * dt)
             elif self.kbd.keymap["right"]:
                 player.setH(player.getH() - 200 * dt)
+            if base.input_state.is_set('turnLeft'):
+                self.omega = 200.0
+            elif base.input_state.is_set('turnRight'):
+                self.omega = -200.0
+            if base.input_state.is_set('forward'):
+                self.speed.setY(-speed_unit)
+            elif base.input_state.is_set('reverse'):
+                self.speed.setY(speed_unit)
+            if base.input_state.is_set('left'):
+                self.speed.setX(speed_unit)
+            elif base.input_state.is_set('right'):
+                self.speed.setX(-speed_unit)
 
             if (self.kbd.keymap["forward"]
                     and self.kbd.keymap["run"] == 0
@@ -246,30 +250,36 @@ class Actions:
                     and base.states['is_running'] is False
                     and base.states['is_crouch_moving'] is False
                     and base.states['is_idle']):
-                player.setY(player, -speed * dt)
+                pass
             elif (self.kbd.keymap["forward"]
                   and self.kbd.keymap["run"] == 0
                   and base.states['is_moving'] is False
                   and base.states['is_running'] is False
                   and base.states['is_crouch_moving']
                   and base.states['is_idle'] is False):
-                player.setY(player, -speed * dt)
+                pass
             elif (self.kbd.keymap["backward"]
                   and self.kbd.keymap["run"] == 0
                   and base.states['is_moving']
                   and base.states['is_crouch_moving'] is False
                   and base.states['is_idle']):
-                player.setY(player, speed * dt)
+                pass
             elif (self.kbd.keymap["backward"]
+                  and base.input_state.is_set('reverse')
                   and self.kbd.keymap["run"] == 0
                   and base.states['is_moving'] is False
                   and base.states['is_crouch_moving']
                   and base.states['is_idle'] is False):
-                player.setY(player, speed * dt)
+                pass
+
+            if hasattr(base, "bullet_char_contr_node"):
+                base.bullet_char_contr_node.set_linear_movement(self.speed, True)
+                base.bullet_char_contr_node.set_angular_movement(self.omega)
 
             # If the player does action, loop the animation.
             # If it is standing still, stop the animation.
             if (self.kbd.keymap["forward"]
+                    and base.input_state.is_set('forward')
                     and self.kbd.keymap["run"] == 0
                     or self.kbd.keymap["backward"]
                     or self.kbd.keymap["left"]
@@ -298,9 +308,9 @@ class Actions:
                         and base.states["is_running"] is False
                         and base.states['is_crouch_moving']):
                     Sequence(Func(self.seq_crouch_move_wrapper, player, anims, 'stop')).start()
-
             # Actor backward movement
             if (self.kbd.keymap["backward"]
+                    and base.input_state.is_set('reverse')
                     and self.kbd.keymap["run"] == 0
                     and base.states["is_running"] is False):
                 player.set_play_rate(-1.0,
@@ -329,7 +339,6 @@ class Actions:
                     player.setH(player.getH() + 200 * dt)
                 if self.kbd.keymap["right"]:
                     player.setH(player.getH() - 200 * dt)
-
             # If the player does action, loop the animation.
             # If it is standing still, stop the animation.
             if (self.kbd.keymap["forward"]

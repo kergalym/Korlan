@@ -1,3 +1,4 @@
+from direct.showbase.InputStateGlobal import inputState
 
 
 class Keyboard:
@@ -117,3 +118,22 @@ class Keyboard:
         self.base.accept("{0}-up".format(self.k_bow_lo), self.set_key, ['bow', False])
         self.base.accept("{0}-up".format(self.k_tengri_lo), self.set_key, ['tengri', False])
         self.base.accept("{0}-up".format(self.k_umai_lo), self.set_key, ['umai', False])
+
+    def bullet_keymap_init(self):
+        """ Function    : bullet_keymap_init
+
+            Description : Define the keymap for Bullet actions keys
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
+        inputState.watchWithModifiers('forward', self.k_forward_lo)
+        inputState.watchWithModifiers('reverse', self.k_backward_lo)
+        inputState.watchWithModifiers('left', self.k_left_lo)
+        inputState.watchWithModifiers('right',  self.k_right_lo)
+        inputState.watchWithModifiers('turnLeft', 'q')
+        inputState.watchWithModifiers('turnRight', 'e')
+        return inputState

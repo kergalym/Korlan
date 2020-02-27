@@ -1,12 +1,22 @@
-from panda3d.core import Vec3
-from panda3d.bullet import BulletWorld
+from direct.task.TaskManagerGlobal import taskMgr
+from panda3d.core import Vec3, BitMask32
+from panda3d.bullet import BulletWorld, BulletDebugNode, BulletRigidBodyNode, BulletPlaneShape
 
 
 class PhysicsAttr:
 
     def __init__(self):
         self.world = None
+        self.world_nodepath = None
+        self.debug_nodepath = None
         self.render = render
+        self.game_settings = base.game_settings
+        self.game_dir = base.game_dir
+        self.game_cfg = base.game_cfg
+        self.game_cfg_dir = base.game_cfg_dir
+        self.game_settings_filename = base.game_settings_filename
+        self.cfg_path = {"game_config_path":
+                         "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
 
     def set_physics(self):
         """ Function    : set_physics
@@ -24,8 +34,24 @@ class PhysicsAttr:
         # While Bullet is in theory independent from any particular units
         # it is recommended to stick with SI units (kilogram, meter, second).
         # In SI units 9.81 m/s² is the gravity on Earth’s surface.
+        self.world_nodepath = self.render.attach_new_node('World')
+        # World
+        # Show a visual representation of the collisions occuring
+        if self.game_settings['Debug']['set_debug_mode'] == "YES":
+            self.debug_nodepath = self.world_nodepath.attach_new_node(BulletDebugNode('Debug'))
+            self.debug_nodepath.show()
         self.world = BulletWorld()
         self.world.set_gravity(Vec3(0, 0, -9.81))
+        self.world.set_debug_node(self.debug_nodepath.node())
+        ground_shape = BulletPlaneShape(Vec3(0, 0, 1), 0)
+        ground_nodepath = self.world_nodepath.attachNewNode(BulletRigidBodyNode('Ground'))
+        ground_nodepath.node().addShape(ground_shape)
+        ground_nodepath.setPos(0, 0, 0.10)
+        ground_nodepath.setCollideMask(BitMask32.allOn())
+        self.world.attachRigidBody(ground_nodepath.node())
+        taskMgr.add(self.update_physics_task,
+                    "update_physics",
+                    appendTask=True)
 
     def update_physics_task(self, task):
         """ Function    : update_physics_task
@@ -40,7 +66,7 @@ class PhysicsAttr:
         """
         if self.world:
             dt = globalClock.getDt()
-            self.world.doPhysics(dt)
+            self.world.doPhysics(dt, 4, 1./240.)
         if base.game_mode is False and base.menu_mode:
             return task.done
         return task.cont

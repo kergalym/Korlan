@@ -166,7 +166,7 @@ class Korlan:
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 set_tex_transparency(self.korlan)
 
-                self.korlan.reparent_to(render)
+                # self.korlan.reparent_to(render)
 
                 # Set lights and Shadows
                 if self.game_settings['Main']['postprocessing'] == 'off':
