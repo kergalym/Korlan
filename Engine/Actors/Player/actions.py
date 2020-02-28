@@ -306,10 +306,6 @@ class Actions:
 
     def player_run_action(self, player, anims):
         if player and isinstance(anims, dict):
-            # Get the time that elapsed since last frame.  We multiply this with
-            # the desired speed in order to find out with which distance to move
-            # in order to achieve that desired speed.
-            dt = globalClock.getDt()
             # If a move-key is pressed, move the player in the specified direction.
             speed = Vec3(0, 0, 0)
             speed_unit = 15
