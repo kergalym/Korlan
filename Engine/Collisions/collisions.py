@@ -41,17 +41,24 @@ class Collisions:
             box.set_tag(key=box.get_name(), value='1')
             self.physics_attr.set_physics()
             self.set_actor_collider(actor=self.korlan,
-                                    col_name='Korlan:CS',
-                                    handler="pusher")
+                                    col_name='{0}:BS'.format(self.korlan.get_name()),
+                                    shape="capsule")
+            self.set_object_collider(obj=box,
+                                     col_name='{0}:BS'.format(box.get_name()),
+                                     shape="cube")
 
-    def set_actor_collider(self, actor, col_name, handler):
+    def set_actor_collider(self, actor, col_name, shape):
         if (actor
                 and col_name
-                and handler
+                and shape
                 and isinstance(col_name, str)
-                and isinstance(handler, str)):
-            player_bs = self.bs.set_bs_capsule()
-            base.bullet_char_contr_node = BulletCharacterControllerNode(player_bs, 0.4, 'Player')
+                and isinstance(shape, str)):
+            actor_bs = None
+            if shape == 'capsule':
+                actor_bs = self.bs.set_bs_capsule()
+            if shape == 'sphere':
+                actor_bs = self.bs.set_bs_sphere()
+            base.bullet_char_contr_node = BulletCharacterControllerNode(actor_bs, 0.4, 'Player')
             player_bs_nodepath = self.physics_attr.world_nodepath.attach_new_node(base.bullet_char_contr_node)
             player_bs_nodepath.set_collide_mask(self.mask)
             self.physics_attr.world.attach_character(base.bullet_char_contr_node)
@@ -65,13 +72,22 @@ class Collisions:
             actor.set_y(0)
             # TODO: DETACH if base.menu_mode is True
 
-    def set_object_collider(self, col_name, handler, obj):
-        if (col_name
-                and handler
-                and obj
+    def set_object_collider(self, obj, col_name, shape):
+        if (obj
+                and col_name
+                and shape
                 and isinstance(col_name, str)
-                and isinstance(handler, str)):
-            object_cs = self.bs.set_bs_cube()
-            object_collider_node = BulletRigidBodyNode(col_name)
-            object_collider_node.add_solid(object_cs)
-            object_collider = obj.attach_new_node(object_collider_node)
+                and isinstance(shape, str)):
+            object_bs = None
+            if shape == 'cube':
+                object_bs = self.bs.set_bs_cube()
+            object_bs_nodepath = self.physics_attr.world_nodepath.attach_new_node(BulletRigidBodyNode(col_name))
+            object_bs_nodepath.node().set_mass(1.0)
+            object_bs_nodepath.node().add_shape(object_bs)
+            object_bs_nodepath.set_collide_mask(self.mask)
+            self.physics_attr.world.attach_rigid_body(object_bs_nodepath.node())
+            obj.reparent_to(object_bs_nodepath)
+            object_bs_nodepath.set_pos(obj.get_pos())
+            obj.set_pos(0, 0, 0)
+            obj.set_hpr(0, 0, 0)
+            # TODO: DETACH if base.menu_mode is True
