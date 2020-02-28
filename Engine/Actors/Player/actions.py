@@ -33,8 +33,6 @@ class Actions:
         self.item_cls = Items()
         self.state = PlayerState()
         self.col = Collisions()
-        self.speed = Vec3(0, 0, 0)
-        self.omega = 0.0
 
     def check_distance_task(self, player, task):
         if player and base.game_mode and base.menu_mode is False:
@@ -221,28 +219,18 @@ class Actions:
 
     def player_movement_action(self, player, anims):
         if player and isinstance(anims, dict):
-            # Get the time that elapsed since last frame.  We multiply this with
-            # the desired speed in order to find out with which distance to move
-            # in order to achieve that desired speed.
-            dt = globalClock.getDt()
             # If a move-key is pressed, move the player in the specified direction.
+            speed = Vec3(0, 0, 0)
+            omega = 0.0
             speed_unit = 5
-            if self.kbd.keymap["left"]:
-                player.setH(player.getH() + 200 * dt)
-            elif self.kbd.keymap["right"]:
-                player.setH(player.getH() - 200 * dt)
             if base.input_state.is_set('turnLeft'):
-                self.omega = 200.0
+                omega = 200.0
             elif base.input_state.is_set('turnRight'):
-                self.omega = -200.0
+                omega = -200.0
             if base.input_state.is_set('forward'):
-                self.speed.setY(-speed_unit)
+                speed.setY(-speed_unit)
             elif base.input_state.is_set('reverse'):
-                self.speed.setY(speed_unit)
-            if base.input_state.is_set('left'):
-                self.speed.setX(speed_unit)
-            elif base.input_state.is_set('right'):
-                self.speed.setX(-speed_unit)
+                speed.setY(speed_unit)
 
             if (self.kbd.keymap["forward"]
                     and self.kbd.keymap["run"] == 0
@@ -271,10 +259,6 @@ class Actions:
                   and base.states['is_crouch_moving']
                   and base.states['is_idle'] is False):
                 pass
-
-            if hasattr(base, "bullet_char_contr_node"):
-                base.bullet_char_contr_node.set_linear_movement(self.speed, True)
-                base.bullet_char_contr_node.set_angular_movement(self.omega)
 
             # If the player does action, loop the animation.
             # If it is standing still, stop the animation.
@@ -316,6 +300,10 @@ class Actions:
                 player.set_play_rate(-1.0,
                                      anims[self.walking_forward_action])
 
+            if hasattr(base, "bullet_char_contr_node"):
+                base.bullet_char_contr_node.set_linear_movement(speed, True)
+                base.bullet_char_contr_node.set_angular_movement(omega)
+
     def player_run_action(self, player, anims):
         if player and isinstance(anims, dict):
             # Get the time that elapsed since last frame.  We multiply this with
@@ -323,17 +311,14 @@ class Actions:
             # in order to achieve that desired speed.
             dt = globalClock.getDt()
             # If a move-key is pressed, move the player in the specified direction.
+            speed = Vec3(0, 0, 0)
             speed_unit = 15
             if base.input_state.is_set('forward'):
-                self.speed.setY(-speed_unit)
+                speed.setY(-speed_unit)
 
             if (self.kbd.keymap["forward"]
                     and self.kbd.keymap["run"]):
                 pass
-                if self.kbd.keymap["left"]:
-                    player.setH(player.getH() + 200 * dt)
-                if self.kbd.keymap["right"]:
-                    player.setH(player.getH() - 200 * dt)
 
             # If the player does action, loop the animation.
             # If it is standing still, stop the animation.
@@ -366,6 +351,9 @@ class Actions:
                         and base.states["is_crouch_moving"] is False
                         and base.states['is_running']):
                     Sequence(Func(self.seq_run_wrapper, player, anims, 'stop')).start()
+
+            if hasattr(base, "bullet_char_contr_node"):
+                base.bullet_char_contr_node.set_linear_movement(speed, True)
 
     def player_crouch_action(self, player, key, anims):
         if (player and isinstance(anims, dict)

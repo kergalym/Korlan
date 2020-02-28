@@ -60,9 +60,11 @@ class Collisions:
             # at the same point as bullet shape
             actor.set_z(-1)
             # Set the bullet shape position same as actor position
-            # player_bs_nodepath.set_y(actor.get_y())
+            player_bs_nodepath.set_y(actor.get_y())
             # Set actor relative to bullet shape
             actor.set_y(0)
+
+            # TODO: DETACH if base.menu_mode is True
 
     def set_object_collider(self, col_name, handler, obj):
         if (col_name

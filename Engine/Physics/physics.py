@@ -65,6 +65,7 @@ class PhysicsAttr:
             Return      : Task event
         """
         if self.world:
+            # Get the time that elapsed since last frame.
             dt = globalClock.getDt()
             self.world.doPhysics(dt, 4, 1./240.)
         if base.game_mode is False and base.menu_mode:
