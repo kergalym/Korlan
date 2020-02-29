@@ -448,7 +448,7 @@ class Main(ShowBase):
             items[key] = (parent_node.get_pos())
         return items
 
-    def assets_pos_collector_no_actor(self, player, exclude):
+    def assets_pos_collector_no_actor(self, player, exclude, physics):
         """ Function    : assets_pos_collector_no_actor
 
             Description : Collect game asset positions except for an actor.
@@ -459,7 +459,9 @@ class Main(ShowBase):
 
             Return      : Dictionary
         """
-        if player and exclude and isinstance(exclude, list):
+        if (player and exclude
+                and isinstance(physics, str)
+                and isinstance(exclude, list)):
             # parse player name to exclude them
             assets = base.asset_nodes_collector()
             t = []
@@ -481,7 +483,15 @@ class Main(ShowBase):
                 t, assoc_key=True)
             for key in assets_children:
                 parent_node = assets_children[key].get_parent().get_parent()
-                items[key] = (parent_node.get_pos())
+                if physics == 'standard':
+                    items[key] = (parent_node.get_pos())
+                elif physics == 'bullet':
+                    # We get bullet node
+                    if not parent_node.get_parent().is_empty():
+                        parent_node = parent_node.get_parent()
+                        items[key] = (parent_node.get_pos())
+                    else:
+                        items[key] = (parent_node.get_pos())
             return items
 
     def distance_calculate(self, items, actor):

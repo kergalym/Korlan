@@ -329,7 +329,7 @@ class UIStat:
         if hasattr(base, "player"):
             exclude = ['Sky', 'Mountains', 'Grass', 'Ground', 'NPC']
             dist_vec = base.distance_calculate(
-                base.assets_pos_collector_no_actor(base.player, exclude), base.player)
+                base.assets_pos_collector_no_actor(base.player, exclude, physics='bullet'), base.player)
             if (dist_vec and base.game_mode is True
                     and base.menu_mode is False):
                 dist_vec_fmt_h = self.gen_stat_text_h(dist_vec)

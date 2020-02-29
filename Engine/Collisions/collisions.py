@@ -82,12 +82,15 @@ class Collisions:
             if shape == 'cube':
                 object_bs = self.bs.set_bs_cube()
             object_bs_nodepath = self.physics_attr.world_nodepath.attach_new_node(BulletRigidBodyNode(col_name))
-            object_bs_nodepath.node().set_mass(1.0)
+            object_bs_nodepath.node().set_mass(10.0)
             object_bs_nodepath.node().add_shape(object_bs)
             object_bs_nodepath.set_collide_mask(self.mask)
             self.physics_attr.world.attach_rigid_body(object_bs_nodepath.node())
+            obj.clearModelNodes()
             obj.reparent_to(object_bs_nodepath)
             object_bs_nodepath.set_pos(obj.get_pos())
-            obj.set_pos(0, 0, 0)
+            object_bs_nodepath.set_scale(0.20, 0.20, 0.20)
+            obj.set_pos(0.0, 3.70, -0.50)
             obj.set_hpr(0, 0, 0)
+            obj.set_scale(6.25, 6.25, 6.25)
             # TODO: DETACH if base.menu_mode is True

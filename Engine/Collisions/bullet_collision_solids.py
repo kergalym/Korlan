@@ -44,7 +44,7 @@ class BulletCollisionSolids:
         return plane
 
     def set_bs_cube(self):
-        axis = Vec3(0.5, 0.5, 1.0)
+        axis = Vec3(0.5, 0.5, 0.5)
         box = BulletBoxShape(axis)
         return box
 
