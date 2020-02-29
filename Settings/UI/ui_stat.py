@@ -329,7 +329,7 @@ class UIStat:
         if hasattr(base, "player"):
             exclude = ['Sky', 'Mountains', 'Grass', 'Ground', 'NPC']
             dist_vec = base.distance_calculate(
-                base.assets_pos_collector_no_actor(base.player, exclude, physics='bullet'), base.player)
+                base.assets_pos_collector_no_actor(base.player, exclude), base.player)
             if (dist_vec and base.game_mode is True
                     and base.menu_mode is False):
                 dist_vec_fmt_h = self.gen_stat_text_h(dist_vec)
@@ -342,6 +342,7 @@ class UIStat:
                 self.set_player_action_stat_text(stat_player_action_fmt_p, set_mode='show')
             if (dist_vec and base.game_mode is False
                     and base.menu_mode is True):
+                import pdb; pdb.set_trace()
                 dist_vec_fmt_h = self.gen_stat_text_h(dist_vec)
                 dist_vec_fmt_p = self.gen_stat_text_p(dist_vec)
                 stat_obj_fmt_h = self.gen_stat_obj_text_h()

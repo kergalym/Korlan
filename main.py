@@ -448,7 +448,7 @@ class Main(ShowBase):
             items[key] = (parent_node.get_pos())
         return items
 
-    def assets_pos_collector_no_actor(self, player, exclude, physics):
+    def assets_pos_collector_no_actor(self, player, exclude):
         """ Function    : assets_pos_collector_no_actor
 
             Description : Collect game asset positions except for an actor.
@@ -460,7 +460,6 @@ class Main(ShowBase):
             Return      : Dictionary
         """
         if (player and exclude
-                and isinstance(physics, str)
                 and isinstance(exclude, list)):
             # parse player name to exclude them
             assets = base.asset_nodes_collector()
@@ -483,15 +482,12 @@ class Main(ShowBase):
                 t, assoc_key=True)
             for key in assets_children:
                 parent_node = assets_children[key].get_parent().get_parent()
-                if physics == 'standard':
+                # If it's bullet shape then we get bullet node
+                if 'BS' in parent_node.get_parent().get_name():
+                    bullet_shape_node = parent_node.get_parent()
+                    items[key] = (bullet_shape_node.get_pos())
+                elif 'BS' not in parent_node.get_parent().get_name():
                     items[key] = (parent_node.get_pos())
-                elif physics == 'bullet':
-                    # We get bullet node
-                    if not parent_node.get_parent().is_empty():
-                        parent_node = parent_node.get_parent()
-                        items[key] = (parent_node.get_pos())
-                    else:
-                        items[key] = (parent_node.get_pos())
             return items
 
     def distance_calculate(self, items, actor):
@@ -509,15 +505,24 @@ class Main(ShowBase):
         if (items and actor
                 and isinstance(items, dict)):
             # Do some minimum distance calculate here
+            vect_x = None
+            vect_y = None
+            vect_z = None
             remained = {}
             for key in items:
                 # Subtract actor vector from item vector.
-                vect_x = items[key][0] - actor.get_x()
-                vect_y = items[key][1] - actor.get_y()
-                vect_z = items[key][2] - actor.get_z()
-                remained[key] = (round(vect_x, 1),
-                                 round(vect_y, 1),
-                                 round(vect_z, 1))
+                if not actor.get_parent().is_empty():
+                    if 'BS' in actor.get_parent().get_name():
+                        vect_x = items[key][0] - actor.get_parent().get_x()
+                        vect_y = items[key][1] - actor.get_parent().get_y()
+                        vect_z = items[key][2] - actor.get_parent().get_z()
+                    elif 'BS' not in actor.get_parent().get_name():
+                        vect_x = items[key][0] - actor.get_x()
+                        vect_y = items[key][1] - actor.get_y()
+                        vect_z = items[key][2] - actor.get_z()
+                    remained[key] = (round(vect_x, 1),
+                                     round(vect_y, 1),
+                                     round(vect_z, 1))
             return remained
 
     def distance_calculate_precise(self, items, actor):

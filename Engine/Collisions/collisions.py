@@ -58,7 +58,9 @@ class Collisions:
                 actor_bs = self.bs.set_bs_capsule()
             if shape == 'sphere':
                 actor_bs = self.bs.set_bs_sphere()
-            base.bullet_char_contr_node = BulletCharacterControllerNode(actor_bs, 0.4, 'Player')
+            base.bullet_char_contr_node = BulletCharacterControllerNode(actor_bs,
+                                                                        0.4,
+                                                                        '{0}:BS'.format(actor.get_name()))
             player_bs_nodepath = self.physics_attr.world_nodepath.attach_new_node(base.bullet_char_contr_node)
             player_bs_nodepath.set_collide_mask(self.mask)
             self.physics_attr.world.attach_character(base.bullet_char_contr_node)
