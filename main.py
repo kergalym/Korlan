@@ -482,7 +482,7 @@ class Main(ShowBase):
                 t, assoc_key=True)
             for key in assets_children:
                 parent_node = assets_children[key].get_parent().get_parent()
-                # If it's bullet shape then we get bullet node
+                # Get bullet shape node path if it's here
                 if 'BS' in parent_node.get_parent().get_name():
                     bullet_shape_node = parent_node.get_parent()
                     items[key] = (bullet_shape_node.get_pos())
@@ -512,6 +512,7 @@ class Main(ShowBase):
             for key in items:
                 # Subtract actor vector from item vector.
                 if not actor.get_parent().is_empty():
+                    # Get bullet shape node path if it's here
                     if 'BS' in actor.get_parent().get_name():
                         vect_x = items[key][0] - actor.get_parent().get_x()
                         vect_y = items[key][1] - actor.get_parent().get_y()
@@ -523,29 +524,6 @@ class Main(ShowBase):
                     remained[key] = (round(vect_x, 1),
                                      round(vect_y, 1),
                                      round(vect_z, 1))
-            return remained
-
-    def distance_calculate_precise(self, items, actor):
-        """ Function    : distance_calculate_precise
-
-            Description : Calculate a distance between object and actor.
-
-            Input       : Dict, Nodepath
-
-            Output      : None
-
-            Return      : Dictionary
-        """
-        if (items and actor
-                and isinstance(items, dict)):
-            # Do some minimum distance calculate here
-            remained = {}
-            for key in items:
-                # Subtract actor vector from item vector.
-                vect_x = items[key][0] - actor.get_x()
-                vect_y = items[key][1] - actor.get_y()
-                vect_z = items[key][2] - actor.get_z()
-                remained[key] = (vect_x, vect_y, vect_z)
             return remained
 
     def menu_scene_load(self):

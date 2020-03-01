@@ -70,6 +70,9 @@ class Items:
 
             for key in assets_children:
                 parent_node = assets_children[key].get_parent().get_parent()
+                # Get bullet shape node path if it's here
+                if 'BS' in parent_node.get_parent().get_name():
+                    parent_node = parent_node.get_parent()
                 items[key] = (parent_node.get_pos())
 
             return items
