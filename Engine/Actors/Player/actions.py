@@ -87,7 +87,6 @@ class Actions:
     def seq_crouch_move_wrapper(self, player, anims, state):
         if player and anims and isinstance(state, str):
             if state == 'loop':
-                # TODO: check animation
                 player.loop(anims[self.crouch_walking_forward_action])
                 player.set_play_rate(self.base.actor_play_rate,
                                      anims[self.crouch_walking_forward_action])
@@ -231,6 +230,7 @@ class Actions:
                 speed.setY(-speed_unit)
             elif base.input_state.is_set('reverse'):
                 speed.setY(speed_unit)
+            # TODO make backward work
 
             if (self.kbd.keymap["forward"]
                     and self.kbd.keymap["run"] == 0

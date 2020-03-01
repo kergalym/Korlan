@@ -37,6 +37,10 @@ class LevelOne:
             # Remove all lights
             render.clearLight()
 
+            # TODO take it from base.bullet_world
+            if render.find("**/World").is_empty() is False:
+                render.find("**/World").remove_node()
+
             # Remove all tasks except system
             tasks = ["player_init",
                      "player_state",
@@ -84,6 +88,10 @@ class LevelOne:
 
         # Remove all lights
         render.clearLight()
+
+        # TODO take it from base.bullet_world
+        if render.find("**/World").is_empty() is False:
+            render.find("**/World").remove_node()
 
         # Remove all tasks except system
         tasks = ["player_init",

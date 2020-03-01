@@ -126,20 +126,21 @@ class PlayerState:
                                 base.is_item_close_to_use = True
                                 base.is_item_far_to_use = False
                                 item = assets[key]
+                                # Get bullet shape node
+                                item = item.get_parent()
                             elif base.is_item_in_use:
                                 base.is_item_close_to_use = False
                                 base.is_item_far_to_use = True
                         else:
                             base.is_item_close_to_use = False
                             base.is_item_far_to_use = True
-                    # We'll use it later from here
 
             exposed_joint = player.expose_joint(None, "modelRoot", joint)
-
+            import pdb;
+            pdb.set_trace()
             if (base.is_item_close_to_use
                     and base.is_item_in_use is False
                     and base.is_item_in_use_long is False):
-
                 if exposed_joint.find(item.get_name()).is_empty():
                     # Disable collide mask before attaching
                     # because we don't want colliding
@@ -170,7 +171,6 @@ class PlayerState:
                   and base.is_item_in_use is True
                   and base.is_item_in_use_long is True):
                 item_np = self.render.find("**/{0}".format(base.in_use_item_name))
-
                 item_np.detach_node()
                 item_np.reparent_to(self.render)
                 item_np.set_pos(player.get_pos() - (0.4, -1.0, 0))

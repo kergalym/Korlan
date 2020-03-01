@@ -342,7 +342,6 @@ class UIStat:
                 self.set_player_action_stat_text(stat_player_action_fmt_p, set_mode='show')
             if (dist_vec and base.game_mode is False
                     and base.menu_mode is True):
-                import pdb; pdb.set_trace()
                 dist_vec_fmt_h = self.gen_stat_text_h(dist_vec)
                 dist_vec_fmt_p = self.gen_stat_text_p(dist_vec)
                 stat_obj_fmt_h = self.gen_stat_obj_text_h()
