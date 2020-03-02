@@ -28,6 +28,9 @@ class Collisions:
         self.mask_floor = BitMask32(0x1)
         self.mask_walls = BitMask32(0x2)
         self.mask = BitMask32.allOn()
+        self.mask2 = BitMask32.bit(2)
+        self.mask5 = BitMask32.bit(5)
+        self.mask3 = BitMask32(0x3)
 
     def set_inter_collision(self, player):
         if player:

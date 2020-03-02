@@ -170,11 +170,10 @@ class PlayerState:
                   and base.is_item_in_use is True
                   and base.is_item_in_use_long is True):
                 item_np = self.render.find("**/{0}".format(base.in_use_item_name))
-                item_np.detach_node()
                 item_np.reparent_to(self.render)
-                item_np.set_pos(player.get_pos() - (0.4, -1.0, 0))
-                item_np.set_hpr(0, 0, 0)
-                item_np.set_scale(1.25, 1.25, 1.25)
+                #item_np.set_pos(player.get_pos() - (0.4, -1.0, 0))
+                #item_np.set_hpr(0, 0, 0)
+                #item_np.set_scale(1.25, 1.25, 1.25)
                 item_np.set_collide_mask(self.col.mask)
 
                 # Set item state

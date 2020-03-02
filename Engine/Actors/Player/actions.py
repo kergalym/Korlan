@@ -221,15 +221,13 @@ class Actions:
             # If a move-key is pressed, move the player in the specified direction.
             speed = Vec3(0, 0, 0)
             omega = 0.0
-            speed_unit = 5
-            if base.input_state.is_set('turnLeft'):
+            move_unit = 2
+            if (self.kbd.keymap["left"]
+                    and base.input_state.is_set('turnLeft')):
                 omega = 200.0
-            elif base.input_state.is_set('turnRight'):
+            if (self.kbd.keymap["right"]
+                    and base.input_state.is_set('turnRight')):
                 omega = -200.0
-            if base.input_state.is_set('forward'):
-                speed.setY(-speed_unit)
-            elif base.input_state.is_set('reverse'):
-                speed.setY(speed_unit)
             # TODO make backward work
 
             if (self.kbd.keymap["forward"]
@@ -238,32 +236,38 @@ class Actions:
                     and base.states['is_running'] is False
                     and base.states['is_crouch_moving'] is False
                     and base.states['is_idle']):
-                pass
-            elif (self.kbd.keymap["forward"]
-                  and self.kbd.keymap["run"] == 0
-                  and base.states['is_moving'] is False
-                  and base.states['is_running'] is False
-                  and base.states['is_crouch_moving']
-                  and base.states['is_idle'] is False):
-                pass
-            elif (self.kbd.keymap["backward"]
-                  and self.kbd.keymap["run"] == 0
-                  and base.states['is_moving']
-                  and base.states['is_crouch_moving'] is False
-                  and base.states['is_idle']):
-                pass
-            elif (self.kbd.keymap["backward"]
-                  and base.input_state.is_set('reverse')
-                  and self.kbd.keymap["run"] == 0
-                  and base.states['is_moving'] is False
-                  and base.states['is_crouch_moving']
-                  and base.states['is_idle'] is False):
-                pass
+                if base.input_state.is_set('forward'):
+                    speed.setY(-move_unit)
+            if (self.kbd.keymap["forward"]
+                    and self.kbd.keymap["run"] == 0
+                    and base.states['is_moving'] is False
+                    and base.states['is_running'] is False
+                    and base.states['is_crouch_moving']
+                    and base.states['is_idle'] is False):
+                if base.input_state.is_set('forward'):
+                    speed.setY(move_unit)
+            if (self.kbd.keymap["backward"]
+                    and self.kbd.keymap["run"] == 0
+                    and base.states['is_moving']
+                    and base.states['is_crouch_moving'] is False
+                    and base.states['is_idle']):
+                if base.input_state.is_set('reverse'):
+                    speed.setY(move_unit)
+            if (self.kbd.keymap["backward"]
+                    and self.kbd.keymap["run"] == 0
+                    and base.states['is_moving'] is False
+                    and base.states['is_crouch_moving']
+                    and base.states['is_idle'] is False):
+                if base.input_state.is_set('reverse'):
+                    speed.setY(move_unit)
 
+            if hasattr(base, "bullet_char_contr_node"):
+                base.bullet_char_contr_node.set_linear_movement(speed, True)
+                base.bullet_char_contr_node.set_angular_movement(omega)
+                
             # If the player does action, loop the animation.
             # If it is standing still, stop the animation.
             if (self.kbd.keymap["forward"]
-                    and base.input_state.is_set('forward')
                     and self.kbd.keymap["run"] == 0
                     or self.kbd.keymap["backward"]
                     or self.kbd.keymap["left"]
@@ -294,27 +298,22 @@ class Actions:
                     Sequence(Func(self.seq_crouch_move_wrapper, player, anims, 'stop')).start()
             # Actor backward movement
             if (self.kbd.keymap["backward"]
-                    and base.input_state.is_set('reverse')
                     and self.kbd.keymap["run"] == 0
                     and base.states["is_running"] is False):
                 player.set_play_rate(-1.0,
                                      anims[self.walking_forward_action])
 
-            if hasattr(base, "bullet_char_contr_node"):
-                base.bullet_char_contr_node.set_linear_movement(speed, True)
-                base.bullet_char_contr_node.set_angular_movement(omega)
-
     def player_run_action(self, player, anims):
         if player and isinstance(anims, dict):
             # If a move-key is pressed, move the player in the specified direction.
             speed = Vec3(0, 0, 0)
-            speed_unit = 15
-            if base.input_state.is_set('forward'):
-                speed.setY(-speed_unit)
-
+            move_unit = 15
             if (self.kbd.keymap["forward"]
                     and self.kbd.keymap["run"]):
-                pass
+                if base.input_state.is_set('forward'):
+                    speed.setY(-move_unit)
+                if hasattr(base, "bullet_char_contr_node"):
+                    base.bullet_char_contr_node.set_linear_movement(speed, True)
 
             # If the player does action, loop the animation.
             # If it is standing still, stop the animation.
@@ -347,9 +346,6 @@ class Actions:
                         and base.states["is_crouch_moving"] is False
                         and base.states['is_running']):
                     Sequence(Func(self.seq_run_wrapper, player, anims, 'stop')).start()
-
-            if hasattr(base, "bullet_char_contr_node"):
-                base.bullet_char_contr_node.set_linear_movement(speed, True)
 
     def player_crouch_action(self, player, key, anims):
         if (player and isinstance(anims, dict)
