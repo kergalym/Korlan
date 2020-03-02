@@ -1,6 +1,4 @@
-from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import BitMask32
-from Engine.Collisions.collision_solids import CollisionSolids
 from Engine.Collisions.bullet_collision_solids import BulletCollisionSolids
 from Engine.Physics.physics import PhysicsAttr
 from panda3d.bullet import BulletCharacterControllerNode
@@ -18,7 +16,6 @@ class Collisions:
         self.cam_collider = None
 
         self.physics_attr = PhysicsAttr()
-        self.cs = CollisionSolids()
         self.bs = BulletCollisionSolids()
 
         self.korlan = None
