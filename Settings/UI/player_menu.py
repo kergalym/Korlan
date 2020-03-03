@@ -84,8 +84,9 @@ class PlayerMenu:
                                                       scrollBarWidth=0.03,
                                                       autoHideScrollBars=True)
 
-        """self.pic = OnscreenImage(image='{0}/Settings/UI/ui_tex/korlan_logo_tengri.png'.format(self.game_dir),
-                                 pos='')
+        self.pic_body_inv = OnscreenImage(image='{0}/Settings/UI/ui_tex/player_menu/body_inventory.png'.format(
+            self.game_dir))
+        """
         self.pic_left = OnscreenImage(image='{0}/Settings/UI/ui_tex/ornament_kz.png'.format(self.game_dir),
                                       pos='', color=(63.9, 63.9, 63.9, 0.5))
         self.pic_right = OnscreenImage(image='{0}/Settings/UI/ui_tex/ornament_kz.png'.format(self.game_dir),
@@ -111,12 +112,14 @@ class PlayerMenu:
         self.base.frame_inv.set_pos(self.pos_X, self.pos_Y, self.pos_Z)
         self.base.frame_inv_int.set_pos(self.pos_int_X, self.pos_int_Y, self.pos_int_Z)
         self.base.frame_inv_int.reparent_to(self.base.frame_inv)
-        # self.base.frame_inv_int.set_scale(1, 1, 1)
         self.base.frame_inv_int.set_pos(-1.3, 0, 0.5)
         self.base.frame_inv.set_pos(0, 0, 0)
 
-        # self.pic.reparent_to(self.base.frame_inv)
-        # self.pic.set_scale(0.33, 0.30, 0.30)
+        self.pic_body_inv.reparent_to(self.base.frame_inv)
+        self.pic_body_inv.set_transparency(TransparencyAttrib.MAlpha)
+        self.pic_body_inv.set_scale(1.5, 1.5, 0.9)
+        self.pic_body_inv.set_pos(-0.4, 0, 0)
+
         # self.pic_right.reparent_to(self.base.frame_inv)
         # self.pic_right.set_scale(0.33, 0.30, 0.30)
         # self.pic_right.set_hpr(0.0, 0.0, -90.0)
