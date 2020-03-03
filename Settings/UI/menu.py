@@ -49,6 +49,7 @@ class Menu:
         self.base.frame = None
 
         """ Frame Sizes """
+        # Left, right, bottom, top
         self.base.frame_size = [-3, -0.9, -1, 3]
 
         """ Frame Colors """

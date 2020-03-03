@@ -10,6 +10,7 @@ from Settings.Input.keyboard import Keyboard
 from Settings.Input.mouse import Mouse
 from direct.interval.IntervalGlobal import *
 from Engine.Physics.physics import PhysicsAttr
+from Settings.UI.player_menu import PlayerMenu
 
 
 class Actions:
@@ -31,6 +32,7 @@ class Actions:
         self.fsmplayer = FsmPlayer()
         self.idle_player = Idle()
         self.item_cls = Items()
+        self.player_menu = PlayerMenu()
         self.state = PlayerState()
         self.col = Collisions()
 
@@ -127,6 +129,10 @@ class Actions:
             self.kbd.keymap_init()
             self.kbd.keymap_init_released()
             base.input_state = self.kbd.bullet_keymap_init()
+
+            # Define a player menu here
+            base.accept('tab', self.player_menu.set_ui_inventory)
+
             taskMgr.add(self.player_init, "player_init",
                         extraArgs=[player, anims],
                         appendTask=True)
@@ -134,7 +140,9 @@ class Actions:
                         "check_distance",
                         extraArgs=[player],
                         appendTask=True)
+
             self.col.set_inter_collision(player=player)
+
             # Set up the camera
             self.base.camera.set_pos(player.getX(), player.get_y() + 40, 2)
 
@@ -264,7 +272,7 @@ class Actions:
             if hasattr(base, "bullet_char_contr_node"):
                 base.bullet_char_contr_node.set_linear_movement(speed, True)
                 base.bullet_char_contr_node.set_angular_movement(omega)
-                
+
             # If the player does action, loop the animation.
             # If it is standing still, stop the animation.
             if (self.kbd.keymap["forward"]

@@ -36,6 +36,7 @@ class MenuDev:
         self.base.frame_int_dev = None
 
         """ Frame Sizes """
+        # Left, right, bottom, top
         self.base.frame_int_dev_size = [-3, -0.2, -1, 3]
 
         """ Frame Colors """

@@ -34,6 +34,8 @@ class LevelOne:
             self.base.menu_mode = True
             assets = self.base.assets_collector()
 
+            base.frame_inv.hide()
+
             # Remove all lights
             render.clearLight()
 

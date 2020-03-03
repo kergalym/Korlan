@@ -35,6 +35,7 @@ class MenuLanguage:
         self.base.frame_int_lang = None
 
         """ Frame Sizes """
+        # Left, right, bottom, top
         self.base.frame_int_lang_size = [-3, -0.3, -1, 3]
 
         """ Frame Colors """

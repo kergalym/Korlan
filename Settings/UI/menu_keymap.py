@@ -35,6 +35,7 @@ class MenuKeymap:
         self.base.frame_int_keymap = None
 
         """ Frame Sizes """
+        # Left, right, bottom, top
         self.base.frame_int_keymap_size = [-3, -0.1, -1, 3]
 
         """ Frame Colors """

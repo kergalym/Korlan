@@ -35,6 +35,7 @@ class MenuSound:
         self.base.frame_int_snd = None
 
         """ Frame Sizes """
+        # Left, right, bottom, top
         self.base.frame_int_snd_size = [-3, -0.2, -1, 3]
 
         """ Frame Colors """

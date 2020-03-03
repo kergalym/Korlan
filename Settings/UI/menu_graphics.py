@@ -35,6 +35,7 @@ class MenuGraphics:
         self.base.frame_int_gfx = None
 
         """ Frame Sizes """
+        # Left, right, bottom, top
         self.base.frame_int_gfx_size = [-3, -0.2, -1, 3]
 
         """ Frame Colors """

@@ -184,8 +184,6 @@ class Korlan:
                 taskMgr.add(self.mouse.mouse_look_cam,
                             "mouse_look",
                             appendTask=True)
-
-                # TODO: Add Scene task
                 taskMgr.add(self.state.set_player_equip_state,
                             "player_state",
                             appendTask=True)

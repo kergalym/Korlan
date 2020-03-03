@@ -51,7 +51,8 @@ class Mouse:
             Return      : Task event
         """
         # Figure out how much the mouse has moved (in pixels)
-        if self.base.game_mode:
+        if (hasattr(base, "is_ui_active") is False
+                and self.base.game_mode):
             mouse_direction = self.base.win.getPointer(0)
             x = mouse_direction.get_x()
             # y = md.get_y()
@@ -66,7 +67,24 @@ class Mouse:
             self.focus = self.base.camera.get_pos() + (direction * 180)
             self.last = task.time
 
-            return task.cont
+        elif (hasattr(base, "is_ui_active")
+                and base.is_ui_active is False
+                and self.base.game_mode):
+            mouse_direction = self.base.win.getPointer(0)
+            x = mouse_direction.get_x()
+            # y = md.get_y()
+            if self.base.win.move_pointer(0, 100, 100):
+                self.heading = self.heading - (x - 100) * 0.2
+            # self.pitch = self.pitch - (y - 100) * 0.2
+
+            self.base.camera.set_hpr(self.heading, self.pitch, self.rotation)
+
+            direction = self.base.camera.get_mat().getRow3(1)
+            self.base.camera.set_pos(self.focus - (direction * 180))
+            self.focus = self.base.camera.get_pos() + (direction * 180)
+            self.last = task.time
+
+        return task.cont
 
     def set_mouse_mode(self, mode):
         """ Function    : set_mouse_mode
