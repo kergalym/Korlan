@@ -54,6 +54,10 @@ class Actions:
                     base.close_item_name = name
                     base.is_item_close_to_use = False
                     base.is_item_far_to_use = False
+                    if not render.find('**/{0}'.format(name)).is_empty():
+                        item_np = render.find('**/{0}'.format(name))
+                        if not item_np.get_parent().is_empty():
+                            item_np.get_parent().set_collide_mask(self.col.mask2)
             if base.game_mode is False and base.menu_mode:
                 base.is_item_close_to_use = False
                 base.is_item_far_to_use = False

@@ -49,6 +49,7 @@ class PhysicsAttr:
         ground_nodepath.setPos(0, 0, 0.10)
         ground_nodepath.setCollideMask(BitMask32.allOn())
         self.world.attachRigidBody(ground_nodepath.node())
+
         taskMgr.add(self.update_physics_task,
                     "update_physics",
                     appendTask=True)
@@ -68,6 +69,15 @@ class PhysicsAttr:
             # Get the time that elapsed since last frame.
             dt = globalClock.getDt()
             self.world.doPhysics(dt, 4, 1./240.)
+            # Do update RigidBodyNode parent node's position for every frame
+            if hasattr(base, "close_item_name"):
+                name = base.close_item_name
+                if not render.find("**/{0}".format(name)).is_empty():
+                    item = render.find("**/{0}".format(name))
+                    if 'BS' in item.get_parent().get_name():
+                        item.get_parent().node().set_transform_dirty()
+
         if base.game_mode is False and base.menu_mode:
             return task.done
+
         return task.cont

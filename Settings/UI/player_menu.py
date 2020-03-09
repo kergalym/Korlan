@@ -131,6 +131,15 @@ class PlayerMenu:
 
         self.btn_param_decline.set_pos(0.1, 0, -0.9)
         self.btn_param_accept.set_pos(-1.6, 0, -0.9)
+
+        for item in self.inventory.inv_space():
+            if item:
+                OnscreenText(text=item,
+                             pos=(-1.4, 0.02),
+                             scale=0.07,
+                             mayChange=True,
+                             parent=self.base.frame_inv_int)
+
         self.base.frame_inv.hide()
 
     def clear_ui_inventory(self):

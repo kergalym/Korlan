@@ -1,4 +1,5 @@
 from Engine.Collisions.collisions import Collisions
+from Engine.Actors.Player.inventory import Inventory
 
 
 class PlayerState:
@@ -37,6 +38,7 @@ class PlayerState:
 
         self.render = render
         self.col = Collisions()
+        self.inventory = Inventory()
 
     def set_action_state(self, action, state):
         if (action
@@ -126,8 +128,6 @@ class PlayerState:
                                 base.is_item_close_to_use = True
                                 base.is_item_far_to_use = False
                                 item = assets[key]
-                                # Get bullet shape node path
-                                item = item.get_parent()
                             elif base.is_item_in_use:
                                 base.is_item_close_to_use = False
                                 base.is_item_far_to_use = True
@@ -141,46 +141,47 @@ class PlayerState:
                     and base.is_item_in_use is False
                     and base.is_item_in_use_long is False):
                 if exposed_joint.find(item.get_name()).is_empty():
+                    # Get bullet shape node path
+                    item = item.get_parent()
                     # Disable collide mask before attaching
                     # because we don't want colliding
                     # between character and item.
-                    item.set_collide_mask(self.col.no_mask)
+                    item.set_collide_mask(self.col.mask2)
                     item.reparent_to(exposed_joint)
                     base.in_use_item_name = item.get_name()
+                    item.set_scale(7.0)
+                    item.node().set_mass(0)
+                    item.set_h(205.0)
+                    item.set_x(0.4)
+                    item.set_y(8.0)
+                    item.set_z(5.2)
 
-                    item_np = exposed_joint.find(item.get_name())
-                    # After reparenting to joint the item inherits joint coordinates,
-                    # so we find it in given joint and then do rotate and rescale the item
-                    # by multiplying.
-                    if item_np.is_empty() is False:
-                        # scale = item_np.get_scale()[0] * item_scale[0]
-                        scale = 60.0
-                        item_np.set_scale(scale)
-                        item_np.set_h(205.0)
-                        item_np.set_y(-20.4)
-                        item_np.set_x(15.4)
+                    self.inventory.get_item(item)
 
-                        # Set item state
-                        base.is_item_in_use = True
-                        base.is_item_in_use_long = True
-                        base.is_item_close_to_use = False
-                        base.is_item_far_to_use = False
+                    # Set item state
+                    base.is_item_in_use = True
+                    base.is_item_in_use_long = True
+                    base.is_item_close_to_use = False
+                    base.is_item_far_to_use = False
 
             elif (base.is_item_close_to_use is False
                   and base.is_item_in_use is True
                   and base.is_item_in_use_long is True):
-                item_np = self.render.find("**/{0}".format(base.in_use_item_name))
-                item_np.reparent_to(self.render)
-                #item_np.set_pos(player.get_pos() - (0.4, -1.0, 0))
-                #item_np.set_hpr(0, 0, 0)
-                #item_np.set_scale(1.25, 1.25, 1.25)
-                item_np.set_collide_mask(self.col.mask)
+                if not render.find('**/World').is_empty():
+                    world = render.find('**/World')
+                    item_np = self.render.find("**/{0}".format(base.in_use_item_name))
+                    item_np.reparent_to(world)
+                    item_np.set_pos(player.get_pos() - (0.4, -1.0, 0))
+                    item_np.set_hpr(0, 0, 0)
+                    # item_np.set_scale(1.25, 1.25, 1.25)
+                    item_np.node().set_mass(10)
+                    item_np.set_collide_mask(self.col.mask)
 
-                # Set item state
-                base.is_item_in_use = False
-                base.is_item_in_use_long = False
-                base.is_item_close_to_use = False
-                base.is_item_far_to_use = False
+                    # Set item state
+                    base.is_item_in_use = False
+                    base.is_item_in_use_long = False
+                    base.is_item_close_to_use = False
+                    base.is_item_far_to_use = False
 
     def pass_item(self, player, joint, item):
         if (player
