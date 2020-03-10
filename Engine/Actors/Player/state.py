@@ -146,11 +146,16 @@ class PlayerState:
                     # Disable collide mask before attaching
                     # because we don't want colliding
                     # between character and item.
-                    item.set_collide_mask(self.col.mask2)
+                    item.set_collide_mask(self.col.no_mask)
                     item.reparent_to(exposed_joint)
                     base.in_use_item_name = item.get_name()
+                    base.in_use_item_mass_orig = item.node().get_mass()
+                    base.in_use_item_loc_orig = item.get_parent()
                     item.set_scale(7.0)
+
+                    # Set mass to 0 to make item follow actor joint
                     item.node().set_mass(0)
+
                     item.set_h(205.0)
                     item.set_x(0.4)
                     item.set_y(8.0)
@@ -169,13 +174,19 @@ class PlayerState:
                   and base.is_item_in_use_long is True):
                 if not render.find('**/World').is_empty():
                     world = render.find('**/World')
-                    item_np = self.render.find("**/{0}".format(base.in_use_item_name))
-                    item_np.reparent_to(world)
-                    item_np.set_pos(player.get_pos() - (0.4, -1.0, 0))
-                    item_np.set_hpr(0, 0, 0)
-                    # item_np.set_scale(1.25, 1.25, 1.25)
-                    item_np.node().set_mass(10)
-                    item_np.set_collide_mask(self.col.mask)
+                    item = self.render.find("**/{0}".format(base.in_use_item_name))
+                    item.reparent_to(world)
+                    item.set_scale(0.2)
+                    item.set_hpr(0, 0, 0)
+                    item.node().set_mass(base.in_use_item_mass_orig)
+                    item.set_collide_mask(self.col.mask)
+
+                    # Put the item near player
+                    # TODO: Always check if player.get_parent() is BS
+                    item.set_pos(player.get_parent().get_pos() - (0.20, -0.5, 0))
+
+                    # Set the item Z coordinate to 0 to prevent high jumping
+                    item.set_z(0)
 
                     # Set item state
                     base.is_item_in_use = False

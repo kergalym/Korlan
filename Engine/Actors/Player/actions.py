@@ -207,6 +207,7 @@ class Actions:
 
         # If the camera is too far from player, move it closer.
         # If the camera is too close to player, move it farther.
+        # TODO: Always check if player.get_parent() is BS
         camvec = player.get_parent().get_pos() - self.base.camera.get_pos()
         camvec.set_z(0)
         camdist = camvec.length()
