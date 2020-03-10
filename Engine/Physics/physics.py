@@ -42,7 +42,10 @@ class PhysicsAttr:
             self.debug_nodepath.show()
         self.world = BulletWorld()
         self.world.set_gravity(Vec3(0, 0, -9.81))
-        self.world.set_debug_node(self.debug_nodepath.node())
+
+        if hasattr(self.debug_nodepath, "node"):
+            self.world.set_debug_node(self.debug_nodepath.node())
+
         ground_shape = BulletPlaneShape(Vec3(0, 0, 1), 0)
         ground_nodepath = self.world_nodepath.attachNewNode(BulletRigidBodyNode('Ground'))
         ground_nodepath.node().addShape(ground_shape)
