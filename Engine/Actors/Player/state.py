@@ -122,7 +122,9 @@ class PlayerState:
             for key in items_dist_vect:
                 if key and assets.get(key):
                     if key == assets[key].get_name():
-                        if (items_dist_vect[key][1] > 0.0
+                        if (items_dist_vect[key][0] > 0.0
+                                and items_dist_vect[key][0] < 0.7
+                                or items_dist_vect[key][1] > 0.0
                                 and items_dist_vect[key][1] < 0.7):
                             if base.is_item_in_use is False:
                                 base.is_item_close_to_use = True
@@ -183,7 +185,7 @@ class PlayerState:
 
                     # Put the item near player
                     # TODO: Always check if player.get_parent() is BS
-                    item.set_pos(player.get_parent().get_pos() - (0.20, -0.5, 0))
+                    item.set_pos(player.get_parent().get_pos() - (0.25, -0.5, 0))
 
                     # Set the item Z coordinate to 0 to prevent high jumping
                     item.set_z(0)
