@@ -154,7 +154,6 @@ class PlayerState:
                     item.reparent_to(exposed_joint)
                     base.in_use_item_name = item.get_name()
                     base.in_use_item_mass_orig = item.node().get_mass()
-                    base.in_use_item_loc_orig = item.get_parent()
                     item.set_scale(7.0)
 
                     # Set mass to 0 to make item follow actor joint

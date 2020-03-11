@@ -51,9 +51,9 @@ class PhysicsAttr:
         ground_shape = BulletPlaneShape(Vec3(0, 0, 1), 0)
         ground_nodepath = self.world_nodepath.attachNewNode(BulletRigidBodyNode('Ground'))
         ground_nodepath.node().addShape(ground_shape)
-        ground_nodepath.setPos(0, 0, 0.10)
-        ground_nodepath.setCollideMask(BitMask32.allOn())
-        self.world.attachRigidBody(ground_nodepath.node())
+        ground_nodepath.set_pos(0, 0, 0.10)
+        ground_nodepath.set_collide_mask(BitMask32.allOn())
+        self.world.attach_rigid_body(ground_nodepath.node())
 
         taskMgr.add(self.update_physics_task,
                     "update_physics",
