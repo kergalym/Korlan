@@ -145,7 +145,8 @@ class PlayerState:
                     and base.is_item_in_use_long is False):
                 if exposed_joint.find(item.get_name()).is_empty():
                     # Get bullet shape node path
-                    item = item.get_parent()
+                    if "BS" in item.get_parent().get_name():
+                        item = item.get_parent()
                     # Disable collide mask before attaching
                     # because we don't want colliding
                     # between character and item.
@@ -190,9 +191,6 @@ class PlayerState:
                         player = player.get_parent()
 
                     item.set_pos(player.get_pos() - (0.20, -0.5, 0))
-
-                    # Set the item Z coordinate to 0 to prevent high jumping
-                    item.set_z(0)
 
                     # Set item state
                     base.is_item_in_use = False

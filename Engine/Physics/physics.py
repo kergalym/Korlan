@@ -41,6 +41,8 @@ class PhysicsAttr:
             self.debug_nodepath = self.world_nodepath.attach_new_node(BulletDebugNode('Debug'))
             self.debug_nodepath.show()
         self.world = BulletWorld()
+        # Make bullet world instance global to use where it necessary
+        base.bullet_world = self.world
         self.world.set_gravity(Vec3(0, 0, -9.81))
 
         if hasattr(self.debug_nodepath, "node"):
@@ -84,3 +86,4 @@ class PhysicsAttr:
             return task.done
 
         return task.cont
+
