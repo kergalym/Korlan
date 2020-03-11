@@ -43,6 +43,7 @@ class Actions:
             items_dist_vect_y = [items_dist_vect[k][1] for k in items_dist_vect]
             items_dist_vect_y.sort()
             for name, y_pos in zip(items_dist_vect, items_dist_vect_y):
+                # TODO Add check for x_pos
                 if (y_pos > 0.0 and y_pos < 0.7
                         and base.is_item_in_use is False):
                     base.is_item_close_to_use = True
@@ -207,8 +208,11 @@ class Actions:
 
         # If the camera is too far from player, move it closer.
         # If the camera is too close to player, move it farther.
-        # TODO: Always check if player.get_parent() is BS
-        camvec = player.get_parent().get_pos() - self.base.camera.get_pos()
+        # If player has the bullet shape
+        if "BS" in player.get_parent().get_name():
+            player = player.get_parent()
+
+        camvec = player.get_pos() - self.base.camera.get_pos()
         camvec.set_z(0)
         camdist = camvec.length()
         camvec.normalize()
@@ -219,13 +223,13 @@ class Actions:
             self.base.camera.set_pos(self.base.camera.get_pos() - camvec * (5 - camdist))
             camdist = 5.0
 
-        if self.base.camera.get_z() < player.get_parent().get_z() + 2.0:
-            self.base.camera.set_z(player.get_parent().get_z() + 2.0)
+        if self.base.camera.get_z() < player.get_z() + 2.0:
+            self.base.camera.set_z(player.get_z() + 2.0)
 
         # The camera should look in Korlan direction,
         # but it should also try to stay horizontal, so look at
         # a floater which hovers above Korlan's head.
-        self.base.camera.look_at(self.mouse.set_floater(player.get_parent()))
+        self.base.camera.look_at(self.mouse.set_floater(player))
 
         return task.cont
 
@@ -241,7 +245,6 @@ class Actions:
             if (self.kbd.keymap["right"]
                     and base.input_state.is_set('turnRight')):
                 omega = -200.0
-            # TODO make backward work
 
             if (self.kbd.keymap["forward"]
                     and self.kbd.keymap["run"] == 0

@@ -122,6 +122,7 @@ class PlayerState:
             for key in items_dist_vect:
                 if key and assets.get(key):
                     if key == assets[key].get_name():
+                        # noinspection PyChainedComparisons
                         if (items_dist_vect[key][0] > 0.0
                                 and items_dist_vect[key][0] < 0.7
                                 or items_dist_vect[key][1] > 0.0
@@ -184,8 +185,11 @@ class PlayerState:
                     item.set_collide_mask(self.col.mask)
 
                     # Put the item near player
-                    # TODO: Always check if player.get_parent() is BS
-                    item.set_pos(player.get_parent().get_pos() - (0.20, -0.5, 0))
+                    # If player has the bullet shape
+                    if "BS" in player.get_parent().get_name():
+                        player = player.get_parent()
+
+                    item.set_pos(player.get_pos() - (0.20, -0.5, 0))
 
                     # Set the item Z coordinate to 0 to prevent high jumping
                     item.set_z(0)
