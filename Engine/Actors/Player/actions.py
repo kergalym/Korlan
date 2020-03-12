@@ -129,7 +129,9 @@ class Actions:
     def seq_set_player_pos_wrapper(self, player, pos_y):
         if (player and pos_y
                 and isinstance(pos_y, float)):
-            player.setY(player, pos_y)
+            if "BS" in player.get_parent().get_name():
+                player = player.get_parent()
+            player.set_y(player, pos_y)
 
     """ Prepares actions for scene"""
 
