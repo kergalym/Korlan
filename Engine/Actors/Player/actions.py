@@ -267,7 +267,7 @@ class Actions:
                     and base.states['is_crouch_moving']
                     and base.states['is_idle'] is False):
                 if base.input_state.is_set('forward'):
-                    speed.setY(move_unit)
+                    speed.setY(-move_unit)
             if (self.kbd.keymap["backward"]
                     and self.kbd.keymap["run"] == 0
                     and base.states['is_moving']

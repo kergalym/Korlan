@@ -134,6 +134,18 @@ class PlayerState:
                             elif base.is_item_in_use:
                                 base.is_item_close_to_use = False
                                 base.is_item_far_to_use = True
+                        # noinspection PyChainedComparisons
+                        elif (items_dist_vect[key][0] < -0.0
+                                and items_dist_vect[key][0] > -0.7
+                                or items_dist_vect[key][1] < -0.0
+                                and items_dist_vect[key][1] > -0.7):
+                            if base.is_item_in_use is False:
+                                base.is_item_close_to_use = True
+                                base.is_item_far_to_use = False
+                                item = assets[key]
+                            elif base.is_item_in_use:
+                                base.is_item_close_to_use = False
+                                base.is_item_far_to_use = True
                         else:
                             base.is_item_close_to_use = False
                             base.is_item_far_to_use = True
