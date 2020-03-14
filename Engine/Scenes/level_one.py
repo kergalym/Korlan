@@ -28,7 +28,7 @@ class LevelOne:
         self.pos_z = 0.0
         self.anim = None
 
-    def reload_menu_scene(self):
+    def unload_game_scene(self):
         if self.base.game_mode:
             self.base.game_mode = False
             self.base.menu_mode = True
@@ -39,7 +39,8 @@ class LevelOne:
             # Remove all lights
             render.clearLight()
 
-            if render.find("**/World").is_empty() is False:
+            # Remove Bullet World
+            if not render.find("**/World").is_empty():
                 render.find("**/World").remove_node()
 
             # Remove all tasks except system
@@ -83,14 +84,15 @@ class LevelOne:
             base.game_mode = False
             base.menu_mode = True
 
-    def load_new_game(self):
-        self.base.accept("escape", self.reload_menu_scene)
+    def unload_menu_scene(self):
+        self.base.accept("escape", self.unload_game_scene)
         assets = self.base.assets_collector()
 
         # Remove all lights
         render.clearLight()
 
-        if render.find("**/World").is_empty() is False:
+        # Remove Bullet World
+        if not render.find("**/World").is_empty():
             render.find("**/World").remove_node()
 
         # Remove all tasks except system
@@ -113,6 +115,9 @@ class LevelOne:
 
         for key in assets:
             self.loader.unload_model(assets[key])
+
+    def load_new_game(self):
+        self.unload_menu_scene()
 
         """ Assets """
         self.render_attr.set_lighting(name='directionalLight',
