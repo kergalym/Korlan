@@ -196,7 +196,8 @@ class LevelOne:
         self.npc.set_actor(mode="game",
                            name="NPC",
                            path=assets['NPC'],
-                           animation=[anims[0]['LookingAround'], anims[1]['LookingAround']],
+                           animation=[anims[0]['LookingAround'],
+                                      anims[1]['LookingAround']],
                            axis=[-2.0, 8.0, self.pos_z],
                            rotation=[0, 0, 0],
                            scale=[1.25, 1.25, 1.25])
