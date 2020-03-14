@@ -149,6 +149,8 @@ class Actions:
             taskMgr.add(self.player_init, "player_init",
                         extraArgs=[player, anims],
                         appendTask=True)
+
+            # TODO Fix performance regression by code review
             taskMgr.add(self.check_distance_task,
                         "check_distance",
                         extraArgs=[player],
@@ -156,11 +158,8 @@ class Actions:
 
             self.col.set_inter_collision(player=player)
 
-            # Set up the camera
-            self.base.camera.set_pos(player.getX(), player.get_y() + 40, 2)
-
     """ Prepares the player for scene """
-
+    
     def player_init(self, player, anims, task):
         # Pass the player object to FSM
         self.fsmplayer.get_player(player=player)
