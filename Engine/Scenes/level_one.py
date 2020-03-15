@@ -78,7 +78,7 @@ class LevelOne:
             self.base.camera.set_hpr(0, 0, 0)
             self.base.cam.set_pos(0, 0, 0)
             self.base.cam.set_hpr(0, 0, 0)
-            self.base.menu_scene_load()
+            self.base.load_menu_scene()
             self.base.frame.show()
 
             base.game_mode = False

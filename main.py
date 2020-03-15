@@ -79,8 +79,9 @@ p3d.load_prc_file_data(
     'audio-library-name p3openal_audio\n'
     'model-cache-dir Cache\n'
     'model-cache-textures t\n'
-    'want-pstats 1\n'
     'bullet-filter-algorithm groups-mask\n'
+    'hardware-animated-vertices false\n'
+    'basic-shaders-only false\n'
 )
 
 
@@ -527,8 +528,8 @@ class Main(ShowBase):
                                      round(vect_z, 1))
             return remained
 
-    def menu_scene_load(self):
-        """ Function    : menu_scene_load
+    def load_menu_scene(self):
+        """ Function    : load_menu_scene
 
             Description : Load menu scene.
 
@@ -616,7 +617,7 @@ class Main(ShowBase):
 
 
 app = Main()
-app.menu_scene_load()
+app.load_menu_scene()
 
 if __name__ == '__main__':
     app.run()

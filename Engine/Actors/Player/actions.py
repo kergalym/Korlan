@@ -150,7 +150,6 @@ class Actions:
                         extraArgs=[player, anims],
                         appendTask=True)
 
-            # TODO Fix performance regression by code review
             taskMgr.add(self.check_distance_task,
                         "check_distance",
                         extraArgs=[player],

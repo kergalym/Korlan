@@ -34,8 +34,6 @@ class Collisions:
             self.korlan.setTag(key=player.get_name(), value='1')
             # Octree-optimised "into" objects defined here
             assets_nodes = base.asset_nodes_assoc_collector()
-            mountains = assets_nodes.get('Mountains')
-            mountains.set_collide_mask(self.mask_walls)
             box = assets_nodes.get('Box')
             box.set_tag(key=box.get_name(), value='1')
             self.physics_attr.set_physics()

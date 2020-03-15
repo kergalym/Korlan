@@ -32,10 +32,19 @@ class Mouse:
 
             Return      : Nodepath
         """
+        # Remove floater node before assigning a node
+        # to prevent object duplicating
+        # and further in-game performance degradation
         if player:
-            self.player = player
-            self.floater = NodePath(PandaNode("floater"))
-            self.floater.reparent_to(self.player)
+            if player.find("**/floater").is_empty():
+                self.player = player
+                self.floater = NodePath(PandaNode("floater"))
+                self.floater.reparent_to(self.player)
+            elif not player.find("**/floater").is_empty():
+                player.find("**/floater").remove_node()
+                self.player = player
+                self.floater = NodePath(PandaNode("floater"))
+                self.floater.reparent_to(self.player)
             self.floater.set_z(self.pos_z)
             return self.floater
 
