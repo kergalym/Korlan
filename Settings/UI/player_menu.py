@@ -57,6 +57,11 @@ class PlayerMenu:
         self.btn_param_accept = None
         self.btn_param_decline = None
 
+        """ Paths """
+        self.inv_img_path = '{0}/Settings/UI/ui_tex/player_menu/body_inventory.png'.format(
+            self.game_dir)
+        self.inv_img_path = str(base.transform_path(self.inv_img_path))
+
         if exists('{0}/Settings/UI/cfg_path.json'.format(self.game_dir)):
             with open('{0}/Settings/UI/cfg_path.json'.format(self.game_dir)) as json_file:
                 self.json = json.load(json_file)
@@ -84,8 +89,7 @@ class PlayerMenu:
                                                       scrollBarWidth=0.03,
                                                       autoHideScrollBars=True)
 
-        self.pic_body_inv = OnscreenImage(image='{0}/Settings/UI/ui_tex/player_menu/body_inventory.png'.format(
-            self.game_dir))
+        self.pic_body_inv = OnscreenImage(image=self.inv_img_path)
         """
         self.pic_left = OnscreenImage(image='{0}/Settings/UI/ui_tex/ornament_kz.png'.format(self.game_dir),
                                       pos='', color=(63.9, 63.9, 63.9, 0.5))

@@ -247,6 +247,12 @@ class Main(ShowBase):
                 # Turn that setting dict to pass it further
                 self.game_settings.write(config_ini)
 
+    def transform_path(self, path):
+        if isinstance(path, str):
+            transformed_path = str(PurePath(path))
+            transformed_path = Filename.from_os_specific(transformed_path)
+            return transformed_path
+
     def assets_collector(self):
         """ Function    : assets_collector
 
@@ -258,8 +264,7 @@ class Main(ShowBase):
 
             Return      : Dictionary
         """
-        asset_path = str(PurePath(self.game_dir, "Assets"))
-        asset_path = Filename.from_os_specific("{0}/".format(asset_path))
+        asset_path = self.transform_path(path="{0}/Assets".format(self.game_dir))
         assets = {}
         exclude_anims = 'Animations'
         exclude_tex = 'tex'
@@ -299,8 +304,7 @@ class Main(ShowBase):
 
             Return      : List
         """
-        anims_path = str(PurePath(self.game_dir, "Assets", "Animations"))
-        anims_path = Filename.from_os_specific("{0}/".format(anims_path))
+        anims_path = self.transform_path(path="{0}/Assets/Animations".format(self.game_dir))
         collected = listdir(anims_path)
         path = {}
         anims = {}
