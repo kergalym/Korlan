@@ -29,7 +29,7 @@ class Actions:
         self.kbd = Keyboard()
         self.mouse = Mouse()
         self.physics_attr = PhysicsAttr()
-        self.fsmplayer = FsmPlayer()
+        self.fsm_player = FsmPlayer()
         self.idle_player = Idle()
         self.item_cls = Items()
         self.player_menu = PlayerMenu()
@@ -161,7 +161,7 @@ class Actions:
     
     def player_init(self, player, anims, task):
         # Pass the player object to FSM
-        self.fsmplayer.get_player(player=player)
+        self.fsm_player.get_player(player=player)
 
         # TODO: change animation
         any_action = player.get_anim_control(anims['LookingAround'])

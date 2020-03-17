@@ -21,12 +21,11 @@ class Collisions:
         self.korlan = None
 
         self.no_mask = BitMask32.allOff()
-        self.mask_floor = BitMask32(0x1)
-        self.mask_walls = BitMask32(0x2)
         self.mask = BitMask32.allOn()
+        self.mask1 = BitMask32.bit(1)
         self.mask2 = BitMask32.bit(2)
+        self.mask3 = BitMask32.bit(3)
         self.mask5 = BitMask32.bit(5)
-        self.mask3 = BitMask32(0x3)
 
     def set_inter_collision(self, player):
         if player:
@@ -57,6 +56,7 @@ class Collisions:
                     actor_bs = self.bs.set_bs_capsule()
                 if shape == 'sphere':
                     actor_bs = self.bs.set_bs_sphere()
+                base.actor_bs = actor_bs
                 base.bullet_char_contr_node = BulletCharacterControllerNode(actor_bs,
                                                                             0.4,
                                                                             '{0}:BS'.format(actor.get_name()))

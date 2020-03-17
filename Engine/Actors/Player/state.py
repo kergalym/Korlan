@@ -159,22 +159,31 @@ class PlayerState:
                     # Get bullet shape node path
                     if "BS" in item.get_parent().get_name():
                         item = item.get_parent()
+                    if "BS" in player.get_parent().get_name():
+                        player.get_parent().set_collide_mask(self.col.mask1)
+                    else:
+                        player.set_collide_mask(self.col.mask1)
+
                     # Disable collide mask before attaching
                     # because we don't want colliding
                     # between character and item.
-                    item.set_collide_mask(self.col.no_mask)
+                    item.set_collide_mask(self.col.mask2)
+                    # Set kinematics to make item follow actor joint
+                    item.node().set_kinematic(True)
+
                     item.reparent_to(exposed_joint)
+
                     base.in_use_item_name = item.get_name()
                     base.in_use_item_mass_orig = item.node().get_mass()
                     item.set_scale(7.0)
-
-                    # Set mass to 0 to make item follow actor joint
-                    item.node().set_mass(0)
-
                     item.set_h(205.0)
                     item.set_x(0.4)
                     item.set_y(8.0)
                     item.set_z(5.2)
+
+                    # Prevent fast moving objects from passing through thin obstacles.
+                    item.node().set_ccd_motion_threshold(1e-7)
+                    item.node().set_ccd_swept_sphere_radius(0.50)
 
                     self.inventory.get_item(item)
 
@@ -200,7 +209,6 @@ class PlayerState:
                     # If player has the bullet shape
                     if "BS" in player.get_parent().get_name():
                         player = player.get_parent()
-
                     item.set_pos(player.get_pos() - (0.20, -0.5, 0))
 
                     # Set item state
