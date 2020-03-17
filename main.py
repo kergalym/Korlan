@@ -272,9 +272,11 @@ class Main(ShowBase):
                     dirs.remove(exclude_tex)
                 for file in files:
                     # include one of them
-                    if '.egg' and '.egg.bam' not in file:
+                    if (file.endswith(".egg")
+                            and not file.endswith(".egg.bam")):
                         key = re.sub('.egg', '', file)
-                    elif '.egg.bam' and '.egg' not in file:
+                    elif (file.endswith(".egg.bam")
+                          and not file.endswith(".egg")):
                         key = re.sub('.egg.bam', '', file)
                     path = str(PurePath("{0}/".format(root), file))
                     assets[key] = Filename.from_os_specific(path).getFullpath()
@@ -306,9 +308,11 @@ class Main(ShowBase):
             for a in collected:
                 key = re.sub('Korlan-', '', a)
                 # include one of them
-                if '.egg' and '.egg.bam' not in key:
+                if (key.endswith(".egg")
+                        and not key.endswith(".egg.bam")):
                     key = re.sub('.egg', '', key)
-                elif '.egg.bam' and '.egg' not in key:
+                elif (key.endswith(".egg.bam")
+                      and not key.endswith(".egg")):
                     key = re.sub('.egg.bam', '', key)
                 anims[key] = key
                 anim_path = str(PurePath("{0}/".format(anims_path), a))
