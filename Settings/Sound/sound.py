@@ -23,7 +23,7 @@ class Sound:
         self.base.enable_music(True)
         self.base.enable_sound_effects(True)
 
-        sounds = self.base.collect_sounds()
+        sounds = self.base.sounds_collector()
 
         if sounds and isinstance(sounds, dict):
             print(sounds)

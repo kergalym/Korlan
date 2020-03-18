@@ -30,6 +30,10 @@ class Menu:
         """ Imports, Variables, etc """
         self.base = base
         self.game_dir = base.game_dir
+        self.images = base.textures_collector()
+        self.fonts = base.fonts_collector()
+        self.configs = base.cfg_collector(path="{0}/Settings/UI".format(self.game_dir))
+        self.lng_configs = base.cfg_collector(path="{0}/Configs/Language/".format(self.game_dir))
         self.level_one = LevelOne()
         self.json = json
         self.pos_X = 0
@@ -96,8 +100,8 @@ class Menu:
 
         self.cfg_path = None
 
-        if exists('{0}/Settings/UI/cfg_path.json'.format(self.game_dir)):
-            with open('{0}/Settings/UI/cfg_path.json'.format(self.game_dir)) as json_file:
+        if exists(self.configs['cfg_path']):
+            with open(self.configs['cfg_path']) as json_file:
                 self.json = json.load(json_file)
 
         self.language = None
@@ -107,12 +111,12 @@ class Menu:
 
             if exists(self.cfg_path):
                 lng_to_load = self.m_settings.input_validate(self.cfg_path, 'lng')
-                with open('{0}/Configs/Language/lg_{1}.json'.format(self.game_dir, lng_to_load), 'r') as json_file:
+                with open(self.lng_configs['lg_{0}'.format(lng_to_load)], 'r') as json_file:
                     self.language = json.load(json_file)
 
         """ Buttons & Fonts"""
-        # self.menu_font = 'Settings/UI/Open_Sans/OpenSans-Regular.ttf'
-        self.menu_font = '{0}/Settings/UI/JetBrainsMono-1.0.2/ttf/JetBrainsMono-Regular.ttf'.format(self.game_dir)
+        # self.menu_font = self.fonts['OpenSans-Regular']
+        self.menu_font = self.fonts['JetBrainsMono-Regular']
 
         self.btn_new_game = None
         self.btn_load_game = None
@@ -136,11 +140,11 @@ class Menu:
         self.base.frame = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
                                       frameSize=self.base.frame_size)
 
-        self.logo = OnscreenImage(image='{0}/Settings/UI/ui_tex/korlan_logo_tengri.png'.format(self.game_dir),
+        self.logo = OnscreenImage(image=self.images['korlan_logo_tengri'],
                                   pos=self.logo_pos)
-        self.ornament_left = OnscreenImage(image='{0}/Settings/UI/ui_tex/ornament_kz.png'.format(self.game_dir),
+        self.ornament_left = OnscreenImage(image=self.images['ornament_kz'],
                                            pos=self.ornament_l_pos, color=(63.9, 63.9, 63.9, 0.5))
-        self.ornament_right = OnscreenImage(image='{0}/Settings/UI/ui_tex/ornament_kz.png'.format(self.game_dir),
+        self.ornament_right = OnscreenImage(image=self.images['ornament_kz'],
                                             pos=self.ornament_r_pos, color=(63.9, 63.9, 63.9, 0.5))
 
         self.btn_new_game = DirectButton(text=self.language['new_game'], text_bg=(0, 0, 0, 1),

@@ -250,7 +250,7 @@ class Main(ShowBase):
     def transform_path(self, path):
         if isinstance(path, str):
             transformed_path = str(PurePath(path))
-            transformed_path = Filename.from_os_specific(transformed_path)
+            transformed_path = Filename.from_os_specific(transformed_path).getFullpath()
             return transformed_path
 
     def assets_collector(self):
@@ -268,7 +268,6 @@ class Main(ShowBase):
         assets = {}
         exclude_anims = 'Animations'
         exclude_tex = 'tex'
-        key = None
         if exists(asset_path):
             for root, dirs, files in walk(asset_path, topdown=True):
                 if exclude_anims in dirs:
@@ -280,12 +279,13 @@ class Main(ShowBase):
                     if (file.endswith(".egg")
                             and not file.endswith(".egg.bam")):
                         key = re.sub('.egg', '', file)
+                        path = str(PurePath("{0}/".format(root), file))
+                        assets[key] = Filename.from_os_specific(path).getFullpath()
                     elif (file.endswith(".egg.bam")
                           and not file.endswith(".egg")):
                         key = re.sub('.egg.bam', '', file)
-                    path = str(PurePath("{0}/".format(root), file))
-                    assets[key] = Filename.from_os_specific(path).getFullpath()
-
+                        path = str(PurePath("{0}/".format(root), file))
+                        assets[key] = Filename.from_os_specific(path).getFullpath()
             return assets
 
         else:
@@ -315,13 +315,15 @@ class Main(ShowBase):
                 if (key.endswith(".egg")
                         and not key.endswith(".egg.bam")):
                     key = re.sub('.egg', '', key)
+                    anims[key] = key
+                    anim_path = str(PurePath("{0}/".format(anims_path), a))
+                    path[key] = Filename.from_os_specific(anim_path).getFullpath()
                 elif (key.endswith(".egg.bam")
                       and not key.endswith(".egg")):
                     key = re.sub('.egg.bam', '', key)
-                anims[key] = key
-                anim_path = str(PurePath("{0}/".format(anims_path), a))
-                path[key] = Filename.from_os_specific(anim_path).getFullpath()
-
+                    anims[key] = key
+                    anim_path = str(PurePath("{0}/".format(anims_path), a))
+                    path[key] = Filename.from_os_specific(anim_path).getFullpath()
             return [anims, path]
 
         else:
@@ -405,8 +407,78 @@ class Main(ShowBase):
                                 children.append(node_path)
                 return children
 
-    def collect_sounds(self):
-        """ Function    : collect_sounds
+    def cfg_collector(self, path):
+        """ Function    : cfg_collector
+
+            Description : Collect json config files.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : Dictionary
+        """
+        cfg_path = self.transform_path(path=path)
+        configs = {}
+        if exists(cfg_path):
+            for root, dirs, files in walk(cfg_path, topdown=True):
+                for file in files:
+                    if '.json' in file:
+                        key = re.sub('.json', '', file)
+                        path = str(PurePath("{0}/".format(root), file))
+                        configs[key] = Filename.from_os_specific(path).getFullpath()
+            return configs
+
+    def fonts_collector(self):
+        """ Function    : fonts_collector
+
+            Description : Collect fonts.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : Dictionary
+        """
+        font_path = self.transform_path(path="{0}/Settings/UI".format(self.game_dir))
+        fonts = {}
+        if exists(font_path):
+            for root, dirs, files in walk(font_path, topdown=True):
+                for file in files:
+                    if '.ttf' in file:
+                        key = re.sub('.ttf', '', file)
+                        path = str(PurePath("{0}/".format(root), file))
+                        fonts[key] = Filename.from_os_specific(path).getFullpath()
+            return fonts
+
+    def textures_collector(self):
+        """ Function    : textures_collector
+
+            Description : Collect textures.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : Dictionary
+        """
+        tex_path = self.transform_path(path="{0}/Settings/UI".format(self.game_dir))
+        textures = {}
+        if exists(tex_path):
+            for root, dirs, files in walk(tex_path, topdown=True):
+                for file in files:
+                    if '.png' in file:
+                        key = re.sub('.png', '', file)
+                        path = str(PurePath("{0}/".format(root), file))
+                        textures[key] = Filename.from_os_specific(path).getFullpath()
+                    elif '.jpg' in file:
+                        key = re.sub('.jpg', '', file)
+                        path = str(PurePath("{0}/".format(root), file))
+                        textures[key] = Filename.from_os_specific(path).getFullpath()
+            return textures
+
+    def sounds_collector(self):
+        """ Function    : sounds_collector
 
             Description : Collect game asset sounds.
 
@@ -416,17 +488,15 @@ class Main(ShowBase):
 
             Return      : Dictionary
         """
-        sound_path = str(PurePath(self.game_dir, "Assets", "Sounds"))
-        sound_path = Filename.from_os_specific("{0}/".format(sound_path))
+        sound_path = self.transform_path(path="{0}/Assets/Sounds".format(self.game_dir))
         sounds = {}
-        key = None
         if exists(sound_path):
             for root, dirs, files in walk(sound_path, topdown=True):
                 for file in files:
                     if '.ogg' in file:
                         key = re.sub('.ogg', '', file)
-                    path = str(PurePath("{0}/".format(root), file))
-                    sounds[key] = Filename.from_os_specific(path).get_full_path()
+                        path = str(PurePath("{0}/".format(root), file))
+                        sounds[key] = Filename.from_os_specific(path).getFullpath()
             return sounds
 
         """ Enable this when game will be ready for distribution

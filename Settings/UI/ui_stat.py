@@ -6,9 +6,14 @@ class UIStat:
     def __init__(self):
         self.game_settings = base.game_settings
         self.game_dir = base.game_dir
+        self.fonts = base.fonts_collector()
         # instance of the abstract class
         self.font = FontPool
-        self.menu_font = '{0}/Settings/UI/JetBrainsMono-1.0.2/ttf/JetBrainsMono-Regular.ttf'.format(self.game_dir)
+
+        """ Texts & Fonts"""
+        # self.menu_font = self.fonts['OpenSans-Regular']
+        self.menu_font = self.fonts['JetBrainsMono-Regular']
+
         if self.game_settings['Debug']['set_debug_mode'] == "YES":
             self.title_dbg_mode_obj_pos = OnscreenText(text="",
                                                        pos=(-1.8, 0.9),
