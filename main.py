@@ -247,11 +247,15 @@ class Main(ShowBase):
                 # Turn that setting dict to pass it further
                 self.game_settings.write(config_ini)
 
-    def transform_path(self, path):
+    def transform_path(self, path, style):
         if isinstance(path, str):
-            transformed_path = str(PurePath(path))
-            transformed_path = Filename.from_os_specific(transformed_path).getFullpath()
-            return transformed_path
+            if style == 'unix':
+                transformed_path = str(PurePath(path))
+                transformed_path = Filename.from_os_specific(transformed_path)
+                return transformed_path
+            elif style == 'compat':
+                transformed_path = Filename(path).to_os_specific()
+                return transformed_path
 
     def assets_collector(self):
         """ Function    : assets_collector
@@ -264,7 +268,8 @@ class Main(ShowBase):
 
             Return      : Dictionary
         """
-        asset_path = self.transform_path(path="{0}/Assets".format(self.game_dir))
+        asset_path = self.transform_path(path="{0}/Assets".format(self.game_dir),
+                                         style='compat')
         assets = {}
         exclude_anims = 'Animations'
         exclude_tex = 'tex'
@@ -304,7 +309,7 @@ class Main(ShowBase):
 
             Return      : List
         """
-        anims_path = self.transform_path(path="{0}/Assets/Animations".format(self.game_dir))
+        anims_path = self.transform_path(path="{0}/Assets/Animations".format(self.game_dir), style='compat')
         collected = listdir(anims_path)
         path = {}
         anims = {}
@@ -327,9 +332,8 @@ class Main(ShowBase):
             return [anims, path]
 
         else:
-            logging.critical("\nI'm trying to load Korlan player, but there is no suitable player asset. "
-                             "\nNo suitable player asset found!"
-                             "\nPlayer path: {0}".format(anims_path))
+            logging.critical("\nI'm trying to load assets, but there aren't suitable assets. "
+                             "\nCurrent path: {0}".format(anims_path))
             sys_exit("\nSomething is getting wrong. Please, check the game log first")
 
     def asset_nodes_collector(self):
@@ -418,7 +422,7 @@ class Main(ShowBase):
 
             Return      : Dictionary
         """
-        cfg_path = self.transform_path(path=path)
+        cfg_path = self.transform_path(path=path, style='compat')
         configs = {}
         if exists(cfg_path):
             for root, dirs, files in walk(cfg_path, topdown=True):
@@ -426,7 +430,7 @@ class Main(ShowBase):
                     if '.json' in file:
                         key = re.sub('.json', '', file)
                         path = str(PurePath("{0}/".format(root), file))
-                        configs[key] = Filename.from_os_specific(path).getFullpath()
+                        configs[key] = Filename(path).to_os_specific()
             return configs
 
     def fonts_collector(self):
@@ -440,7 +444,8 @@ class Main(ShowBase):
 
             Return      : Dictionary
         """
-        font_path = self.transform_path(path="{0}/Settings/UI".format(self.game_dir))
+        font_path = self.transform_path(path="{0}/Settings/UI".format(self.game_dir),
+                                        style='compat')
         fonts = {}
         if exists(font_path):
             for root, dirs, files in walk(font_path, topdown=True):
@@ -448,7 +453,7 @@ class Main(ShowBase):
                     if '.ttf' in file:
                         key = re.sub('.ttf', '', file)
                         path = str(PurePath("{0}/".format(root), file))
-                        fonts[key] = Filename.from_os_specific(path).getFullpath()
+                        fonts[key] = Filename(path).to_os_specific()
             return fonts
 
     def textures_collector(self):
@@ -462,7 +467,7 @@ class Main(ShowBase):
 
             Return      : Dictionary
         """
-        tex_path = self.transform_path(path="{0}/Settings/UI".format(self.game_dir))
+        tex_path = self.transform_path(path="{0}/Settings/UI".format(self.game_dir), style='compat')
         textures = {}
         if exists(tex_path):
             for root, dirs, files in walk(tex_path, topdown=True):
@@ -470,11 +475,11 @@ class Main(ShowBase):
                     if '.png' in file:
                         key = re.sub('.png', '', file)
                         path = str(PurePath("{0}/".format(root), file))
-                        textures[key] = Filename.from_os_specific(path).getFullpath()
+                        textures[key] = Filename(path).to_os_specific()
                     elif '.jpg' in file:
                         key = re.sub('.jpg', '', file)
                         path = str(PurePath("{0}/".format(root), file))
-                        textures[key] = Filename.from_os_specific(path).getFullpath()
+                        textures[key] = Filename(path).to_os_specific()
             return textures
 
     def sounds_collector(self):
@@ -488,7 +493,7 @@ class Main(ShowBase):
 
             Return      : Dictionary
         """
-        sound_path = self.transform_path(path="{0}/Assets/Sounds".format(self.game_dir))
+        sound_path = self.transform_path(path="{0}/Assets/Sounds".format(self.game_dir), style='compat')
         sounds = {}
         if exists(sound_path):
             for root, dirs, files in walk(sound_path, topdown=True):
@@ -496,7 +501,7 @@ class Main(ShowBase):
                     if '.ogg' in file:
                         key = re.sub('.ogg', '', file)
                         path = str(PurePath("{0}/".format(root), file))
-                        sounds[key] = Filename.from_os_specific(path).getFullpath()
+                        sounds[key] = Filename(path).to_os_specific()
             return sounds
 
         """ Enable this when game will be ready for distribution

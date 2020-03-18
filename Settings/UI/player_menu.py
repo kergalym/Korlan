@@ -66,7 +66,6 @@ class PlayerMenu:
                 self.json = json.load(json_file)
 
         self.language = None
-
         if self.json["game_config_path"]:
             self.cfg_path = self.json["game_config_path"]
 
