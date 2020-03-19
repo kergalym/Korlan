@@ -1,5 +1,6 @@
 from setuptools import setup
 
+
 setup(
     name="Korlan",
     include_package_data=True,

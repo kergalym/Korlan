@@ -63,7 +63,6 @@ game_settings['Debug'] = {'set_debug_mode': 'NO',
                           }
 
 game_cfg = '{0}/Korlan - Daughter of the Steppes/settings.ini'.format(str(Path.home()))
-print(game_cfg)
 game_settings.read(game_cfg)
 disp_res = game_settings['Main']['disp_res']
 disp_res = disp_res.split("x")
