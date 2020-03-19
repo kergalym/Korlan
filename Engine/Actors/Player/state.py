@@ -110,121 +110,111 @@ class PlayerState:
             else:
                 return False
 
+    def get_distance_to(self, items_dist_vect):
+        assets = base.asset_nodes_assoc_collector()
+        item = None
+        for key in items_dist_vect:
+            if key and assets.get(key):
+                if key == assets[key].get_name():
+                    # noinspection PyChainedComparisons
+                    if (items_dist_vect[key][0] > 0.0
+                            and items_dist_vect[key][0] < 0.7
+                            or items_dist_vect[key][1] > 0.0
+                            and items_dist_vect[key][1] < 0.7):
+                        if base.is_item_in_use is False:
+                            base.is_item_close_to_use = True
+                            base.is_item_far_to_use = False
+                            item = assets[key]
+                        elif base.is_item_in_use:
+                            base.is_item_close_to_use = False
+                            base.is_item_far_to_use = True
+                    # noinspection PyChainedComparisons
+                    elif (items_dist_vect[key][0] < -0.0
+                          and items_dist_vect[key][0] > -0.7
+                          or items_dist_vect[key][1] < -0.0
+                          and items_dist_vect[key][1] > -0.7):
+                        if base.is_item_in_use is False:
+                            base.is_item_close_to_use = True
+                            base.is_item_far_to_use = False
+                            item = assets[key]
+                        elif base.is_item_in_use:
+                            base.is_item_close_to_use = False
+                            base.is_item_far_to_use = True
+                    else:
+                        base.is_item_close_to_use = False
+                        base.is_item_far_to_use = True
+        return item
+
+    def drop_item(self, player):
+        if player:
+            world = render.find('**/World')
+            item = self.render.find("**/{0}".format(base.in_use_item_name))
+            item.reparent_to(world)
+            item.set_scale(0.2)
+            item.set_hpr(0, 0, 0)
+            item.node().set_mass(base.in_use_item_mass_orig)
+            item.set_collide_mask(self.col.mask)
+
+            # Put the item near player
+            # If player has the bullet shape
+            if "BS" in player.get_parent().get_name():
+                player = player.get_parent()
+            item.set_pos(player.get_pos() - (0.20, -0.5, 0))
+
+            # Set item state
+            base.is_item_in_use = False
+            base.is_item_in_use_long = False
+            base.is_item_close_to_use = False
+            base.is_item_far_to_use = False
+
     def pick_up_item(self, player, joint, items_dist_vect):
         if (player
                 and items_dist_vect
                 and joint
                 and isinstance(joint, str)
                 and isinstance(items_dist_vect, dict)):
-            assets = base.asset_nodes_assoc_collector()
-            item = None
-
-            for key in items_dist_vect:
-                if key and assets.get(key):
-                    if key == assets[key].get_name():
-                        # noinspection PyChainedComparisons
-                        if (items_dist_vect[key][0] > 0.0
-                                and items_dist_vect[key][0] < 0.7
-                                or items_dist_vect[key][1] > 0.0
-                                and items_dist_vect[key][1] < 0.7):
-                            if base.is_item_in_use is False:
-                                base.is_item_close_to_use = True
-                                base.is_item_far_to_use = False
-                                item = assets[key]
-                            elif base.is_item_in_use:
-                                base.is_item_close_to_use = False
-                                base.is_item_far_to_use = True
-                        # noinspection PyChainedComparisons
-                        elif (items_dist_vect[key][0] < -0.0
-                                and items_dist_vect[key][0] > -0.7
-                                or items_dist_vect[key][1] < -0.0
-                                and items_dist_vect[key][1] > -0.7):
-                            if base.is_item_in_use is False:
-                                base.is_item_close_to_use = True
-                                base.is_item_far_to_use = False
-                                item = assets[key]
-                            elif base.is_item_in_use:
-                                base.is_item_close_to_use = False
-                                base.is_item_far_to_use = True
-                        else:
-                            base.is_item_close_to_use = False
-                            base.is_item_far_to_use = True
-
+            item = self.get_distance_to(items_dist_vect)
             exposed_joint = player.expose_joint(None, "modelRoot", joint)
+            if exposed_joint.find(item.get_name()).is_empty():
+                # Get bullet shape node path
+                if "BS" in item.get_parent().get_name():
+                    item = item.get_parent()
+                if "BS" in player.get_parent().get_name():
+                    player.get_parent().set_collide_mask(self.col.mask1)
+                else:
+                    player.set_collide_mask(self.col.mask1)
+                # Disable collide mask before attaching
+                item.set_collide_mask(self.col.mask2)
+                # Set kinematics to make item follow actor joint
+                item.node().set_kinematic(True)
+                item.reparent_to(exposed_joint)
+                base.in_use_item_name = item.get_name()
+                base.in_use_item_mass_orig = item.node().get_mass()
+                item.set_scale(7.0)
+                item.set_h(205.0)
+                item.set_pos(0.4, 8.0, 5.2)
+                # Prevent fast moving objects from passing through thin obstacles.
+                item.node().set_ccd_motion_threshold(1e-7)
+                item.node().set_ccd_swept_sphere_radius(0.50)
+                self.inventory.get_item(item)
+                # Set item state
+                base.is_item_in_use = True
+                base.is_item_in_use_long = True
+                base.is_item_close_to_use = False
+                base.is_item_far_to_use = False
 
+    def take_item(self, player, joint, items_dist_vect):
+        if (player
+                and items_dist_vect
+                and joint
+                and isinstance(joint, str)
+                and isinstance(items_dist_vect, dict)):
             if (base.is_item_close_to_use
                     and base.is_item_in_use is False
                     and base.is_item_in_use_long is False):
-                if exposed_joint.find(item.get_name()).is_empty():
-                    # Get bullet shape node path
-                    if "BS" in item.get_parent().get_name():
-                        item = item.get_parent()
-                    if "BS" in player.get_parent().get_name():
-                        player.get_parent().set_collide_mask(self.col.mask1)
-                    else:
-                        player.set_collide_mask(self.col.mask1)
-
-                    # Disable collide mask before attaching
-                    # because we don't want colliding
-                    # between character and item.
-                    item.set_collide_mask(self.col.mask2)
-                    # Set kinematics to make item follow actor joint
-                    item.node().set_kinematic(True)
-
-                    item.reparent_to(exposed_joint)
-
-                    base.in_use_item_name = item.get_name()
-                    base.in_use_item_mass_orig = item.node().get_mass()
-                    item.set_scale(7.0)
-                    item.set_h(205.0)
-                    item.set_x(0.4)
-                    item.set_y(8.0)
-                    item.set_z(5.2)
-
-                    # Prevent fast moving objects from passing through thin obstacles.
-                    item.node().set_ccd_motion_threshold(1e-7)
-                    item.node().set_ccd_swept_sphere_radius(0.50)
-
-                    self.inventory.get_item(item)
-
-                    # Set item state
-                    base.is_item_in_use = True
-                    base.is_item_in_use_long = True
-                    base.is_item_close_to_use = False
-                    base.is_item_far_to_use = False
-
+                self.pick_up_item(player, joint, items_dist_vect)
             elif (base.is_item_close_to_use is False
                   and base.is_item_in_use is True
                   and base.is_item_in_use_long is True):
                 if not render.find('**/World').is_empty():
-                    world = render.find('**/World')
-                    item = self.render.find("**/{0}".format(base.in_use_item_name))
-                    item.reparent_to(world)
-                    item.set_scale(0.2)
-                    item.set_hpr(0, 0, 0)
-                    item.node().set_mass(base.in_use_item_mass_orig)
-                    item.set_collide_mask(self.col.mask)
-
-                    # Put the item near player
-                    # If player has the bullet shape
-                    if "BS" in player.get_parent().get_name():
-                        player = player.get_parent()
-                    item.set_pos(player.get_pos() - (0.20, -0.5, 0))
-
-                    # Set item state
-                    base.is_item_in_use = False
-                    base.is_item_in_use_long = False
-                    base.is_item_close_to_use = False
-                    base.is_item_far_to_use = False
-
-    def pass_item(self, player, joint, item):
-        if (player
-                and isinstance(joint, str)
-                and item):
-            exposed_joint = player.expose_joint(None, "modelRoot", joint)
-            item.reparent_to(exposed_joint)
-
-    def drop_item(self, object, item):
-        if object and item:
-            item.reparent_to(object)
-            item.set_pos(object.get_pos())
+                    self.drop_item(player)

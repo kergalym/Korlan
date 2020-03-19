@@ -27,6 +27,24 @@ class Collisions:
         self.mask3 = BitMask32.bit(3)
         self.mask5 = BitMask32.bit(5)
 
+    def collision_info(self, player, item):
+        if player and item and hasattr(base, "bullet_world"):
+
+            query_all = base.bullet_world.ray_test_all(player.get_pos(),
+                                                       item.get_pos())
+
+            collision_info = {"hits": query_all.has_hits(),
+                              "fraction": query_all.get_closest_hit_fraction(),
+                              "num_hits": query_all.get_num_hits()}
+
+            for query in query_all.get_hits():
+                collision_info["hit_pos"] = query.get_hit_pos()
+                collision_info["hit_normal"] = query.get_hit_normal()
+                collision_info["hit_fraction"] = query.get_hit_fraction()
+                collision_info["node"] = query.get_node()
+
+            return collision_info
+
     def set_inter_collision(self, player):
         if player:
             self.korlan = player
@@ -94,21 +112,3 @@ class Collisions:
                 obj.set_pos(0.0, 3.70, -0.50)
                 obj.set_hpr(0, 0, 0)
                 obj.set_scale(6.25, 6.25, 6.25)
-
-    def collision_info(self, player, item):
-        if player and item and hasattr(base, "bullet_world"):
-
-            query_all = base.bullet_world.ray_test_all(player.get_pos(),
-                                                       item.get_pos())
-
-            collision_info = {"hits": query_all.has_hits(),
-                              "fraction": query_all.get_closest_hit_fraction(),
-                              "num_hits": query_all.get_num_hits()}
-
-            for query in query_all.get_hits():
-                collision_info["hit_pos"] = query.get_hit_pos()
-                collision_info["hit_normal"] = query.get_hit_normal()
-                collision_info["hit_fraction"] = query.get_hit_fraction()
-                collision_info["node"] = query.get_node()
-
-            return collision_info
