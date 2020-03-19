@@ -10,13 +10,13 @@ from panda3d.core import FontPool
 from panda3d.core import TextNode
 
 from Settings.menu_settings import MenuSettings
-from Settings.UI.menu_graphics import MenuGraphics
-from Settings.UI.menu_sound import MenuSound
-from Settings.UI.menu_keymap import MenuKeymap
-from Settings.UI.menu_lang import MenuLanguage
+from Settings.UI.graphics_menu_ui import GraphicsMenuUI
+from Settings.UI.sound_menu_ui import SoundMenuUI
+from Settings.UI.keymap_menu_ui import KeymapMenuUI
+from Settings.UI.lang_menu_ui import LangMenuUI
 
 
-class MenuOptions:
+class OptionsMenuUI:
     def __init__(self):
         self.base = base
         self.game_dir = base.game_dir
@@ -65,12 +65,12 @@ class MenuOptions:
 
         """ Misc """
         self.m_settings = MenuSettings()
-        self.ui_gfx = MenuGraphics()
-        self.ui_snd = MenuSound()
-        self.ui_kmp = MenuKeymap()
-        self.ui_lng = MenuLanguage()
+        self.ui_gfx = GraphicsMenuUI()
+        self.ui_snd = SoundMenuUI()
+        self.ui_kmp = KeymapMenuUI()
+        self.ui_lng = LangMenuUI()
 
-        """ Options Menu Objects """
+        """ Options MenuUI Objects """
         self.btn_gfx = None
         self.btn_sound = None
         self.btn_language = None

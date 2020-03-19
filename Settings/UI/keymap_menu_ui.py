@@ -10,10 +10,10 @@ from panda3d.core import FontPool
 from panda3d.core import TextNode
 
 from Settings.menu_settings import MenuSettings
-from Settings.menu_settings import Keymap
+from Settings.kmp_menu_settings import Keymap
 
 
-class MenuKeymap:
+class KeymapMenuUI:
     def __init__(self):
         self.base = base
         self.game_dir = base.game_dir
@@ -67,7 +67,7 @@ class MenuKeymap:
         self.m_settings = MenuSettings()
         self.kmp = Keymap()
 
-        """ Key mapping Menu Objects """
+        """ Key mapping MenuUI Objects """
         self.lbl_keymap_title = None
         self.lbl_forward = None
         self.lbl_backward = None

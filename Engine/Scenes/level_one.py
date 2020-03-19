@@ -4,8 +4,8 @@ from Engine.Actors.Player.korlan import Korlan
 from Engine.Actors.NPC.npc import NPC
 from Engine.Scenes.scene_one import SceneOne
 from Engine.Render.render import RenderAttr
-from Settings.UI.ui_stat import UIStat
-from Settings.UI.hud import HUD
+from Settings.UI.stat_ui import StatUI
+from Settings.UI.hud_ui import HuDUI
 
 
 class LevelOne:
@@ -21,8 +21,8 @@ class LevelOne:
         self.render_attr = RenderAttr()
         self.korlan = Korlan()
         self.npc = NPC()
-        self.hud = HUD()
-        self.ui_stat = UIStat()
+        self.hud = HuDUI()
+        self.ui_stat = StatUI()
         self.pos_x = None
         self.pos_y = None
         self.pos_z = 0.0

@@ -2,7 +2,7 @@ from direct.gui.DirectGui import *
 from panda3d.core import FontPool, TextNode
 
 
-class UIStat:
+class StatUI:
     def __init__(self):
         self.game_settings = base.game_settings
         self.game_dir = base.game_dir

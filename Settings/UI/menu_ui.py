@@ -13,18 +13,18 @@ from panda3d.core import TextNode
 
 from Engine.Scenes.playworker import PlayWorker
 from Settings.menu_settings import MenuSettings
-from Settings.menu_settings import DevMode
-from Settings.menu_settings import Graphics
-from Settings.menu_settings import Sound
-from Settings.menu_settings import Keymap
-from Settings.menu_settings import Language
+from Settings.dev_menu_settings import DevMode
+from Settings.gfx_menu_settings import Graphics
+from Settings.sfx_menu_settings import Sound
+from Settings.kmp_menu_settings import Keymap
+from Settings.lng_menu_settings import Language
 from Engine.Scenes.level_one import LevelOne
 
-from Settings.UI.menu_dev import MenuDev
-from Settings.UI.menu_options import MenuOptions
+from Settings.UI.dev_menu_ui import DevMenuUI
+from Settings.UI.options_menu_ui import OptionsMenuUI
 
 
-class Menu:
+class MenuUI:
     def __init__(self):
 
         """ Imports, Variables, etc """
@@ -86,8 +86,8 @@ class Menu:
         self.kmp = Keymap()
         self.lng = Language()
 
-        self.menu_options = MenuOptions()
-        self.menu_dev = MenuDev()
+        self.menu_options = OptionsMenuUI()
+        self.menu_dev = DevMenuUI()
 
         # instance of the abstract class
         self.font = FontPool

@@ -1,7 +1,7 @@
 from direct.gui.DirectGui import *
 
 
-class HUD:
+class HuDUI:
     def __init__(self):
         self.image = 'ui_tex/hud_image.jpg'
         self.text = 'ui_tex/hud_text.jpg'

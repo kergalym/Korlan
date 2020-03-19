@@ -10,10 +10,10 @@ from panda3d.core import FontPool
 from panda3d.core import TextNode
 
 from Settings.menu_settings import MenuSettings
-from Settings.menu_settings import Language
+from Settings.lng_menu_settings import Language
 
 
-class MenuLanguage:
+class LangMenuUI:
     def __init__(self):
         self.base = base
         self.game_dir = base.game_dir
@@ -67,7 +67,7 @@ class MenuLanguage:
         self.m_settings = MenuSettings()
         self.lng = Language()
 
-        """ Language Menu Objects """
+        """ Language MenuUI Objects """
         self.lbl_lang_title = None
         self.lbl_english = None
         self.lbl_kazakh = None

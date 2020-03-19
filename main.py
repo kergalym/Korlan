@@ -18,8 +18,8 @@ from Engine.Actors.Player.korlan import Korlan
 from Engine.Scenes.scene_one import SceneOne
 from Engine.Render.render import RenderAttr
 from Settings.Sound.sound import Sound
-from Settings.UI.menu import Menu
-from Settings.menu_settings import Graphics
+from Settings.UI.menu_ui import MenuUI
+from Settings.gfx_menu_settings import Graphics
 
 game_settings = configparser.ConfigParser()
 game_settings['Main'] = {'disp_res': '1024x768',
@@ -130,7 +130,7 @@ class Main(ShowBase):
             # set desired properties, see below
             self.render_pipeline.add_light(my_light)"""
 
-        self.menu = Menu()
+        self.menu = MenuUI()
         self.scene_one = SceneOne()
         self.render_attr = RenderAttr()
         self.korlan = Korlan()

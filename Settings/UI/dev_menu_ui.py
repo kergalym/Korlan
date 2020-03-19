@@ -9,12 +9,12 @@ from direct.gui.OnscreenImage import OnscreenImage, TransparencyAttrib
 from panda3d.core import FontPool
 from panda3d.core import TextNode
 
-# from Settings.UI.menu import Menu
+# from Settings.UI.menu import MenuUI
 from Settings.menu_settings import MenuSettings
-from Settings.menu_settings import DevMode
+from Settings.dev_menu_settings import DevMode
 
 
-class MenuDev:
+class DevMenuUI:
     def __init__(self):
         self.base = base
         self.game_dir = base.game_dir
@@ -68,7 +68,7 @@ class MenuDev:
         self.m_settings = MenuSettings()
         self.dev_mode = DevMode()
 
-        """ Developer Mode Menu Objects """
+        """ Developer Mode MenuUI Objects """
         self.lbl_dev_mode_title = None
         self.lbl_dev_mode_title_low = None
         self.lbl_pos_x = None

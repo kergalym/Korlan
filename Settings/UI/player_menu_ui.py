@@ -11,7 +11,7 @@ from panda3d.core import TextNode
 from panda3d.core import WindowProperties
 
 
-class PlayerMenu:
+class PlayerMenuUI:
 
     def __init__(self):
         self.base = base

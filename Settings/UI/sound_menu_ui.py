@@ -10,10 +10,10 @@ from panda3d.core import FontPool
 from panda3d.core import TextNode
 
 from Settings.menu_settings import MenuSettings
-from Settings.menu_settings import Sound
+from Settings.sfx_menu_settings import Sound
 
 
-class MenuSound:
+class SoundMenuUI:
     def __init__(self):
         self.base = base
         self.game_dir = base.game_dir
@@ -67,7 +67,7 @@ class MenuSound:
         self.m_settings = MenuSettings()
         self.snd = Sound()
 
-        """ Sound Menu Objects """
+        """ Sound MenuUI Objects """
         self.lbl_snd_title = None
         self.lbl_sound = None
         self.lbl_music = None

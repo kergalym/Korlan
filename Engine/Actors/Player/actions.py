@@ -10,7 +10,7 @@ from Settings.Input.keyboard import Keyboard
 from Settings.Input.mouse import Mouse
 from direct.interval.IntervalGlobal import *
 from Engine.Physics.physics import PhysicsAttr
-from Settings.UI.player_menu import PlayerMenu
+from Settings.UI.player_menu_ui import PlayerMenuUI
 
 
 class Actions:
@@ -32,7 +32,7 @@ class Actions:
         self.fsm_player = FsmPlayer()
         self.idle_player = Idle()
         self.item_cls = Items()
-        self.player_menu = PlayerMenu()
+        self.player_menu = PlayerMenuUI()
         self.state = PlayerState()
         self.col = Collisions()
 
