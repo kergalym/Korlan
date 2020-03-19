@@ -63,6 +63,7 @@ game_settings['Debug'] = {'set_debug_mode': 'NO',
                           }
 
 game_cfg = '{0}/Korlan - Daughter of the Steppes/settings.ini'.format(str(Path.home()))
+print(game_cfg)
 game_settings.read(game_cfg)
 disp_res = game_settings['Main']['disp_res']
 disp_res = disp_res.split("x")
@@ -173,8 +174,8 @@ class Main(ShowBase):
                 'game_dir': '{0}'.format(self.game_dir)})
             with open('{0}/Settings/UI/cfg_path.json'.format(self.game_dir), 'w') as f:
                 f.write(str(self.cfg_path))
-            if exists("{0}/{1}".format(self.game_cfg_dir,
-                                       self.game_settings_filename)) is False:
+            if not exists("{0}/{1}".format(self.game_cfg_dir,
+                                           self.game_settings_filename)):
                 self.do_cfg()
                 if (isfile('{0}/Settings/UI/cfg_path.json'.format(self.game_dir)) and
                         isfile("{0}/{1}".format(self.game_cfg_dir,
@@ -452,7 +453,7 @@ class Main(ShowBase):
                     if file.endswith(".ttf"):
                         key = re.sub('.ttf$', '', file)
                         path = str(PurePath("{0}/".format(root), file))
-                        fonts[key] = Filename(path).to_os_specific()
+                        fonts[key] = Filename.from_os_specific(path).getFullpath()
             return fonts
 
     def textures_collector(self):
@@ -474,11 +475,11 @@ class Main(ShowBase):
                     if file.endswith(".png"):
                         key = re.sub('.png$', '', file)
                         path = str(PurePath("{0}/".format(root), file))
-                        textures[key] = Filename(path).to_os_specific()
+                        textures[key] = Filename.from_os_specific(path).getFullpath()
                     elif file.endswith(".jpg"):
                         key = re.sub('.jpg$', '', file)
                         path = str(PurePath("{0}/".format(root), file))
-                        textures[key] = Filename(path).to_os_specific()
+                        textures[key] = Filename.from_os_specific(path).getFullpath()
             return textures
 
     def sounds_collector(self):
@@ -500,7 +501,7 @@ class Main(ShowBase):
                     if file.endswith(".ogg"):
                         key = re.sub('.ogg$', '', file)
                         path = str(PurePath("{0}/".format(root), file))
-                        sounds[key] = Filename(path).to_os_specific()
+                        sounds[key] = Filename.from_os_specific(path).getFullpath()
             return sounds
 
         """ Enable this when game will be ready for distribution
