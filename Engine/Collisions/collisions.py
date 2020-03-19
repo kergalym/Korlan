@@ -78,15 +78,15 @@ class Collisions:
                 base.bullet_char_contr_node = BulletCharacterControllerNode(actor_bs,
                                                                             0.4,
                                                                             '{0}:BS'.format(actor.get_name()))
-                player_bs_nodepath = self.physics_attr.world_nodepath.attach_new_node(base.bullet_char_contr_node)
-                player_bs_nodepath.set_collide_mask(self.mask)
+                player_bs_np = self.physics_attr.world_nodepath.attach_new_node(base.bullet_char_contr_node)
+                player_bs_np.set_collide_mask(self.mask)
                 self.physics_attr.world.attach(base.bullet_char_contr_node)
-                actor.reparent_to(player_bs_nodepath)
+                actor.reparent_to(player_bs_np)
                 # Set actor down to make it
                 # at the same point as bullet shape
                 actor.set_z(-1)
                 # Set the bullet shape position same as actor position
-                player_bs_nodepath.set_y(actor.get_y())
+                player_bs_np.set_y(actor.get_y())
                 # Set actor relative to bullet shape
                 actor.set_y(0)
 
@@ -100,15 +100,15 @@ class Collisions:
                 object_bs = None
                 if shape == 'cube':
                     object_bs = self.bs.set_bs_cube()
-                object_bs_nodepath = self.physics_attr.world_nodepath.attach_new_node(BulletRigidBodyNode(col_name))
-                object_bs_nodepath.node().set_mass(1.0)
-                object_bs_nodepath.node().add_shape(object_bs)
-                object_bs_nodepath.set_collide_mask(self.mask)
-                self.physics_attr.world.attach(object_bs_nodepath.node())
+                obj_bs_np = self.physics_attr.world_nodepath.attach_new_node(BulletRigidBodyNode(col_name))
+                obj_bs_np.node().set_mass(1.0)
+                obj_bs_np.node().add_shape(object_bs)
+                obj_bs_np.set_collide_mask(self.mask)
+                self.physics_attr.world.attach(obj_bs_np.node())
                 obj.clearModelNodes()
-                obj.reparent_to(object_bs_nodepath)
-                object_bs_nodepath.set_pos(obj.get_pos())
-                object_bs_nodepath.set_scale(0.20, 0.20, 0.20)
+                obj.reparent_to(obj_bs_np)
+                obj_bs_np.set_pos(obj.get_pos())
+                obj_bs_np.set_scale(0.20, 0.20, 0.20)
                 obj.set_pos(0.0, 3.70, -0.50)
                 obj.set_hpr(0, 0, 0)
                 obj.set_scale(6.25, 6.25, 6.25)
