@@ -273,30 +273,29 @@ class Main(ShowBase):
         assets = {}
         exclude_anims = 'Animations'
         exclude_tex = 'tex'
-        if exists(asset_path):
-            for root, dirs, files in walk(asset_path, topdown=True):
-                if exclude_anims in dirs:
-                    dirs.remove(exclude_anims)
-                if exclude_tex in dirs:
-                    dirs.remove(exclude_tex)
-                for file in files:
-                    # include one of them
-                    if (file.endswith(".egg")
-                            and not file.endswith(".egg.bam")):
-                        key = re.sub('.egg', '', file)
-                        path = str(PurePath("{0}/".format(root), file))
-                        assets[key] = Filename.from_os_specific(path).getFullpath()
-                    elif (file.endswith(".egg.bam")
-                          and not file.endswith(".egg")):
-                        key = re.sub('.egg.bam', '', file)
-                        path = str(PurePath("{0}/".format(root), file))
-                        assets[key] = Filename.from_os_specific(path).getFullpath()
-            return assets
-
-        else:
+        if not exists(asset_path):
             logging.critical("\nI'm trying to load assets, but there aren't suitable assets. "
                              "\nCurrent path: {0}".format(asset_path))
             sys_exit("\nSomething is getting wrong. Please, check the game log first")
+
+        for root, dirs, files in walk(asset_path, topdown=True):
+            if exclude_anims in dirs:
+                dirs.remove(exclude_anims)
+            if exclude_tex in dirs:
+                dirs.remove(exclude_tex)
+            for file in files:
+                # include one of them
+                if (file.endswith(".egg")
+                        and not file.endswith(".egg.bam")):
+                    key = re.sub('.egg$', '', file)
+                    path = str(PurePath("{0}/".format(root), file))
+                    assets[key] = Filename.from_os_specific(path).getFullpath()
+                elif (file.endswith(".egg.bam")
+                      and not file.endswith(".egg")):
+                    key = re.sub('.egg.bam$', '', file)
+                    path = str(PurePath("{0}/".format(root), file))
+                    assets[key] = Filename.from_os_specific(path).getFullpath()
+        return assets
 
     def asset_animations_collector(self):
         """ Function    : asset_animations_collector
@@ -313,28 +312,28 @@ class Main(ShowBase):
         collected = listdir(anims_path)
         path = {}
         anims = {}
-        if exists(anims_path):
-            for a in collected:
-                key = re.sub('Korlan-', '', a)
-                # include one of them
-                if (key.endswith(".egg")
-                        and not key.endswith(".egg.bam")):
-                    key = re.sub('.egg', '', key)
-                    anims[key] = key
-                    anim_path = str(PurePath("{0}/".format(anims_path), a))
-                    path[key] = Filename.from_os_specific(anim_path).getFullpath()
-                elif (key.endswith(".egg.bam")
-                      and not key.endswith(".egg")):
-                    key = re.sub('.egg.bam', '', key)
-                    anims[key] = key
-                    anim_path = str(PurePath("{0}/".format(anims_path), a))
-                    path[key] = Filename.from_os_specific(anim_path).getFullpath()
-            return [anims, path]
 
-        else:
+        if not exists(anims_path):
             logging.critical("\nI'm trying to load assets, but there aren't suitable assets. "
                              "\nCurrent path: {0}".format(anims_path))
             sys_exit("\nSomething is getting wrong. Please, check the game log first")
+
+        for a in collected:
+            key = re.sub('Korlan-', '', a)
+            # include one of them
+            if (key.endswith(".egg")
+                    and not key.endswith(".egg.bam")):
+                key = re.sub('.egg$', '', key)
+                anims[key] = key
+                anim_path = str(PurePath("{0}/".format(anims_path), a))
+                path[key] = Filename.from_os_specific(anim_path).getFullpath()
+            elif (key.endswith(".egg.bam")
+                  and not key.endswith(".egg")):
+                key = re.sub('.egg.bam$', '', key)
+                anims[key] = key
+                anim_path = str(PurePath("{0}/".format(anims_path), a))
+                path[key] = Filename.from_os_specific(anim_path).getFullpath()
+        return [anims, path]
 
     def asset_nodes_collector(self):
         """ Function    : asset_nodes_collector
@@ -427,8 +426,8 @@ class Main(ShowBase):
         if exists(cfg_path):
             for root, dirs, files in walk(cfg_path, topdown=True):
                 for file in files:
-                    if '.json' in file:
-                        key = re.sub('.json', '', file)
+                    if file.endswith(".json"):
+                        key = re.sub('.json$', '', file)
                         path = str(PurePath("{0}/".format(root), file))
                         configs[key] = Filename(path).to_os_specific()
             return configs
@@ -450,8 +449,8 @@ class Main(ShowBase):
         if exists(font_path):
             for root, dirs, files in walk(font_path, topdown=True):
                 for file in files:
-                    if '.ttf' in file:
-                        key = re.sub('.ttf', '', file)
+                    if file.endswith(".ttf"):
+                        key = re.sub('.ttf$', '', file)
                         path = str(PurePath("{0}/".format(root), file))
                         fonts[key] = Filename(path).to_os_specific()
             return fonts
@@ -472,12 +471,12 @@ class Main(ShowBase):
         if exists(tex_path):
             for root, dirs, files in walk(tex_path, topdown=True):
                 for file in files:
-                    if '.png' in file:
-                        key = re.sub('.png', '', file)
+                    if file.endswith(".png"):
+                        key = re.sub('.png$', '', file)
                         path = str(PurePath("{0}/".format(root), file))
                         textures[key] = Filename(path).to_os_specific()
-                    elif '.jpg' in file:
-                        key = re.sub('.jpg', '', file)
+                    elif file.endswith(".jpg"):
+                        key = re.sub('.jpg$', '', file)
                         path = str(PurePath("{0}/".format(root), file))
                         textures[key] = Filename(path).to_os_specific()
             return textures
@@ -498,8 +497,8 @@ class Main(ShowBase):
         if exists(sound_path):
             for root, dirs, files in walk(sound_path, topdown=True):
                 for file in files:
-                    if '.ogg' in file:
-                        key = re.sub('.ogg', '', file)
+                    if file.endswith(".ogg"):
+                        key = re.sub('.ogg$', '', file)
                         path = str(PurePath("{0}/".format(root), file))
                         sounds[key] = Filename(path).to_os_specific()
             return sounds
