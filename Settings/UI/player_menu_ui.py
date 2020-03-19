@@ -11,9 +11,10 @@ from panda3d.core import TextNode
 from panda3d.core import WindowProperties
 
 
-class PlayerMenuUI:
+class PlayerMenuUI(Inventory):
 
     def __init__(self):
+        Inventory.__init__(self)
         self.base = base
         self.game_dir = base.game_dir
         self.images = base.textures_collector()
@@ -25,7 +26,6 @@ class PlayerMenuUI:
         self.font = FontPool
         self.text = TextNode("TextNode")
         self.m_settings = MenuSettings()
-        self.inventory = Inventory()
         self.menu_font = None
         self.cfg_path = None
 
@@ -133,7 +133,7 @@ class PlayerMenuUI:
         self.btn_param_decline.set_pos(0.1, 0, -0.9)
         self.btn_param_accept.set_pos(-1.6, 0, -0.9)
 
-        for item in self.inventory.inv_space():
+        for item in self.inv_space():
             if item:
                 OnscreenText(text=item,
                              pos=(-1.4, 0.02),

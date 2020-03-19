@@ -13,8 +13,9 @@ from Settings.menu_settings import MenuSettings
 from Settings.sfx_menu_settings import Sound
 
 
-class SoundMenuUI:
+class SoundMenuUI(Sound):
     def __init__(self):
+        Sound.__init__(self)
         self.base = base
         self.game_dir = base.game_dir
         self.images = base.textures_collector()
@@ -65,7 +66,6 @@ class SoundMenuUI:
 
         """ Misc """
         self.m_settings = MenuSettings()
-        self.snd = Sound()
 
         """ Sound MenuUI Objects """
         self.lbl_snd_title = None
@@ -166,17 +166,17 @@ class SoundMenuUI:
                                        parent=self.base.frame_int_snd)
 
         self.slider_sound = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
-                                         value=self.snd.get_sound_value(),
+                                         value=self.get_sound_value(),
                                          scale=.2, borderWidth=(self.w, self.h),
                                          parent=self.base.frame_int_snd,
                                          command=self.set_slider_sound_wrapper)
         self.slider_music = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
-                                         value=self.snd.get_music_value(),
+                                         value=self.get_music_value(),
                                          scale=.2, borderWidth=(self.w, self.h),
                                          parent=self.base.frame_int_snd,
                                          command=self.set_slider_music_wrapper)
         self.slider_effects = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
-                                           value=self.snd.get_sfx_value(),
+                                           value=self.get_sfx_value(),
                                            scale=.2, borderWidth=(self.w, self.h),
                                            parent=self.base.frame_int_snd,
                                            command=self.set_slider_sfx_wrapper)
@@ -202,7 +202,7 @@ class SoundMenuUI:
                                                frameColor=(255, 255, 255, self.frm_opacity),
                                                scale=self.btn_scale, borderWidth=(self.w, self.h),
                                                parent=self.base.frame_int_snd,
-                                               command=self.snd.set_default_snd)
+                                               command=self.set_default_snd)
 
         self.btn_param_accept = DirectButton(text="OK", text_bg=(0, 0, 0, 0.9),
                                              text_fg=(255, 255, 255, 0.9),
@@ -280,10 +280,10 @@ class SoundMenuUI:
         """
         # Make it int and then str
         i = int(self.slider_sound['value'])
-        sound_dict = self.snd.load_sound_value()
+        sound_dict = self.load_sound_value()
         string = sound_dict[i]
         self.lbl_perc_sound.setText(string)
-        self.snd.save_sound_value(string)
+        self.save_sound_value(string)
 
     def set_slider_music_wrapper(self):
         """ Function    : set_slider_music_wrapper
@@ -298,10 +298,10 @@ class SoundMenuUI:
         """
         # Make it int and then str
         i = int(self.slider_music['value'])
-        music_dict = self.snd.load_music_value()
+        music_dict = self.load_music_value()
         string = music_dict[i]
         self.lbl_perc_music.setText(string)
-        self.snd.save_music_value(string)
+        self.save_music_value(string)
 
     def set_slider_sfx_wrapper(self):
         """ Function    : set_slider_sfx_wrapper
@@ -316,8 +316,8 @@ class SoundMenuUI:
         """
         # Make it int and then str
         i = int(self.slider_effects['value'])
-        sfx_dict = self.snd.load_sfx_value()
+        sfx_dict = self.load_sfx_value()
         string = sfx_dict[i]
         self.lbl_perc_effects.setText(string)
-        self.snd.save_sfx_value(string)
+        self.save_sfx_value(string)
 

@@ -13,8 +13,9 @@ from Settings.menu_settings import MenuSettings
 from Settings.kmp_menu_settings import Keymap
 
 
-class KeymapMenuUI:
+class KeymapMenuUI(Keymap):
     def __init__(self):
+        Keymap.__init__(self)
         self.base = base
         self.game_dir = base.game_dir
         self.images = base.textures_collector()
@@ -65,7 +66,6 @@ class KeymapMenuUI:
 
         """ Misc """
         self.m_settings = MenuSettings()
-        self.kmp = Keymap()
 
         """ Key mapping MenuUI Objects """
         self.lbl_keymap_title = None
@@ -284,112 +284,112 @@ class KeymapMenuUI:
                                        text_align=TextNode.A_center,
                                        scale=.03, width=7, borderWidth=(self.w, self.h),
                                        parent=self.base.frame_int_keymap,
-                                       command=self.kmp.set_key_forward)
+                                       command=self.set_key_forward)
 
         self.inp_backward = DirectEntry(initialText=kmp['Keymap']['backward'], text_bg=(0, 0, 0, 1),
                                         entryFont=self.font.load_font(self.menu_font),
                                         text_align=TextNode.A_center,
                                         scale=.03, width=7, borderWidth=(self.w, self.h),
                                         parent=self.base.frame_int_keymap,
-                                        command=self.kmp.set_key_backward)
+                                        command=self.set_key_backward)
 
         self.inp_left = DirectEntry(initialText=kmp['Keymap']['left'], text_bg=(0, 0, 0, 1),
                                     entryFont=self.font.load_font(self.menu_font),
                                     text_align=TextNode.A_center,
                                     scale=.03, width=7, borderWidth=(self.w, self.h),
                                     parent=self.base.frame_int_keymap,
-                                    command=self.kmp.set_key_left)
+                                    command=self.set_key_left)
 
         self.inp_right = DirectEntry(initialText=kmp['Keymap']['right'], text_bg=(0, 0, 0, 1),
                                      entryFont=self.font.load_font(self.menu_font),
                                      text_align=TextNode.A_center,
                                      scale=.03, width=7, borderWidth=(self.w, self.h),
                                      parent=self.base.frame_int_keymap,
-                                     command=self.kmp.set_key_right)
+                                     command=self.set_key_right)
 
         self.inp_run = DirectEntry(initialText=kmp['Keymap']['run'], text_bg=(0, 0, 0, 1),
                                    entryFont=self.font.load_font(self.menu_font),
                                    text_align=TextNode.A_center,
                                    scale=.03, width=7, borderWidth=(self.w, self.h),
                                    parent=self.base.frame_int_keymap,
-                                   command=self.kmp.set_key_right)
+                                   command=self.set_key_right)
 
         self.inp_crouch = DirectEntry(initialText=kmp['Keymap']['crouch'], text_bg=(0, 0, 0, 1),
                                       entryFont=self.font.load_font(self.menu_font),
                                       text_align=TextNode.A_center,
                                       scale=.03, width=7, borderWidth=(self.w, self.h),
                                       parent=self.base.frame_int_keymap,
-                                      command=self.kmp.set_key_crouch)
+                                      command=self.set_key_crouch)
 
         self.inp_jump = DirectEntry(initialText=kmp['Keymap']['jump'], text_bg=(0, 0, 0, 1),
                                     entryFont=self.font.load_font(self.menu_font),
                                     text_align=TextNode.A_center,
                                     scale=.03, width=7, borderWidth=(self.w, self.h),
                                     parent=self.base.frame_int_keymap,
-                                    command=self.kmp.set_key_jump)
+                                    command=self.set_key_jump)
 
         self.inp_use = DirectEntry(initialText=kmp['Keymap']['use'], text_bg=(0, 0, 0, 1),
                                    entryFont=self.font.load_font(self.menu_font),
                                    text_align=TextNode.A_center,
                                    scale=.03, width=7, borderWidth=(self.w, self.h),
                                    parent=self.base.frame_int_keymap,
-                                   command=self.kmp.set_key_use)
+                                   command=self.set_key_use)
 
         self.inp_attack = DirectEntry(initialText=kmp['Keymap']['attack'], text_bg=(0, 0, 0, 1),
                                       entryFont=self.font.load_font(self.menu_font),
                                       text_align=TextNode.A_center,
                                       scale=.03, width=7, borderWidth=(self.w, self.h),
                                       parent=self.base.frame_int_keymap,
-                                      command=self.kmp.set_key_attack)
+                                      command=self.set_key_attack)
 
         self.inp_h_attack = DirectEntry(initialText=kmp['Keymap']['h_attack'], text_bg=(0, 0, 0, 1),
                                         entryFont=self.font.load_font(self.menu_font),
                                         text_align=TextNode.A_center,
                                         scale=.03, width=7, borderWidth=(self.w, self.h),
                                         parent=self.base.frame_int_keymap,
-                                        command=self.kmp.set_key_h_attack)
+                                        command=self.set_key_h_attack)
 
         self.inp_f_attack = DirectEntry(initialText=kmp['Keymap']['f_attack'], text_bg=(0, 0, 0, 1),
                                         entryFont=self.font.load_font(self.menu_font),
                                         text_align=TextNode.A_center,
                                         scale=.03, width=7, borderWidth=(self.w, self.h),
                                         parent=self.base.frame_int_keymap,
-                                        command=self.kmp.set_key_f_attack)
+                                        command=self.set_key_f_attack)
 
         self.inp_block = DirectEntry(initialText=kmp['Keymap']['block'], text_bg=(0, 0, 0, 1),
                                      entryFont=self.font.load_font(self.menu_font),
                                      text_align=TextNode.A_center,
                                      scale=.03, width=7, borderWidth=(self.w, self.h),
                                      parent=self.base.frame_int_keymap,
-                                     command=self.kmp.set_key_block)
+                                     command=self.set_key_block)
 
         self.inp_sword = DirectEntry(initialText=kmp['Keymap']['sword'], text_bg=(0, 0, 0, 1),
                                      entryFont=self.font.load_font(self.menu_font),
                                      text_align=TextNode.A_center,
                                      scale=.03, width=7, borderWidth=(self.w, self.h),
                                      parent=self.base.frame_int_keymap,
-                                     command=self.kmp.set_key_sword)
+                                     command=self.set_key_sword)
 
         self.inp_bow = DirectEntry(initialText=kmp['Keymap']['bow'], text_bg=(0, 0, 0, 0.9),
                                    entryFont=self.font.load_font(self.menu_font),
                                    text_align=TextNode.A_center,
                                    scale=.03, width=7, borderWidth=(self.w, self.h),
                                    parent=self.base.frame_int_keymap,
-                                   command=self.kmp.set_key_bow)
+                                   command=self.set_key_bow)
 
         self.inp_tengri = DirectEntry(initialText=kmp['Keymap']['tengri'], text_bg=(0, 0, 0, 1),
                                       entryFont=self.font.load_font(self.menu_font),
                                       text_align=TextNode.A_center,
                                       scale=.03, width=7, borderWidth=(self.w, self.h),
                                       parent=self.base.frame_int_keymap,
-                                      command=self.kmp.set_key_tengri)
+                                      command=self.set_key_tengri)
 
         self.inp_umay = DirectEntry(initialText=kmp['Keymap']['umai'], text_bg=(0, 0, 0, 1),
                                     entryFont=self.font.load_font(self.menu_font),
                                     text_align=TextNode.A_center,
                                     scale=.03, width=7, borderWidth=(self.w, self.h),
                                     parent=self.base.frame_int_keymap,
-                                    command=self.kmp.set_key_umay)
+                                    command=self.set_key_umay)
 
         self.btn_param_decline = DirectButton(text="Back", text_bg=(0, 0, 0, 1),
                                               text_fg=(255, 255, 255, 0.9),
@@ -405,7 +405,7 @@ class KeymapMenuUI:
                                                frameColor=(255, 255, 255, self.frm_opacity),
                                                scale=self.btn_scale, borderWidth=(self.w, self.h),
                                                parent=self.base.frame_int_keymap,
-                                               command=self.kmp.set_default_keymap)
+                                               command=self.set_default_keymap)
 
         """ Positioning objects of the keymapping menu:
             for two blocks

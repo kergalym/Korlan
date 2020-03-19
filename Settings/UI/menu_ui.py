@@ -24,10 +24,11 @@ from Settings.UI.dev_menu_ui import DevMenuUI
 from Settings.UI.options_menu_ui import OptionsMenuUI
 
 
-class MenuUI:
+class MenuUI(MenuSettings):
     def __init__(self):
 
         """ Imports, Variables, etc """
+        MenuSettings.__init__(self)
         self.base = base
         self.game_dir = base.game_dir
         self.images = base.textures_collector()
@@ -79,7 +80,6 @@ class MenuUI:
 
         """ Misc """
         self.playworker = PlayWorker()
-        self.m_settings = MenuSettings()
         self.dev_mode = DevMode()
         self.gfx = Graphics()
         self.snd = Sound()
@@ -110,7 +110,7 @@ class MenuUI:
             self.cfg_path = self.json["game_config_path"]
 
             if exists(self.cfg_path):
-                lng_to_load = self.m_settings.input_validate(self.cfg_path, 'lng')
+                lng_to_load = self.input_validate(self.cfg_path, 'lng')
                 with open(self.lng_configs['lg_{0}'.format(lng_to_load)], 'r') as json_file:
                     self.language = json.load(json_file)
 

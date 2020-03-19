@@ -14,8 +14,9 @@ from Settings.menu_settings import MenuSettings
 from Settings.dev_menu_settings import DevMode
 
 
-class DevMenuUI:
+class DevMenuUI(DevMode):
     def __init__(self):
+        DevMode.__init__(self)
         self.base = base
         self.game_dir = base.game_dir
         self.images = base.textures_collector()
@@ -66,7 +67,6 @@ class DevMenuUI:
 
         """ Misc """
         self.m_settings = MenuSettings()
-        self.dev_mode = DevMode()
 
         """ Developer Mode MenuUI Objects """
         self.lbl_dev_mode_title = None
@@ -208,7 +208,7 @@ class DevMenuUI:
                                      text_align=TextNode.A_center,
                                      scale=.03, width=7, borderWidth=(self.w, self.h),
                                      parent=self.base.frame_int_dev,
-                                     command=self.dev_mode.set_node_pos_x)
+                                     command=self.set_node_pos_x)
 
         self.inp_pos_y = DirectEntry(initialText=dev['Debug']['player_pos_y'],
                                      text_bg=(0, 0, 0, 1),
@@ -216,7 +216,7 @@ class DevMenuUI:
                                      text_align=TextNode.A_center,
                                      scale=.03, width=7, borderWidth=(self.w, self.h),
                                      parent=self.base.frame_int_dev,
-                                     command=self.dev_mode.set_node_pos_y)
+                                     command=self.set_node_pos_y)
 
         self.inp_pos_z = DirectEntry(initialText=dev['Debug']['player_pos_z'],
                                      text_bg=(0, 0, 0, 1),
@@ -224,7 +224,7 @@ class DevMenuUI:
                                      text_align=TextNode.A_center,
                                      scale=.03, width=7, borderWidth=(self.w, self.h),
                                      parent=self.base.frame_int_dev,
-                                     command=self.dev_mode.set_node_pos_z)
+                                     command=self.set_node_pos_z)
 
         self.inp_rot_h = DirectEntry(initialText=dev['Debug']['player_rot_h'],
                                      text_bg=(0, 0, 0, 1),
@@ -232,7 +232,7 @@ class DevMenuUI:
                                      text_align=TextNode.A_center,
                                      scale=.03, width=7, borderWidth=(self.w, self.h),
                                      parent=self.base.frame_int_dev,
-                                     command=self.dev_mode.set_node_rot_h)
+                                     command=self.set_node_rot_h)
 
         self.inp_rot_p = DirectEntry(initialText=dev['Debug']['player_rot_p'],
                                      text_bg=(0, 0, 0, 1),
@@ -240,7 +240,7 @@ class DevMenuUI:
                                      text_align=TextNode.A_center,
                                      scale=.03, width=7, borderWidth=(self.w, self.h),
                                      parent=self.base.frame_int_dev,
-                                     command=self.dev_mode.set_node_rot_p)
+                                     command=self.set_node_rot_p)
 
         self.inp_rot_r = DirectEntry(initialText=dev['Debug']['player_rot_r'],
                                      text_bg=(0, 0, 0, 1),
@@ -248,7 +248,7 @@ class DevMenuUI:
                                      text_align=TextNode.A_center,
                                      scale=.03, width=7, borderWidth=(self.w, self.h),
                                      parent=self.base.frame_int_dev,
-                                     command=self.dev_mode.set_node_rot_r)
+                                     command=self.set_node_rot_r)
 
         self.node_frame = DirectScrolledList(decButton_pos=(0.35, 0, 0.13),
                                              decButton_text="up",
@@ -285,7 +285,7 @@ class DevMenuUI:
                                               parent=self.base.frame_int_dev, mayChange=True)
 
         self.slider_node_exp = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
-                                            value=self.dev_mode.node_exp_value(),
+                                            value=self.node_exp_value(),
                                             scale=.2, borderWidth=(self.w, self.h),
                                             parent=self.base.frame_int_dev,
                                             orientation=DGG.HORIZONTAL,
@@ -345,7 +345,7 @@ class DevMenuUI:
         self.logo.reparent_to(self.base.frame_int_dev)
         self.logo.set_scale(self.logo_scale)
 
-        for x in self.dev_mode.check_game_assets_devmode(exclude='Animations'):
+        for x in self.check_game_assets_devmode(exclude='Animations'):
             l = DirectLabel(text=x, text_scale=0.2, pos=(1.1, 1.0, -0.7),
                             parent=self.node_frame, scale=.5, )
             self.node_frame.addItem(l)
@@ -386,7 +386,7 @@ class DevMenuUI:
 
             Return      : None
         """
-        self.dev_mode.get_active_node(self.node_frame.getSelectedText())
+        self.get_active_node(self.node_frame.getSelectedText())
 
     def dev_mode_menu_save_changes(self):
         """ Function    : dev_mode_menu_save_changes
@@ -399,7 +399,7 @@ class DevMenuUI:
 
             Return      : None
         """
-        self.dev_mode.save_node_pos()
+        self.save_node_pos()
         self.unload_dev_mode_menu()
 
     def set_slider_node_exp_wrapper(self):
@@ -415,8 +415,8 @@ class DevMenuUI:
         """
         # Make it int and then str
         i = int(self.slider_node_exp['value'])
-        node_exp_dict = self.dev_mode.load_node_exp_value()
+        node_exp_dict = self.load_node_exp_value()
         string = node_exp_dict[i]
         self.lbl_perc_node_exp.setText(string)
-        self.dev_mode.save_node_exp_value(string)
+        self.save_node_exp_value(string)
 

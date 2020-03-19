@@ -13,8 +13,9 @@ from Settings.menu_settings import MenuSettings
 from Settings.gfx_menu_settings import Graphics
 
 
-class GraphicsMenuUI:
+class GraphicsMenuUI(Graphics):
     def __init__(self):
+        Graphics.__init__(self)
         self.base = base
         self.game_dir = base.game_dir
         self.images = base.textures_collector()
@@ -65,7 +66,6 @@ class GraphicsMenuUI:
 
         """ Misc """
         self.m_settings = MenuSettings()
-        self.gfx = Graphics()
 
         """ Graphics MenuUI Objects """
         self.lbl_gfx_title = None
@@ -191,8 +191,8 @@ class GraphicsMenuUI:
                                             parent=self.base.frame_int_gfx)
 
         self.slider_disp_res = DirectSlider(frameColor=self.rgba_gray_color,
-                                            range=(1, self.gfx.load_disp_res_value()),
-                                            value=self.gfx.get_disp_res_value(),
+                                            range=(1, self.load_disp_res_value()),
+                                            value=self.get_disp_res_value(),
                                             scale=.2, borderWidth=(self.w, self.h),
                                             parent=self.base.frame_int_gfx,
                                             orientation=DGG.HORIZONTAL,
@@ -206,21 +206,21 @@ class GraphicsMenuUI:
                                            command=self.set_slider_details_wrapper)
 
         self.slider_shadows = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
-                                           value=self.gfx.get_shadows_value(),
+                                           value=self.get_shadows_value(),
                                            scale=.2, borderWidth=(self.w, self.h),
                                            parent=self.base.frame_int_gfx,
                                            orientation=DGG.HORIZONTAL,
                                            command=self.set_slider_shadows_wrapper)
 
         self.slider_postpro = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
-                                           value=self.gfx.get_postpro_value(),
+                                           value=self.get_postpro_value(),
                                            scale=.2, borderWidth=(self.w, self.h),
                                            parent=self.base.frame_int_gfx,
                                            orientation=DGG.HORIZONTAL,
                                            command=self.set_slider_postpro_wrapper)
 
         self.slider_antial = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
-                                          value=self.gfx.get_antial_value(),
+                                          value=self.get_antial_value(),
                                           scale=.2, borderWidth=(self.w, self.h),
                                           parent=self.base.frame_int_gfx,
                                           orientation=DGG.HORIZONTAL,
@@ -257,7 +257,7 @@ class GraphicsMenuUI:
                                                frameColor=(255, 255, 255, self.frm_opacity),
                                                scale=self.btn_scale, borderWidth=(self.w, self.h),
                                                parent=self.base.frame_int_gfx,
-                                               command=self.gfx.set_default_gfx)
+                                               command=self.set_default_gfx)
 
         self.btn_param_accept = DirectButton(text="OK", text_bg=(0, 0, 0, 1),
                                              text_fg=(255, 255, 255, 0.9),
@@ -344,10 +344,10 @@ class GraphicsMenuUI:
         """
         # Make it int and then str
         i = int(self.slider_disp_res['value'])
-        disp_res_dict = self.gfx.load_disp_res()
+        disp_res_dict = self.load_disp_res()
         string = disp_res_dict[i]
         self.lbl_perc_disp_res.setText(string)
-        self.gfx.save_disp_res_value(string)
+        self.save_disp_res_value(string)
 
     def set_slider_details_wrapper(self):
         """ Function    : set_slider_details_wrapper
@@ -363,7 +363,7 @@ class GraphicsMenuUI:
         # Make it int and then str
         i = int(self.slider_details['value'])
         self.lbl_perc_details.setText(str(i))
-        # self.gfx.save_details_value(i)
+        # self.save_details_value(i)
 
     def set_slider_shadows_wrapper(self):
         """ Function    : set_slider_shadows_wrapper
@@ -378,10 +378,10 @@ class GraphicsMenuUI:
         """
         # Make it int and then str
         i = int(self.slider_shadows['value'])
-        shadows_dict = self.gfx.load_shadows_value()
+        shadows_dict = self.load_shadows_value()
         string = shadows_dict[i]
         self.lbl_perc_shadows.setText(string)
-        self.gfx.save_shadows_value(string)
+        self.save_shadows_value(string)
 
     def set_slider_postpro_wrapper(self):
         """ Function    : set_slider_postpro_wrapper
@@ -396,10 +396,10 @@ class GraphicsMenuUI:
         """
         # Make it int and then str
         i = int(self.slider_postpro['value'])
-        postpro_dict = self.gfx.load_postpro_value()
+        postpro_dict = self.load_postpro_value()
         string = postpro_dict[i]
         self.lbl_perc_postpro.setText(string)
-        self.gfx.save_postpro_value(string)
+        self.save_postpro_value(string)
 
     def set_slider_antial_wrapper(self):
         """ Function    : set_slider_antial_wrapper
@@ -414,8 +414,8 @@ class GraphicsMenuUI:
         """
         # Make it int and then str
         i = int(self.slider_antial['value'])
-        antial_dict = self.gfx.load_antial_value()
+        antial_dict = self.load_antial_value()
         string = antial_dict[i]
         self.lbl_perc_antial.setText(string)
-        self.gfx.save_antial_value(string)
+        self.save_antial_value(string)
 

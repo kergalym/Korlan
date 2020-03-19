@@ -16,8 +16,9 @@ from Settings.UI.keymap_menu_ui import KeymapMenuUI
 from Settings.UI.lang_menu_ui import LangMenuUI
 
 
-class OptionsMenuUI:
+class OptionsMenuUI(MenuSettings):
     def __init__(self):
+        MenuSettings.__init__(self)
         self.base = base
         self.game_dir = base.game_dir
         self.images = base.textures_collector()
@@ -64,7 +65,6 @@ class OptionsMenuUI:
         self.inp_scale = .04
 
         """ Misc """
-        self.m_settings = MenuSettings()
         self.ui_gfx = GraphicsMenuUI()
         self.ui_snd = SoundMenuUI()
         self.ui_kmp = KeymapMenuUI()
@@ -98,7 +98,7 @@ class OptionsMenuUI:
             self.cfg_path = self.json["game_config_path"]
 
             if exists(self.cfg_path):
-                lng_to_load = self.m_settings.input_validate(self.cfg_path, 'lng')
+                lng_to_load = self.input_validate(self.cfg_path, 'lng')
                 with open(self.lng_configs['lg_{0}'.format(lng_to_load)], 'r') as json_file:
                     self.language = json.load(json_file)
 

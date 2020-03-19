@@ -13,14 +13,15 @@ from Settings.menu_settings import MenuSettings
 from Settings.lng_menu_settings import Language
 
 
-class LangMenuUI:
+class LangMenuUI(Language):
     def __init__(self):
+        Language.__init__(self)
         self.base = base
         self.game_dir = base.game_dir
         self.images = base.textures_collector()
         self.fonts = base.fonts_collector()
         self.configs = base.cfg_collector(path="{0}/Settings/UI".format(self.game_dir))
-        self.lng_configs = base.cfg_collector(path="{0}/Configs/Language/".format(self.game_dir))
+        self_configs = base.cfg_collector(path="{0}/Configs/Language/".format(self.game_dir))
         self.json = json
         self.pos_X = 0
         self.pos_Y = 0
@@ -65,7 +66,6 @@ class LangMenuUI:
 
         """ Misc """
         self.m_settings = MenuSettings()
-        self.lng = Language()
 
         """ Language MenuUI Objects """
         self.lbl_lang_title = None
@@ -104,7 +104,7 @@ class LangMenuUI:
 
             if exists(self.cfg_path):
                 lng_to_load = self.m_settings.input_validate(self.cfg_path, 'lng')
-                with open(self.lng_configs['lg_{0}'.format(lng_to_load)], 'r') as json_file:
+                with open(self_configs['lg_{0}'.format(lng_to_load)], 'r') as json_file:
                     self.language = json.load(json_file)
 
         """ Buttons & Fonts"""
@@ -167,7 +167,7 @@ class LangMenuUI:
                                                frameColor=(255, 255, 255, self.frm_opacity),
                                                scale=self.btn_scale, borderWidth=(self.w, self.h),
                                                parent=self.base.frame_int_lang,
-                                               command=self.lng.set_default_language)
+                                               command=self.set_default_language)
 
         self.btn_param_back = DirectButton(text="Back", text_bg=(0, 0, 0, 1),
                                            text_fg=(255, 255, 255, 0.9),
@@ -177,21 +177,21 @@ class LangMenuUI:
                                            parent=self.base.frame_int_lang,
                                            command=self.unload_language_menu)
 
-        lng_value = self.lng.get_selected_language()
+        lng_value = self.get_selected_language()
 
         radbuttons = [
 
             DirectRadioButton(text='', variable=[0], value=[lng_value['english']], pos=(-0.7, 0, -0.0),
                               parent=self.base.frame_int_lang, scale=.04,
-                              command=self.lng.set_language_english, color=(63.9, 63.9, 63.9, 1)),
+                              command=self.set_language_english, color=(63.9, 63.9, 63.9, 1)),
 
             DirectRadioButton(text='', variable=[0], value=[lng_value['kazakh']], pos=(-0.7, 0, -0.1),
                               parent=self.base.frame_int_lang, scale=.04,
-                              command=self.lng.set_language_kazakh, color=(63.9, 63.9, 63.9, 1)),
+                              command=self.set_language_kazakh, color=(63.9, 63.9, 63.9, 1)),
 
             DirectRadioButton(text='', variable=[0], value=[lng_value['russian']], pos=(-0.7, 0, -0.2),
                               parent=self.base.frame_int_lang, scale=.04,
-                              command=self.lng.set_language_russian, color=(63.9, 63.9, 63.9, 1))
+                              command=self.set_language_russian, color=(63.9, 63.9, 63.9, 1))
 
         ]
 
