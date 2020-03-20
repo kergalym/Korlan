@@ -217,5 +217,4 @@ class PlayerState:
             elif (base.is_item_close_to_use is False
                   and base.is_item_in_use is True
                   and base.is_item_in_use_long is True):
-                if not render.find('**/World').is_empty():
-                    self.drop_item(player)
+                self.drop_item(player)
