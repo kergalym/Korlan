@@ -44,7 +44,6 @@ class PhysicsAttr:
         # Make bullet world instance global to use where it necessary
         base.bullet_world = self.world
         self.world.set_gravity(Vec3(0, 0, -9.81))
-        self.world.set_group_collision_flag(2, 2, True)
 
         if hasattr(self.debug_nodepath, "node"):
             self.world.set_debug_node(self.debug_nodepath.node())

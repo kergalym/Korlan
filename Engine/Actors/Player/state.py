@@ -146,21 +146,20 @@ class PlayerState:
         return item
 
     def drop_item(self, player):
-        if player:
-            world = render.find('**/World')
+        if player and not render.find('**/World').is_empty():
             item = self.render.find("**/{0}".format(base.in_use_item_name))
+            world = render.find('**/World')
             item.reparent_to(world)
             item.set_scale(0.2)
             item.set_hpr(0, 0, 0)
-            item.node().set_mass(base.in_use_item_mass_orig)
-            item.set_collide_mask(self.col.mask)
-
             # Put the item near player
             # If player has the bullet shape
             if "BS" in player.get_parent().get_name():
                 player = player.get_parent()
+            player.set_collide_mask(self.col.mask)
             item.set_pos(player.get_pos() - (0.20, -0.5, 0))
-
+            item.node().set_kinematic(False)
+            item.set_collide_mask(self.col.mask)
             # Set item state
             base.is_item_in_use = False
             base.is_item_in_use_long = False
@@ -183,25 +182,27 @@ class PlayerState:
                     player.get_parent().set_collide_mask(self.col.mask1)
                 else:
                     player.set_collide_mask(self.col.mask1)
-                # Disable collide mask before attaching
-                item.set_collide_mask(self.col.mask2)
+                item.reparent_to(exposed_joint)
                 # Set kinematics to make item follow actor joint
                 item.node().set_kinematic(True)
-                item.reparent_to(exposed_joint)
+                item.set_collide_mask(self.col.mask2)
                 base.in_use_item_name = item.get_name()
-                base.in_use_item_mass_orig = item.node().get_mass()
                 item.set_scale(7.0)
                 item.set_h(205.0)
                 item.set_pos(0.4, 8.0, 5.2)
                 # Prevent fast moving objects from passing through thin obstacles.
                 item.node().set_ccd_motion_threshold(1e-7)
                 item.node().set_ccd_swept_sphere_radius(0.50)
-                self.inventory.get_item(item)
+
+                if hasattr(base, "bullet_world"):
+                    base.bullet_world.set_group_collision_flag(1, 1, False)
+
                 # Set item state
                 base.is_item_in_use = True
                 base.is_item_in_use_long = True
                 base.is_item_close_to_use = False
                 base.is_item_far_to_use = False
+                self.inventory.get_item(item)
 
     def take_item(self, player, joint, items_dist_vect):
         if (player
