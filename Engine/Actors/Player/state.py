@@ -161,6 +161,9 @@ class PlayerState:
             item.node().set_kinematic(False)
             item.set_collide_mask(self.col.mask)
             # Set item state
+            if hasattr(base, "bullet_world"):
+                base.bullet_world.set_group_collision_flag(1, 1, True)
+
             base.is_item_in_use = False
             base.is_item_in_use_long = False
             base.is_item_close_to_use = False
@@ -175,27 +178,29 @@ class PlayerState:
             item = self.get_distance_to(items_dist_vect)
             exposed_joint = player.expose_joint(None, "modelRoot", joint)
             if exposed_joint.find(item.get_name()).is_empty():
+
                 # Get bullet shape node path
                 if "BS" in item.get_parent().get_name():
                     item = item.get_parent()
                 if "BS" in player.get_parent().get_name():
-                    player.get_parent().set_collide_mask(self.col.mask1)
-                else:
-                    player.set_collide_mask(self.col.mask1)
+                    player = player.get_parent()
+
                 item.reparent_to(exposed_joint)
                 # Set kinematics to make item follow actor joint
                 item.node().set_kinematic(True)
                 item.set_collide_mask(self.col.mask2)
+                player.set_collide_mask(self.col.mask1)
                 base.in_use_item_name = item.get_name()
+
+                if hasattr(base, "bullet_world"):
+                    base.bullet_world.set_group_collision_flag(1, 1, False)
+
                 item.set_scale(7.0)
                 item.set_h(205.0)
                 item.set_pos(0.4, 8.0, 5.2)
                 # Prevent fast moving objects from passing through thin obstacles.
                 item.node().set_ccd_motion_threshold(1e-7)
                 item.node().set_ccd_swept_sphere_radius(0.50)
-
-                if hasattr(base, "bullet_world"):
-                    base.bullet_world.set_group_collision_flag(1, 1, False)
 
                 # Set item state
                 base.is_item_in_use = True

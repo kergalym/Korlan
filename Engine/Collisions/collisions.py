@@ -22,6 +22,7 @@ class Collisions:
 
         self.no_mask = BitMask32.allOff()
         self.mask = BitMask32.allOn()
+        self.mask0 = BitMask32.bit(0)
         self.mask1 = BitMask32.bit(1)
         self.mask2 = BitMask32.bit(2)
         self.mask3 = BitMask32.bit(3)

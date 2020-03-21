@@ -18,6 +18,34 @@ class PhysicsAttr:
         self.cfg_path = {"game_config_path":
                          "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
 
+    def update_physics_task(self, task):
+        """ Function    : update_physics_task
+
+            Description : Update Physics for render_attr
+
+            Input       : Task
+
+            Output      : None
+
+            Return      : Task event
+        """
+        if self.world:
+            # Get the time that elapsed since last frame.
+            dt = globalClock.getDt()
+            self.world.do_physics(dt, 4, 1. / 240.)
+            # Do update RigidBodyNode parent node's position for every frame
+            if hasattr(base, "close_item_name"):
+                name = base.close_item_name
+                if not render.find("**/{0}".format(name)).is_empty():
+                    item = render.find("**/{0}".format(name))
+                    if 'BS' in item.get_parent().get_name():
+                        item.get_parent().node().set_transform_dirty()
+
+        if base.game_mode is False and base.menu_mode:
+            return task.done
+
+        return task.cont
+
     def set_physics(self):
         """ Function    : set_physics
 
@@ -58,32 +86,4 @@ class PhysicsAttr:
         taskMgr.add(self.update_physics_task,
                     "update_physics",
                     appendTask=True)
-
-    def update_physics_task(self, task):
-        """ Function    : update_physics_task
-
-            Description : Update Physics for render_attr
-
-            Input       : Task
-
-            Output      : None
-
-            Return      : Task event
-        """
-        if self.world:
-            # Get the time that elapsed since last frame.
-            dt = globalClock.getDt()
-            self.world.do_physics(dt, 10, 0.008)
-            # Do update RigidBodyNode parent node's position for every frame
-            if hasattr(base, "close_item_name"):
-                name = base.close_item_name
-                if not render.find("**/{0}".format(name)).is_empty():
-                    item = render.find("**/{0}".format(name))
-                    if 'BS' in item.get_parent().get_name():
-                        item.get_parent().node().set_transform_dirty()
-
-        if base.game_mode is False and base.menu_mode:
-            return task.done
-
-        return task.cont
 
