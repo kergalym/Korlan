@@ -188,7 +188,7 @@ class PlayerState:
                 item.reparent_to(exposed_joint)
                 # Set kinematics to make item follow actor joint
                 item.node().set_kinematic(True)
-                item.set_collide_mask(self.col.mask2)
+                item.set_collide_mask(self.col.mask1)
                 player.set_collide_mask(self.col.mask1)
                 base.in_use_item_name = item.get_name()
 
