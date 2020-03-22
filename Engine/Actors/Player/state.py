@@ -1,7 +1,6 @@
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import WindowProperties
 
-from Engine.Collisions.collisions import Collisions
 from Engine.Actors.Player.inventory import Inventory
 
 
@@ -44,7 +43,6 @@ class PlayerState:
         self.loader = base.loader
 
         self.render = render
-        self.col = Collisions()
         self.inventory = Inventory()
 
     def clear_state(self):
