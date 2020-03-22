@@ -33,6 +33,7 @@ class PhysicsAttr:
             # Get the time that elapsed since last frame.
             dt = globalClock.getDt()
             self.world.do_physics(dt, 4, 1. / 240.)
+            self.world.set_group_collision_flag(0, 0, False)
             # Do update RigidBodyNode parent node's position for every frame
             if hasattr(base, "close_item_name"):
                 name = base.close_item_name

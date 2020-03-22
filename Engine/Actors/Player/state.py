@@ -214,18 +214,14 @@ class PlayerState:
             item = self.render.find("**/{0}".format(base.in_use_item_name))
             world = render.find('**/World')
             item.reparent_to(world)
+            item.set_scale(0.1)
             item.set_hpr(0, 0, 0)
             # Put the item near player
             # If player has the bullet shape
             if "BS" in player.get_parent().get_name():
                 player = player.get_parent()
-            player.set_collide_mask(self.col.mask)
             item.set_pos(player.get_pos() - (0.20, -0.5, 0))
             item.node().set_kinematic(False)
-            item.set_collide_mask(self.col.mask)
-            # Set item state
-            if hasattr(base, "bullet_world"):
-                base.bullet_world.set_group_collision_flag(0, 0, True)
 
             base.is_item_in_use = False
             base.is_item_in_use_long = False
@@ -246,18 +242,11 @@ class PlayerState:
                 # Get bullet shape node path
                 if "BS" in item.get_parent().get_name():
                     item = item.get_parent()
-                if "BS" in player.get_parent().get_name():
-                    player = player.get_parent()
                 # we want to keep original scale of the item
                 item.wrt_reparent_to(exposed_joint)
                 # Set kinematics to make item follow actor joint
                 item.node().set_kinematic(True)
-                item.set_collide_mask(self.col.mask0)
-                player.set_collide_mask(self.col.mask0)
                 base.in_use_item_name = item.get_name()
-
-                if hasattr(base, "bullet_world"):
-                    base.bullet_world.set_group_collision_flag(0, 0, False)
 
                 item.set_h(205.0)
                 item.set_pos(0.4, 8.0, 5.2)

@@ -57,15 +57,18 @@ class Collisions:
             self.physics_attr.set_physics()
             self.set_actor_collider(actor=self.korlan,
                                     col_name='{0}:BS'.format(self.korlan.get_name()),
-                                    shape="capsule")
+                                    shape="capsule",
+                                    mask=self.mask0)
             self.set_object_collider(obj=box,
                                      col_name='{0}:BS'.format(box.get_name()),
-                                     shape="cube")
+                                     shape="cube",
+                                     mask=self.mask0)
 
-    def set_actor_collider(self, actor, col_name, shape):
+    def set_actor_collider(self, actor, col_name, shape, mask):
         if (actor
                 and col_name
                 and shape
+                and mask
                 and isinstance(col_name, str)
                 and isinstance(shape, str)):
             if base.menu_mode is False and base.game_mode:
@@ -80,7 +83,7 @@ class Collisions:
                                                                             0.4,
                                                                             '{0}:BS'.format(actor.get_name()))
                 player_bs_np = self.physics_attr.world_nodepath.attach_new_node(base.bullet_char_contr_node)
-                player_bs_np.set_collide_mask(self.mask)
+                player_bs_np.set_collide_mask(mask)
                 self.physics_attr.world.attach(base.bullet_char_contr_node)
                 actor.reparent_to(player_bs_np)
                 # Set actor down to make it
@@ -91,10 +94,11 @@ class Collisions:
                 # Set actor relative to bullet shape
                 actor.set_y(0)
 
-    def set_object_collider(self, obj, col_name, shape):
+    def set_object_collider(self, obj, col_name, shape, mask):
         if (obj
                 and col_name
                 and shape
+                and mask
                 and isinstance(col_name, str)
                 and isinstance(shape, str)):
             if base.menu_mode is False and base.game_mode:
@@ -104,7 +108,7 @@ class Collisions:
                 obj_bs_np = self.physics_attr.world_nodepath.attach_new_node(BulletRigidBodyNode(col_name))
                 obj_bs_np.node().set_mass(1.0)
                 obj_bs_np.node().add_shape(object_bs)
-                obj_bs_np.set_collide_mask(self.mask)
+                obj_bs_np.set_collide_mask(mask)
                 self.physics_attr.world.attach(obj_bs_np.node())
                 obj.clearModelNodes()
                 obj.reparent_to(obj_bs_np)
