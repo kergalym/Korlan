@@ -31,39 +31,10 @@ class Actions:
         self.physics_attr = PhysicsAttr()
         self.fsm_player = FsmPlayer()
         self.idle_player = Idle()
-        self.item_cls = Items()
+        self.items = Items()
         self.player_menu = PlayerMenuUI()
         self.state = PlayerState()
         self.col = Collisions()
-
-    def get_distance_task(self, player, task):
-        if player and base.game_mode and base.menu_mode is False:
-            items_dist_vect = base.distance_calculate(
-                self.item_cls.usable_item_pos_collector(player), player)
-            items_dist_vect_y = [items_dist_vect[k][1] for k in items_dist_vect]
-            items_dist_vect_y.sort()
-
-            for name, y_pos in zip(items_dist_vect, items_dist_vect_y):
-                if (y_pos > 0.0 and y_pos < 0.7
-                        and base.is_item_in_use is False):
-                    base.is_item_close_to_use = True
-                    base.is_item_far_to_use = False
-                    base.close_item_name = name
-                    base.in_use_item_name = None
-                elif (y_pos > 0.0 and y_pos < 0.7
-                      and base.is_item_in_use):
-                    base.close_item_name = name
-                    base.is_item_close_to_use = False
-                    base.is_item_far_to_use = False
-            if base.game_mode is False and base.menu_mode:
-                base.is_item_close_to_use = False
-                base.is_item_far_to_use = False
-                base.is_item_in_use = False
-                base.is_item_in_use_long = False
-                base.in_use_item_name = None
-                return task.done
-
-        return task.cont
 
     """ Play animation after action """
 
@@ -101,8 +72,8 @@ class Actions:
     def seq_use_item_wrapper_task(self, player, anims, task):
         if player and anims:
             if player.get_current_frame(anims["PickingUp"]) == 69:
-                self.item_cls.item_selector(actor=player,
-                                            joint="Korlan:RightHand")
+                self.items.item_selector(actor=player,
+                                         joint="Korlan:RightHand")
                 return task.done
         return task.cont
 
@@ -140,7 +111,7 @@ class Actions:
                         extraArgs=[player, anims],
                         appendTask=True)
 
-            taskMgr.add(self.get_distance_task,
+            taskMgr.add(self.items.get_item_distance_task,
                         "check_distance",
                         extraArgs=[player],
                         appendTask=True)

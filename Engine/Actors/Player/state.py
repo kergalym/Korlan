@@ -1,6 +1,5 @@
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import WindowProperties
-
 from Engine.Actors.Player.inventory import Inventory
 
 
@@ -212,6 +211,7 @@ class PlayerState:
             item = self.render.find("**/{0}".format(base.in_use_item_name))
             world = render.find('**/World')
             item.reparent_to(world)
+            # TODO: Remove temporary scale definition
             item.set_scale(0.1)
             item.set_hpr(0, 0, 0)
             # Put the item near player

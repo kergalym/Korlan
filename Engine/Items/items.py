@@ -77,6 +77,35 @@ class Items:
 
             return items
 
+    def get_item_distance_task(self, player, task):
+        if player and base.game_mode and base.menu_mode is False:
+            items_dist_vect = base.distance_calculate(
+                self.usable_item_pos_collector(player), player)
+            items_dist_vect_y = [items_dist_vect[k][1] for k in items_dist_vect]
+            items_dist_vect_y.sort()
+
+            for name, y_pos in zip(items_dist_vect, items_dist_vect_y):
+                if (y_pos > 0.0 and y_pos < 0.7
+                        and base.is_item_in_use is False):
+                    base.is_item_close_to_use = True
+                    base.is_item_far_to_use = False
+                    base.close_item_name = name
+                    base.in_use_item_name = None
+                elif (y_pos > 0.0 and y_pos < 0.7
+                      and base.is_item_in_use):
+                    base.close_item_name = name
+                    base.is_item_close_to_use = False
+                    base.is_item_far_to_use = False
+            if base.game_mode is False and base.menu_mode:
+                base.is_item_close_to_use = False
+                base.is_item_far_to_use = False
+                base.is_item_in_use = False
+                base.is_item_in_use_long = False
+                base.in_use_item_name = None
+                return task.done
+
+        return task.cont
+
     def item_selector(self, actor, joint):
         if (actor and joint
                 and isinstance(joint, str)):
