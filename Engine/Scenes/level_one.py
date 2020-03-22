@@ -1,6 +1,7 @@
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import *
 from Engine.Actors.Player.korlan import Korlan
+from Engine.Actors.Player.state import PlayerState
 from Engine.Actors.NPC.npc import NPC
 from Engine.Scenes.scene_one import SceneOne
 from Engine.Render.render import RenderAttr
@@ -23,6 +24,7 @@ class LevelOne:
         self.npc = NPC()
         self.hud = HuDUI()
         self.ui_stat = StatUI()
+        self.player_state = PlayerState()
         self.pos_x = None
         self.pos_y = None
         self.pos_z = 0.0
@@ -32,54 +34,8 @@ class LevelOne:
         if self.base.game_mode:
             self.base.game_mode = False
             self.base.menu_mode = True
-            assets = self.base.assets_collector()
 
-            base.frame_inv.hide()
-
-            # Remove all lights
-            render.clearLight()
-
-            # Remove Bullet World
-            if not render.find("**/World").is_empty():
-                render.find("**/World").remove_node()
-
-            # Remove all tasks except system
-            tasks = ["player_init",
-                     "player_state",
-                     "actor_life",
-                     "mouse_look"]
-            for t in tasks:
-                taskMgr.remove(t)
-
-            # make pattern list from assets dict
-            pattern = [key for key in assets]
-            # use pattern to remove nodes corresponding to asset names
-            for node in pattern:
-                if render.find("**/{0}".format(node)).is_empty() is False:
-                    render.find("**/{0}".format(node)).remove_node()
-
-            for key in assets:
-                self.loader.unload_model(assets[key])
-
-            wp = WindowProperties()
-            wp.set_cursor_hidden(False)
-            self.base.win.request_properties(wp)
-
-            # Disable the camera trackball controls.
-            self.base.disable_mouse()
-
-            # Disable mouse camera
-            self.base.mouse_magnitude = 0
-            self.base.rotate_x = 0
-            self.base.last_mouse_x = None
-            self.base.hide_mouse = False
-            self.base.manual_recenter_Mouse = False
-            self.base.camera.set_pos(0, 0, 0)
-            self.base.camera.set_hpr(0, 0, 0)
-            self.base.cam.set_pos(0, 0, 0)
-            self.base.cam.set_hpr(0, 0, 0)
-            self.base.load_menu_scene()
-            self.base.frame.show()
+            self.player_state.clear_state()
 
             base.game_mode = False
             base.menu_mode = True

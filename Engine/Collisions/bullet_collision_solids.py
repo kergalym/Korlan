@@ -21,7 +21,7 @@ class BulletCollisionSolids:
 
     def set_bs_capsule(self):
         height = 1.75
-        width = 0.4
+        width = 0.3
         radius = height - 2 * width
         capsule = BulletCapsuleShape(width, radius, ZUp)
         return capsule

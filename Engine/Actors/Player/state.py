@@ -1,3 +1,6 @@
+from direct.task.TaskManagerGlobal import taskMgr
+from panda3d.core import WindowProperties
+
 from Engine.Collisions.collisions import Collisions
 from Engine.Actors.Player.inventory import Inventory
 
@@ -36,9 +39,69 @@ class PlayerState:
         base.is_item_in_use_long = False
         base.in_use_item_name = None
 
+        self.base = base
+        self.render = render
+        self.loader = base.loader
+
         self.render = render
         self.col = Collisions()
         self.inventory = Inventory()
+
+    def clear_state(self):
+        assets = self.base.assets_collector()
+
+        if hasattr(base, "frame_inv"):
+            base.frame_inv.hide()
+
+        # Remove all lights
+        render.clearLight()
+
+        # Remove Bullet World
+        if not render.find("**/World").is_empty():
+            render.find("**/World").remove_node()
+
+        # Remove all tasks except system
+        tasks = ["player_init",
+                 "player_state",
+                 "actor_life",
+                 "mouse_look"]
+        for t in tasks:
+            taskMgr.remove(t)
+
+        # make pattern list from assets dict
+        pattern = [key for key in assets]
+        # use pattern to remove nodes corresponding to asset names
+        for node in pattern:
+            if render.find("**/{0}".format(node)).is_empty() is False:
+                render.find("**/{0}".format(node)).remove_node()
+
+        for key in assets:
+            self.loader.unload_model(assets[key])
+
+        wp = WindowProperties()
+        wp.set_cursor_hidden(False)
+        self.base.win.request_properties(wp)
+
+        # Disable the camera trackball controls.
+        self.base.disable_mouse()
+
+        # Disable mouse camera
+        self.base.mouse_magnitude = 0
+        self.base.rotate_x = 0
+        self.base.last_mouse_x = None
+        self.base.hide_mouse = False
+        self.base.manual_recenter_Mouse = False
+        self.base.camera.set_pos(0, 0, 0)
+        self.base.camera.set_hpr(0, 0, 0)
+        self.base.cam.set_pos(0, 0, 0)
+        self.base.cam.set_hpr(0, 0, 0)
+        self.base.load_menu_scene()
+        self.base.frame.show()
+
+        if hasattr(base, "is_item_in_use"):
+            base.is_item_in_use = False
+        if hasattr(base, "is_item_in_use_long"):
+            base.is_item_in_use_long = False
 
     def set_action_state(self, action, state):
         if (action
@@ -143,14 +206,14 @@ class PlayerState:
                     else:
                         base.is_item_close_to_use = False
                         base.is_item_far_to_use = True
-        return item
+        if item:
+            return item
 
     def drop_item(self, player):
         if player and not render.find('**/World').is_empty():
             item = self.render.find("**/{0}".format(base.in_use_item_name))
             world = render.find('**/World')
             item.reparent_to(world)
-            item.set_scale(0.2)
             item.set_hpr(0, 0, 0)
             # Put the item near player
             # If player has the bullet shape
@@ -162,7 +225,7 @@ class PlayerState:
             item.set_collide_mask(self.col.mask)
             # Set item state
             if hasattr(base, "bullet_world"):
-                base.bullet_world.set_group_collision_flag(1, 1, True)
+                base.bullet_world.set_group_collision_flag(0, 0, True)
 
             base.is_item_in_use = False
             base.is_item_in_use_long = False
@@ -177,25 +240,25 @@ class PlayerState:
                 and isinstance(items_dist_vect, dict)):
             item = self.get_distance_to(items_dist_vect)
             exposed_joint = player.expose_joint(None, "modelRoot", joint)
-            if exposed_joint.find(item.get_name()).is_empty():
 
+            if (item
+                    and exposed_joint.find(item.get_name()).is_empty()):
                 # Get bullet shape node path
                 if "BS" in item.get_parent().get_name():
                     item = item.get_parent()
                 if "BS" in player.get_parent().get_name():
                     player = player.get_parent()
-
-                item.reparent_to(exposed_joint)
+                # we want to keep original scale of the item
+                item.wrt_reparent_to(exposed_joint)
                 # Set kinematics to make item follow actor joint
                 item.node().set_kinematic(True)
-                item.set_collide_mask(self.col.mask1)
-                player.set_collide_mask(self.col.mask1)
+                item.set_collide_mask(self.col.mask0)
+                player.set_collide_mask(self.col.mask0)
                 base.in_use_item_name = item.get_name()
 
                 if hasattr(base, "bullet_world"):
-                    base.bullet_world.set_group_collision_flag(1, 1, False)
+                    base.bullet_world.set_group_collision_flag(0, 0, False)
 
-                item.set_scale(7.0)
                 item.set_h(205.0)
                 item.set_pos(0.4, 8.0, 5.2)
                 # Prevent fast moving objects from passing through thin obstacles.

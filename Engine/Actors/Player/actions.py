@@ -36,35 +36,25 @@ class Actions:
         self.state = PlayerState()
         self.col = Collisions()
 
-    def check_distance_task(self, player, task):
+    def get_distance_task(self, player, task):
         if player and base.game_mode and base.menu_mode is False:
             items_dist_vect = base.distance_calculate(
                 self.item_cls.usable_item_pos_collector(player), player)
             items_dist_vect_y = [items_dist_vect[k][1] for k in items_dist_vect]
             items_dist_vect_y.sort()
+
             for name, y_pos in zip(items_dist_vect, items_dist_vect_y):
-                # TODO Add check for x_pos
                 if (y_pos > 0.0 and y_pos < 0.7
                         and base.is_item_in_use is False):
                     base.is_item_close_to_use = True
                     base.is_item_far_to_use = False
                     base.close_item_name = name
                     base.in_use_item_name = None
-                    if not render.find('**/{0}'.format(name)).is_empty():
-                        item_np = render.find('**/{0}'.format(name))
-                        if not item_np.get_parent().is_empty():
-                            item_np.get_parent().set_collide_mask(self.col.mask2)
-                            self.col.collision_info(player, item_np)
                 elif (y_pos > 0.0 and y_pos < 0.7
                       and base.is_item_in_use):
                     base.close_item_name = name
                     base.is_item_close_to_use = False
                     base.is_item_far_to_use = False
-                    if not render.find('**/{0}'.format(name)).is_empty():
-                        item_np = render.find('**/{0}'.format(name))
-                        if not item_np.get_parent().is_empty():
-                            item_np.get_parent().set_collide_mask(self.col.mask2)
-                            self.col.collision_info(player, item_np)
             if base.game_mode is False and base.menu_mode:
                 base.is_item_close_to_use = False
                 base.is_item_far_to_use = False
@@ -150,7 +140,7 @@ class Actions:
                         extraArgs=[player, anims],
                         appendTask=True)
 
-            taskMgr.add(self.check_distance_task,
+            taskMgr.add(self.get_distance_task,
                         "check_distance",
                         extraArgs=[player],
                         appendTask=True)
@@ -330,12 +320,17 @@ class Actions:
             # If a move-key is pressed, move the player in the specified direction.
             speed = Vec3(0, 0, 0)
             move_unit = 15
+            # TODO checj if base.state elements are False
+            #  except forward and run
             if (self.kbd.keymap["forward"]
                     and self.kbd.keymap["run"]):
-                if base.input_state.is_set('forward'):
-                    speed.setY(-move_unit)
-                if hasattr(base, "bullet_char_contr_node"):
-                    base.bullet_char_contr_node.set_linear_movement(speed, True)
+                for key in base.states:
+                    if (not base.states[key]
+                            and base.states['is_idle']):
+                        if base.input_state.is_set('forward'):
+                            speed.setY(-move_unit)
+                        if hasattr(base, "bullet_char_contr_node"):
+                            base.bullet_char_contr_node.set_linear_movement(speed, True)
 
             # If the player does action, loop the animation.
             # If it is standing still, stop the animation.
