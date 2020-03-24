@@ -2,11 +2,12 @@ from direct.showbase.DirectObject import DirectObject
 from configparser import ConfigParser
 from direct.fsm.FSM import FSM
 from direct.task.TaskManagerGlobal import taskMgr
-
+from panda3d.ai import AICharacter
 from Engine.Collisions.collisions import Collisions
+# from Engine.FSM.env_ai import FsmEnv
 
 
-class FsmPlayer(FSM):
+class FsmNPC:
     """ Gameplay logics goes here """
 
     def __init__(self):
@@ -25,21 +26,33 @@ class FsmPlayer(FSM):
         self.is_has_umai = False
         self.base = base
         self.render = render
-        self.korlan = None
-        self.avatar = None
         self.taskMgr = taskMgr
         self.col = Collisions()
-        FSM.__init__(self, 'FsmPlayer')
 
-    def get_player(self, player):
-        if player:
-            self.avatar = player
+    def get_npc(self, actor):
+        if actor and isinstance(actor, str):
+            if not render.find("**/{}".format(actor)).is_empty():
+                avatar = render.find("**/{}".format(actor))
+                return avatar
+
+    def set_npc_ai(self, actor, behavior):
+        if (actor
+                and behavior):
+            if hasattr(base, "ai_world") and base.ai_world:
+                if behavior == "seek":
+                    ai_char = AICharacter(behavior, actor, 100, 0.05, 5)
+                    base.ai_world.add_ai_char(ai_char)
+                    ai_behaviors = ai_char.get_ai_behaviors()
+                    if not render.find("**/Korlan:BS").is_empty():
+                        player = render.find("**/Korlan:BS")
+                        ai_behaviors.seek(player)
+                    actor.loop("Walking")
 
 
-class Walking(FsmPlayer):
+class Walking(FsmNPC):
     def __init__(self):
 
-        FsmPlayer.__init__(self)
+        FsmNPC.__init__(self)
 
     def enterWalk(self):
         self.avatar.loop('walk')
@@ -51,14 +64,14 @@ class Walking(FsmPlayer):
         # self.snd.footstepsSound.stop()
 
 
-class Idle(FsmPlayer):
+class Idle(FsmNPC):
     def __init__(self):
 
-        FsmPlayer.__init__(self)
+        FsmNPC.__init__(self)
 
-    def enter_idle(self, player, action):
-        if player and action:
-            self.avatar = player
+    def enter_idle(self, actor, action):
+        if actor and action:
+            self.avatar = actor
 
             any_action = self.avatar.getAnimControl(action)
 
@@ -69,61 +82,61 @@ class Idle(FsmPlayer):
                 self.avatar.setPlayRate(1.0, action)
 
 
-class Swimming(FsmPlayer):
+class Swimming(FsmNPC):
     def __init__(self):
 
-        FsmPlayer.__init__(self)
+        FsmNPC.__init__(self)
 
 
-class Staying(FsmPlayer):
+class Staying(FsmNPC):
     def __init__(self):
 
-        FsmPlayer.__init__(self)
+        FsmNPC.__init__(self)
 
 
-class Jumping(FsmPlayer):
+class Jumping(FsmNPC):
     def __init__(self):
 
-        FsmPlayer.__init__(self)
+        FsmNPC.__init__(self)
 
 
-class Laying(FsmPlayer):
+class Laying(FsmNPC):
     def __init__(self):
 
-        FsmPlayer.__init__(self)
+        FsmNPC.__init__(self)
 
 
-class Sitting(FsmPlayer):
+class Sitting(FsmNPC):
     def __init__(self):
 
-        FsmPlayer.__init__(self)
+        FsmNPC.__init__(self)
 
 
-class Interacting(FsmPlayer):
+class Interacting(FsmNPC):
     def __init__(self):
 
-        FsmPlayer.__init__(self)
+        FsmNPC.__init__(self)
 
 
-class Life(FsmPlayer):
+class Life(FsmNPC):
     def __init__(self):
-        FsmPlayer.__init__(self)
+        FsmNPC.__init__(self)
 
 
-class Dying(FsmPlayer):
-    def __init__(self):
-
-        FsmPlayer.__init__(self)
-
-
-class MartialActions(FsmPlayer):
+class Dying(FsmNPC):
     def __init__(self):
 
-        FsmPlayer.__init__(self)
+        FsmNPC.__init__(self)
 
 
-class MiscActions(FsmPlayer):
+class MartialActions(FsmNPC):
     def __init__(self):
 
-        FsmPlayer.__init__(self)
+        FsmNPC.__init__(self)
+
+
+class MiscActions(FsmNPC):
+    def __init__(self):
+
+        FsmNPC.__init__(self)
 

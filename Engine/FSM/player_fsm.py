@@ -2,7 +2,7 @@ from direct.showbase.DirectObject import DirectObject
 from configparser import ConfigParser
 from direct.fsm.FSM import FSM
 from direct.task.TaskManagerGlobal import taskMgr
-
+from panda3d.ai import AICharacter
 from Engine.Collisions.collisions import Collisions
 
 
@@ -30,9 +30,11 @@ class FsmPlayer(FSM):
         self.col = Collisions()
         FSM.__init__(self, 'FsmPlayer')
 
-    def get_player(self, player):
-        if player:
-            self.avatar = player
+    def get_player(self, actor):
+        if actor and isinstance(actor, str):
+            if not render.find("**/{}:BS").is_empty():
+                self.avatar = render.find("**/{}:BS")
+                return self.avatar
 
 
 class Walking(FsmPlayer):

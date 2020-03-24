@@ -1,7 +1,8 @@
 from panda3d.core import Vec3
 
 from Engine.Actors.Player.state import PlayerState
-from Engine.FSM.player_ai import FsmPlayer, Idle
+from Engine.FSM.player_fsm import FsmPlayer, Idle
+from Engine.FSM.env_ai import FsmEnv
 from Engine.Items.items import Items
 from Engine.Collisions.collisions import Collisions
 from direct.task.TaskManagerGlobal import taskMgr
@@ -29,6 +30,7 @@ class Actions:
         self.kbd = Keyboard()
         self.mouse = Mouse()
         self.physics_attr = PhysicsAttr()
+        self.fsm_env = FsmEnv()
         self.fsm_player = FsmPlayer()
         self.idle_player = Idle()
         self.items = Items()
@@ -118,11 +120,14 @@ class Actions:
 
             self.col.set_inter_collision(player=player)
 
+            # TODO: test it first
+            self.fsm_env.set_ai_world()
+
     """ Prepares the player for scene """
     
     def player_init(self, player, anims, task):
         # Pass the player object to FSM
-        self.fsm_player.get_player(player=player)
+        self.fsm_player.get_player(actor=player)
 
         # TODO: change animation
         any_action = player.get_anim_control(anims['LookingAround'])

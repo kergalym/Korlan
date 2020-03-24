@@ -1,9 +1,9 @@
 from Engine import set_tex_transparency
 from direct.actor.Actor import Actor
 from direct.task.TaskManagerGlobal import taskMgr
-
 from Engine.Render.render import RenderAttr
 from Engine.FSM.npc_ai import Idle
+from Engine.FSM.env_ai import FsmNPC
 
 
 class NPC:
@@ -27,6 +27,7 @@ class NPC:
         self.game_dir = base.game_dir
         self.render_attr = RenderAttr()
         self.idle_player = Idle()
+        self.fsm_npc = FsmNPC()
         self.actor_life_perc = None
         self.base.actor_is_dead = False
         self.base.actor_is_alive = False
@@ -45,7 +46,7 @@ class NPC:
 
     def set_actor_task(self, animation, task):
         if animation:
-            self.idle_player.enter_idle(player=self.actor, action=animation)
+            self.idle_player.enter_idle(actor=self.actor, action=animation)
             return task.cont
 
     def set_actor(self, mode, name, path, animation, axis, rotation, scale):
@@ -98,8 +99,16 @@ class NPC:
 
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
                 self.render.analyze()
-                # self.render.explore()
 
-            taskMgr.add(self.actor_life, "actor_life")
+            taskMgr.add(self.actor_life,
+                        "actor_life")
 
-            taskMgr.add(self.set_actor_task, 'actor_in_idle', extraArgs=[animation[0]], appendTask=True)
+            taskMgr.add(self.set_actor_task,
+                        'actor_in_idle',
+                        extraArgs=[animation[0]],
+                        appendTask=True)
+
+            # TODO: test it first
+            self.fsm_npc.set_npc_ai(actor=self.actor,
+                                    behavior="seek")
+
