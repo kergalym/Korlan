@@ -2,7 +2,6 @@ from direct.showbase.DirectObject import DirectObject
 from configparser import ConfigParser
 from direct.fsm.FSM import FSM
 from direct.task.TaskManagerGlobal import taskMgr
-from panda3d.ai import AICharacter
 from Engine.Collisions.collisions import Collisions
 
 

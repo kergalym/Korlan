@@ -46,7 +46,7 @@ class NPC:
 
     def set_actor_task(self, animation, task):
         if animation:
-            self.idle_player.enter_idle(actor=self.actor, action=animation)
+            self.idle_player.enter_idle(actor=self.actor, action=animation, state=True)
             return task.cont
 
     def set_actor(self, mode, name, path, animation, axis, rotation, scale):
@@ -69,11 +69,7 @@ class NPC:
             self.scale_y = scale[1]
             self.scale_z = scale[2]
 
-            anim_name = animation[0]
-            anim_path = animation[1]
-
-            self.actor = Actor(path,
-                               {anim_name: anim_path})
+            self.actor = Actor(path, animation[1])
 
             self.actor.setName(name)
             self.actor.setScale(self.actor, self.scale_x, self.scale_y, self.scale_z)
@@ -105,10 +101,9 @@ class NPC:
 
             taskMgr.add(self.set_actor_task,
                         'actor_in_idle',
-                        extraArgs=[animation[0]],
+                        extraArgs=['LookingAround'],
                         appendTask=True)
 
-            # TODO: test it first
             self.fsm_npc.set_npc_ai(actor=self.actor,
                                     behavior="seek")
 

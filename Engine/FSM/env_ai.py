@@ -16,8 +16,8 @@ class FsmEnv:
     def update_ai_world_task(self, task):
         if self.ai_world:
             self.ai_world.update()
-        if base.game_mode is False and base.menu_mode:
-            return task.done
+            if base.game_mode is False and base.menu_mode:
+                return task.done
         return task.cont
 
     def set_ai_world(self):

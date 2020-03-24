@@ -1,10 +1,7 @@
 from direct.showbase.DirectObject import DirectObject
 from configparser import ConfigParser
-from direct.fsm.FSM import FSM
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.ai import AICharacter
-from Engine.Collisions.collisions import Collisions
-# from Engine.FSM.env_ai import FsmEnv
 
 
 class FsmNPC:
@@ -27,7 +24,17 @@ class FsmNPC:
         self.base = base
         self.render = render
         self.taskMgr = taskMgr
-        self.col = Collisions()
+
+    def update_ai_behavior_task(self, player, actor, behaviors, task):
+        if (player and actor
+                and behaviors):
+            behaviors.seek(player)
+            # actor.loop("Walking")
+            actor.set_p(0)
+            actor.set_z(0)
+            if base.game_mode is False and base.menu_mode:
+                return task.done
+        return task.cont
 
     def get_npc(self, actor):
         if actor and isinstance(actor, str):
@@ -39,14 +46,18 @@ class FsmNPC:
         if (actor
                 and behavior):
             if hasattr(base, "ai_world") and base.ai_world:
+                player = None
+                ai_behaviors = None
                 if behavior == "seek":
                     ai_char = AICharacter(behavior, actor, 100, 0.05, 5)
                     base.ai_world.add_ai_char(ai_char)
                     ai_behaviors = ai_char.get_ai_behaviors()
                     if not render.find("**/Korlan:BS").is_empty():
                         player = render.find("**/Korlan:BS")
-                        ai_behaviors.seek(player)
-                    actor.loop("Walking")
+                taskMgr.add(self.update_ai_behavior_task,
+                            "update_ai_world",
+                            extraArgs=[player, actor, ai_behaviors],
+                            appendTask=True)
 
 
 class Walking(FsmNPC):
@@ -55,12 +66,13 @@ class Walking(FsmNPC):
         FsmNPC.__init__(self)
 
     def enterWalk(self):
-        self.avatar.loop('walk')
+        pass
+        # self.avatar.loop('walk')
         # self.snd.footstepsSound.play()
-        # self.col.enableDoorCollisions()
 
     def exitWalk(self):
-        self.avatar.stop()
+        pass
+        # self.avatar.stop()
         # self.snd.footstepsSound.stop()
 
 
@@ -69,17 +81,15 @@ class Idle(FsmNPC):
 
         FsmNPC.__init__(self)
 
-    def enter_idle(self, actor, action):
+    def enter_idle(self, actor, action, state):
         if actor and action:
-            self.avatar = actor
+            any_action = actor.getAnimControl(action)
 
-            any_action = self.avatar.getAnimControl(action)
-
-            if (any_action.isPlaying() is False
+            if (state and any_action.isPlaying() is False
                     and self.is_idle
                     and self.is_moving is False):
-                self.avatar.play(action)
-                self.avatar.setPlayRate(1.0, action)
+                actor.play(action)
+                actor.setPlayRate(self.base.actor_play_rate, action)
 
 
 class Swimming(FsmNPC):

@@ -138,7 +138,9 @@ class Actions:
                 and base.states['is_running'] is False
                 and base.states['is_crouch_moving'] is False
                 and base.states['is_crouching'] is False):
-            self.idle_player.enter_idle(player=player, action=anims['LookingAround'], state=True)
+            self.idle_player.enter_idle(player=player,
+                                        action=anims['LookingAround'],
+                                        state=True)
 
         # Here we accept keys
         # TODO: change animation and implement state for actions
