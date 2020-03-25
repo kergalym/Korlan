@@ -24,12 +24,13 @@ class FsmNPC:
         self.base = base
         self.render = render
         self.taskMgr = taskMgr
+        self.ai_char = None
 
     def update_ai_behavior_task(self, player, actor, behaviors, task):
         if (player and actor
                 and behaviors):
             behaviors.seek(player)
-            # actor.loop("Walking")
+            actor.loop("Walking")
             actor.set_p(0)
             actor.set_z(0)
             if base.game_mode is False and base.menu_mode:
@@ -45,24 +46,25 @@ class FsmNPC:
     def set_npc_ai(self, actor, behavior):
         if (actor
                 and behavior):
-            if hasattr(base, "ai_world") and base.ai_world:
-                player = None
-                ai_behaviors = None
-                if behavior == "seek":
-                    ai_char = AICharacter(behavior, actor, 100, 0.05, 5)
-                    base.ai_world.add_ai_char(ai_char)
-                    ai_behaviors = ai_char.get_ai_behaviors()
-                    if not render.find("**/Korlan:BS").is_empty():
-                        player = render.find("**/Korlan:BS")
-                taskMgr.add(self.update_ai_behavior_task,
-                            "update_ai_world",
-                            extraArgs=[player, actor, ai_behaviors],
-                            appendTask=True)
+            if hasattr(base, "ai_world"):
+                if base.ai_world:
+                    ai_behaviors = None
+                    player = None
+                    if behavior == "seek":
+                        ai_char = AICharacter(behavior, actor, 100, 0.05, 5)
+                        base.ai_world.remove_ai_char(actor.get_name())
+                        base.ai_world.add_ai_char(ai_char)
+                        ai_behaviors = ai_char.get_ai_behaviors()
+                        if not render.find("**/Korlan:BS").is_empty():
+                            player = render.find("**/Korlan:BS")
+                        taskMgr.add(self.update_ai_behavior_task,
+                                    "update_ai_behavior",
+                                    extraArgs=[player, actor, ai_behaviors],
+                                    appendTask=True)
 
 
 class Walking(FsmNPC):
     def __init__(self):
-
         FsmNPC.__init__(self)
 
     def enterWalk(self):
@@ -94,37 +96,31 @@ class Idle(FsmNPC):
 
 class Swimming(FsmNPC):
     def __init__(self):
-
         FsmNPC.__init__(self)
 
 
 class Staying(FsmNPC):
     def __init__(self):
-
         FsmNPC.__init__(self)
 
 
 class Jumping(FsmNPC):
     def __init__(self):
-
         FsmNPC.__init__(self)
 
 
 class Laying(FsmNPC):
     def __init__(self):
-
         FsmNPC.__init__(self)
 
 
 class Sitting(FsmNPC):
     def __init__(self):
-
         FsmNPC.__init__(self)
 
 
 class Interacting(FsmNPC):
     def __init__(self):
-
         FsmNPC.__init__(self)
 
 
@@ -135,18 +131,14 @@ class Life(FsmNPC):
 
 class Dying(FsmNPC):
     def __init__(self):
-
         FsmNPC.__init__(self)
 
 
 class MartialActions(FsmNPC):
     def __init__(self):
-
         FsmNPC.__init__(self)
 
 
 class MiscActions(FsmNPC):
     def __init__(self):
-
         FsmNPC.__init__(self)
-

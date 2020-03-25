@@ -22,7 +22,8 @@ class FsmEnv:
 
     def set_ai_world(self):
         self.ai_world = AIWorld(render)
-        base.ai_world = self.ai_world
+        if self.ai_world:
+            base.ai_world = self.ai_world
 
         taskMgr.add(self.update_ai_world_task,
                     "update_ai_world",

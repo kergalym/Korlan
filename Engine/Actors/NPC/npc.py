@@ -22,7 +22,6 @@ class NPC:
         self.base = base
         self.render = render
         self.anims = None
-
         self.game_settings = base.game_settings
         self.game_dir = base.game_dir
         self.render_attr = RenderAttr()
