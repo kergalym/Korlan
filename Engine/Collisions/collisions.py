@@ -107,7 +107,7 @@ class Collisions:
                 if type == 'player':
                     base.bullet_char_contr_node = BulletCharacterControllerNode(actor_bs,
                                                                                 0.4,
-                                                                                '{0}:BS'.format(actor.get_name()))
+                                                                                col_name)
                     actor_bs_np = self.physics_attr.world_nodepath.attach_new_node(base.bullet_char_contr_node)
                     actor_bs_np.set_collide_mask(mask)
                     self.physics_attr.world.attach(base.bullet_char_contr_node)
