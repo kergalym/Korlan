@@ -80,6 +80,7 @@ class Collisions:
                                      shape="cube",
                                      mask=self.mask0)
 
+            # TODO: test
             """taskMgr.add(self.is_actor_exist_task,
                         "is_actor_exist",
                         extraArgs=["NPC", "actor"],
