@@ -1,16 +1,14 @@
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.ai import AIWorld
 from Engine.FSM.player_fsm import FsmPlayer
-from Engine.FSM.npc_ai import FsmNPC
+from Engine.FSM.npc_ai import NpcAI
 
 
-class FsmEnv:
-    """ Gameplay logics goes here """
-
+class EnvAI:
     def __init__(self):
         self.ai_world = None
         self.fsm_player = FsmPlayer()
-        self.fsm_npc = FsmNPC()
+        self.fsm_npc = NpcAI()
         self.ai_behaviors = None
 
     def update_ai_world_task(self, task):
@@ -29,33 +27,16 @@ class FsmEnv:
                     "update_ai_world",
                     appendTask=True)
 
-
-class Wind(FsmEnv):
-    def __init__(self):
-
-        FsmEnv.__init__(self)
-
-
-class Rain(FsmEnv):
-    def __init__(self):
-
-        FsmEnv.__init__(self)
-
-
-class Storm(FsmEnv):
-    def __init__(self):
-
-        FsmEnv.__init__(self)
-
-
-class Day(FsmEnv):
-    def __init__(self):
-
-        FsmEnv.__init__(self)
-
-
-class Night(FsmEnv):
-    def __init__(self):
-
-        FsmEnv.__init__(self)
+    def set_weather(self, weather):
+        if weather and isinstance(weather, str):
+            if weather == "wind":
+                pass
+            elif weather == "rain":
+                pass
+            elif weather == "storm":
+                pass
+            elif weather == "day":
+                pass
+            elif weather == "night":
+                pass
 

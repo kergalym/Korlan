@@ -577,7 +577,7 @@ class Main(ShowBase):
     def distance_calculate(self, items, actor):
         """ Function    : distance_calculate
 
-            Description : Calculate a distance between object and actor.
+            Description : Calculate a distance between objects and actor.
 
             Input       : Dict, Nodepath
 
@@ -608,6 +608,42 @@ class Main(ShowBase):
                     remained[key] = (round(vect_x, 1),
                                      round(vect_y, 1),
                                      round(vect_z, 1))
+            return remained
+
+    def npc_distance_calculate(self, player, actor):
+        """ Function    : distance_calculate
+
+            Description : Calculate a distance between player and actor.
+
+            Input       : Nodepath
+
+            Output      : None
+
+            Return      : Dictionary
+        """
+
+        if player and actor:
+            # Do some minimum distance calculate here
+            vect_x = None
+            vect_y = None
+            vect_z = None
+            remained = {}
+            # Subtract actor vector from item vector.
+            if not actor.get_parent().is_empty():
+                # Get bullet shape node path if it's here
+                if ('BS' in player.get_parent().get_name()
+                        and 'BS' in actor.get_parent().get_name()):
+                    vect_x = player.get_parent().get_x() - actor.get_parent().get_x()
+                    vect_y = player.get_parent().get_y() - actor.get_parent().get_y()
+                    vect_z = player.get_parent().get_z() - actor.get_parent().get_z()
+                elif ('BS' not in player.get_parent().get_name()
+                      and 'BS' not in actor.get_parent().get_name()):
+                    vect_x = player.get_x() - actor.get_x()
+                    vect_y = player.get_y() - actor.get_y()
+                    vect_z = player.get_z() - actor.get_z()
+                remained["vector"] = (round(vect_x, 1),
+                                      round(vect_y, 1),
+                                      round(vect_z, 1))
             return remained
 
     def load_menu_scene(self):

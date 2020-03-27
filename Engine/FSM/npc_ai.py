@@ -1,36 +1,59 @@
-from direct.showbase.DirectObject import DirectObject
-from configparser import ConfigParser
+from direct.fsm.FSM import FSM
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.ai import AICharacter
 
 
-class FsmNPC:
-    """ Gameplay logics goes here """
-
+class NpcAI(FSM):
     def __init__(self):
-        self.d_object = DirectObject()
-        self.cfg_parser = ConfigParser()
-        self.is_idle = True
-        self.is_moving = False
-        self.is_crouching = False
-        self.is_jumping = False
-        self.is_hitting = False
-        self.is_using = False
-        self.is_blocking = False
-        self.is_has_sword = False
-        self.is_has_bow = False
-        self.is_has_tengri = False
-        self.is_has_umai = False
+        FSM.__init__(self, "NpcAI")
         self.base = base
         self.render = render
         self.taskMgr = taskMgr
         self.ai_char = None
+        base.behaviors = {
+            "idle": True,
+            "walk": False,
+            "swim": False,
+            "stay": False,
+            "jump": False,
+            "crouch": False,
+            "lay": False,
+            "attack": False,
+            "interact": False,
+            "life": False,
+            "death": False,
+            "misc_act": False
+        }
 
-    def update_ai_behavior_task(self, player, actor, behaviors, task):
+    def update_ai_behavior_task(self, player, actor, behavior, behaviors, vect, task):
         if (player and actor
-                and behaviors):
-            behaviors.seek(player)
-            actor.loop("Walking")
+                and behavior
+                and isinstance(behavior, str)
+                and behaviors and
+                isinstance(vect, dict)):
+            if behavior == "seek":
+                behaviors.seek(player)
+            elif behavior == "flee":
+                behaviors.flee(player,
+                               vect['panic_dist'],
+                               vect['relax_dist'])
+            elif behavior == "pursuer":
+                behaviors.pursue(player)
+            elif behavior == "evader":
+                behaviors.evade(player,
+                                vect['panic_dist'],
+                                vect['relax_dist'])
+            elif behavior == "wanderer":
+                behaviors.wander(vect["wander_radius"],
+                                 vect["plane_flag"],
+                                 vect["area_of_effect"])
+            elif behavior == "path_follow":
+                behaviors.path_follow(1)
+                behaviors.add_to_path(player.get_pos())
+                behaviors.start_follow()
+            base.behaviors['walk'] = True
+            base.behaviors['idle'] = False
+
             actor.set_p(0)
             actor.set_z(0)
             if base.game_mode is False and base.menu_mode:
@@ -45,100 +68,127 @@ class FsmNPC:
 
     def set_npc_ai(self, actor, behavior):
         if (actor
-                and behavior):
+                and behavior
+                and isinstance(behavior, str)):
             if hasattr(base, "ai_world"):
                 if base.ai_world:
-                    ai_behaviors = None
+                    vect = {"panic_dist": 5,
+                            "relax_dist": 5,
+                            "wander_radius": 5,
+                            "plane_flag": 0,
+                            "area_of_effect": 10}
+                    speed = 4
                     player = None
-                    if behavior == "seek":
-                        ai_char = AICharacter(behavior, actor, 100, 0.05, 5)
-                        base.ai_world.remove_ai_char(actor.get_name())
-                        base.ai_world.add_ai_char(ai_char)
-                        ai_behaviors = ai_char.get_ai_behaviors()
-                        if not render.find("**/Korlan:BS").is_empty():
-                            player = render.find("**/Korlan:BS")
-                        taskMgr.add(self.update_ai_behavior_task,
-                                    "update_ai_behavior",
-                                    extraArgs=[player, actor, ai_behaviors],
-                                    appendTask=True)
+                    ai_char = AICharacter(behavior, actor, 100, 0.05, speed)
+                    base.ai_world.remove_ai_char(actor.get_name())
+                    base.ai_world.add_ai_char(ai_char)
+                    ai_behaviors = ai_char.get_ai_behaviors()
 
+                    if behavior == "obs_avoid":
+                        ai_behaviors.obstacle_avoidance(1.0)
+                        base.ai_world.add_obstacle(player)
 
-class Walking(FsmNPC):
-    def __init__(self):
-        FsmNPC.__init__(self)
+                    if not render.find("**/Korlan:BS").is_empty():
+                        player = render.find("**/Korlan:BS")
 
-    def enterWalk(self):
-        pass
-        # self.avatar.loop('walk')
-        # self.snd.footstepsSound.play()
+                    taskMgr.add(self.update_ai_behavior_task,
+                                "update_ai_behavior",
+                                extraArgs=[player, actor, behavior,
+                                           ai_behaviors, vect],
+                                appendTask=True)
+
+    def enterIdle(self, actor, action, state):
+        if actor and action and state:
+            any_action = actor.getAnimControl(action)
+            if (isinstance(state, str)
+                    and any_action.isPlaying() is False
+                    and base.behaviors['idle']
+                    and base.behaviors['walk'] is False):
+                if state == "play":
+                    actor.play(action)
+                elif state == "loop":
+                    actor.loop(action)
+                actor.set_play_rate(self.base.actor_play_rate, action)
+
+    def exitIdle(self):
+        base.behaviors['idle'] = False
+        base.behaviors['walk'] = False
+
+    def enterWalk(self, actor, action, state):
+        if actor and action and state:
+            base.behaviors['idle'] = False
+            base.behaviors['walk'] = True
+            any_action = actor.getAnimControl(action)
+            if (isinstance(state, str)
+                    and any_action.isPlaying() is False
+                    and base.behaviors['idle'] is False
+                    and base.behaviors['walk']):
+                if state == "play":
+                    actor.play(action)
+                elif state == "loop":
+                    actor.loop(action)
+                actor.set_play_rate(self.base.actor_play_rate, action)
 
     def exitWalk(self):
+        base.behaviors['idle'] = True
+        base.behaviors['walk'] = False
+
+    def enterCrouch(self):
         pass
-        # self.avatar.stop()
-        # self.snd.footstepsSound.stop()
 
+    def exitCrouch(self):
+        pass
 
-class Idle(FsmNPC):
-    def __init__(self):
+    def enterSwim(self):
+        pass
 
-        FsmNPC.__init__(self)
+    def exitSwim(self):
+        pass
 
-    def enter_idle(self, actor, action, state):
-        if actor and action:
-            any_action = actor.getAnimControl(action)
+    def enterStay(self):
+        pass
 
-            if (state and any_action.isPlaying() is False
-                    and self.is_idle
-                    and self.is_moving is False):
-                actor.play(action)
-                actor.setPlayRate(self.base.actor_play_rate, action)
+    def exitStay(self):
+        pass
 
+    def enterJump(self):
+        pass
 
-class Swimming(FsmNPC):
-    def __init__(self):
-        FsmNPC.__init__(self)
+    def exitJump(self):
+        pass
 
+    def enterLay(self):
+        pass
 
-class Staying(FsmNPC):
-    def __init__(self):
-        FsmNPC.__init__(self)
+    def exitLay(self):
+        pass
 
+    def EnterAttack(self):
+        pass
 
-class Jumping(FsmNPC):
-    def __init__(self):
-        FsmNPC.__init__(self)
+    def exitAttack(self):
+        pass
 
+    def enterInteract(self):
+        pass
 
-class Laying(FsmNPC):
-    def __init__(self):
-        FsmNPC.__init__(self)
+    def exitInteract(self):
+        pass
 
+    def enterLife(self):
+        pass
 
-class Sitting(FsmNPC):
-    def __init__(self):
-        FsmNPC.__init__(self)
+    def exitLife(self):
+        pass
 
+    def enterDeath(self):
+        pass
 
-class Interacting(FsmNPC):
-    def __init__(self):
-        FsmNPC.__init__(self)
+    def exitDeath(self):
+        pass
 
+    def enterMiscAct(self):
+        pass
 
-class Life(FsmNPC):
-    def __init__(self):
-        FsmNPC.__init__(self)
-
-
-class Dying(FsmNPC):
-    def __init__(self):
-        FsmNPC.__init__(self)
-
-
-class MartialActions(FsmNPC):
-    def __init__(self):
-        FsmNPC.__init__(self)
-
-
-class MiscActions(FsmNPC):
-    def __init__(self):
-        FsmNPC.__init__(self)
+    def exitMiscAct(self):
+        pass

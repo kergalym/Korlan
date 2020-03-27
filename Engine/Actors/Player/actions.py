@@ -1,8 +1,8 @@
 from panda3d.core import Vec3
 
 from Engine.Actors.Player.state import PlayerState
-from Engine.FSM.player_fsm import FsmPlayer, Idle
-from Engine.FSM.env_ai import FsmEnv
+from Engine.FSM.player_fsm import FsmPlayer
+from Engine.FSM.env_ai import EnvAI
 from Engine.Items.items import Items
 from Engine.Collisions.collisions import Collisions
 from direct.task.TaskManagerGlobal import taskMgr
@@ -30,9 +30,8 @@ class Actions:
         self.kbd = Keyboard()
         self.mouse = Mouse()
         self.physics_attr = PhysicsAttr()
-        self.fsm_env = FsmEnv()
+        self.fsm_env = EnvAI()
         self.fsm_player = FsmPlayer()
-        self.idle_player = Idle()
         self.items = Items()
         self.player_menu = PlayerMenuUI()
         self.state = PlayerState()
@@ -114,13 +113,11 @@ class Actions:
                         appendTask=True)
 
             taskMgr.add(self.items.get_item_distance_task,
-                        "check_distance",
+                        "get_item_distance",
                         extraArgs=[player],
                         appendTask=True)
 
             self.col.set_inter_collision(player=player)
-
-            # TODO: test it first
             self.fsm_env.set_ai_world()
 
     """ Prepares the player for scene """
@@ -138,9 +135,9 @@ class Actions:
                 and base.states['is_running'] is False
                 and base.states['is_crouch_moving'] is False
                 and base.states['is_crouching'] is False):
-            self.idle_player.enter_idle(player=player,
-                                        action=anims['LookingAround'],
-                                        state=True)
+            self.fsm_player.request("Idle", player,
+                                    anims['LookingAround'],
+                                    "play")
 
         # Here we accept keys
         # TODO: change animation and implement state for actions
@@ -251,7 +248,8 @@ class Actions:
                 if base.input_state.is_set('reverse'):
                     speed.setY(move_unit)
 
-            if hasattr(base, "bullet_char_contr_node"):
+            if (hasattr(base, "bullet_char_contr_node")
+                    and base.bullet_char_contr_node):
                 base.bullet_char_contr_node.set_linear_movement(speed, True)
                 base.bullet_char_contr_node.set_angular_movement(omega)
 

@@ -1,14 +1,13 @@
+from direct.fsm.FSM import FSM
 from direct.showbase.DirectObject import DirectObject
 from configparser import ConfigParser
-from direct.fsm.FSM import FSM
 from direct.task.TaskManagerGlobal import taskMgr
 from Engine.Collisions.collisions import Collisions
 
 
 class FsmPlayer(FSM):
-    """ Gameplay logics goes here """
-
     def __init__(self):
+        FSM.__init__(self, 'FsmPlayer')
         self.d_object = DirectObject()
         self.cfg_parser = ConfigParser()
         self.is_moving = False
@@ -23,102 +22,97 @@ class FsmPlayer(FSM):
         self.is_has_umai = False
         self.base = base
         self.render = render
-        self.korlan = None
-        self.avatar = None
+        self.player = None
         self.taskMgr = taskMgr
         self.col = Collisions()
-        FSM.__init__(self, 'FsmPlayer')
 
     def get_player(self, actor):
         if actor and isinstance(actor, str):
             if not render.find("**/{}:BS").is_empty():
-                self.avatar = render.find("**/{}:BS")
-                return self.avatar
+                self.player = render.find("**/{}:BS")
+                return self.player
 
+    def enterIdle(self, player, action, state):
+        if player and action:
+            self.player = player
+            if state == "play":
+                self.player.play(action)
+            elif state == "loop":
+                self.player.loop(action)
+            self.player.setPlayRate(self.base.actor_play_rate, action)
 
-class Walking(FsmPlayer):
-    def __init__(self):
-
-        FsmPlayer.__init__(self)
-
-    def enterWalk(self):
-        self.avatar.loop('walk')
-        # self.snd.footstepsSound.play()
-        # self.col.enableDoorCollisions()
+    # TODO: code review
+    def enterWalk(self, actor, action, state):
+        if actor and action and state:
+            any_action = actor.getAnimControl(action)
+            if (isinstance(state, str)
+                    and any_action.isPlaying() is False
+                    and self.is_moving):
+                if state == "play":
+                    actor.play(action)
+                elif state == "loop":
+                    actor.loop(action)
+                actor.set_play_rate(self.base.actor_play_rate, action)
 
     def exitWalk(self):
-        self.avatar.stop()
-        # self.snd.footstepsSound.stop()
+        self.is_moving = False
 
+    def enterCrouch(self):
+        pass
 
-class Idle(FsmPlayer):
-    def __init__(self):
+    def exitCrouch(self):
+        pass
 
-        FsmPlayer.__init__(self)
+    def enterSwim(self):
+        pass
 
-    def enter_idle(self, player, action, state):
-        if player and action:
-            if state:
-                self.avatar = player
-                self.avatar.play(action)
-                self.avatar.setPlayRate(self.base.actor_play_rate, action)
+    def exitSwim(self):
+        pass
 
+    def enterStay(self):
+        pass
 
-class Swimming(FsmPlayer):
-    def __init__(self):
+    def exitStay(self):
+        pass
 
-        FsmPlayer.__init__(self)
+    def enterJump(self):
+        pass
 
+    def exitJump(self):
+        pass
 
-class Staying(FsmPlayer):
-    def __init__(self):
+    def enterLay(self):
+        pass
 
-        FsmPlayer.__init__(self)
+    def exitLay(self):
+        pass
 
+    def EnterAttack(self):
+        pass
 
-class Jumping(FsmPlayer):
-    def __init__(self):
+    def exitAttack(self):
+        pass
 
-        FsmPlayer.__init__(self)
+    def enterInteract(self):
+        pass
 
+    def exitInteract(self):
+        pass
 
-class Laying(FsmPlayer):
-    def __init__(self):
+    def enterLife(self):
+        pass
 
-        FsmPlayer.__init__(self)
+    def exitLife(self):
+        pass
 
+    def enterDeath(self):
+        pass
 
-class Sitting(FsmPlayer):
-    def __init__(self):
+    def exitDeath(self):
+        pass
 
-        FsmPlayer.__init__(self)
+    def enterMiscAct(self):
+        pass
 
-
-class Interacting(FsmPlayer):
-    def __init__(self):
-
-        FsmPlayer.__init__(self)
-
-
-class Life(FsmPlayer):
-    def __init__(self):
-        FsmPlayer.__init__(self)
-
-
-class Dying(FsmPlayer):
-    def __init__(self):
-
-        FsmPlayer.__init__(self)
-
-
-class MartialActions(FsmPlayer):
-    def __init__(self):
-
-        FsmPlayer.__init__(self)
-
-
-class MiscActions(FsmPlayer):
-    def __init__(self):
-
-        FsmPlayer.__init__(self)
-
+    def exitMiscAct(self):
+        pass

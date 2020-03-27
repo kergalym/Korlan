@@ -2,8 +2,7 @@ from Engine import set_tex_transparency
 from direct.actor.Actor import Actor
 from direct.task.TaskManagerGlobal import taskMgr
 from Engine.Render.render import RenderAttr
-from Engine.FSM.npc_ai import Idle
-from Engine.FSM.env_ai import FsmNPC
+from Engine.FSM.env_ai import NpcAI
 
 
 class NPC:
@@ -25,8 +24,7 @@ class NPC:
         self.game_settings = base.game_settings
         self.game_dir = base.game_dir
         self.render_attr = RenderAttr()
-        self.idle_player = Idle()
-        self.fsm_npc = FsmNPC()
+        self.fsm_npc = NpcAI()
         self.actor_life_perc = None
         self.base.actor_is_dead = False
         self.base.actor_is_alive = False
@@ -43,9 +41,19 @@ class NPC:
         else:
             return False
 
-    def set_actor_task(self, animation, task):
+    def set_actor_behavior_task(self, animation, task):
         if animation:
-            self.idle_player.enter_idle(actor=self.actor, action=animation, state=True)
+            if hasattr(base, "npc_distance_calculate"):
+                if (not render.find("**/Korlan:BS").is_empty()
+                        and not render.find("**/NPC:BS").is_empty()):
+                    player = render.find("**/Korlan:BS")
+                    actor = render.find("**/NPC:BS")
+                    vect = base.npc_distance_calculate(player, actor)
+                    if vect:
+                        if vect['vector'][1] > 0.2:
+                            self.fsm_npc.request("Idle", self.actor, animation, "loop")
+                        if vect['vector'][1] < 0.2:
+                            self.fsm_npc.request("Walk", self.actor, "Walking", "loop")
             return task.cont
 
     def set_actor(self, mode, name, path, animation, axis, rotation, scale):
@@ -98,11 +106,16 @@ class NPC:
             taskMgr.add(self.actor_life,
                         "actor_life")
 
-            taskMgr.add(self.set_actor_task,
+            taskMgr.add(self.set_actor_behavior_task,
                         'actor_in_idle',
                         extraArgs=['LookingAround'],
                         appendTask=True)
 
-            self.fsm_npc.set_npc_ai(actor=self.actor,
-                                    behavior="seek")
+            # self.fsm_npc.set_npc_ai(actor=self.actor, behavior="seek")
+            # self.fsm_npc.set_npc_ai(actor=self.actor, behavior="flee")
+            # self.fsm_npc.set_npc_ai(actor=self.actor, behavior="pursuer")
+            # self.fsm_npc.set_npc_ai(actor=self.actor, behavior="evader")
+            # self.fsm_npc.set_npc_ai(actor=self.actor, behavior="wanderer")
+            # self.fsm_npc.set_npc_ai(actor=self.actor, behavior="obs_avoid")
+            self.fsm_npc.set_npc_ai(actor=self.actor, behavior="path_follow")
 
