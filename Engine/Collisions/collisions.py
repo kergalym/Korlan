@@ -1,6 +1,7 @@
 from panda3d.core import BitMask32
 from Engine.Collisions.collision_solids import BulletCollisionSolids
 from Engine.Physics.physics import PhysicsAttr
+from Engine.FSM.npc_ai import NpcAI
 from panda3d.bullet import BulletCharacterControllerNode
 from panda3d.bullet import BulletRigidBodyNode
 from direct.task.TaskManagerGlobal import taskMgr
@@ -18,6 +19,7 @@ class Collisions:
 
         self.physics_attr = PhysicsAttr()
         self.bs = BulletCollisionSolids()
+        self.fsm_npc = NpcAI()
 
         self.korlan = None
 
@@ -59,7 +61,19 @@ class Collisions:
                                     shape="capsule",
                                     mask=self.mask1,
                                     type=type)
+
+            if not render.find("**/NPC:BS").is_empty():
+                actor = render.find("**/NPC:BS")
+
+            # self.fsm_npc.set_npc_ai(actor=self.actor, behavior="seek")
+            # self.fsm_npc.set_npc_ai(actor=self.actor, behavior="flee")
+            # self.fsm_npc.set_npc_ai(actor=self.actor, behavior="pursuer")
+            # self.fsm_npc.set_npc_ai(actor=self.actor, behavior="evader")
+            # self.fsm_npc.set_npc_ai(actor=self.actor, behavior="wanderer")
+            # self.fsm_npc.set_npc_ai(actor=self.actor, behavior="obs_avoid")
+            self.fsm_npc.set_npc_ai(actor=actor, behavior="path_follow")
             return task.done
+
         return task.cont
 
     def set_inter_collision(self, player):
@@ -80,13 +94,12 @@ class Collisions:
                                      shape="cube",
                                      mask=self.mask0)
 
-            # TODO: test
-            """taskMgr.add(self.is_actor_exist_task,
+            # Check if NPC is loaded and then construct collision shape
+            taskMgr.add(self.is_actor_exist_task,
                         "is_actor_exist",
                         extraArgs=["NPC", "actor"],
-                        appendTask=True)"""
+                        appendTask=True)
 
-    # TODO: test
     def set_actor_collider(self, actor, col_name, shape, mask, type):
         if (actor
                 and col_name
@@ -97,7 +110,6 @@ class Collisions:
                 and isinstance(shape, str)
                 and isinstance(type, str)):
             if base.menu_mode is False and base.game_mode:
-                base.bullet_char_contr_node = None
                 actor_bs = None
                 actor_bs_np = None
                 if shape == 'capsule':
@@ -112,16 +124,18 @@ class Collisions:
                     actor_bs_np.set_collide_mask(mask)
                     self.physics_attr.world.attach(base.bullet_char_contr_node)
                 elif type == 'actor':
-                    actor_bs_np = self.physics_attr.world_nodepath.attach_new_node(BulletRigidBodyNode(col_name))
-                    actor_bs_np.node().set_mass(1.0)
-                    actor_bs_np.node().add_shape(actor_bs)
+                    actor_contr_node = BulletCharacterControllerNode(actor_bs,
+                                                                     0.4,
+                                                                     col_name)
+                    actor_bs_np = self.physics_attr.world_nodepath.attach_new_node(actor_contr_node)
                     actor_bs_np.set_collide_mask(mask)
-                    self.physics_attr.world.attach(actor_bs_np.node())
+                    self.physics_attr.world.attach(actor_contr_node)
                 actor.reparent_to(actor_bs_np)
                 # Set actor down to make it
                 # at the same point as bullet shape
                 actor.set_z(-1)
                 # Set the bullet shape position same as actor position
+                actor_bs_np.set_x(actor.get_x())
                 actor_bs_np.set_y(actor.get_y())
                 # Set actor relative to bullet shape
                 actor.set_y(0)

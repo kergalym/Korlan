@@ -111,11 +111,3 @@ class NPC:
                         extraArgs=['LookingAround'],
                         appendTask=True)
 
-            # self.fsm_npc.set_npc_ai(actor=self.actor, behavior="seek")
-            # self.fsm_npc.set_npc_ai(actor=self.actor, behavior="flee")
-            # self.fsm_npc.set_npc_ai(actor=self.actor, behavior="pursuer")
-            # self.fsm_npc.set_npc_ai(actor=self.actor, behavior="evader")
-            # self.fsm_npc.set_npc_ai(actor=self.actor, behavior="wanderer")
-            # self.fsm_npc.set_npc_ai(actor=self.actor, behavior="obs_avoid")
-            self.fsm_npc.set_npc_ai(actor=self.actor, behavior="path_follow")
-

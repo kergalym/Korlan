@@ -305,7 +305,8 @@ class Actions:
                             and base.states['is_idle']):
                         if base.input_state.is_set('forward'):
                             speed.setY(-move_unit)
-                        if hasattr(base, "bullet_char_contr_node"):
+                        if (hasattr(base, "bullet_char_contr_node")
+                                and base.bullet_char_contr_node):
                             base.bullet_char_contr_node.set_linear_movement(speed, True)
 
             # If the player does action, loop the animation.

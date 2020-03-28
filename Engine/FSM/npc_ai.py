@@ -56,6 +56,7 @@ class NpcAI(FSM):
 
             actor.set_p(0)
             actor.set_z(0)
+
             if base.game_mode is False and base.menu_mode:
                 return task.done
         return task.cont
@@ -79,6 +80,7 @@ class NpcAI(FSM):
                             "area_of_effect": 10}
                     speed = 4
                     player = None
+
                     ai_char = AICharacter(behavior, actor, 100, 0.05, speed)
                     base.ai_world.remove_ai_char(actor.get_name())
                     base.ai_world.add_ai_char(ai_char)
