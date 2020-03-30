@@ -117,11 +117,8 @@ class Actions:
                         extraArgs=[player],
                         appendTask=True)
 
-            self.col.set_inter_collision(player=player)
-            self.fsm_env.set_ai_world()
-
     """ Prepares the player for scene """
-    
+
     def player_init(self, player, anims, task):
         # Pass the player object to FSM
         self.fsm_player.get_player(actor=player)

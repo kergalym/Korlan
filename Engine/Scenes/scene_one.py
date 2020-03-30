@@ -1,8 +1,4 @@
-import re
-
 from panda3d.core import *
-
-from Engine.Collisions.collisions import Collisions
 from Engine.Actors.Player.korlan import Korlan
 from Engine import set_tex_transparency
 from Engine.Render.render import RenderAttr
@@ -25,7 +21,6 @@ class SceneOne:
         self.type = None
         self.task_mgr = None
         self.node_path = NodePath()
-        self.col = Collisions()
         self.render_attr = RenderAttr()
         self.korlan = Korlan()
         self.base = base

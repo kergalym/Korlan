@@ -25,38 +25,9 @@ class NpcAI(FSM):
             "misc_act": False
         }
 
-    def update_ai_behavior_task(self, player, actor, behavior, behaviors, vect, task):
-        if (player and actor
-                and behavior
-                and isinstance(behavior, str)
-                and behaviors and
-                isinstance(vect, dict)):
-            if behavior == "seek":
-                behaviors.seek(player)
-            elif behavior == "flee":
-                behaviors.flee(player,
-                               vect['panic_dist'],
-                               vect['relax_dist'])
-            elif behavior == "pursuer":
-                behaviors.pursue(player)
-            elif behavior == "evader":
-                behaviors.evade(player,
-                                vect['panic_dist'],
-                                vect['relax_dist'])
-            elif behavior == "wanderer":
-                behaviors.wander(vect["wander_radius"],
-                                 vect["plane_flag"],
-                                 vect["area_of_effect"])
-            elif behavior == "path_follow":
-                behaviors.path_follow(1)
-                behaviors.add_to_path(player.get_pos())
-                behaviors.start_follow()
-            base.behaviors['walk'] = True
-            base.behaviors['idle'] = False
-
+    def keep_actor_pitch_task(self, actor, task):
+        if actor:
             actor.set_p(0)
-            actor.set_z(0)
-
             if base.game_mode is False and base.menu_mode:
                 return task.done
         return task.cont
@@ -78,25 +49,44 @@ class NpcAI(FSM):
                             "wander_radius": 5,
                             "plane_flag": 0,
                             "area_of_effect": 10}
-                    speed = 4
+                    speed = 5
                     player = None
-
                     ai_char = AICharacter(behavior, actor, 100, 0.05, speed)
                     base.ai_world.remove_ai_char(actor.get_name())
                     base.ai_world.add_ai_char(ai_char)
-                    ai_behaviors = ai_char.get_ai_behaviors()
-
-                    if behavior == "obs_avoid":
-                        ai_behaviors.obstacle_avoidance(1.0)
-                        base.ai_world.add_obstacle(player)
+                    behaviors = ai_char.get_ai_behaviors()
 
                     if not render.find("**/Korlan:BS").is_empty():
                         player = render.find("**/Korlan:BS")
+                        if behavior == "obs_avoid":
+                            behaviors.obstacle_avoidance(1.0)
+                            base.ai_world.add_obstacle(player)
+                        elif behavior == "seek":
+                            behaviors.seek(player)
+                        elif behavior == "flee":
+                            behaviors.flee(player,
+                                           vect['panic_dist'],
+                                           vect['relax_dist'])
+                        elif behavior == "pursuer":
+                            behaviors.pursue(player)
+                        elif behavior == "evader":
+                            behaviors.evade(player,
+                                            vect['panic_dist'],
+                                            vect['relax_dist'])
+                        elif behavior == "wanderer":
+                            behaviors.wander(vect["wander_radius"],
+                                             vect["plane_flag"],
+                                             vect["area_of_effect"])
+                        elif behavior == "path_follow":
+                            behaviors.path_follow(1)
+                            behaviors.add_to_path(player.get_pos())
+                            behaviors.start_follow()
+                        base.behaviors['walk'] = True
+                        base.behaviors['idle'] = False
 
-                    taskMgr.add(self.update_ai_behavior_task,
-                                "update_ai_behavior",
-                                extraArgs=[player, actor, behavior,
-                                           ai_behaviors, vect],
+                    taskMgr.add(self.keep_actor_pitch_task,
+                                "keep_actor_pitch",
+                                extraArgs=[actor],
                                 appendTask=True)
 
     def enterIdle(self, actor, action, state):

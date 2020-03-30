@@ -4,7 +4,6 @@ from Engine.Physics.physics import PhysicsAttr
 from Engine.FSM.npc_ai import NpcAI
 from panda3d.bullet import BulletCharacterControllerNode
 from panda3d.bullet import BulletRigidBodyNode
-from direct.task.TaskManagerGlobal import taskMgr
 
 
 class Collisions:
@@ -49,56 +48,34 @@ class Collisions:
 
             return collision_info
 
-    def is_actor_exist_task(self, actor_name, type, task):
-        if (actor_name and type
-                and isinstance(actor_name, str)
-                and isinstance(type, str)):
-            assets_nodes = base.asset_nodes_assoc_collector()
-            actor = assets_nodes.get(actor_name)
+    def set_collision(self, obj, type, shape):
+        # Physics World must be enabled only one time before adding collider.
+        self.physics_attr.set_physics_world()
 
-            self.set_actor_collider(actor=actor,
-                                    col_name='{0}:BS'.format(actor.get_name()),
-                                    shape="capsule",
-                                    mask=self.mask1,
-                                    type=type)
-
-            if not render.find("**/NPC:BS").is_empty():
-                actor = render.find("**/NPC:BS")
-
-            # self.fsm_npc.set_npc_ai(actor=self.actor, behavior="seek")
-            # self.fsm_npc.set_npc_ai(actor=self.actor, behavior="flee")
-            # self.fsm_npc.set_npc_ai(actor=self.actor, behavior="pursuer")
-            # self.fsm_npc.set_npc_ai(actor=self.actor, behavior="evader")
-            # self.fsm_npc.set_npc_ai(actor=self.actor, behavior="wanderer")
-            # self.fsm_npc.set_npc_ai(actor=self.actor, behavior="obs_avoid")
-            self.fsm_npc.set_npc_ai(actor=actor, behavior="path_follow")
-            return task.done
-
-        return task.cont
-
-    def set_inter_collision(self, player):
-        if player:
-            self.korlan = player
-            self.korlan.setTag(key=player.get_name(), value='1')
-            # Octree-optimised "into" objects defined here
-            assets_nodes = base.asset_nodes_assoc_collector()
-            box = assets_nodes.get('Box')
-            box.set_tag(key=box.get_name(), value='1')
-            self.physics_attr.set_physics()
-            self.set_actor_collider(actor=self.korlan,
-                                    col_name='{0}:BS'.format(self.korlan.get_name()),
-                                    shape="capsule",
-                                    mask=self.mask0, type="player")
-            self.set_object_collider(obj=box,
-                                     col_name='{0}:BS'.format(box.get_name()),
-                                     shape="cube",
-                                     mask=self.mask0)
-
-            # Check if NPC is loaded and then construct collision shape
-            taskMgr.add(self.is_actor_exist_task,
-                        "is_actor_exist",
-                        extraArgs=["NPC", "actor"],
-                        appendTask=True)
+        if (obj and type and shape
+                and isinstance(type, str)
+                and isinstance(shape, str)):
+            if type == "player":
+                self.korlan = obj
+                self.korlan.setTag(key=obj.get_name(), value='1')
+                self.set_actor_collider(actor=self.korlan,
+                                        col_name='{0}:BS'.format(self.korlan.get_name()),
+                                        shape=shape,
+                                        mask=self.mask0,
+                                        type="player")
+            if type == "actor":
+                obj.set_tag(key=obj.get_name(), value='1')
+                self.set_actor_collider(actor=obj,
+                                        col_name='{0}:BS'.format(obj.get_name()),
+                                        shape=shape,
+                                        mask=self.mask1,
+                                        type="actor")
+            if type == "item":
+                obj.set_tag(key=obj.get_name(), value='1')
+                self.set_object_collider(obj=obj,
+                                         col_name='{0}:BS'.format(obj.get_name()),
+                                         shape=shape,
+                                         mask=self.mask0)
 
     def set_actor_collider(self, actor, col_name, shape, mask, type):
         if (actor
@@ -117,28 +94,35 @@ class Collisions:
                 if shape == 'sphere':
                     actor_bs = self.bs.set_bs_sphere()
                 if type == 'player':
-                    base.bullet_char_contr_node = BulletCharacterControllerNode(actor_bs,
-                                                                                0.4,
-                                                                                col_name)
-                    actor_bs_np = self.physics_attr.world_nodepath.attach_new_node(base.bullet_char_contr_node)
-                    actor_bs_np.set_collide_mask(mask)
-                    self.physics_attr.world.attach(base.bullet_char_contr_node)
+                    if self.physics_attr.world_nodepath:
+                        base.bullet_char_contr_node = BulletCharacterControllerNode(actor_bs,
+                                                                                    0.4,
+                                                                                    col_name)
+                        actor_bs_np = self.physics_attr.world_nodepath.attach_new_node(base.bullet_char_contr_node)
+                        actor_bs_np.set_collide_mask(mask)
+                        self.physics_attr.world.attach(base.bullet_char_contr_node)
+                        actor.reparent_to(actor_bs_np)
                 elif type == 'actor':
-                    actor_contr_node = BulletCharacterControllerNode(actor_bs,
-                                                                     0.4,
-                                                                     col_name)
-                    actor_bs_np = self.physics_attr.world_nodepath.attach_new_node(actor_contr_node)
-                    actor_bs_np.set_collide_mask(mask)
-                    self.physics_attr.world.attach(actor_contr_node)
-                actor.reparent_to(actor_bs_np)
+                    if self.physics_attr.world_nodepath:
+                        actor_contr_node = BulletCharacterControllerNode(actor_bs,
+                                                                         0.4,
+                                                                         col_name)
+                        actor_bs_np = self.physics_attr.world_nodepath.attach_new_node(actor_contr_node)
+                        actor_bs_np.set_collide_mask(mask)
+                        self.physics_attr.world.attach(actor_contr_node)
+                        actor.reparent_to(actor_bs_np)
                 # Set actor down to make it
                 # at the same point as bullet shape
                 actor.set_z(-1)
                 # Set the bullet shape position same as actor position
-                actor_bs_np.set_x(actor.get_x())
-                actor_bs_np.set_y(actor.get_y())
-                # Set actor relative to bullet shape
+                if actor_bs_np:
+                    actor_bs_np.set_x(actor.get_x())
+                    actor_bs_np.set_y(actor.get_y())
+                # Set actor position to zero
+                # after actor becomes a child of bullet shape.
+                # It should not get own position values.
                 actor.set_y(0)
+                actor.set_x(0)
 
     def set_object_collider(self, obj, col_name, shape, mask):
         if (obj
@@ -151,15 +135,15 @@ class Collisions:
                 object_bs = None
                 if shape == 'cube':
                     object_bs = self.bs.set_bs_cube()
-                obj_bs_np = self.physics_attr.world_nodepath.attach_new_node(BulletRigidBodyNode(col_name))
-                obj_bs_np.node().set_mass(1.0)
-                obj_bs_np.node().add_shape(object_bs)
-                obj_bs_np.set_collide_mask(mask)
-                self.physics_attr.world.attach(obj_bs_np.node())
-                obj.clearModelNodes()
-                obj.reparent_to(obj_bs_np)
-                obj_bs_np.set_pos(obj.get_pos())
-                obj_bs_np.set_scale(0.20, 0.20, 0.20)
-                obj.set_pos(0.0, 3.70, -0.50)
-                obj.set_hpr(0, 0, 0)
-                obj.set_scale(6.25, 6.25, 6.25)
+                    if self.physics_attr.world_nodepath:
+                        obj_bs_np = self.physics_attr.world_nodepath.attach_new_node(BulletRigidBodyNode(col_name))
+                        obj_bs_np.node().set_mass(1.0)
+                        obj_bs_np.node().add_shape(object_bs)
+                        obj_bs_np.set_collide_mask(mask)
+                        self.physics_attr.world.attach(obj_bs_np.node())
+                        obj.reparent_to(obj_bs_np)
+                        obj_bs_np.set_pos(obj.get_pos())
+                        obj_bs_np.set_scale(0.20, 0.20, 0.20)
+                        obj.set_pos(0.0, 3.70, -0.50)
+                        obj.set_hpr(0, 0, 0)
+                        obj.set_scale(6.25, 6.25, 6.25)

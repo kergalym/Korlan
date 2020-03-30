@@ -1,3 +1,7 @@
+from direct.task.TaskManagerGlobal import taskMgr
+from Engine.FSM.npc_ai import NpcAI
+
+
 class NpcState:
 
     def __init__(self):
@@ -10,8 +14,29 @@ class NpcState:
                                       'USABLE': 1,
                                       'DEFORMED': 2
                                       }
+        self.fsm_npc = NpcAI()
 
-    def set_actor_state(self, task):
+    def actor_behavior_task(self, actor, animation, task):
+        if actor and animation and isinstance(animation, str):
+            if hasattr(base, "npc_distance_calculate"):
+                if (not render.find("**/Korlan:BS").is_empty()
+                        and not render.find("**/{0}:BS".format(actor.get_name())).is_empty()):
+                    player_bs = render.find("**/Korlan:BS")
+                    actor_bs = render.find("**/{0}:BS".format(actor.get_name()))
+                    vect = base.npc_distance_calculate(player_bs, actor_bs)
+                    if vect:
+                        if vect['vector'][1] > 0.2:
+                            self.fsm_npc.request("Walk", actor, animation, "loop")
+                        if vect['vector'][1] > -0.2:
+                            self.fsm_npc.request("Walk", actor, animation, "loop")
+                        elif vect['vector'][1] < 0.2:
+                            self.fsm_npc.request("Walk", actor, animation, "loop")
+                        elif vect['vector'][1] < -0.2:
+                            self.fsm_npc.request("Walk", actor, animation, "loop")
+
+            return task.cont
+
+    """def set_actor_state(self, task):
         base.actor_state_unarmed = True
         if base.actor_state_armed:
             base.actor_state_unarmed = False
@@ -22,7 +47,14 @@ class NpcState:
         elif base.actor_state_unarmed:
             base.actor_state_armed = False
             base.actor_state_magic = False
-        return task.cont
+        return task.cont"""
+
+    def set_actor_state(self, actor):
+        if actor:
+            taskMgr.add(self.actor_behavior_task,
+                        'actor_behavior',
+                        extraArgs=[actor, 'Walking'],
+                        appendTask=True)
 
     def set_creature_state(self, task):
         if base.creature_unarmed:

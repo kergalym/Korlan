@@ -1,14 +1,12 @@
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.ai import AIWorld
 from Engine.FSM.player_fsm import FsmPlayer
-from Engine.FSM.npc_ai import NpcAI
 
 
 class EnvAI:
     def __init__(self):
         self.ai_world = None
         self.fsm_player = FsmPlayer()
-        self.fsm_npc = NpcAI()
         self.ai_behaviors = None
 
     def update_ai_world_task(self, task):
