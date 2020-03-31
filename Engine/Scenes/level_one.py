@@ -27,7 +27,7 @@ class LevelOne:
         self.korlan = Korlan()
         self.npc = NPC()
         self.hud = HuDUI()
-        self.ui_stat = StatUI()
+        self.stat_ui = StatUI()
         self.player_state = PlayerState()
         self.physics_attr = PhysicsAttr()
         self.col = Collisions()
@@ -206,6 +206,15 @@ class LevelOne:
                     appendTask=True)
 
         """ Task for Debug mode """
-        taskMgr.add(self.ui_stat.show_game_stat_task,
+        taskMgr.add(self.stat_ui.show_game_stat_task,
                     "show_game_stat",
                     appendTask=True)
+
+    def save_game(self):
+        pass
+
+    def load_saved_game(self):
+        pass
+
+    def load_free_game(self):
+        pass

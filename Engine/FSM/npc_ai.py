@@ -27,6 +27,7 @@ class NpcAI(FSM):
 
     def keep_actor_pitch_task(self, actor, task):
         if actor:
+            # Prevent pitch changing
             actor.set_p(0)
             if base.game_mode is False and base.menu_mode:
                 return task.done

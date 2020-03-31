@@ -18,7 +18,7 @@ from Settings.gfx_menu_settings import Graphics
 from Settings.sfx_menu_settings import Sound
 from Settings.kmp_menu_settings import Keymap
 from Settings.lng_menu_settings import Language
-from Engine.Scenes.level_one import LevelOne
+from Settings.UI.loading_ui import LoadingUI
 
 from Settings.UI.dev_menu_ui import DevMenuUI
 from Settings.UI.options_menu_ui import OptionsMenuUI
@@ -35,7 +35,7 @@ class MenuUI(MenuSettings):
         self.fonts = base.fonts_collector()
         self.configs = base.cfg_collector(path="{0}/Settings/UI".format(self.game_dir))
         self.lng_configs = base.cfg_collector(path="{0}/Configs/Language/".format(self.game_dir))
-        self.level_one = LevelOne()
+        self.loading_ui = LoadingUI()
         self.json = json
         self.pos_X = 0
         self.pos_Y = 0
@@ -258,7 +258,8 @@ class MenuUI(MenuSettings):
             self.unload_main_menu()
             self.game_mode = True
             self.menu_mode = False
-            self.level_one.load_new_game()
+
+            self.loading_ui.set_parallel_loading(type="new_game")
 
     def load_game_wrapper(self):
         """ Function    : load_game_wrapper
