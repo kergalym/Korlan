@@ -147,7 +147,7 @@ class Korlan:
                 self.scale_y = scale[1]
                 self.scale_z = scale[2]
 
-                self.korlan = self.base.loader.load_model(path, blocking=True)
+                self.korlan = await self.base.loader.load_model(path, blocking=False)
                 self.korlan = Actor(self.korlan, animation[1])
 
                 self.korlan.set_name(name)

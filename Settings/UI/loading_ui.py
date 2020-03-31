@@ -58,7 +58,7 @@ class LoadingUI:
                 # TODO: Debug
                 Sequence(Parallel(Func(self.set_loading_bar),
                                   Func(self.level_one.load_new_game)),
-                         # Func(self.clear_loading_bar)
+                         Func(self.clear_loading_bar)
                          ).start()
             elif type == "load_game":
                 self.level_one.load_saved_game()

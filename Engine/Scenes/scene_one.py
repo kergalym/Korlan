@@ -142,7 +142,7 @@ class SceneOne:
 
                 if self.type == 'skybox':
                     # Load the scene.
-                    scene = await self.base.loader.load_model(path, blocking=False)
+                    scene = self.base.loader.load_model(path, blocking=True)
                     scene.set_bin('background', 1)
                     scene.set_depth_write(0)
                     scene.set_light_off()
@@ -153,7 +153,7 @@ class SceneOne:
                     scene.set_hpr(scene, rot_h, 0, 0)
                 elif self.type == 'ground':
                     # Load the scene.
-                    scene = await self.base.loader.load_model(path, blocking=False)
+                    scene = self.base.loader.load_model(path, blocking=True)
                     scene.set_name(name)
                     scene.reparent_to(self.render)
                     scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
@@ -161,7 +161,7 @@ class SceneOne:
                     scene.set_hpr(scene, rot_h, 0, 0)
                 elif self.type == 'mountains':
                     # Load the scene.
-                    scene = await self.base.loader.load_model(path, blocking=True)
+                    scene = self.base.loader.load_model(path, blocking=True)
                     scene.set_name(name)
                     scene.reparent_to(self.render)
                     scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
@@ -169,7 +169,7 @@ class SceneOne:
                     scene.set_hpr(scene, rot_h, 0, 0)
                 else:
                     # Load the scene.
-                    scene = await self.base.loader.load_model(path, blocking=True)
+                    scene = self.base.loader.load_model(path, blocking=True)
                     scene.set_name(name)
                     scene.reparent_to(self.render)
                     scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
@@ -230,9 +230,17 @@ class SceneOne:
                     scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
                     scene.set_pos(pos_x, pos_y, pos_z)
                     scene.set_hpr(scene, rot_h, 0, 0)
+                elif self.type == 'mountains':
+                    # Load the scene.
+                    scene = await self.base.loader.load_model(path, blocking=False)
+                    scene.set_name(name)
+                    scene.reparent_to(self.render)
+                    scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
+                    scene.set_pos(pos_x, pos_y, pos_z)
+                    scene.set_hpr(scene, rot_h, 0, 0)
                 else:
                     # Load the scene.
-                    scene = await self.base.loader.load_model(path, blocking=True)
+                    scene = await self.base.loader.load_model(path, blocking=False)
                     scene.set_name(name)
                     scene.reparent_to(self.render)
                     scene.set_scale(self.scale_x, self.scale_y, self.scale_z)

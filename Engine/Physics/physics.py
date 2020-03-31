@@ -60,7 +60,7 @@ class PhysicsAttr:
             Return      : None
         """
         # TODO: Fix duplicating by making it async and remove 'or not'
-        if render.find("**/World").is_empty():
+        if render.find("**/World").is_empty() or not render.find("**/World").is_empty():
             # import pdb; pdb.set_trace()
             # The above code creates a new render_attr,
             # and it sets the worlds gravity to a downward vector with length 9.81.
