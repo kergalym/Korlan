@@ -3,7 +3,6 @@ from panda3d.core import *
 from Engine.Actors.Player.korlan import Korlan
 from Engine.Actors.Player.state import PlayerState
 from Engine.Actors.NPC.npc import NPC
-from Engine.Physics.physics import PhysicsAttr
 from Engine.Collisions.collisions import Collisions
 from Engine.FSM.env_ai import EnvAI
 from Engine.FSM.npc_ai import NpcAI
@@ -29,7 +28,6 @@ class LevelOne:
         self.hud = HuDUI()
         self.stat_ui = StatUI()
         self.player_state = PlayerState()
-        self.physics_attr = PhysicsAttr()
         self.col = Collisions()
         self.fsm_env = EnvAI()
         self.fsm_npc = NpcAI()

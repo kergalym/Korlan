@@ -16,7 +16,7 @@ class PhysicsAttr:
         self.game_cfg_dir = base.game_cfg_dir
         self.game_settings_filename = base.game_settings_filename
         self.cfg_path = {"game_config_path":
-                         "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
+                             "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
 
     def update_physics_task(self, task):
         """ Function    : update_physics_task
@@ -89,8 +89,6 @@ class PhysicsAttr:
             ground_nodepath.set_collide_mask(BitMask32.allOn())
             self.world.attach_rigid_body(ground_nodepath.node())
 
-        taskMgr.add(self.update_physics_task,
-                    "update_physics",
-                    appendTask=True)
-
-
+            taskMgr.add(self.update_physics_task,
+                        "update_physics",
+                        appendTask=True)
