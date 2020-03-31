@@ -54,15 +54,13 @@ class LoadingUI:
     def set_parallel_loading(self, type):
         if type and isinstance(type, str):
             if type == "new_game":
-                self.level_one.load_new_game()
-
                 # TODO: Debug
-                """Sequence(Parallel(Func(self.level_one.load_new_game),
-                             Func(self.set_loading_bar)))"""
-
+                Sequence(Parallel(Func(self.level_one.load_new_game),
+                                  Func(self.set_loading_bar)),
+                         # Func(self.clear_loading_bar)
+                         ).start()
             elif type == "load_game":
                 self.level_one.load_saved_game()
-
             elif type == "load_free_game":
                 self.level_one.load_free_game()
 
