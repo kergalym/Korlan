@@ -51,10 +51,8 @@ class Korlan:
         self.base.actor_is_alive = False
         self.base.actor_play_rate = 1.0
 
-    def set_actor(self, mode, name, path, animation, axis, rotation, scale):
-
+    async def set_actor(self, mode, name, path, animation, axis, rotation, scale):
         if mode == 'menu':
-
             # Disable the camera trackball controls.
             self.base.disable_mouse()
             props = WindowProperties()
@@ -81,8 +79,8 @@ class Korlan:
                 anim_name = animation[0]
                 anim_path = animation[1]
 
-                self.korlan = Actor(path,
-                                    {anim_name: anim_path})
+                self.korlan = self.base.loader.load_model(path, blocking=True)
+                self.korlan = Actor(self.korlan, {anim_name: anim_path})
 
                 self.korlan.set_name(name)
                 self.korlan.set_scale(self.korlan, self.scale_x, self.scale_y, self.scale_z)
@@ -109,8 +107,9 @@ class Korlan:
                     self.render.analyze()
                     # self.render.explore()
 
-        if mode == 'game':
+                return self.korlan
 
+        if mode == 'game':
             self.base.game_mode = True
             wp = WindowProperties()
             wp.set_cursor_hidden(True)
@@ -150,7 +149,8 @@ class Korlan:
                 self.scale_y = scale[1]
                 self.scale_z = scale[2]
 
-                self.korlan = Actor(path, animation[1])
+                self.korlan = self.base.loader.load_model(path, blocking=True)
+                self.korlan = Actor(self.korlan, animation[1])
 
                 self.korlan.set_name(name)
                 self.korlan.set_scale(self.korlan, self.scale_x, self.scale_y, self.scale_z)
@@ -166,7 +166,7 @@ class Korlan:
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 set_tex_transparency(self.korlan)
 
-                # self.korlan.reparent_to(render)
+                self.korlan.reparent_to(render)
 
                 # Set lights and Shadows
                 if self.game_settings['Main']['postprocessing'] == 'off':

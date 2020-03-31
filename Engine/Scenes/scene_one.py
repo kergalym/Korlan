@@ -33,7 +33,7 @@ class SceneOne:
         self.cfg_path = {"game_config_path":
                          "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
 
-    def asset_load(self, path, mode, name, axis, rotation, scale):
+    async def asset_load(self, path, mode, name, axis, rotation, scale):
         if isinstance(mode, str) and mode == "menu":
             if (isinstance(path, str)
                     and isinstance(name, str)
@@ -53,7 +53,7 @@ class SceneOne:
                 self.scale_z = scale[2]
 
                 # Load the scene.
-                scene = self.base.loader.load_model(path)
+                scene = await self.base.loader.load_model(path, blocking=False)
                 scene.set_name(name)
                 scene.reparent_to(self.render)
                 scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
@@ -72,7 +72,6 @@ class SceneOne:
                     # Set Lights and Shadows
                     self.render_attr.set_shadows(scene, render)
                     # self.render_attr.set_ssao(scene)
-
                 return scene
 
         elif isinstance(mode, str) and mode == "game":
@@ -94,7 +93,7 @@ class SceneOne:
                 self.scale_z = scale[2]
 
                 # Load the scene.
-                scene = self.base.loader.load_model(path)
+                scene = await self.base.loader.load_model(path, blocking=False)
                 scene.set_name(name)
                 scene.reparent_to(self.render)
                 scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
@@ -116,7 +115,7 @@ class SceneOne:
 
                 return scene
 
-    def env_load(self, path, mode, name, axis, rotation, scale, type):
+    async def env_load(self, path, mode, name, axis, rotation, scale, type):
         if isinstance(mode, str) and mode == "menu":
             if (isinstance(path, str)
                     and isinstance(name, str)
@@ -139,7 +138,7 @@ class SceneOne:
 
                 if self.type == 'skybox':
                     # Load the scene.
-                    scene = self.base.loader.load_model(path)
+                    scene = await self.base.loader.load_model(path, blocking=False)
                     scene.set_bin('background', 1)
                     scene.set_depth_write(0)
                     scene.set_light_off()
@@ -149,27 +148,24 @@ class SceneOne:
                     scene.set_pos(self.base.camera, 0, 0, 0)
                     scene.set_hpr(scene, rot_h, 0, 0)
                 elif self.type == 'ground':
-
                     # Load the scene.
-                    scene = self.base.loader.load_model(path)
+                    scene = await self.base.loader.load_model(path, blocking=False)
                     scene.set_name(name)
                     scene.reparent_to(self.render)
                     scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
                     scene.set_pos(pos_x, pos_y, pos_z)
                     scene.set_hpr(scene, rot_h, 0, 0)
                 elif self.type == 'mountains':
-
                     # Load the scene.
-                    scene = self.base.loader.load_model(path)
+                    scene = await self.base.loader.load_model(path, blocking=True)
                     scene.set_name(name)
                     scene.reparent_to(self.render)
                     scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
                     scene.set_pos(pos_x, pos_y, pos_z)
                     scene.set_hpr(scene, rot_h, 0, 0)
                 else:
-
                     # Load the scene.
-                    scene = self.base.loader.load_model(path)
+                    scene = await self.base.loader.load_model(path, blocking=True)
                     scene.set_name(name)
                     scene.reparent_to(self.render)
                     scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
@@ -212,9 +208,8 @@ class SceneOne:
                 self.type = type
 
                 if self.type == 'skybox':
-
                     # Load the scene.
-                    scene = self.base.loader.load_model(path)
+                    scene = await self.base.loader.load_model(path, blocking=False)
                     scene.set_bin('background', 1)
                     scene.set_depth_write(0)
                     scene.set_light_off()
@@ -223,10 +218,17 @@ class SceneOne:
                     scene.set_pos(pos_x, pos_y, pos_z)
                     scene.set_pos(self.base.camera, 0, 0, 0)
                     scene.set_hpr(scene, rot_h, 0, 0)
-                else:
-
+                elif self.type == 'ground':
                     # Load the scene.
-                    scene = self.base.loader.load_model(path)
+                    scene = await self.base.loader.load_model(path, blocking=False)
+                    scene.set_name(name)
+                    scene.reparent_to(self.render)
+                    scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
+                    scene.set_pos(pos_x, pos_y, pos_z)
+                    scene.set_hpr(scene, rot_h, 0, 0)
+                else:
+                    # Load the scene.
+                    scene = await self.base.loader.load_model(path, blocking=True)
                     scene.set_name(name)
                     scene.reparent_to(self.render)
                     scene.set_scale(self.scale_x, self.scale_y, self.scale_z)

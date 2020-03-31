@@ -1,7 +1,6 @@
 #!/usr/bin/env python3.7
 import logging
 import re
-import sys
 import json
 import configparser
 from sys import exit as sys_exit
@@ -20,6 +19,8 @@ from Engine.Render.render import RenderAttr
 from Settings.Sound.sound import Sound
 from Settings.UI.menu_ui import MenuUI
 from Settings.gfx_menu_settings import Graphics
+from panda3d.core import Thread
+from direct.task.TaskManagerGlobal import taskMgr
 
 game_settings = configparser.ConfigParser()
 game_settings['Main'] = {'disp_res': '1024x768',
@@ -105,6 +106,12 @@ class Main(ShowBase):
         self.cfg_path = {"game_config_path": "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
         self.game_mode = False
         self.menu_mode = True
+
+        self.game_settings.read("{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename))
+
+        if self.game_settings['Debug']['set_debug_mode'] == 'YES':
+            print("Is threading supported: ", Thread.isThreadingSupported(), "\n")
+
         # Notice that you must not call ShowBase.__init__ (or super), the
         # render pipeline does that for you. If this is unconvenient for you,
         # have a look at the other initialization possibilities.
@@ -118,8 +125,6 @@ class Main(ShowBase):
         from rpcore import PointLight
         # Construct and create the pipeline
         self.render_pipeline = RenderPipeline()"""
-
-        self.game_settings.read("{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename))
 
         # Commented to prevent using it by deploying system
         """if self.game_settings['Main']['postprocessing'] == 'on':
@@ -686,52 +691,52 @@ class Main(ShowBase):
 
         # Test scene
         if self.game_mode is False and self.menu_mode is True:
-            self.scene_one.env_load(path=assets['Sky'],
-                                    mode="menu",
-                                    name="Sky",
-                                    axis=[0.0, 10.0, -1.09],
-                                    rotation=[0, 0, 0],
-                                    scale=[1.25, 1.25, 1.25],
-                                    type='skybox')
+            taskMgr.add(self.scene_one.env_load(path=assets['Sky'],
+                                                mode="menu",
+                                                name="Sky",
+                                                axis=[0.0, 10.0, -1.09],
+                                                rotation=[0, 0, 0],
+                                                scale=[1.25, 1.25, 1.25],
+                                                type='skybox'))
 
-            self.scene_one.asset_load(path=assets['Grass'],
-                                      mode="menu",
-                                      name="Grass",
-                                      axis=[20.0, 10.0, -1.09],
-                                      rotation=[0, 0, 0],
-                                      scale=[1.25, 1.25, 1.25])
+            taskMgr.add(self.scene_one.asset_load(path=assets['Grass'],
+                                                  mode="menu",
+                                                  name="Grass",
+                                                  axis=[20.0, 10.0, -1.09],
+                                                  rotation=[0, 0, 0],
+                                                  scale=[1.25, 1.25, 1.25]))
 
-            self.scene_one.asset_load(path=assets['Nomad_house'],
-                                      mode="menu",
-                                      name="Nomad_house",
-                                      axis=[1.0, 20.0, -1.09],
-                                      rotation=[65, 0, 0],
-                                      scale=[1.25, 1.25, 1.25])
+            taskMgr.add(self.scene_one.asset_load(path=assets['Nomad_house'],
+                                                  mode="menu",
+                                                  name="Nomad_house",
+                                                  axis=[1.0, 20.0, -1.09],
+                                                  rotation=[65, 0, 0],
+                                                  scale=[1.25, 1.25, 1.25]))
 
-            self.scene_one.env_load(path=assets['Ground'],
-                                    mode="menu",
-                                    name="Ground",
-                                    axis=[0.0, 10.0, -1.09],
-                                    rotation=[0, 0, 0],
-                                    scale=[1.25, 1.25, 1.25],
-                                    type='ground')
+            taskMgr.add(self.scene_one.env_load(path=assets['Ground'],
+                                                mode="menu",
+                                                name="Ground",
+                                                axis=[0.0, 10.0, -1.09],
+                                                rotation=[0, 0, 0],
+                                                scale=[1.25, 1.25, 1.25],
+                                                type='ground'))
 
-            self.scene_one.env_load(path=assets['Mountains'],
-                                    mode="menu",
-                                    name="Mountains",
-                                    axis=[0.0, 20.0, -1.09],
-                                    rotation=[0, 0, 0],
-                                    scale=[1.25, 1.25, 1.25],
-                                    type='mountains')
+            taskMgr.add(self.scene_one.env_load(path=assets['Mountains'],
+                                                mode="menu",
+                                                name="Mountains",
+                                                axis=[0.0, 20.0, -1.09],
+                                                rotation=[0, 0, 0],
+                                                scale=[1.25, 1.25, 1.25],
+                                                type='mountains'))
 
-            self.korlan.set_actor(mode="menu",
-                                  name="Korlan",
-                                  path=assets['Korlan'],
-                                  animation=[anims[0]['LookingAround'],
-                                             anims[1]['LookingAround']],
-                                  axis=[0, 8.0, -1.09],
-                                  rotation=[0, 0, 0],
-                                  scale=[1.25, 1.25, 1.25])
+            taskMgr.add(self.korlan.set_actor(mode="menu",
+                                              name="Korlan",
+                                              path=assets['Korlan'],
+                                              animation=[anims[0]['LookingAround'],
+                                                         anims[1]['LookingAround']],
+                                              axis=[0, 8.0, -1.09],
+                                              rotation=[0, 0, 0],
+                                              scale=[1.25, 1.25, 1.25]))
 
 
 app = Main()

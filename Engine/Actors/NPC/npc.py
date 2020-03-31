@@ -40,7 +40,7 @@ class NPC:
         else:
             return False
 
-    def set_actor(self, mode, name, path, animation, axis, rotation, scale):
+    async def set_actor(self, mode, name, path, animation, axis, rotation, scale):
 
         if (isinstance(path, str)
                 and isinstance(name, str)
@@ -60,7 +60,9 @@ class NPC:
             self.scale_y = scale[1]
             self.scale_z = scale[2]
 
-            self.actor = Actor(path, animation[1])
+            self.actor = self.base.loader.load_model(path, blocking=True)
+
+            self.actor = Actor(self.actor, animation[1])
 
             self.actor.setName(name)
             self.actor.setScale(self.actor, self.scale_x, self.scale_y, self.scale_z)

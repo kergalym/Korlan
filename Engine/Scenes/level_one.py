@@ -80,33 +80,37 @@ class LevelOne:
         for key in assets:
             self.loader.unload_model(assets[key])
 
-    def prepare_assets_task(self, loaded_assets, task):
-        if loaded_assets and isinstance(loaded_assets, dict):
-            if loaded_assets["Korlan"]:
-                self.col.set_collision(obj=loaded_assets["Korlan"],
-                                       type="player",
-                                       shape="capsule")
-            if loaded_assets["NPC"]:
-                self.col.set_collision(obj=loaded_assets["NPC"],
-                                       type="actor",
-                                       shape="capsule")
-            if loaded_assets["Box"]:
-                self.col.set_collision(obj=loaded_assets["Box"],
-                                       type="item",
-                                       shape="cube")
+    def prepare_assets_task(self, task):
+        assets = self.base.assets_collector()
+        for asset in assets:
+            if asset:
+                if (render.find("**/{0}".format(asset)).get_name() == "Korlan"
+                        and render.find("**/{0}".format(asset)).get_name() == "NPC"
+                        and render.find("**/{0}".format(asset)).get_name() == "Box"):
+                    # TODO: Move these calls to asset loading methods
+                    self.col.set_collision(obj=render.find("**/{0}".format(asset)),
+                                           type="player",
+                                           shape="capsule")
+                    self.col.set_collision(obj=render.find("**/{0}".format(asset)),
+                                           type="actor",
+                                           shape="capsule")
+                    self.col.set_collision(obj=render.find("**/{0}".format(asset)),
+                                           type="item",
+                                           shape="cube")
 
-            self.fsm_env.set_ai_world()
+                    self.fsm_env.set_ai_world()
 
-            if "BS" in loaded_assets["NPC"].get_parent().get_name():
-                actor = loaded_assets["NPC"].get_parent()
-                # self.fsm_npc.set_npc_ai(actor=actor, behavior="seek")
-                # self.fsm_npc.set_npc_ai(actor=actor, behavior="flee")
-                # self.fsm_npc.set_npc_ai(actor=actor, behavior="pursuer")
-                # self.fsm_npc.set_npc_ai(actor=actor, behavior="evader")
-                self.fsm_npc.set_npc_ai(actor=actor, behavior="wanderer")
-                # self.fsm_npc.set_npc_ai(actor=actor, behavior="obs_avoid")
-                # self.fsm_npc.set_npc_ai(actor=actor, behavior="path_follow")
-            return task.done
+                    if (render.find("**/{0}".format(asset)).get_name() == "NPC"
+                            and "BS" in render.find("**/{0}".format(asset)).get_parent().get_name()):
+                        actor = render.find("**/{0}".format(asset)).get_parent()
+                        # self.fsm_npc.set_npc_ai(actor=actor, behavior="seek")
+                        # self.fsm_npc.set_npc_ai(actor=actor, behavior="flee")
+                        # self.fsm_npc.set_npc_ai(actor=actor, behavior="pursuer")
+                        # self.fsm_npc.set_npc_ai(actor=actor, behavior="evader")
+                        self.fsm_npc.set_npc_ai(actor=actor, behavior="wanderer")
+                        # self.fsm_npc.set_npc_ai(actor=actor, behavior="obs_avoid")
+                        # self.fsm_npc.set_npc_ai(actor=actor, behavior="path_follow")
+                    return task.done
         return task.cont
 
     def load_new_game(self):
@@ -133,76 +137,69 @@ class LevelOne:
         assets = self.base.assets_collector()
         anims = self.base.asset_animations_collector()
 
-        self.scene_one.env_load(path=assets['Sky'],
-                                mode="game",
-                                name="Sky",
-                                axis=[0.0, 10.0, self.pos_z],
-                                rotation=[0, 0, 0],
-                                scale=[1.25, 1.25, 1.25],
-                                type='skybox')
+        taskMgr.add(self.scene_one.env_load(path=assets['Sky'],
+                                            mode="game",
+                                            name="Sky",
+                                            axis=[0.0, 10.0, self.pos_z],
+                                            rotation=[0, 0, 0],
+                                            scale=[1.25, 1.25, 1.25],
+                                            type='skybox'))
 
-        self.scene_one.asset_load(path=assets['Grass'],
-                                  mode="game",
-                                  name="Grass",
-                                  axis=[20.0, 10.0, self.pos_z],
-                                  rotation=[0, 0, 0],
-                                  scale=[1.25, 1.25, 1.25])
+        taskMgr.add(self.scene_one.asset_load(path=assets['Grass'],
+                                              mode="game",
+                                              name="Grass",
+                                              axis=[20.0, 10.0, self.pos_z],
+                                              rotation=[0, 0, 0],
+                                              scale=[1.25, 1.25, 1.25]))
 
-        self.scene_one.asset_load(path=assets['Nomad_house'],
-                                  mode="game",
-                                  name="Nomad_house",
-                                  axis=[0.0, 20.0, self.pos_z],
-                                  rotation=[65, 0, 0],
-                                  scale=[1.25, 1.25, 1.25])
+        taskMgr.add(self.scene_one.asset_load(path=assets['Nomad_house'],
+                                              mode="game",
+                                              name="Nomad_house",
+                                              axis=[0.0, 20.0, self.pos_z],
+                                              rotation=[65, 0, 0],
+                                              scale=[1.25, 1.25, 1.25]))
 
-        box = self.scene_one.asset_load(path=assets['Box'],
-                                        mode="game",
-                                        name="Box",
-                                        axis=[0.0, -9.0, self.pos_z],
-                                        rotation=[65, 0, 0],
-                                        scale=[1.25, 1.25, 1.25])
+        taskMgr.add(self.scene_one.asset_load(path=assets['Box'],
+                                              mode="game",
+                                              name="Box",
+                                              axis=[0.0, -9.0, self.pos_z],
+                                              rotation=[65, 0, 0],
+                                              scale=[1.25, 1.25, 1.25]))
 
-        self.scene_one.env_load(path=assets['Ground'],
-                                mode="game",
-                                name="Ground",
-                                axis=[0.0, 10.0, self.pos_z],
-                                rotation=[0, 0, 0],
-                                scale=[1.25, 1.25, 1.25],
-                                type='ground')
+        taskMgr.add(self.scene_one.env_load(path=assets['Ground'],
+                                            mode="game",
+                                            name="Ground",
+                                            axis=[0.0, 10.0, self.pos_z],
+                                            rotation=[0, 0, 0],
+                                            scale=[1.25, 1.25, 1.25],
+                                            type='ground'))
 
-        self.scene_one.env_load(path=assets['Mountains_octree'],
-                                mode="game",
-                                name="Mountains",
-                                axis=[0.0, 20.0, self.pos_z],
-                                rotation=[0, 0, 0],
-                                scale=[1.25, 1.25, 1.25],
-                                type='mountains')
+        taskMgr.add(self.scene_one.env_load(path=assets['Mountains_octree'],
+                                            mode="game",
+                                            name="Mountains",
+                                            axis=[0.0, 20.0, self.pos_z],
+                                            rotation=[0, 0, 0],
+                                            scale=[1.25, 1.25, 1.25],
+                                            type='mountains'))
 
-        player = self.korlan.set_actor(mode="game",
-                                       name="Korlan",
-                                       path=assets['Korlan'],
+        taskMgr.add(self.korlan.set_actor(mode="game",
+                                          name="Korlan",
+                                          path=assets['Korlan'],
+                                          animation=anims,
+                                          axis=[0, 8.0, self.pos_z],
+                                          rotation=[0, 0, 0],
+                                          scale=[1.25, 1.25, 1.25]))
+
+        taskMgr.add(self.npc.set_actor(mode="game",
+                                       name="NPC",
+                                       path=assets['NPC'],
                                        animation=anims,
-                                       axis=[0, 8.0, self.pos_z],
+                                       axis=[-4.0, 9.0, self.pos_z],
                                        rotation=[0, 0, 0],
-                                       scale=[1.25, 1.25, 1.25])
-
-        npc = self.npc.set_actor(mode="game",
-                                 name="NPC",
-                                 path=assets['NPC'],
-                                 animation=anims,
-                                 axis=[-4.0, 9.0, self.pos_z],
-                                 rotation=[0, 0, 0],
-                                 scale=[1.25, 1.25, 1.25])
-
-        loaded_assets = {
-            "Korlan": player,
-            "NPC": npc,
-            "Box": box
-        }
+                                       scale=[1.25, 1.25, 1.25]))
 
         taskMgr.add(self.prepare_assets_task,
                     "prepare_assets",
-                    extraArgs=[loaded_assets],
                     appendTask=True)
 
         """ Task for Debug mode """

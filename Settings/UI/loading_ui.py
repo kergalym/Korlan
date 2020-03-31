@@ -4,6 +4,7 @@ from direct.interval.IntervalGlobal import Func
 from direct.gui.DirectGui import *
 from panda3d.core import FontPool, TextNode
 from Engine.Scenes.level_one import LevelOne
+from direct.task.TaskManagerGlobal import taskMgr
 
 
 class LoadingUI:
@@ -56,7 +57,7 @@ class LoadingUI:
             if type == "new_game":
                 # TODO: Debug
                 Sequence(Parallel(Func(self.level_one.load_new_game),
-                                  Func(self.set_loading_bar)),
+                         Func(self.set_loading_bar)),
                          # Func(self.clear_loading_bar)
                          ).start()
             elif type == "load_game":

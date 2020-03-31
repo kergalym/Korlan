@@ -57,21 +57,24 @@ class Collisions:
                 and isinstance(shape, str)):
             if type == "player":
                 self.korlan = obj
-                self.korlan.setTag(key=obj.get_name(), value='1')
+                if hasattr(self.korlan, "set_tag"):
+                    self.korlan.set_tag(key=obj.get_name(), value='1')
                 self.set_actor_collider(actor=self.korlan,
                                         col_name='{0}:BS'.format(self.korlan.get_name()),
                                         shape=shape,
                                         mask=self.mask0,
                                         type="player")
             if type == "actor":
-                obj.set_tag(key=obj.get_name(), value='1')
+                if hasattr(obj, "set_tag"):
+                    obj.set_tag(key=obj.get_name(), value='1')
                 self.set_actor_collider(actor=obj,
                                         col_name='{0}:BS'.format(obj.get_name()),
                                         shape=shape,
                                         mask=self.mask1,
                                         type="actor")
             if type == "item":
-                obj.set_tag(key=obj.get_name(), value='1')
+                if hasattr(obj, "set_tag"):
+                    obj.set_tag(key=obj.get_name(), value='1')
                 self.set_object_collider(obj=obj,
                                          col_name='{0}:BS'.format(obj.get_name()),
                                          shape=shape,
