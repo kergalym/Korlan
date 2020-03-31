@@ -49,12 +49,11 @@ class Collisions:
             return collision_info
 
     def set_collision(self, obj, type, shape):
-        # Physics World must be enabled only one time before adding collider.
-        self.physics_attr.set_physics_world()
-
         if (obj and type and shape
                 and isinstance(type, str)
                 and isinstance(shape, str)):
+            # Physics World must be enabled only one time before adding collider.
+            self.physics_attr.set_physics_world()
             if type == "player":
                 self.korlan = obj
                 if hasattr(self.korlan, "set_tag"):
@@ -135,7 +134,6 @@ class Collisions:
                 and isinstance(col_name, str)
                 and isinstance(shape, str)):
             if base.menu_mode is False and base.game_mode:
-                object_bs = None
                 if shape == 'cube':
                     object_bs = self.bs.set_bs_cube()
                     if self.physics_attr.world_nodepath:

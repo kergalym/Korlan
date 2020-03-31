@@ -46,6 +46,7 @@ class Korlan:
         self.render_attr = RenderAttr()
         self.act = Actions()
         self.state = PlayerState()
+        self.col = Collisions()
         self.actor_life_perc = None
         self.base.actor_is_dead = False
         self.base.actor_is_alive = False
@@ -105,9 +106,6 @@ class Korlan:
 
                 if self.game_settings['Debug']['set_debug_mode'] == "YES":
                     self.render.analyze()
-                    # self.render.explore()
-
-                return self.korlan
 
         if mode == 'game':
             self.base.game_mode = True
@@ -192,4 +190,6 @@ class Korlan:
 
                 taskMgr.add(self.state.actor_life, "actor_life")
 
-                return self.korlan
+                self.col.set_collision(obj=self.korlan,
+                                       type="player",
+                                       shape="capsule")

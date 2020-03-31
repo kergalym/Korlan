@@ -1,8 +1,11 @@
 from Engine import set_tex_transparency
 from direct.actor.Actor import Actor
+from Engine.Collisions.collisions import Collisions
 from direct.task.TaskManagerGlobal import taskMgr
 from Engine.Render.render import RenderAttr
 from Engine.Actors.NPC.state import NpcState
+from Engine.FSM.env_ai import EnvAI
+from Engine.FSM.npc_ai import NpcAI
 
 
 class NPC:
@@ -24,6 +27,9 @@ class NPC:
         self.game_dir = base.game_dir
         self.render_attr = RenderAttr()
         self.npc_state = NpcState()
+        self.col = Collisions()
+        self.fsm_env = EnvAI()
+        self.fsm_npc = NpcAI()
         self.actor_life_perc = None
         self.base.actor_is_dead = False
         self.base.actor_is_alive = False
@@ -64,15 +70,15 @@ class NPC:
 
             self.actor = Actor(self.actor, animation[1])
 
-            self.actor.setName(name)
-            self.actor.setScale(self.actor, self.scale_x, self.scale_y, self.scale_z)
-            self.actor.setPos(self.pos_x, self.pos_y, self.pos_z)
-            self.actor.setH(self.actor, self.rot_h)
-            self.actor.setP(self.actor, self.rot_p)
-            self.actor.setR(self.actor, self.rot_r)
+            self.actor.set_name(name)
+            self.actor.set_scale(self.actor, self.scale_x, self.scale_y, self.scale_z)
+            self.actor.set_pos(self.pos_x, self.pos_y, self.pos_z)
+            self.actor.set_h(self.actor, self.rot_h)
+            self.actor.set_p(self.actor, self.rot_p)
+            self.actor.set_r(self.actor, self.rot_r)
 
             # Get actor joints
-            base.actor_joints = self.actor.getJoints()
+            base.actor_joints = self.actor.get_joints()
 
             # Panda3D 1.10 doesn't enable alpha blending for textures by default
             set_tex_transparency(self.actor)
@@ -89,9 +95,23 @@ class NPC:
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
                 self.render.analyze()
 
+            self.col.set_collision(obj=self.actor,
+                                   type="actor",
+                                   shape="capsule")
+
             taskMgr.add(self.actor_life,
                         "actor_life")
 
             self.npc_state.set_actor_state(actor=self.actor)
 
-            return self.actor
+            self.fsm_env.set_ai_world()
+
+            if "BS" in self.actor.get_parent().get_name():
+                actor = self.actor.get_parent()
+                # self.fsm_npc.set_npc_ai(actor=actor, behavior="seek")
+                # self.fsm_npc.set_npc_ai(actor=actor, behavior="flee")
+                # self.fsm_npc.set_npc_ai(actor=actor, behavior="pursuer")
+                # self.fsm_npc.set_npc_ai(actor=actor, behavior="evader")
+                self.fsm_npc.set_npc_ai(actor=actor, behavior="wanderer")
+                # self.fsm_npc.set_npc_ai(actor=actor, behavior="obs_avoid")
+                # self.fsm_npc.set_npc_ai(actor=actor, behavior="path_follow")

@@ -1,5 +1,6 @@
 from panda3d.core import *
 from Engine.Actors.Player.korlan import Korlan
+from Engine.Collisions.collisions import Collisions
 from Engine import set_tex_transparency
 from Engine.Render.render import RenderAttr
 
@@ -23,6 +24,7 @@ class SceneOne:
         self.node_path = NodePath()
         self.render_attr = RenderAttr()
         self.korlan = Korlan()
+        self.col = Collisions()
         self.base = base
         self.render = render
         self.game_settings = base.game_settings
@@ -72,7 +74,6 @@ class SceneOne:
                     # Set Lights and Shadows
                     self.render_attr.set_shadows(scene, render)
                     # self.render_attr.set_ssao(scene)
-                return scene
 
         elif isinstance(mode, str) and mode == "game":
             if (isinstance(path, str)
@@ -113,7 +114,10 @@ class SceneOne:
                     self.render_attr.set_shadows(scene, render)
                     # self.render_attr.set_ssao(scene)
 
-                return scene
+                if scene.get_name() == "Box":
+                    self.col.set_collision(obj=scene,
+                                           type="item",
+                                           shape="cube")
 
     async def env_load(self, path, mode, name, axis, rotation, scale, type):
         if isinstance(mode, str) and mode == "menu":

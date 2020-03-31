@@ -402,7 +402,8 @@ class Main(ShowBase):
                             node_path = inner.get_children().get_path(num)
                             children[name] = node_path
                 # Remove empty name key
-                children.pop('')
+                if children:
+                    children.pop('')
                 return children
             if assoc_key is False:
                 children = []
@@ -569,15 +570,17 @@ class Main(ShowBase):
                     pass
             assets_children = base.asset_node_children_collector(
                 t, assoc_key=True)
-            for key in assets_children:
-                parent_node = assets_children[key].get_parent().get_parent()
-                # Get bullet shape node path if it's here
-                if 'BS' in parent_node.get_parent().get_name():
-                    bullet_shape_node = parent_node.get_parent()
-                    items[key] = (bullet_shape_node.get_pos())
-                elif 'BS' not in parent_node.get_parent().get_name():
-                    items[key] = (parent_node.get_pos())
-            return items
+
+            if assets_children:
+                for key in assets_children:
+                    parent_node = assets_children[key].get_parent().get_parent()
+                    # Get bullet shape node path if it's here
+                    if 'BS' in parent_node.get_parent().get_name():
+                        bullet_shape_node = parent_node.get_parent()
+                        items[key] = (bullet_shape_node.get_pos())
+                    elif 'BS' not in parent_node.get_parent().get_name():
+                        items[key] = (parent_node.get_pos())
+                return items
 
     def distance_calculate(self, items, actor):
         """ Function    : distance_calculate

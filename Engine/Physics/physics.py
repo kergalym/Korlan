@@ -47,6 +47,7 @@ class PhysicsAttr:
 
         return task.cont
 
+    # TODO: Fix duplicating by moving it to load_new_game() inside
     def set_physics_world(self):
         """ Function    : set_physics_world
 
@@ -58,7 +59,9 @@ class PhysicsAttr:
 
             Return      : None
         """
-        if render.find("**/World").is_empty():
+        # TODO: Fix duplicating by making it async and remove 'or not'
+        if render.find("**/World").is_empty() or not render.find("**/World").is_empty():
+            # import pdb; pdb.set_trace()
             # The above code creates a new render_attr,
             # and it sets the worlds gravity to a downward vector with length 9.81.
             # While Bullet is in theory independent from any particular units

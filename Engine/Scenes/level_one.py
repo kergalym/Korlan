@@ -80,39 +80,6 @@ class LevelOne:
         for key in assets:
             self.loader.unload_model(assets[key])
 
-    def prepare_assets_task(self, task):
-        assets = self.base.assets_collector()
-        for asset in assets:
-            if asset:
-                if (render.find("**/{0}".format(asset)).get_name() == "Korlan"
-                        and render.find("**/{0}".format(asset)).get_name() == "NPC"
-                        and render.find("**/{0}".format(asset)).get_name() == "Box"):
-                    # TODO: Move these calls to asset loading methods
-                    self.col.set_collision(obj=render.find("**/{0}".format(asset)),
-                                           type="player",
-                                           shape="capsule")
-                    self.col.set_collision(obj=render.find("**/{0}".format(asset)),
-                                           type="actor",
-                                           shape="capsule")
-                    self.col.set_collision(obj=render.find("**/{0}".format(asset)),
-                                           type="item",
-                                           shape="cube")
-
-                    self.fsm_env.set_ai_world()
-
-                    if (render.find("**/{0}".format(asset)).get_name() == "NPC"
-                            and "BS" in render.find("**/{0}".format(asset)).get_parent().get_name()):
-                        actor = render.find("**/{0}".format(asset)).get_parent()
-                        # self.fsm_npc.set_npc_ai(actor=actor, behavior="seek")
-                        # self.fsm_npc.set_npc_ai(actor=actor, behavior="flee")
-                        # self.fsm_npc.set_npc_ai(actor=actor, behavior="pursuer")
-                        # self.fsm_npc.set_npc_ai(actor=actor, behavior="evader")
-                        self.fsm_npc.set_npc_ai(actor=actor, behavior="wanderer")
-                        # self.fsm_npc.set_npc_ai(actor=actor, behavior="obs_avoid")
-                        # self.fsm_npc.set_npc_ai(actor=actor, behavior="path_follow")
-                    return task.done
-        return task.cont
-
     def load_new_game(self):
         self.unload_menu_scene()
 
@@ -197,10 +164,6 @@ class LevelOne:
                                        axis=[-4.0, 9.0, self.pos_z],
                                        rotation=[0, 0, 0],
                                        scale=[1.25, 1.25, 1.25]))
-
-        taskMgr.add(self.prepare_assets_task,
-                    "prepare_assets",
-                    appendTask=True)
 
         """ Task for Debug mode """
         taskMgr.add(self.stat_ui.show_game_stat_task,
