@@ -45,6 +45,19 @@ class LevelOne:
 
             self.player_state.clear_state()
 
+            # Remove Bullet World
+            if not render.find("**/World").is_empty():
+                for i in range(render.find("**/World").get_num_nodes()):
+                    render.find("**/World").remove_node()
+
+            # Remove all tasks except system
+            tasks = ["player_init",
+                     "player_state",
+                     "actor_life",
+                     "mouse_look"]
+            for t in tasks:
+                taskMgr.remove(t)
+
             base.game_mode = False
             base.menu_mode = True
 
@@ -57,7 +70,8 @@ class LevelOne:
 
         # Remove Bullet World
         if not render.find("**/World").is_empty():
-            render.find("**/World").remove_node()
+            for i in range(render.find("**/World").get_num_nodes()):
+                render.find("**/World").remove_node()
 
         # Remove all tasks except system
         tasks = ["player_init",

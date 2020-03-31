@@ -56,8 +56,8 @@ class LoadingUI:
         if type and isinstance(type, str):
             if type == "new_game":
                 # TODO: Debug
-                Sequence(Parallel(Func(self.level_one.load_new_game),
-                         Func(self.set_loading_bar)),
+                Sequence(Parallel(Func(self.set_loading_bar),
+                                  Func(self.level_one.load_new_game)),
                          # Func(self.clear_loading_bar)
                          ).start()
             elif type == "load_game":
