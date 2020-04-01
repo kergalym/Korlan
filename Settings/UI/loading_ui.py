@@ -4,6 +4,7 @@ from direct.interval.IntervalGlobal import Func
 from direct.gui.DirectGui import *
 from panda3d.core import FontPool, TextNode
 from Engine.Scenes.level_one import LevelOne
+from Settings.UI.hud_ui import HudUI
 from direct.task.TaskManagerGlobal import taskMgr
 
 
@@ -14,6 +15,7 @@ class LoadingUI:
         self.game_settings = base.game_settings
         self.game_dir = base.game_dir
         self.fonts = base.fonts_collector()
+        self.hud = HudUI()
         # instance of the abstract class
         self.font = FontPool
 
@@ -95,6 +97,7 @@ class LoadingUI:
                 if len(nodes)+2 == len(assets):
                     # self.title_loading_text.setText("Loading finished")
                     self.clear_loading_bar()
+                    self.hud.set_hud()
                     return task.done
 
         return task.cont
@@ -103,7 +106,7 @@ class LoadingUI:
         if type and isinstance(type, str):
             if type == "new_game":
                 Sequence(Parallel(Func(self.set_loading_bar),
-                                  Func(self.level_one.load_new_game)),
+                                  Func(self.level_one.load_new_game))
                          ).start()
                 taskMgr.add(self.loading_measure,
                             "loading_measure",

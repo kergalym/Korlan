@@ -9,7 +9,7 @@ from Engine.FSM.npc_ai import NpcAI
 from Engine.Scenes.scene_one import SceneOne
 from Engine.Render.render import RenderAttr
 from Settings.UI.stat_ui import StatUI
-from Settings.UI.hud_ui import HuDUI
+from Settings.UI.hud_ui import HudUI
 
 
 class LevelOne:
@@ -25,7 +25,7 @@ class LevelOne:
         self.render_attr = RenderAttr()
         self.korlan = Korlan()
         self.npc = NPC()
-        self.hud = HuDUI()
+        self.hud = HudUI()
         self.stat_ui = StatUI()
         self.player_state = PlayerState()
         self.col = Collisions()
@@ -41,6 +41,7 @@ class LevelOne:
             self.base.game_mode = False
             self.base.menu_mode = True
 
+            self.hud.clear_hud()
             self.player_state.clear_state()
 
             # Remove Bullet World
