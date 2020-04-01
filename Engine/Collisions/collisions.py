@@ -54,7 +54,7 @@ class Collisions:
                 and isinstance(shape, str)):
             # Physics World must be enabled only one time before adding collider.
             self.physics_attr.set_physics_world()
-            
+
             if type == "env":
                 if hasattr(obj, "set_tag"):
                     obj.set_tag(key=obj.get_name(), value='1')

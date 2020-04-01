@@ -116,50 +116,51 @@ class LevelOne:
         assets = self.base.assets_collector()
         anims = self.base.asset_animations_collector()
 
-        taskMgr.add(self.scene_one.env_load(path=assets['Sky'],
-                                            mode="game",
-                                            name="Sky",
-                                            axis=[0.0, 10.0, self.pos_z],
-                                            rotation=[0, 0, 0],
-                                            scale=[1.25, 1.25, 1.25],
-                                            type='skybox'))
+        """ Async Loading """
+        taskMgr.add(self.scene_one.set_env(path=assets['Sky'],
+                                           mode="game",
+                                           name="Sky",
+                                           axis=[0.0, 10.0, self.pos_z],
+                                           rotation=[0, 0, 0],
+                                           scale=[1.25, 1.25, 1.25],
+                                           type='skybox'))
 
-        taskMgr.add(self.scene_one.asset_load(path=assets['Grass'],
-                                              mode="game",
-                                              name="Grass",
-                                              axis=[20.0, 10.0, self.pos_z],
-                                              rotation=[0, 0, 0],
-                                              scale=[1.25, 1.25, 1.25]))
+        taskMgr.add(self.scene_one.set_asset(path=assets['Grass'],
+                                             mode="game",
+                                             name="Grass",
+                                             axis=[20.0, 10.0, self.pos_z],
+                                             rotation=[0, 0, 0],
+                                             scale=[1.25, 1.25, 1.25]))
 
-        taskMgr.add(self.scene_one.asset_load(path=assets['Nomad_house'],
-                                              mode="game",
-                                              name="Nomad_house",
-                                              axis=[0.0, 20.0, self.pos_z],
-                                              rotation=[65, 0, 0],
-                                              scale=[1.25, 1.25, 1.25]))
+        taskMgr.add(self.scene_one.set_asset(path=assets['Nomad_house'],
+                                             mode="game",
+                                             name="Nomad_house",
+                                             axis=[0.0, 20.0, self.pos_z],
+                                             rotation=[65, 0, 0],
+                                             scale=[1.25, 1.25, 1.25]))
 
-        taskMgr.add(self.scene_one.asset_load(path=assets['Box'],
-                                              mode="game",
-                                              name="Box",
-                                              axis=[0.0, -9.0, self.pos_z],
-                                              rotation=[65, 0, 0],
-                                              scale=[1.25, 1.25, 1.25]))
+        taskMgr.add(self.scene_one.set_asset(path=assets['Box'],
+                                             mode="game",
+                                             name="Box",
+                                             axis=[0.0, -9.0, self.pos_z],
+                                             rotation=[65, 0, 0],
+                                             scale=[1.25, 1.25, 1.25]))
 
-        taskMgr.add(self.scene_one.env_load(path=assets['Ground'],
-                                            mode="game",
-                                            name="Ground",
-                                            axis=[0.0, 10.0, self.pos_z],
-                                            rotation=[0, 0, 0],
-                                            scale=[1.25, 1.25, 1.25],
-                                            type='ground'))
+        taskMgr.add(self.scene_one.set_env(path=assets['Ground'],
+                                           mode="game",
+                                           name="Ground",
+                                           axis=[0.0, 10.0, self.pos_z],
+                                           rotation=[0, 0, 0],
+                                           scale=[1.25, 1.25, 1.25],
+                                           type='ground'))
 
-        taskMgr.add(self.scene_one.env_load(path=assets['Mountains_octree'],
-                                            mode="game",
-                                            name="Mountains",
-                                            axis=[0.0, 20.0, self.pos_z],
-                                            rotation=[0, 0, 0],
-                                            scale=[1.25, 1.25, 1.25],
-                                            type='mountains'))
+        taskMgr.add(self.scene_one.set_env(path=assets['Mountains_octree'],
+                                           mode="game",
+                                           name="Mountains",
+                                           axis=[0.0, 20.0, self.pos_z],
+                                           rotation=[0, 0, 0],
+                                           scale=[1.25, 1.25, 1.25],
+                                           type='mountains'))
 
         taskMgr.add(self.korlan.set_actor(mode="game",
                                           name="Korlan",

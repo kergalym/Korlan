@@ -35,7 +35,7 @@ class SceneOne:
         self.cfg_path = {"game_config_path":
                          "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
 
-    async def asset_load(self, path, mode, name, axis, rotation, scale):
+    async def set_asset(self, path, mode, name, axis, rotation, scale):
         if isinstance(mode, str) and mode == "menu":
             if (isinstance(path, str)
                     and isinstance(name, str)
@@ -119,7 +119,7 @@ class SceneOne:
                                            type="item",
                                            shape="cube")
 
-    async def env_load(self, path, mode, name, axis, rotation, scale, type):
+    async def set_env(self, path, mode, name, axis, rotation, scale, type):
         if isinstance(mode, str) and mode == "menu":
             if (isinstance(path, str)
                     and isinstance(name, str)
