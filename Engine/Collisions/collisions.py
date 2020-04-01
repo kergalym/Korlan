@@ -54,6 +54,14 @@ class Collisions:
                 and isinstance(shape, str)):
             # Physics World must be enabled only one time before adding collider.
             self.physics_attr.set_physics_world()
+            
+            if type == "env":
+                if hasattr(obj, "set_tag"):
+                    obj.set_tag(key=obj.get_name(), value='1')
+                self.set_object_collider(obj=obj,
+                                         col_name='{0}:BS'.format(obj.get_name()),
+                                         shape=shape,
+                                         mask=self.mask1)
             if type == "player":
                 self.korlan = obj
                 if hasattr(self.korlan, "set_tag"):
