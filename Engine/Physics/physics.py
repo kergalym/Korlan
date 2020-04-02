@@ -16,7 +16,7 @@ class PhysicsAttr:
         self.game_cfg_dir = base.game_cfg_dir
         self.game_settings_filename = base.game_settings_filename
         self.cfg_path = {"game_config_path":
-                             "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
+                         "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
 
     def update_physics_task(self, task):
         """ Function    : update_physics_task
@@ -47,7 +47,6 @@ class PhysicsAttr:
 
         return task.cont
 
-    # TODO: Fix duplicating by moving it to load_new_game() inside
     def set_physics_world(self):
         """ Function    : set_physics_world
 
@@ -61,7 +60,6 @@ class PhysicsAttr:
         """
         # TODO: Fix duplicating by making it async and remove 'or not'
         if render.find("**/World").is_empty() or not render.find("**/World").is_empty():
-            # import pdb; pdb.set_trace()
             # The above code creates a new render_attr,
             # and it sets the worlds gravity to a downward vector with length 9.81.
             # While Bullet is in theory independent from any particular units

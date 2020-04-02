@@ -52,6 +52,7 @@ class Collisions:
         if (obj and type and shape
                 and isinstance(type, str)
                 and isinstance(shape, str)):
+
             # Physics World must be enabled only one time before adding collider.
             self.physics_attr.set_physics_world()
 

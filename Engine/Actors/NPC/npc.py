@@ -67,7 +67,6 @@ class NPC:
             self.scale_z = scale[2]
 
             self.actor = await self.base.loader.load_model(path, blocking=False)
-
             self.actor = Actor(self.actor, animation[1])
 
             self.actor.set_name(name)

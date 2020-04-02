@@ -693,53 +693,52 @@ class Main(ShowBase):
         anims = self.asset_animations_collector()
 
         # Test scene
-        if self.game_mode is False and self.menu_mode is True:
-            taskMgr.add(self.scene_one.set_env(path=assets['Sky'],
-                                               mode="menu",
-                                               name="Sky",
-                                               axis=[0.0, 10.0, -1.09],
-                                               rotation=[0, 0, 0],
-                                               scale=[1.25, 1.25, 1.25],
-                                               type='skybox'))
+        taskMgr.add(self.scene_one.set_env(path=assets['Sky'],
+                                           mode="menu",
+                                           name="Sky",
+                                           axis=[0.0, 10.0, -1.09],
+                                           rotation=[0, 0, 0],
+                                           scale=[1.25, 1.25, 1.25],
+                                           type='skybox'))
 
-            taskMgr.add(self.scene_one.set_asset(path=assets['Grass'],
-                                                 mode="menu",
-                                                 name="Grass",
-                                                 axis=[20.0, 10.0, -1.09],
-                                                 rotation=[0, 0, 0],
-                                                 scale=[1.25, 1.25, 1.25]))
+        taskMgr.add(self.scene_one.set_asset(path=assets['Grass'],
+                                             mode="menu",
+                                             name="Grass",
+                                             axis=[20.0, 10.0, -1.09],
+                                             rotation=[0, 0, 0],
+                                             scale=[1.25, 1.25, 1.25]))
 
-            taskMgr.add(self.scene_one.set_asset(path=assets['Nomad_house'],
-                                                 mode="menu",
-                                                 name="Nomad_house",
-                                                 axis=[1.0, 20.0, -1.09],
-                                                 rotation=[65, 0, 0],
-                                                 scale=[1.25, 1.25, 1.25]))
+        taskMgr.add(self.scene_one.set_asset(path=assets['Nomad_house'],
+                                             mode="menu",
+                                             name="Nomad_house",
+                                             axis=[1.0, 20.0, -1.09],
+                                             rotation=[65, 0, 0],
+                                             scale=[1.25, 1.25, 1.25]))
 
-            taskMgr.add(self.scene_one.set_env(path=assets['Ground'],
-                                               mode="menu",
-                                               name="Ground",
-                                               axis=[0.0, 10.0, -1.09],
-                                               rotation=[0, 0, 0],
-                                               scale=[1.25, 1.25, 1.25],
-                                               type='ground'))
+        taskMgr.add(self.scene_one.set_env(path=assets['Ground'],
+                                           mode="menu",
+                                           name="Ground",
+                                           axis=[0.0, 10.0, -1.09],
+                                           rotation=[0, 0, 0],
+                                           scale=[1.25, 1.25, 1.25],
+                                           type='ground'))
 
-            taskMgr.add(self.scene_one.set_env(path=assets['Mountains'],
-                                               mode="menu",
-                                               name="Mountains",
-                                               axis=[0.0, 20.0, -1.09],
-                                               rotation=[0, 0, 0],
-                                               scale=[1.25, 1.25, 1.25],
-                                               type='mountains'))
+        taskMgr.add(self.scene_one.set_env(path=assets['Mountains'],
+                                           mode="menu",
+                                           name="Mountains",
+                                           axis=[0.0, 20.0, -1.09],
+                                           rotation=[0, 0, 0],
+                                           scale=[1.25, 1.25, 1.25],
+                                           type='mountains'))
 
-            taskMgr.add(self.korlan.set_actor(mode="menu",
-                                              name="Korlan",
-                                              path=assets['Korlan'],
-                                              animation=[anims[0]['LookingAround'],
-                                                         anims[1]['LookingAround']],
-                                              axis=[0, 8.0, -1.09],
-                                              rotation=[0, 0, 0],
-                                              scale=[1.25, 1.25, 1.25]))
+        taskMgr.add(self.korlan.set_actor(mode="menu",
+                                          name="Korlan",
+                                          path=assets['Korlan'],
+                                          animation=[anims[0]['LookingAround'],
+                                                     anims[1]['LookingAround']],
+                                          axis=[0, 8.0, -1.09],
+                                          rotation=[0, 0, 0],
+                                          scale=[1.25, 1.25, 1.25]))
 
 
 app = Main()
