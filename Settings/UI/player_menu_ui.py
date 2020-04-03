@@ -147,14 +147,15 @@ class PlayerMenuUI(Inventory):
         base.is_ui_active = False
 
     def set_ui_inventory(self):
-        if self.base.frame_inv.is_hidden():
-            self.base.frame_inv.show()
-            props = WindowProperties()
-            props.set_cursor_hidden(False)
-            self.base.win.request_properties(props)
-            base.is_ui_active = True
-        else:
-            self.clear_ui_inventory()
+        if base.game_mode and base.menu_mode is False:
+            if self.base.frame_inv.is_hidden():
+                self.base.frame_inv.show()
+                props = WindowProperties()
+                props.set_cursor_hidden(False)
+                self.base.win.request_properties(props)
+                base.is_ui_active = True
+            else:
+                self.clear_ui_inventory()
 
     def show_inventory_data_task(self, task):
         if hasattr(base, "in_use_item_name"):
@@ -222,7 +223,6 @@ class PlayerMenuUI(Inventory):
                     if not render2d.find("**/{0}".format(item)).is_empty():
                         render2d.find("**/{0}".format(item)).remove_node()
                 # Clean inventory objects
-                print(self, items, item)
                 self.items = []
                 self.item = None
                 return task.done
