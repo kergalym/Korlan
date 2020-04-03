@@ -518,7 +518,7 @@ class Main(ShowBase):
 
         """ Enable this when game will be ready for distribution
         else:
-            logging.critical("\nI'm trying to load sound assets, but there aren't suitable sound assets. "
+            logging.critical("\nI'm trying to load video assets, but there aren't suitable video assets. "
                              "\nCurrent path: {0}".format(sound_path))
             sys_exit("\nSomething is getting wrong. Please, check the game log first")
         """
