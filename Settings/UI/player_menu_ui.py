@@ -196,8 +196,6 @@ class PlayerMenuUI(Inventory):
                             pos_x = -1.0
                             pos_z = 0.15
 
-                        print(thumbs[item])
-
                         image = OnscreenImage(image=thumbs[item])
 
                         label = OnscreenText(text="",
@@ -215,10 +213,18 @@ class PlayerMenuUI(Inventory):
 
                         image.set_transparency(TransparencyAttrib.MAlpha)
                         image.reparent_to(label)
+                        image.set_name(item)
                         image.set_scale(0.1)
                         image.set_pos(pos_x+0.12, 0, pos_z+0.18)
 
             if base.game_mode is False and base.menu_mode:
+                for item in self.items:
+                    if not render2d.find("**/{0}".format(item)).is_empty():
+                        render2d.find("**/{0}".format(item)).remove_node()
+                # Clean inventory objects
+                print(self, items, item)
+                self.items = []
+                self.item = None
                 return task.done
 
         return task.cont

@@ -33,8 +33,9 @@ class NpcState:
                             self.fsm_npc.request("Walk", actor, animation, "loop")
                         elif vect['vector'][1] < -0.2:
                             self.fsm_npc.request("Walk", actor, animation, "loop")
-
-            return task.cont
+        if base.game_mode is False and base.menu_mode:
+            return task.done
+        return task.cont
 
     """def set_actor_state(self, task):
         base.actor_state_unarmed = True

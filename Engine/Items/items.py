@@ -99,13 +99,14 @@ class Items:
                         base.close_item_name = name
                         base.is_item_close_to_use = False
                         base.is_item_far_to_use = False
-                if base.game_mode is False and base.menu_mode:
-                    base.is_item_close_to_use = False
-                    base.is_item_far_to_use = False
-                    base.is_item_in_use = False
-                    base.is_item_in_use_long = False
-                    base.in_use_item_name = None
-                    return task.done
+
+        if base.game_mode is False and base.menu_mode:
+            base.is_item_close_to_use = False
+            base.is_item_far_to_use = False
+            base.is_item_in_use = False
+            base.is_item_in_use_long = False
+            base.in_use_item_name = None
+            return task.done
 
         return task.cont
 

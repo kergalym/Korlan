@@ -345,15 +345,21 @@ class StatUI:
                 self.set_stat_text(dist_vec_fmt_h, dist_vec_fmt_p, set_mode='show')
                 self.set_obj_stat_text(stat_obj_fmt_h, stat_obj_fmt_p, set_mode='show')
                 self.set_player_action_stat_text(stat_player_action_fmt_p, set_mode='show')
-            if (dist_vec and base.game_mode is False
-                    and base.menu_mode is True):
-                dist_vec_fmt_h = self.gen_stat_text_h(dist_vec)
-                dist_vec_fmt_p = self.gen_stat_text_p(dist_vec)
-                stat_obj_fmt_h = self.gen_stat_obj_text_h()
-                stat_obj_fmt_p = self.gen_stat_obj_text_p()
-                stat_player_action_fmt_p = self.gen_stat_player_action_text_p()
-                self.set_stat_text(dist_vec_fmt_h, dist_vec_fmt_p, set_mode='hide')
-                self.set_obj_stat_text(stat_obj_fmt_h, stat_obj_fmt_p, set_mode='hide')
-                self.set_player_action_stat_text(stat_player_action_fmt_p, set_mode='hide')
-                return task.done
+
+        if (hasattr(base, "player")
+                and base.game_mode is False
+                and base.menu_mode):
+            exclude = ['Sky', 'Mountains', 'Grass', 'Ground', 'NPC']
+            dist_vec = base.distance_calculate(
+                base.assets_pos_collector_no_actor(base.player, exclude), base.player)
+            dist_vec_fmt_h = self.gen_stat_text_h(dist_vec)
+            dist_vec_fmt_p = self.gen_stat_text_p(dist_vec)
+            stat_obj_fmt_h = self.gen_stat_obj_text_h()
+            stat_obj_fmt_p = self.gen_stat_obj_text_p()
+            stat_player_action_fmt_p = self.gen_stat_player_action_text_p()
+            self.set_stat_text(dist_vec_fmt_h, dist_vec_fmt_p, set_mode='hide')
+            self.set_obj_stat_text(stat_obj_fmt_h, stat_obj_fmt_p, set_mode='hide')
+            self.set_player_action_stat_text(stat_player_action_fmt_p, set_mode='hide')
+            return task.done
+
         return task.cont
