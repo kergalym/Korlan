@@ -20,7 +20,8 @@ class PlayerMenuUI(Inventory):
         Inventory.__init__(self)
         self.base = base
         self.game_dir = base.game_dir
-        self.images = base.textures_collector()
+        self.images = base.textures_collector(path="{0}/Settings/UI".format(self.game_dir))
+        self.inv_images = base.textures_collector(path="{0}/Assets".format(self.game_dir))
         self.fonts = base.fonts_collector()
         self.configs = base.cfg_collector(path="{0}/Settings/UI".format(self.game_dir))
         self.lng_configs = base.cfg_collector(path="{0}/Configs/Language/".format(self.game_dir))
@@ -193,7 +194,7 @@ class PlayerMenuUI(Inventory):
                         elif i == 8:
                             pos_x = -1.0
                             pos_z = 0.15
-
+                        print(self.inv_images)
                         t = OnscreenText(text="",
                                          pos=(pos_x, pos_z),
                                          scale=0.0,

@@ -18,7 +18,7 @@ class SoundMenuUI(Sound):
         Sound.__init__(self)
         self.base = base
         self.game_dir = base.game_dir
-        self.images = base.textures_collector()
+        self.images = base.textures_collector(path="{0}/Settings/UI".format(self.game_dir))
         self.fonts = base.fonts_collector()
         self.configs = base.cfg_collector(path="{0}/Settings/UI".format(self.game_dir))
         self.lng_configs = base.cfg_collector(path="{0}/Configs/Language/".format(self.game_dir))

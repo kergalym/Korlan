@@ -461,7 +461,7 @@ class Main(ShowBase):
                         fonts[key] = Filename.from_os_specific(path).getFullpath()
             return fonts
 
-    def textures_collector(self):
+    def textures_collector(self, path):
         """ Function    : textures_collector
 
             Description : Collect textures.
@@ -472,7 +472,7 @@ class Main(ShowBase):
 
             Return      : Dictionary
         """
-        tex_path = self.transform_path(path="{0}/Settings/UI".format(self.game_dir), style='compat')
+        tex_path = self.transform_path(path=path, style='compat')
         textures = {}
         if exists(tex_path):
             for root, dirs, files in walk(tex_path, topdown=True):
