@@ -164,6 +164,7 @@ class PlayerMenuUI(Inventory):
 
             item = base.in_use_item_name
             items = self.get_item(item)
+            thumbs = self.get_item_thumbs(images=self.inv_images)
 
             if items and isinstance(items, list):
                 for i, item in enumerate(items, 1):
@@ -194,18 +195,28 @@ class PlayerMenuUI(Inventory):
                         elif i == 8:
                             pos_x = -1.0
                             pos_z = 0.15
-                        print(self.inv_images)
-                        t = OnscreenText(text="",
-                                         pos=(pos_x, pos_z),
-                                         scale=0.0,
-                                         fg=(255, 255, 255, 0.9),
-                                         font=self.font.load_font(self.menu_font),
-                                         align=TextNode.ALeft,
-                                         mayChange=True)
-                        t.reparent_to(self.base.frame_inv_int)
-                        t.setText(item)
-                        t.set_name(item)
-                        t.set_scale(0.4)
+
+                        print(thumbs[item])
+
+                        image = OnscreenImage(image=thumbs[item])
+
+                        label = OnscreenText(text="",
+                                             pos=(pos_x, pos_z),
+                                             scale=0.0,
+                                             fg=(255, 255, 255, 0.9),
+                                             font=self.font.load_font(self.menu_font),
+                                             align=TextNode.ALeft,
+                                             mayChange=True)
+
+                        label.reparent_to(self.base.frame_inv_int)
+                        label.setText(item)
+                        label.set_name(item)
+                        label.set_scale(0.4)
+
+                        image.set_transparency(TransparencyAttrib.MAlpha)
+                        image.reparent_to(label)
+                        image.set_scale(0.1)
+                        image.set_pos(pos_x+0.12, 0, pos_z+0.18)
 
             if base.game_mode is False and base.menu_mode:
                 return task.done

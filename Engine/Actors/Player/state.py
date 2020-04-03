@@ -257,7 +257,7 @@ class PlayerState:
                 base.is_item_in_use_long = True
                 base.is_item_close_to_use = False
                 base.is_item_far_to_use = False
-                # TODO:  Debug
+
                 base.in_use_item_name = item.get_name()
 
     def take_item(self, player, joint, items_dist_vect):

@@ -1,3 +1,4 @@
+import re
 
 
 class Inventory:
@@ -12,3 +13,14 @@ class Inventory:
             if len(self.items) < 9:
                 self.items.append(self.item)
                 return self.items
+
+    def get_item_thumbs(self, images):
+        if images and isinstance(images, dict):
+            thumbs = {}
+            # Make thumb names same as item names
+            for image in images:
+                if isinstance(image, str):
+                    thumb = re.sub('_thumbs', '', image.lower())
+                    thumb = thumb.capitalize()
+                    thumbs["{0}:BS".format(thumb)] = images[image]
+            return thumbs
