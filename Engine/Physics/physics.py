@@ -34,6 +34,8 @@ class PhysicsAttr:
             dt = globalClock.getDt()
             self.world.do_physics(dt, 4, 1. / 240.)
             self.world.set_group_collision_flag(0, 0, False)
+            # TODO: set group collision for colliding and non-colliding objects
+            self.world.set_group_collision_flag(0, 1, True)
             # Do update RigidBodyNode parent node's position for every frame
             if hasattr(base, "close_item_name"):
                 name = base.close_item_name

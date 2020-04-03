@@ -117,6 +117,10 @@ class Actions:
                         extraArgs=[player],
                         appendTask=True)
 
+            taskMgr.add(self.player_menu.show_inventory_data_task,
+                        "show_inventory_data",
+                        appendTask=True)
+
     """ Prepares the player for scene """
 
     def player_init(self, player, anims, task):

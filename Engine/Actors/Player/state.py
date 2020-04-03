@@ -225,6 +225,7 @@ class PlayerState:
             base.is_item_in_use_long = False
             base.is_item_close_to_use = False
             base.is_item_far_to_use = False
+            base.in_use_item_name = None
 
     def pick_up_item(self, player, joint, items_dist_vect):
         if (player
@@ -244,7 +245,6 @@ class PlayerState:
                 item.wrt_reparent_to(exposed_joint)
                 # Set kinematics to make item follow actor joint
                 item.node().set_kinematic(True)
-                base.in_use_item_name = item.get_name()
 
                 item.set_h(205.0)
                 item.set_pos(0.4, 8.0, 5.2)
@@ -257,7 +257,8 @@ class PlayerState:
                 base.is_item_in_use_long = True
                 base.is_item_close_to_use = False
                 base.is_item_far_to_use = False
-                self.inventory.get_item(item)
+                # TODO:  Debug
+                base.in_use_item_name = item.get_name()
 
     def take_item(self, player, joint, items_dist_vect):
         if (player

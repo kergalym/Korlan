@@ -61,8 +61,7 @@ class LoadingUI:
                                                    align=TextNode.ALeft,
                                                    mayChange=True)
 
-            self.loading_bar = DirectWaitBar(
-                                             text="",
+            self.loading_bar = DirectWaitBar(text="",
                                              value=0,
                                              range=100,
                                              pos=(0, 0.4, -0.95))

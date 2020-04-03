@@ -8,13 +8,7 @@ class Inventory:
     def get_item(self, item):
         if item:
             self.item = item
-            return item
-
-    def set_item(self):
-        if self.item:
-            if hasattr(self.item, 'get_name'):
-                return [self.item.get_name]
-
-    def inv_space(self):
-        self.items.append(self.set_item())
-        return self.items
+            # Make inventory for 8 items
+            if len(self.items) < 9:
+                self.items.append(self.item)
+                return self.items

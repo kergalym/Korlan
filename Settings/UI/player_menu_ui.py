@@ -1,5 +1,8 @@
 import json
 from os.path import exists
+
+from direct.showbase.ShowBaseGlobal import render2d
+
 from Engine.Actors.Player.inventory import Inventory
 from Settings.menu_settings import MenuSettings
 
@@ -133,14 +136,6 @@ class PlayerMenuUI(Inventory):
         self.btn_param_decline.set_pos(0.1, 0, -0.9)
         self.btn_param_accept.set_pos(-1.6, 0, -0.9)
 
-        for item in self.inv_space():
-            if item:
-                OnscreenText(text=item,
-                             pos=(-1.4, 0.02),
-                             scale=0.07,
-                             mayChange=True,
-                             parent=self.base.frame_inv_int)
-
         self.base.frame_inv.hide()
 
     def clear_ui_inventory(self):
@@ -159,3 +154,59 @@ class PlayerMenuUI(Inventory):
             base.is_ui_active = True
         else:
             self.clear_ui_inventory()
+
+    def show_inventory_data_task(self, task):
+        if hasattr(base, "in_use_item_name"):
+            if (not base.in_use_item_name and
+                    not render2d.find("**/{0}".format(self.item)).is_empty()):
+                render2d.find("**/{0}".format(self.item)).remove_node()
+
+            item = base.in_use_item_name
+            items = self.get_item(item)
+
+            if items and isinstance(items, list):
+                for i, item in enumerate(items, 1):
+                    if item and render2d.find("**/{0}".format(item)).is_empty():
+                        pos_x = 0
+                        pos_z = 0
+                        if i == 1:
+                            pos_x = -1.3
+                            pos_z = 0.65
+                        elif i == 2:
+                            pos_x = -1.0
+                            pos_z = 0.65
+                        elif i == 3:
+                            pos_x = -0.7
+                            pos_z = 0.65
+                        elif i == 4:
+                            pos_x = -1.3
+                            pos_z = 0.45
+                        elif i == 5:
+                            pos_x = -1.0
+                            pos_z = 0.45
+                        elif i == 6:
+                            pos_x = -0.7
+                            pos_z = 0.45
+                        elif i == 7:
+                            pos_x = -1.3
+                            pos_z = 0.15
+                        elif i == 8:
+                            pos_x = -1.0
+                            pos_z = 0.15
+
+                        t = OnscreenText(text="",
+                                         pos=(pos_x, pos_z),
+                                         scale=0.0,
+                                         fg=(255, 255, 255, 0.9),
+                                         font=self.font.load_font(self.menu_font),
+                                         align=TextNode.ALeft,
+                                         mayChange=True)
+                        t.reparent_to(self.base.frame_inv_int)
+                        t.setText(item)
+                        t.set_name(item)
+                        t.set_scale(0.4)
+
+            if base.game_mode is False and base.menu_mode:
+                return task.done
+
+        return task.cont
