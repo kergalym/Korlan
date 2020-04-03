@@ -93,6 +93,9 @@ class Mouse:
             self.focus = self.base.camera.get_pos() + (direction * 180)
             self.last = task.time
 
+        if base.game_mode is False and base.menu_mode:
+            return task.done
+
         return task.cont
 
     def set_mouse_mode(self, mode):

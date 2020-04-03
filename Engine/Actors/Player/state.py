@@ -137,6 +137,7 @@ class PlayerState:
 
     def set_player_equip_state(self, task):
         base.player_state_unarmed = True
+
         if base.player_state_armed:
             base.player_state_unarmed = False
             base.player_state_magic = False
@@ -147,10 +148,16 @@ class PlayerState:
             base.player_state_armed = False
             base.player_state_magic = False
 
+        if base.game_mode is False and base.menu_mode:
+            return task.done
+
         return task.cont
 
     def actor_life(self, task):
         self.has_actor_life()
+
+        if base.game_mode is False and base.menu_mode:
+            return task.done
 
         return task.cont
 

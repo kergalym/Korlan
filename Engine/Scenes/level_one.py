@@ -49,14 +49,6 @@ class LevelOne:
                 for i in range(render.find("**/World").get_num_nodes()):
                     render.find("**/World").remove_node()
 
-            # Remove all tasks except system
-            tasks = ["player_init",
-                     "player_state",
-                     "actor_life",
-                     "mouse_look"]
-            for t in tasks:
-                taskMgr.remove(t)
-
             base.game_mode = False
             base.menu_mode = True
 
@@ -72,17 +64,6 @@ class LevelOne:
             for i in range(render.find("**/World").get_num_nodes()):
                 render.find("**/World").remove_node()
 
-        # Remove all tasks except system
-        tasks = ["player_init",
-                 "player_state",
-                 "actor_life",
-                 "mouse_look"]
-        for t in tasks:
-            taskMgr.remove(t)
-
-        base.game_mode = True
-        base.menu_mode = False
-
         # make pattern list from assets dict
         pattern = [key for key in assets]
         # use pattern to remove nodes corresponding to asset names
@@ -92,6 +73,9 @@ class LevelOne:
 
         for key in assets:
             self.loader.unload_model(assets[key])
+
+        base.game_mode = True
+        base.menu_mode = False
 
     def load_new_game(self):
         self.unload_menu_scene()
