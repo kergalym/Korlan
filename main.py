@@ -692,9 +692,10 @@ class Main(ShowBase):
 
     def video_status_task(self, media, task):
         if media:
+            base.accept("escape", media.stop)
+
             if AudioSound.status(media) == 1:
                 media.stop()
-
                 if not render2d.find("**/VideoWall").is_empty():
                     render2d.find("**/VideoWall").remove_node()
 
