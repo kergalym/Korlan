@@ -52,7 +52,6 @@ class LoadingUI:
             self.loading_screen.show()
         else:
             assets = base.assets_collector()
-            data = self.gen_loading_items()
             self.title_loading_text = OnscreenText(text="",
                                                    pos=(-1.8, 0.9),
                                                    scale=0.03,

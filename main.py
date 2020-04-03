@@ -8,9 +8,15 @@ from os import mkdir, listdir, walk
 from os.path import isdir, isfile, exists
 
 import panda3d.core as p3d
+from direct.showbase.ShowBaseGlobal import render2d
 from panda3d.core import Filename
 from panda3d.core import WindowProperties
 from direct.showbase.ShowBase import ShowBase
+from direct.showbase.ShowBase import MovieTexture
+from direct.showbase.ShowBase import CardMaker
+from direct.showbase.ShowBase import NodePath
+from direct.showbase.ShowBase import AudioSound
+
 from panda3d.core import TextNode
 from pathlib import Path, PurePath
 from Engine.Actors.Player.korlan import Korlan
@@ -104,8 +110,9 @@ class Main(ShowBase):
         self.game_settings = game_settings
         self.game_settings_filename = 'settings.ini'
         self.cfg_path = {"game_config_path": "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
+        self.intro_mode = True
         self.game_mode = False
-        self.menu_mode = True
+        self.menu_mode = False
 
         self.game_settings.read("{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename))
 
@@ -144,10 +151,10 @@ class Main(ShowBase):
 
         """ Menu """
         if self.check_and_do_cfg():
-            if self.menu_mode:
+            if not self.intro_mode and self.menu_mode:
                 self.menu.load_main_menu()
         elif self.check_and_do_cfg() and self.game_mode is False:
-            if self.menu_mode:
+            if not self.intro_mode and self.menu_mode:
                 self.menu.load_main_menu()
         else:
             sys_exit("\nNo game configuration file created. Please check your game log")
@@ -487,6 +494,35 @@ class Main(ShowBase):
                         textures[key] = Filename.from_os_specific(path).getFullpath()
             return textures
 
+    def videos_collector(self):
+        """ Function    : sounds_collector
+
+            Description : Collect game asset sounds.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : Dictionary
+        """
+        sound_path = self.transform_path(path="{0}/Assets/Videos".format(self.game_dir), style='compat')
+        sounds = {}
+        if exists(sound_path):
+            for root, dirs, files in walk(sound_path, topdown=True):
+                for file in files:
+                    if file.endswith(".mkv"):
+                        key = re.sub('.mkv$', '', file)
+                        path = str(PurePath("{0}/".format(root), file))
+                        sounds[key] = Filename.from_os_specific(path).getFullpath()
+            return sounds
+
+        """ Enable this when game will be ready for distribution
+        else:
+            logging.critical("\nI'm trying to load sound assets, but there aren't suitable sound assets. "
+                             "\nCurrent path: {0}".format(sound_path))
+            sys_exit("\nSomething is getting wrong. Please, check the game log first")
+        """
+
     def sounds_collector(self):
         """ Function    : sounds_collector
 
@@ -654,6 +690,57 @@ class Main(ShowBase):
                                       round(vect_z, 1))
             return remained
 
+    def video_status_task(self, media, task):
+        if media:
+            if AudioSound.status(media) == 1:
+                media.stop()
+
+                if not render2d.find("**/VideoWall").is_empty():
+                    render2d.find("**/VideoWall").remove_node()
+
+                self.intro_mode = False
+                self.menu_mode = True
+                self.menu.load_main_menu()
+                return task.done
+
+        return task.cont
+
+    def load_video(self, file):
+        if file and isinstance(file, str):
+            videos = self.videos_collector()
+
+            if videos:
+                tex = MovieTexture(file)
+                success = tex.read(videos[file])
+                if success:
+                    # Set up a fullscreen card to set the video texture on.
+                    cm = CardMaker("VideoWall")
+                    cm.set_frame_fullscreen_quad()
+
+                    # Tell the CardMaker to create texture coordinates that take into
+                    # account the padding region of the texture.
+                    cm.set_uv_range(tex)
+
+                    # Now place the card in the scene graph and apply the texture to it.
+                    card = NodePath(cm.generate())
+                    card.reparent_to(render2d)
+                    card.set_texture(tex)
+
+                    media = base.loader.load_sfx(videos[file])
+                    # Synchronize the video to the sound.
+                    tex.synchronize_to(media)
+
+                    media.play()
+
+                    taskMgr.add(self.video_status_task,
+                                "video_status",
+                                extraArgs=[media],
+                                appendTask=True)
+                else:
+                    self.intro_mode = False
+                    self.menu_mode = True
+                    self.menu.load_main_menu()
+
     def load_menu_scene(self):
         """ Function    : load_menu_scene
 
@@ -742,6 +829,7 @@ class Main(ShowBase):
 
 
 app = Main()
+app.load_video("REDSTUDIO_FHD")
 app.load_menu_scene()
 
 if __name__ == '__main__':
