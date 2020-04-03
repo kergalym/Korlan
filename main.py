@@ -495,9 +495,9 @@ class Main(ShowBase):
             return textures
 
     def videos_collector(self):
-        """ Function    : sounds_collector
+        """ Function    : videos_collector
 
-            Description : Collect game asset sounds.
+            Description : Collect game asset videos.
 
             Input       : None
 
@@ -506,15 +506,15 @@ class Main(ShowBase):
             Return      : Dictionary
         """
         sound_path = self.transform_path(path="{0}/Assets/Videos".format(self.game_dir), style='compat')
-        sounds = {}
+        videos = {}
         if exists(sound_path):
             for root, dirs, files in walk(sound_path, topdown=True):
                 for file in files:
                     if file.endswith(".mkv"):
                         key = re.sub('.mkv$', '', file)
                         path = str(PurePath("{0}/".format(root), file))
-                        sounds[key] = Filename.from_os_specific(path).getFullpath()
-            return sounds
+                        videos[key] = Filename.from_os_specific(path).getFullpath()
+            return videos
 
         """ Enable this when game will be ready for distribution
         else:
