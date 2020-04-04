@@ -731,12 +731,19 @@ class Main(ShowBase):
 
                     # Now place the card in the scene graph and apply the texture to it.
                     card = NodePath(cm.generate())
-                    card.reparent_to(render2d)
+
+                    if type == "loading_menu":
+                        if not render2d.find("**/LoadingScreen").is_empty():
+                            loading_screen_np = render2d.find("**/LoadingScreen")
+                            card.reparent_to(loading_screen_np)
+                    elif type == "main_menu":
+                        card.reparent_to(render2d)
+
                     card.set_texture(tex)
 
                     if type == "loading_menu":
-                        card.set_scale(0.5)
-                        card.set_pos(-1, 0, 0.9)
+                        card.set_scale(0.3)
+                        card.set_pos(0, 0, 0)
 
                     media = base.loader.load_sfx(videos[file])
                     # Synchronize the video to the sound.

@@ -67,6 +67,16 @@ class LoadingUI:
 
             self.loading_screen = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
                                               frameSize=self.loading_frame_size)
+            self.loading_screen.set_name("LoadingScreen")
+
+            if self.loading_screen:
+                media = base.load_video(file="circle",
+                                        type="loading_menu")
+                if media:
+                    media.set_loop_count(0)
+                    media.play()
+                    media.set_play_rate(0.5)
+
             self.loading_bar.set_scale(0.9, 0, 0.1)
             self.loading_bar.reparent_to(self.loading_screen)
             self.title_loading_text.reparent_to(self.loading_screen)
@@ -88,19 +98,11 @@ class LoadingUI:
         for node, asset in zip(nodes, assets):
             if hasattr(node, "get_name"):
 
-                media = None
-
                 if len(nodes) < len(assets):
                     if self.loading_bar:
                         self.loading_bar['value'] += len(nodes)
-                        media = base.load_video(file="circle",
-                                                type="loading_menu")
-                        if media:
-                            media.play()
 
                 if len(nodes)+2 == len(assets):
-                    if media:
-                        media.stop()
                     self.clear_loading_bar()
                     self.hud.set_hud()
                     return task.done
