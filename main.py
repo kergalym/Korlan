@@ -28,6 +28,8 @@ from Settings.gfx_menu_settings import Graphics
 from panda3d.core import Thread
 from direct.task.TaskManagerGlobal import taskMgr
 
+import simplepbr
+
 game_settings = configparser.ConfigParser()
 game_settings['Main'] = {'disp_res': '1024x768',
                          'fullscreen': 'off',
@@ -141,6 +143,9 @@ class Main(ShowBase):
             my_light = PointLight()
             # set desired properties, see below
             self.render_pipeline.add_light(my_light)"""
+
+        if self.game_settings['Main']['postprocessing'] == 'on':
+            simplepbr.init()
 
         self.menu = MenuUI()
         self.scene_one = SceneOne()
@@ -505,7 +510,7 @@ class Main(ShowBase):
 
             Return      : Dictionary
         """
-        sound_path = self.transform_path(path="{0}/Assets/Videos".format(self.game_dir), style='compat')
+        sound_path = self.transform_path(path="{0}/Assets/Videos/".format(self.game_dir), style='compat')
         videos = {}
         if exists(sound_path):
             for root, dirs, files in walk(sound_path, topdown=True):
@@ -690,8 +695,8 @@ class Main(ShowBase):
                                       round(vect_z, 1))
             return remained
 
-    def video_status_task(self, media, task):
-        if media:
+    def video_status_task(self, media, type, task):
+        if media and type and isinstance(type, str):
             base.accept("escape", media.stop)
 
             if AudioSound.status(media) == 1:
@@ -699,20 +704,22 @@ class Main(ShowBase):
                 if not render2d.find("**/VideoWall").is_empty():
                     render2d.find("**/VideoWall").remove_node()
 
-                self.intro_mode = False
-                self.menu_mode = True
-                self.menu.load_main_menu()
-                return task.done
+                if type == "main_menu":
+                    self.intro_mode = False
+                    self.menu_mode = True
+                    self.menu.load_main_menu()
+                    return task.done
 
         return task.cont
 
-    def load_video(self, file):
-        if file and isinstance(file, str):
+    def load_video(self, file, type):
+        if (file and type
+                and isinstance(file, str) and isinstance(type, str)):
             videos = self.videos_collector()
 
-            if videos:
+            if videos and videos.get(file):
                 tex = MovieTexture(file)
-                success = tex.read(videos[file])
+                success = tex.read(videos.get(file))
                 if success:
                     # Set up a fullscreen card to set the video texture on.
                     cm = CardMaker("VideoWall")
@@ -727,20 +734,29 @@ class Main(ShowBase):
                     card.reparent_to(render2d)
                     card.set_texture(tex)
 
+                    if type == "loading_menu":
+                        card.set_scale(0.5)
+                        card.set_pos(-1, 0, 0.9)
+
                     media = base.loader.load_sfx(videos[file])
                     # Synchronize the video to the sound.
                     tex.synchronize_to(media)
 
-                    media.play()
+                    if type == "main_menu":
+                        media.play()
 
-                    taskMgr.add(self.video_status_task,
-                                "video_status",
-                                extraArgs=[media],
-                                appendTask=True)
+                        taskMgr.add(self.video_status_task,
+                                    "video_status",
+                                    extraArgs=[media, type],
+                                    appendTask=True)
+
+                    if type == "loading_menu":
+                        return media
                 else:
-                    self.intro_mode = False
-                    self.menu_mode = True
-                    self.menu.load_main_menu()
+                    if type == "main_menu":
+                        self.intro_mode = False
+                        self.menu_mode = True
+                        self.menu.load_main_menu()
 
     def load_menu_scene(self):
         """ Function    : load_menu_scene
@@ -830,7 +846,7 @@ class Main(ShowBase):
 
 
 app = Main()
-app.load_video("REDSTUDIO_FHD")
+app.load_video(file="REDSTUDIO_FHD", type="main_menu")
 app.load_menu_scene()
 
 if __name__ == '__main__':

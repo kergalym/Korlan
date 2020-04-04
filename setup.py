@@ -33,6 +33,13 @@ setup(
                 'p3openal_audio',
                 'p3ptloader',
             ],
+
+            'package_data_dirs': {
+                'simplepbr': [
+                    ('simplepbr/*.vert', '', {}),
+                    ('simplepbr/*.frag', '', {}),
+                ],
+            }
         }
     }
 )

@@ -87,13 +87,20 @@ class LoadingUI:
         # TODO: Fixme. Make nodes equal to assets without using +2 hack
         for node, asset in zip(nodes, assets):
             if hasattr(node, "get_name"):
+
+                media = None
+
                 if len(nodes) < len(assets):
-                    result = len(nodes)
                     if self.loading_bar:
-                        self.loading_bar['value'] += result
+                        self.loading_bar['value'] += len(nodes)
+                        media = base.load_video(file="circle",
+                                                type="loading_menu")
+                        if media:
+                            media.play()
 
                 if len(nodes)+2 == len(assets):
-                    # self.title_loading_text.setText("Loading finished")
+                    if media:
+                        media.stop()
                     self.clear_loading_bar()
                     self.hud.set_hud()
                     return task.done

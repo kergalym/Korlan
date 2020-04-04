@@ -188,6 +188,7 @@ class SceneOne:
                     # shader generation is not enabled. It would be reasonable
                     # to enable shader generation for the entire game, using this call:
                     scene.set_shader_auto()
+                    pass
 
                 return scene
 
