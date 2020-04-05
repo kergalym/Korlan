@@ -1,4 +1,5 @@
 from direct.gui.DirectGui import *
+from direct.gui.OnscreenImage import TransparencyAttrib
 from panda3d.core import FontPool, TextNode
 
 
@@ -6,11 +7,13 @@ class HudUI:
     def __init__(self):
         self.game_settings = base.game_settings
         self.game_dir = base.game_dir
+        self.images = base.textures_collector(path="{0}/Settings/UI".format(self.game_dir))
         self.fonts = base.fonts_collector()
         # instance of the abstract class
         self.font = FontPool
 
         """ Frames & Bars """
+        self.hud_avatar = None
         self.hud_row_frame_1 = None
         self.hud_row_frame_2 = None
         self.hud_row_frame_3 = None
@@ -35,12 +38,14 @@ class HudUI:
         pass
 
     def set_hud(self):
-        if (self.hud_row_frame_1
+        if (self.hud_avatar
+                and self.hud_row_frame_1
                 and self.hud_row_frame_2
                 and self.hud_row_frame_3
                 and self.hud_row_frame_4
                 and self.hud_row_frame_5
                 and self.hud_row_frame_6):
+            self.hud_avatar.show()
             self.hud_row_frame_1.show()
             self.hud_row_frame_2.show()
             self.hud_row_frame_3.show()
@@ -48,6 +53,8 @@ class HudUI:
             self.hud_row_frame_5.show()
             self.hud_row_frame_6.show()
         else:
+            self.hud_avatar = OnscreenImage(image=self.images["player_avatar"])
+
             self.hud_row_frame_1 = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
                                                frameSize=self.hud_row_frame_size)
             self.hud_row_frame_2 = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
@@ -104,6 +111,11 @@ class HudUI:
                                           align=TextNode.ALeft,
                                           mayChange=True)
 
+            self.hud_avatar.set_transparency(TransparencyAttrib.MAlpha)
+            self.hud_avatar.set_name("player_avatar")
+            self.hud_avatar.set_pos(0, 0.4, -0.83)
+            self.hud_avatar.set_scale(0.3, 0.3, 0.15)
+
             self.hud_row_frame_1.set_pos(0.28, 0.4, -0.90)
             self.hud_row_frame_2.set_pos(0.45, 0.4, -0.90)
 
@@ -151,12 +163,14 @@ class HudUI:
             hud_row_text_6.set_pos(-0.20, 0.4, -0.30)
 
     def clear_hud(self):
-        if (self.hud_row_frame_1
+        if (self.hud_avatar
+                and self.hud_row_frame_1
                 and self.hud_row_frame_2
                 and self.hud_row_frame_3
                 and self.hud_row_frame_4
                 and self.hud_row_frame_5
                 and self.hud_row_frame_6):
+            self.hud_avatar.hide()
             self.hud_row_frame_1.hide()
             self.hud_row_frame_2.hide()
             self.hud_row_frame_3.hide()
@@ -178,3 +192,6 @@ class HudUI:
                 render2d.find("**/hud_row_4").hide()
                 render2d.find("**/hud_row_5").hide()
                 render2d.find("**/hud_row_6").hide()
+
+            if not render2d.find("**/player_avatar").is_empty():
+                render2d.find("**/player_avatar").hide()
