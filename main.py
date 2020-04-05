@@ -700,7 +700,11 @@ class Main(ShowBase):
             base.accept("escape", media.stop)
 
             if AudioSound.status(media) == 1:
-                media.stop()
+                if type == "player_avatar":
+                    media.play()
+                else:
+                    media.stop()
+
                 if not render2d.find("**/VideoWall").is_empty():
                     render2d.find("**/VideoWall").remove_node()
 
@@ -739,11 +743,18 @@ class Main(ShowBase):
                     elif type == "main_menu":
                         card.reparent_to(render2d)
 
+                    elif type == "player_avatar":
+                        card.reparent_to(render2d)
+
                     card.set_texture(tex)
 
                     if type == "loading_menu":
                         card.set_scale(0.3)
                         card.set_pos(0, 0, 0)
+
+                    if type == "player_avatar":
+                        card.set_scale(0.3, 0.3, 0.15)
+                        card.set_pos(0, 0, -0.85)
 
                     media = base.loader.load_sfx(videos[file])
                     # Synchronize the video to the sound.
@@ -759,6 +770,15 @@ class Main(ShowBase):
 
                     if type == "loading_menu":
                         return media
+
+                    if type == "player_avatar":
+                        media.play()
+
+                        taskMgr.add(self.video_status_task,
+                                    "video_status",
+                                    extraArgs=[media, type],
+                                    appendTask=True)
+
                 else:
                     if type == "main_menu":
                         self.intro_mode = False

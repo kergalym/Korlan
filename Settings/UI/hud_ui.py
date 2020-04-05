@@ -175,7 +175,7 @@ class HudUI:
         cam_np.set_pos(0, 0.4, -0.83)
 
     def set_hud_avatar(self):
-        pass
+        base.load_video(file="player_idle", type="player_avatar")
 
     def clear_hud(self):
         if (self.hud_static_avatar
@@ -219,4 +219,5 @@ class HudUI:
             self.display_region.destroy()
 
     def clear_hud_avatar(self):
-        pass
+        if not render2d.find("**/VideoWall").is_empty():
+            render2d.find("**/VideoWall").remove_node()
