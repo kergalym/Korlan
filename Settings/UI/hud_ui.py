@@ -1,10 +1,11 @@
 from direct.gui.DirectGui import *
 from direct.gui.OnscreenImage import TransparencyAttrib
-from panda3d.core import FontPool, TextNode
+from panda3d.core import FontPool, TextNode, Camera, NodePath
 
 
 class HudUI:
     def __init__(self):
+        self.win = base.win
         self.game_settings = base.game_settings
         self.game_dir = base.game_dir
         self.images = base.textures_collector(path="{0}/Settings/UI".format(self.game_dir))
@@ -12,8 +13,11 @@ class HudUI:
         # instance of the abstract class
         self.font = FontPool
 
+        """ Displays"""
+        self.display_region = None
+
         """ Frames & Bars """
-        self.hud_avatar = None
+        self.hud_static_avatar = None
         self.hud_row_frame_1 = None
         self.hud_row_frame_2 = None
         self.hud_row_frame_3 = None
@@ -21,31 +25,30 @@ class HudUI:
         self.hud_row_frame_5 = None
         self.hud_row_frame_6 = None
 
-        """ Frame Sizes """
+        """ Frame and display Sizes """
         # Left, right, bottom, top
         self.hud_row_frame_size = [-0.5, 0.5, -0.5, 0.5]
+        self.display_region_size = (0.5, 1, 0, 1)
 
         """ Scales """
         self.hud_row_frame_scale = (0.15, 0, 0.15)
 
         """ Frame Colors """
         self.frm_opacity = 1
+
         """ Texts & Fonts"""
         # self.menu_font = self.fonts['OpenSans-Regular']
         self.menu_font = self.fonts['JetBrainsMono-Regular']
 
-    def gen_hud_data(self):
-        pass
-
     def set_hud(self):
-        if (self.hud_avatar
+        if (self.hud_static_avatar
                 and self.hud_row_frame_1
                 and self.hud_row_frame_2
                 and self.hud_row_frame_3
                 and self.hud_row_frame_4
                 and self.hud_row_frame_5
                 and self.hud_row_frame_6):
-            self.hud_avatar.show()
+            self.hud_static_avatar.show()
             self.hud_row_frame_1.show()
             self.hud_row_frame_2.show()
             self.hud_row_frame_3.show()
@@ -53,7 +56,7 @@ class HudUI:
             self.hud_row_frame_5.show()
             self.hud_row_frame_6.show()
         else:
-            self.hud_avatar = OnscreenImage(image=self.images["player_avatar"])
+            self.hud_static_avatar = OnscreenImage(image=self.images["player_avatar"])
 
             self.hud_row_frame_1 = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
                                                frameSize=self.hud_row_frame_size)
@@ -111,10 +114,10 @@ class HudUI:
                                           align=TextNode.ALeft,
                                           mayChange=True)
 
-            self.hud_avatar.set_transparency(TransparencyAttrib.MAlpha)
-            self.hud_avatar.set_name("player_avatar")
-            self.hud_avatar.set_pos(0, 0.4, -0.83)
-            self.hud_avatar.set_scale(0.3, 0.3, 0.15)
+            self.hud_static_avatar.set_transparency(TransparencyAttrib.MAlpha)
+            self.hud_static_avatar.set_name("player_static_avatar")
+            self.hud_static_avatar.set_pos(0, 0.4, -0.83)
+            self.hud_static_avatar.set_scale(0.3, 0.3, 0.15)
 
             self.hud_row_frame_1.set_pos(0.28, 0.4, -0.90)
             self.hud_row_frame_2.set_pos(0.45, 0.4, -0.90)
@@ -162,15 +165,27 @@ class HudUI:
             hud_row_text_5.set_pos(-0.10, 0.4, -0.30)
             hud_row_text_6.set_pos(-0.20, 0.4, -0.30)
 
+    def set_display_region(self):
+        self.display_region = self.win.make_display_region(self.display_region_size)
+        cam_node = Camera('region_cam')
+        cam_np = NodePath(cam_node)
+        self.display_region.set_camera(cam_np)
+        cam_np.reparent_to(base.camera)
+        cam_np.set_scale(0.3, 0.3, 0.15)
+        cam_np.set_pos(0, 0.4, -0.83)
+
+    def set_hud_avatar(self):
+        pass
+
     def clear_hud(self):
-        if (self.hud_avatar
+        if (self.hud_static_avatar
                 and self.hud_row_frame_1
                 and self.hud_row_frame_2
                 and self.hud_row_frame_3
                 and self.hud_row_frame_4
                 and self.hud_row_frame_5
                 and self.hud_row_frame_6):
-            self.hud_avatar.hide()
+            self.hud_static_avatar.hide()
             self.hud_row_frame_1.hide()
             self.hud_row_frame_2.hide()
             self.hud_row_frame_3.hide()
@@ -193,5 +208,15 @@ class HudUI:
                 render2d.find("**/hud_row_5").hide()
                 render2d.find("**/hud_row_6").hide()
 
-            if not render2d.find("**/player_avatar").is_empty():
-                render2d.find("**/player_avatar").hide()
+            if not render2d.find("**/player_static_avatar").is_empty():
+                render2d.find("**/player_static_avatar").hide()
+
+    def clear_display_region(self):
+        if (not render.find("**/region_cam").is_empty()
+                and self.display_region):
+            render.find("**/region_cam").remove_node()
+            # TODO: Test
+            self.display_region.destroy()
+
+    def clear_hud_avatar(self):
+        pass

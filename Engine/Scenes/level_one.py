@@ -42,6 +42,7 @@ class LevelOne:
             self.base.menu_mode = True
 
             self.hud.clear_hud()
+            self.hud.clear_hud_avatar()
             self.player_state.clear_state()
 
             # Remove Bullet World

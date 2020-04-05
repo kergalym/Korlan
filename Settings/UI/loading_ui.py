@@ -105,6 +105,7 @@ class LoadingUI:
                 if len(nodes)+2 == len(assets):
                     self.clear_loading_bar()
                     self.hud.set_hud()
+                    self.hud.set_hud_avatar()
                     return task.done
 
         return task.cont
