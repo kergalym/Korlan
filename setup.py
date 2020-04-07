@@ -31,6 +31,7 @@ setup(
             'plugins': [
                 'pandagl',
                 'p3openal_audio',
+                'p3ffmpeg',
                 'p3ptloader',
             ],
 
