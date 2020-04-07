@@ -94,7 +94,6 @@ class LevelOne:
                                       hpr=[0, -20, 0],
                                       color=[0.2],
                                       task="attach")
-
         # assets is a dict containing paths + models
         # anims is a list containing two dicts.
         # anims[0] is a dict containing names of animations
@@ -140,7 +139,7 @@ class LevelOne:
                                            scale=[1.25, 1.25, 1.25],
                                            type='ground'))
 
-        taskMgr.add(self.scene_one.set_env(path=assets['Mountains_octree'],
+        taskMgr.add(self.scene_one.set_env(path=assets['Mountains'],
                                            mode="game",
                                            name="Mountains",
                                            axis=[0.0, 20.0, self.pos_z],
