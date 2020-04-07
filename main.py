@@ -121,29 +121,6 @@ class Main(ShowBase):
         if self.game_settings['Debug']['set_debug_mode'] == 'YES':
             print("Is threading supported: ", Thread.isThreadingSupported(), "\n")
 
-        # Notice that you must not call ShowBase.__init__ (or super), the
-        # render pipeline does that for you. If this is unconvenient for you,
-        # have a look at the other initialization possibilities.
-        # Insert the pipeline path to the system path, this is required to be
-        # pipeline in a subfolder of your project, you have to adjust this.
-        # Commented to prevent using it by deploying system
-        """sys.path.insert(0, ".")
-        sys.path.insert(0, "RenderPipeline")
-        # Import the main render pipeline class
-        from rpcore import RenderPipeline
-        from rpcore import PointLight
-        # Construct and create the pipeline
-        self.render_pipeline = RenderPipeline()"""
-
-        # Commented to prevent using it by deploying system
-        """if self.game_settings['Main']['postprocessing'] == 'on':
-            self.render_pipeline.pre_showbase_init()
-            self.render_pipeline.create(self)
-
-            my_light = PointLight()
-            # set desired properties, see below
-            self.render_pipeline.add_light(my_light)"""
-
         if self.game_settings['Main']['postprocessing'] == 'on':
             simplepbr.init()
 
@@ -796,20 +773,14 @@ class Main(ShowBase):
 
             Return      : None
         """
-        # Commented to prevent using it by deploying system
-        """"# Set time of day
-        if self.game_settings['Main']['postprocessing'] == 'on':
-            self.render_pipeline.daytime_mgr.time = "15:25
-        """
-
         """ Assets """
-        self.render_attr.set_lighting(name='directionalLight',
+        self.render_attr.set_lighting(name='pointLight',
                                       render=self.render,
                                       pos=[0, 0, 10],
                                       hpr=[180, -20, 0],
                                       color=[0.2],
                                       task="attach")
-        self.render_attr.set_lighting(name='directionalLight',
+        self.render_attr.set_lighting(name='pointLight',
                                       render=self.render,
                                       pos=[0, 0, 10],
                                       hpr=[0, -20, 0],

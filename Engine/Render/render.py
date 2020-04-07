@@ -102,17 +102,17 @@ class RenderAttr:
 
             if task == 'attach':
                 # Directional light 01
-                directional_light = DirectionalLight(name)
-                directional_light.set_color((color[0], color[0], color[0], 1))
-                directional_light_np = self.render.attach_new_node(directional_light)
+                point_light = PointLight(name)
+                point_light.set_color((color[0], color[0], color[0], 1))
+                point_light_np = self.render.attach_new_node(point_light)
                 # This light is facing backwards, towards the camera.
-                directional_light_np.set_hpr(hpr[0], hpr[1], hpr[2])
-                directional_light_np.set_z(pos[2])
-                self.render.set_light(directional_light_np)
+                point_light_np.set_hpr(hpr[0], hpr[1], hpr[2])
+                point_light_np.set_z(pos[2])
+                self.render.set_light(point_light_np)
 
             if task == 'attach':
                 # Add an ambient light
-                alight = AmbientLight('ambientLight')
+                alight = PointLight('ambientLight')
                 alight.set_color((self.set_color, self.set_color, self.set_color, 1))
                 alnp = self.render.attach_new_node(alight)
                 self.render.set_light(alnp)

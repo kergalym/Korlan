@@ -82,13 +82,13 @@ class LevelOne:
         self.unload_menu_scene()
 
         """ Assets """
-        self.render_attr.set_lighting(name='directionalLight',
+        self.render_attr.set_lighting(name='pointLight',
                                       render=self.render,
                                       pos=[0, 0, 10],
                                       hpr=[180, -20, 0],
                                       color=[0.2],
                                       task="attach")
-        self.render_attr.set_lighting(name='directionalLight',
+        self.render_attr.set_lighting(name='pointLight',
                                       render=self.render,
                                       pos=[0, 0, 10],
                                       hpr=[0, -20, 0],
