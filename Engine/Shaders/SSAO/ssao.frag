@@ -5,8 +5,8 @@
 
 #version 150
 
-#define NUM_SAMPLES 64
-#define NUM_NOISE 16
+#define NUM_SAMPLES 8
+#define NUM_NOISE   4
 
 uniform mat4 lensProjection;
 
@@ -21,18 +21,22 @@ uniform vec2 enabled;
 out vec4 fragColor;
 
 void main() {
-  float radius    = 1;
+  float radius    = 2;
   float bias      = 0.01;
-  float magnitude = 1.5;
+  float magnitude = 1.1;
   float contrast  = 1.5;
 
-  if (enabled.x != 1) { fragColor = vec4(1); return; }
+  fragColor = vec4(1);
+
+  if (enabled.x != 1) { return; }
 
   vec2 texSize  = textureSize(positionTexture, 0).xy;
   vec2 texCoord = gl_FragCoord.xy / texSize;
 
   vec4 position = texture(positionTexture, texCoord);
-  vec3 normal   = texture(normalTexture, texCoord).xyz;
+  if (position.a <= 0) { return; }
+
+  vec3 normal = normalize(texture(normalTexture, texCoord).xyz);
 
   int  noiseS = int(sqrt(NUM_NOISE));
   int  noiseX = int(gl_FragCoord.x - 0.5) % noiseS;
@@ -55,9 +59,9 @@ void main() {
          offset.xy   = offset.xy * 0.5 + 0.5;
 
     // Config.prc
-    // gl-coordinate-system default
+    // gl-coordinate-system  default
     // textures-auto-power-2 1
-    // textures-power-2 down
+    // textures-power-2      down
 
     vec4 offsetPosition = texture(positionTexture, offset.xy);
 
@@ -71,14 +75,13 @@ void main() {
         ,   radius
           / abs(position.y - offsetPosition.y)
         );
-    occluded *= intensity;
-
+    occluded  *= intensity;
     occlusion -= occluded;
   }
 
   occlusion /= NUM_SAMPLES;
-  occlusion = pow(occlusion, magnitude);
-  occlusion = contrast * (occlusion - 0.5) + 0.5;
+  occlusion  = pow(occlusion, magnitude);
+  occlusion  = contrast * (occlusion - 0.5) + 0.5;
 
   fragColor = vec4(vec3(occlusion), position.a);
 }

@@ -63,7 +63,8 @@ class SceneOne:
                 scene.set_hpr(scene, rot_h, 0, 0)
 
                 if name == 'Grass':
-                    scene.flatten_strong()
+                    # scene.flatten_strong()
+                    pass
 
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 set_tex_transparency(scene)
@@ -109,7 +110,8 @@ class SceneOne:
                 scene.set_hpr(scene, rot_h, 0, 0)
 
                 if name == 'Grass':
-                    scene.flatten_strong()
+                    # scene.flatten_strong()
+                    pass
 
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 set_tex_transparency(scene)
@@ -125,13 +127,6 @@ class SceneOne:
                     self.col.set_collision(obj=scene,
                                            type="item",
                                            shape="cube")
-
-                # If you don't do this, none of the features
-                # listed above will have any effect. Panda will
-                # simply ignore normal maps, HDR, and so forth if
-                # shader generation is not enabled. It would be reasonable
-                # to enable shader generation for the entire game, using this call:
-                # scene.set_shader_auto()
 
     async def set_env(self, path, mode, name, axis, rotation, scale, type):
         if isinstance(mode, str) and mode == "menu":
@@ -165,12 +160,6 @@ class SceneOne:
                     scene.set_pos(pos_x, pos_y, pos_z)
                     scene.set_pos(self.base.camera, 0, 0, 0)
                     scene.set_hpr(scene, rot_h, 0, 0)
-                    # If you don't do this, none of the features
-                    # listed above will have any effect. Panda will
-                    # simply ignore normal maps, HDR, and so forth if
-                    # shader generation is not enabled. It would be reasonable
-                    # to enable shader generation for the entire game, using this call:
-                    # scene.set_shader_auto()
                 elif self.type == 'ground':
                     # Load the scene.
                     scene = self.base.loader.load_model(path, blocking=True)
@@ -179,12 +168,6 @@ class SceneOne:
                     scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
                     scene.set_pos(pos_x, pos_y, pos_z)
                     scene.set_hpr(scene, rot_h, 0, 0)
-                    # If you don't do this, none of the features
-                    # listed above will have any effect. Panda will
-                    # simply ignore normal maps, HDR, and so forth if
-                    # shader generation is not enabled. It would be reasonable
-                    # to enable shader generation for the entire game, using this call:
-                    # scene.set_shader_auto()
                 elif self.type == 'mountains':
                     # Load the scene.
                     scene = self.base.loader.load_model(path, blocking=True)
@@ -193,12 +176,6 @@ class SceneOne:
                     scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
                     scene.set_pos(pos_x, pos_y, pos_z)
                     scene.set_hpr(scene, rot_h, 0, 0)
-                    # If you don't do this, none of the features
-                    # listed above will have any effect. Panda will
-                    # simply ignore normal maps, HDR, and so forth if
-                    # shader generation is not enabled. It would be reasonable
-                    # to enable shader generation for the entire game, using this call:
-                    # scene.set_shader_auto()
                 else:
                     # Load the scene.
                     scene = self.base.loader.load_model(path, blocking=True)
@@ -207,17 +184,19 @@ class SceneOne:
                     scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
                     scene.set_pos(pos_x, pos_y, pos_z)
                     scene.set_hpr(scene, rot_h, 0, 0)
-                    # If you don't do this, none of the features
-                    # listed above will have any effect. Panda will
-                    # simply ignore normal maps, HDR, and so forth if
-                    # shader generation is not enabled. It would be reasonable
-                    # to enable shader generation for the entire game, using this call:
-                    # scene.set_shader_auto()
 
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 set_tex_transparency(scene)
 
                 render.set_attrib(LightRampAttrib.make_hdr1())
+
+                # If you don't do this, none of the features
+                # listed above will have any effect. Panda will
+                # simply ignore normal maps, HDR, and so forth if
+                # shader generation is not enabled. It would be reasonable
+                # to enable shader generation for the entire game, using this call:
+                # scene.set_shader_auto()
+                # self.render_attr.set_ssao(obj=scene)
 
                 return scene
 
@@ -252,12 +231,6 @@ class SceneOne:
                     scene.set_pos(pos_x, pos_y, pos_z)
                     scene.set_pos(self.base.camera, 0, 0, 0)
                     scene.set_hpr(scene, rot_h, 0, 0)
-                    # If you don't do this, none of the features
-                    # listed above will have any effect. Panda will
-                    # simply ignore normal maps, HDR, and so forth if
-                    # shader generation is not enabled. It would be reasonable
-                    # to enable shader generation for the entire game, using this call:
-                    # scene.set_shader_auto()
                 elif self.type == 'ground':
                     # Load the scene.
                     scene = await self.base.loader.load_model(path, blocking=False)
@@ -266,12 +239,6 @@ class SceneOne:
                     scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
                     scene.set_pos(pos_x, pos_y, pos_z)
                     scene.set_hpr(scene, rot_h, 0, 0)
-                    # If you don't do this, none of the features
-                    # listed above will have any effect. Panda will
-                    # simply ignore normal maps, HDR, and so forth if
-                    # shader generation is not enabled. It would be reasonable
-                    # to enable shader generation for the entire game, using this call:
-                    # scene.set_shader_auto()
                 elif self.type == 'mountains':
                     # Load the scene.
                     scene = await self.base.loader.load_model(path, blocking=False)
@@ -280,13 +247,6 @@ class SceneOne:
                     scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
                     scene.set_pos(pos_x, pos_y, pos_z)
                     scene.set_hpr(scene, rot_h, 0, 0)
-                    # TODO: Activate this after model gets normal mapping
-                    # If you don't do this, none of the features
-                    # listed above will have any effect. Panda will
-                    # simply ignore normal maps, HDR, and so forth if
-                    # shader generation is not enabled. It would be reasonable
-                    # to enable shader generation for the entire game, using this call:
-                    # scene.set_shader_auto()
                 else:
                     # Load the scene.
                     scene = await self.base.loader.load_model(path, blocking=False)
@@ -295,16 +255,18 @@ class SceneOne:
                     scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
                     scene.set_pos(pos_x, pos_y, pos_z)
                     scene.set_hpr(scene, rot_h, 0, 0)
-                    # If you don't do this, none of the features
-                    # listed above will have any effect. Panda will
-                    # simply ignore normal maps, HDR, and so forth if
-                    # shader generation is not enabled. It would be reasonable
-                    # to enable shader generation for the entire game, using this call:
-                    # scene.set_shader_auto()
 
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 set_tex_transparency(scene)
 
                 render.set_attrib(LightRampAttrib.make_hdr1())
+
+                # If you don't do this, none of the features
+                # listed above will have any effect. Panda will
+                # simply ignore normal maps, HDR, and so forth if
+                # shader generation is not enabled. It would be reasonable
+                # to enable shader generation for the entire game, using this call:
+                # scene.set_shader_auto()
+                # self.render_attr.set_ssao(obj=scene)
 
                 return scene

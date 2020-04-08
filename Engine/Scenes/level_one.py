@@ -82,18 +82,31 @@ class LevelOne:
         self.unload_menu_scene()
 
         """ Assets """
-        self.render_attr.set_lighting(name='pointLight',
+        self.render_attr.set_lighting(name='light',
                                       render=self.render,
-                                      pos=[0, 0, 10],
+                                      pos=[0, 20, 10],
                                       hpr=[180, -20, 0],
-                                      color=[0.2],
+                                      color=[0.5],
                                       task="attach")
-        self.render_attr.set_lighting(name='pointLight',
+        self.render_attr.set_lighting(name='light',
                                       render=self.render,
-                                      pos=[0, 0, 10],
+                                      pos=[0, 20, 10],
                                       hpr=[0, -20, 0],
-                                      color=[0.2],
+                                      color=[0.5],
                                       task="attach")
+        self.render_attr.set_lighting(name='light',
+                                      render=self.render,
+                                      pos=[0, -40, 10],
+                                      hpr=[0, -20, 0],
+                                      color=[0.7],
+                                      task="attach")
+        self.render_attr.set_lighting(name='light',
+                                      render=self.render,
+                                      pos=[0, 8.0, 10],
+                                      hpr=[0, -20, 0],
+                                      color=[0.8],
+                                      task="attach")
+
         # assets is a dict containing paths + models
         # anims is a list containing two dicts.
         # anims[0] is a dict containing names of animations

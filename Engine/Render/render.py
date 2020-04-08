@@ -82,12 +82,12 @@ class RenderAttr:
             # simply ignore normal maps, HDR, and so forth if
             # shader generation is not enabled. It would be reasonable
             # to enable shader generation for the entire game, using this call:
-            obj.set_shader_auto()
+            # obj.set_shader_auto()
             base.shaderenable = 1
 
             # TODO Fix me!
-            # ready_shaders = self.get_all_shaders(self.shader_collector())
-            # obj.set_shader(ready_shaders['Shadows'])
+            ready_shaders = self.get_all_shaders(self.shader_collector())
+            obj.set_shader(ready_shaders['Shadows'])
 
     def set_lighting(self, name, render, pos, hpr, color, task):
         if (render
@@ -102,25 +102,25 @@ class RenderAttr:
 
             if task == 'attach':
                 # Directional light 01
-                point_light = PointLight(name)
-                point_light.set_color((color[0], color[0], color[0], 1))
-                point_light_np = self.render.attach_new_node(point_light)
+                light = DirectionalLight(name)
+                light.set_color((color[0], color[0], color[0], 1))
+                light_np = self.render.attach_new_node(light)
                 # This light is facing backwards, towards the camera.
-                point_light_np.set_hpr(hpr[0], hpr[1], hpr[2])
-                point_light_np.set_z(pos[2])
-                self.render.set_light(point_light_np)
-
-            if task == 'attach':
-                # Add an ambient light
-                alight = PointLight('ambientLight')
-                alight.set_color((self.set_color, self.set_color, self.set_color, 1))
-                alnp = self.render.attach_new_node(alight)
-                self.render.set_light(alnp)
-                if task == 'detach':
-                    self.render.set_light_off(alnp)
+                light_np.set_hpr(hpr[0], hpr[1], hpr[2])
+                light_np.set_pos(pos[0], pos[1], pos[2])
+                light_np.set_scale(100)
+                self.render.set_light(light_np)
 
     def set_ssao(self, obj):
         if obj:
             # TODO Fix me!
+            buffer = base.win.make_texture_buffer("buffer", 512, 512)
+            cam_lens = obj.find('**/+Camera').node()
             ready_shaders = self.get_all_shaders(self.shader_collector())
             obj.set_shader(ready_shaders['SSAO'])
+            obj.set_shader_input("positionTexture", buffer.get_texture(0))
+            obj.set_shader_input("normalTexture", buffer.get_texture(1))
+            obj.set_shader_input("samples", PTA_LVecBase3f(8))
+            obj.set_shader_input("noise", PTA_LVecBase3f(4))
+            obj.set_shader_input("lensProjection", cam_lens.get_lens())
+            obj.set_shader_input("enabled", 1)

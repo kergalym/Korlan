@@ -122,7 +122,7 @@ class Main(ShowBase):
             print("Is threading supported: ", Thread.isThreadingSupported(), "\n")
 
         if self.game_settings['Main']['postprocessing'] == 'on':
-            simplepbr.init(use_normal_maps=True)
+            simplepbr.init(use_normal_maps=True, enable_shadows=True)
 
         self.menu = MenuUI()
         self.scene_one = SceneOne()
@@ -774,19 +774,25 @@ class Main(ShowBase):
             Return      : None
         """
         """ Assets """
+
         self.render_attr.set_lighting(name='pointLight',
                                       render=self.render,
-                                      pos=[0, 0, 10],
+                                      pos=[0, 50, 10],
                                       hpr=[180, -20, 0],
                                       color=[0.2],
                                       task="attach")
         self.render_attr.set_lighting(name='pointLight',
                                       render=self.render,
-                                      pos=[0, 0, 10],
+                                      pos=[0, 30, 10],
                                       hpr=[0, -20, 0],
                                       color=[0.2],
                                       task="attach")
-
+        self.render_attr.set_lighting(name='playerLight',
+                                      render=self.render,
+                                      pos=[0, 8.0, 1],
+                                      hpr=[0, -20, 0],
+                                      color=[0.2],
+                                      task="attach")
         # assets is a dict containing paths + models
         # anims is a list containing two dicts.
         # anims[0] is a dict containing names of animations
