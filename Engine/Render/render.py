@@ -111,13 +111,50 @@ class RenderAttr:
                 light_np.set_scale(100)
                 self.render.set_light(light_np)
 
-    def set_ssao(self, obj):
+    """def set_ssao(self, obj):
         if obj:
             # TODO Fix me!
             buffer = base.win.make_texture_buffer("buffer", 512, 512)
             cam_lens = obj.find('**/+Camera').node()
             ready_shaders = self.get_all_shaders(self.shader_collector())
             obj.set_shader(ready_shaders['SSAO'])
+            obj.set_shader_input("positionTexture", buffer.get_texture(0))
+            obj.set_shader_input("normalTexture", buffer.get_texture(1))
+            obj.set_shader_input("samples", PTA_LVecBase3f(8))
+            obj.set_shader_input("noise", PTA_LVecBase3f(4))
+            obj.set_shader_input("lensProjection", cam_lens.get_lens())
+            obj.set_shader_input("enabled", 1)"""
+
+    def set_ssao(self, obj):
+        if obj:
+            shader_1 = Shader.load(Shader.SL_GLSL,
+                                   vertex="/home/galym/Korlan/Engine/Shaders/SSAO/base.vert",
+                                   fragment="/home/galym/Korlan/Engine/Shaders/SSAO/base.frag")
+
+            shader_2 = Shader.load(Shader.SL_GLSL,
+                                   vertex="/home/galym/Korlan/Engine/Shaders/SSAO/basic.vert",
+                                   fragment="/home/galym/Korlan/Engine/Shaders/SSAO/kuwahara-filter.frag")
+
+            shader_3 = Shader.load(Shader.SL_GLSL,
+                                   fragment="/home/galym/Korlan/Engine/Shaders/SSAO/median-filter.frag")
+
+            shader_4 = Shader.load(Shader.SL_GLSL,
+                                   fragment="/home/galym/Korlan/Engine/Shaders/SSAO/normal.frag")
+
+            shader_5 = Shader.load(Shader.SL_GLSL,
+                                   fragment="/home/galym/Korlan/Engine/Shaders/SSAO/position.frag")
+
+            shader_6 = Shader.load(Shader.SL_GLSL,
+                                   fragment="/home/galym/Korlan/Engine/Shaders/SSAO/ssao.frag")
+
+            buffer = base.win.make_texture_buffer("buffer", 512, 512)
+            cam_lens = obj.find('**/+Camera').node()
+            obj.set_shader(shader_1)
+            obj.set_shader(shader_2)
+            obj.set_shader(shader_3)
+            obj.set_shader(shader_4)
+            obj.set_shader(shader_5)
+            obj.set_shader(shader_6)
             obj.set_shader_input("positionTexture", buffer.get_texture(0))
             obj.set_shader_input("normalTexture", buffer.get_texture(1))
             obj.set_shader_input("samples", PTA_LVecBase3f(8))

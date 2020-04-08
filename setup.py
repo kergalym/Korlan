@@ -36,9 +36,9 @@ setup(
             ],
 
             'package_data_dirs': {
-                'simplepbr': [
-                    ('simplepbr/*.vert', '', {}),
-                    ('simplepbr/*.frag', '', {}),
+                'render_pipeline': [
+                    ('render_pipeline/**/*.vert', '', {}),
+                    ('render_pipeline/**/*.frag', '', {}),
                 ],
             }
         }

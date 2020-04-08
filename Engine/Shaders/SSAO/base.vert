@@ -42,6 +42,8 @@ uniform struct p3d_LightSourceParameters
 in vec4 p3d_Vertex;
 in vec3 p3d_Normal;
 
+in vec4 p3d_Color;
+
 in vec2 p3d_MultiTexCoord0;
 in vec2 p3d_MultiTexCoord1;
 
@@ -49,6 +51,8 @@ in vec3 p3d_Binormal;
 in vec3 p3d_Tangent;
 
 out vec4 vertexPosition;
+
+out vec4 vertexColor;
 
 out vec3 vertexNormal;
 out vec3 binormal;
@@ -60,6 +64,8 @@ out vec2 diffuseCoord;
 out vec4 vertexInShadowSpaces[NUMBER_OF_LIGHTS];
 
 void main() {
+  vertexColor = p3d_Color;
+
   vertexPosition = p3d_ModelViewMatrix * p3d_Vertex;
 
   vertexNormal = normalize(p3d_NormalMatrix * p3d_Normal);

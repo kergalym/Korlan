@@ -1,4 +1,5 @@
 #!/usr/bin/env python3.7
+import sys
 import logging
 import re
 import json
@@ -11,7 +12,7 @@ import panda3d.core as p3d
 from direct.showbase.ShowBaseGlobal import render2d
 from panda3d.core import Filename
 from panda3d.core import WindowProperties
-from direct.showbase.ShowBase import ShowBase
+from direct.showbase.ShowBase import ShowBase, PointLight
 from direct.showbase.ShowBase import MovieTexture
 from direct.showbase.ShowBase import CardMaker
 from direct.showbase.ShowBase import NodePath
@@ -19,6 +20,7 @@ from direct.showbase.ShowBase import AudioSound
 
 from panda3d.core import TextNode
 from pathlib import Path, PurePath
+
 from Engine.Actors.Player.korlan import Korlan
 from Engine.Scenes.scene_one import SceneOne
 from Engine.Render.render import RenderAttr
@@ -28,7 +30,15 @@ from Settings.gfx_menu_settings import Graphics
 from panda3d.core import Thread
 from direct.task.TaskManagerGlobal import taskMgr
 
+from render_pipeline.rpcore.render_pipeline import RenderPipeline
+
+# Polyfill a set_shader_inputs function for older versions of Panda.
+from panda3d.core import NodePath
+from direct.extensions_native.extension_native_helpers import Dtool_funcToMethod
+from render_pipeline.rplibs.six import iteritems
+
 import simplepbr
+
 
 game_settings = configparser.ConfigParser()
 game_settings['Main'] = {'disp_res': '1024x768',
@@ -91,6 +101,7 @@ p3d.load_prc_file_data(
     'bullet-filter-algorithm groups-mask\n'
     'hardware-animated-vertices false\n'
     'basic-shaders-only false\n'
+    # 'gl-coordinate-system default\n'
 )
 
 
@@ -121,8 +132,25 @@ class Main(ShowBase):
         if self.game_settings['Debug']['set_debug_mode'] == 'YES':
             print("Is threading supported: ", Thread.isThreadingSupported(), "\n")
 
+        if not hasattr(NodePath, 'set_shader_inputs'):
+            def set_shader_inputs(self, **inputs):
+                set_shader_input = self.set_shader_input
+                for args in iteritems(inputs):
+                    set_shader_input(*args)
+
+            Dtool_funcToMethod(set_shader_inputs, NodePath)
+            del set_shader_inputs
+        # from rpcore import PointLight
+        # Construct and create the pipeline
+        self.render_pipeline = RenderPipeline()
+
+        # Commented to prevent using it by deploying system
         if self.game_settings['Main']['postprocessing'] == 'on':
-            simplepbr.init(use_normal_maps=True, enable_shadows=True)
+            self.render_pipeline.pre_showbase_init()
+            self.render_pipeline.create(self)
+
+        """if self.game_settings['Main']['postprocessing'] == 'on':
+            simplepbr.init(use_normal_maps=True, enable_shadows=True)"""
 
         self.menu = MenuUI()
         self.scene_one = SceneOne()
@@ -773,9 +801,14 @@ class Main(ShowBase):
 
             Return      : None
         """
+        # Commented to prevent using it by deploying system
+        # Set time of day
+        if self.game_settings['Main']['postprocessing'] == 'on':
+            self.render_pipeline.daytime_mgr.time = "15:25"
+
         """ Assets """
 
-        self.render_attr.set_lighting(name='pointLight',
+        """self.render_attr.set_lighting(name='pointLight',
                                       render=self.render,
                                       pos=[0, 50, 10],
                                       hpr=[180, -20, 0],
@@ -792,7 +825,7 @@ class Main(ShowBase):
                                       pos=[0, 8.0, 1],
                                       hpr=[0, -20, 0],
                                       color=[0.2],
-                                      task="attach")
+                                      task="attach")"""
         # assets is a dict containing paths + models
         # anims is a list containing two dicts.
         # anims[0] is a dict containing names of animations

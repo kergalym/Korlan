@@ -73,8 +73,9 @@ class SceneOne:
 
                 if self.game_settings['Main']['postprocessing'] == 'off':
                     # Set Lights and Shadows
-                    self.render_attr.set_shadows(scene, render)
+                    # self.render_attr.set_shadows(scene, render)
                     # self.render_attr.set_ssao(scene)
+                    pass
 
                 # If you don't do this, none of the features
                 # listed above will have any effect. Panda will
@@ -82,6 +83,7 @@ class SceneOne:
                 # shader generation is not enabled. It would be reasonable
                 # to enable shader generation for the entire game, using this call:
                 # scene.set_shader_auto()
+                self.render_attr.set_ssao(scene)
 
         elif isinstance(mode, str) and mode == "game":
             if (isinstance(path, str)
@@ -120,8 +122,9 @@ class SceneOne:
 
                 if self.game_settings['Main']['postprocessing'] == 'off':
                     # Set Shaders and Shadows
-                    self.render_attr.set_shadows(scene, render)
+                    # self.render_attr.set_shadows(scene, render)
                     # self.render_attr.set_ssao(scene)
+                    pass
 
                 if scene.get_name() == "Box":
                     self.col.set_collision(obj=scene,
@@ -196,7 +199,8 @@ class SceneOne:
                 # shader generation is not enabled. It would be reasonable
                 # to enable shader generation for the entire game, using this call:
                 # scene.set_shader_auto()
-                # self.render_attr.set_ssao(obj=scene)
+                # self.render_attr.set_shadows(scene, render)
+                # self.render_attr.set_ssao(scene)
 
                 return scene
 
@@ -267,6 +271,7 @@ class SceneOne:
                 # shader generation is not enabled. It would be reasonable
                 # to enable shader generation for the entire game, using this call:
                 # scene.set_shader_auto()
+                # self.render_attr.set_shadows(scene, render)
                 # self.render_attr.set_ssao(obj=scene)
 
                 return scene
