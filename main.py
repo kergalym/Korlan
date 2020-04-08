@@ -122,7 +122,7 @@ class Main(ShowBase):
             print("Is threading supported: ", Thread.isThreadingSupported(), "\n")
 
         if self.game_settings['Main']['postprocessing'] == 'on':
-            simplepbr.init()
+            simplepbr.init(use_normal_maps=True)
 
         self.menu = MenuUI()
         self.scene_one = SceneOne()

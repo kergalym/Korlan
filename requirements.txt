@@ -2,7 +2,7 @@
 Pmw
 PyQt5
 panda3d_gltf
-panda3d_simplepbr
+panda3d-simplepbr==0.5
 xlib
 urllib3
 setuptools
