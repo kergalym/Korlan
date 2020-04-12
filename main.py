@@ -800,9 +800,9 @@ class Main(ShowBase):
         light.shadow_map_resolution = 512
         light.near_plane = 0.2
 
-        self.render_pipeline.add_light(light)
+        # self.render_pipeline.add_light(light)
 
-        self.render_attr.set_lighting(name='pointLight',
+        """"self.render_attr.set_lighting(name='pointLight',
                                       render=self.render,
                                       pos=[0, 50, 10],
                                       hpr=[180, -20, 0],
@@ -819,7 +819,8 @@ class Main(ShowBase):
                                       pos=[0, 8.0, 1],
                                       hpr=[0, -20, 0],
                                       color=[0.2],
-                                      task="attach")
+                                      task="attach")"""
+
         # assets is a dict containing paths + models
         # anims is a list containing two dicts.
         # anims[0] is a dict containing names of animations
