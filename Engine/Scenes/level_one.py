@@ -9,7 +9,6 @@ from Engine.FSM.npc_ai import NpcAI
 from Engine.Scenes.scene_one import SceneOne
 from Engine.Render.render import RenderAttr
 from Settings.UI.stat_ui import StatUI
-from Settings.UI.hud_ui import HudUI
 
 
 class LevelOne:
@@ -25,7 +24,6 @@ class LevelOne:
         self.render_attr = RenderAttr()
         self.korlan = Korlan()
         self.npc = NPC()
-        self.hud = HudUI()
         self.stat_ui = StatUI()
         self.player_state = PlayerState()
         self.col = Collisions()
@@ -41,8 +39,6 @@ class LevelOne:
             self.base.game_mode = False
             self.base.menu_mode = True
 
-            self.hud.clear_hud()
-            self.hud.clear_hud_avatar()
             self.player_state.clear_state()
 
             # Remove Bullet World
@@ -82,7 +78,7 @@ class LevelOne:
         self.unload_menu_scene()
 
         """ Assets """
-        """self.render_attr.set_lighting(name='light',
+        self.render_attr.set_lighting(name='light',
                                       render=self.render,
                                       pos=[0, 20, 10],
                                       hpr=[180, -20, 0],
@@ -105,7 +101,7 @@ class LevelOne:
                                       pos=[0, 8.0, 10],
                                       hpr=[0, -20, 0],
                                       color=[0.8],
-                                      task="attach")"""
+                                      task="attach")
 
         # assets is a dict containing paths + models
         # anims is a list containing two dicts.
@@ -167,6 +163,13 @@ class LevelOne:
                                           axis=[0, 8.0, self.pos_z],
                                           rotation=[0, 0, 0],
                                           scale=[1.25, 1.25, 1.25]))
+
+        taskMgr.add(self.scene_one.set_asset(path="/tmp/Turkic_ornaments.egg",
+                                             mode="game",
+                                             name="Tengri",
+                                             axis=[0.0, 7.0, self.pos_z],
+                                             rotation=[65, 0, 0],
+                                             scale=[1.25, 1.25, 1.25]))
 
         taskMgr.add(self.npc.set_actor(mode="game",
                                        name="NPC",

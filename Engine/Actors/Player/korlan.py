@@ -93,7 +93,7 @@ class Korlan:
                 self.korlan.set_play_rate(self.base.actor_play_rate, animation)
 
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
-                set_tex_transparency(self.korlan)
+                self.korlan.set_transparency(True)
 
                 self.korlan.reparent_to(render)
 
@@ -162,7 +162,7 @@ class Korlan:
                 base.korlan_joints = self.korlan.get_joints()
 
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
-                set_tex_transparency(self.korlan)
+                self.korlan.set_transparency(True)
 
                 self.korlan.reparent_to(render)
 

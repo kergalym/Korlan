@@ -83,7 +83,7 @@ class SceneOne:
                 # shader generation is not enabled. It would be reasonable
                 # to enable shader generation for the entire game, using this call:
                 # scene.set_shader_auto()
-                self.render_attr.set_ssao(scene)
+                # self.render_attr.set_ssao(scene)
 
         elif isinstance(mode, str) and mode == "game":
             if (isinstance(path, str)

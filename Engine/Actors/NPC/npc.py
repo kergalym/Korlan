@@ -80,7 +80,7 @@ class NPC:
             base.actor_joints = self.actor.get_joints()
 
             # Panda3D 1.10 doesn't enable alpha blending for textures by default
-            set_tex_transparency(self.actor)
+            self.actor.set_transparency(True)
 
             self.actor.reparentTo(self.render)
 

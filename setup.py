@@ -1,9 +1,25 @@
 from setuptools import setup
 
-
 setup(
     name="Korlan",
+    version='0.0.1',
     include_package_data=True,
+    package_dir={'': 'Engine/Render/'},
+    packages=['Engine.Render.rpcore.native.GPUCommand',
+              'Engine.Render.rpcore.native.GPUCommandList',
+              'Engine.Render.rpcore.native.IESDataset',
+              'Engine.Render.rpcore.native.InternalLightManager',
+              'Engine.Render.rpcore.native.PointLight',
+              'Engine.Render.rpcore.native.ShadowManager',
+              'Engine.Render.rpcore.native.SpotLight',
+              'Engine.Render.rpcore.native.TagStateManager',
+              'Engine.Render.rpcore.native.native_',
+              'cyaml', 'dumper', 'error', 'events',
+              'loader', 'nodes', 'ordereddict',
+              'Engine.Render.rpplugins.env_probes.environment_probe',
+              'thread', 'tokens', 'yaml_py2.SafeLoader',
+              'yaml_py2.YAMLError', 'yaml_py2.load',
+              'yaml_py3.SafeLoader', 'yaml_py3.YAMLError', 'yaml_py3.load'],
     options={
         'build_apps': {
             'include_patterns': [
@@ -18,6 +34,12 @@ setup(
                 'Settings/UI/**/*.ttf',
                 'Settings/UI/**/*.txt',
                 'Settings/Sound/*.ogg',
+                'Engine/Render/**/*.png',
+                'Engine/Render/**/*.jpg',
+                'Engine/Render/**/*.txo',
+                'Engine/Render/**/*.yaml',
+                'Engine/Render/**/*.frag.glsl',
+                'Engine/Render/**/*.vert.glsl',
                 'Engine/Shaders/**/*.frag',
                 'Engine/Shaders/**/*.vert',
             ],
@@ -34,13 +56,6 @@ setup(
                 'p3ffmpeg',
                 'p3ptloader',
             ],
-
-            'package_data_dirs': {
-                'render_pipeline': [
-                    ('render_pipeline/**/*.vert', '', {}),
-                    ('render_pipeline/**/*.frag', '', {}),
-                ],
-            }
         }
     }
 )
