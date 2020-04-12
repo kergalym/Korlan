@@ -164,13 +164,6 @@ class LevelOne:
                                           rotation=[0, 0, 0],
                                           scale=[1.25, 1.25, 1.25]))
 
-        taskMgr.add(self.scene_one.set_asset(path="/tmp/Turkic_ornaments.egg",
-                                             mode="game",
-                                             name="Tengri",
-                                             axis=[0.0, 7.0, self.pos_z],
-                                             rotation=[65, 0, 0],
-                                             scale=[1.25, 1.25, 1.25]))
-
         taskMgr.add(self.npc.set_actor(mode="game",
                                        name="NPC",
                                        path=assets['NPC'],
