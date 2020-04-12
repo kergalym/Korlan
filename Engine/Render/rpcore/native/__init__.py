@@ -30,7 +30,7 @@ THE SOFTWARE.
 
 from __future__ import print_function
 import sys
-from os.path import dirname, realpath
+from pathlib import Path
 
 from direct.stdpy.file import join, isfile
 from Engine.Render.rpcore.rpobject import RPObject
@@ -40,7 +40,7 @@ from Engine.Render.rpcore.rpobject import RPObject
 NATIVE_CXX_LOADED = False
 
 # Read the configuration from the flag-file
-current_path = dirname(realpath(__file__))
+current_path = "{0}/Engine/Render/rpcore/native/".format(Path.cwd())
 cxx_flag_path = join(current_path, "use_cxx.flag")
 if not isfile(cxx_flag_path):
     RPObject.global_error("CORE", "Could not find cxx flag, please run the setup.py!")

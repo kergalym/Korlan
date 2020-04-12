@@ -261,7 +261,7 @@ class RenderPipeline(RPObject):
             return DummyEnvironmentProbe()
 
         # Ugh ..
-        from rpplugins.env_probes.environment_probe import EnvironmentProbe
+        from Engine.Render.rpplugins.env_probes.environment_probe import EnvironmentProbe
         probe = EnvironmentProbe()
         self.plugin_mgr.instances["env_probes"].probe_mgr.add_probe(probe)
         return probe

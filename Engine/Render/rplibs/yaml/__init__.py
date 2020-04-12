@@ -8,6 +8,7 @@ from __future__ import print_function
 
 import sys
 import collections
+
 from direct.stdpy.file import open
 from Engine.Render.rpcore.rpobject import RPObject
 
@@ -20,6 +21,7 @@ else:
     from .yaml_py3 import YAMLError, SafeLoader
 
 __all__ = ["load_yaml_file", "load_yaml_file_flat"]
+
 
 def load_yaml_file(filename):
     """ This method is a wrapper arround yaml_load, and provides error checking """

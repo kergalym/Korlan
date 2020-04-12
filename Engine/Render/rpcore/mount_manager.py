@@ -26,6 +26,7 @@ THE SOFTWARE.
 
 import os
 import atexit
+from pathlib import Path
 
 from panda3d.core import Filename, VirtualFileSystem, get_model_path
 from panda3d.core import VirtualFileMountRamdisk
@@ -166,7 +167,7 @@ class MountManager(RPObject):
     def _find_basepath(self):
         """ Attempts to find the pipeline base path by looking at the location
         of this file """
-        pth = os.path.abspath(join(os.path.dirname(os.path.realpath(__file__)), ".."))
+        pth = "{0}/Engine/Render".format(Path.cwd())
         return Filename.from_os_specific(pth).get_fullpath()
 
     def _is_pid_running(self, pid):
@@ -274,6 +275,7 @@ class MountManager(RPObject):
 
         def convert_path(pth):
             return Filename.from_os_specific(pth).get_fullpath()
+
         vfs = VirtualFileSystem.get_global_ptr()
 
         # Mount config dir as $$rpconf
