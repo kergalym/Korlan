@@ -800,7 +800,7 @@ class Main(ShowBase):
         light.shadow_map_resolution = 512
         light.near_plane = 0.2
 
-        # self.render_pipeline.add_light(light)
+        self.render_pipeline.add_light(light)
 
         """"self.render_attr.set_lighting(name='pointLight',
                                       render=self.render,
