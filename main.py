@@ -782,27 +782,9 @@ class Main(ShowBase):
 
             Return      : None
         """
-        # Commented to prevent using it by deploying system
-        # Set time of day
-        if self.game_settings['Main']['postprocessing'] == 'on':
-            self.render_pipeline.daytime_mgr.time = "20:25"
-
         """ Assets """
 
-        from Engine.Render.rpcore import PointLight
-        light = PointLight()
-
-        light.pos = (0, 8, 0)
-        light.color = (0.2, 0.6, 1.0)
-        light.energy = 1000.0
-        light.ies_profile = self.render_pipeline.load_ies_profile("x_arrow.ies")
-        light.casts_shadows = True
-        light.shadow_map_resolution = 512
-        light.near_plane = 0.2
-
-        self.render_pipeline.add_light(light)
-
-        """"self.render_attr.set_lighting(name='pointLight',
+        self.render_attr.set_lighting(name='pointLight',
                                       render=self.render,
                                       pos=[0, 50, 10],
                                       hpr=[180, -20, 0],
@@ -819,7 +801,7 @@ class Main(ShowBase):
                                       pos=[0, 8.0, 1],
                                       hpr=[0, -20, 0],
                                       color=[0.2],
-                                      task="attach")"""
+                                      task="attach")
 
         # assets is a dict containing paths + models
         # anims is a list containing two dicts.

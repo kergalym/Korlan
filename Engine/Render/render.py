@@ -3,16 +3,22 @@ from pathlib import Path, PurePath
 from os import walk
 
 from panda3d.core import *
+from Engine.Render.rpcore import PointLight
 
 
 class RenderAttr:
 
     def __init__(self):
         self.game_dir = str(Path.cwd())
+        self.game_settings = base.game_settings
+        self.render_pipeline = base.render_pipeline
         self.world = None
         self.set_color = 0.2
         self.shadow_size = 1024
         self.render = None
+        # Set time of day
+        if self.game_settings['Main']['postprocessing'] == 'on':
+            self.render_pipeline.daytime_mgr.time = "20:25"
 
     def shader_collector(self):
         """ Function    : shader_collector
@@ -101,15 +107,28 @@ class RenderAttr:
             self.render = render
 
             if task == 'attach':
-                # Directional light 01
-                light = DirectionalLight(name)
-                light.set_color((color[0], color[0], color[0], 1))
-                light_np = self.render.attach_new_node(light)
-                # This light is facing backwards, towards the camera.
-                light_np.set_hpr(hpr[0], hpr[1], hpr[2])
-                light_np.set_pos(pos[0], pos[1], pos[2])
-                light_np.set_scale(100)
-                self.render.set_light(light_np)
+                if self.game_settings['Main']['postprocessing'] == 'off':
+                    # Directional light 01
+                    light = DirectionalLight(name)
+                    light.set_color((color[0], color[0], color[0], 1))
+                    light_np = self.render.attach_new_node(light)
+                    # This light is facing backwards, towards the camera.
+                    light_np.set_hpr(hpr[0], hpr[1], hpr[2])
+                    light_np.set_pos(pos[0], pos[1], pos[2])
+                    light_np.set_scale(100)
+                    self.render.set_light(light_np)
+            elif (self.render_pipeline
+                  and self.game_settings['Main']['postprocessing'] == 'on'):
+                light = PointLight()
+                light.pos = (0, 8, 0)
+                light.color = (0.2, 0.6, 1.0)
+                light.energy = 1000.0
+                light.ies_profile = self.render_pipeline.load_ies_profile("x_arrow.ies")
+                light.casts_shadows = True
+                light.shadow_map_resolution = 512
+                light.near_plane = 0.2
+
+                self.render_pipeline.add_light(light)
 
     """def set_ssao(self, obj):
         if obj:
@@ -125,7 +144,7 @@ class RenderAttr:
             obj.set_shader_input("lensProjection", cam_lens.get_lens())
             obj.set_shader_input("enabled", 1)"""
 
-    def set_ssao(self, obj):
+    """def set_ssao(self, obj):
         if obj:
             shader_1 = Shader.load(Shader.SL_GLSL,
                                    vertex="/home/galym/Korlan/Engine/Shaders/SSAO/base.vert",
@@ -160,4 +179,4 @@ class RenderAttr:
             obj.set_shader_input("samples", PTA_LVecBase3f(8))
             obj.set_shader_input("noise", PTA_LVecBase3f(4))
             obj.set_shader_input("lensProjection", cam_lens.get_lens())
-            obj.set_shader_input("enabled", 1)
+            obj.set_shader_input("enabled", 1)"""
