@@ -1,5 +1,4 @@
 #!/usr/bin/env python3.7
-import sys
 import logging
 import re
 import json
@@ -157,6 +156,9 @@ class Main(ShowBase):
 
         """ Sounds """
         self.sound.openal_mgr()
+
+        """ Lights Storage """
+        self.rp_lights = []
 
     def check_and_do_cfg(self):
         """ Function    : check_and_do_cfg

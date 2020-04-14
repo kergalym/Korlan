@@ -108,27 +108,38 @@ class RenderAttr:
 
             if task == 'attach':
                 if self.game_settings['Main']['postprocessing'] == 'off':
-                    # Directional light 01
-                    light = DirectionalLight(name)
-                    light.set_color((color[0], color[0], color[0], 1))
-                    light_np = self.render.attach_new_node(light)
-                    # This light is facing backwards, towards the camera.
-                    light_np.set_hpr(hpr[0], hpr[1], hpr[2])
-                    light_np.set_pos(pos[0], pos[1], pos[2])
-                    light_np.set_scale(100)
-                    self.render.set_light(light_np)
-            elif (self.render_pipeline
-                  and self.game_settings['Main']['postprocessing'] == 'on'):
-                light = PointLight()
-                light.pos = (0, 8, 0)
-                light.color = (0.2, 0.6, 1.0)
-                light.energy = 1000.0
-                light.ies_profile = self.render_pipeline.load_ies_profile("x_arrow.ies")
-                light.casts_shadows = True
-                light.shadow_map_resolution = 512
-                light.near_plane = 0.2
+                    if render.find("**/{0}".format(name)).is_empty():
+                        light = DirectionalLight(name)
+                        light.set_color((color[0], color[0], color[0], 1))
+                        light_np = self.render.attach_new_node(light)
+                        # This light is facing backwards, towards the camera.
+                        light_np.set_hpr(hpr[0], hpr[1], hpr[2])
+                        light_np.set_pos(pos[0], pos[1], pos[2])
+                        light_np.set_scale(100)
+                        self.render.set_light(light_np)
+                    else:
+                        render.clearLight()
 
-                self.render_pipeline.add_light(light)
+                elif (self.render_pipeline
+                      and self.game_settings['Main']['postprocessing'] == 'on'):
+                    # RP doesn't have nodegraph-like structure to find and remove lights,
+                    # so we check self.rp_light before adding light
+                    light = PointLight()
+                    light.pos = (0, 8, 0)
+                    light.color = (0.2, 0.6, 1.0)
+                    light.energy = 1000.0
+                    light.ies_profile = self.render_pipeline.load_ies_profile("x_arrow.ies")
+                    light.casts_shadows = True
+                    light.shadow_map_resolution = 512
+                    light.near_plane = 0.2
+                    base.rp_lights.append(light)
+                    self.render_pipeline.add_light(light)
+
+    def clear_lighting(self):
+        if base.rp_lights and len(base.rp_lights) > 0:
+            for light in base.rp_lights:
+                base.rp_lights.remove(light)
+                self.render_pipeline.remove_light(light)
 
     """def set_ssao(self, obj):
         if obj:

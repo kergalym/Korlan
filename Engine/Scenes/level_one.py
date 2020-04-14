@@ -18,6 +18,7 @@ class LevelOne:
         self.game_mode = base.game_mode
         self.base = base
         self.render = render
+        self.render_pipeline = base.render_pipeline
         self.loader = base.loader
         self.node_path = NodePath()
         self.scene_one = SceneOne()
@@ -54,7 +55,11 @@ class LevelOne:
         assets = self.base.assets_collector()
 
         # Remove all lights
-        render.clearLight()
+        if self.game_settings['Main']['postprocessing'] == 'off':
+            render.clearLight()
+        elif (self.render_pipeline
+              and self.game_settings['Main']['postprocessing'] == 'on'):
+            self.render_attr.clear_lighting()
 
         # Remove Bullet World
         if not render.find("**/World").is_empty():
