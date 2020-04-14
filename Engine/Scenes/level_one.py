@@ -89,7 +89,7 @@ class LevelOne:
                                       hpr=[180, -20, 0],
                                       color=[0.5],
                                       task="attach")
-        self.render_attr.set_lighting(name='light',
+        """self.render_attr.set_lighting(name='light',
                                       render=self.render,
                                       pos=[0, 20, 10],
                                       hpr=[0, -20, 0],
@@ -106,7 +106,7 @@ class LevelOne:
                                       pos=[0, 8.0, 10],
                                       hpr=[0, -20, 0],
                                       color=[0.8],
-                                      task="attach")
+                                      task="attach")"""
 
         # assets is a dict containing paths + models
         # anims is a list containing two dicts.

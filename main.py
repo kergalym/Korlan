@@ -792,7 +792,7 @@ class Main(ShowBase):
                                       hpr=[180, -20, 0],
                                       color=[0.2],
                                       task="attach")
-        self.render_attr.set_lighting(name='pointLight',
+        """self.render_attr.set_lighting(name='pointLight',
                                       render=self.render,
                                       pos=[0, 30, 10],
                                       hpr=[0, -20, 0],
@@ -803,7 +803,7 @@ class Main(ShowBase):
                                       pos=[0, 8.0, 1],
                                       hpr=[0, -20, 0],
                                       color=[0.2],
-                                      task="attach")
+                                      task="attach")"""
 
         # assets is a dict containing paths + models
         # anims is a list containing two dicts.
@@ -859,7 +859,6 @@ class Main(ShowBase):
                                           axis=[0, 8.0, -1.09],
                                           rotation=[0, 0, 0],
                                           scale=[1.25, 1.25, 1.25]))
-
 
 app = Main()
 app.load_video(file="REDSTUDIO_FHD", type="main_menu")

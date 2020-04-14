@@ -1,22 +1,23 @@
 
 # Render Pipeline Plugin Configuration
-# Instead of editing this file, prefer to use the Plugin Configurator
+# Instead of editing this file, prefer to use Graphic Settings Menu
 # Any formatting and comments will be lost
 
 enabled:
     - ao
+    - bloom
     - clouds
     - color_correction
-    - dof
-    - env_probes
-    - forward_shading
-    - pssm
     - scattering
-    - skin_shading
     - sky_ao
-    - smaa
     - ssr
-    # - bloom
+    # Here are most heavy postprocessing options
+    # - forward_shading
+    # - skin_shading
+    # - pssm
+    # - dof
+    # - env_probes
+    # - smaa
     # - fxaa
     # - motion_blur
     # - volumetrics
@@ -151,7 +152,7 @@ overrides:
         atmosphere_start: 100.0
 
     skin_shading:
-        quality: medium
+        quality: low
         blur_scale: 0.43
 
     sky_ao:

@@ -136,10 +136,12 @@ class RenderAttr:
                     self.render_pipeline.add_light(light)
 
     def clear_lighting(self):
-        if base.rp_lights and len(base.rp_lights) > 0:
-            for light in base.rp_lights:
-                base.rp_lights.remove(light)
-                self.render_pipeline.remove_light(light)
+        if base.rp_lights and self.render_pipeline.light_mgr.num_lights > 0:
+            for i in range(self.render_pipeline.light_mgr.num_lights):
+                for light in base.rp_lights:
+                    if light:
+                        base.rp_lights.remove(light)
+                        self.render_pipeline.remove_light(light)
 
     """def set_ssao(self, obj):
         if obj:
