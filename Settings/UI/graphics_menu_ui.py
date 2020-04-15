@@ -41,7 +41,7 @@ class GraphicsMenuUI(Graphics):
 
         """ Frame Sizes """
         # Left, right, bottom, top
-        self.base.frame_int_gfx_size = [-3, -0.2, -1, 3]
+        self.base.frame_int_gfx_size = [-3, 1.1, -1, 3]
 
         """ Frame Colors """
         self.frm_opacity = 1
@@ -57,7 +57,7 @@ class GraphicsMenuUI(Graphics):
         self.ornament_r_pos = (-1.0, 0, -0.1)
 
         self.ornament_l_gfx_pos = (-1.8, 0, -0.1)
-        self.ornament_r_gfx_pos = (-0.3, 0, -0.1)
+        self.ornament_r_gfx_pos = (1, 0, -0.1)
 
         """ Buttons, Label Scaling """
         self.lbl_scale = .03
@@ -79,12 +79,40 @@ class GraphicsMenuUI(Graphics):
         self.lbl_shadows = None
         self.lbl_postprocessing = None
         self.lbl_antialiasing = None
+        self.lbl_ao = None
+        self.lbl_bloom = None
+        self.lbl_clouds = None
+        self.lbl_cc = None
+        self.lbl_scattering = None
+        self.lbl_sky_ao = None
+        self.lbl_ssr = None
+        self.lbl_forward_shading = None
+        self.lbl_skin_shading = None
+        self.lbl_pssm = None
+        self.lbl_dof = None
+        self.lbl_env_probes = None
+        self.lbl_motion_blur = None
+        self.lbl_volumetrics = None
 
         self.lbl_perc_disp_res = None
         self.lbl_perc_details = None
         self.lbl_perc_shadows = None
         self.lbl_perc_postpro = None
         self.lbl_perc_antial = None
+        self.lbl_perc_ao = None
+        self.lbl_perc_bloom = None
+        self.lbl_perc_clouds = None
+        self.lbl_perc_cc = None
+        self.lbl_perc_scattering = None
+        self.lbl_perc_sky_ao = None
+        self.lbl_perc_ssr = None
+        self.lbl_perc_forward_shading = None
+        self.lbl_perc_skin_shading = None
+        self.lbl_perc_pssm = None
+        self.lbl_perc_dof = None
+        self.lbl_perc_env_probes = None
+        self.lbl_perc_motion_blur = None
+        self.lbl_perc_volumetrics = None
 
         self.btn_param_accept = None
         self.btn_param_back = None
@@ -96,6 +124,20 @@ class GraphicsMenuUI(Graphics):
         self.slider_shadows = None
         self.slider_postpro = None
         self.slider_antial = None
+        self.slider_ao = None
+        self.slider_bloom = None
+        self.slider_clouds = None
+        self.slider_cc = None
+        self.slider_scattering = None
+        self.slider_sky_ao = None
+        self.slider_ssr = None
+        self.slider_forward_shading = None
+        self.slider_skin_shading = None
+        self.slider_pssm = None
+        self.slider_dof = None
+        self.slider_env_probes = None
+        self.slider_motion_blur = None
+        self.slider_volumetrics = None
 
         # instance of the abstract class
         self.font = FontPool
@@ -190,6 +232,104 @@ class GraphicsMenuUI(Graphics):
                                             scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                             parent=self.base.frame_int_gfx)
 
+        self.lbl_ao = DirectLabel(text=self.language['ao'], text_bg=(0, 0, 0, 1),
+                                  text_fg=(255, 255, 255, 0.9),
+                                  text_font=self.font.load_font(self.menu_font),
+                                  frameColor=(255, 255, 255, self.frm_opacity),
+                                  scale=self.lbl_scale, borderWidth=(self.w, self.h),
+                                  parent=self.base.frame_int_gfx)
+
+        self.lbl_bloom = DirectLabel(text=self.language['bloom'], text_bg=(0, 0, 0, 1),
+                                     text_fg=(255, 255, 255, 0.9),
+                                     text_font=self.font.load_font(self.menu_font),
+                                     frameColor=(255, 255, 255, self.frm_opacity),
+                                     scale=self.lbl_scale, borderWidth=(self.w, self.h),
+                                     parent=self.base.frame_int_gfx)
+
+        self.lbl_clouds = DirectLabel(text=self.language['clouds'], text_bg=(0, 0, 0, 1),
+                                      text_fg=(255, 255, 255, 0.9),
+                                      text_font=self.font.load_font(self.menu_font),
+                                      frameColor=(255, 255, 255, self.frm_opacity),
+                                      scale=self.lbl_scale, borderWidth=(self.w, self.h),
+                                      parent=self.base.frame_int_gfx)
+
+        self.lbl_cc = DirectLabel(text=self.language['cc'], text_bg=(0, 0, 0, 1),
+                                  text_fg=(255, 255, 255, 0.9),
+                                  text_font=self.font.load_font(self.menu_font),
+                                  frameColor=(255, 255, 255, self.frm_opacity),
+                                  scale=self.lbl_scale, borderWidth=(self.w, self.h),
+                                  parent=self.base.frame_int_gfx)
+
+        self.lbl_scattering = DirectLabel(text=self.language['scattering'], text_bg=(0, 0, 0, 1),
+                                          text_fg=(255, 255, 255, 0.9),
+                                          text_font=self.font.load_font(self.menu_font),
+                                          frameColor=(255, 255, 255, self.frm_opacity),
+                                          scale=self.lbl_scale, borderWidth=(self.w, self.h),
+                                          parent=self.base.frame_int_gfx)
+
+        self.lbl_sky_ao = DirectLabel(text=self.language['sky_ao'], text_bg=(0, 0, 0, 1),
+                                      text_fg=(255, 255, 255, 0.9),
+                                      text_font=self.font.load_font(self.menu_font),
+                                      frameColor=(255, 255, 255, self.frm_opacity),
+                                      scale=self.lbl_scale, borderWidth=(self.w, self.h),
+                                      parent=self.base.frame_int_gfx)
+
+        self.lbl_ssr = DirectLabel(text=self.language['ssr'], text_bg=(0, 0, 0, 1),
+                                   text_fg=(255, 255, 255, 0.9),
+                                   text_font=self.font.load_font(self.menu_font),
+                                   frameColor=(255, 255, 255, self.frm_opacity),
+                                   scale=self.lbl_scale, borderWidth=(self.w, self.h),
+                                   parent=self.base.frame_int_gfx)
+
+        self.lbl_forward_shading = DirectLabel(text=self.language['forward_shading'], text_bg=(0, 0, 0, 1),
+                                               text_fg=(255, 255, 255, 0.9),
+                                               text_font=self.font.load_font(self.menu_font),
+                                               frameColor=(255, 255, 255, self.frm_opacity),
+                                               scale=self.lbl_scale, borderWidth=(self.w, self.h),
+                                               parent=self.base.frame_int_gfx)
+
+        self.lbl_skin_shading = DirectLabel(text=self.language['skin_shading'], text_bg=(0, 0, 0, 1),
+                                            text_fg=(255, 255, 255, 0.9),
+                                            text_font=self.font.load_font(self.menu_font),
+                                            frameColor=(255, 255, 255, self.frm_opacity),
+                                            scale=self.lbl_scale, borderWidth=(self.w, self.h),
+                                            parent=self.base.frame_int_gfx)
+
+        self.lbl_pssm = DirectLabel(text=self.language['pssm'], text_bg=(0, 0, 0, 1),
+                                    text_fg=(255, 255, 255, 0.9),
+                                    text_font=self.font.load_font(self.menu_font),
+                                    frameColor=(255, 255, 255, self.frm_opacity),
+                                    scale=self.lbl_scale, borderWidth=(self.w, self.h),
+                                    parent=self.base.frame_int_gfx)
+
+        self.lbl_dof = DirectLabel(text=self.language['dof'], text_bg=(0, 0, 0, 1),
+                                   text_fg=(255, 255, 255, 0.9),
+                                   text_font=self.font.load_font(self.menu_font),
+                                   frameColor=(255, 255, 255, self.frm_opacity),
+                                   scale=self.lbl_scale, borderWidth=(self.w, self.h),
+                                   parent=self.base.frame_int_gfx)
+
+        self.lbl_env_probes = DirectLabel(text=self.language['env_probes'], text_bg=(0, 0, 0, 1),
+                                          text_fg=(255, 255, 255, 0.9),
+                                          text_font=self.font.load_font(self.menu_font),
+                                          frameColor=(255, 255, 255, self.frm_opacity),
+                                          scale=self.lbl_scale, borderWidth=(self.w, self.h),
+                                          parent=self.base.frame_int_gfx)
+
+        self.lbl_motion_blur = DirectLabel(text=self.language['motion_blur'], text_bg=(0, 0, 0, 1),
+                                           text_fg=(255, 255, 255, 0.9),
+                                           text_font=self.font.load_font(self.menu_font),
+                                           frameColor=(255, 255, 255, self.frm_opacity),
+                                           scale=self.lbl_scale, borderWidth=(self.w, self.h),
+                                           parent=self.base.frame_int_gfx)
+
+        self.lbl_volumetrics = DirectLabel(text=self.language['volumetrics'], text_bg=(0, 0, 0, 1),
+                                           text_fg=(255, 255, 255, 0.9),
+                                           text_font=self.font.load_font(self.menu_font),
+                                           frameColor=(255, 255, 255, self.frm_opacity),
+                                           scale=self.lbl_scale, borderWidth=(self.w, self.h),
+                                           parent=self.base.frame_int_gfx)
+
         self.slider_disp_res = DirectSlider(frameColor=self.rgba_gray_color,
                                             range=(1, self.load_disp_res_value()),
                                             value=self.get_disp_res_value(),
@@ -226,6 +366,104 @@ class GraphicsMenuUI(Graphics):
                                           orientation=DGG.HORIZONTAL,
                                           command=self.set_slider_antial_wrapper)
 
+        self.slider_ao = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
+                                      value=self.get_ao_value(),
+                                      scale=.2, borderWidth=(self.w, self.h),
+                                      parent=self.base.frame_int_gfx,
+                                      orientation=DGG.HORIZONTAL,
+                                      command=self.set_slider_ao_wrapper)
+
+        self.slider_bloom = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
+                                         value=self.get_bloom_value(),
+                                         scale=.2, borderWidth=(self.w, self.h),
+                                         parent=self.base.frame_int_gfx,
+                                         orientation=DGG.HORIZONTAL,
+                                         command=self.set_slider_bloom_wrapper)
+
+        self.slider_clouds = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
+                                          value=self.get_clouds_value(),
+                                          scale=.2, borderWidth=(self.w, self.h),
+                                          parent=self.base.frame_int_gfx,
+                                          orientation=DGG.HORIZONTAL,
+                                          command=self.set_slider_clouds_wrapper)
+
+        self.slider_cc = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
+                                      value=self.get_cc_value(),
+                                      scale=.2, borderWidth=(self.w, self.h),
+                                      parent=self.base.frame_int_gfx,
+                                      orientation=DGG.HORIZONTAL,
+                                      command=self.set_slider_cc_wrapper)
+
+        self.slider_scattering = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
+                                              value=self.get_scattering_value(),
+                                              scale=.2, borderWidth=(self.w, self.h),
+                                              parent=self.base.frame_int_gfx,
+                                              orientation=DGG.HORIZONTAL,
+                                              command=self.set_slider_scattering_wrapper)
+
+        self.slider_sky_ao = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
+                                          value=self.get_sky_ao_value(),
+                                          scale=.2, borderWidth=(self.w, self.h),
+                                          parent=self.base.frame_int_gfx,
+                                          orientation=DGG.HORIZONTAL,
+                                          command=self.set_slider_sky_ao_wrapper)
+
+        self.slider_ssr = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
+                                       value=self.get_ssr_value(),
+                                       scale=.2, borderWidth=(self.w, self.h),
+                                       parent=self.base.frame_int_gfx,
+                                       orientation=DGG.HORIZONTAL,
+                                       command=self.set_slider_ssr_wrapper)
+
+        self.slider_forward_shading = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
+                                                   value=self.get_forward_shading_value(),
+                                                   scale=.2, borderWidth=(self.w, self.h),
+                                                   parent=self.base.frame_int_gfx,
+                                                   orientation=DGG.HORIZONTAL,
+                                                   command=self.set_slider_forward_shading_wrapper)
+
+        self.slider_skin_shading = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
+                                                value=self.get_skin_shading_value(),
+                                                scale=.2, borderWidth=(self.w, self.h),
+                                                parent=self.base.frame_int_gfx,
+                                                orientation=DGG.HORIZONTAL,
+                                                command=self.set_slider_skin_shading_wrapper)
+
+        self.slider_pssm = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
+                                        value=self.get_pssm_value(),
+                                        scale=.2, borderWidth=(self.w, self.h),
+                                        parent=self.base.frame_int_gfx,
+                                        orientation=DGG.HORIZONTAL,
+                                        command=self.set_slider_pssm_wrapper)
+
+        self.slider_dof = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
+                                       value=self.get_dof_value(),
+                                       scale=.2, borderWidth=(self.w, self.h),
+                                       parent=self.base.frame_int_gfx,
+                                       orientation=DGG.HORIZONTAL,
+                                       command=self.set_slider_dof_wrapper)
+
+        self.slider_env_probes = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
+                                              value=self.get_env_probes_value(),
+                                              scale=.2, borderWidth=(self.w, self.h),
+                                              parent=self.base.frame_int_gfx,
+                                              orientation=DGG.HORIZONTAL,
+                                              command=self.set_slider_env_probes_wrapper)
+
+        self.slider_motion_blur = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
+                                               value=self.get_motion_blur_value(),
+                                               scale=.2, borderWidth=(self.w, self.h),
+                                               parent=self.base.frame_int_gfx,
+                                               orientation=DGG.HORIZONTAL,
+                                               command=self.set_slider_motion_blur_wrapper)
+
+        self.slider_volumetrics = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
+                                               value=self.get_volumetrics_value(),
+                                               scale=.2, borderWidth=(self.w, self.h),
+                                               parent=self.base.frame_int_gfx,
+                                               orientation=DGG.HORIZONTAL,
+                                               command=self.set_slider_volumetrics_wrapper)
+
         self.lbl_perc_disp_res = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
                                               font=self.font.load_font(self.menu_font),
                                               scale=self.lbl_scale,
@@ -250,6 +488,76 @@ class GraphicsMenuUI(Graphics):
                                             font=self.font.load_font(self.menu_font),
                                             scale=self.lbl_scale,
                                             parent=self.base.frame_int_gfx, mayChange=True)
+
+        self.lbl_perc_ao = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+                                        font=self.font.load_font(self.menu_font),
+                                        scale=self.lbl_scale,
+                                        parent=self.base.frame_int_gfx, mayChange=True)
+
+        self.lbl_perc_bloom = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+                                           font=self.font.load_font(self.menu_font),
+                                           scale=self.lbl_scale,
+                                           parent=self.base.frame_int_gfx, mayChange=True)
+
+        self.lbl_perc_clouds = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+                                            font=self.font.load_font(self.menu_font),
+                                            scale=self.lbl_scale,
+                                            parent=self.base.frame_int_gfx, mayChange=True)
+
+        self.lbl_perc_cc = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+                                        font=self.font.load_font(self.menu_font),
+                                        scale=self.lbl_scale,
+                                        parent=self.base.frame_int_gfx, mayChange=True)
+
+        self.lbl_perc_scattering = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+                                                font=self.font.load_font(self.menu_font),
+                                                scale=self.lbl_scale,
+                                                parent=self.base.frame_int_gfx, mayChange=True)
+
+        self.lbl_perc_sky_ao = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+                                            font=self.font.load_font(self.menu_font),
+                                            scale=self.lbl_scale,
+                                            parent=self.base.frame_int_gfx, mayChange=True)
+
+        self.lbl_perc_ssr = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+                                         font=self.font.load_font(self.menu_font),
+                                         scale=self.lbl_scale,
+                                         parent=self.base.frame_int_gfx, mayChange=True)
+
+        self.lbl_perc_forward_shading = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+                                                     font=self.font.load_font(self.menu_font),
+                                                     scale=self.lbl_scale,
+                                                     parent=self.base.frame_int_gfx, mayChange=True)
+
+        self.lbl_perc_skin_shading = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+                                                  font=self.font.load_font(self.menu_font),
+                                                  scale=self.lbl_scale,
+                                                  parent=self.base.frame_int_gfx, mayChange=True)
+
+        self.lbl_perc_pssm = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+                                          font=self.font.load_font(self.menu_font),
+                                          scale=self.lbl_scale,
+                                          parent=self.base.frame_int_gfx, mayChange=True)
+
+        self.lbl_perc_dof = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+                                         font=self.font.load_font(self.menu_font),
+                                         scale=self.lbl_scale,
+                                         parent=self.base.frame_int_gfx, mayChange=True)
+
+        self.lbl_perc_env_probes = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+                                                font=self.font.load_font(self.menu_font),
+                                                scale=self.lbl_scale,
+                                                parent=self.base.frame_int_gfx, mayChange=True)
+
+        self.lbl_perc_motion_blur = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+                                                 font=self.font.load_font(self.menu_font),
+                                                 scale=self.lbl_scale,
+                                                 parent=self.base.frame_int_gfx, mayChange=True)
+
+        self.lbl_perc_volumetrics = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+                                                 font=self.font.load_font(self.menu_font),
+                                                 scale=self.lbl_scale,
+                                                 parent=self.base.frame_int_gfx, mayChange=True)
 
         self.btn_param_defaults = DirectButton(text="Load defaults", text_bg=(0, 0, 0, 1),
                                                text_fg=(255, 255, 255, 0.9),
@@ -290,20 +598,62 @@ class GraphicsMenuUI(Graphics):
         self.lbl_shadows.set_pos(-1.4, 0, -0.2)
         self.lbl_postprocessing.set_pos(-1.4, 0, -0.3)
         self.lbl_antialiasing.set_pos(-1.4, 0, -0.4)
+        self.lbl_ao.set_pos(-1.4, 0, -0.5)
+        self.lbl_bloom.set_pos(-1.4, 0, -0.6)
+        self.lbl_clouds.set_pos(-1.4, 0, -0.7)
+        self.lbl_cc.set_pos(-1.4, 0, -0.8)
+        self.lbl_scattering.set_pos(0, 0, 0.1)
+        self.lbl_sky_ao.set_pos(0, 0, -0.0)
+        self.lbl_ssr.set_pos(0, 0, -0.1)
+        self.lbl_forward_shading.set_pos(0, 0, -0.2)
+        self.lbl_skin_shading.set_pos(0, 0, -0.3)
+        self.lbl_pssm.set_pos(0, 0, -0.4)
+        self.lbl_dof.set_pos(0, 0, -0.5)
+        self.lbl_env_probes.set_pos(0, 0, -0.6)
+        self.lbl_motion_blur.set_pos(0, 0, -0.7)
+        self.lbl_volumetrics.set_pos(0, 0, -0.8)
 
         self.slider_disp_res.set_pos(-0.8, 0, 0)
         self.slider_details.set_pos(-0.8, 0, -0.1)
         self.slider_shadows.set_pos(-0.8, 0, -0.2)
         self.slider_postpro.set_pos(-0.8, 0, -0.3)
         self.slider_antial.set_pos(-0.8, 0, -0.4)
+        self.slider_ao.set_pos(-0.8, 0, -0.5)
+        self.slider_bloom.set_pos(-0.8, 0, -0.6)
+        self.slider_clouds.set_pos(-0.8, 0, -0.7)
+        self.slider_cc.set_pos(-0.8, 0, -0.8)
+        self.slider_scattering.set_pos(0.5, 0, 0.1)
+        self.slider_sky_ao.set_pos(0.5, 0, -0.0)
+        self.slider_ssr.set_pos(0.5, 0, -0.1)
+        self.slider_forward_shading.set_pos(0.5, 0, -0.2)
+        self.slider_skin_shading.set_pos(0.5, 0, -0.3)
+        self.slider_pssm.set_pos(0.5, 0, -0.4)
+        self.slider_dof.set_pos(0.5, 0, -0.5)
+        self.slider_env_probes.set_pos(0.5, 0, -0.6)
+        self.slider_motion_blur.set_pos(0.5, 0, -0.7)
+        self.slider_volumetrics.set_pos(0.5, 0, -0.8)
 
         self.lbl_perc_disp_res.set_pos(-0.5, 0, 0)
         self.lbl_perc_details.set_pos(-0.5, 0, -0.1)
         self.lbl_perc_shadows.set_pos(-0.5, 0, -0.2)
         self.lbl_perc_postpro.set_pos(-0.5, 0, -0.3)
         self.lbl_perc_antial.set_pos(-0.5, 0, -0.4)
+        self.lbl_perc_ao.set_pos(-0.5, 0, -0.5)
+        self.lbl_perc_bloom.set_pos(-0.5, 0, -0.6)
+        self.lbl_perc_clouds.set_pos(-0.5, 0, -0.7)
+        self.lbl_perc_cc.set_pos(-0.5, 0, -0.8)
+        self.lbl_perc_scattering.set_pos(0.8, 0, 0.1)
+        self.lbl_perc_sky_ao.set_pos(0.8, 0, -0.0)
+        self.lbl_perc_ssr.set_pos(0.8, 0, -0.1)
+        self.lbl_perc_forward_shading.set_pos(0.8, 0, -0.2)
+        self.lbl_perc_skin_shading.set_pos(0.8, 0, -0.3)
+        self.lbl_perc_pssm.set_pos(0.8, 0, -0.4)
+        self.lbl_perc_dof.set_pos(0.8, 0, -0.5)
+        self.lbl_perc_env_probes.set_pos(0.8, 0, -0.6)
+        self.lbl_perc_motion_blur.set_pos(0.8, 0, -0.7)
+        self.lbl_perc_volumetrics.set_pos(0.8, 0, -0.8)
 
-        self.btn_param_defaults.set_pos(-0.6, 0, -0.9)
+        self.btn_param_defaults.set_pos(0.7, 0, -0.9)
         self.btn_param_accept.set_pos(-1.6, 0, -0.9)
 
         self.menu_mode = True
@@ -419,3 +769,44 @@ class GraphicsMenuUI(Graphics):
         self.lbl_perc_antial.setText(string)
         self.save_antial_value(string)
 
+    def set_slider_ao_wrapper(self):
+        pass
+
+    def set_slider_bloom_wrapper(self):
+        pass
+
+    def set_slider_clouds_wrapper(self):
+        pass
+
+    def set_slider_cc_wrapper(self):
+        pass
+
+    def set_slider_scattering_wrapper(self):
+        pass
+
+    def set_slider_sky_ao_wrapper(self):
+        pass
+
+    def set_slider_ssr_wrapper(self):
+        pass
+
+    def set_slider_forward_shading_wrapper(self):
+        pass
+
+    def set_slider_skin_shading_wrapper(self):
+        pass
+
+    def set_slider_pssm_wrapper(self):
+        pass
+
+    def set_slider_dof_wrapper(self):
+        pass
+
+    def set_slider_env_probes_wrapper(self):
+        pass
+
+    def set_slider_motion_blur_wrapper(self):
+        pass
+
+    def set_slider_volumetrics_wrapper(self):
+        pass

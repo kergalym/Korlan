@@ -11,8 +11,6 @@ class Graphics(MenuSettings):
         self.state_renderpipeline = 'OFF'
         MenuSettings.__init__(self)
 
-    """ @var data is the nested list containing the game settings """
-
     def set_default_gfx(self):
         """ Function    : set_default_gfx
 
@@ -91,6 +89,62 @@ class Graphics(MenuSettings):
             return 1
         elif loaded_settings['Main']['antialiasing'] == 'on':
             return 2
+
+    def get_ao_value(self):
+        pass
+        return 1
+
+    def get_bloom_value(self):
+        pass
+        return 1
+
+    def get_clouds_value(self):
+        pass
+        return 1
+
+    def get_cc_value(self):
+        pass
+        return 1
+
+    def get_scattering_value(self):
+        pass
+        return 1
+
+    def get_sky_ao_value(self):
+        pass
+        return 1
+
+    def get_ssr_value(self):
+        pass
+        return 1
+
+    def get_forward_shading_value(self):
+        pass
+        return 1
+
+    def get_skin_shading_value(self):
+        pass
+        return 1
+
+    def get_pssm_value(self):
+        pass
+        return 1
+
+    def get_dof_value(self):
+        pass
+        return 1
+
+    def get_env_probes_value(self):
+        pass
+        return 1
+
+    def get_motion_blur_value(self):
+        pass
+        return 1
+
+    def get_volumetrics_value(self):
+        pass
+        return 1
 
     def save_disp_res_value(self, data):
         loaded_settings = self.load_settings()

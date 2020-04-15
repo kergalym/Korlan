@@ -12,8 +12,8 @@ enabled:
     - sky_ao
     - ssr
     # Here are most heavy postprocessing options
-    # - forward_shading
-    # - skin_shading
+    - forward_shading
+    - skin_shading
     # - pssm
     # - dof
     # - env_probes
