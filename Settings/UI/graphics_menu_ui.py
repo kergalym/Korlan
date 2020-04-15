@@ -769,44 +769,59 @@ class GraphicsMenuUI(Graphics):
         self.lbl_perc_antial.setText(string)
         self.save_antial_value(string)
 
+    # TODO: Implement RP-related calls
     def set_slider_ao_wrapper(self):
         pass
+        self.lbl_perc_ao.setText("ON")
 
     def set_slider_bloom_wrapper(self):
         pass
+        self.lbl_perc_bloom.setText("ON")
 
     def set_slider_clouds_wrapper(self):
         pass
+        self.lbl_perc_clouds.setText("ON")
 
     def set_slider_cc_wrapper(self):
         pass
+        self.lbl_perc_cc.setText("ON")
 
     def set_slider_scattering_wrapper(self):
         pass
+        self.lbl_perc_scattering.setText("ON")
 
     def set_slider_sky_ao_wrapper(self):
         pass
+        self.lbl_perc_sky_ao.setText("ON")
 
     def set_slider_ssr_wrapper(self):
         pass
+        self.lbl_perc_ssr.setText("ON")
 
     def set_slider_forward_shading_wrapper(self):
         pass
+        self.lbl_perc_forward_shading.setText("ON")
 
     def set_slider_skin_shading_wrapper(self):
         pass
+        self.lbl_perc_skin_shading.setText("ON")
 
     def set_slider_pssm_wrapper(self):
         pass
+        self.lbl_perc_pssm.setText("ON")
 
     def set_slider_dof_wrapper(self):
         pass
+        self.lbl_perc_dof.setText("ON")
 
     def set_slider_env_probes_wrapper(self):
         pass
+        self.lbl_perc_env_probes.setText("ON")
 
     def set_slider_motion_blur_wrapper(self):
         pass
+        self.lbl_perc_motion_blur.setText("ON")
 
     def set_slider_volumetrics_wrapper(self):
         pass
+        self.lbl_perc_volumetrics.setText("ON")

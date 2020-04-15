@@ -15,7 +15,7 @@
   "disp_res": "Разрешение экрана",
   "details": "Детализация",
   "shadows": "Тени",
-  "postprocessing": "Постпроцессинг",
+  "postprocessing": "Advanced Render",
   "antialiasing": "Сглаживание (SMAA)",
   "ao": "Фоновое затенение",
   "bloom": "Блюм",

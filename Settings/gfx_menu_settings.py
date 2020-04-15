@@ -90,6 +90,7 @@ class Graphics(MenuSettings):
         elif loaded_settings['Main']['antialiasing'] == 'on':
             return 2
 
+    # TODO: Implement RP-related calls
     def get_ao_value(self):
         pass
         return 1

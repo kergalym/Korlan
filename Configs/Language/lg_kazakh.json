@@ -15,7 +15,7 @@
   "disp_res": "Экран ажыратымдылығы",
   "details": "Көрінісі",
   "shadows": "Көлеңкелері",
-  "postprocessing": "Көріністі өндеу",
+  "postprocessing": "Advanced Render",
   "antialiasing": "Жиектерін тегістеу (SMAA)",
   "ao": "Қоршаған ортаны көленкелеу",
   "bloom": "Жарқырату",

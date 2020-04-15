@@ -14,7 +14,7 @@
   "disp_res": "Display Resolution",
   "details": "Details",
   "shadows": "Shadows",
-  "postprocessing": "Postprocessing",
+  "postprocessing": "Advanced Render",
   "antialiasing": "Antialiasing (SMAA)",
   "ao": "Ambient Occlusion",
   "bloom": "Bloom",
