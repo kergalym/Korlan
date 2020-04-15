@@ -87,7 +87,7 @@ class Graphics(MenuSettings):
         loaded_settings = self.load_settings()
         if loaded_settings['Main']['antialiasing'] == 'on':
             return 1
-        elif loaded_settings['Main']['antialiasing'] == 'on':
+        elif loaded_settings['Main']['antialiasing'] == 'off':
             return 2
 
     # TODO: Implement RP-related calls
