@@ -112,8 +112,7 @@ class SoundMenuUI(Sound):
                     self.language = json.load(json_file)
 
         """ Buttons & Fonts"""
-        # self.menu_font = self.fonts['OpenSans-Regular']
-        self.menu_font = self.fonts['JetBrainsMono-Regular']
+        self.menu_font = self.fonts['OpenSans-Regular']
 
     def load_sound_menu(self):
         """ Function    : load_sound_menu

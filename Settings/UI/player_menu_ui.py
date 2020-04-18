@@ -79,8 +79,7 @@ class PlayerMenuUI(Inventory):
                     self.language = json.load(json_file)
 
         """ Buttons & Fonts"""
-        # self.menu_font = self.fonts['OpenSans-Regular']
-        self.menu_font = self.fonts['JetBrainsMono-Regular']
+        self.menu_font = self.fonts['OpenSans-Regular']
 
         self.base.frame_inv = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
                                           frameSize=self.base.frame_inv_size)

@@ -165,8 +165,7 @@ class GraphicsMenuUI(Graphics):
                     self.language = json.load(json_file)
 
         """ Buttons & Fonts"""
-        # self.menu_font = self.fonts['OpenSans-Regular']
-        self.menu_font = self.fonts['JetBrainsMono-Regular']
+        self.menu_font = self.fonts['OpenSans-Regular']
 
     def load_graphics_menu(self):
         """ Function    : load_graphics_menu
@@ -345,28 +344,32 @@ class GraphicsMenuUI(Graphics):
                                            orientation=DGG.HORIZONTAL,
                                            command=self.set_slider_details_wrapper)
 
-        self.slider_shadows = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
+        self.slider_shadows = DirectSlider(frameColor=self.rgba_gray_color,
+                                           range=(1, 2),
                                            value=self.get_shadows_value(),
                                            scale=.2, borderWidth=(self.w, self.h),
                                            parent=self.base.frame_int_gfx,
                                            orientation=DGG.HORIZONTAL,
                                            command=self.set_slider_shadows_wrapper)
 
-        self.slider_postpro = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
+        self.slider_postpro = DirectSlider(frameColor=self.rgba_gray_color,
+                                           range=(1, 2),
                                            value=self.get_postpro_value(),
                                            scale=.2, borderWidth=(self.w, self.h),
                                            parent=self.base.frame_int_gfx,
                                            orientation=DGG.HORIZONTAL,
                                            command=self.set_slider_postpro_wrapper)
 
-        self.slider_antial = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
+        self.slider_antial = DirectSlider(frameColor=self.rgba_gray_color,
+                                          range=(1, 2),
                                           value=self.get_antial_value(),
                                           scale=.2, borderWidth=(self.w, self.h),
                                           parent=self.base.frame_int_gfx,
                                           orientation=DGG.HORIZONTAL,
                                           command=self.set_slider_antial_wrapper)
 
-        self.slider_ao = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
+        self.slider_ao = DirectSlider(frameColor=self.rgba_gray_color,
+                                      range=(1, 7),
                                       value=self.get_ao_value(),
                                       scale=.2, borderWidth=(self.w, self.h),
                                       parent=self.base.frame_int_gfx,
@@ -771,57 +774,253 @@ class GraphicsMenuUI(Graphics):
 
     # TODO: Implement RP-related calls
     def set_slider_ao_wrapper(self):
-        pass
-        self.lbl_perc_ao.setText("ON")
+        """ Function    : set_slider_ao_wrapper
+
+            Description : Wrapper function.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
+        # Make it int and then str
+        i = int(self.slider_ao['value'])
+        ao_dict = self.load_ao_value()
+        string = ao_dict[i]
+        self.lbl_perc_ao.setText(string)
+        self.save_ao_value(string)
 
     def set_slider_bloom_wrapper(self):
-        pass
-        self.lbl_perc_bloom.setText("ON")
+        """ Function    : set_slider_bloom_wrapper
+
+            Description : Wrapper function.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
+        # Make it int and then str
+        i = int(self.slider_bloom['value'])
+        bloom_dict = self.load_bloom_value()
+        string = bloom_dict[i]
+        self.lbl_perc_bloom.setText(string)
+        self.save_bloom_value(string)
 
     def set_slider_clouds_wrapper(self):
-        pass
-        self.lbl_perc_clouds.setText("ON")
+        """ Function    : set_slider_clouds_wrapper
+
+            Description : Wrapper function.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
+        # Make it int and then str
+        i = int(self.slider_clouds['value'])
+        clouds_dict = self.load_clouds_value()
+        string = clouds_dict[i]
+        self.lbl_perc_clouds.setText(string)
+        self.save_clouds_value(string)
 
     def set_slider_cc_wrapper(self):
-        pass
-        self.lbl_perc_cc.setText("ON")
+        """ Function    : set_slider_cc_wrapper
+
+            Description : Wrapper function.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
+        # Make it int and then str
+        i = int(self.slider_cc['value'])
+        cc_dict = self.load_cc_value()
+        string = cc_dict[i]
+        self.lbl_perc_cc.setText(string)
+        self.save_color_correction_value(string)
 
     def set_slider_scattering_wrapper(self):
-        pass
-        self.lbl_perc_scattering.setText("ON")
+        """ Function    : set_slider_scattering_wrapper
+
+            Description : Wrapper function.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
+        # Make it int and then str
+        i = int(self.slider_scattering['value'])
+        scattering_dict = self.load_scattering_value()
+        string = scattering_dict[i]
+        self.lbl_perc_scattering.setText(string)
+        self.save_scattering_value(string)
 
     def set_slider_sky_ao_wrapper(self):
-        pass
-        self.lbl_perc_sky_ao.setText("ON")
+        """ Function    : set_slider_sky_ao_wrapper
+
+            Description : Wrapper function.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
+        # Make it int and then str
+        i = int(self.slider_sky_ao['value'])
+        sky_ao_dict = self.load_sky_ao_value()
+        string = sky_ao_dict[i]
+        self.lbl_perc_sky_ao.setText(string)
+        self.save_sky_ao_value(string)
 
     def set_slider_ssr_wrapper(self):
-        pass
-        self.lbl_perc_ssr.setText("ON")
+        """ Function    : set_slider_ssr_wrapper
+
+            Description : Wrapper function.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
+        # Make it int and then str
+        i = int(self.slider_ssr['value'])
+        ssr_dict = self.load_ssr_value()
+        string = ssr_dict[i]
+        self.lbl_perc_ssr.setText(string)
+        self.save_ssr_value(string)
 
     def set_slider_forward_shading_wrapper(self):
-        pass
-        self.lbl_perc_forward_shading.setText("ON")
+        """ Function    : set_slider_forward_shading_wrapper
+
+            Description : Wrapper function.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
+        # Make it int and then str
+        i = int(self.slider_forward_shading['value'])
+        forward_shading_dict = self.load_forward_shading_value()
+        string = forward_shading_dict[i]
+        self.lbl_perc_forward_shading.setText(string)
+        self.save_forward_shading_value(string)
 
     def set_slider_skin_shading_wrapper(self):
-        pass
-        self.lbl_perc_skin_shading.setText("ON")
+        """ Function    : set_slider_skin_shading_wrapper
+
+            Description : Wrapper function.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
+        # Make it int and then str
+        i = int(self.slider_skin_shading['value'])
+        skin_shading_dict = self.load_skin_shading_value()
+        string = skin_shading_dict[i]
+        self.lbl_perc_skin_shading.setText(string)
+        self.save_skin_shading_value(string)
 
     def set_slider_pssm_wrapper(self):
-        pass
-        self.lbl_perc_pssm.setText("ON")
+        """ Function    : set_slider_pssm_wrapper
+
+            Description : Wrapper function.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
+        # Make it int and then str
+        i = int(self.slider_pssm['value'])
+        pssm_dict = self.load_pssm_value()
+        string = pssm_dict[i]
+        self.lbl_perc_pssm.setText(string)
+        self.save_pssm_value(string)
 
     def set_slider_dof_wrapper(self):
-        pass
-        self.lbl_perc_dof.setText("ON")
+        """ Function    : set_slider_dof_wrapper
+
+            Description : Wrapper function.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
+        # Make it int and then str
+        i = int(self.slider_dof['value'])
+        dof_dict = self.load_dof_value()
+        string = dof_dict[i]
+        self.lbl_perc_dof.setText(string)
+        self.save_dof_value(string)
 
     def set_slider_env_probes_wrapper(self):
-        pass
-        self.lbl_perc_env_probes.setText("ON")
+        """ Function    : set_slider_env_probes_wrapper
+
+            Description : Wrapper function.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
+        # Make it int and then str
+        i = int(self.slider_env_probes['value'])
+        env_probes_dict = self.load_env_probes_value()
+        string = env_probes_dict[i]
+        self.lbl_perc_env_probes.setText(string)
+        self.save_env_probes_value(string)
 
     def set_slider_motion_blur_wrapper(self):
-        pass
-        self.lbl_perc_motion_blur.setText("ON")
+        """ Function    : set_slider_motion_blur_wrapper
+
+            Description : Wrapper function.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
+        # Make it int and then str
+        i = int(self.slider_motion_blur['value'])
+        motion_blur_dict = self.load_motion_blur_value()
+        string = motion_blur_dict[i]
+        self.lbl_perc_motion_blur.setText(string)
+        self.save_motion_blur_value(string)
 
     def set_slider_volumetrics_wrapper(self):
-        pass
-        self.lbl_perc_volumetrics.setText("ON")
+        """ Function    : set_slider_volumetrics_wrapper
+
+            Description : Wrapper function.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
+        # Make it int and then str
+        i = int(self.slider_volumetrics['value'])
+        volumetrics_dict = self.load_volumetrics_value()
+        string = volumetrics_dict[i]
+        self.lbl_perc_volumetrics.setText(string)
+        self.save_volumetrics_value(string)

@@ -108,8 +108,7 @@ class LangMenuUI(Language):
                     self.language = json.load(json_file)
 
         """ Buttons & Fonts"""
-        # self.menu_font = self.fonts['OpenSans-Regular']
-        self.menu_font = self.fonts['JetBrainsMono-Regular']
+        self.menu_font = self.fonts['OpenSans-Regular']
 
     def load_language_menu(self):
         """ Function    : load_language_menu

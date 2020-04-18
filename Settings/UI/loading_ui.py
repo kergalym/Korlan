@@ -28,8 +28,8 @@ class LoadingUI:
         """ Frame Colors """
         self.frm_opacity = 1
         """ Texts & Fonts"""
-        # self.menu_font = self.fonts['OpenSans-Regular']
-        self.menu_font = self.fonts['JetBrainsMono-Regular']
+        self.menu_font = self.fonts['OpenSans-Regular']
+
         self.title_loading_text = None
 
     def gen_loading_items(self):

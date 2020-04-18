@@ -11,7 +11,7 @@ import panda3d.core as p3d
 from direct.showbase.ShowBaseGlobal import render2d
 from panda3d.core import Filename
 from panda3d.core import WindowProperties
-from direct.showbase.ShowBase import ShowBase, PointLight
+from direct.showbase.ShowBase import ShowBase
 from direct.showbase.ShowBase import MovieTexture
 from direct.showbase.ShowBase import CardMaker
 from direct.showbase.ShowBase import NodePath
@@ -30,7 +30,6 @@ from panda3d.core import Thread
 from direct.task.TaskManagerGlobal import taskMgr
 
 from Engine.Render.rpcore.render_pipeline import RenderPipeline
-
 
 game_settings = configparser.ConfigParser()
 game_settings['Main'] = {'disp_res': '1024x768',
@@ -859,6 +858,7 @@ class Main(ShowBase):
                                           axis=[0, 8.0, -1.09],
                                           rotation=[0, 0, 0],
                                           scale=[1.25, 1.25, 1.25]))
+
 
 app = Main()
 app.load_video(file="REDSTUDIO_FHD", type="main_menu")
