@@ -67,7 +67,8 @@ class SceneOne:
                     pass
 
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
-                set_tex_transparency(scene)
+                scene.set_transparency(True)
+                scene.set_format(Texture.F_srgb_alpha)
 
                 render.set_attrib(LightRampAttrib.make_hdr1())
 
@@ -116,7 +117,8 @@ class SceneOne:
                     pass
 
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
-                set_tex_transparency(scene)
+                scene.set_transparency(True)
+                scene.set_format(Texture.F_srgb_alpha)
 
                 render.set_attrib(LightRampAttrib.make_hdr1())
 
@@ -189,7 +191,8 @@ class SceneOne:
                     scene.set_hpr(scene, rot_h, 0, 0)
 
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
-                set_tex_transparency(scene)
+                scene.set_transparency(True)
+                scene.set_format(Texture.F_srgb_alpha)
 
                 render.set_attrib(LightRampAttrib.make_hdr1())
 
@@ -261,7 +264,8 @@ class SceneOne:
                     scene.set_hpr(scene, rot_h, 0, 0)
 
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
-                set_tex_transparency(scene)
+                scene.set_transparency(True)
+                scene.set_format(Texture.F_srgb_alpha)
 
                 render.set_attrib(LightRampAttrib.make_hdr1())
 
