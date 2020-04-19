@@ -18,7 +18,7 @@ class RenderAttr:
         self.render = None
         # Set time of day
         if self.game_settings['Main']['postprocessing'] == 'on':
-            self.render_pipeline.daytime_mgr.time = "19:25"
+            self.render_pipeline.daytime_mgr.time = "20:25"
 
     def shader_collector(self):
         """ Function    : shader_collector
@@ -125,7 +125,7 @@ class RenderAttr:
                     # RP doesn't have nodegraph-like structure to find and remove lights,
                     # so we check self.rp_light before adding light
                     light = PointLight()
-                    light.pos = (0, 8, 0)
+                    light.pos = (pos[0], pos[1], pos[2])
                     light.color = (0.2, 0.6, 1.0)
                     light.energy = 1000.0
                     light.ies_profile = self.render_pipeline.load_ies_profile("x_arrow.ies")

@@ -830,8 +830,8 @@ class Main(ShowBase):
         taskMgr.add(self.scene_one.set_asset(path=assets['Nomad_house'],
                                              mode="menu",
                                              name="Nomad_house",
-                                             axis=[1.0, 20.0, -1.09],
-                                             rotation=[65, 0, 0],
+                                             axis=[9.0, 8.0, -1.09],
+                                             rotation=[16.70, 0, 0],
                                              scale=[1.25, 1.25, 1.25]))
 
         taskMgr.add(self.scene_one.set_env(path=assets['Ground'],

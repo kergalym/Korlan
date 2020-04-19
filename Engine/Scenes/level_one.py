@@ -85,7 +85,7 @@ class LevelOne:
         """ Assets """
         self.render_attr.set_lighting(name='light',
                                       render=self.render,
-                                      pos=[0, 20, 10],
+                                      pos=[0, 15.0, 0],
                                       hpr=[180, -20, 0],
                                       color=[0.5],
                                       task="attach")
@@ -134,8 +134,8 @@ class LevelOne:
         taskMgr.add(self.scene_one.set_asset(path=assets['Nomad_house'],
                                              mode="game",
                                              name="Nomad_house",
-                                             axis=[0.0, 20.0, self.pos_z],
-                                             rotation=[65, 0, 0],
+                                             axis=[9.0, 8.0, self.pos_z],
+                                             rotation=[16.70, 0, 0],
                                              scale=[1.25, 1.25, 1.25]))
 
         taskMgr.add(self.scene_one.set_asset(path=assets['Box'],
