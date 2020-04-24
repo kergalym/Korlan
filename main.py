@@ -103,9 +103,9 @@ class Main(ShowBase):
         self.manual_recenter_Mouse = None
         self.gfx = Graphics()
         ShowBase.__init__(self)
+        self.backface_culling_on()
         self.logging = logging
         self.logging.basicConfig(filename="critical.log", level=logging.CRITICAL)
-        self.backfaceCullingOff()
         self.props = WindowProperties()
         self.game_dir = str(Path.cwd())
         self.game_cfg = game_cfg
@@ -818,21 +818,23 @@ class Main(ShowBase):
                                            axis=[0.0, 10.0, -1.09],
                                            rotation=[0, 0, 0],
                                            scale=[1.25, 1.25, 1.25],
-                                           type='skybox'))
+                                           type='skybox',
+                                           culling=False))
 
         taskMgr.add(self.scene_one.set_asset(path=assets['Grass'],
                                              mode="menu",
                                              name="Grass",
                                              axis=[20.0, 10.0, -1.09],
                                              rotation=[0, 0, 0],
-                                             scale=[1.25, 1.25, 1.25]))
+                                             scale=[1.25, 1.25, 1.25], culling=False))
 
         taskMgr.add(self.scene_one.set_asset(path=assets['Nomad_house'],
                                              mode="menu",
                                              name="Nomad_house",
                                              axis=[9.0, 8.0, -1.09],
                                              rotation=[16.70, 0, 0],
-                                             scale=[1.25, 1.25, 1.25]))
+                                             scale=[1.25, 1.25, 1.25],
+                                             culling=True))
 
         taskMgr.add(self.scene_one.set_env(path=assets['Ground'],
                                            mode="menu",
@@ -840,7 +842,8 @@ class Main(ShowBase):
                                            axis=[0.0, 10.0, -1.09],
                                            rotation=[0, 0, 0],
                                            scale=[1.25, 1.25, 1.25],
-                                           type='ground'))
+                                           type='ground',
+                                           culling=False))
 
         taskMgr.add(self.scene_one.set_env(path=assets['Mountains'],
                                            mode="menu",
@@ -848,7 +851,8 @@ class Main(ShowBase):
                                            axis=[0.0, 20.0, -1.09],
                                            rotation=[0, 0, 0],
                                            scale=[1.25, 1.25, 1.25],
-                                           type='mountains'))
+                                           type='mountains',
+                                           culling=False))
 
         taskMgr.add(self.korlan.set_actor(mode="menu",
                                           name="Korlan",
@@ -857,7 +861,8 @@ class Main(ShowBase):
                                                      anims[1]['LookingAround']],
                                           axis=[0, 8.0, -1.09],
                                           rotation=[0, 0, 0],
-                                          scale=[1.25, 1.25, 1.25]))
+                                          scale=[1.25, 1.25, 1.25],
+                                          culling=True))
 
 
 app = Main()

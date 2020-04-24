@@ -35,13 +35,14 @@ class SceneOne:
         self.cfg_path = {"game_config_path":
                          "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
 
-    async def set_asset(self, path, mode, name, axis, rotation, scale):
+    async def set_asset(self, path, mode, name, axis, rotation, scale, culling):
         if isinstance(mode, str) and mode == "menu":
             if (isinstance(path, str)
                     and isinstance(name, str)
                     and isinstance(axis, list)
                     and isinstance(rotation, list)
-                    and isinstance(scale, list)):
+                    and isinstance(scale, list)
+                    and isinstance(culling, bool)):
 
                 self.path = "{0}{1}".format(self.game_dir, path)
                 self.game_settings = self.game_settings
@@ -65,6 +66,9 @@ class SceneOne:
                 if name == 'Grass':
                     # scene.flatten_strong()
                     pass
+
+                # Set two sided, since some model may be broken
+                scene.set_two_sided(culling)
 
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 scene.set_transparency(True)
@@ -91,7 +95,8 @@ class SceneOne:
                     and isinstance(name, str)
                     and isinstance(axis, list)
                     and isinstance(rotation, list)
-                    and isinstance(scale, list)):
+                    and isinstance(scale, list)
+                    and isinstance(culling, bool)):
 
                 self.path = "{0}{1}".format(self.game_dir, path)
                 self.render = render
@@ -116,6 +121,9 @@ class SceneOne:
                     # scene.flatten_strong()
                     pass
 
+                # Set two sided, since some model may be broken
+                scene.set_two_sided(culling)
+
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 scene.set_transparency(True)
                 scene.set_format(Texture.F_srgb_alpha)
@@ -133,14 +141,15 @@ class SceneOne:
                                            type="item",
                                            shape="cube")
 
-    async def set_env(self, path, mode, name, axis, rotation, scale, type):
+    async def set_env(self, path, mode, name, axis, rotation, scale, type, culling):
         if isinstance(mode, str) and mode == "menu":
             if (isinstance(path, str)
                     and isinstance(name, str)
                     and isinstance(axis, list)
                     and isinstance(rotation, list)
                     and isinstance(scale, list)
-                    and isinstance(type, str)):
+                    and isinstance(type, str)
+                    and isinstance(culling, bool)):
 
                 self.path = "{}{}".format(self.game_dir, path)
                 self.render = render
@@ -190,9 +199,12 @@ class SceneOne:
                     scene.set_pos(pos_x, pos_y, pos_z)
                     scene.set_hpr(scene, rot_h, 0, 0)
 
+                # Set two sided, since some model may be broken
+                scene.set_two_sided(culling)
+
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 scene.set_transparency(True)
-                scene.set_format(Texture.F_srgb_alpha)
+                # scene.set_format(Texture.F_srgb_alpha)
 
                 render.set_attrib(LightRampAttrib.make_hdr1())
 
@@ -213,7 +225,8 @@ class SceneOne:
                     and isinstance(axis, list)
                     and isinstance(rotation, list)
                     and isinstance(scale, list)
-                    and isinstance(type, str)):
+                    and isinstance(type, str)
+                    and isinstance(culling, bool)):
                 # Make them visible for other class members
                 self.path = "{0}{1}".format(self.game_dir, path)
                 self.render = render
@@ -263,9 +276,12 @@ class SceneOne:
                     scene.set_pos(pos_x, pos_y, pos_z)
                     scene.set_hpr(scene, rot_h, 0, 0)
 
+                # Set two sided, since some model may be broken
+                scene.set_two_sided(culling)
+
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 scene.set_transparency(True)
-                scene.set_format(Texture.F_srgb_alpha)
+                # scene.set_format(Texture.F_srgb_alpha)
 
                 render.set_attrib(LightRampAttrib.make_hdr1())
 

@@ -52,7 +52,7 @@ class Korlan:
         self.base.actor_is_alive = False
         self.base.actor_play_rate = 1.0
 
-    async def set_actor(self, mode, name, path, animation, axis, rotation, scale):
+    async def set_actor(self, mode, name, path, animation, axis, rotation, scale, culling):
         if mode == 'menu':
             # Disable the camera trackball controls.
             self.base.disable_mouse()
@@ -67,7 +67,9 @@ class Korlan:
                     and isinstance(scale, list)
                     and isinstance(mode, str)
                     and animation
-                    and isinstance(animation, list)):
+                    and isinstance(animation, list)
+                    and isinstance(culling, bool)):
+
                 self.pos_x = axis[0]
                 self.pos_y = axis[1]
                 self.pos_z = axis[2]
@@ -91,6 +93,9 @@ class Korlan:
                 self.korlan.set_r(self.korlan, self.rot_r)
                 self.korlan.loop(animation)
                 self.korlan.set_play_rate(self.base.actor_play_rate, animation)
+
+                # Set two sided, since some model may be broken
+                self.korlan.set_two_sided(culling)
 
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 self.korlan.set_transparency(True)
@@ -135,7 +140,8 @@ class Korlan:
                     and isinstance(rotation, list)
                     and isinstance(scale, list)
                     and isinstance(mode, str)
-                    and isinstance(animation, list)):
+                    and isinstance(animation, list)
+                    and isinstance(culling, bool)):
 
                 self.pos_x = axis[0]
                 self.pos_y = axis[1]
@@ -160,6 +166,9 @@ class Korlan:
 
                 # Get actor joints
                 base.korlan_joints = self.korlan.get_joints()
+
+                # Set two sided, since some model may be broken
+                self.korlan.set_two_sided(culling)
 
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 self.korlan.set_transparency(True)

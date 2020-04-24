@@ -46,7 +46,7 @@ class NPC:
         else:
             return False
 
-    async def set_actor(self, mode, name, path, animation, axis, rotation, scale):
+    async def set_actor(self, mode, name, path, animation, axis, rotation, scale, culling):
 
         if (isinstance(path, str)
                 and isinstance(name, str)
@@ -54,7 +54,8 @@ class NPC:
                 and isinstance(rotation, list)
                 and isinstance(scale, list)
                 and isinstance(mode, str)
-                and isinstance(animation, list)):
+                and isinstance(animation, list)
+                and isinstance(culling, bool)):
 
             self.pos_x = axis[0]
             self.pos_y = axis[1]
@@ -78,6 +79,9 @@ class NPC:
 
             # Get actor joints
             base.actor_joints = self.actor.get_joints()
+
+            # Set two sided, since some model may be broken
+            self.actor.set_two_sided(culling)
 
             # Panda3D 1.10 doesn't enable alpha blending for textures by default
             self.actor.set_transparency(True)

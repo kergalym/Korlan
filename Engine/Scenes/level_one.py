@@ -122,28 +122,32 @@ class LevelOne:
                                            axis=[0.0, 10.0, self.pos_z],
                                            rotation=[0, 0, 0],
                                            scale=[1.25, 1.25, 1.25],
-                                           type='skybox'))
+                                           type='skybox',
+                                           culling=False))
 
         taskMgr.add(self.scene_one.set_asset(path=assets['Grass'],
                                              mode="game",
                                              name="Grass",
                                              axis=[20.0, 10.0, self.pos_z],
                                              rotation=[0, 0, 0],
-                                             scale=[1.25, 1.25, 1.25]))
+                                             scale=[1.25, 1.25, 1.25],
+                                             culling=False))
 
         taskMgr.add(self.scene_one.set_asset(path=assets['Nomad_house'],
                                              mode="game",
                                              name="Nomad_house",
                                              axis=[9.0, 8.0, self.pos_z],
                                              rotation=[16.70, 0, 0],
-                                             scale=[1.25, 1.25, 1.25]))
+                                             scale=[1.25, 1.25, 1.25],
+                                             culling=True))
 
         taskMgr.add(self.scene_one.set_asset(path=assets['Box'],
                                              mode="game",
                                              name="Box",
                                              axis=[0.0, -9.0, self.pos_z],
                                              rotation=[65, 0, 0],
-                                             scale=[1.25, 1.25, 1.25]))
+                                             scale=[1.25, 1.25, 1.25],
+                                             culling=False))
 
         taskMgr.add(self.scene_one.set_env(path=assets['Ground'],
                                            mode="game",
@@ -151,7 +155,8 @@ class LevelOne:
                                            axis=[0.0, 10.0, self.pos_z],
                                            rotation=[0, 0, 0],
                                            scale=[1.25, 1.25, 1.25],
-                                           type='ground'))
+                                           type='ground',
+                                           culling=False))
 
         taskMgr.add(self.scene_one.set_env(path=assets['Mountains'],
                                            mode="game",
@@ -159,7 +164,8 @@ class LevelOne:
                                            axis=[0.0, 20.0, self.pos_z],
                                            rotation=[0, 0, 0],
                                            scale=[1.25, 1.25, 1.25],
-                                           type='mountains'))
+                                           type='mountains',
+                                           culling=False))
 
         taskMgr.add(self.korlan.set_actor(mode="game",
                                           name="Korlan",
@@ -167,7 +173,8 @@ class LevelOne:
                                           animation=anims,
                                           axis=[0, 8.0, self.pos_z],
                                           rotation=[0, 0, 0],
-                                          scale=[1.25, 1.25, 1.25]))
+                                          scale=[1.25, 1.25, 1.25],
+                                          culling=True))
 
         taskMgr.add(self.npc.set_actor(mode="game",
                                        name="NPC",
@@ -175,7 +182,8 @@ class LevelOne:
                                        animation=anims,
                                        axis=[-4.0, 9.0, self.pos_z],
                                        rotation=[0, 0, 0],
-                                       scale=[1.25, 1.25, 1.25]))
+                                       scale=[1.25, 1.25, 1.25],
+                                       culling=True))
 
         """ Task for Debug mode """
         taskMgr.add(self.stat_ui.show_game_stat_task,
