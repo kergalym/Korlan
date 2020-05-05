@@ -35,10 +35,14 @@ setup(
                 'Engine/Shaders/**/*.frag',
                 'Engine/Shaders/**/*.vert',
             ],
+            # Workaround for
+            # AssertionError: macos_main_app must be defined if more than one gui_app is defined
+            # since we don't have support for macos
+            'macos_main_app': 'Korlan',
             'gui_apps': {
                 'Korlan': 'main.py',
                 'GFXC': 'start_plugin_configurator.py',
-                'DAYE': 'start_daytime_editor.py'
+                'DAYE': 'start_daytime_editor.py',
             },
             'platforms': [
                 'manylinux1_x86_64',
