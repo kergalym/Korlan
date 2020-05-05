@@ -37,6 +37,8 @@ setup(
             ],
             'gui_apps': {
                 'Korlan': 'main.py',
+                'GFXC': 'start_plugin_configurator.py',
+                'DAYE': 'start_daytime_editor.py'
             },
             'platforms': [
                 'manylinux1_x86_64',

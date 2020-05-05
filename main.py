@@ -124,10 +124,10 @@ class Main(ShowBase):
             print("Is threading supported: ", Thread.isThreadingSupported(), "\n")
 
         # Construct and create the pipeline
-        self.render_pipeline = RenderPipeline()
 
         # Commented to prevent using it by deploying system
         if self.game_settings['Main']['postprocessing'] == 'on':
+            self.render_pipeline = RenderPipeline()
             self.render_pipeline.pre_showbase_init()
             self.render_pipeline.create(self)
 
@@ -834,7 +834,7 @@ class Main(ShowBase):
                                              axis=[9.0, 8.0, -1.09],
                                              rotation=[16.70, 0, 0],
                                              scale=[1.25, 1.25, 1.25],
-                                             culling=True))
+                                             culling=False))
 
         taskMgr.add(self.scene_one.set_env(path=assets['Ground'],
                                            mode="menu",
@@ -862,7 +862,7 @@ class Main(ShowBase):
                                           axis=[0, 8.0, -1.09],
                                           rotation=[0, 0, 0],
                                           scale=[1.25, 1.25, 1.25],
-                                          culling=True))
+                                          culling=False))
 
 
 app = Main()

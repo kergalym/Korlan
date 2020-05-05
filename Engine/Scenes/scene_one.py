@@ -1,7 +1,6 @@
 from panda3d.core import *
 from Engine.Actors.Player.korlan import Korlan
 from Engine.Collisions.collisions import Collisions
-from Engine import set_tex_transparency
 from Engine.Render.render import RenderAttr
 
 

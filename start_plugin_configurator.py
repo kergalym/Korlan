@@ -38,7 +38,7 @@ from Engine.Render.rplibs.six import iteritems  # noqa
 from Engine.Render.rplibs.pyqt_imports import * #noqa
 
 # Load the generated UI Layout
-from ui.main_window_generated import Ui_MainWindow  # noqa
+from Engine.Render.toolkit.plugin_configurator.ui.main_window_generated import Ui_MainWindow  # noqa
 
 from Engine.Render.rpcore.pluginbase.manager import PluginManager  # noqa
 from Engine.Render.rpcore.util.network_communication import NetworkCommunication  # noqa

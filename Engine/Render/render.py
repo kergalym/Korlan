@@ -11,15 +11,16 @@ class RenderAttr:
     def __init__(self):
         self.game_dir = str(Path.cwd())
         self.game_settings = base.game_settings
-        self.render_pipeline = base.render_pipeline
+        if hasattr(base, "render_pipeline") and base.render_pipeline:
+            self.render_pipeline = base.render_pipeline
         self.world = None
         self.set_color = 0.2
         self.shadow_size = 1024
         self.render = None
         # Set time of day
         if self.game_settings['Main']['postprocessing'] == 'on':
-            self.render_pipeline.daytime_mgr.time = "20:25"
-            pass
+            if self.render_pipeline:
+                self.render_pipeline.daytime_mgr.time = "20:25"
 
     def shader_collector(self):
         """ Function    : shader_collector

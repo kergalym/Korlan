@@ -25,11 +25,12 @@ THE SOFTWARE.
 """
 
 from __future__ import print_function
-from rplibs.six.moves import range  # pylint: disable=import-error
+from Engine.Render.rplibs.six.moves import range  # pylint: disable=import-error
 
 import math
 
-from rplibs.pyqt_imports import * # noqa
+from Engine.Render.rplibs.pyqt_imports import * # noqa
+
 
 class CurveWidget(QWidget):
 

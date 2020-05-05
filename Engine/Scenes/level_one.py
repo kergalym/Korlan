@@ -18,7 +18,8 @@ class LevelOne:
         self.game_mode = base.game_mode
         self.base = base
         self.render = render
-        self.render_pipeline = base.render_pipeline
+        if hasattr(base, "render_pipeline") and base.render_pipeline:
+            self.render_pipeline = base.render_pipeline
         self.loader = base.loader
         self.node_path = NodePath()
         self.scene_one = SceneOne()
@@ -174,7 +175,7 @@ class LevelOne:
                                           axis=[0, 8.0, self.pos_z],
                                           rotation=[0, 0, 0],
                                           scale=[1.25, 1.25, 1.25],
-                                          culling=True))
+                                          culling=False))
 
         taskMgr.add(self.npc.set_actor(mode="game",
                                        name="NPC",
@@ -183,7 +184,7 @@ class LevelOne:
                                        axis=[-4.0, 9.0, self.pos_z],
                                        rotation=[0, 0, 0],
                                        scale=[1.25, 1.25, 1.25],
-                                       culling=True))
+                                       culling=False))
 
         """ Task for Debug mode """
         taskMgr.add(self.stat_ui.show_game_stat_task,

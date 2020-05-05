@@ -4,7 +4,7 @@ from Engine.Actors.Player.state import PlayerState
 from Engine.Collisions.collisions import Collisions
 from Engine import set_tex_transparency
 from direct.actor.Actor import Actor
-from panda3d.core import WindowProperties
+from panda3d.core import WindowProperties, Texture
 from panda3d.core import LPoint3f
 from direct.task.TaskManagerGlobal import taskMgr
 
