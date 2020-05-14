@@ -175,7 +175,7 @@ class LevelOne:
                                           axis=[0, 8.0, self.pos_z],
                                           rotation=[0, 0, 0],
                                           scale=[1.25, 1.25, 1.25],
-                                          culling=False))
+                                          culling=True))
 
         taskMgr.add(self.npc.set_actor(mode="game",
                                        name="NPC",
@@ -184,7 +184,7 @@ class LevelOne:
                                        axis=[-4.0, 9.0, self.pos_z],
                                        rotation=[0, 0, 0],
                                        scale=[1.25, 1.25, 1.25],
-                                       culling=False))
+                                       culling=True))
 
         """ Task for Debug mode """
         taskMgr.add(self.stat_ui.show_game_stat_task,

@@ -862,7 +862,7 @@ class Main(ShowBase):
                                           axis=[0, 8.0, -1.09],
                                           rotation=[0, 0, 0],
                                           scale=[1.25, 1.25, 1.25],
-                                          culling=False))
+                                          culling=True))
 
 
 app = Main()
