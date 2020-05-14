@@ -14,11 +14,6 @@ The Game is dedicated to Tengri and Tengrism.
 <img src="http://www.redeyedman.ru/static/images/korlan/family_of_Korlan.png" />
  Characters and the Nomad's House
 
-
-<img src="http://www.redeyedman.ru/static/images/korlan///Qorlan_Main_Menu_UI.png" />
-How does menu look right now?
-
-
 <img src="http://www.redeyedman.ru/static/images/korlan/weapons_2.png" />
  Weapons Nomads use
 
