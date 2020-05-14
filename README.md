@@ -24,15 +24,13 @@ How does menu look right now?
 
 <img src="http://www.redeyedman.ru/static/images/korlan/main_menu.png" />
 <img src="http://www.redeyedman.ru/static/images/korlan/main_menu_options.png" />
-<img src="http://www.redeyedman.ru/static/images/korlan/main_menu_graphics.png" />
+<img src="https://i.imgur.com/eXk6uca.png" />
 <img src="http://www.redeyedman.ru/static/images/korlan/main_menu_sound.png" />
 <img src="http://www.redeyedman.ru/static/images/korlan/main_menu_keymap.png" />
  Game menu
 
 ### Note: there is only Project Code uses the Game Engine API ###
 * No Assets included
-
-* No RenderPipeline icluded 
 
 ### Game Code License ###
 
@@ -81,9 +79,6 @@ HowTo: https://yogyog.org/tag/makehuman/
 ==================================================================================================
 
 Renewed YABEE egg exporter for Panda3D: https://github.com/kergalym/YABEE
- 
-SimplePBR Render for the Panda3D: https://github.com/Moguri/panda3d-simplepbr
-                                  https://github.com/kergalym/panda3d-simplepbr 
 
 Python-Xlib: https://github.com/python-xlib/python-xlib
 
@@ -94,8 +89,8 @@ Python-Xlib: https://github.com/python-xlib/python-xlib
 ==================================================================================================
 
 Textures:
-         https://www.cgbookcase.com/textures/
-         https://freepbr.com/
+         https://cc0textures.com
+         https://freepbr.com
          https://3dtextures.me (CC0)
 
 Sounds and ambient music:
@@ -103,3 +98,6 @@ Sounds and ambient music:
                           https://www.zapsplat.com/sound-effect-category/ambient/  
                           https://sonniss.com/gameaudiogdc19
 
+Shader examples:
+                https://www.shadertoy.com
+        
