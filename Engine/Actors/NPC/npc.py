@@ -118,3 +118,4 @@ class NPC:
                 self.fsm_npc.set_npc_ai(actor=actor, behavior="wanderer")
                 # self.fsm_npc.set_npc_ai(actor=actor, behavior="obs_avoid")
                 # self.fsm_npc.set_npc_ai(actor=actor, behavior="path_follow")
+                # self.fsm_npc.request("Walk")

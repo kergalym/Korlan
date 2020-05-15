@@ -81,6 +81,10 @@ class SceneOne:
             # to enable shader generation for the entire game, using this call:
             # scene.set_shader_auto()
 
+            # TODO: Implement collisions for all level node children
+            """ self.col.set_collision(obj=scene, type="item", shape="cube")
+            """
+
     async def set_asset(self, path, mode, name, axis, rotation, scale, culling):
         if isinstance(mode, str) and mode == "menu":
             if (isinstance(path, str)

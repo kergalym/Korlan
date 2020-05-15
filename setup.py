@@ -42,6 +42,9 @@ setup(
             'gui_apps': {
                 'Korlan': 'main.py',
             },
+            "icons": {
+                "Korlan": ["icon-256.png", "icon-128.png", "icon-48.png", "icon-32.png", "icon-16.png"],
+            },
             'platforms': [
                 'manylinux1_x86_64',
                 'win_amd64',
