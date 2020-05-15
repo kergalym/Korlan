@@ -34,6 +34,53 @@ class SceneOne:
         self.cfg_path = {"game_config_path":
                          "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
 
+    async def set_scene(self, path, name, axis, rotation, scale, culling):
+        if (isinstance(path, str)
+                and isinstance(name, str)
+                and isinstance(axis, list)
+                and isinstance(rotation, list)
+                and isinstance(scale, list)
+                and isinstance(culling, bool)):
+
+            self.path = "{0}{1}".format(self.game_dir, path)
+            self.game_settings = self.game_settings
+            self.model = name
+            pos_x = axis[0]
+            pos_y = axis[1]
+            pos_z = axis[2]
+            rot_h = rotation[0]
+            self.scale_x = scale[0]
+            self.scale_y = scale[1]
+            self.scale_z = scale[2]
+
+            # Load the scene.
+            scene = await self.base.loader.load_model(path, blocking=False)
+            scene.set_name(name)
+            scene.reparent_to(self.render)
+            scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
+            scene.set_pos(pos_x, pos_y, pos_z)
+            scene.set_hpr(scene, rot_h, 0, 0)
+
+            # Set two sided, since some model may be broken
+            scene.set_two_sided(culling)
+
+            # Panda3D 1.10 doesn't enable alpha blending for textures by default
+            scene.set_transparency(True)
+
+            render.set_attrib(LightRampAttrib.make_hdr1())
+
+            if self.game_settings['Main']['postprocessing'] == 'off':
+                # Set Lights and Shadows
+                # self.render_attr.set_shadows(scene, render)
+                pass
+
+            # If you don't do this, none of the features
+            # listed above will have any effect. Panda will
+            # simply ignore normal maps, HDR, and so forth if
+            # shader generation is not enabled. It would be reasonable
+            # to enable shader generation for the entire game, using this call:
+            # scene.set_shader_auto()
+
     async def set_asset(self, path, mode, name, axis, rotation, scale, culling):
         if isinstance(mode, str) and mode == "menu":
             if (isinstance(path, str)
@@ -78,7 +125,6 @@ class SceneOne:
                 if self.game_settings['Main']['postprocessing'] == 'off':
                     # Set Lights and Shadows
                     # self.render_attr.set_shadows(scene, render)
-                    # self.render_attr.set_ssao(scene)
                     pass
 
                 # If you don't do this, none of the features
@@ -87,7 +133,6 @@ class SceneOne:
                 # shader generation is not enabled. It would be reasonable
                 # to enable shader generation for the entire game, using this call:
                 # scene.set_shader_auto()
-                # self.render_attr.set_ssao(scene)
 
         elif isinstance(mode, str) and mode == "game":
             if (isinstance(path, str)
@@ -132,7 +177,6 @@ class SceneOne:
                 if self.game_settings['Main']['postprocessing'] == 'off':
                     # Set Shaders and Shadows
                     # self.render_attr.set_shadows(scene, render)
-                    # self.render_attr.set_ssao(scene)
                     pass
 
                 if scene.get_name() == "Box":
@@ -203,7 +247,6 @@ class SceneOne:
 
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 scene.set_transparency(True)
-                # scene.set_format(Texture.F_srgb_alpha)
 
                 render.set_attrib(LightRampAttrib.make_hdr1())
 
@@ -214,7 +257,6 @@ class SceneOne:
                 # to enable shader generation for the entire game, using this call:
                 # scene.set_shader_auto()
                 # self.render_attr.set_shadows(scene, render)
-                # self.render_attr.set_ssao(scene)
 
                 return scene
 
@@ -280,7 +322,6 @@ class SceneOne:
 
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 scene.set_transparency(True)
-                # scene.set_format(Texture.F_srgb_alpha)
 
                 render.set_attrib(LightRampAttrib.make_hdr1())
 
@@ -291,6 +332,5 @@ class SceneOne:
                 # to enable shader generation for the entire game, using this call:
                 # scene.set_shader_auto()
                 # self.render_attr.set_shadows(scene, render)
-                # self.render_attr.set_ssao(obj=scene)
 
                 return scene
