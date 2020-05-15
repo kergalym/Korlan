@@ -21,7 +21,7 @@ from panda3d.core import TextNode
 from pathlib import Path, PurePath
 
 from Engine.Actors.Player.korlan import Korlan
-from Engine.Scenes.scene_one import SceneOne
+from Engine.Scenes.scene import SceneOne
 from Engine.Render.render import RenderAttr
 from Settings.Sound.sound import Sound
 from Settings.UI.menu_ui import MenuUI

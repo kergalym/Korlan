@@ -6,7 +6,7 @@ from Engine.Actors.NPC.npc import NPC
 from Engine.Collisions.collisions import Collisions
 from Engine.FSM.env_ai import EnvAI
 from Engine.FSM.npc_ai import NpcAI
-from Engine.Scenes.scene_one import SceneOne
+from Engine.Scenes.scene import SceneOne
 from Engine.Render.render import RenderAttr
 from Settings.UI.stat_ui import StatUI
 
