@@ -34,7 +34,7 @@ class SceneOne:
         self.cfg_path = {"game_config_path":
                          "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
 
-    async def set_scene(self, path, name, axis, rotation, scale, culling):
+    async def set_level(self, path, name, axis, rotation, scale, culling):
         if (isinstance(path, str)
                 and isinstance(name, str)
                 and isinstance(axis, list)
