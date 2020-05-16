@@ -67,6 +67,15 @@ class SceneOne:
             # Panda3D 1.10 doesn't enable alpha blending for textures by default
             scene.set_transparency(True)
 
+            # Add collision for everything in level except sky because it's sphere we inside in
+            for child in scene.get_children():
+                if child.get_name() != 'Sky':
+                    self.col.set_collision(obj=child, type="child", shape="auto")
+                if child.get_name() != 'Grass':
+                    self.col.set_collision(obj=child, type="child", shape="auto")
+                if child.get_name() != 'Ground':
+                    self.col.set_collision(obj=child, type="child", shape="auto")
+
             render.set_attrib(LightRampAttrib.make_hdr1())
 
             if self.game_settings['Main']['postprocessing'] == 'off':
@@ -81,10 +90,7 @@ class SceneOne:
             # to enable shader generation for the entire game, using this call:
             # scene.set_shader_auto()
 
-            # TODO: Implement collisions for all level node children
-            """ self.col.set_collision(obj=scene, type="item", shape="cube")
-            """
-
+    # TODO: Remove set_asset async call block further
     async def set_asset(self, path, mode, name, axis, rotation, scale, culling):
         if isinstance(mode, str) and mode == "menu":
             if (isinstance(path, str)
@@ -122,7 +128,6 @@ class SceneOne:
 
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 scene.set_transparency(True)
-                scene.set_format(Texture.F_srgb_alpha)
 
                 render.set_attrib(LightRampAttrib.make_hdr1())
 
@@ -174,7 +179,14 @@ class SceneOne:
 
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 scene.set_transparency(True)
-                scene.set_format(Texture.F_srgb_alpha)
+
+                # Add collision for everything in level except sky because it's sphere we inside in
+                if scene.get_name() == 'Nomad_house':
+                    for child in scene.get_children():
+                        self.col.set_collision(obj=child, type="child", shape="auto")
+
+                if scene.get_name() == "Box":
+                    self.col.set_collision(obj=scene, type="item", shape="cube")
 
                 render.set_attrib(LightRampAttrib.make_hdr1())
 
@@ -182,11 +194,6 @@ class SceneOne:
                     # Set Shaders and Shadows
                     # self.render_attr.set_shadows(scene, render)
                     pass
-
-                if scene.get_name() == "Box":
-                    self.col.set_collision(obj=scene,
-                                           type="item",
-                                           shape="cube")
 
     async def set_env(self, path, mode, name, axis, rotation, scale, type, culling):
         if isinstance(mode, str) and mode == "menu":
@@ -261,8 +268,6 @@ class SceneOne:
                 # to enable shader generation for the entire game, using this call:
                 # scene.set_shader_auto()
                 # self.render_attr.set_shadows(scene, render)
-
-                return scene
 
         elif isinstance(mode, str) and mode == "game":
             if (isinstance(path, str)

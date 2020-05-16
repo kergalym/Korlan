@@ -34,6 +34,7 @@ setup(
                 'Engine/Render/**/**/**/**/*.glsl',
                 'Engine/Shaders/**/*.frag',
                 'Engine/Shaders/**/*.vert',
+                'Engine/Shaders/**/*.glsl',
             ],
             # Workaround for
             # AssertionError: macos_main_app must be defined if more than one gui_app is defined

@@ -6,6 +6,10 @@ from panda3d.bullet import BulletBoxShape
 from panda3d.bullet import BulletCylinderShape
 from panda3d.bullet import BulletConeShape
 from panda3d.bullet import BulletPlaneShape
+from panda3d.bullet import BulletTriangleMesh
+from panda3d.bullet import BulletTriangleMeshShape
+from panda3d.bullet import BulletConvexHullShape
+
 from direct.showbase.PhysicsManagerGlobal import physicsMgr
 
 
@@ -48,4 +52,24 @@ class BulletCollisionSolids:
         axis = Vec3(0.5, 0.5, 0.5)
         box = BulletBoxShape(axis)
         return box
+
+    def set_bs_convex(self, obj):
+        if obj:
+            geom = obj.find('**/+GeomNode').node().get_geom(0)
+            shape = BulletConvexHullShape()
+            shape.add_geom(geom)
+            return shape
+
+    def set_bs_auto(self, obj, type):
+        if obj and isinstance(type, str):
+            geom = obj.find('**/+GeomNode').node().get_geom(0)
+            mesh = BulletTriangleMesh()
+            mesh.add_geom(geom)
+            bool_ = None
+            if type == 'dynamic':
+                bool_ = True
+            if type == 'static':
+                bool_ = False
+            shape = BulletTriangleMeshShape(mesh, dynamic=bool_)
+            return shape
 

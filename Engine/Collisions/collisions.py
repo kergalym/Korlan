@@ -56,13 +56,31 @@ class Collisions:
             # Physics World must be enabled only one time before adding collider.
             self.physics_attr.set_physics_world()
 
+            if type == "child":
+                if hasattr(obj, "set_tag"):
+                    obj.set_tag(key=obj.get_name(), value='1')
+                self.set_object_collider(obj=obj,
+                                         type='static',
+                                         col_name='{0}:BS'.format(obj.get_name()),
+                                         shape=shape,
+                                         mask=self.mask1)
             if type == "env":
                 if hasattr(obj, "set_tag"):
                     obj.set_tag(key=obj.get_name(), value='1')
                 self.set_object_collider(obj=obj,
+                                         type='static',
                                          col_name='{0}:BS'.format(obj.get_name()),
                                          shape=shape,
                                          mask=self.mask1)
+
+            if type == "item":
+                if hasattr(obj, "set_tag"):
+                    obj.set_tag(key=obj.get_name(), value='1')
+                self.set_object_collider(obj=obj,
+                                         type='dynamic',
+                                         col_name='{0}:BS'.format(obj.get_name()),
+                                         shape=shape,
+                                         mask=self.mask0)
             if type == "player":
                 self.korlan = obj
                 if hasattr(self.korlan, "set_tag"):
@@ -80,13 +98,6 @@ class Collisions:
                                         shape=shape,
                                         mask=self.mask1,
                                         type="actor")
-            if type == "item":
-                if hasattr(obj, "set_tag"):
-                    obj.set_tag(key=obj.get_name(), value='1')
-                self.set_object_collider(obj=obj,
-                                         col_name='{0}:BS'.format(obj.get_name()),
-                                         shape=shape,
-                                         mask=self.mask0)
 
     def set_actor_collider(self, actor, col_name, shape, mask, type):
         if (actor
@@ -135,16 +146,18 @@ class Collisions:
                 actor.set_y(0)
                 actor.set_x(0)
 
-    def set_object_collider(self, obj, col_name, shape, mask):
+    def set_object_collider(self, obj, type, col_name, shape, mask):
         if (obj
                 and col_name
+                and isinstance(type, str)
                 and shape
                 and mask
                 and isinstance(col_name, str)
                 and isinstance(shape, str)):
             if base.menu_mode is False and base.game_mode:
+                # TODO: Remove cube-related code block further
                 if shape == 'cube':
-                    object_bs = self.bs.set_bs_cube()
+                    object_bs = self.bs.set_bs_auto(obj=obj, type=type)
                     if self.physics_attr.world_nodepath:
                         obj_bs_np = self.physics_attr.world_nodepath.attach_new_node(BulletRigidBodyNode(col_name))
                         obj_bs_np.node().set_mass(1.0)
@@ -152,8 +165,36 @@ class Collisions:
                         obj_bs_np.set_collide_mask(mask)
                         self.physics_attr.world.attach(obj_bs_np.node())
                         obj.reparent_to(obj_bs_np)
+
                         obj_bs_np.set_pos(obj.get_pos())
-                        obj_bs_np.set_scale(0.20, 0.20, 0.20)
-                        obj.set_pos(0.0, 3.70, -0.50)
-                        obj.set_hpr(0, 0, 0)
-                        obj.set_scale(6.25, 6.25, 6.25)
+                        obj_bs_np.set_scale(obj.get_scale())
+                        # Make item position zero because now it's a child of bullet shape
+                        obj.set_pos(0, 0, 0)
+                if shape == 'convex':
+                    object_bs = self.bs.set_bs_convex(obj=obj)
+                    if self.physics_attr.world_nodepath:
+                        obj_bs_np = self.physics_attr.world_nodepath.attach_new_node(BulletRigidBodyNode(col_name))
+                        obj_bs_np.node().set_mass(1.0)
+                        obj_bs_np.node().add_shape(object_bs)
+                        obj_bs_np.set_collide_mask(mask)
+                        self.physics_attr.world.attach(obj_bs_np.node())
+                        obj.reparent_to(obj_bs_np)
+
+                        obj_bs_np.set_pos(obj.get_pos())
+                        obj_bs_np.set_scale(obj.get_scale())
+                        # Make item position zero because now it's a child of bullet shape
+                        obj.set_pos(0, 0, 0)
+                if shape == 'auto':
+                    object_bs = self.bs.set_bs_auto(obj=obj, type=type)
+                    if self.physics_attr.world_nodepath:
+                        obj_bs_np = self.physics_attr.world_nodepath.attach_new_node(BulletRigidBodyNode(col_name))
+                        obj_bs_np.node().set_mass(1.0)
+                        obj_bs_np.node().add_shape(object_bs)
+                        obj_bs_np.set_collide_mask(mask)
+                        self.physics_attr.world.attach(obj_bs_np.node())
+                        obj.reparent_to(obj_bs_np)
+
+                        obj_bs_np.set_pos(obj.get_pos())
+                        obj_bs_np.set_scale(obj.get_scale())
+                        # Make item position zero because now it's a child of bullet shape
+                        obj.set_pos(0, 0, 0)

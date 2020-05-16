@@ -142,14 +142,6 @@ class LevelOne:
                                              scale=[1.25, 1.25, 1.25],
                                              culling=True))
 
-        taskMgr.add(self.scene_one.set_asset(path=assets['Box'],
-                                             mode="game",
-                                             name="Box",
-                                             axis=[0.0, -9.0, self.pos_z],
-                                             rotation=[65, 0, 0],
-                                             scale=[1.25, 1.25, 1.25],
-                                             culling=False))
-
         taskMgr.add(self.scene_one.set_env(path=assets['Ground'],
                                            mode="game",
                                            name="Ground",
@@ -167,6 +159,14 @@ class LevelOne:
                                            scale=[1.25, 1.25, 1.25],
                                            type='mountains',
                                            culling=False))
+
+        taskMgr.add(self.scene_one.set_asset(path=assets['Box'],
+                                             mode="game",
+                                             name="Box",
+                                             axis=[0.0, -9.0, self.pos_z],
+                                             rotation=[65, 0, 0],
+                                             scale=[1.25, 1.25, 1.25],
+                                             culling=False))
 
         taskMgr.add(self.korlan.set_actor(mode="game",
                                           name="Korlan",
