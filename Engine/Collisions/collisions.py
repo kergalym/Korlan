@@ -60,7 +60,7 @@ class Collisions:
                 if hasattr(obj, "set_tag"):
                     obj.set_tag(key=obj.get_name(), value='1')
                 self.set_object_collider(obj=obj,
-                                         type='static',
+                                         type='dynamic',
                                          col_name='{0}:BS'.format(obj.get_name()),
                                          shape=shape,
                                          mask=self.mask1)

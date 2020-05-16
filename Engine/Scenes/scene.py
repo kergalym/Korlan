@@ -184,6 +184,8 @@ class SceneOne:
                 if scene.get_name() == 'Nomad_house':
                     for child in scene.get_children():
                         self.col.set_collision(obj=child, type="child", shape="auto")
+                        for child_inner in child.get_children():
+                            self.col.set_collision(obj=child_inner, type="child", shape="auto")
 
                 if scene.get_name() == "Box":
                     self.col.set_collision(obj=scene, type="item", shape="cube")
