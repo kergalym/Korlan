@@ -62,5 +62,5 @@
   "rot_p": "Rotation by P Axis",
   "rot_r": "Rotation by R Axis",
   "node_exp": "Enable Node Explorer",
-  "cache_clean": "Автооочистка кэша"
+  "cache_clean": "Автоочистка кэша"
 }
