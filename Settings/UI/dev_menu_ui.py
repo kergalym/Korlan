@@ -84,10 +84,14 @@ class DevMenuUI(DevMode):
         self.inp_rot_h = None
         self.inp_rot_p = None
         self.inp_rot_r = None
+
         self.node_frame = None
         self.lbl_node_exp = None
         self.lbl_perc_node_exp = None
+        self.lbl_cc = None
+        self.lbl_perc_cc = None
         self.slider_node_exp = None
+        self.slider_cc = None
 
         self.btn_back_options = None
         self.btn_save_changes = None
@@ -283,12 +287,31 @@ class DevMenuUI(DevMode):
                                               scale=self.lbl_scale,
                                               parent=self.base.frame_int_dev, mayChange=True)
 
+        self.lbl_cc = DirectLabel(text=self.language['cache_clean'], text_bg=(0, 0, 0, 1),
+                                  text_fg=(255, 255, 255, 0.9),
+                                  text_font=self.font.load_font(self.menu_font),
+                                  frameColor=(255, 255, 255, self.frm_opacity),
+                                  scale=self.lbl_scale, borderWidth=(self.w, self.h),
+                                  parent=self.base.frame_int_dev)
+
+        self.lbl_perc_cc = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+                                        font=self.font.load_font(self.menu_font),
+                                        scale=self.lbl_scale,
+                                        parent=self.base.frame_int_dev, mayChange=True)
+
         self.slider_node_exp = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
                                             value=self.node_exp_value(),
                                             scale=.2, borderWidth=(self.w, self.h),
                                             parent=self.base.frame_int_dev,
                                             orientation=DGG.HORIZONTAL,
                                             command=self.set_slider_node_exp_wrapper)
+
+        self.slider_cc = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
+                                      value=self.cc_value(),
+                                      scale=.2, borderWidth=(self.w, self.h),
+                                      parent=self.base.frame_int_dev,
+                                      orientation=DGG.HORIZONTAL,
+                                      command=self.set_slider_cache_clean_wrapper)
 
         self.btn_back_options = DirectButton(text=self.language['back'], text_bg=(0, 0, 0, 1),
                                              text_fg=(255, 255, 255, 0.9),
@@ -338,6 +361,10 @@ class DevMenuUI(DevMode):
         self.lbl_node_exp.set_pos(-1.5, 0, -0.7)
         self.slider_node_exp.set_pos(-0.8, 0, -0.7)
         self.lbl_perc_node_exp.set_pos(-0.5, 0, -0.7)
+
+        self.lbl_cc.set_pos(-1.5, 0, -0.8)
+        self.slider_cc.set_pos(-0.8, 0, -0.8)
+        self.lbl_perc_cc.set_pos(-0.5, 0, -0.8)
 
         self.btn_back_options.set_pos(-1.5, 0, -0.9)
         self.btn_save_changes.set_pos(-0.5, 0, -0.9)
@@ -419,3 +446,20 @@ class DevMenuUI(DevMode):
         self.lbl_perc_node_exp.setText(string)
         self.save_node_exp_value(string)
 
+    def set_slider_cache_clean_wrapper(self):
+        """ Function    : set_slider_node_exp_wrapper
+
+            Description : Wrapper function.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
+        # Make it int and then str
+        i = int(self.slider_cc['value'])
+        cc_dict = self.load_cc_value()
+        string = cc_dict[i]
+        self.lbl_perc_cc.setText(string)
+        self.save_cc_value(string)

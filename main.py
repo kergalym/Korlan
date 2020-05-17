@@ -3,6 +3,7 @@ import logging
 import re
 import json
 import configparser
+from shutil import rmtree
 from sys import exit as sys_exit
 from os import mkdir, listdir, walk
 from os.path import isdir, isfile, exists
@@ -64,6 +65,7 @@ game_settings['Keymap'] = {'forward': 'W',
 
 game_settings['Debug'] = {}
 game_settings['Debug'] = {'set_debug_mode': 'NO',
+                          'cache_autoclean': 'NO',
                           'player_pos_x': '0.0',
                           'player_pos_y': '8.0',
                           'player_pos_z': '-1.09',
@@ -92,7 +94,6 @@ p3d.load_prc_file_data(
     'bullet-filter-algorithm groups-mask\n'
     'hardware-animated-vertices false\n'
     'basic-shaders-only false\n'
-    # 'gl-coordinate-system default\n'
 )
 
 
@@ -119,6 +120,11 @@ class Main(ShowBase):
         self.menu_mode = False
 
         self.game_settings.read("{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename))
+
+        if self.game_settings['Debug']['cache_autoclean'] == 'YES':
+            if (exists("{}/Cache".format(self.game_dir))
+                    and isdir("{}/Cache".format(self.game_dir))):
+                rmtree("{}/Cache".format(self.game_dir))
 
         if self.game_settings['Debug']['set_debug_mode'] == 'YES':
             print("Is threading supported: ", Thread.isThreadingSupported(), "\n")
@@ -788,7 +794,7 @@ class Main(ShowBase):
         self.render_attr.set_lighting(name='pointLight',
                                       render=self.render,
                                       pos=[0, 50, 10],
-                                      hpr=[180, -20, 0],
+                                      hpr=[180, 130, 0],
                                       color=[0.2],
                                       task="attach")
         """self.render_attr.set_lighting(name='pointLight',

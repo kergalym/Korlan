@@ -122,8 +122,7 @@ class RenderAttr:
                     else:
                         render.clearLight()
 
-                elif (self.render_pipeline
-                      and self.game_settings['Main']['postprocessing'] == 'on'):
+                if self.game_settings['Main']['postprocessing'] == 'on':
                     # RP doesn't have nodegraph-like structure to find and remove lights,
                     # so we check self.rp_light before adding light
                     light = PointLight()
@@ -144,4 +143,3 @@ class RenderAttr:
                     if light:
                         base.rp_lights.remove(light)
                         self.render_pipeline.remove_light(light)
-

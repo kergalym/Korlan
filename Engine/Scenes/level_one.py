@@ -84,10 +84,11 @@ class LevelOne:
         self.unload_menu_scene()
 
         """ Assets """
+
         self.render_attr.set_lighting(name='light',
                                       render=self.render,
                                       pos=[0, 15.0, 0],
-                                      hpr=[180, -20, 0],
+                                      hpr=[180, 130, 0],
                                       color=[0.5],
                                       task="attach")
         """self.render_attr.set_lighting(name='light',

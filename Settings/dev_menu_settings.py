@@ -271,3 +271,22 @@ class DevMode(MenuSettings):
             loaded_settings['Debug']['set_debug_mode'] = data
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
+
+    def load_cc_value(self):
+        cc_stat = {1: 'YES', 2: 'NO'}
+        return cc_stat
+
+    def cc_value(self):
+        loaded_settings = self.load_settings()
+        # import pdb; pdb.set_trace()
+        if loaded_settings['Debug']['cache_autoclean'] == 'YES':
+            return 1
+        elif loaded_settings['Debug']['cache_autoclean'] == 'NO':
+            return 2
+
+    def save_cc_value(self, data):
+        loaded_settings = self.load_settings()
+        if isinstance(data, str):
+            loaded_settings['Debug']['cache_autoclean'] = data
+            with open(self.cfg_path, "w") as cfg_file:
+                loaded_settings.write(cfg_file)
