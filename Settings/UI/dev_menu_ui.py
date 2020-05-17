@@ -447,7 +447,7 @@ class DevMenuUI(DevMode):
         self.save_node_exp_value(string)
 
     def set_slider_cache_clean_wrapper(self):
-        """ Function    : set_slider_node_exp_wrapper
+        """ Function    : set_slider_cache_clean_wrapper
 
             Description : Wrapper function.
 
