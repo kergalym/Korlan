@@ -2,7 +2,6 @@ from direct.fsm.FSM import FSM
 from direct.showbase.DirectObject import DirectObject
 from configparser import ConfigParser
 from direct.task.TaskManagerGlobal import taskMgr
-from Engine.Collisions.collisions import Collisions
 
 
 class FsmPlayer(FSM):
@@ -24,7 +23,6 @@ class FsmPlayer(FSM):
         self.render = render
         self.player = None
         self.taskMgr = taskMgr
-        self.col = Collisions()
 
     def get_player(self, actor):
         if actor and isinstance(actor, str):

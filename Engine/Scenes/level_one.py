@@ -3,10 +3,10 @@ from panda3d.core import *
 from Engine.Actors.Player.korlan import Korlan
 from Engine.Actors.Player.state import PlayerState
 from Engine.Actors.NPC.npc import NPC
-from Engine.Collisions.collisions import Collisions
 from Engine.FSM.env_ai import EnvAI
 from Engine.FSM.npc_ai import NpcAI
 from Engine.Scenes.scene import SceneOne
+from Engine.Physics.physics import PhysicsAttr
 from Engine.Render.render import RenderAttr
 from Settings.UI.stat_ui import StatUI
 
@@ -28,7 +28,7 @@ class LevelOne:
         self.npc = NPC()
         self.stat_ui = StatUI()
         self.player_state = PlayerState()
-        self.col = Collisions()
+        self.physics_attr = PhysicsAttr()
         self.fsm_env = EnvAI()
         self.fsm_npc = NpcAI()
         self.pos_x = None
@@ -40,13 +40,33 @@ class LevelOne:
         if self.base.game_mode:
             self.base.game_mode = False
             self.base.menu_mode = True
+            assets = self.base.assets_collector()
 
-            self.player_state.clear_state()
+            # Remove all lights
+            if self.game_settings['Main']['postprocessing'] == 'off':
+                render.clearLight()
+                if not render.find("**/+Light").is_empty():
+                    render.find("**/+Light").remove_node()
+            elif (self.render_pipeline
+                  and self.game_settings['Main']['postprocessing'] == 'on'):
+                self.render_attr.clear_lighting()
 
             # Remove Bullet World
             if not render.find("**/World").is_empty():
                 for i in range(render.find("**/World").get_num_nodes()):
                     render.find("**/World").remove_node()
+
+            # make pattern list from assets dict
+            pattern = [key for key in assets]
+            # use pattern to remove nodes corresponding to asset names
+            for node in pattern:
+                if not render.find("**/{0}".format(node)).is_empty():
+                    render.find("**/{0}".format(node)).remove_node()
+
+            for key in assets:
+                self.loader.unload_model(assets[key])
+
+            self.player_state.clear_state()
 
             base.game_mode = False
             base.menu_mode = True
@@ -58,6 +78,8 @@ class LevelOne:
         # Remove all lights
         if self.game_settings['Main']['postprocessing'] == 'off':
             render.clearLight()
+            if not render.find("**/+Light").is_empty():
+                render.find("**/+Light").remove_node()
         elif (self.render_pipeline
               and self.game_settings['Main']['postprocessing'] == 'on'):
             self.render_attr.clear_lighting()
@@ -71,7 +93,7 @@ class LevelOne:
         pattern = [key for key in assets]
         # use pattern to remove nodes corresponding to asset names
         for node in pattern:
-            if render.find("**/{0}".format(node)).is_empty() is False:
+            if not render.find("**/{0}".format(node)).is_empty():
                 render.find("**/{0}".format(node)).remove_node()
 
         for key in assets:
@@ -117,6 +139,12 @@ class LevelOne:
         assets = self.base.assets_collector()
         anims = self.base.asset_animations_collector()
 
+        level_assets = {'name': ['Korlan', 'NPC', 'Box', 'lvl_one'],
+                        'type': ['player', 'npc', 'child', 'level'],
+                        'shape': ['capsule', 'capsule', 'auto', 'auto']
+                        }
+        base.level_assets = level_assets
+
         """ Async Loading """
         taskMgr.add(self.scene_one.set_env(path=assets['Sky'],
                                            mode="game",
@@ -127,6 +155,13 @@ class LevelOne:
                                            type='skybox',
                                            culling=False))
 
+        taskMgr.add(self.scene_one.set_level(path=assets['lvl_one'],
+                                             name="lvl_one",
+                                             axis=[20.0, 10.0, self.pos_z],
+                                             rotation=[0, 0, 0],
+                                             scale=[1.25, 1.25, 1.25],
+                                             culling=False))
+        """
         taskMgr.add(self.scene_one.set_asset(path=assets['Grass'],
                                              mode="game",
                                              name="Grass",
@@ -160,6 +195,7 @@ class LevelOne:
                                            scale=[1.25, 1.25, 1.25],
                                            type='mountains',
                                            culling=False))
+        """
 
         taskMgr.add(self.scene_one.set_asset(path=assets['Box'],
                                              mode="game",
@@ -191,6 +227,8 @@ class LevelOne:
         taskMgr.add(self.stat_ui.show_game_stat_task,
                     "show_game_stat",
                     appendTask=True)
+
+        self.physics_attr.set_physics_world(assets=level_assets)
 
     def save_game(self):
         pass

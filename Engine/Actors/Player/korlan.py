@@ -1,7 +1,5 @@
 from Engine.Actors.Player.actions import Actions
 from Engine.Actors.Player.state import PlayerState
-
-from Engine.Collisions.collisions import Collisions
 from Engine import set_tex_transparency
 from direct.actor.Actor import Actor
 from panda3d.core import WindowProperties, Texture
@@ -42,11 +40,9 @@ class Korlan:
         self.taskMgr = taskMgr
         self.kbd = Keyboard()
         self.mouse = Mouse()
-        self.col = Collisions()
         self.render_attr = RenderAttr()
         self.act = Actions()
         self.state = PlayerState()
-        self.col = Collisions()
         self.actor_life_perc = None
         self.base.actor_is_dead = False
         self.base.actor_is_alive = False
@@ -153,6 +149,8 @@ class Korlan:
                 self.scale_y = scale[1]
                 self.scale_z = scale[2]
 
+                base.player_is_loaded = 0
+
                 self.korlan = await self.base.loader.load_model(path, blocking=False)
                 self.korlan = Actor(self.korlan, animation[1])
 
@@ -201,6 +199,6 @@ class Korlan:
                             "actor_life",
                             appendTask=True)
 
-                self.col.set_collision(obj=self.korlan,
-                                       type="player",
-                                       shape="capsule")
+                base.player_is_loaded = 1
+
+

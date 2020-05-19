@@ -4,7 +4,6 @@ from Engine.Actors.Player.state import PlayerState
 from Engine.FSM.player_fsm import FsmPlayer
 from Engine.FSM.env_ai import EnvAI
 from Engine.Items.items import Items
-from Engine.Collisions.collisions import Collisions
 from direct.task.TaskManagerGlobal import taskMgr
 
 from Settings.Input.keyboard import Keyboard
@@ -35,7 +34,6 @@ class Actions:
         self.items = Items()
         self.player_menu = PlayerMenuUI()
         self.state = PlayerState()
-        self.col = Collisions()
 
     """ Play animation after action """
 

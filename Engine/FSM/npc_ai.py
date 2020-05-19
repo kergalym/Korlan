@@ -78,6 +78,9 @@ class NpcAI(FSM):
                             behaviors.wander(vect["wander_radius"],
                                              vect["plane_flag"],
                                              vect["area_of_effect"])
+                        elif behavior == "path_finding":
+                            # TODO: Change it
+                            behaviors.initPathFind("navmesh.csv")
                         elif behavior == "path_follow":
                             behaviors.path_follow(1)
                             behaviors.add_to_path(player.get_pos())

@@ -1,6 +1,7 @@
-from Engine import set_tex_transparency
+# from Engine import set_tex_transparency
 from direct.actor.Actor import Actor
-from Engine.Collisions.collisions import Collisions
+from Engine.Physics.physics import PhysicsAttr
+# from Engine.Collisions.collisions import Collisions
 from direct.task.TaskManagerGlobal import taskMgr
 from Engine.Render.render import RenderAttr
 from Engine.Actors.NPC.state import NpcState
@@ -27,7 +28,7 @@ class NPC:
         self.game_dir = base.game_dir
         self.render_attr = RenderAttr()
         self.npc_state = NpcState()
-        self.col = Collisions()
+        self.physics_attr = PhysicsAttr()
         self.fsm_env = EnvAI()
         self.fsm_npc = NpcAI()
         self.actor_life_perc = None
@@ -45,6 +46,21 @@ class NPC:
             self.base.actor_is_alive = True
         else:
             return False
+
+    def update_npc_ai_stat(self, task):
+        if "BS" in self.actor.get_parent().get_name():
+            actor = self.actor.get_parent()
+            # self.fsm_npc.set_npc_ai(actor=actor, behavior="seek")
+            # self.fsm_npc.set_npc_ai(actor=actor, behavior="flee")
+            # self.fsm_npc.set_npc_ai(actor=actor, behavior="pursuer")
+            # self.fsm_npc.set_npc_ai(actor=actor, behavior="evader")
+            self.fsm_npc.set_npc_ai(actor=actor, behavior="wanderer")
+            # self.fsm_npc.set_npc_ai(actor=actor, behavior="obs_avoid")
+            # self.fsm_npc.set_npc_ai(actor=actor, behavior="path_follow")
+            # self.fsm_npc.set_npc_ai(actor=actor, behavior="path_finding")
+            # self.fsm_npc.request("Walk")
+            return task.done
+        return task.cont
 
     async def set_actor(self, mode, name, path, animation, axis, rotation, scale, culling):
 
@@ -66,6 +82,8 @@ class NPC:
             self.scale_x = scale[0]
             self.scale_y = scale[1]
             self.scale_z = scale[2]
+
+            base.npc_is_loaded = 0
 
             self.actor = await self.base.loader.load_model(path, blocking=False)
             self.actor = Actor(self.actor, animation[1])
@@ -98,9 +116,7 @@ class NPC:
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
                 self.render.analyze()
 
-            self.col.set_collision(obj=self.actor,
-                                   type="actor",
-                                   shape="capsule")
+            base.npc_is_loaded = 1
 
             taskMgr.add(self.actor_life,
                         "actor_life")
@@ -109,13 +125,6 @@ class NPC:
 
             self.fsm_env.set_ai_world()
 
-            if "BS" in self.actor.get_parent().get_name():
-                actor = self.actor.get_parent()
-                # self.fsm_npc.set_npc_ai(actor=actor, behavior="seek")
-                # self.fsm_npc.set_npc_ai(actor=actor, behavior="flee")
-                # self.fsm_npc.set_npc_ai(actor=actor, behavior="pursuer")
-                # self.fsm_npc.set_npc_ai(actor=actor, behavior="evader")
-                self.fsm_npc.set_npc_ai(actor=actor, behavior="wanderer")
-                # self.fsm_npc.set_npc_ai(actor=actor, behavior="obs_avoid")
-                # self.fsm_npc.set_npc_ai(actor=actor, behavior="path_follow")
-                # self.fsm_npc.request("Walk")
+            taskMgr.add(self.update_npc_ai_stat,
+                        "update_npc_ai_stat")
+

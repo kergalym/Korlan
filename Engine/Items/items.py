@@ -1,5 +1,4 @@
 from Engine.Actors.Player.state import PlayerState
-from Engine.Collisions.collisions import Collisions
 
 
 class Items:
@@ -8,7 +7,6 @@ class Items:
         self.base = base
         self.assets = base.assets_collector()
         self.state = PlayerState()
-        self.col = Collisions()
 
         self.dombra = {
             'type': 'item',

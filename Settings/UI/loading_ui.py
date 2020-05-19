@@ -89,26 +89,30 @@ class LoadingUI:
             self.title_loading_text.hide()
 
     def loading_measure(self, task):
-        assets = base.assets_collector()
-        nodes = base.asset_nodes_collector()
+        if hasattr(base, "level_assets"):
+            assets = base.level_assets
+            nodes = base.asset_nodes_collector()
 
-        # TODO: Fixme. Make nodes equal to assets without using +2 hack
-        for node, asset in zip(nodes, assets):
-            if hasattr(node, "get_name"):
+            # Add Ground and Sky count to assets
+            asset_num = len(assets['name']) + 2
+            if len(nodes) < asset_num:
+                if self.loading_bar:
+                    self.loading_bar['value'] += len(nodes)
 
-                if len(nodes) < len(assets):
-                    if self.loading_bar:
-                        self.loading_bar['value'] += len(nodes)
-
-                if len(nodes)+2 == len(assets):
-                    self.clear_loading_bar()
-                    return task.done
+            if len(nodes) == asset_num:
+                self.clear_loading_bar()
+                return task.done
 
         return task.cont
 
     def set_parallel_loading(self, type):
         if type and isinstance(type, str):
             if type == "new_game":
+
+                # Remove all remained nodes
+                if not render.find('**/*').is_empty():
+                    render.find('**/*').remove_node()
+
                 Sequence(Parallel(Func(self.set_loading_bar),
                                   Func(self.level_one.load_new_game))
                          ).start()

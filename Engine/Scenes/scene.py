@@ -1,6 +1,6 @@
 from panda3d.core import *
 from Engine.Actors.Player.korlan import Korlan
-from Engine.Collisions.collisions import Collisions
+from Engine.Physics.physics import PhysicsAttr
 from Engine.Render.render import RenderAttr
 
 
@@ -23,7 +23,7 @@ class SceneOne:
         self.node_path = NodePath()
         self.render_attr = RenderAttr()
         self.korlan = Korlan()
-        self.col = Collisions()
+        self.physics_attr = PhysicsAttr()
         self.base = base
         self.render = render
         self.game_settings = base.game_settings
@@ -31,8 +31,8 @@ class SceneOne:
         self.game_cfg = base.game_cfg
         self.game_cfg_dir = base.game_cfg_dir
         self.game_settings_filename = base.game_settings_filename
-        self.cfg_path = {"game_config_path":
-                         "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
+        self.cfg_path = {"game_config_path": "{0}/{1}".format(self.game_cfg_dir,
+                                                              self.game_settings_filename)}
 
     async def set_level(self, path, name, axis, rotation, scale, culling):
         if (isinstance(path, str)
@@ -53,6 +53,8 @@ class SceneOne:
             self.scale_y = scale[1]
             self.scale_z = scale[2]
 
+            base.level_is_loaded = 0
+
             # Load the scene.
             scene = await self.base.loader.load_model(path, blocking=False)
             scene.set_name(name)
@@ -70,11 +72,11 @@ class SceneOne:
             # Add collision for everything in level except sky because it's sphere we inside in
             for child in scene.get_children():
                 if child.get_name() != 'Sky':
-                    self.col.set_collision(obj=child, type="child", shape="auto")
+                    self.physics_attr.set_collision(obj=child, type="child", shape="auto")
                 if child.get_name() != 'Grass':
-                    self.col.set_collision(obj=child, type="child", shape="auto")
+                    self.physics_attr.set_collision(obj=child, type="child", shape="auto")
                 if child.get_name() != 'Ground':
-                    self.col.set_collision(obj=child, type="child", shape="auto")
+                    self.physics_attr.set_collision(obj=child, type="child", shape="auto")
 
             render.set_attrib(LightRampAttrib.make_hdr1())
 
@@ -89,6 +91,8 @@ class SceneOne:
             # shader generation is not enabled. It would be reasonable
             # to enable shader generation for the entire game, using this call:
             # scene.set_shader_auto()
+
+            base.level_is_loaded = 1
 
     # TODO: Remove set_asset async call block further
     async def set_asset(self, path, mode, name, axis, rotation, scale, culling):
@@ -181,15 +185,12 @@ class SceneOne:
                 scene.set_transparency(True)
 
                 # Add collision for everything in level except sky because it's sphere we inside in
-                if scene.get_name() == 'Nomad_house':
-                    for child in scene.get_children():
-                        self.col.set_collision(obj=child, type="child", shape="auto")
-                        for child_inner in child.get_children():
-                            if child_inner:
-                                self.col.set_collision(obj=child_inner, type="child", shape="auto")
+                if scene.get_name() == "Nomad_house" and not render.find('**/yurt').is_empty():
+                    self.physics_attr.set_collision(obj=render.find('**/yurt'), type="child", shape="auto")
+                    self.physics_attr.set_collision(obj=render.find('**/asadal'), type="child", shape="auto")
 
                 if scene.get_name() == "Box":
-                    self.col.set_collision(obj=scene, type="item", shape="cube")
+                    self.physics_attr.set_collision(obj=scene, type="item", shape="cube")
 
                 render.set_attrib(LightRampAttrib.make_hdr1())
 
@@ -223,6 +224,7 @@ class SceneOne:
                 if self.type == 'skybox':
                     # Load the scene.
                     scene = self.base.loader.load_model(path, blocking=True)
+                    scene.set_name(name)
                     scene.set_bin('background', 1)
                     scene.set_depth_write(0)
                     scene.set_light_off()
@@ -296,6 +298,7 @@ class SceneOne:
                 if self.type == 'skybox':
                     # Load the scene.
                     scene = await self.base.loader.load_model(path, blocking=False)
+                    scene.set_name(name)
                     scene.set_bin('background', 1)
                     scene.set_depth_write(0)
                     scene.set_light_off()
