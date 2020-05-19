@@ -71,6 +71,9 @@ class SceneOne:
 
             # Add collision for everything in level except sky because it's sphere we inside in
             for child in scene.get_children():
+                if child.get_name() == 'yurt':
+                    for x in child.get_children():
+                        self.physics_attr.set_collision(obj=x, type="child", shape="auto")
                 if child.get_name() != 'Sky':
                     self.physics_attr.set_collision(obj=child, type="child", shape="auto")
                 if child.get_name() != 'Grass':

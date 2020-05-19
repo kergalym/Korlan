@@ -161,41 +161,6 @@ class LevelOne:
                                              rotation=[0, 0, 0],
                                              scale=[1.25, 1.25, 1.25],
                                              culling=False))
-        """
-        taskMgr.add(self.scene_one.set_asset(path=assets['Grass'],
-                                             mode="game",
-                                             name="Grass",
-                                             axis=[20.0, 10.0, self.pos_z],
-                                             rotation=[0, 0, 0],
-                                             scale=[1.25, 1.25, 1.25],
-                                             culling=False))
-
-        taskMgr.add(self.scene_one.set_asset(path=assets['Nomad_house'],
-                                             mode="game",
-                                             name="Nomad_house",
-                                             axis=[9.0, 8.0, self.pos_z],
-                                             rotation=[16.70, 0, 0],
-                                             scale=[1.25, 1.25, 1.25],
-                                             culling=True))
-
-        taskMgr.add(self.scene_one.set_env(path=assets['Ground'],
-                                           mode="game",
-                                           name="Ground",
-                                           axis=[0.0, 10.0, self.pos_z],
-                                           rotation=[0, 0, 0],
-                                           scale=[1.25, 1.25, 1.25],
-                                           type='ground',
-                                           culling=False))
-
-        taskMgr.add(self.scene_one.set_env(path=assets['Mountains'],
-                                           mode="game",
-                                           name="Mountains",
-                                           axis=[0.0, 20.0, self.pos_z],
-                                           rotation=[0, 0, 0],
-                                           scale=[1.25, 1.25, 1.25],
-                                           type='mountains',
-                                           culling=False))
-        """
 
         taskMgr.add(self.scene_one.set_asset(path=assets['Box'],
                                              mode="game",
