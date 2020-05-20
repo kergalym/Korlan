@@ -93,12 +93,19 @@ class PhysicsAttr:
 
             if not render.find('**/yurt').is_empty() and render.find("**/yurt:BS").is_empty():
                 self.set_collision(obj=render.find('**/yurt'), type="env", shape="auto")
-                """for x in render.find('**/yurt').get_children():
-                    if (not render.find("**/{0}".format(x.get_name())).is_empty()
-                            and render.find("**/{0}:BS".format(x.get_name())).is_empty()):
-                        self.set_collision(obj=x,
+                for nested_child in render.find('**/yurt').get_children():
+                    if (not render.find("**/{0}".format(nested_child.get_name())).is_empty()
+                            and render.find("**/{0}:BS".format(nested_child.get_name())).is_empty()):
+                        self.set_collision(obj=nested_child,
                                            type='env',
-                                           shape='auto')"""
+                                           shape='auto')
+                    if nested_child.get_num_children() > 0:
+                        for nested_child_2 in nested_child.get_children():
+                            if (not render.find("**/{0}".format(nested_child_2.get_name())).is_empty()
+                                    and render.find("**/{0}:BS".format(nested_child_2.get_name())).is_empty()):
+                                self.set_collision(obj=nested_child_2,
+                                                   type='env',
+                                                   shape='auto')
 
         return task.cont
 
@@ -113,7 +120,6 @@ class PhysicsAttr:
 
             Return      : None
         """
-        # TODO: Fix duplicating by making it async and remove 'or not'
         if render.find("**/World").is_empty():
             # The above code creates a new node,
             # and it sets the worlds gravity to a downward vector with length 9.81.
@@ -177,7 +183,7 @@ class PhysicsAttr:
                 if hasattr(obj, "set_tag"):
                     obj.set_tag(key=obj.get_name(), value='1')
                 self.set_object_collider(obj=obj,
-                                         type='dynamic',
+                                         type='static',
                                          col_name='{0}:BS'.format(obj.get_name()),
                                          shape=shape,
                                          mask=self.mask1)
@@ -205,7 +211,7 @@ class PhysicsAttr:
                 self.set_actor_collider(actor=obj,
                                         col_name='{0}:BS'.format(obj.get_name()),
                                         shape=shape,
-                                        mask=self.mask1,
+                                        mask=self.mask0,
                                         type="npc")
 
     def set_actor_collider(self, actor, col_name, shape, mask, type):
@@ -283,7 +289,10 @@ class PhysicsAttr:
                     object_bs = self.bs.set_bs_auto(obj=obj, type=type)
                     if self.world_nodepath and object_bs:
                         obj_bs_np = self.world_nodepath.attach_new_node(BulletRigidBodyNode(col_name))
-                        obj_bs_np.node().set_mass(1.0)
+                        if type == 'dynamic':
+                            obj_bs_np.node().set_mass(1.0)
+                        elif type == 'static':
+                            obj_bs_np.node().set_mass(0)
                         obj_bs_np.node().add_shape(object_bs)
                         obj_bs_np.set_collide_mask(mask)
                         self.world.attach(obj_bs_np.node())
@@ -293,6 +302,4 @@ class PhysicsAttr:
                         obj_bs_np.set_scale(obj.get_scale())
                         # Make item position zero because now it's a child of bullet shape
                         obj.set_pos(0, 0, 0)
-
-                        obj_bs_np.node().set_kinematic(False)
 
