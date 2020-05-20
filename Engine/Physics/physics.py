@@ -70,6 +70,27 @@ class PhysicsAttr:
 
         return task.cont
 
+    def set_recursive_collision(self, obj):
+        if obj and obj.get_num_children() > 0:
+            if (not render.find("**/{0}".format(obj.get_name())).is_empty()
+                    and render.find("**/{0}:BS".format(obj.get_name())).is_empty()):
+                self.set_collision(obj=obj,
+                                   type='env',
+                                   shape='auto')
+            for nested_child in obj.get_children():
+                if (not render.find("**/{0}".format(nested_child.get_name())).is_empty()
+                        and render.find("**/{0}:BS".format(nested_child.get_name())).is_empty()):
+                    self.set_collision(obj=nested_child,
+                                       type='env',
+                                       shape='auto')
+                if nested_child.get_num_children() > 0:
+                    for nested_child_2 in nested_child.get_children():
+                        if (not render.find("**/{0}".format(nested_child_2.get_name())).is_empty()
+                                and render.find("**/{0}:BS".format(nested_child_2.get_name())).is_empty()):
+                            self.set_collision(obj=nested_child_2,
+                                               type='env',
+                                               shape='auto')
+
     def update_asset_collision_stat_task(self, assets, task):
         """ Function    : update_asset_collision_stat_task
 
@@ -93,19 +114,10 @@ class PhysicsAttr:
 
             if not render.find('**/yurt').is_empty() and render.find("**/yurt:BS").is_empty():
                 self.set_collision(obj=render.find('**/yurt'), type="env", shape="auto")
-                for nested_child in render.find('**/yurt').get_children():
-                    if (not render.find("**/{0}".format(nested_child.get_name())).is_empty()
-                            and render.find("**/{0}:BS".format(nested_child.get_name())).is_empty()):
-                        self.set_collision(obj=nested_child,
-                                           type='env',
-                                           shape='auto')
-                    if nested_child.get_num_children() > 0:
-                        for nested_child_2 in nested_child.get_children():
-                            if (not render.find("**/{0}".format(nested_child_2.get_name())).is_empty()
-                                    and render.find("**/{0}:BS".format(nested_child_2.get_name())).is_empty()):
-                                self.set_collision(obj=nested_child_2,
-                                                   type='env',
-                                                   shape='auto')
+                if render.find('**/yurt').get_num_children() > 0:
+                    for nested_child in render.find('**/yurt').get_children():
+                        if nested_child.get_num_children() > 0:
+                            self.set_recursive_collision(nested_child)
 
         return task.cont
 
