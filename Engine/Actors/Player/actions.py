@@ -9,7 +9,6 @@ from direct.task.TaskManagerGlobal import taskMgr
 from Settings.Input.keyboard import Keyboard
 from Settings.Input.mouse import Mouse
 from direct.interval.IntervalGlobal import *
-from Engine.Physics.physics import PhysicsAttr
 from Settings.UI.player_menu_ui import PlayerMenuUI
 
 
@@ -28,7 +27,6 @@ class Actions:
         self.taskMgr = taskMgr
         self.kbd = Keyboard()
         self.mouse = Mouse()
-        self.physics_attr = PhysicsAttr()
         self.fsm_env = EnvAI()
         self.fsm_player = FsmPlayer()
         self.items = Items()

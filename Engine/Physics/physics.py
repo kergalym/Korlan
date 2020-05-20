@@ -90,6 +90,16 @@ class PhysicsAttr:
                     self.set_collision(obj=render.find("**/{0}".format(name)),
                                        type=type,
                                        shape=shape)
+
+            if not render.find('**/yurt').is_empty() and render.find("**/yurt:BS").is_empty():
+                self.set_collision(obj=render.find('**/yurt'), type="env", shape="auto")
+                """for x in render.find('**/yurt').get_children():
+                    if (not render.find("**/{0}".format(x.get_name())).is_empty()
+                            and render.find("**/{0}:BS".format(x.get_name())).is_empty()):
+                        self.set_collision(obj=x,
+                                           type='env',
+                                           shape='auto')"""
+
         return task.cont
 
     def set_physics_world(self, assets):
@@ -111,8 +121,6 @@ class PhysicsAttr:
             # it is recommended to stick with SI units (kilogram, meter, second).
             # In SI units 9.81 m/s² is the gravity on Earth’s surface.
             self.world_nodepath = self.render.attach_new_node('World')
-        elif not render.find("**/World").is_empty():
-            self.world_nodepath = render.find("**/World")
         # Show a visual representation of the collisions occuring
         if self.game_settings['Debug']['set_debug_mode'] == "YES":
             self.debug_nodepath = self.world_nodepath.attach_new_node(BulletDebugNode('Debug'))
@@ -131,7 +139,7 @@ class PhysicsAttr:
         ground_nodepath = self.world_nodepath.attachNewNode(BulletRigidBodyNode('Ground'))
         ground_nodepath.node().addShape(ground_shape)
         ground_nodepath.set_pos(0, 0, 0.10)
-        ground_nodepath.set_collide_mask(BitMask32.allOn())
+        ground_nodepath.set_collide_mask(self.mask)
         self.world.attach_rigid_body(ground_nodepath.node())
 
         taskMgr.add(self.update_asset_collision_stat_task,
@@ -165,19 +173,11 @@ class PhysicsAttr:
         if (obj and type and shape
                 and isinstance(type, str)
                 and isinstance(shape, str)):
-            if type == "child":
-                if hasattr(obj, "set_tag"):
-                    obj.set_tag(key=obj.get_name(), value='1')
-                self.set_object_collider(obj=obj,
-                                         type='dynamic',
-                                         col_name='{0}:BS'.format(obj.get_name()),
-                                         shape=shape,
-                                         mask=self.mask1)
             if type == "env":
                 if hasattr(obj, "set_tag"):
                     obj.set_tag(key=obj.get_name(), value='1')
                 self.set_object_collider(obj=obj,
-                                         type='static',
+                                         type='dynamic',
                                          col_name='{0}:BS'.format(obj.get_name()),
                                          shape=shape,
                                          mask=self.mask1)
@@ -264,23 +264,9 @@ class PhysicsAttr:
                 and isinstance(col_name, str)
                 and isinstance(shape, str)):
             if base.menu_mode is False and base.game_mode:
-                # TODO: Remove cube-related code block further
-                if shape == 'cube':
-                    object_bs = self.bs.set_bs_auto(obj=obj, type=type)
-                    if self.world_nodepath:
-                        obj_bs_np = self.world_nodepath.attach_new_node(BulletRigidBodyNode(col_name))
-                        obj_bs_np.node().set_mass(1.0)
-                        obj_bs_np.node().add_shape(object_bs)
-                        obj_bs_np.set_collide_mask(mask)
-                        self.world.attach(obj_bs_np.node())
-                        obj.reparent_to(obj_bs_np)
-
-                        obj_bs_np.set_pos(obj.get_pos())
-                        obj_bs_np.set_scale(obj.get_scale())
-                        # Make item position zero because now it's a child of bullet shape
-                        obj.set_pos(0, 0, 0)
                 if shape == 'convex':
                     object_bs = self.bs.set_bs_convex(obj=obj)
+
                     if self.world_nodepath:
                         obj_bs_np = self.world_nodepath.attach_new_node(BulletRigidBodyNode(col_name))
                         obj_bs_np.node().set_mass(1.0)
@@ -295,7 +281,7 @@ class PhysicsAttr:
                         obj.set_pos(0, 0, 0)
                 if shape == 'auto':
                     object_bs = self.bs.set_bs_auto(obj=obj, type=type)
-                    if self.world_nodepath:
+                    if self.world_nodepath and object_bs:
                         obj_bs_np = self.world_nodepath.attach_new_node(BulletRigidBodyNode(col_name))
                         obj_bs_np.node().set_mass(1.0)
                         obj_bs_np.node().add_shape(object_bs)
@@ -307,3 +293,6 @@ class PhysicsAttr:
                         obj_bs_np.set_scale(obj.get_scale())
                         # Make item position zero because now it's a child of bullet shape
                         obj.set_pos(0, 0, 0)
+
+                        obj_bs_np.node().set_kinematic(False)
+

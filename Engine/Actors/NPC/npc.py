@@ -1,7 +1,5 @@
 # from Engine import set_tex_transparency
 from direct.actor.Actor import Actor
-from Engine.Physics.physics import PhysicsAttr
-# from Engine.Collisions.collisions import Collisions
 from direct.task.TaskManagerGlobal import taskMgr
 from Engine.Render.render import RenderAttr
 from Engine.Actors.NPC.state import NpcState
@@ -28,7 +26,6 @@ class NPC:
         self.game_dir = base.game_dir
         self.render_attr = RenderAttr()
         self.npc_state = NpcState()
-        self.physics_attr = PhysicsAttr()
         self.fsm_env = EnvAI()
         self.fsm_npc = NpcAI()
         self.actor_life_perc = None

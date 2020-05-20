@@ -1,6 +1,5 @@
 from panda3d.core import *
 from Engine.Actors.Player.korlan import Korlan
-from Engine.Physics.physics import PhysicsAttr
 from Engine.Render.render import RenderAttr
 
 
@@ -23,7 +22,6 @@ class SceneOne:
         self.node_path = NodePath()
         self.render_attr = RenderAttr()
         self.korlan = Korlan()
-        self.physics_attr = PhysicsAttr()
         self.base = base
         self.render = render
         self.game_settings = base.game_settings
@@ -68,18 +66,6 @@ class SceneOne:
 
             # Panda3D 1.10 doesn't enable alpha blending for textures by default
             scene.set_transparency(True)
-
-            # Add collision for everything in level except sky because it's sphere we inside in
-            for child in scene.get_children():
-                if child.get_name() == 'yurt':
-                    for x in child.get_children():
-                        self.physics_attr.set_collision(obj=x, type="child", shape="auto")
-                if child.get_name() != 'Sky':
-                    self.physics_attr.set_collision(obj=child, type="child", shape="auto")
-                if child.get_name() != 'Grass':
-                    self.physics_attr.set_collision(obj=child, type="child", shape="auto")
-                if child.get_name() != 'Ground':
-                    self.physics_attr.set_collision(obj=child, type="child", shape="auto")
 
             render.set_attrib(LightRampAttrib.make_hdr1())
 
@@ -186,14 +172,6 @@ class SceneOne:
 
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 scene.set_transparency(True)
-
-                # Add collision for everything in level except sky because it's sphere we inside in
-                if scene.get_name() == "Nomad_house" and not render.find('**/yurt').is_empty():
-                    self.physics_attr.set_collision(obj=render.find('**/yurt'), type="child", shape="auto")
-                    self.physics_attr.set_collision(obj=render.find('**/asadal'), type="child", shape="auto")
-
-                if scene.get_name() == "Box":
-                    self.physics_attr.set_collision(obj=scene, type="item", shape="cube")
 
                 render.set_attrib(LightRampAttrib.make_hdr1())
 

@@ -139,9 +139,9 @@ class LevelOne:
         assets = self.base.assets_collector()
         anims = self.base.asset_animations_collector()
 
-        level_assets = {'name': ['Korlan', 'NPC', 'Box', 'lvl_one'],
-                        'type': ['player', 'npc', 'child', 'level'],
-                        'shape': ['capsule', 'capsule', 'auto', 'auto']
+        level_assets = {'name': ['lvl_one', 'Korlan', 'NPC', 'Box'],
+                        'type': ['level', 'player', 'npc', 'item'],
+                        'shape': ['auto', 'capsule', 'capsule', 'auto']
                         }
         base.level_assets = level_assets
 

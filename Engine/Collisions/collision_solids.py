@@ -62,14 +62,15 @@ class BulletCollisionSolids:
 
     def set_bs_auto(self, obj, type):
         if obj and isinstance(type, str):
-            geom = obj.find('**/+GeomNode').node().get_geom(0)
-            mesh = BulletTriangleMesh()
-            mesh.add_geom(geom)
-            bool_ = None
-            if type == 'dynamic':
-                bool_ = True
-            if type == 'static':
-                bool_ = False
-            shape = BulletTriangleMeshShape(mesh, dynamic=bool_)
-            return shape
+            if not obj.find('**/+GeomNode').is_empty():
+                geom = obj.find('**/+GeomNode').node().get_geom(0)
+                mesh = BulletTriangleMesh()
+                mesh.add_geom(geom)
+                bool_ = None
+                if type == 'dynamic':
+                    bool_ = True
+                if type == 'static':
+                    bool_ = False
+                shape = BulletTriangleMeshShape(mesh, dynamic=bool_)
+                return shape
 
