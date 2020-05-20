@@ -91,8 +91,8 @@ class PhysicsAttr:
                                                type='env',
                                                shape='auto')
 
-    def update_asset_collision_stat_task(self, assets, task):
-        """ Function    : update_asset_collision_stat_task
+    def update_asset_collision_task(self, assets, task):
+        """ Function    : update_asset_collision_task
 
             Description : Update asset statistics
 
@@ -160,7 +160,7 @@ class PhysicsAttr:
         ground_nodepath.set_collide_mask(self.mask)
         self.world.attach_rigid_body(ground_nodepath.node())
 
-        taskMgr.add(self.update_asset_collision_stat_task,
+        taskMgr.add(self.update_asset_collision_task,
                     "update_asset_stat",
                     extraArgs=[assets],
                     appendTask=True)
