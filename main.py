@@ -91,9 +91,11 @@ p3d.load_prc_file_data(
     'audio-library-name p3openal_audio\n'
     'model-cache-dir Cache\n'
     'model-cache-textures t\n'
+    'compressed-textures 0\n'
     'bullet-filter-algorithm groups-mask\n'
     'hardware-animated-vertices false\n'
     'basic-shaders-only false\n'
+    'default-far 10000\n'
 )
 
 

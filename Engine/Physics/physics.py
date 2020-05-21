@@ -298,6 +298,9 @@ class PhysicsAttr:
                         # Make item position zero because now it's a child of bullet shape
                         obj.set_pos(0, 0, 0)
                 if shape == 'auto':
+                    # Save parent before attaching mesh to collider
+                    top_parent = obj.get_parent()
+
                     object_bs = self.bs.set_bs_auto(obj=obj, type=type)
                     if self.world_nodepath and object_bs:
                         obj_bs_np = self.world_nodepath.attach_new_node(BulletRigidBodyNode(col_name))
@@ -314,4 +317,7 @@ class PhysicsAttr:
                         obj_bs_np.set_scale(obj.get_scale())
                         # Make item position zero because now it's a child of bullet shape
                         obj.set_pos(0, 0, 0)
+
+                        if top_parent:
+                            obj_bs_np.reparent_to(top_parent)
 

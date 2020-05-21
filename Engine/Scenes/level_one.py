@@ -105,6 +105,8 @@ class LevelOne:
     def load_new_game(self):
         self.unload_menu_scene()
 
+        # base.camLens.setFar(50)
+
         """ Assets """
 
         self.render_attr.set_lighting(name='light',

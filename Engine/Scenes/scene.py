@@ -67,6 +67,12 @@ class SceneOne:
             # Panda3D 1.10 doesn't enable alpha blending for textures by default
             scene.set_transparency(True)
 
+            lod = LODNode('Level_LOD')
+            lod_np = NodePath(lod)
+            lod_np.reparent_to(render)
+            lod.add_switch(20.0, 0.0)
+            scene.reparent_to(lod_np)
+
             render.set_attrib(LightRampAttrib.make_hdr1())
 
             if self.game_settings['Main']['postprocessing'] == 'off':
