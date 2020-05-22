@@ -141,6 +141,7 @@ class LevelOne:
         assets = self.base.assets_collector()
         anims = self.base.asset_animations_collector()
 
+        # List used by loading screen
         level_assets = {'name': ['lvl_one', 'Korlan', 'NPC', 'Box'],
                         'type': ['level', 'player', 'npc', 'item'],
                         'shape': ['auto', 'capsule', 'capsule', 'auto']

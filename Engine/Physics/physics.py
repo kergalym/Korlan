@@ -39,6 +39,27 @@ class PhysicsAttr:
         self.mask3 = BitMask32.bit(3)
         self.mask5 = BitMask32.bit(5)
 
+    def set_recursive_collision(self, obj):
+        if obj and obj.get_num_children() > 0:
+            if (not render.find("**/{0}".format(obj.get_name())).is_empty()
+                    and render.find("**/{0}:BS".format(obj.get_name())).is_empty()):
+                self.set_collision(obj=obj,
+                                   type='env',
+                                   shape='auto')
+            for nested_child in obj.get_children():
+                if (not render.find("**/{0}".format(nested_child.get_name())).is_empty()
+                        and render.find("**/{0}:BS".format(nested_child.get_name())).is_empty()):
+                    self.set_collision(obj=nested_child,
+                                       type='env',
+                                       shape='auto')
+                if nested_child.get_num_children() > 0:
+                    for nested_child_2 in nested_child.get_children():
+                        if (not render.find("**/{0}".format(nested_child_2.get_name())).is_empty()
+                                and render.find("**/{0}:BS".format(nested_child_2.get_name())).is_empty()):
+                            self.set_collision(obj=nested_child_2,
+                                               type='env',
+                                               shape='auto')
+
     def update_physics_task(self, task):
         """ Function    : update_physics_task
 
@@ -70,27 +91,16 @@ class PhysicsAttr:
 
         return task.cont
 
-    def set_recursive_collision(self, obj):
-        if obj and obj.get_num_children() > 0:
-            if (not render.find("**/{0}".format(obj.get_name())).is_empty()
-                    and render.find("**/{0}:BS".format(obj.get_name())).is_empty()):
-                self.set_collision(obj=obj,
-                                   type='env',
-                                   shape='auto')
-            for nested_child in obj.get_children():
-                if (not render.find("**/{0}".format(nested_child.get_name())).is_empty()
-                        and render.find("**/{0}:BS".format(nested_child.get_name())).is_empty()):
-                    self.set_collision(obj=nested_child,
-                                       type='env',
-                                       shape='auto')
-                if nested_child.get_num_children() > 0:
-                    for nested_child_2 in nested_child.get_children():
-                        if (not render.find("**/{0}".format(nested_child_2.get_name())).is_empty()
-                                and render.find("**/{0}:BS".format(nested_child_2.get_name())).is_empty()):
-                            self.set_collision(obj=nested_child_2,
-                                               type='env',
-                                               shape='auto')
-
+    def update_lod_nodes_parent_task(self, task):
+        if (not render.find("**/Level_LOD").is_empty()
+                and render.find('**/Level_LOD').get_num_nodes() > 0):
+            for node in range(render.find('**/Level_LOD').get_num_nodes()):
+                # Check if LOD node isn't in World
+                if (not render.find('**/World').is_empty()
+                        and render.find('**/World').find("**/Level_LOD").is_empty()):
+                    render.find('**/Level_LOD').reparent_to(render.find('**/World'))
+        return task.cont
+    
     def update_asset_collision_task(self, assets, task):
         """ Function    : update_asset_collision_task
 
@@ -160,6 +170,9 @@ class PhysicsAttr:
         ground_nodepath.set_collide_mask(self.mask)
         self.world.attach_rigid_body(ground_nodepath.node())
 
+        taskMgr.add(self.update_lod_nodes_parent_task,
+                    "update_lod_nodes_parent_task",
+                    appendTask=True)
         taskMgr.add(self.update_asset_collision_task,
                     "update_asset_stat",
                     extraArgs=[assets],
@@ -198,7 +211,7 @@ class PhysicsAttr:
                                          type='static',
                                          col_name='{0}:BS'.format(obj.get_name()),
                                          shape=shape,
-                                         mask=self.mask1)
+                                         mask=self.mask0)
 
             if type == "item":
                 if hasattr(obj, "set_tag"):
@@ -318,6 +331,7 @@ class PhysicsAttr:
                         # Make item position zero because now it's a child of bullet shape
                         obj.set_pos(0, 0, 0)
 
+                        # Reparent it to previous parent to get original position back for mesh
                         if top_parent:
                             obj_bs_np.reparent_to(top_parent)
 
