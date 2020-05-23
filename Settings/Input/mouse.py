@@ -9,7 +9,7 @@ class Mouse:
         self.d_object = DirectObject.DirectObject()
         self.player = None
         self.floater = None
-        self.pos_z = 1.0
+        self.pos_z = 0.6
         # Set the current viewing target
         # self.focus = LVector3(55, -55, 20)
         self.focus = LVector3(0, 0, 0)

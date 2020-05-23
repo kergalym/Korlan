@@ -53,7 +53,11 @@ class PhysicsAttr:
                                    type=type,
                                    shape='auto')
         elif obj and obj.get_num_children() > 0:
-            # todo Add col
+            if (not render.find("**/{0}".format(obj.get_name())).is_empty()
+                    and render.find("**/{0}:BS".format(obj.get_name())).is_empty()):
+                self.set_collision(obj=obj,
+                                   type=type,
+                                   shape='auto')
             for child in obj.get_children():
                 if (not render.find("**/{0}".format(child.get_name())).is_empty()
                         and render.find("**/{0}:BS".format(child.get_name())).is_empty()):
