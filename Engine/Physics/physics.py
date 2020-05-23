@@ -39,26 +39,32 @@ class PhysicsAttr:
         self.mask3 = BitMask32.bit(3)
         self.mask5 = BitMask32.bit(5)
 
-    def set_recursive_collision(self, obj):
-        if obj and obj.get_num_children() > 0:
+    def set_recursive_collision(self, obj, type):
+        if type and isinstance(type, str):
+            if type == 'player':
+                return
+            elif type == 'npc':
+                return
+
+        if obj and obj.get_num_children() == 0:
             if (not render.find("**/{0}".format(obj.get_name())).is_empty()
                     and render.find("**/{0}:BS".format(obj.get_name())).is_empty()):
                 self.set_collision(obj=obj,
                                    type='env',
                                    shape='auto')
-            for nested_child in obj.get_children():
-                if (not render.find("**/{0}".format(nested_child.get_name())).is_empty()
-                        and render.find("**/{0}:BS".format(nested_child.get_name())).is_empty()):
-                    self.set_collision(obj=nested_child,
+        elif obj and obj.get_num_children() > 0:
+            if (not render.find("**/{0}".format(obj.get_name())).is_empty()
+                    and render.find("**/{0}:BS".format(obj.get_name())).is_empty()):
+                self.set_collision(obj=obj,
+                                   type='env',
+                                   shape='auto')
+            for child in obj.get_children():
+                if (not render.find("**/{0}".format(child.get_name())).is_empty()
+                        and render.find("**/{0}:BS".format(child.get_name())).is_empty()):
+                    self.set_collision(obj=child,
                                        type='env',
                                        shape='auto')
-                if nested_child.get_num_children() > 0:
-                    for nested_child_2 in nested_child.get_children():
-                        if (not render.find("**/{0}".format(nested_child_2.get_name())).is_empty()
-                                and render.find("**/{0}:BS".format(nested_child_2.get_name())).is_empty()):
-                            self.set_collision(obj=nested_child_2,
-                                               type='env',
-                                               shape='auto')
+                    self.set_recursive_collision(obj=child, type=type)
 
     def update_physics_task(self, task):
         """ Function    : update_physics_task
@@ -100,11 +106,11 @@ class PhysicsAttr:
                         and render.find('**/World').find("**/Level_LOD").is_empty()):
                     render.find('**/Level_LOD').reparent_to(render.find('**/World'))
         return task.cont
-    
-    def update_asset_collision_task(self, assets, task):
-        """ Function    : update_asset_collision_task
 
-            Description : Update asset statistics
+    def add_asset_collision_task(self, assets, task):
+        """ Function    : add_asset_collision_task
+
+            Description : Add asset collision
 
             Input       : Task
 
@@ -118,16 +124,13 @@ class PhysicsAttr:
                                          assets['shape']):
                 if (not render.find("**/{0}".format(name)).is_empty()
                         and render.find("**/{0}:BS".format(name)).is_empty()):
-                    self.set_collision(obj=render.find("**/{0}".format(name)),
-                                       type=type,
-                                       shape=shape)
+                    if type == 'player' or 'actor':
+                        self.set_collision(obj=render.find("**/{0}".format(name)),
+                                           type=type,
+                                           shape=shape)
 
-            if not render.find('**/yurt').is_empty() and render.find("**/yurt:BS").is_empty():
-                self.set_collision(obj=render.find('**/yurt'), type="env", shape="auto")
-                if render.find('**/yurt').get_num_children() > 0:
-                    for nested_child in render.find('**/yurt').get_children():
-                        if nested_child.get_num_children() > 0:
-                            self.set_recursive_collision(nested_child)
+                    obj = render.find('**/{0}'.format(name))
+                    self.set_recursive_collision(obj=obj, type=type)
 
         return task.cont
 
@@ -173,7 +176,7 @@ class PhysicsAttr:
         taskMgr.add(self.update_lod_nodes_parent_task,
                     "update_lod_nodes_parent_task",
                     appendTask=True)
-        taskMgr.add(self.update_asset_collision_task,
+        taskMgr.add(self.add_asset_collision_task,
                     "update_asset_stat",
                     extraArgs=[assets],
                     appendTask=True)
@@ -211,7 +214,7 @@ class PhysicsAttr:
                                          type='static',
                                          col_name='{0}:BS'.format(obj.get_name()),
                                          shape=shape,
-                                         mask=self.mask0)
+                                         mask=self.mask1)
 
             if type == "item":
                 if hasattr(obj, "set_tag"):
@@ -248,7 +251,7 @@ class PhysicsAttr:
                 and isinstance(col_name, str)
                 and isinstance(shape, str)
                 and isinstance(type, str)):
-            if base.menu_mode is False and base.game_mode:
+            if not base.menu_mode and base.game_mode:
                 actor_bs = None
                 actor_bs_np = None
                 if shape == 'capsule':
@@ -287,51 +290,53 @@ class PhysicsAttr:
                 actor.set_x(0)
 
     def set_object_collider(self, obj, type, col_name, shape, mask):
-        if (obj
+        if not (obj
                 and col_name
                 and isinstance(type, str)
                 and shape
                 and mask
                 and isinstance(col_name, str)
                 and isinstance(shape, str)):
-            if base.menu_mode is False and base.game_mode:
-                if shape == 'convex':
-                    object_bs = self.bs.set_bs_convex(obj=obj)
+            return
+        if not (not base.menu_mode and base.game_mode):
+            return
 
-                    if self.world_nodepath:
-                        obj_bs_np = self.world_nodepath.attach_new_node(BulletRigidBodyNode(col_name))
-                        obj_bs_np.node().set_mass(1.0)
-                        obj_bs_np.node().add_shape(object_bs)
-                        obj_bs_np.set_collide_mask(mask)
-                        self.world.attach(obj_bs_np.node())
-                        obj.reparent_to(obj_bs_np)
+        if shape == 'convex':
+            object_bs = self.bs.set_bs_convex(obj=obj)
 
-                        obj_bs_np.set_pos(obj.get_pos())
-                        obj_bs_np.set_scale(obj.get_scale())
-                        # Make item position zero because now it's a child of bullet shape
-                        obj.set_pos(0, 0, 0)
-                if shape == 'auto':
-                    # Save parent before attaching mesh to collider
-                    top_parent = obj.get_parent()
+            if self.world_nodepath:
+                obj_bs_np = self.world_nodepath.attach_new_node(BulletRigidBodyNode(col_name))
+                obj_bs_np.node().set_mass(1.0)
+                obj_bs_np.node().add_shape(object_bs)
+                obj_bs_np.set_collide_mask(mask)
+                self.world.attach(obj_bs_np.node())
+                obj.reparent_to(obj_bs_np)
 
-                    object_bs = self.bs.set_bs_auto(obj=obj, type=type)
-                    if self.world_nodepath and object_bs:
-                        obj_bs_np = self.world_nodepath.attach_new_node(BulletRigidBodyNode(col_name))
-                        if type == 'dynamic':
-                            obj_bs_np.node().set_mass(1.0)
-                        elif type == 'static':
-                            obj_bs_np.node().set_mass(0)
-                        obj_bs_np.node().add_shape(object_bs)
-                        obj_bs_np.set_collide_mask(mask)
-                        self.world.attach(obj_bs_np.node())
-                        obj.reparent_to(obj_bs_np)
+                obj_bs_np.set_pos(obj.get_pos())
+                obj_bs_np.set_scale(obj.get_scale())
+                # Make item position zero because now it's a child of bullet shape
+                obj.set_pos(0, 0, 0)
+        if shape == 'auto':
+            # Save parent before attaching mesh to collider
+            top_parent = obj.get_parent()
 
-                        obj_bs_np.set_pos(obj.get_pos())
-                        obj_bs_np.set_scale(obj.get_scale())
-                        # Make item position zero because now it's a child of bullet shape
-                        obj.set_pos(0, 0, 0)
+            object_bs = self.bs.set_bs_auto(obj=obj, type=type)
+            if self.world_nodepath and object_bs:
+                obj_bs_np = self.world_nodepath.attach_new_node(BulletRigidBodyNode(col_name))
+                if type == 'dynamic':
+                    obj_bs_np.node().set_mass(1.0)
+                elif type == 'static':
+                    obj_bs_np.node().set_mass(0)
+                obj_bs_np.node().add_shape(object_bs)
+                obj_bs_np.set_collide_mask(mask)
+                self.world.attach(obj_bs_np.node())
+                obj.reparent_to(obj_bs_np)
 
-                        # Reparent it to previous parent to get original position back for mesh
-                        if top_parent:
-                            obj_bs_np.reparent_to(top_parent)
+                obj_bs_np.set_pos(obj.get_pos())
+                obj_bs_np.set_scale(obj.get_scale())
+                # Make item position zero because now it's a child of bullet shape
+                obj.set_pos(0, 0, 0)
 
+                # Reparent it to previous parent to get original position back for mesh
+                if top_parent:
+                    obj_bs_np.reparent_to(top_parent)

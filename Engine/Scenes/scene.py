@@ -70,7 +70,7 @@ class SceneOne:
             lod = LODNode('Level_LOD')
             lod_np = NodePath(lod)
             lod_np.reparent_to(render)
-            lod.add_switch(20.0, 0.0)
+            lod.add_switch(50.0, 0.0)
             scene.reparent_to(lod_np)
 
             render.set_attrib(LightRampAttrib.make_hdr1())

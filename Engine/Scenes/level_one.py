@@ -61,6 +61,12 @@ class LevelOne:
             # use pattern to remove nodes corresponding to asset names
             for node in pattern:
                 if not render.find("**/{0}".format(node)).is_empty():
+                    # Player and actor cleanup
+                    if self.korlan.korlan:
+                        self.korlan.korlan.cleanup()
+                    if self.npc.actor:
+                        self.npc.actor.cleanup()
+
                     render.find("**/{0}".format(node)).remove_node()
 
             for key in assets:
@@ -94,6 +100,12 @@ class LevelOne:
         # use pattern to remove nodes corresponding to asset names
         for node in pattern:
             if not render.find("**/{0}".format(node)).is_empty():
+                # Player and actor cleanup
+                if self.korlan.korlan:
+                    self.korlan.korlan.cleanup()
+                if self.npc.actor:
+                    self.npc.actor.cleanup()
+
                 render.find("**/{0}".format(node)).remove_node()
 
         for key in assets:
@@ -143,7 +155,7 @@ class LevelOne:
 
         # List used by loading screen
         level_assets = {'name': ['lvl_one', 'Korlan', 'NPC', 'Box'],
-                        'type': ['level', 'player', 'npc', 'item'],
+                        'type': ['env', 'player', 'npc', 'item'],
                         'shape': ['auto', 'capsule', 'capsule', 'auto']
                         }
         base.level_assets = level_assets
