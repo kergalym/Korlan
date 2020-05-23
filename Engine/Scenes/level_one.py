@@ -154,9 +154,9 @@ class LevelOne:
         anims = self.base.asset_animations_collector()
 
         # List used by loading screen
-        level_assets = {'name': ['lvl_one', 'Korlan', 'NPC', 'Box'],
-                        'type': ['env', 'player', 'npc', 'item'],
-                        'shape': ['auto', 'capsule', 'capsule', 'auto']
+        level_assets = {'name': ['lvl_one', 'Korlan', 'NPC'],
+                        'type': ['env', 'player', 'npc'],
+                        'shape': ['auto', 'capsule', 'capsule']
                         }
         base.level_assets = level_assets
 
@@ -174,14 +174,6 @@ class LevelOne:
                                              name="lvl_one",
                                              axis=[20.0, 10.0, self.pos_z],
                                              rotation=[0, 0, 0],
-                                             scale=[1.25, 1.25, 1.25],
-                                             culling=False))
-
-        taskMgr.add(self.scene_one.set_asset(path=assets['Box'],
-                                             mode="game",
-                                             name="Box",
-                                             axis=[0.0, -9.0, self.pos_z],
-                                             rotation=[65, 0, 0],
                                              scale=[1.25, 1.25, 1.25],
                                              culling=False))
 

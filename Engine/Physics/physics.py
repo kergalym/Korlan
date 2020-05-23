@@ -50,19 +50,15 @@ class PhysicsAttr:
             if (not render.find("**/{0}".format(obj.get_name())).is_empty()
                     and render.find("**/{0}:BS".format(obj.get_name())).is_empty()):
                 self.set_collision(obj=obj,
-                                   type='env',
+                                   type=type,
                                    shape='auto')
         elif obj and obj.get_num_children() > 0:
-            if (not render.find("**/{0}".format(obj.get_name())).is_empty()
-                    and render.find("**/{0}:BS".format(obj.get_name())).is_empty()):
-                self.set_collision(obj=obj,
-                                   type='env',
-                                   shape='auto')
+            # todo Add col
             for child in obj.get_children():
                 if (not render.find("**/{0}".format(child.get_name())).is_empty()
                         and render.find("**/{0}:BS".format(child.get_name())).is_empty()):
                     self.set_collision(obj=child,
-                                       type='env',
+                                       type=type,
                                        shape='auto')
                     self.set_recursive_collision(obj=child, type=type)
 

@@ -410,7 +410,8 @@ class Main(ShowBase):
                             children[name] = node_path
                 # Remove empty name key
                 if children:
-                    children.pop('')
+                    if '' in children:
+                        children.pop('')
                 return children
             if assoc_key is False:
                 children = []

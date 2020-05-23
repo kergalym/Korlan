@@ -93,12 +93,12 @@ class LoadingUI:
             assets = base.level_assets
             nodes = base.asset_nodes_collector()
 
-            # Add Ground, Grass and Sky models count to assets
-            asset_num = len(assets['name']) + 3
+            # Add Sky and +3 models count to assets
+            asset_num = len(assets['name']) + 4
             if len(nodes) < asset_num:
                 if self.loading_bar:
                     self.loading_bar['value'] += len(nodes)
-
+            print(len(nodes), asset_num)
             if len(nodes) == asset_num:
                 self.clear_loading_bar()
                 return task.done
