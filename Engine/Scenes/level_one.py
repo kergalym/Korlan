@@ -196,6 +196,7 @@ class LevelOne:
                                        culling=True))
 
         """ Task for Debug mode """
+
         taskMgr.add(self.stat_ui.show_game_stat_task,
                     "show_game_stat",
                     appendTask=True)

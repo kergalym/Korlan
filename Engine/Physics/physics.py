@@ -2,7 +2,6 @@ from panda3d.core import BitMask32
 from Engine.Collisions.collision_solids import BulletCollisionSolids
 from Engine.FSM.npc_ai import NpcAI
 from panda3d.bullet import BulletCharacterControllerNode
-from panda3d.bullet import BulletRigidBodyNode
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import Vec3, BitMask32
 from panda3d.bullet import BulletWorld, BulletDebugNode, BulletRigidBodyNode, BulletPlaneShape

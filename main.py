@@ -130,6 +130,7 @@ class Main(ShowBase):
 
         if self.game_settings['Debug']['set_debug_mode'] == 'YES':
             print("Is threading supported: ", Thread.isThreadingSupported(), "\n")
+            render.explore()
 
         # Construct and create the pipeline
 
