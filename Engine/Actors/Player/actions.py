@@ -117,6 +117,11 @@ class Actions:
                         "show_inventory_data",
                         appendTask=True)
 
+            taskMgr.add(self.state.player_view_mode_task,
+                        "player_view_mode_task",
+                        extraArgs=[player],
+                        appendTask=True)
+
     """ Prepares the player for scene """
 
     def player_init(self, player, anims, task):
@@ -213,12 +218,30 @@ class Actions:
             speed = Vec3(0, 0, 0)
             omega = 0.0
             move_unit = 2
-            if (self.kbd.keymap["left"]
-                    and base.input_state.is_set('turnLeft')):
-                omega = 200.0
-            if (self.kbd.keymap["right"]
-                    and base.input_state.is_set('turnRight')):
-                omega = -200.0
+
+            # Get the time that elapsed since last frame
+            dt = globalClock.getDt()
+
+            # TODO Implement it as game option
+            base.gameplay_mode = 'simple'
+
+            if hasattr(base, "gameplay_mode"):
+                if base.gameplay_mode == 'enhanced':
+                    if self.kbd.keymap["left"]:
+                        if "BS" in player.get_parent().get_name():
+                            player.get_parent().setH(player.get_parent().getH() + 60 * dt)
+                    if self.kbd.keymap["right"]:
+                        if "BS" in player.get_parent().get_name():
+                            player.get_parent().setH(player.get_parent().getH() - 60 * dt)
+
+            if hasattr(base, "gameplay_mode"):
+                if base.gameplay_mode == 'simple':
+                    if "BS" in player.get_parent().get_name():
+                        player.get_parent().set_h(self.base.camera.get_h())
+                
+                if base.first_person_mode:
+                    if "BS" in player.get_parent().get_name():
+                        player.get_parent().set_h(self.base.camera.get_h())
 
             if (self.kbd.keymap["forward"]
                     and self.kbd.keymap["run"] == 0

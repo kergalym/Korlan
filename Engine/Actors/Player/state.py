@@ -281,3 +281,20 @@ class PlayerState:
                   and base.is_item_in_use is True
                   and base.is_item_in_use_long is True):
                 self.drop_item(player)
+
+    def player_view_mode_task(self, player, task):
+        if player:
+            exclude = ['Sky', 'Mountains', 'Grass', 'Ground', 'NPC']
+            old_pos_y = base.cam.get_y()
+
+            dist_vec = base.distance_calculate(
+                base.assets_pos_collector_no_actor(player, exclude), player)
+            for k in dist_vec:
+                if dist_vec[k][1] <= -0.0:
+                    base.cam.set_y(10.8)
+                    base.first_person_mode = True
+                elif dist_vec[k][1] >= -0.0:
+                    base.cam.set_y(old_pos_y)
+                    base.first_person_mode = False
+
+        return task.cont
