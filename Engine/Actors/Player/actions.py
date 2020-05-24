@@ -238,8 +238,8 @@ class Actions:
                 if base.gameplay_mode == 'simple':
                     if "BS" in player.get_parent().get_name():
                         player.get_parent().set_h(self.base.camera.get_h())
-                
-                if base.first_person_mode:
+
+                if hasattr(base, "first_person_mode") and base.first_person_mode:
                     if "BS" in player.get_parent().get_name():
                         player.get_parent().set_h(self.base.camera.get_h())
 
