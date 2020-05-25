@@ -1,6 +1,5 @@
 from panda3d.core import *
 from Engine.Actors.Player.korlan import Korlan
-from Engine.Render.render import RenderAttr
 
 
 class SceneOne:
@@ -20,7 +19,6 @@ class SceneOne:
         self.type = None
         self.task_mgr = None
         self.node_path = NodePath()
-        self.render_attr = RenderAttr()
         self.korlan = Korlan()
         self.base = base
         self.render = render
@@ -62,16 +60,16 @@ class SceneOne:
             scene.set_hpr(scene, rot_h, 0, 0)
 
             # Set two sided, since some model may be broken
-            scene.set_two_sided(culling)
+            # scene.set_two_sided(culling)
 
             # Panda3D 1.10 doesn't enable alpha blending for textures by default
             scene.set_transparency(True)
 
-            lod = LODNode('Level_LOD')
+            """lod = LODNode('Level_LOD')
             lod_np = NodePath(lod)
             lod_np.reparent_to(render)
             lod.add_switch(50.0, 0.0)
-            scene.reparent_to(lod_np)
+            scene.reparent_to(lod_np)"""
 
             render.set_attrib(LightRampAttrib.make_hdr1())
 

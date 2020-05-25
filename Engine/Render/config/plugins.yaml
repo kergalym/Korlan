@@ -1,6 +1,6 @@
-disabled: [pssm, dof, env_probes, smaa, motion_blur, volumetrics]
-enabled: [bloom, clouds, color_correction, sky_ao, ssr, forward_shading, skin_shading,
-  ao, scattering]
+disabled: [pssm, dof, env_probes, bloom, motion_blur, volumetrics]
+enabled: [clouds, color_correction, sky_ao, ssr, forward_shading, skin_shading,
+  ao, scattering, smaa]
 overrides:
   ao: {alchemy_max_distance: 4.75, alchemy_sample_radius: 210.0, alchemy_sequence: halton_2D_8,
     blur_depth_factor: 0.9, blur_normal_factor: 1.2, blur_quality: LOW, clip_length: 2,

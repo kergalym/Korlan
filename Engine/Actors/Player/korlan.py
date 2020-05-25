@@ -1,8 +1,7 @@
 from Engine.Actors.Player.actions import Actions
 from Engine.Actors.Player.state import PlayerState
-from Engine import set_tex_transparency
 from direct.actor.Actor import Actor
-from panda3d.core import WindowProperties, Texture
+from panda3d.core import WindowProperties
 from panda3d.core import LPoint3f
 from direct.task.TaskManagerGlobal import taskMgr
 
@@ -184,7 +183,6 @@ class Korlan:
                     # Make actor global
                     base.player = self.korlan
                     self.render.analyze()
-                    # self.render.explore()
 
                 taskMgr.add(self.mouse.mouse_look_cam,
                             "mouse_look",

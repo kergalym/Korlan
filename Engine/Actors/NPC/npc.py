@@ -1,7 +1,5 @@
-# from Engine import set_tex_transparency
 from direct.actor.Actor import Actor
 from direct.task.TaskManagerGlobal import taskMgr
-from Engine.Render.render import RenderAttr
 from Engine.Actors.NPC.state import NpcState
 from Engine.FSM.env_ai import EnvAI
 from Engine.FSM.npc_ai import NpcAI
@@ -24,7 +22,6 @@ class NPC:
         self.anims = None
         self.game_settings = base.game_settings
         self.game_dir = base.game_dir
-        self.render_attr = RenderAttr()
         self.npc_state = NpcState()
         self.fsm_env = EnvAI()
         self.fsm_npc = NpcAI()

@@ -161,7 +161,7 @@ class Graphics(MenuSettings):
     def get_bloom_value(self):
         with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
             config = rp_yaml.safe_load(f)
-            if 'ao' in config['enabled']:
+            if 'bloom' in config['enabled']:
                 return 1
             else:
                 return 2
@@ -169,7 +169,7 @@ class Graphics(MenuSettings):
     def get_clouds_value(self):
         with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
             config = rp_yaml.safe_load(f)
-            if 'bloom' in config['enabled']:
+            if 'clouds' in config['enabled']:
                 return 1
             else:
                 return 2

@@ -7,7 +7,6 @@ from Engine.FSM.env_ai import EnvAI
 from Engine.FSM.npc_ai import NpcAI
 from Engine.Scenes.scene import SceneOne
 from Engine.Physics.physics import PhysicsAttr
-from Engine.Render.render import RenderAttr
 from Settings.UI.stat_ui import StatUI
 
 
@@ -23,7 +22,6 @@ class LevelOne:
         self.loader = base.loader
         self.node_path = NodePath()
         self.scene_one = SceneOne()
-        self.render_attr = RenderAttr()
         self.korlan = Korlan()
         self.npc = NPC()
         self.stat_ui = StatUI()
@@ -49,7 +47,7 @@ class LevelOne:
                     render.find("**/+Light").remove_node()
             elif (self.render_pipeline
                   and self.game_settings['Main']['postprocessing'] == 'on'):
-                self.render_attr.clear_lighting()
+                base.render_attr.clear_lighting()
 
             # Remove Bullet World
             if not render.find("**/World").is_empty():
@@ -88,7 +86,7 @@ class LevelOne:
                 render.find("**/+Light").remove_node()
         elif (self.render_pipeline
               and self.game_settings['Main']['postprocessing'] == 'on'):
-            self.render_attr.clear_lighting()
+            base.render_attr.clear_lighting()
 
         # Remove Bullet World
         if not render.find("**/World").is_empty():
@@ -117,11 +115,9 @@ class LevelOne:
     def load_new_game(self):
         self.unload_menu_scene()
 
-        # base.camLens.setFar(50)
-
         """ Assets """
 
-        self.render_attr.set_lighting(name='light',
+        base.render_attr.set_lighting(name='light',
                                       render=self.render,
                                       pos=[0, 15.0, 0],
                                       hpr=[180, 130, 0],
@@ -172,7 +168,7 @@ class LevelOne:
 
         taskMgr.add(self.scene_one.set_level(path=assets['lvl_one'],
                                              name="lvl_one",
-                                             axis=[20.0, 10.0, self.pos_z],
+                                             axis=[0.0, 0.0, self.pos_z],
                                              rotation=[0, 0, 0],
                                              scale=[1.25, 1.25, 1.25],
                                              culling=False))
@@ -181,10 +177,10 @@ class LevelOne:
                                           name="Korlan",
                                           path=assets['Korlan'],
                                           animation=anims,
-                                          axis=[0, 8.0, self.pos_z],
+                                          axis=[0, 15.0, self.pos_z],
                                           rotation=[0, 0, 0],
                                           scale=[1.25, 1.25, 1.25],
-                                          culling=True))
+                                          culling=False))
 
         taskMgr.add(self.npc.set_actor(mode="game",
                                        name="NPC",
@@ -193,10 +189,9 @@ class LevelOne:
                                        axis=[-4.0, 9.0, self.pos_z],
                                        rotation=[0, 0, 0],
                                        scale=[1.25, 1.25, 1.25],
-                                       culling=True))
+                                       culling=False))
 
         """ Task for Debug mode """
-
         taskMgr.add(self.stat_ui.show_game_stat_task,
                     "show_game_stat",
                     appendTask=True)

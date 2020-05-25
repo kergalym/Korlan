@@ -45,6 +45,11 @@ class PhysicsAttr:
             elif type == 'npc':
                 return
 
+            if obj.get_name() == 'Grass':
+                return
+            if obj.get_name() == 'grass':
+                return
+
         if obj and obj.get_num_children() == 0:
             if (not render.find("**/{0}".format(obj.get_name())).is_empty()
                     and render.find("**/{0}:BS".format(obj.get_name())).is_empty()):
@@ -327,6 +332,7 @@ class PhysicsAttr:
                 elif type == 'static':
                     obj_bs_np.node().set_mass(0)
                 obj_bs_np.node().add_shape(object_bs)
+
                 obj_bs_np.set_collide_mask(mask)
                 self.world.attach(obj_bs_np.node())
                 obj.reparent_to(obj_bs_np)
