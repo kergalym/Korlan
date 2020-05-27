@@ -58,9 +58,10 @@ class BulletCollisionSolids:
             mesh_colliders_dict = {}
             if hasattr(base, "shaped_objects") and not base.shaped_objects:
                 for x in objects[1]:
-                    # If it's geom?
+                    # Clean from actors
                     if x == '__Actor_modelRoot':
                         break
+                    # If it's geom?
                     if hasattr(objects[1][x].node(), "get_geom"):
                         geom = objects[1][x].node().get_geom(0)
                         mesh = BulletTriangleMesh()
