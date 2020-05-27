@@ -92,15 +92,25 @@ class PhysicsAttr:
 
                 # Get all geomnodes together
                 for geomnode in geomnode_dict:
-                    for x in geomnode_dict[geomnode]:
-                        # Construct a name if it's empty
-                        if x.get_name() == '':
-                            name = x.get_parent().get_name()
-                            x.set_name(name)
-                        geomnodes_all_dict[x.get_name()] = x
-                        np = render.find("**/{0}".format(x.get_name()))
+                    """if geomnode == '__Actor_modelRoot':
+                        geomnode_dict.pop(geomnode)"""
+
+                    if geomnode_dict[geomnode].get_num_children() == 0:
+                        geomnodes_all_dict[geomnode] = geomnode_dict[geomnode]
+
+                        np = render.find("**/{0}".format(geomnode))
                         if not np.is_empty():
-                            nodes_all_dict[np] = x
+                            nodes_all_dict[np.get_name()] = np
+                    else:
+                        for x in geomnode_dict[geomnode]:
+                            # Construct a name if it's empty
+                            if x.get_name() == '':
+                                name = x.get_parent().get_name()
+                                x.set_name(name)
+                            geomnodes_all_dict[x.get_name()] = x
+                            np = render.find("**/{0}".format(x.get_name()))
+                            if not np.is_empty():
+                                nodes_all_dict[np] = x
 
                 return [nodes_all_dict, geomnodes_all_dict]
 
