@@ -354,14 +354,17 @@ class PhysicsAttr:
         # Clean geom dict from unused actors
         for geomnode in geoms:
             if geomnode == '__Actor_modelRoot':
+                geoms[0].pop(geomnode)
                 geoms[1].pop(geomnode)
-
-        # import pdb; pdb.set_trace()
 
         object_bs_multi = self.bs.set_bs_auto_multi(objects=geoms, type='static')
         if object_bs_multi:
             for obj, object_bs in zip(object_bs_multi[0], object_bs_multi[1]):
                 bs = object_bs_multi[1][object_bs]
+                obj = object_bs_multi[0][obj]
+
+                if obj == '__Actor_modelRoot' or bs == '__Actor_modelRoot':
+                    import pdb; pdb.set_trace()
 
                 if shape == 'auto':
                     # Save parent before attaching mesh to collider

@@ -58,15 +58,18 @@ class BulletCollisionSolids:
             mesh_colliders_dict = {}
             if hasattr(base, "shaped_objects") and not base.shaped_objects:
                 for x in objects[1]:
-                    geom = objects[1][x].node().get_geom(0)
-                    mesh = BulletTriangleMesh()
-                    mesh.add_geom(geom)
-                    bool_ = None
-                    if type == 'dynamic':
-                        bool_ = True
-                    if type == 'static':
-                        bool_ = False
-                    shape = BulletTriangleMeshShape(mesh, dynamic=bool_)
-                    mesh_colliders_dict[x] = shape
+                    # If it's geom?
+                    if hasattr(objects[1][x].node(), "get_geom"):
+                        geom = objects[1][x].node().get_geom(0)
+                        mesh = BulletTriangleMesh()
+                        mesh.add_geom(geom)
+                        bool_ = None
+                        if type == 'dynamic':
+                            bool_ = True
+                        if type == 'static':
+                            bool_ = False
+                        shape = BulletTriangleMeshShape(mesh, dynamic=bool_)
+                        mesh_colliders_dict[x] = shape
+
                 return [objects[0], mesh_colliders_dict]
 
