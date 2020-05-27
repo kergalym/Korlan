@@ -60,11 +60,17 @@ class PhysicsAttr:
                 # Get a dict with number of geomnodes
                 for k in assets_children:
                     asset = assets_children[k]
+                    
+                    # Clean from duplicate
                     if "BS" in asset.get_name():
                         continue
+
                     asset_parent = assets_children[k].get_parent()
+
+                    # Clean from duplicate
                     if "BS" in asset_parent.get_name():
                         continue
+
                     name = assets_children[k].get_name()
 
                     if name == '':
@@ -354,6 +360,8 @@ class PhysicsAttr:
             return
         base.shaped_objects = []
         geoms = self.geom_collector()
+
+        print(geoms)
 
         object_bs_multi = self.bs.set_bs_auto_multi(objects=geoms, type='static')
         if object_bs_multi:
