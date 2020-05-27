@@ -92,16 +92,19 @@ class PhysicsAttr:
 
                 # Get all geomnodes together
                 for geomnode in geomnode_dict:
-                    """if geomnode == '__Actor_modelRoot':
-                        geomnode_dict.pop(geomnode)"""
 
-                    if geomnode_dict[geomnode].get_num_children() == 0:
+                    # Get single node
+                    if (hasattr(geomnode_dict[geomnode], 'get_num_children')
+                            and geomnode_dict[geomnode].get_num_children() == 0):
                         geomnodes_all_dict[geomnode] = geomnode_dict[geomnode]
 
                         np = render.find("**/{0}".format(geomnode))
                         if not np.is_empty():
                             nodes_all_dict[np.get_name()] = np
-                    else:
+
+                    # Get multiple nodes
+                    elif not hasattr(geomnode_dict[geomnode], 'get_num_children'):
+
                         for x in geomnode_dict[geomnode]:
                             # Construct a name if it's empty
                             if x.get_name() == '':
@@ -346,8 +349,16 @@ class PhysicsAttr:
         if not (not base.menu_mode and base.game_mode):
             return
         base.shaped_objects = []
-        geom = self.geom_collector()
-        object_bs_multi = self.bs.set_bs_auto_multi(objects=geom, type='static')
+        geoms = self.geom_collector()
+
+        # Clean geom dict from unused actors
+        for geomnode in geoms:
+            if geomnode == '__Actor_modelRoot':
+                geoms[1].pop(geomnode)
+
+        # import pdb; pdb.set_trace()
+
+        object_bs_multi = self.bs.set_bs_auto_multi(objects=geoms, type='static')
         if object_bs_multi:
             for obj, object_bs in zip(object_bs_multi[0], object_bs_multi[1]):
                 bs = object_bs_multi[1][object_bs]
