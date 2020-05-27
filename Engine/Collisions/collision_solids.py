@@ -59,19 +59,25 @@ class BulletCollisionSolids:
             if hasattr(base, "shaped_objects") and not base.shaped_objects:
                 for x in objects[1]:
                     # Don't use actors
-                    if x != '__Actor_modelRoot':
-                        # If it's geom?
-                        if hasattr(objects[1][x].node(), "get_geom"):
-                            geom = objects[1][x].node().get_geom(0)
-                            mesh = BulletTriangleMesh()
-                            mesh.add_geom(geom)
-                            bool_ = None
-                            if type == 'dynamic':
-                                bool_ = True
-                            if type == 'static':
-                                bool_ = False
-                            shape = BulletTriangleMeshShape(mesh, dynamic=bool_)
-                            mesh_colliders_dict[x] = shape
+                    if x == '__Actor_modelRoot':
+                        continue
+
+                    name = render.find('**/{0}'.format(x)).get_parent().get_name()
+                    if "BS" in name:
+                        continue
+
+                    # If it's geom?
+                    if hasattr(objects[1][x].node(), "get_geom"):
+                        geom = objects[1][x].node().get_geom(0)
+                        mesh = BulletTriangleMesh()
+                        mesh.add_geom(geom)
+                        bool_ = None
+                        if type == 'dynamic':
+                            bool_ = True
+                        if type == 'static':
+                            bool_ = False
+                        shape = BulletTriangleMeshShape(mesh, dynamic=bool_)
+                        mesh_colliders_dict[x] = shape
 
                 return [objects[0], mesh_colliders_dict]
 

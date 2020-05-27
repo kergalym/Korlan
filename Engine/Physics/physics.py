@@ -60,7 +60,11 @@ class PhysicsAttr:
                 # Get a dict with number of geomnodes
                 for k in assets_children:
                     asset = assets_children[k]
+                    if "BS" in asset.get_name():
+                        continue
                     asset_parent = assets_children[k].get_parent()
+                    if "BS" in asset_parent.get_name():
+                        continue
                     name = assets_children[k].get_name()
 
                     if name == '':
