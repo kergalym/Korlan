@@ -171,6 +171,7 @@ class Korlan:
                 self.korlan.set_transparency(True)
 
                 self.korlan.reparent_to(render)
+                self.korlan.write_bam_file('/tmp/korlan.bam')
 
                 # Set lights and Shadows
                 if self.game_settings['Main']['postprocessing'] == 'off':

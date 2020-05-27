@@ -289,12 +289,14 @@ class PlayerState:
 
             dist_vec = base.distance_calculate(
                 base.assets_pos_collector_no_actor(player, exclude), player)
-            for k in dist_vec:
-                if dist_vec[k][1] <= -0.0:
-                    base.cam.set_y(10.8)
-                    base.first_person_mode = True
-                elif dist_vec[k][1] >= -0.0:
-                    base.cam.set_y(old_pos_y)
-                    base.first_person_mode = False
+
+            if dist_vec:
+                for k in dist_vec:
+                    if dist_vec[k][1] <= -0.0:
+                        base.cam.set_y(10.8)
+                        base.first_person_mode = True
+                    elif dist_vec[k][1] >= -0.0:
+                        base.cam.set_y(old_pos_y)
+                        base.first_person_mode = False
 
         return task.cont

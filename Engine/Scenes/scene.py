@@ -1,5 +1,6 @@
 from panda3d.core import *
 from Engine.Actors.Player.korlan import Korlan
+import gltf
 
 
 class SceneOne:
@@ -37,6 +38,8 @@ class SceneOne:
                 and isinstance(rotation, list)
                 and isinstance(scale, list)
                 and isinstance(culling, bool)):
+
+            gltf.patch_loader(self.loader)
 
             self.path = "{0}{1}".format(self.game_dir, path)
             self.game_settings = self.game_settings

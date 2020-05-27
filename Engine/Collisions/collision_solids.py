@@ -53,24 +53,20 @@ class BulletCollisionSolids:
         box = BulletBoxShape(axis)
         return box
 
-    def set_bs_convex(self, obj):
-        if obj:
-            geom = obj.find('**/+GeomNode').node().get_geom(0)
-            shape = BulletConvexHullShape()
-            shape.add_geom(geom)
-            return shape
-
-    def set_bs_auto(self, obj, type):
-        if obj and isinstance(type, str):
-            if not obj.find('**/+GeomNode').is_empty():
-                geom = obj.find('**/+GeomNode').node().get_geom(0)
-                mesh = BulletTriangleMesh()
-                mesh.add_geom(geom)
-                bool_ = None
-                if type == 'dynamic':
-                    bool_ = True
-                if type == 'static':
-                    bool_ = False
-                shape = BulletTriangleMeshShape(mesh, dynamic=bool_)
-                return shape
+    def set_bs_auto_multi(self, objects, type):
+        if objects and isinstance(objects, list) and isinstance(type, str):
+            mesh_colliders_dict = {}
+            if hasattr(base, "shaped_objects") and not base.shaped_objects:
+                for x in objects[1]:
+                    geom = objects[1][x].node().get_geom(0)
+                    mesh = BulletTriangleMesh()
+                    mesh.add_geom(geom)
+                    bool_ = None
+                    if type == 'dynamic':
+                        bool_ = True
+                    if type == 'static':
+                        bool_ = False
+                    shape = BulletTriangleMeshShape(mesh, dynamic=bool_)
+                    mesh_colliders_dict[x] = shape
+                return [objects[0], mesh_colliders_dict]
 
