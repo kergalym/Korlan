@@ -404,25 +404,45 @@ class Main(ShowBase):
             if assoc_key:
                 children = {}
                 for node in nodes:
-                    for inner in node.get_children():
-                        for num in range(len(inner.get_children())):
-                            name = inner.get_children().get_path(num).get_name()
-                            node_path = inner.get_children().get_path(num)
-                            children[name] = node_path
-                # Remove empty name key
-                if children:
-                    if '' in children:
-                        children.pop('')
+                    if node.get_num_children() > 0:
+                        for inner in node.get_children():
+                            for num in range(len(inner.get_children())):
+                                parent = inner.get_children().get_path(num).get_parent()
+                                name = inner.get_children().get_path(num).get_name()
+                                node_path = inner.get_children().get_path(num)
+
+                                if name == '':
+                                    if parent.get_name() == '__Actor_modelRoot':
+                                        name = parent.get_parent().get_name()
+                                    else:
+                                        name = parent.get_name()
+
+                                children[name] = node_path
+
+                                self.asset_node_children_collector(inner, assoc_key)
+                    else:
+                        name = node.get_name()
+                        node_path = node
+                        children[name] = node_path
+
                 return children
+
             if assoc_key is False:
                 children = []
                 for node in nodes:
-                    for inner in node.get_children():
-                        for num in range(len(inner.get_children())):
-                            name = inner.get_children().get_path(num).get_name()
-                            node_path = inner.get_children().get_path(num)
-                            if name != '':
+                    if node.get_num_children() > 0:
+                        for inner in node.get_children():
+                            for num in range(len(inner.get_children())):
+                                node_path = inner.get_children().get_path(num)
+
                                 children.append(node_path)
+
+                                self.asset_node_children_collector(inner, assoc_key)
+                    else:
+                        name = node.get_name()
+                        node_path = node
+                        children[name] = node_path
+
                 return children
 
     def cfg_collector(self, path):
@@ -576,8 +596,8 @@ class Main(ShowBase):
             items[key] = (parent_node.get_pos())
         return items
 
-    def assets_pos_collector_no_actor(self, player, exclude):
-        """ Function    : assets_pos_collector_no_actor
+    def assets_pos_collector_no_player(self, player, exclude):
+        """ Function    : assets_pos_collector_no_player
 
             Description : Collect game asset positions except for an actor.
 
@@ -589,15 +609,15 @@ class Main(ShowBase):
         """
         if (player and exclude
                 and isinstance(exclude, list)):
-            # parse player name to exclude them
             assets = base.asset_nodes_collector()
             t = []
             items = {}
             for asset in assets:
-                # We exclude any actor from assets,
+                # We exclude player from assets,
                 # we need to retrieve the distance
                 if asset.get_name() != player.get_name():
                     t.append(asset)
+
             for n, x in enumerate(exclude, 0):
                 # We exclude any item from assets,
                 # we need to retrieve the distance

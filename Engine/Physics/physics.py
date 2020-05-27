@@ -60,13 +60,37 @@ class PhysicsAttr:
                 # Get a dict with number of geomnodes
                 for k in assets_children:
                     asset = assets_children[k]
+                    asset_parent = assets_children[k].get_parent()
                     name = assets_children[k].get_name()
+
+                    if name == '':
+                        name = asset_parent.get_name()
+
+                    geomnode_num_dict[name] = asset
                     geomnode_num_dict[name] = asset.findAllMatches('**/+GeomNode')
 
-                # Get a dict with all geomnodes
+                # Get geomnodes for single nodes
                 for geomnode in geomnode_num_dict:
-                    geomnode_dict[geomnode] = geomnode_num_dict[geomnode]
+                    if (not render.find("**/{0}".format(geomnode)).is_empty()
+                            and render.find("**/{0}".format(geomnode)).get_num_children() == 0):
+                        np = render.find("**/{0}".format(geomnode))
+                        if np and np.find('+GeomNode').is_empty():
+                            geomnode_dict[geomnode] = np
+                        elif np and np.find('**/+GeomNode').is_empty():
+                            geomnode_dict[geomnode] = np
+                    else:
+                        geomnode_dict[geomnode] = geomnode_num_dict[geomnode]
 
+                # Get geomnodes for single nodes
+                for geomnode in geomnode_dict:
+                    if not geomnode_dict[geomnode]:
+                        if not render.find("**/{0}".format(geomnode)).is_empty():
+                            np = render.find("**/{0}".format(geomnode))
+                            if geomnode == np.get_name():
+                                if np and not np.find('+GeomNode').is_empty():
+                                    geomnode_dict[geomnode] = np.find('+GeomNode')
+
+                # Get all geomnodes together
                 for geomnode in geomnode_dict:
                     for x in geomnode_dict[geomnode]:
                         # Construct a name if it's empty

@@ -288,7 +288,7 @@ class PlayerState:
             old_pos_y = base.cam.get_y()
 
             dist_vec = base.distance_calculate(
-                base.assets_pos_collector_no_actor(player, exclude), player)
+                base.assets_pos_collector_no_player(player, exclude), player)
 
             if dist_vec:
                 for k in dist_vec:
