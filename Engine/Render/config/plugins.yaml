@@ -1,13 +1,13 @@
-disabled: [pssm, dof, env_probes, bloom, motion_blur, volumetrics]
-enabled: [clouds, color_correction, sky_ao, ssr, forward_shading, skin_shading, ao,
-  scattering, smaa]
+disabled: [dof, env_probes, bloom, motion_blur]
+enabled: [clouds, color_correction, sky_ao, ssr, forward_shading, skin_shading, scattering,
+  smaa, pssm, volumetrics, ao]
 overrides:
   ao: {alchemy_max_distance: 4.75, alchemy_sample_radius: 210.0, alchemy_sequence: halton_2D_8,
     blur_depth_factor: 0.9, blur_normal_factor: 1.2, blur_quality: LOW, clip_length: 2,
     hbao_max_distance: 11.5, hbao_ray_count: 4, hbao_ray_steps: 3, hbao_sample_radius: 255.0,
     hbao_tangent_bias: 0.65, occlusion_strength: 1.6, ssao_bias: 0.0333, ssao_max_distance: 6.9,
     ssao_sample_radius: 80.0, ssao_sequence: halton_3D_8, ssvo_max_distance: 0.82,
-    ssvo_sequence: halton_2D_8, ssvo_sphere_radius: 18.0, technique: SSAO, ue4ao_max_distance: 1.87,
+    ssvo_sequence: halton_2D_8, ssvo_sphere_radius: 18.0, technique: UE4AO, ue4ao_max_distance: 1.87,
     ue4ao_sample_radius: 110.5, ue4ao_sample_sequence: halton_2D_8}
   bloom: {bloom_strength: 1.0, lens_dirt_factor: 0.7, num_mipmaps: 8, remove_fireflies: false}
   clouds: {raymarch_steps: 160}

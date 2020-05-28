@@ -200,7 +200,7 @@ class Actions:
             self.base.camera.set_z(player.get_z() + 2.0)
 
         # Make camera closer to player
-        self.base.cam.set_y(4.0)
+        # self.base.cam.set_y(4.0)
 
         # The camera should look in Korlan direction,
         # but it should also try to stay horizontal, so look at

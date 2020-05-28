@@ -199,6 +199,13 @@ class PhysicsAttr:
 
         return task.cont
 
+    def toggle_physics_debug(self):
+        if self.debug_nodepath:
+            if self.debug_nodepath.is_hidden():
+                self.debug_nodepath.show()
+            else:
+                self.debug_nodepath.hide()
+
     def set_physics_world(self, assets):
         """ Function    : set_physics_world
 
@@ -221,6 +228,8 @@ class PhysicsAttr:
         if self.game_settings['Debug']['set_debug_mode'] == "YES":
             self.debug_nodepath = self.world_nodepath.attach_new_node(BulletDebugNode('Debug'))
             self.debug_nodepath.show()
+
+            base.accept("f1", self.toggle_physics_debug)
 
         self.world = BulletWorld()
         # Make bullet world instance global to use where it necessary

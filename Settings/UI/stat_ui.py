@@ -55,6 +55,14 @@ class StatUI:
                                             align=TextNode.ALeft,
                                             mayChange=True)
 
+            self.text_toggle_col = OnscreenText(text="",
+                                                pos=(-1.8, -0.8),
+                                                scale=0.03,
+                                                fg=(255, 255, 255, 0.9),
+                                                font=self.font.load_font(self.menu_font),
+                                                align=TextNode.ALeft,
+                                                mayChange=True)
+
             self.title_dbg_mode_obj_state = OnscreenText(text="",
                                                          pos=(-0.6, 0.9),
                                                          scale=0.03,
@@ -235,12 +243,15 @@ class StatUI:
                     self.title_item_coord.setText("ITEM COORDINATES")
                     self.text_stat_h.setText(records_h)
                     self.text_stat_p.setText(records_p)
+                    msg = "Press F1 to toggle a collision representation"
+                    self.text_toggle_col.setText(msg)
 
                     self.title_dbg_mode_obj_pos.show()
                     self.title_item_name.show()
                     self.title_item_coord.show()
                     self.text_stat_h.show()
                     self.text_stat_p.show()
+                    self.text_toggle_col.show()
                 elif (base.game_mode is False
                       and base.menu_mode is True
                       and set_mode == 'hide'):
@@ -249,6 +260,7 @@ class StatUI:
                     self.title_item_coord.hide()
                     self.text_stat_h.hide()
                     self.text_stat_p.hide()
+                    self.text_toggle_col.hide()
 
     def set_obj_stat_text(self, records_h, records_p, set_mode):
         """ Function    : set_obj_stat_text
@@ -345,6 +357,7 @@ class StatUI:
                 self.set_stat_text(dist_vec_fmt_h, dist_vec_fmt_p, set_mode='show')
                 self.set_obj_stat_text(stat_obj_fmt_h, stat_obj_fmt_p, set_mode='show')
                 self.set_player_action_stat_text(stat_player_action_fmt_p, set_mode='show')
+                self.text_toggle_col.show()
 
         if (hasattr(base, "player")
                 and base.game_mode is False
@@ -360,6 +373,7 @@ class StatUI:
             self.set_stat_text(dist_vec_fmt_h, dist_vec_fmt_p, set_mode='hide')
             self.set_obj_stat_text(stat_obj_fmt_h, stat_obj_fmt_p, set_mode='hide')
             self.set_player_action_stat_text(stat_player_action_fmt_p, set_mode='hide')
+            self.text_toggle_col.hide()
             return task.done
 
         return task.cont
