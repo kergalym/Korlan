@@ -62,6 +62,31 @@ class BulletCollisionSolids:
                     if x == '__Actor_modelRoot':
                         continue
 
+                    # print(x)
+
+                    # Drop unused or heavy meshes
+                    if ("Grass" in x
+                            # or "tosagash" in x  # false
+                            # or "chest" in x  # false
+                            # or 'kebeje' in x  # false
+                            # or 'besik' in x  # false
+                            # or 'stones.hi' in x  # false
+                            # or 'mountain' in x  # false
+                            # or 'kul' in x  # false
+                            # or 'otyn_jer' in x  # false
+                            # or 'tosek' in x  # false
+                            # or 'saddle' in x  # false
+                            # or 'stand_for_weapons' in x  # false
+                            # or 'sandyk' in x  # false
+                            # or 'tosenish' in x  # false
+                            # or 'korpe' in x  # false
+                            # or 'jastyk' in x  # false
+                            # or 'oshaq' in x  # false
+                            # or 'qazan' in x  # false
+                            # or 'round_table' in x  # false
+                       ):
+                        continue
+
                     name = render.find('**/{0}'.format(x)).get_parent().get_name()
                     if "BS" in name:
                         continue
@@ -74,10 +99,12 @@ class BulletCollisionSolids:
                         bool_ = None
                         if type == 'dynamic':
                             bool_ = True
+                            shape = BulletTriangleMeshShape(mesh, dynamic=bool_, compress=False, bvh=False)
+                            mesh_colliders_dict[x] = shape
                         if type == 'static':
                             bool_ = False
-                        shape = BulletTriangleMeshShape(mesh, dynamic=bool_)
-                        mesh_colliders_dict[x] = shape
+                            shape = BulletTriangleMeshShape(mesh, dynamic=bool_, compress=True, bvh=True)
+                            mesh_colliders_dict[x] = shape
 
                 return [objects[0], mesh_colliders_dict]
 

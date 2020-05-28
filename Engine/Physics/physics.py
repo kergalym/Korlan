@@ -60,7 +60,7 @@ class PhysicsAttr:
                 # Get a dict with number of geomnodes
                 for k in assets_children:
                     asset = assets_children[k]
-                    
+
                     # Clean from duplicate
                     if "BS" in asset.get_name():
                         continue
@@ -300,7 +300,7 @@ class PhysicsAttr:
                 self.set_actor_collider(actor=obj,
                                         col_name='{0}:BS'.format(obj.get_name()),
                                         shape=shape,
-                                        mask=self.mask0,
+                                        mask=self.mask1,
                                         type="npc")
 
     def set_actor_collider(self, actor, col_name, shape, mask, type):
@@ -360,8 +360,6 @@ class PhysicsAttr:
             return
         base.shaped_objects = []
         geoms = self.geom_collector()
-
-        print(geoms)
 
         object_bs_multi = self.bs.set_bs_auto_multi(objects=geoms, type='static')
         if object_bs_multi:
