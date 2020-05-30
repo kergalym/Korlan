@@ -141,7 +141,7 @@ class PhysicsAttr:
         if self.world:
             # Get the time that elapsed since last frame.
             dt = globalClock.getDt()
-            self.world.do_physics(dt, 4, 1. / 240.)
+            self.world.do_physics(dt, 10, 1. / 30)
             self.world.set_group_collision_flag(0, 0, False)
             # TODO: set group collision for colliding and non-colliding objects
             self.world.set_group_collision_flag(0, 1, True)

@@ -1,4 +1,4 @@
-from panda3d.core import Vec3
+from panda3d.core import Vec3, Point3
 from panda3d.bullet import ZUp
 from panda3d.bullet import BulletSphereShape
 from panda3d.bullet import BulletCapsuleShape
@@ -62,8 +62,6 @@ class BulletCollisionSolids:
                     if x == '__Actor_modelRoot':
                         continue
 
-                    # print(x)
-
                     # Drop unused or heavy meshes
                     if ("Grass" in x
                             # or "tosagash" in x  # false
@@ -94,9 +92,10 @@ class BulletCollisionSolids:
                     # If it's geom?
                     if hasattr(objects[1][x].node(), "get_geom"):
                         geom = objects[1][x].node().get_geom(0)
+
                         mesh = BulletTriangleMesh()
                         mesh.add_geom(geom)
-                        bool_ = None
+
                         if type == 'dynamic':
                             bool_ = True
                             shape = BulletTriangleMeshShape(mesh, dynamic=bool_, compress=False, bvh=False)
