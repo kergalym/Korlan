@@ -1,4 +1,9 @@
 from panda3d.core import Vec3, Point3
+from panda3d.core import BoundingVolume
+from panda3d.core import Geom
+from panda3d.core import GeomVertexFormat, GeomVertexData
+from panda3d.core import GeomEnums
+from panda3d.core import GeomTriangles
 from panda3d.bullet import ZUp
 from panda3d.bullet import BulletSphereShape
 from panda3d.bullet import BulletCapsuleShape
@@ -91,7 +96,17 @@ class BulletCollisionSolids:
 
                     # If it's geom?
                     if hasattr(objects[1][x].node(), "get_geom"):
-                        geom = objects[1][x].node().get_geom(0)
+                        objects[1][x].show_tight_bounds()
+                        bounds = objects[1][x].get_bounds()
+
+                        format = GeomVertexFormat()
+                        vdata = GeomVertexData('abc', format, GeomEnums.UH_static)
+                        tris = GeomTriangles(GeomEnums.UH_static)
+
+                        geom = Geom(vdata)
+                        # geom = objects[1][x].node().get_geom(0)
+                        geom.add_primitive(tris)
+                        geom.set_bounds(bounds)
 
                         mesh = BulletTriangleMesh()
                         mesh.add_geom(geom)
