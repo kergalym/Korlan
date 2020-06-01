@@ -285,6 +285,7 @@ class PlayerState:
     def player_view_mode_task(self, player, task):
         if player:
             exclude = ['Sky', 'Mountains', 'Grass', 'Ground', 'NPC']
+
             old_pos_y = base.cam.get_y()
 
             dist_vec = base.distance_calculate(
@@ -293,10 +294,10 @@ class PlayerState:
             if dist_vec:
                 for k in dist_vec:
                     if dist_vec[k][1] <= -0.0:
-                        base.cam.set_y(6)
+                        base.cam.set_y(12)
                         base.first_person_mode = True
                     elif dist_vec[k][1] >= -0.0:
-                        base.cam.set_y(old_pos_y)
+                        base.cam.set_y(0)
                         base.first_person_mode = False
 
         return task.cont

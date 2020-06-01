@@ -365,8 +365,10 @@ class PhysicsAttr:
                 and mask
                 and isinstance(shape, str)):
             return
+
         if not (not base.menu_mode and base.game_mode):
             return
+
         base.shaped_objects = []
         geoms = self.geom_collector()
 
@@ -392,6 +394,7 @@ class PhysicsAttr:
                             obj_bs_np.node().add_shape(bs)
 
                             obj_bs_np.set_collide_mask(mask)
+
                             self.world.attach(obj_bs_np.node())
                             obj.reparent_to(obj_bs_np)
 

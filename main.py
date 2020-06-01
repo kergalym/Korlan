@@ -130,7 +130,7 @@ class Main(ShowBase):
 
         if self.game_settings['Debug']['set_debug_mode'] == 'YES':
             print("Is threading supported: ", Thread.isThreadingSupported(), "\n")
-            render.explore()
+            # render.explore()
 
         # Construct and create the pipeline
 
@@ -347,6 +347,46 @@ class Main(ShowBase):
                 anim_path = str(PurePath("{0}/".format(anims_path), a))
                 path[key] = Filename.from_os_specific(anim_path).getFullpath()
         return [anims, path]
+
+    def assets_collider_collector(self):
+        """ Function    : assets_collider_collector
+
+            Description : Collect game asset colliders.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : Dictionary
+        """
+        asset_coll_path = self.transform_path(path="{0}/Engine/Collisions".format(self.game_dir),
+                                              style='compat')
+        asset_colls = {}
+        exclude_anims = 'Animations'
+        exclude_tex = 'tex'
+        if not exists(asset_coll_path):
+            logging.critical("\nI'm trying to load assets, but there aren't suitable assets. "
+                             "\nCurrent path: {0}".format(asset_coll_path))
+            sys_exit("\nSomething is getting wrong. Please, check the game log first")
+
+        for root, dirs, files in walk(asset_coll_path, topdown=True):
+            if exclude_anims in dirs:
+                dirs.remove(exclude_anims)
+            if exclude_tex in dirs:
+                dirs.remove(exclude_tex)
+            for file in files:
+                # include one of them
+                if (file.endswith(".egg")
+                        and not file.endswith(".egg.bam")):
+                    key = re.sub('.egg$', '', file)
+                    path = str(PurePath("{0}/".format(root), file))
+                    asset_colls[key] = Filename.from_os_specific(path).getFullpath()
+                elif (file.endswith(".egg.bam")
+                      and not file.endswith(".egg")):
+                    key = re.sub('.egg.bam$', '', file)
+                    path = str(PurePath("{0}/".format(root), file))
+                    asset_colls[key] = Filename.from_os_specific(path).getFullpath()
+        return asset_colls
 
     def asset_nodes_collector(self):
         """ Function    : asset_nodes_collector

@@ -1,9 +1,4 @@
-from panda3d.core import Vec3, Point3
-from panda3d.core import BoundingVolume
-from panda3d.core import Geom
-from panda3d.core import GeomVertexFormat, GeomVertexData
-from panda3d.core import GeomEnums
-from panda3d.core import GeomTriangles
+from panda3d.core import Vec3
 from panda3d.bullet import ZUp
 from panda3d.bullet import BulletSphereShape
 from panda3d.bullet import BulletCapsuleShape
@@ -13,7 +8,6 @@ from panda3d.bullet import BulletConeShape
 from panda3d.bullet import BulletPlaneShape
 from panda3d.bullet import BulletTriangleMesh
 from panda3d.bullet import BulletTriangleMeshShape
-from panda3d.bullet import BulletConvexHullShape
 
 from direct.showbase.PhysicsManagerGlobal import physicsMgr
 
@@ -61,53 +55,28 @@ class BulletCollisionSolids:
     def set_bs_auto_multi(self, objects, type):
         if objects and isinstance(objects, list) and isinstance(type, str):
             mesh_colliders_dict = {}
+            colliders_dict = base.assets_collider_collector()
+            colliders = base.loader.load_model(colliders_dict["level_one_coll"])
             if hasattr(base, "shaped_objects") and not base.shaped_objects:
-                for x in objects[1]:
-                    # Don't use actors
+                for x, col in zip(objects[1], colliders.get_children()):
+                    # Drop actors from loop
                     if x == '__Actor_modelRoot':
                         continue
 
-                    # Drop unused or heavy meshes
-                    if ("Grass" in x
-                            # or "tosagash" in x  # false
-                            # or "chest" in x  # false
-                            # or 'kebeje' in x  # false
-                            # or 'besik' in x  # false
-                            # or 'stones.hi' in x  # false
-                            # or 'mountain' in x  # false
-                            # or 'kul' in x  # false
-                            # or 'otyn_jer' in x  # false
-                            # or 'tosek' in x  # false
-                            # or 'saddle' in x  # false
-                            # or 'stand_for_weapons' in x  # false
-                            # or 'sandyk' in x  # false
-                            # or 'tosenish' in x  # false
-                            # or 'korpe' in x  # false
-                            # or 'jastyk' in x  # false
-                            # or 'oshaq' in x  # false
-                            # or 'qazan' in x  # false
-                            # or 'round_table' in x  # false
-                       ):
+                    # Drop unused mesh
+                    if "Grass" in x:
                         continue
 
-                    name = render.find('**/{0}'.format(x)).get_parent().get_name()
-                    if "BS" in name:
+                    # Skip already added bullet shapes to prevent duplicating
+                    parent_name = render.find('**/{0}'.format(x)).get_parent().get_name()
+                    if "BS" in parent_name or "BS" in x:
                         continue
 
-                    # If it's geom?
+                    # Has it  geom?
                     if hasattr(objects[1][x].node(), "get_geom"):
-                        objects[1][x].show_tight_bounds()
-                        bounds = objects[1][x].get_bounds()
-
-                        format = GeomVertexFormat()
-                        vdata = GeomVertexData('abc', format, GeomEnums.UH_static)
-                        tris = GeomTriangles(GeomEnums.UH_static)
-
-                        geom = Geom(vdata)
-                        # geom = objects[1][x].node().get_geom(0)
-                        geom.add_primitive(tris)
-                        geom.set_bounds(bounds)
-
+                        # TODO Use col.node().get_geom(0) when colliders will be ready
+                        # geom = col.node().get_geom(0)
+                        geom = objects[1][x].node().get_geom(0)
                         mesh = BulletTriangleMesh()
                         mesh.add_geom(geom)
 
@@ -120,5 +89,7 @@ class BulletCollisionSolids:
                             shape = BulletTriangleMeshShape(mesh, dynamic=bool_, compress=True, bvh=True)
                             mesh_colliders_dict[x] = shape
 
-                return [objects[0], mesh_colliders_dict]
+                        # Meshes used to make geom now aren't needed anymore, so remove them
+                        col.remove_node()
 
+                return [objects[0], mesh_colliders_dict]

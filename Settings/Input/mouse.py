@@ -36,15 +36,17 @@ class Mouse:
         # to prevent object duplicating
         # and further in-game performance degradation
         if player:
-            if player.find("**/floater").is_empty():
+            flt_name = 'player_floater'
+            if player.find("**/{0}".format(flt_name)).is_empty():
                 self.player = player
-                self.floater = NodePath(PandaNode("floater"))
+                self.floater = NodePath(PandaNode(flt_name))
                 self.floater.reparent_to(self.player)
-            elif not player.find("**/floater").is_empty():
-                player.find("**/floater").remove_node()
+            elif not player.find("**/{0}".format(flt_name)).is_empty():
+                player.find("**/{0}".format(flt_name)).remove_node()
                 self.player = player
-                self.floater = NodePath(PandaNode("floater"))
+                self.floater = NodePath(PandaNode(flt_name))
                 self.floater.reparent_to(self.player)
+
             self.floater.set_z(self.pos_z)
             return self.floater
 
