@@ -3,7 +3,6 @@ from pathlib import Path, PurePath
 from os import walk
 
 from panda3d.core import *
-from panda3d.egg import EggTexture
 from Engine.Render.rpcore import PointLight
 
 
@@ -146,16 +145,4 @@ class RenderAttr:
                         base.rp_lights.remove(light)
                         self.render_pipeline.remove_light(light)
 
-    def set_color_space(self, type):
-        if type and isinstance(type, str):
-            # Check if we using patched Panda3D
-            if hasattr(Texture, 'F_srgb'):
-                textures = base.textures_collector(path="{0}/Assets".format(self.game_dir))
-                for tex_name in textures:
-                    tex_path = textures[tex_name]
-                    # self.texture = Texture(tex_name)
-                    # if self.texture.shape[2] == 3:
-                    tex_path.set_format(Texture.F_srgb)
-                    """if self.texture.shape[2] == 4:
-                        tex_path.set_format(Texture.F_srgb_alpha)"""
 
