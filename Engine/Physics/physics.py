@@ -286,8 +286,9 @@ class PhysicsAttr:
             if type == "env":
                 self.set_object_colliders(type='static',
                                           shape=shape,
-                                          mask=self.mask1)
+                                          mask=self.mask0)
 
+            # TODO: use in /Korlan/Engine/Items/items.py:
             if type == "item":
                 self.set_object_colliders(type='dynamic',
                                           shape=shape,
@@ -300,7 +301,7 @@ class PhysicsAttr:
                 self.set_actor_collider(actor=self.korlan,
                                         col_name='{0}:BS'.format(self.korlan.get_name()),
                                         shape=shape,
-                                        mask=self.mask0,
+                                        mask=self.mask1,
                                         type="player")
 
             if type == "npc":
@@ -373,6 +374,7 @@ class PhysicsAttr:
         geoms = self.geom_collector()
 
         object_bs_multi = self.bs.set_bs_auto_multi(objects=geoms, type='static')
+
         if object_bs_multi:
             for obj, object_bs in zip(object_bs_multi[0], object_bs_multi[1]):
                 bs = object_bs_multi[1][object_bs]
@@ -383,7 +385,12 @@ class PhysicsAttr:
                     top_parent = obj.get_parent()
                     top_parent_name = obj.get_parent().get_name()
                     obj_bs_name = "{0}:BS".format(obj.get_name())
-                    # prevent bullet shape duplication
+
+                    # Skip actors from loop
+                    if obj.get_name() == '__Actor_modelRoot':
+                        continue
+
+                    # Prevent bullet shape duplication
                     if obj_bs_name not in top_parent_name:
                         if self.world_nodepath:
                             obj_bs_np = self.world_nodepath.attach_new_node(BulletRigidBodyNode(obj_bs_name))
@@ -408,3 +415,4 @@ class PhysicsAttr:
                                 obj_bs_np.reparent_to(top_parent)
 
                             base.shaped_objects.append(obj_bs_name)
+

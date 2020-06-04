@@ -1,5 +1,5 @@
-disabled: [dof, env_probes, bloom, motion_blur]
-enabled: [clouds, color_correction, sky_ao, ssr, forward_shading, skin_shading, scattering,
+disabled: [dof, env_probes, motion_blur]
+enabled: [clouds, bloom, color_correction, sky_ao, ssr, forward_shading, skin_shading, scattering,
   smaa, pssm, volumetrics, ao]
 overrides:
   ao: {alchemy_max_distance: 4.75, alchemy_sample_radius: 210.0, alchemy_sequence: halton_2D_8,

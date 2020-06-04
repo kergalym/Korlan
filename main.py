@@ -10,7 +10,7 @@ from os.path import isdir, isfile, exists
 
 import panda3d.core as p3d
 from direct.showbase.ShowBaseGlobal import render2d
-from panda3d.core import Filename
+from panda3d.core import Filename, Texture
 from panda3d.core import WindowProperties
 from direct.showbase.ShowBase import ShowBase
 from direct.showbase.ShowBase import MovieTexture
@@ -130,7 +130,7 @@ class Main(ShowBase):
 
         if self.game_settings['Debug']['set_debug_mode'] == 'YES':
             print("Is threading supported: ", Thread.isThreadingSupported(), "\n")
-            # render.explore()
+            render.explore()
 
         # Construct and create the pipeline
 

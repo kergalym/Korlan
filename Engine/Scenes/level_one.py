@@ -119,17 +119,17 @@ class LevelOne:
 
         base.render_attr.set_lighting(name='light',
                                       render=self.render,
-                                      pos=[0, 15.0, 0],
+                                      pos=[0, 0, 0],
                                       hpr=[180, 130, 0],
                                       color=[0.5],
                                       task="attach")
-        """self.render_attr.set_lighting(name='light',
+        """base.render_attr.set_lighting(name='light',
                                       render=self.render,
-                                      pos=[0, 20, 10],
+                                      pos=[0, 3, 10],
                                       hpr=[0, -20, 0],
                                       color=[0.5],
-                                      task="attach")
-        self.render_attr.set_lighting(name='light',
+                                      task="attach")"""
+        """self.render_attr.set_lighting(name='light',
                                       render=self.render,
                                       pos=[0, -40, 10],
                                       hpr=[0, -20, 0],

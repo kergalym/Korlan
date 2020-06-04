@@ -1,6 +1,6 @@
 from Engine.Actors.Player.actions import Actions
 from Engine.Actors.Player.state import PlayerState
-from direct.actor.Actor import Actor
+from direct.actor.Actor import Actor, Texture
 from panda3d.core import WindowProperties
 from panda3d.core import LPoint3f
 from direct.task.TaskManagerGlobal import taskMgr
