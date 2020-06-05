@@ -245,9 +245,9 @@ class GameMenuUI(Game):
         self.menu_mode = True
 
     def unload_game_menu(self):
-        """ Function    : unload_sound_menu
+        """ Function    : unload_game_menu
 
-            Description : Unload Sound menu.
+            Description : Unload Game menu.
 
             Input       : None
 
