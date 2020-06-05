@@ -15,6 +15,7 @@ from Settings.UI.player_menu_ui import PlayerMenuUI
 class Actions:
 
     def __init__(self):
+        self.game_settings = base.game_settings
         self.base = base
         self.actor_play_rate = None
         self.walking_forward_action = "Walking"
@@ -219,8 +220,7 @@ class Actions:
             # Get the time that elapsed since last frame
             dt = globalClock.getDt()
 
-            # TODO Implement it as game option
-            base.gameplay_mode = 'simple'
+            base.gameplay_mode = self.game_settings['Main']['gameplay_mode']
 
             if hasattr(base, "gameplay_mode"):
                 if base.gameplay_mode == 'enhanced':
@@ -319,7 +319,7 @@ class Actions:
             # If a move-key is pressed, move the player in the specified direction.
             speed = Vec3(0, 0, 0)
             move_unit = 15
-            # TODO checj if base.state elements are False
+            # TODO check if base.state elements are False
             #  except forward and run
             if (self.kbd.keymap["forward"]
                     and self.kbd.keymap["run"]):

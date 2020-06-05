@@ -6,6 +6,7 @@ from Engine.Actors.Player.inventory import Inventory
 class PlayerState:
 
     def __init__(self):
+        self.game_settings = base.game_settings
         base.states = {
             "is_idle": True,
             "is_moving": False,
@@ -286,18 +287,18 @@ class PlayerState:
         if player:
             exclude = ['Sky', 'Mountains', 'Grass', 'Ground', 'NPC']
 
-            old_pos_y = base.cam.get_y()
-
             dist_vec = base.distance_calculate(
                 base.assets_pos_collector_no_player(player, exclude), player)
 
             if dist_vec:
                 for k in dist_vec:
                     if dist_vec[k][1] <= -0.0:
-                        base.cam.set_y(12)
-                        base.first_person_mode = True
+                        if self.game_settings['Main']['gameplay_mode'] == 'first':
+                            base.cam.set_y(12)
+                            base.first_person_mode = True
                     elif dist_vec[k][1] >= -0.0:
-                        base.cam.set_y(0)
-                        base.first_person_mode = False
+                        if self.game_settings['Main']['gameplay_mode'] == 'third':
+                            base.cam.set_y(0)
+                            base.first_person_mode = False
 
         return task.cont

@@ -42,7 +42,10 @@ game_settings['Main'] = {'disp_res': '1024x768',
                          'music': 'on',
                          'sfx': 'on',
                          'language': 'english',
-                         'player': 'Korlan'
+                         'player': 'Korlan',
+                         'person_look_mode': 'third',
+                         'gameplay_mode': 'simple',
+                         'show_blood': 'on'
                          }
 
 game_settings['Keymap'] = {'forward': 'W',

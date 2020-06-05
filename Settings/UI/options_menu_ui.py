@@ -10,6 +10,7 @@ from panda3d.core import FontPool
 from panda3d.core import TextNode
 
 from Settings.menu_settings import MenuSettings
+from Settings.UI.game_menu_ui import GameMenuUI
 from Settings.UI.graphics_menu_ui import GraphicsMenuUI
 from Settings.UI.sound_menu_ui import SoundMenuUI
 from Settings.UI.keymap_menu_ui import KeymapMenuUI
@@ -65,12 +66,14 @@ class OptionsMenuUI(MenuSettings):
         self.inp_scale = .04
 
         """ Misc """
+        self.ui_game = GameMenuUI()
         self.ui_gfx = GraphicsMenuUI()
         self.ui_snd = SoundMenuUI()
         self.ui_kmp = KeymapMenuUI()
         self.ui_lng = LangMenuUI()
 
         """ Options MenuUI Objects """
+        self.btn_game = None
         self.btn_gfx = None
         self.btn_sound = None
         self.btn_language = None
@@ -127,6 +130,14 @@ class OptionsMenuUI(MenuSettings):
                                           frameSize=self.base.frame_int_size)
         self.base.frame_int.setPos(self.pos_X, self.pos_Y, self.pos_Z)
 
+        self.btn_game = DirectButton(text=self.language['game'], text_bg=(0, 0, 0, 1),
+                                    text_fg=(255, 255, 255, 0.9),
+                                    text_font=self.font.load_font(self.menu_font),
+                                    frameColor=(255, 255, 255, self.frm_opacity),
+                                    scale=self.btn_scale, borderWidth=(self.w, self.h),
+                                    parent=self.base.frame_int,
+                                    command=self.ui_game.load_game_menu)
+
         self.btn_gfx = DirectButton(text=self.language['graphics'], text_bg=(0, 0, 0, 1),
                                     text_fg=(255, 255, 255, 0.9),
                                     text_font=self.font.load_font(self.menu_font),
@@ -167,11 +178,12 @@ class OptionsMenuUI(MenuSettings):
                                              parent=self.base.frame_int,
                                              command=self.unload_options_menu)
 
-        self.btn_gfx.set_pos(-1.4, 0, 0)
-        self.btn_sound.set_pos(-1.4, 0, -0.1)
-        self.btn_language.set_pos(-1.4, 0, -0.2)
-        self.btn_keymap.set_pos(-1.4, 0, -0.3)
-        self.btn_back_options.set_pos(-1.4, 0, -0.4)
+        self.btn_game.set_pos(-1.4, 0, 0)
+        self.btn_gfx.set_pos(-1.4, 0, -0.1)
+        self.btn_sound.set_pos(-1.4, 0, -0.2)
+        self.btn_language.set_pos(-1.4, 0, -0.3)
+        self.btn_keymap.set_pos(-1.4, 0, -0.4)
+        self.btn_back_options.set_pos(-1.4, 0, -0.5)
         self.logo.reparent_to(self.base.frame_int)
         self.logo.set_scale(self.logo_scale)
 
