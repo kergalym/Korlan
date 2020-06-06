@@ -390,6 +390,10 @@ class PhysicsAttr:
                     if obj.get_name() == '__Actor_modelRoot':
                         continue
 
+                    # TODO: Check if object usable by tag
+                    if "Box:BS" in obj_bs_name or "Box:BS" in top_parent_name:
+                        mask = self.mask0
+
                     # Prevent bullet shape duplication
                     if obj_bs_name not in top_parent_name:
                         if self.world_nodepath:

@@ -59,16 +59,10 @@ class BulletCollisionSolids:
             colliders = base.loader.load_model(colliders_dict["level_one_coll"])
             if hasattr(base, "shaped_objects") and not base.shaped_objects:
                 for x, col in zip(objects[1], colliders.get_children()):
-                    # Skip actors from loop
-                    if x == '__Actor_modelRoot':
-                        continue
 
                     # Skip already added bullet shapes to prevent duplicating
                     parent_name = render.find('**/{0}'.format(x)).get_parent().get_name()
-                    if "BS" in parent_name:
-                        continue
-
-                    if "BS" in x:
+                    if "BS" in parent_name or "BS" in x:
                         continue
 
                     # Drop unused mesh

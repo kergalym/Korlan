@@ -249,6 +249,7 @@ class PlayerState:
                 # Get bullet shape node path
                 if "BS" in item.get_parent().get_name():
                     item = item.get_parent()
+
                 # we want to keep original scale of the item
                 item.wrt_reparent_to(exposed_joint)
                 # Set kinematics to make item follow actor joint
