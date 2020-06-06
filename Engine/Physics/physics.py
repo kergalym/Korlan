@@ -43,9 +43,14 @@ class PhysicsAttr:
         assets_children = base.asset_node_children_collector(
             assets, assoc_key=True)
 
+        # The key is node name and the value is node paths list
         geomnode_num_dict = {}
         geomnode_dict = {}
+
+        # The key is node name and the value is node path (contains a node)
         geomnodes_all_dict = {}
+
+        # The key is geometry node and the value is node path (contains a node)
         nodes_all_dict = {}
 
         if (hasattr(base, "shaped_objects")
@@ -114,14 +119,19 @@ class PhysicsAttr:
 
                     # Get multiple nodes
                     elif not hasattr(geomnode_dict[geomnode], 'get_num_children'):
-
                         for x in geomnode_dict[geomnode]:
-                            # Construct a name if it's empty
-                            if x.get_name() == '':
-                                name = x.get_parent().get_name()
-                                x.set_name(name)
-                            geomnodes_all_dict[x.get_name()] = x
-                            np = render.find("**/{0}".format(x.get_name()))
+                            parent_name = x.get_parent().get_name()
+                            name = x.get_name()
+                            # Construct a name for empty
+                            # from parent name
+                            if name == '':
+                                x.set_name(parent_name)
+                                name = x.get_name()
+                                geomnodes_all_dict[name] = x
+                            else:
+                                geomnodes_all_dict[name] = x
+
+                            np = render.find("**/{0}".format(name))
                             if not np.is_empty():
                                 nodes_all_dict[np] = x
 
@@ -386,13 +396,10 @@ class PhysicsAttr:
                     top_parent_name = obj.get_parent().get_name()
                     obj_bs_name = "{0}:BS".format(obj.get_name())
 
-                    # Skip actors from loop
-                    if obj.get_name() == '__Actor_modelRoot':
-                        continue
-
                     # TODO: Check if object usable by tag
                     if "Box:BS" in obj_bs_name or "Box:BS" in top_parent_name:
                         mask = self.mask0
+                        type = 'dynamic'
 
                     # Prevent bullet shape duplication
                     if obj_bs_name not in top_parent_name:

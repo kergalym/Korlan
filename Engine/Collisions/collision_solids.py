@@ -55,6 +55,8 @@ class BulletCollisionSolids:
     def set_bs_auto_multi(self, objects, type):
         if objects and isinstance(objects, list) and isinstance(type, str):
             mesh_colliders_dict = {}
+            mesh_colliders_cleaned_dict = {}
+            objects_cleaned_dict = {}
             colliders_dict = base.assets_collider_collector()
             colliders = base.loader.load_model(colliders_dict["level_one_coll"])
             if hasattr(base, "shaped_objects") and not base.shaped_objects:
@@ -79,14 +81,29 @@ class BulletCollisionSolids:
 
                         if type == 'dynamic':
                             bool_ = True
-                            shape = BulletTriangleMeshShape(mesh, dynamic=bool_, compress=False, bvh=False)
+                            shape = BulletTriangleMeshShape(mesh,
+                                                            dynamic=bool_,
+                                                            compress=False,
+                                                            bvh=False)
                             mesh_colliders_dict[x] = shape
                         if type == 'static':
                             bool_ = False
-                            shape = BulletTriangleMeshShape(mesh, dynamic=bool_, compress=True, bvh=True)
+                            shape = BulletTriangleMeshShape(mesh,
+                                                            dynamic=bool_,
+                                                            compress=True,
+                                                            bvh=True)
                             mesh_colliders_dict[x] = shape
 
                         # Meshes used to make geom now aren't needed anymore, so remove them
                         col.remove_node()
 
-                return [objects[0], mesh_colliders_dict]
+                # TODO: Do we need this? May be exclude any actor in physics.geom_collector()?
+                # Cleaning by reassembling dict objects
+                for key_obj, key_mesh in zip(objects[0], mesh_colliders_dict):
+                    if key_mesh != "__Actor_modelRoot":
+                        mesh_colliders_cleaned_dict[key_mesh] = mesh_colliders_dict.get(key_mesh)
+
+                    if key_obj != "__Actor_modelRoot":
+                        objects_cleaned_dict[key_obj] = objects[0].get(key_obj)
+
+                return [objects_cleaned_dict, mesh_colliders_cleaned_dict]
