@@ -427,8 +427,8 @@ class PhysicsAttr:
                             if top_parent:
                                 obj_bs_np.reparent_to(top_parent)
 
-                            if not render.find("**/lvl_one").is_empty():
-                                render.find("**/lvl_one").reparent_to(render.find("**/World"))
+                            if not render.find("**/lvl_*").is_empty():
+                                render.find("**/lvl_*").reparent_to(render.find("**/World"))
 
                             base.shaped_objects.append(obj_bs_name)
 
