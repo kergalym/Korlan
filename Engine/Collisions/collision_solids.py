@@ -79,6 +79,9 @@ class BulletCollisionSolids:
                         mesh = BulletTriangleMesh()
                         mesh.add_geom(geom)
 
+                        if "Box" in x or "Box" in parent_name:
+                            type = 'dynamic'
+
                         if type == 'dynamic':
                             bool_ = True
                             shape = BulletTriangleMeshShape(mesh,

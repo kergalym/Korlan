@@ -397,9 +397,11 @@ class PhysicsAttr:
                     obj_bs_name = "{0}:BS".format(obj.get_name())
 
                     # TODO: Check if object usable by tag
+                    # TODO: Fix double
                     if "Box:BS" in obj_bs_name or "Box:BS" in top_parent_name:
                         mask = self.mask0
                         type = 'dynamic'
+                        import pdb; pdb.set_trace()
 
                     # Prevent bullet shape duplication
                     if obj_bs_name not in top_parent_name:
