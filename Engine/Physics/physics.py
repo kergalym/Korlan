@@ -423,8 +423,12 @@ class PhysicsAttr:
                             obj.set_pos(0, 0, 0)
 
                             # Reparent it to previous parent to get original position back for mesh
+                            # TODO: Move the Level One node to the World of Physics
                             if top_parent:
                                 obj_bs_np.reparent_to(top_parent)
+
+                            if not render.find("**/lvl_one").is_empty():
+                                render.find("**/lvl_one").reparent_to(render.find("**/World"))
 
                             base.shaped_objects.append(obj_bs_name)
 
