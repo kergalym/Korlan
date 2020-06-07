@@ -73,14 +73,17 @@ class GameMenuUI(Game):
         self.lbl_person_look_mode = None
         self.lbl_gameplay_mode = None
         self.lbl_show_blood = None
+        self.lbl_cam_distance = None
 
         self.slider_person_look_mode = None
         self.slider_gameplay_mode = None
         self.slider_show_blood = None
+        self.slider_cam_distance = None
 
         self.lbl_perc_person_look_mode = None
         self.lbl_perc_gameplay_mode = None
         self.lbl_perc_show_blood = None
+        self.lbl_perc_cam_distance = None
 
         self.btn_param_accept = None
         self.btn_param_back = None
@@ -165,21 +168,36 @@ class GameMenuUI(Game):
                                           scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                           parent=self.base.frame_int_game)
 
+        self.lbl_cam_distance = DirectLabel(text=self.language['camera_distance'], text_bg=(0, 0, 0, 1),
+                                            text_fg=(255, 255, 255, 0.9),
+                                            text_font=self.font.load_font(self.menu_font),
+                                            frameColor=(255, 255, 255, self.frm_opacity),
+                                            scale=self.lbl_scale, borderWidth=(self.w, self.h),
+                                            parent=self.base.frame_int_game)
+
         self.slider_person_look_mode = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
                                                     value=self.get_person_look_mode_value(),
                                                     scale=.2, borderWidth=(self.w, self.h),
                                                     parent=self.base.frame_int_game,
                                                     command=self.set_slider_person_look_mode_wrapper)
+
         self.slider_gameplay_mode = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
                                                  value=self.get_gameplay_mode_value(),
                                                  scale=.2, borderWidth=(self.w, self.h),
                                                  parent=self.base.frame_int_game,
                                                  command=self.set_slider_gameplay_mode_wrapper)
+
         self.slider_show_blood = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
                                               value=self.get_show_blood_value(),
                                               scale=.2, borderWidth=(self.w, self.h),
                                               parent=self.base.frame_int_game,
                                               command=self.set_slider_show_blood_wrapper)
+
+        self.slider_cam_distance = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 6),
+                                                value=self.get_cam_distance_value(),
+                                                scale=.2, borderWidth=(self.w, self.h),
+                                                parent=self.base.frame_int_game,
+                                                command=self.set_slider_cam_distance_wrapper)
 
         self.lbl_perc_person_look_mode = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
                                                       font=self.font.load_font(self.menu_font),
@@ -195,6 +213,11 @@ class GameMenuUI(Game):
                                                 font=self.font.load_font(self.menu_font),
                                                 scale=self.lbl_scale,
                                                 parent=self.base.frame_int_game, mayChange=True)
+
+        self.lbl_perc_cam_distance = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+                                                  font=self.font.load_font(self.menu_font),
+                                                  scale=self.lbl_scale,
+                                                  parent=self.base.frame_int_game, mayChange=True)
 
         self.btn_param_defaults = DirectButton(text="Load defaults", text_bg=(0, 0, 0, 1),
                                                text_fg=(255, 255, 255, 0.9),
@@ -231,14 +254,17 @@ class GameMenuUI(Game):
         self.lbl_person_look_mode.set_pos(-1.4, 0, 0)
         self.lbl_gameplay_mode.set_pos(-1.4, 0, -0.1)
         self.lbl_show_blood.set_pos(-1.4, 0, -0.2)
+        self.lbl_cam_distance.set_pos(-1.4, 0, -0.3)
 
         self.slider_person_look_mode.set_pos(-0.8, 0, 0)
         self.slider_gameplay_mode.set_pos(-0.8, 0, -0.1)
         self.slider_show_blood.set_pos(-0.8, 0, -0.2)
+        self.slider_cam_distance.set_pos(-0.8, 0, -0.3)
 
         self.lbl_perc_person_look_mode.set_pos(-0.5, 0, 0)
         self.lbl_perc_gameplay_mode.set_pos(-0.5, 0, -0.1)
         self.lbl_perc_show_blood.set_pos(-0.5, 0, -0.2)
+        self.lbl_perc_cam_distance.set_pos(-0.5, 0, -0.3)
 
         self.btn_param_defaults.set_pos(0.3, 0, -0.9)
         self.btn_param_accept.set_pos(-1.6, 0, -0.9)
@@ -320,3 +346,21 @@ class GameMenuUI(Game):
         string = show_blood_dict[i]
         self.lbl_perc_show_blood.setText(string)
         self.save_show_blood_value(string)
+
+    def set_slider_cam_distance_wrapper(self):
+        """ Function    : set_slider_cam_distance_wrapper
+
+            Description : Wrapper function.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
+        # Make it int and then str
+        i = int(self.slider_cam_distance['value'])
+        cam_distance_dict = self.load_cam_distance_value()
+        string = cam_distance_dict[i]
+        self.lbl_perc_cam_distance.setText(string)
+        self.save_cam_distance_value(int(string))

@@ -45,7 +45,8 @@ game_settings['Main'] = {'disp_res': '1024x768',
                          'player': 'Korlan',
                          'person_look_mode': 'third',
                          'gameplay_mode': 'simple',
-                         'show_blood': 'on'
+                         'show_blood': 'on',
+                         'camera_distance': '4'
                          }
 
 game_settings['Keymap'] = {'forward': 'W',

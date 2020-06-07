@@ -53,9 +53,19 @@ class Game(MenuSettings):
         elif loaded_settings['Main']['show_blood'] == 'off':
             return 2
 
+    def get_cam_distance_value(self):
+        loaded_settings = self.load_settings()
+        if (loaded_settings['Main']['camera_distance']
+                and isinstance(loaded_settings['Main']['camera_distance'], str)):
+            return int(loaded_settings['Main']['camera_distance'])
+
     def load_show_blood_value(self):
         show_blood = {1: 'ON', 2: 'OFF'}
         return show_blood
+
+    def load_cam_distance_value(self):
+        cam_distance = {1: '1', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6'}
+        return cam_distance
 
     def save_person_look_mode_value(self, data):
         loaded_settings = self.load_settings()
@@ -75,5 +85,13 @@ class Game(MenuSettings):
         loaded_settings = self.load_settings()
         if isinstance(data, str):
             loaded_settings['Main']['show_blood'] = data.lower()
+            with open(self.cfg_path, "w") as cfg_file:
+                loaded_settings.write(cfg_file)
+
+    def save_cam_distance_value(self, data):
+        loaded_settings = self.load_settings()
+        if isinstance(data, int):
+            data = str(data)
+            loaded_settings['Main']['camera_distance'] = data
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)

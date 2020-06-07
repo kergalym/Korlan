@@ -312,7 +312,7 @@ class PhysicsAttr:
                                 obj_bs_np.node().add_shape(bs)
                                 obj_bs_np.set_collide_mask(mask)
                             elif type == 'dynamic':
-                                obj_bs_np.node().set_mass(5)
+                                obj_bs_np.node().set_mass(0.2)
                                 obj_bs_np.node().add_shape(bs)
                                 obj_bs_np.set_collide_mask(self.mask)
 
