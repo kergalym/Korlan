@@ -252,6 +252,7 @@ class PlayerState:
 
                 # we want to keep original scale of the item
                 item.wrt_reparent_to(exposed_joint)
+
                 # Set kinematics to make item follow actor joint
                 item.node().set_kinematic(True)
 
@@ -293,13 +294,19 @@ class PlayerState:
 
             if dist_vec:
                 for k in dist_vec:
-                    if dist_vec[k][1] <= -0.0:
-                        if self.game_settings['Main']['gameplay_mode'] == 'first':
-                            base.cam.set_y(12)
-                            base.first_person_mode = True
-                    elif dist_vec[k][1] >= -0.0:
-                        if self.game_settings['Main']['gameplay_mode'] == 'third':
-                            base.cam.set_y(0)
-                            base.first_person_mode = False
+                    if self.game_settings['Main']['person_look_mode'] == 'first':
+                        if dist_vec[k][1] <= -0.0:
+                                base.cam.set_y(12)
+                                base.first_person_mode = True
+                        elif dist_vec[k][1] >= -0.0:
+                                base.cam.set_y(6)
+                                base.first_person_mode = False
+                    elif self.game_settings['Main']['person_look_mode'] == 'third':
+                        if dist_vec[k][1] <= -0.0:
+                                base.cam.set_y(6)
+                                base.first_person_mode = True
+                        elif dist_vec[k][1] >= -0.0:
+                                base.cam.set_y(6)
+                                base.first_person_mode = False
 
         return task.cont

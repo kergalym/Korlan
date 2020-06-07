@@ -198,7 +198,7 @@ class PhysicsAttr:
             if type == "env":
                 self.set_object_colliders(type='static',
                                           shape=shape,
-                                          mask=self.mask0)
+                                          mask=self.mask1)
 
             # TODO: use in /Korlan/Engine/Items/items.py:
             if type == "item":
@@ -213,7 +213,7 @@ class PhysicsAttr:
                 self.set_actor_collider(actor=self.korlan,
                                         col_name='{0}:BS'.format(self.korlan.get_name()),
                                         shape=shape,
-                                        mask=self.mask1,
+                                        mask=self.mask0,
                                         type="player")
 
             if type == "npc":
@@ -301,20 +301,20 @@ class PhysicsAttr:
                     # TODO: Check if object usable by tag
                     # TODO: Fix double
                     if "Box:BS" in obj_bs_name or "Box:BS" in top_parent_name:
-                        mask = self.mask0
                         type = 'dynamic'
 
                     # Prevent bullet shape duplication
                     if obj_bs_name not in top_parent_name:
                         if self.world_nodepath:
                             obj_bs_np = self.world_nodepath.attach_new_node(BulletRigidBodyNode(obj_bs_name))
-                            if type == 'dynamic':
+                            if type == 'static':
+                                obj_bs_np.node().set_mass(0.0)
+                                obj_bs_np.node().add_shape(bs)
+                                obj_bs_np.set_collide_mask(mask)
+                            elif type == 'dynamic':
                                 obj_bs_np.node().set_mass(1.0)
-                            elif type == 'static':
-                                obj_bs_np.node().set_mass(0)
-                            obj_bs_np.node().add_shape(bs)
-
-                            obj_bs_np.set_collide_mask(mask)
+                                obj_bs_np.node().add_shape(bs)
+                                obj_bs_np.set_collide_mask(self.mask)
 
                             self.world.attach(obj_bs_np.node())
                             obj.reparent_to(obj_bs_np)

@@ -74,8 +74,8 @@ class BulletCollisionSolids:
                     # Has it  geom?
                     if hasattr(objects[1][x].node(), "get_geom"):
                         # TODO Use col.node().get_geom(0) when colliders will be ready
-                        # geom = col.node().get_geom(0)
-                        geom = objects[1][x].node().get_geom(0)
+                        geom = col.node().get_geom(0)
+                        # geom = objects[1][x].node().get_geom(0)
                         mesh = BulletTriangleMesh()
                         mesh.add_geom(geom)
 
@@ -85,9 +85,7 @@ class BulletCollisionSolids:
                         if type == 'dynamic':
                             bool_ = True
                             shape = BulletTriangleMeshShape(mesh,
-                                                            dynamic=bool_,
-                                                            compress=False,
-                                                            bvh=False)
+                                                            dynamic=bool_)
                             mesh_colliders_dict[x] = shape
                         if type == 'static':
                             bool_ = False
