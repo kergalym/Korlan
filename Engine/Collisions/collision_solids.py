@@ -52,16 +52,29 @@ class BulletCollisionSolids:
         box = BulletBoxShape(axis)
         return box
 
+    def set_bs_auto(self, obj, type):
+        if obj and isinstance(type, str):
+            bool_ = False
+            geom = obj.node().get_geom(0)
+            mesh = BulletTriangleMesh()
+            mesh.add_geom(geom)
+
+            if type == 'dynamic':
+                bool_ = True
+            if type == 'static':
+                bool_ = False
+
+            if mesh:
+                shape = BulletTriangleMeshShape(mesh, dynamic=bool_)
+                return shape
+
     def set_bs_auto_multi(self, objects, type):
         if objects and isinstance(objects, list) and isinstance(type, str):
             mesh_colliders_dict = {}
             mesh_colliders_cleaned_dict = {}
             objects_cleaned_dict = {}
-            colliders_dict = base.assets_collider_collector()
-            colliders = base.loader.load_model(colliders_dict["level_one_coll"])
             if hasattr(base, "shaped_objects") and not base.shaped_objects:
-                for x, col in zip(objects[1], colliders.get_children()):
-
+                for x in objects[1]:
                     # Skip already added bullet shapes to prevent duplicating
                     parent_name = render.find('**/{0}'.format(x)).get_parent().get_name()
                     if "BS" in parent_name or "BS" in x:
@@ -74,8 +87,8 @@ class BulletCollisionSolids:
                     # Has it  geom?
                     if hasattr(objects[1][x].node(), "get_geom"):
                         # TODO Use col.node().get_geom(0) when colliders will be ready
-                        geom = col.node().get_geom(0)
-                        # geom = objects[1][x].node().get_geom(0)
+                        # geom = col.node().get_geom(0)
+                        geom = objects[1][x].node().get_geom(0)
                         mesh = BulletTriangleMesh()
                         mesh.add_geom(geom)
 
@@ -96,7 +109,7 @@ class BulletCollisionSolids:
                             mesh_colliders_dict[x] = shape
 
                         # Meshes used to make geom now aren't needed anymore, so remove them
-                        col.remove_node()
+                        # objects[1][x].remove_node()
 
                 # Cleaning from actors by reassembling dict objects
                 for key_obj, key_mesh in zip(objects[0], mesh_colliders_dict):
