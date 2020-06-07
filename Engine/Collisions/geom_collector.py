@@ -98,13 +98,17 @@ class GeomCollector:
         if (hasattr(base, "shaped_objects")
                 and not base.shaped_objects):
             if assets_children:
+                assets_children_cleaned_dict = {}
                 for k in assets_children:
                     asset = assets_children[k]
+                    asset_parent =  asset.get_parent().get_parent()
                     # Clear dict from actors
-                    if not asset.find('**/+Character').is_empty():
-                        assets_children.pop(k)
+                    if asset.find('**/+Character').is_empty():
+                        assets_children_cleaned_dict[k] = asset
+                    elif asset_parent.find('**/+Character').is_empty():
+                        assets_children_cleaned_dict[k] = asset
 
-                geomnode_num_dict = self.get_num_geomnodes(assets_children)
+                geomnode_num_dict = self.get_num_geomnodes(assets_children_cleaned_dict)
                 geomnode_dict = self.get_geom_single_nodes(geomnode_num_dict)
 
                 return self.geomnodes_compose(geomnode_dict)

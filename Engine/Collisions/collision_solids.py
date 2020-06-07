@@ -100,8 +100,7 @@ class BulletCollisionSolids:
                         # Meshes used to make geom now aren't needed anymore, so remove them
                         col.remove_node()
 
-                # TODO: Do we need this? May be exclude any actor in physics.geom_collector()?
-                # Cleaning by reassembling dict objects
+                # Cleaning from actors by reassembling dict objects
                 for key_obj, key_mesh in zip(objects[0], mesh_colliders_dict):
                     if key_mesh != "__Actor_modelRoot":
                         mesh_colliders_cleaned_dict[key_mesh] = mesh_colliders_dict.get(key_mesh)
