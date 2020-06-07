@@ -73,10 +73,16 @@ class BulletCollisionSolids:
             mesh_colliders_dict = {}
             mesh_colliders_cleaned_dict = {}
             objects_cleaned_dict = {}
+
+            colliders = render.find("**/Collisions/lvl*coll")
+
+            if not colliders:
+                return
+
             if hasattr(base, "shaped_objects") and not base.shaped_objects:
-                for x in objects[1]:
+                for x, col in zip(objects[1], colliders.get_children()):
                     # Skip already added bullet shapes to prevent duplicating
-                    parent_name = render.find('**/{0}'.format(x)).get_parent().get_name()
+                    parent_name = render.find('{0}'.format(x)).get_parent().get_name()
                     if "BS" in parent_name or "BS" in x:
                         continue
 
@@ -84,11 +90,10 @@ class BulletCollisionSolids:
                     if "Grass" in x:
                         continue
 
-                    # Has it  geom?
+                    # Has it geom?
                     if hasattr(objects[1][x].node(), "get_geom"):
-                        # TODO Use col.node().get_geom(0) when colliders will be ready
-                        # geom = col.node().get_geom(0)
-                        geom = objects[1][x].node().get_geom(0)
+                        geom = col.node().get_geom(0)
+                        # geom = objects[1][x].node().get_geom(0)
                         mesh = BulletTriangleMesh()
                         mesh.add_geom(geom)
 
@@ -109,7 +114,7 @@ class BulletCollisionSolids:
                             mesh_colliders_dict[x] = shape
 
                         # Meshes used to make geom now aren't needed anymore, so remove them
-                        # objects[1][x].remove_node()
+                        col.remove_node()
 
                 # Cleaning from actors by reassembling dict objects
                 for key_obj, key_mesh in zip(objects[0], mesh_colliders_dict):

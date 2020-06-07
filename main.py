@@ -389,6 +389,7 @@ class Main(ShowBase):
                     key = re.sub('.egg.bam$', '', file)
                     path = str(PurePath("{0}/".format(root), file))
                     asset_colls[key] = Filename.from_os_specific(path).getFullpath()
+
         return asset_colls
 
     def asset_nodes_collector(self):

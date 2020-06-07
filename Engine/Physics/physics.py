@@ -294,7 +294,7 @@ class PhysicsAttr:
 
                 if shape == 'auto':
                     # Save parent before attaching mesh to collider
-                    top_parent = obj.get_parent()
+                    # top_parent = obj.get_parent()
                     top_parent_name = obj.get_parent().get_name()
                     obj_bs_name = "{0}:BS".format(obj.get_name())
 
@@ -312,7 +312,7 @@ class PhysicsAttr:
                                 obj_bs_np.node().add_shape(bs)
                                 obj_bs_np.set_collide_mask(mask)
                             elif type == 'dynamic':
-                                obj_bs_np.node().set_mass(1.0)
+                                obj_bs_np.node().set_mass(5)
                                 obj_bs_np.node().add_shape(bs)
                                 obj_bs_np.set_collide_mask(self.mask)
 
@@ -329,7 +329,7 @@ class PhysicsAttr:
                             #     obj_bs_np.reparent_to(top_parent)
 
                             # Reparent the root node of the level to the World of Physics
-                            if not render.find("**/lvl_*").is_empty():
-                                render.find("**/lvl_*").reparent_to(render.find("**/World"))
+                            if not render.find("**/Collisions/lvl*coll/lvl_*").is_empty():
+                                render.find("**/Collisions/lvl*coll/lvl_*").reparent_to(render.find("**/World"))
 
                             base.shaped_objects.append(obj_bs_name)

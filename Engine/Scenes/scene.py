@@ -1,6 +1,5 @@
 from panda3d.core import *
 from Engine.Actors.Player.korlan import Korlan
-import gltf
 
 
 class SceneOne:
@@ -38,8 +37,6 @@ class SceneOne:
                 and isinstance(rotation, list)
                 and isinstance(scale, list)
                 and isinstance(culling, bool)):
-
-            gltf.patch_loader(self.loader)
 
             self.path = "{0}{1}".format(self.game_dir, path)
             self.game_settings = self.game_settings
@@ -89,6 +86,20 @@ class SceneOne:
             # scene.set_shader_auto()
 
             base.level_is_loaded = 1
+
+            # Load collisions for a level
+            colliders_dict = base.assets_collider_collector()
+            coll_scene_name = '{0}_coll'.format(name)
+            coll_path = colliders_dict[coll_scene_name]
+            coll_scene = await self.base.loader.load_model(coll_path, blocking=False)
+            coll_scene.set_name(coll_scene_name)
+
+            coll_scene_np = NodePath("Collisions")
+            coll_scene_np.reparent_to(render)
+
+            coll_scene.reparent_to(coll_scene_np)
+
+            coll_scene.hide()
 
     # TODO: Remove set_asset async call block further
     async def set_asset(self, path, mode, name, axis, rotation, scale, culling):
