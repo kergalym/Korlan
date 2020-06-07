@@ -1,4 +1,4 @@
-from panda3d.core import BitMask32
+from Engine.Collisions.geom_collector import GeomCollector
 from Engine.Collisions.collision_solids import BulletCollisionSolids
 from Engine.FSM.npc_ai import NpcAI
 from panda3d.bullet import BulletCharacterControllerNode
@@ -25,7 +25,8 @@ class PhysicsAttr:
         self.cam_cs = None
         self.cam_bs_nodepath = None
         self.cam_collider = None
-        self.bs = BulletCollisionSolids()
+        self.geom_collector = GeomCollector()
+        self.bullet_solids = BulletCollisionSolids()
         self.fsm_npc = NpcAI()
 
         self.korlan = None
@@ -37,105 +38,6 @@ class PhysicsAttr:
         self.mask2 = BitMask32.bit(2)
         self.mask3 = BitMask32.bit(3)
         self.mask5 = BitMask32.bit(5)
-
-    def geom_collector(self):
-        assets = base.asset_nodes_collector()
-        assets_children = base.asset_node_children_collector(
-            assets, assoc_key=True)
-
-        # The key is node name and the value is node paths list
-        geomnode_num_dict = {}
-        geomnode_dict = {}
-
-        # The key is node name and the value is node path (contains a node)
-        geomnodes_all_dict = {}
-
-        # The key is geometry node and the value is node path (contains a node)
-        nodes_all_dict = {}
-
-        if (hasattr(base, "shaped_objects")
-                and not base.shaped_objects):
-            if assets_children:
-                for k in assets_children:
-                    asset = assets_children[k]
-                    # Clear dict from actors
-                    if not asset.find('**/+Character').is_empty():
-                        assets_children.pop(k)
-
-                # Get a dict with number of geomnodes
-                for k in assets_children:
-                    asset = assets_children[k]
-
-                    # Clean from duplicate
-                    if "BS" in asset.get_name():
-                        continue
-
-                    asset_parent = assets_children[k].get_parent()
-
-                    # Clean from duplicate
-                    if "BS" in asset_parent.get_name():
-                        continue
-
-                    name = assets_children[k].get_name()
-
-                    if name == '':
-                        name = asset_parent.get_name()
-
-                    geomnode_num_dict[name] = asset
-                    geomnode_num_dict[name] = asset.findAllMatches('**/+GeomNode')
-
-                # Get geomnodes for single nodes
-                for geomnode in geomnode_num_dict:
-                    if (not render.find("**/{0}".format(geomnode)).is_empty()
-                            and render.find("**/{0}".format(geomnode)).get_num_children() == 0):
-                        np = render.find("**/{0}".format(geomnode))
-                        if np and np.find('+GeomNode').is_empty():
-                            geomnode_dict[geomnode] = np
-                        elif np and np.find('**/+GeomNode').is_empty():
-                            geomnode_dict[geomnode] = np
-                    else:
-                        geomnode_dict[geomnode] = geomnode_num_dict[geomnode]
-
-                # Get geomnodes for single nodes
-                for geomnode in geomnode_dict:
-                    if not geomnode_dict[geomnode]:
-                        if not render.find("**/{0}".format(geomnode)).is_empty():
-                            np = render.find("**/{0}".format(geomnode))
-                            if geomnode == np.get_name():
-                                if np and not np.find('+GeomNode').is_empty():
-                                    geomnode_dict[geomnode] = np.find('+GeomNode')
-
-                # Get all geomnodes together
-                for geomnode in geomnode_dict:
-
-                    # Get single node
-                    if (hasattr(geomnode_dict[geomnode], 'get_num_children')
-                            and geomnode_dict[geomnode].get_num_children() == 0):
-                        geomnodes_all_dict[geomnode] = geomnode_dict[geomnode]
-
-                        np = render.find("**/{0}".format(geomnode))
-                        if not np.is_empty():
-                            nodes_all_dict[np.get_name()] = np
-
-                    # Get multiple nodes
-                    elif not hasattr(geomnode_dict[geomnode], 'get_num_children'):
-                        for x in geomnode_dict[geomnode]:
-                            parent_name = x.get_parent().get_name()
-                            name = x.get_name()
-                            # Construct a name for empty
-                            # from parent name
-                            if name == '':
-                                x.set_name(parent_name)
-                                name = x.get_name()
-                                geomnodes_all_dict[name] = x
-                            else:
-                                geomnodes_all_dict[name] = x
-
-                            np = render.find("**/{0}".format(name))
-                            if not np.is_empty():
-                                nodes_all_dict[np] = x
-
-                return [nodes_all_dict, geomnodes_all_dict]
 
     def update_physics_task(self, task):
         """ Function    : update_physics_task
@@ -336,9 +238,9 @@ class PhysicsAttr:
                 actor_bs = None
                 actor_bs_np = None
                 if shape == 'capsule':
-                    actor_bs = self.bs.set_bs_capsule()
+                    actor_bs = self.bullet_solids.set_bs_capsule()
                 if shape == 'sphere':
-                    actor_bs = self.bs.set_bs_sphere()
+                    actor_bs = self.bullet_solids.set_bs_sphere()
                 if type == 'player':
                     if self.world_nodepath:
                         base.bullet_char_contr_node = BulletCharacterControllerNode(actor_bs,
@@ -381,9 +283,9 @@ class PhysicsAttr:
             return
 
         base.shaped_objects = []
-        geoms = self.geom_collector()
+        geoms = self.geom_collector.geom_collector()
 
-        object_bs_multi = self.bs.set_bs_auto_multi(objects=geoms, type='static')
+        object_bs_multi = self.bullet_solids.set_bs_auto_multi(objects=geoms, type='static')
 
         if object_bs_multi:
             for obj, object_bs in zip(object_bs_multi[0], object_bs_multi[1]):
@@ -423,10 +325,10 @@ class PhysicsAttr:
                             obj.set_pos(0, 0, 0)
 
                             # Reparent it to previous parent to get original position back for mesh
-                            # TODO: Move the Level One node to the World of Physics
                             if top_parent:
                                 obj_bs_np.reparent_to(top_parent)
 
+                            # Reparent the root node of the level to the World of Physics
                             if not render.find("**/lvl_*").is_empty():
                                 render.find("**/lvl_*").reparent_to(render.find("**/World"))
 
