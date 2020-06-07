@@ -13,13 +13,11 @@ class GeomCollector:
                     continue
 
                 asset_parent = assets_children[k].get_parent()
-
                 # Clean from duplicate
                 if "BS" in asset_parent.get_name():
                     continue
 
                 name = assets_children[k].get_name()
-
                 if name == '':
                     name = asset_parent.get_name()
 
