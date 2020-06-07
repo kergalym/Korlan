@@ -52,7 +52,7 @@ class GeomCollector:
 
             return geomnode_dict
 
-    def geomnode_compose(self, geomnode_dict: dict) -> list:
+    def geomnodes_compose(self, geomnode_dict: dict) -> list:
         if geomnode_dict:
             # The key is node name and the value is node path (contains a node)
             geomnodes_all_dict = {}
@@ -107,4 +107,4 @@ class GeomCollector:
                 geomnode_num_dict = self.get_num_geomnodes(assets_children)
                 geomnode_dict = self.get_geom_single_nodes(geomnode_num_dict)
 
-                return self.geomnode_compose(geomnode_dict)
+                return self.geomnodes_compose(geomnode_dict)
