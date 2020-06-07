@@ -42,7 +42,6 @@ class GeomCollector:
                 else:
                     geomnode_dict[geomnode] = geomnode_num_dict[geomnode]
 
-            # Get geomnodes for single nodes
             for geomnode in geomnode_dict:
                 if not geomnode_dict[geomnode]:
                     if not render.find("**/{0}".format(geomnode)).is_empty():
