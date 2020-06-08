@@ -131,12 +131,12 @@ class OptionsMenuUI(MenuSettings):
         self.base.frame_int.setPos(self.pos_X, self.pos_Y, self.pos_Z)
 
         self.btn_game = DirectButton(text=self.language['game'], text_bg=(0, 0, 0, 1),
-                                    text_fg=(255, 255, 255, 0.9),
-                                    text_font=self.font.load_font(self.menu_font),
-                                    frameColor=(255, 255, 255, self.frm_opacity),
-                                    scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                    parent=self.base.frame_int,
-                                    command=self.ui_game.load_game_menu)
+                                     text_fg=(255, 255, 255, 0.9),
+                                     text_font=self.font.load_font(self.menu_font),
+                                     frameColor=(255, 255, 255, self.frm_opacity),
+                                     scale=self.btn_scale, borderWidth=(self.w, self.h),
+                                     parent=self.base.frame_int,
+                                     command=self.ui_game.load_game_menu)
 
         self.btn_gfx = DirectButton(text=self.language['graphics'], text_bg=(0, 0, 0, 1),
                                     text_fg=(255, 255, 255, 0.9),
@@ -208,10 +208,15 @@ class OptionsMenuUI(MenuSettings):
 
             Return      : None
         """
+        if not self.base.frame_int:
+            return
+
+        if hasattr(base, "active_frame"):
+            base.active_frame.destroy()
+
         if self.game_mode:
             self.base.frame_int.destroy()
         self.base.frame_int.destroy()
         self.logo.destroy()
         self.ornament_left.destroy()
         self.ornament_right.destroy()
-

@@ -5,6 +5,7 @@ from os.path import exists
 from pathlib import Path
 
 from direct.gui.DirectGui import *
+from direct.gui.DirectGuiGlobals import GROOVE
 from direct.gui.OnscreenImage import OnscreenImage
 from direct.gui.OnscreenImage import TransparencyAttrib
 from panda3d.core import FontPool
@@ -42,28 +43,25 @@ class GameMenuUI(Game):
 
         """ Frame Sizes """
         # Left, right, bottom, top
-        self.base.frame_int_game_size = [-3, 0.7, -1, 3]
+        self.base.frame_int_game_size = [-0.9, 3, -1, 3]
 
         """ Frame Colors """
-        self.frm_opacity = 1
+        self.frm_opacity = 0.9
 
         """ Logo & Ornament Scaling, Positioning """
         self.logo = None
-        self.ornament_left = None
         self.ornament_right = None
         self.logo_scale = (0.33, 0.30, 0.30)
-        self.logo_pos = (-1.4, 0, 0.4)
+        self.logo_pos = (-0.3, 0, 0.6)
         self.ornament_scale = (1.40, 0.05, 0.05)
-        self.ornament_l_pos = (-1.8, 0, -0.1)
-        self.ornament_r_pos = (-0.2, 0, -0.1)
+        self.ornament_r_pos = (1.8, 0, -0.1)
 
-        self.ornament_l_game_pos = (-1.8, 0, -0.1)
-        self.ornament_r_game_pos = (0.6, 0.2, -0.1)
+        self.ornament_r_game_pos = (1.8, 0.2, -0.1)
 
         """ Buttons, Label Scaling """
-        self.lbl_scale = .03
-        self.btn_scale = .03
-        self.inp_scale = .04
+        self.lbl_scale = .04
+        self.sli_scale = (.4, 0, .2)
+        self.btn_scale = .04
 
         """ Misc """
         self.m_settings = MenuSettings()
@@ -129,10 +127,12 @@ class GameMenuUI(Game):
 
             Return      : None
         """
-        self.logo = OnscreenImage(image=self.images['korlan_logo_tengri'],
+        self.unload_game_menu()
+
+        self.logo = OnscreenImage(image=self.images['gamepad_icon'],
                                   pos=self.logo_pos)
-        self.ornament_left = OnscreenImage(image=self.images['ornament_kz'],
-                                           pos=self.ornament_l_pos, color=(63.9, 63.9, 63.9, 0.5))
+        self.logo.set_transparency(TransparencyAttrib.MAlpha)
+
         self.ornament_right = OnscreenImage(image=self.images['ornament_kz'],
                                             pos=self.ornament_r_pos, color=(63.9, 63.9, 63.9, 0.5))
 
@@ -140,135 +140,139 @@ class GameMenuUI(Game):
                                                frameSize=self.base.frame_int_game_size)
         self.base.frame_int_game.setPos(self.pos_X, self.pos_Y, self.pos_Z)
 
-        self.lbl_game_title = DirectLabel(text=self.language['game'], text_bg=(0, 0, 0, 1),
-                                          text_fg=(255, 255, 255, 0.9),
+        self.lbl_game_title = DirectLabel(text=self.language['game'],
+                                          text_fg=(255, 255, 255, 1),
                                           text_font=self.font.load_font(self.menu_font),
-                                          frameColor=(255, 255, 255, self.frm_opacity),
-                                          scale=.05, borderWidth=(self.w, self.h),
+                                          frameColor=(255, 255, 255, 0),
+                                          scale=.07, borderWidth=(self.w, self.h),
                                           parent=self.base.frame_int_game)
 
-        self.lbl_person_look_mode = DirectLabel(text=self.language['person_look_mode'], text_bg=(0, 0, 0, 1),
-                                                text_fg=(255, 255, 255, 0.9),
+        self.lbl_person_look_mode = DirectLabel(text=self.language['person_look_mode'],
+                                                text_fg=(255, 255, 255, 1),
                                                 text_font=self.font.load_font(self.menu_font),
-                                                frameColor=(255, 255, 255, self.frm_opacity),
+                                                frameColor=(255, 255, 255, 0),
                                                 scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                                 parent=self.base.frame_int_game)
 
-        self.lbl_gameplay_mode = DirectLabel(text=self.language['gameplay_mode'], text_bg=(0, 0, 0, 1),
-                                             text_fg=(255, 255, 255, 0.9),
+        self.lbl_gameplay_mode = DirectLabel(text=self.language['gameplay_mode'],
+                                             text_fg=(255, 255, 255, 1),
                                              text_font=self.font.load_font(self.menu_font),
-                                             frameColor=(255, 255, 255, self.frm_opacity),
+                                             frameColor=(255, 255, 255, 0),
                                              scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                              parent=self.base.frame_int_game)
 
-        self.lbl_show_blood = DirectLabel(text=self.language['show_blood'], text_bg=(0, 0, 0, 1),
-                                          text_fg=(255, 255, 255, 0.9),
+        self.lbl_show_blood = DirectLabel(text=self.language['show_blood'],
+                                          text_fg=(255, 255, 255, 1),
                                           text_font=self.font.load_font(self.menu_font),
-                                          frameColor=(255, 255, 255, self.frm_opacity),
+                                          frameColor=(255, 255, 255, 0),
                                           scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                           parent=self.base.frame_int_game)
 
-        self.lbl_cam_distance = DirectLabel(text=self.language['camera_distance'], text_bg=(0, 0, 0, 1),
-                                            text_fg=(255, 255, 255, 0.9),
+        self.lbl_cam_distance = DirectLabel(text=self.language['camera_distance'],
+                                            text_fg=(255, 255, 255, 1),
                                             text_font=self.font.load_font(self.menu_font),
-                                            frameColor=(255, 255, 255, self.frm_opacity),
+                                            frameColor=(255, 255, 255, 0),
                                             scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                             parent=self.base.frame_int_game)
 
         self.slider_person_look_mode = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
                                                     value=self.get_person_look_mode_value(),
-                                                    scale=.2, borderWidth=(self.w, self.h),
+                                                    scale=self.sli_scale, borderWidth=(2, 2),
                                                     parent=self.base.frame_int_game,
                                                     command=self.set_slider_person_look_mode_wrapper)
 
         self.slider_gameplay_mode = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
                                                  value=self.get_gameplay_mode_value(),
-                                                 scale=.2, borderWidth=(self.w, self.h),
+                                                 scale=self.sli_scale, borderWidth=(self.w, self.h),
                                                  parent=self.base.frame_int_game,
                                                  command=self.set_slider_gameplay_mode_wrapper)
 
         self.slider_show_blood = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
                                               value=self.get_show_blood_value(),
-                                              scale=.2, borderWidth=(self.w, self.h),
+                                              scale=self.sli_scale, borderWidth=(self.w, self.h),
                                               parent=self.base.frame_int_game,
                                               command=self.set_slider_show_blood_wrapper)
 
         self.slider_cam_distance = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 6),
                                                 value=self.get_cam_distance_value(),
-                                                scale=.2, borderWidth=(self.w, self.h),
+                                                scale=self.sli_scale, borderWidth=(self.w, self.h),
                                                 parent=self.base.frame_int_game,
                                                 command=self.set_slider_cam_distance_wrapper)
 
-        self.lbl_perc_person_look_mode = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+        self.lbl_perc_person_look_mode = OnscreenText(bg=(0, 0, 0, 0), fg=(255, 255, 255, 1),
                                                       font=self.font.load_font(self.menu_font),
                                                       scale=self.lbl_scale,
                                                       parent=self.base.frame_int_game, mayChange=True)
 
-        self.lbl_perc_gameplay_mode = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+        self.lbl_perc_gameplay_mode = OnscreenText(bg=(0, 0, 0, 0), fg=(255, 255, 255, 1),
                                                    font=self.font.load_font(self.menu_font),
                                                    scale=self.lbl_scale,
                                                    parent=self.base.frame_int_game, mayChange=True)
 
-        self.lbl_perc_show_blood = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+        self.lbl_perc_show_blood = OnscreenText(bg=(0, 0, 0, 0), fg=(255, 255, 255, 1),
                                                 font=self.font.load_font(self.menu_font),
                                                 scale=self.lbl_scale,
                                                 parent=self.base.frame_int_game, mayChange=True)
 
-        self.lbl_perc_cam_distance = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+        self.lbl_perc_cam_distance = OnscreenText(bg=(0, 0, 0, 0), fg=(255, 255, 255, 1),
                                                   font=self.font.load_font(self.menu_font),
                                                   scale=self.lbl_scale,
                                                   parent=self.base.frame_int_game, mayChange=True)
 
-        self.btn_param_defaults = DirectButton(text="Load defaults", text_bg=(0, 0, 0, 1),
-                                               text_fg=(255, 255, 255, 0.9),
+        self.btn_param_defaults = DirectButton(text="Load defaults",
+                                               text_fg=(255, 255, 255, 1),
                                                text_font=self.font.load_font(self.menu_font),
-                                               frameColor=(255, 255, 255, self.frm_opacity),
+                                               frameColor=(255, 255, 255, 0),
                                                scale=self.btn_scale, borderWidth=(self.w, self.h),
                                                parent=self.base.frame_int_game,
                                                command=self.set_default_game)
 
-        self.btn_param_accept = DirectButton(text="OK", text_bg=(0, 0, 0, 0.9),
-                                             text_fg=(255, 255, 255, 0.9),
+        self.btn_param_accept = DirectButton(text="OK",
+                                             text_fg=(255, 255, 255, 1),
                                              text_font=self.font.load_font(self.menu_font),
-                                             frameColor=(255, 255, 255, self.frm_opacity),
+                                             frameColor=(255, 255, 255, 0),
                                              scale=self.btn_scale, borderWidth=(self.w, self.h),
                                              parent=self.base.frame_int_game,
                                              command=self.unload_game_menu)
 
         self.logo.reparent_to(self.base.frame_int_game)
-        self.logo.set_scale(self.logo_scale)
+        self.logo.set_scale(0.35, 0.20, 0.20)
 
         self.ornament_right.reparent_to(self.base.frame_int_game)
         self.ornament_right.set_scale(self.ornament_scale)
         self.ornament_right.set_hpr(0.0, 0.0, -90.0)
-        self.ornament_left.reparent_to(self.base.frame_int_game)
-        self.ornament_left.set_scale(self.ornament_scale)
-        self.ornament_left.set_hpr(0.0, 0.0, -90.0)
         self.ornament_right.set_transparency(TransparencyAttrib.MAlpha)
-        self.ornament_left.set_transparency(TransparencyAttrib.MAlpha)
-
-        self.ornament_left.set_pos(self.ornament_l_game_pos)
         self.ornament_right.set_pos(self.ornament_r_game_pos)
 
-        self.lbl_game_title.set_pos(-0.6, 0, 0.5)
-        self.lbl_person_look_mode.set_pos(-1.4, 0, 0)
-        self.lbl_gameplay_mode.set_pos(-1.4, 0, -0.1)
-        self.lbl_show_blood.set_pos(-1.4, 0, -0.2)
-        self.lbl_cam_distance.set_pos(-1.4, 0, -0.3)
+        self.lbl_game_title.set_pos(0.6, 0, 0.6)
+        self.lbl_person_look_mode.set_pos(-0.3, 0, 0.3)
+        self.lbl_gameplay_mode.set_pos(-0.3, 0, 0.2)
+        self.lbl_show_blood.set_pos(-0.3, 0, 0.1)
+        self.lbl_cam_distance.set_pos(-0.3, 0, 0)
 
-        self.slider_person_look_mode.set_pos(-0.8, 0, 0)
-        self.slider_gameplay_mode.set_pos(-0.8, 0, -0.1)
-        self.slider_show_blood.set_pos(-0.8, 0, -0.2)
-        self.slider_cam_distance.set_pos(-0.8, 0, -0.3)
+        self.slider_person_look_mode.set_pos(0.6, 0, 0.3)
+        self.slider_gameplay_mode.set_pos(0.6, 0, 0.2)
+        self.slider_show_blood.set_pos(0.6, 0, 0.1)
+        self.slider_cam_distance.set_pos(0.6, 0, 0)
 
-        self.lbl_perc_person_look_mode.set_pos(-0.5, 0, 0)
-        self.lbl_perc_gameplay_mode.set_pos(-0.5, 0, -0.1)
-        self.lbl_perc_show_blood.set_pos(-0.5, 0, -0.2)
-        self.lbl_perc_cam_distance.set_pos(-0.5, 0, -0.3)
+        OnscreenImage(image=self.images['ui_slider_button'],
+                      scale=(.07, .07, .08)).reparent_to(self.slider_person_look_mode.thumb)
+        OnscreenImage(image=self.images['ui_slider_button'],
+                      scale=(.07, .07, .08)).reparent_to(self.slider_gameplay_mode.thumb)
+        OnscreenImage(image=self.images['ui_slider_button'],
+                      scale=(.07, .07, .08)).reparent_to(self.slider_show_blood.thumb)
+        OnscreenImage(image=self.images['ui_slider_button'],
+                      scale=(.07, .07, .08)).reparent_to(self.slider_cam_distance.thumb)
 
-        self.btn_param_defaults.set_pos(0.3, 0, -0.9)
-        self.btn_param_accept.set_pos(-1.6, 0, -0.9)
+        self.lbl_perc_person_look_mode.set_pos(1.3, 0, 0.3)
+        self.lbl_perc_gameplay_mode.set_pos(1.3, 0, 0.2)
+        self.lbl_perc_show_blood.set_pos(1.3, 0, 0.1)
+        self.lbl_perc_cam_distance.set_pos(1.3, 0, 0)
+
+        self.btn_param_defaults.set_pos(1.5, 0, -0.9)
+        self.btn_param_accept.set_pos(-0.6, 0, -0.9)
         self.menu_mode = True
+        base.active_frame = self.base.frame_int_game
 
     def unload_game_menu(self):
         """ Function    : unload_game_menu
@@ -281,11 +285,16 @@ class GameMenuUI(Game):
 
             Return      : None
         """
+        if not self.base.frame_int_game:
+            return
+
+        if hasattr(base, "active_frame"):
+            base.active_frame.destroy()
+
         if self.game_mode:
             self.base.frame_int_game.destroy()
         self.base.frame_int_game.destroy()
         self.logo.destroy()
-        self.ornament_left.destroy()
         self.ornament_right.destroy()
 
     """ Wrapper functions """

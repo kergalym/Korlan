@@ -41,28 +41,25 @@ class LangMenuUI(Language):
 
         """ Frame Sizes """
         # Left, right, bottom, top
-        self.base.frame_int_lang_size = [-3, -0.3, -1, 3]
+        self.base.frame_int_lang_size = [-0.9, 3, -1, 3]
 
         """ Frame Colors """
-        self.frm_opacity = 1
+        self.frm_opacity = 0.9
 
         """ Logo & Ornament Scaling, Positioning """
         self.logo = None
-        self.ornament_left = None
         self.ornament_right = None
         self.logo_scale = (0.33, 0.30, 0.30)
-        self.logo_pos = (-1.4, 0, 0.4)
+        self.logo_pos = (-0.3, 0, 0.6)
         self.ornament_scale = (1.40, 0.05, 0.05)
-        self.ornament_l_pos = (-1.8, 0, -0.1)
-        self.ornament_r_pos = (-1.0, 0, -0.1)
+        self.ornament_r_pos = (1.8, 0, -0.1)
 
-        self.ornament_l_lng_pos = (-1.8, 0, -0.1)
-        self.ornament_r_lng_pos = (-0.4, 0, -0.1)
+        self.ornament_r_lng_pos = (1.8, 0, -0.1)
 
         """ Buttons, Label Scaling """
-        self.lbl_scale = .03
-        self.btn_scale = .03
-        self.inp_scale = .04
+        self.lbl_scale = .04
+        self.btn_scale = .04
+        self.rad_scale = .04
 
         """ Misc """
         self.m_settings = MenuSettings()
@@ -121,10 +118,9 @@ class LangMenuUI(Language):
 
             Return      : None
         """
-        self.logo = OnscreenImage(image=self.images['korlan_logo_tengri'],
+        self.logo = OnscreenImage(image=self.images['gamepad_icon'],
                                   pos=self.logo_pos)
-        self.ornament_left = OnscreenImage(image=self.images['ornament_kz'],
-                                           pos=self.ornament_l_pos, color=(63.9, 63.9, 63.9, 0.5))
+        self.logo.set_transparency(TransparencyAttrib.MAlpha)
         self.ornament_right = OnscreenImage(image=self.images['ornament_kz'],
                                             pos=self.ornament_r_pos, color=(63.9, 63.9, 63.9, 0.5))
 
@@ -132,46 +128,46 @@ class LangMenuUI(Language):
                                                frameSize=self.base.frame_int_lang_size)
         self.base.frame_int_lang.setPos(self.pos_X, self.pos_Y, self.pos_Z)
 
-        self.lbl_lang_title = DirectLabel(text=self.language['language'], text_bg=(0, 0, 0, 1),
-                                          text_fg=(155, 155, 255, 0.9),
+        self.lbl_lang_title = DirectLabel(text=self.language['language'],
+                                          text_fg=(255, 255, 255, 1),
                                           text_font=self.font.load_font(self.menu_font),
-                                          frameColor=(255, 255, 255, self.frm_opacity),
-                                          scale=.05, borderWidth=(self.w, self.h),
+                                          frameColor=(255, 255, 255, 0),
+                                          scale=.07, borderWidth=(self.w, self.h),
                                           parent=self.base.frame_int_lang)
 
-        self.lbl_english = DirectLabel(text=self.language['english'], text_bg=(0, 0, 0, 1),
-                                       text_fg=(255, 255, 255, 0.9),
+        self.lbl_english = DirectLabel(text=self.language['english'],
+                                       text_fg=(255, 255, 255, 1),
                                        text_font=self.font.load_font(self.menu_font),
-                                       frameColor=(255, 255, 255, self.frm_opacity),
+                                       frameColor=(255, 255, 255, 0),
                                        scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                        parent=self.base.frame_int_lang)
 
-        self.lbl_kazakh = DirectLabel(text=self.language['kazakh'], text_bg=(0, 0, 0, 1),
-                                      text_fg=(255, 255, 255, 0.9),
+        self.lbl_kazakh = DirectLabel(text=self.language['kazakh'],
+                                      text_fg=(255, 255, 255, 1),
                                       text_font=self.font.load_font(self.menu_font),
-                                      frameColor=(255, 255, 255, self.frm_opacity),
+                                      frameColor=(255, 255, 255, 0),
                                       scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                       parent=self.base.frame_int_lang)
 
-        self.lbl_russian = DirectLabel(text=self.language['russian'], text_bg=(0, 0, 0, 1),
-                                       text_fg=(255, 255, 255, 0.9),
+        self.lbl_russian = DirectLabel(text=self.language['russian'],
+                                       text_fg=(255, 255, 255, 1),
                                        text_font=self.font.load_font(self.menu_font),
-                                       frameColor=(255, 255, 255, self.frm_opacity),
+                                       frameColor=(255, 255, 255, 0),
                                        scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                        parent=self.base.frame_int_lang)
 
-        self.btn_param_defaults = DirectButton(text="Load defaults", text_bg=(0, 0, 0, 1),
-                                               text_fg=(255, 255, 255, 0.9),
+        self.btn_param_defaults = DirectButton(text="Load defaults",
+                                               text_fg=(255, 255, 255, 1),
                                                text_font=self.font.load_font(self.menu_font),
-                                               frameColor=(255, 255, 255, self.frm_opacity),
+                                               frameColor=(255, 255, 255, 0),
                                                scale=self.btn_scale, borderWidth=(self.w, self.h),
                                                parent=self.base.frame_int_lang,
                                                command=self.set_default_language)
 
-        self.btn_param_back = DirectButton(text="Back", text_bg=(0, 0, 0, 1),
-                                           text_fg=(255, 255, 255, 0.9),
+        self.btn_param_back = DirectButton(text="Back",
+                                           text_fg=(255, 255, 255, 1),
                                            text_font=self.font.load_font(self.menu_font),
-                                           frameColor=(255, 255, 255, self.frm_opacity),
+                                           frameColor=(255, 255, 255, 0),
                                            scale=self.btn_scale, borderWidth=(self.w, self.h),
                                            parent=self.base.frame_int_lang,
                                            command=self.unload_language_menu)
@@ -180,17 +176,20 @@ class LangMenuUI(Language):
 
         radbuttons = [
 
-            DirectRadioButton(text='', variable=[0], value=[lng_value['english']], pos=(-0.7, 0, -0.0),
-                              parent=self.base.frame_int_lang, scale=.04,
-                              command=self.set_language_english, color=(63.9, 63.9, 63.9, 1)),
+            DirectRadioButton(text='', variable=[0], value=[lng_value['english']], pos=(0.6, 0, -0.0),
+                              parent=self.base.frame_int_lang, scale=self.rad_scale,
+                              command=self.set_language_english, color=(63.9, 63.9, 63.9, 1),
+                              boxImage=self.images['ui_rad_button']),
 
-            DirectRadioButton(text='', variable=[0], value=[lng_value['kazakh']], pos=(-0.7, 0, -0.1),
-                              parent=self.base.frame_int_lang, scale=.04,
-                              command=self.set_language_kazakh, color=(63.9, 63.9, 63.9, 1)),
+            DirectRadioButton(text='', variable=[0], value=[lng_value['kazakh']], pos=(0.6, 0, -0.1),
+                              parent=self.base.frame_int_lang, scale=self.rad_scale,
+                              command=self.set_language_kazakh, color=(63.9, 63.9, 63.9, 1),
+                              boxImage=self.images['ui_rad_button']),
 
-            DirectRadioButton(text='', variable=[0], value=[lng_value['russian']], pos=(-0.7, 0, -0.2),
-                              parent=self.base.frame_int_lang, scale=.04,
-                              command=self.set_language_russian, color=(63.9, 63.9, 63.9, 1))
+            DirectRadioButton(text='', variable=[0], value=[lng_value['russian']], pos=(0.6, 0, -0.2),
+                              parent=self.base.frame_int_lang, scale=self.rad_scale,
+                              command=self.set_language_russian, color=(63.9, 63.9, 63.9, 1),
+                              boxImage=self.images['ui_rad_button'])
 
         ]
 
@@ -201,29 +200,25 @@ class LangMenuUI(Language):
             for two blocks
         """
         self.logo.reparent_to(self.base.frame_int_lang)
-        self.logo.set_scale(self.logo_scale)
+        self.logo.set_scale(0.35, 0.20, 0.20)
 
         self.ornament_right.reparent_to(self.base.frame_int_lang)
         self.ornament_right.set_scale(self.ornament_scale)
         self.ornament_right.set_hpr(0.0, 0.0, -90.0)
-        self.ornament_left.reparent_to(self.base.frame_int_lang)
-        self.ornament_left.set_scale(self.ornament_scale)
-        self.ornament_left.set_hpr(0.0, 0.0, -90.0)
         self.ornament_right.set_transparency(TransparencyAttrib.MAlpha)
-        self.ornament_left.set_transparency(TransparencyAttrib.MAlpha)
-
-        self.ornament_left.set_pos(self.ornament_l_lng_pos)
         self.ornament_right.set_pos(self.ornament_r_lng_pos)
 
-        self.lbl_lang_title.set_pos(-0.8, 0, 0.5)
-        self.lbl_english.set_pos(-1.4, 0, 0)
-        self.lbl_kazakh.set_pos(-1.4, 0, -0.1)
-        self.lbl_russian.set_pos(-1.4, 0, -0.2)
+        self.lbl_lang_title.set_pos(0.6, 0, 0.6)
 
-        """ Second block is here """
-        self.btn_param_defaults.set_pos(-0.7, 0, -0.9)
-        self.btn_param_back.set_pos(-1.6, 0, -0.9)
+        self.lbl_english.set_pos(0.0, 0, 0)
+        self.lbl_kazakh.set_pos(0.0, 0, -0.1)
+        self.lbl_russian.set_pos(0.0, 0, -0.2)
+
+        self.btn_param_defaults.set_pos(1.5, 0, -0.9)
+        self.btn_param_back.set_pos(-0.6, 0, -0.9)
+
         self.menu_mode = True
+        base.active_frame = self.base.frame_int_lang
 
     def unload_language_menu(self):
         """ Function    : unload_language_menu
@@ -236,10 +231,15 @@ class LangMenuUI(Language):
 
             Return      : None
         """
+        if not self.base.frame_int_lang:
+            return
+
+        if hasattr(base, "active_frame"):
+            base.active_frame.destroy()
+
         if self.game_mode:
             self.base.frame_int_lang.destroy()
         self.base.frame_int_lang.destroy()
         self.logo.destroy()
-        self.ornament_left.destroy()
         self.ornament_right.destroy()
 

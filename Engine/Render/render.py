@@ -21,7 +21,7 @@ class RenderAttr:
         # Set time of day
         if self.game_settings['Main']['postprocessing'] == 'on':
             if self.render_pipeline:
-                self.render_pipeline.daytime_mgr.time = "20:45"
+                self.render_pipeline.daytime_mgr.time = "10:45"
 
     def shader_collector(self):
         """ Function    : shader_collector

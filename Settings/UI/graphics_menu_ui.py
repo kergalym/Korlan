@@ -41,28 +41,25 @@ class GraphicsMenuUI(Graphics):
 
         """ Frame Sizes """
         # Left, right, bottom, top
-        self.base.frame_int_gfx_size = [-3, 1.1, -1, 3]
+        self.base.frame_int_gfx_size = [-0.9, 3, -1, 3]
 
         """ Frame Colors """
-        self.frm_opacity = 1
+        self.frm_opacity = 0.9
 
         """ Logo & Ornament Scaling, Positioning """
         self.logo = None
-        self.ornament_left = None
         self.ornament_right = None
         self.logo_scale = (0.33, 0.30, 0.30)
-        self.logo_pos = (-1.4, 0, 0.4)
+        self.logo_pos = (-0.3, 0, 0.6)
         self.ornament_scale = (1.40, 0.05, 0.05)
-        self.ornament_l_pos = (-1.8, 0, -0.1)
-        self.ornament_r_pos = (-1.0, 0, -0.1)
+        self.ornament_r_pos = (1.8, 0, -0.1)
 
-        self.ornament_l_gfx_pos = (-1.8, 0, -0.1)
-        self.ornament_r_gfx_pos = (1, 0, -0.1)
+        self.ornament_r_gfx_pos = (1.8, 0, -0.1)
 
         """ Buttons, Label Scaling """
-        self.lbl_scale = .03
-        self.btn_scale = .03
-        self.inp_scale = .04
+        self.lbl_scale = .04
+        self.sli_scale = (.4, 0, .2)
+        self.btn_scale = .04
 
         """ Misc """
         self.m_settings = MenuSettings()
@@ -178,10 +175,11 @@ class GraphicsMenuUI(Graphics):
 
             Return      : None
         """
-        self.logo = OnscreenImage(image=self.images['korlan_logo_tengri'],
+        self.unload_graphics_menu()
+
+        self.logo = OnscreenImage(image=self.images['gamepad_icon'],
                                   pos=self.logo_pos)
-        self.ornament_left = OnscreenImage(image=self.images['ornament_kz'],
-                                           pos=self.ornament_l_pos, color=(63.9, 63.9, 63.9, 0.5))
+        self.logo.set_transparency(TransparencyAttrib.MAlpha)
         self.ornament_right = OnscreenImage(image=self.images['ornament_kz'],
                                             pos=self.ornament_r_pos, color=(63.9, 63.9, 63.9, 0.5))
 
@@ -189,143 +187,143 @@ class GraphicsMenuUI(Graphics):
                                               frameSize=self.base.frame_int_gfx_size)
         self.base.frame_int_gfx.setPos(self.pos_X, self.pos_Y, self.pos_Z)
 
-        self.lbl_gfx_title = DirectLabel(text=self.language['graphics'], text_bg=(0, 0, 0, 1),
-                                         text_fg=(255, 255, 255, 0.9),
+        self.lbl_gfx_title = DirectLabel(text=self.language['graphics'],
+                                         text_fg=(255, 255, 255, 1),
                                          text_font=self.font.load_font(self.menu_font),
-                                         frameColor=(255, 255, 255, self.frm_opacity),
-                                         scale=.05, borderWidth=(self.w, self.h),
+                                         frameColor=(255, 255, 255, 0),
+                                         scale=.07, borderWidth=(self.w, self.h),
                                          parent=self.base.frame_int_gfx)
 
-        self.lbl_disp_res = DirectLabel(text=self.language['disp_res'], text_bg=(0, 0, 0, 1),
-                                        text_fg=(255, 255, 255, 0.9),
+        self.lbl_disp_res = DirectLabel(text=self.language['disp_res'],
+                                        text_fg=(255, 255, 255, 1),
                                         text_font=self.font.load_font(self.menu_font),
-                                        frameColor=(255, 255, 255, self.frm_opacity),
+                                        frameColor=(255, 255, 255, 0),
                                         scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                         parent=self.base.frame_int_gfx)
 
-        self.lbl_details = DirectLabel(text=self.language['details'], text_bg=(0, 0, 0, 1),
-                                       text_fg=(255, 255, 255, 0.9),
+        self.lbl_details = DirectLabel(text=self.language['details'],
+                                       text_fg=(255, 255, 255, 1),
                                        text_font=self.font.load_font(self.menu_font),
-                                       frameColor=(255, 255, 255, self.frm_opacity),
+                                       frameColor=(255, 255, 255, 0),
                                        scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                        parent=self.base.frame_int_gfx)
 
-        self.lbl_shadows = DirectLabel(text=self.language['shadows'], text_bg=(0, 0, 0, 1),
-                                       text_fg=(255, 255, 255, 0.9),
+        self.lbl_shadows = DirectLabel(text=self.language['shadows'],
+                                       text_fg=(255, 255, 255, 1),
                                        text_font=self.font.load_font(self.menu_font),
-                                       frameColor=(255, 255, 255, self.frm_opacity),
+                                       frameColor=(255, 255, 255, 0),
                                        scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                        parent=self.base.frame_int_gfx)
 
-        self.lbl_postprocessing = DirectLabel(text=self.language['postprocessing'], text_bg=(0, 0, 0, 1),
-                                              text_fg=(255, 255, 255, 0.9),
+        self.lbl_postprocessing = DirectLabel(text=self.language['postprocessing'],
+                                              text_fg=(255, 255, 255, 1),
                                               text_font=self.font.load_font(self.menu_font),
-                                              frameColor=(255, 255, 255, self.frm_opacity),
+                                              frameColor=(255, 255, 255, 0),
                                               scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                               parent=self.base.frame_int_gfx)
 
-        self.lbl_antialiasing = DirectLabel(text=self.language['antialiasing'], text_bg=(0, 0, 0, 1),
-                                            text_fg=(255, 255, 255, 0.9),
+        self.lbl_antialiasing = DirectLabel(text=self.language['antialiasing'],
+                                            text_fg=(255, 255, 255, 1),
                                             text_font=self.font.load_font(self.menu_font),
-                                            frameColor=(255, 255, 255, self.frm_opacity),
+                                            frameColor=(255, 255, 255, 0),
                                             scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                             parent=self.base.frame_int_gfx)
 
-        self.lbl_ao = DirectLabel(text=self.language['ao'], text_bg=(0, 0, 0, 1),
-                                  text_fg=(255, 255, 255, 0.9),
+        self.lbl_ao = DirectLabel(text=self.language['ao'],
+                                  text_fg=(255, 255, 255, 1),
                                   text_font=self.font.load_font(self.menu_font),
-                                  frameColor=(255, 255, 255, self.frm_opacity),
+                                  frameColor=(255, 255, 255, 0),
                                   scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                   parent=self.base.frame_int_gfx)
 
-        self.lbl_bloom = DirectLabel(text=self.language['bloom'], text_bg=(0, 0, 0, 1),
-                                     text_fg=(255, 255, 255, 0.9),
+        self.lbl_bloom = DirectLabel(text=self.language['bloom'],
+                                     text_fg=(255, 255, 255, 1),
                                      text_font=self.font.load_font(self.menu_font),
-                                     frameColor=(255, 255, 255, self.frm_opacity),
+                                     frameColor=(255, 255, 255, 0),
                                      scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                      parent=self.base.frame_int_gfx)
 
-        self.lbl_clouds = DirectLabel(text=self.language['clouds'], text_bg=(0, 0, 0, 1),
-                                      text_fg=(255, 255, 255, 0.9),
+        self.lbl_clouds = DirectLabel(text=self.language['clouds'],
+                                      text_fg=(255, 255, 255, 1),
                                       text_font=self.font.load_font(self.menu_font),
-                                      frameColor=(255, 255, 255, self.frm_opacity),
+                                      frameColor=(255, 255, 255, 0),
                                       scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                       parent=self.base.frame_int_gfx)
 
-        self.lbl_cc = DirectLabel(text=self.language['cc'], text_bg=(0, 0, 0, 1),
-                                  text_fg=(255, 255, 255, 0.9),
+        self.lbl_cc = DirectLabel(text=self.language['cc'],
+                                  text_fg=(255, 255, 255, 1),
                                   text_font=self.font.load_font(self.menu_font),
-                                  frameColor=(255, 255, 255, self.frm_opacity),
+                                  frameColor=(255, 255, 255, 0),
                                   scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                   parent=self.base.frame_int_gfx)
 
-        self.lbl_scattering = DirectLabel(text=self.language['scattering'], text_bg=(0, 0, 0, 1),
-                                          text_fg=(255, 255, 255, 0.9),
+        self.lbl_scattering = DirectLabel(text=self.language['scattering'],
+                                          text_fg=(255, 255, 255, 1),
                                           text_font=self.font.load_font(self.menu_font),
-                                          frameColor=(255, 255, 255, self.frm_opacity),
+                                          frameColor=(255, 255, 255, 0),
                                           scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                           parent=self.base.frame_int_gfx)
 
-        self.lbl_sky_ao = DirectLabel(text=self.language['sky_ao'], text_bg=(0, 0, 0, 1),
-                                      text_fg=(255, 255, 255, 0.9),
+        self.lbl_sky_ao = DirectLabel(text=self.language['sky_ao'],
+                                      text_fg=(255, 255, 255, 1),
                                       text_font=self.font.load_font(self.menu_font),
-                                      frameColor=(255, 255, 255, self.frm_opacity),
+                                      frameColor=(255, 255, 255, 0),
                                       scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                       parent=self.base.frame_int_gfx)
 
-        self.lbl_ssr = DirectLabel(text=self.language['ssr'], text_bg=(0, 0, 0, 1),
-                                   text_fg=(255, 255, 255, 0.9),
+        self.lbl_ssr = DirectLabel(text=self.language['ssr'],
+                                   text_fg=(255, 255, 255, 1),
                                    text_font=self.font.load_font(self.menu_font),
-                                   frameColor=(255, 255, 255, self.frm_opacity),
+                                   frameColor=(255, 255, 255, 0),
                                    scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                    parent=self.base.frame_int_gfx)
 
-        self.lbl_forward_shading = DirectLabel(text=self.language['forward_shading'], text_bg=(0, 0, 0, 1),
-                                               text_fg=(255, 255, 255, 0.9),
+        self.lbl_forward_shading = DirectLabel(text=self.language['forward_shading'],
+                                               text_fg=(255, 255, 255, 1),
                                                text_font=self.font.load_font(self.menu_font),
-                                               frameColor=(255, 255, 255, self.frm_opacity),
+                                               frameColor=(255, 255, 255, 0),
                                                scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                                parent=self.base.frame_int_gfx)
 
-        self.lbl_skin_shading = DirectLabel(text=self.language['skin_shading'], text_bg=(0, 0, 0, 1),
-                                            text_fg=(255, 255, 255, 0.9),
+        self.lbl_skin_shading = DirectLabel(text=self.language['skin_shading'],
+                                            text_fg=(255, 255, 255, 1),
                                             text_font=self.font.load_font(self.menu_font),
-                                            frameColor=(255, 255, 255, self.frm_opacity),
+                                            frameColor=(255, 255, 255, 0),
                                             scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                             parent=self.base.frame_int_gfx)
 
-        self.lbl_pssm = DirectLabel(text=self.language['pssm'], text_bg=(0, 0, 0, 1),
-                                    text_fg=(255, 255, 255, 0.9),
+        self.lbl_pssm = DirectLabel(text=self.language['pssm'],
+                                    text_fg=(255, 255, 255, 1),
                                     text_font=self.font.load_font(self.menu_font),
-                                    frameColor=(255, 255, 255, self.frm_opacity),
+                                    frameColor=(255, 255, 255, 0),
                                     scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                     parent=self.base.frame_int_gfx)
 
-        self.lbl_dof = DirectLabel(text=self.language['dof'], text_bg=(0, 0, 0, 1),
-                                   text_fg=(255, 255, 255, 0.9),
+        self.lbl_dof = DirectLabel(text=self.language['dof'],
+                                   text_fg=(255, 255, 255, 1),
                                    text_font=self.font.load_font(self.menu_font),
-                                   frameColor=(255, 255, 255, self.frm_opacity),
+                                   frameColor=(255, 255, 255, 0),
                                    scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                    parent=self.base.frame_int_gfx)
 
-        self.lbl_env_probes = DirectLabel(text=self.language['env_probes'], text_bg=(0, 0, 0, 1),
-                                          text_fg=(255, 255, 255, 0.9),
+        self.lbl_env_probes = DirectLabel(text=self.language['env_probes'],
+                                          text_fg=(255, 255, 255, 1),
                                           text_font=self.font.load_font(self.menu_font),
-                                          frameColor=(255, 255, 255, self.frm_opacity),
+                                          frameColor=(255, 255, 255, 0),
                                           scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                           parent=self.base.frame_int_gfx)
 
-        self.lbl_motion_blur = DirectLabel(text=self.language['motion_blur'], text_bg=(0, 0, 0, 1),
-                                           text_fg=(255, 255, 255, 0.9),
+        self.lbl_motion_blur = DirectLabel(text=self.language['motion_blur'],
+                                           text_fg=(255, 255, 255, 1),
                                            text_font=self.font.load_font(self.menu_font),
-                                           frameColor=(255, 255, 255, self.frm_opacity),
+                                           frameColor=(255, 255, 255, 0),
                                            scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                            parent=self.base.frame_int_gfx)
 
-        self.lbl_volumetrics = DirectLabel(text=self.language['volumetrics'], text_bg=(0, 0, 0, 1),
-                                           text_fg=(255, 255, 255, 0.9),
+        self.lbl_volumetrics = DirectLabel(text=self.language['volumetrics'],
+                                           text_fg=(255, 255, 255, 1),
                                            text_font=self.font.load_font(self.menu_font),
-                                           frameColor=(255, 255, 255, self.frm_opacity),
+                                           frameColor=(255, 255, 255, 0),
                                            scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                            parent=self.base.frame_int_gfx)
 
@@ -467,199 +465,239 @@ class GraphicsMenuUI(Graphics):
                                                orientation=DGG.HORIZONTAL,
                                                command=self.set_slider_volumetrics_wrapper)
 
-        self.lbl_perc_disp_res = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+        self.lbl_perc_disp_res = OnscreenText(bg=(0, 0, 0, 0), fg=(255, 255, 255, 1),
                                               font=self.font.load_font(self.menu_font),
                                               scale=self.lbl_scale,
                                               parent=self.base.frame_int_gfx, mayChange=True)
 
-        self.lbl_perc_details = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+        self.lbl_perc_details = OnscreenText(bg=(0, 0, 0, 0), fg=(255, 255, 255, 1),
                                              font=self.font.load_font(self.menu_font),
                                              scale=self.lbl_scale,
                                              parent=self.base.frame_int_gfx, mayChange=True)
 
-        self.lbl_perc_shadows = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+        self.lbl_perc_shadows = OnscreenText(bg=(0, 0, 0, 0), fg=(255, 255, 255, 1),
                                              font=self.font.load_font(self.menu_font),
                                              scale=self.lbl_scale,
                                              parent=self.base.frame_int_gfx, mayChange=True)
 
-        self.lbl_perc_postpro = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+        self.lbl_perc_postpro = OnscreenText(bg=(0, 0, 0, 0), fg=(255, 255, 255, 1),
                                              font=self.font.load_font(self.menu_font),
                                              scale=self.lbl_scale,
                                              parent=self.base.frame_int_gfx, mayChange=True)
 
-        self.lbl_perc_antial = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+        self.lbl_perc_antial = OnscreenText(bg=(0, 0, 0, 0), fg=(255, 255, 255, 1),
                                             font=self.font.load_font(self.menu_font),
                                             scale=self.lbl_scale,
                                             parent=self.base.frame_int_gfx, mayChange=True)
 
-        self.lbl_perc_ao = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+        self.lbl_perc_ao = OnscreenText(bg=(0, 0, 0, 0), fg=(255, 255, 255, 1),
                                         font=self.font.load_font(self.menu_font),
                                         scale=self.lbl_scale,
                                         parent=self.base.frame_int_gfx, mayChange=True)
 
-        self.lbl_perc_bloom = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+        self.lbl_perc_bloom = OnscreenText(bg=(0, 0, 0, 0), fg=(255, 255, 255, 1),
                                            font=self.font.load_font(self.menu_font),
                                            scale=self.lbl_scale,
                                            parent=self.base.frame_int_gfx, mayChange=True)
 
-        self.lbl_perc_clouds = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+        self.lbl_perc_clouds = OnscreenText(bg=(0, 0, 0, 0), fg=(255, 255, 255, 1),
                                             font=self.font.load_font(self.menu_font),
                                             scale=self.lbl_scale,
                                             parent=self.base.frame_int_gfx, mayChange=True)
 
-        self.lbl_perc_cc = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+        self.lbl_perc_cc = OnscreenText(bg=(0, 0, 0, 0), fg=(255, 255, 255, 1),
                                         font=self.font.load_font(self.menu_font),
                                         scale=self.lbl_scale,
                                         parent=self.base.frame_int_gfx, mayChange=True)
 
-        self.lbl_perc_scattering = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+        self.lbl_perc_scattering = OnscreenText(bg=(0, 0, 0, 0), fg=(255, 255, 255, 1),
                                                 font=self.font.load_font(self.menu_font),
                                                 scale=self.lbl_scale,
                                                 parent=self.base.frame_int_gfx, mayChange=True)
 
-        self.lbl_perc_sky_ao = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+        self.lbl_perc_sky_ao = OnscreenText(bg=(0, 0, 0, 0), fg=(255, 255, 255, 1),
                                             font=self.font.load_font(self.menu_font),
                                             scale=self.lbl_scale,
                                             parent=self.base.frame_int_gfx, mayChange=True)
 
-        self.lbl_perc_ssr = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+        self.lbl_perc_ssr = OnscreenText(bg=(0, 0, 0, 0), fg=(255, 255, 255, 1),
                                          font=self.font.load_font(self.menu_font),
                                          scale=self.lbl_scale,
                                          parent=self.base.frame_int_gfx, mayChange=True)
 
-        self.lbl_perc_forward_shading = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+        self.lbl_perc_forward_shading = OnscreenText(bg=(0, 0, 0, 0), fg=(255, 255, 255, 1),
                                                      font=self.font.load_font(self.menu_font),
                                                      scale=self.lbl_scale,
                                                      parent=self.base.frame_int_gfx, mayChange=True)
 
-        self.lbl_perc_skin_shading = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+        self.lbl_perc_skin_shading = OnscreenText(bg=(0, 0, 0, 0), fg=(255, 255, 255, 1),
                                                   font=self.font.load_font(self.menu_font),
                                                   scale=self.lbl_scale,
                                                   parent=self.base.frame_int_gfx, mayChange=True)
 
-        self.lbl_perc_pssm = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+        self.lbl_perc_pssm = OnscreenText(bg=(0, 0, 0, 0), fg=(255, 255, 255, 1),
                                           font=self.font.load_font(self.menu_font),
                                           scale=self.lbl_scale,
                                           parent=self.base.frame_int_gfx, mayChange=True)
 
-        self.lbl_perc_dof = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+        self.lbl_perc_dof = OnscreenText(bg=(0, 0, 0, 0), fg=(255, 255, 255, 1),
                                          font=self.font.load_font(self.menu_font),
                                          scale=self.lbl_scale,
                                          parent=self.base.frame_int_gfx, mayChange=True)
 
-        self.lbl_perc_env_probes = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+        self.lbl_perc_env_probes = OnscreenText(bg=(0, 0, 0, 0), fg=(255, 255, 255, 1),
                                                 font=self.font.load_font(self.menu_font),
                                                 scale=self.lbl_scale,
                                                 parent=self.base.frame_int_gfx, mayChange=True)
 
-        self.lbl_perc_motion_blur = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+        self.lbl_perc_motion_blur = OnscreenText(bg=(0, 0, 0, 0), fg=(255, 255, 255, 1),
                                                  font=self.font.load_font(self.menu_font),
                                                  scale=self.lbl_scale,
                                                  parent=self.base.frame_int_gfx, mayChange=True)
 
-        self.lbl_perc_volumetrics = OnscreenText(bg=(0, 0, 0, 1), fg=(255, 255, 255, 0.9),
+        self.lbl_perc_volumetrics = OnscreenText(bg=(0, 0, 0, 0), fg=(255, 255, 255, 1),
                                                  font=self.font.load_font(self.menu_font),
                                                  scale=self.lbl_scale,
                                                  parent=self.base.frame_int_gfx, mayChange=True)
 
-        self.btn_param_defaults = DirectButton(text="Load defaults", text_bg=(0, 0, 0, 1),
-                                               text_fg=(255, 255, 255, 0.9),
+        self.btn_param_defaults = DirectButton(text="Load defaults",
+                                               text_fg=(255, 255, 255, 1),
                                                text_font=self.font.load_font(self.menu_font),
-                                               frameColor=(255, 255, 255, self.frm_opacity),
+                                               frameColor=(255, 255, 255, 0),
                                                scale=self.btn_scale, borderWidth=(self.w, self.h),
                                                parent=self.base.frame_int_gfx,
                                                command=self.set_default_gfx)
 
-        self.btn_param_accept = DirectButton(text="OK", text_bg=(0, 0, 0, 1),
-                                             text_fg=(255, 255, 255, 0.9),
+        self.btn_param_accept = DirectButton(text="OK",
+                                             text_fg=(255, 255, 255, 1),
                                              text_font=self.font.load_font(self.menu_font),
-                                             frameColor=(255, 255, 255, self.frm_opacity),
+                                             frameColor=(255, 255, 255, 0),
                                              scale=self.btn_scale, borderWidth=(self.w, self.h),
                                              parent=self.base.frame_int_gfx,
                                              command=self.unload_graphics_menu)
 
+        """ Positioning objects of the keymapping menu:
+            for two blocks
+        """
         self.logo.reparent_to(self.base.frame_int_gfx)
-        self.logo.set_scale(self.logo_scale)
+        self.logo.set_scale(0.35, 0.20, 0.20)
 
         self.ornament_right.reparent_to(self.base.frame_int_gfx)
         self.ornament_right.set_scale(self.ornament_scale)
         self.ornament_right.set_hpr(0.0, 0.0, -90.0)
-
-        self.ornament_left.set_pos(self.ornament_l_gfx_pos)
         self.ornament_right.set_pos(self.ornament_r_gfx_pos)
-
-        self.ornament_left.reparent_to(self.base.frame_int_gfx)
-        self.ornament_left.set_scale(self.ornament_scale)
-        self.ornament_left.set_hpr(0.0, 0.0, -90.0)
         self.ornament_right.set_transparency(TransparencyAttrib.MAlpha)
-        self.ornament_left.set_transparency(TransparencyAttrib.MAlpha)
 
-        self.lbl_gfx_title.set_pos(-0.6, 0, 0.5)
+        self.lbl_gfx_title.set_pos(0.6, 0, 0.6)
 
-        self.lbl_disp_res.set_pos(-1.4, 0, 0)
-        self.lbl_details.set_pos(-1.4, 0, -0.1)
-        self.lbl_shadows.set_pos(-1.4, 0, -0.2)
-        self.lbl_postprocessing.set_pos(-1.4, 0, -0.3)
-        self.lbl_antialiasing.set_pos(-1.4, 0, -0.4)
-        self.lbl_ao.set_pos(-1.4, 0, -0.5)
-        self.lbl_bloom.set_pos(-1.4, 0, -0.6)
-        self.lbl_clouds.set_pos(-1.4, 0, -0.7)
-        self.lbl_cc.set_pos(-1.4, 0, -0.8)
-        self.lbl_scattering.set_pos(0, 0, 0.1)
-        self.lbl_sky_ao.set_pos(0, 0, -0.0)
-        self.lbl_ssr.set_pos(0, 0, -0.1)
-        self.lbl_forward_shading.set_pos(0, 0, -0.2)
-        self.lbl_skin_shading.set_pos(0, 0, -0.3)
-        self.lbl_pssm.set_pos(0, 0, -0.4)
-        self.lbl_dof.set_pos(0, 0, -0.5)
-        self.lbl_env_probes.set_pos(0, 0, -0.6)
-        self.lbl_motion_blur.set_pos(0, 0, -0.7)
-        self.lbl_volumetrics.set_pos(0, 0, -0.8)
+        self.lbl_disp_res.set_pos(-0.5, 0, 0.3)
+        self.lbl_details.set_pos(-0.5, 0, 0.2)
+        self.lbl_shadows.set_pos(-0.5, 0, 0.1)
+        self.lbl_postprocessing.set_pos(-0.5, 0, 0)
+        self.lbl_antialiasing.set_pos(-0.5, 0, -0.1)
+        self.lbl_ao.set_pos(-0.5, 0, -0.2)
+        self.lbl_bloom.set_pos(-0.5, 0, -0.3)
+        self.lbl_clouds.set_pos(-0.5, 0, -0.4)
+        self.lbl_cc.set_pos(-0.5, 0, -0.5)
 
-        self.slider_disp_res.set_pos(-0.8, 0, 0)
-        self.slider_details.set_pos(-0.8, 0, -0.1)
-        self.slider_shadows.set_pos(-0.8, 0, -0.2)
-        self.slider_postpro.set_pos(-0.8, 0, -0.3)
-        self.slider_antial.set_pos(-0.8, 0, -0.4)
-        self.slider_ao.set_pos(-0.8, 0, -0.5)
-        self.slider_bloom.set_pos(-0.8, 0, -0.6)
-        self.slider_clouds.set_pos(-0.8, 0, -0.7)
-        self.slider_cc.set_pos(-0.8, 0, -0.8)
-        self.slider_scattering.set_pos(0.5, 0, 0.1)
-        self.slider_sky_ao.set_pos(0.5, 0, -0.0)
-        self.slider_ssr.set_pos(0.5, 0, -0.1)
-        self.slider_forward_shading.set_pos(0.5, 0, -0.2)
-        self.slider_skin_shading.set_pos(0.5, 0, -0.3)
-        self.slider_pssm.set_pos(0.5, 0, -0.4)
-        self.slider_dof.set_pos(0.5, 0, -0.5)
-        self.slider_env_probes.set_pos(0.5, 0, -0.6)
-        self.slider_motion_blur.set_pos(0.5, 0, -0.7)
-        self.slider_volumetrics.set_pos(0.5, 0, -0.8)
+        self.slider_disp_res.set_pos(-0.0, 0, 0.3)
+        self.slider_details.set_pos(-0.0, 0, 0.2)
+        self.slider_shadows.set_pos(-0.0, 0, 0.1)
+        self.slider_postpro.set_pos(-0.0, 0, 0)
+        self.slider_antial.set_pos(-0.0, 0, -0.1)
+        self.slider_ao.set_pos(-0.0, 0, -0.2)
+        self.slider_bloom.set_pos(-0.0, 0, -0.3)
+        self.slider_clouds.set_pos(-0.0, 0, -0.4)
+        self.slider_cc.set_pos(-0.0, 0, -0.5)
 
-        self.lbl_perc_disp_res.set_pos(-0.5, 0, 0)
-        self.lbl_perc_details.set_pos(-0.5, 0, -0.1)
-        self.lbl_perc_shadows.set_pos(-0.5, 0, -0.2)
-        self.lbl_perc_postpro.set_pos(-0.5, 0, -0.3)
-        self.lbl_perc_antial.set_pos(-0.5, 0, -0.4)
-        self.lbl_perc_ao.set_pos(-0.5, 0, -0.5)
-        self.lbl_perc_bloom.set_pos(-0.5, 0, -0.6)
-        self.lbl_perc_clouds.set_pos(-0.5, 0, -0.7)
-        self.lbl_perc_cc.set_pos(-0.5, 0, -0.8)
-        self.lbl_perc_scattering.set_pos(0.8, 0, 0.1)
-        self.lbl_perc_sky_ao.set_pos(0.8, 0, -0.0)
-        self.lbl_perc_ssr.set_pos(0.8, 0, -0.1)
-        self.lbl_perc_forward_shading.set_pos(0.8, 0, -0.2)
-        self.lbl_perc_skin_shading.set_pos(0.8, 0, -0.3)
-        self.lbl_perc_pssm.set_pos(0.8, 0, -0.4)
-        self.lbl_perc_dof.set_pos(0.8, 0, -0.5)
-        self.lbl_perc_env_probes.set_pos(0.8, 0, -0.6)
-        self.lbl_perc_motion_blur.set_pos(0.8, 0, -0.7)
-        self.lbl_perc_volumetrics.set_pos(0.8, 0, -0.8)
+        OnscreenImage(image=self.images['ui_slider_button'],
+                      scale=(.07, .07, .08)).reparent_to(self.slider_disp_res.thumb)
+        OnscreenImage(image=self.images['ui_slider_button'],
+                      scale=(.07, .07, .08)).reparent_to(self.slider_details.thumb)
+        OnscreenImage(image=self.images['ui_slider_button'],
+                      scale=(.07, .07, .08)).reparent_to(self.slider_shadows.thumb)
+        OnscreenImage(image=self.images['ui_slider_button'],
+                      scale=(.07, .07, .08)).reparent_to(self.slider_postpro.thumb)
+        OnscreenImage(image=self.images['ui_slider_button'],
+                      scale=(.07, .07, .08)).reparent_to(self.slider_antial.thumb)
+        OnscreenImage(image=self.images['ui_slider_button'],
+                      scale=(.07, .07, .08)).reparent_to(self.slider_ao.thumb)
+        OnscreenImage(image=self.images['ui_slider_button'],
+                      scale=(.07, .07, .08)).reparent_to(self.slider_bloom.thumb)
+        OnscreenImage(image=self.images['ui_slider_button'],
+                      scale=(.07, .07, .08)).reparent_to(self.slider_clouds.thumb)
+        OnscreenImage(image=self.images['ui_slider_button'],
+                      scale=(.07, .07, .08)).reparent_to(self.slider_cc.thumb)
 
-        self.btn_param_defaults.set_pos(0.7, 0, -0.9)
-        self.btn_param_accept.set_pos(-1.6, 0, -0.9)
+        self.lbl_perc_disp_res.set_pos(0.4, 0, 0.3)
+        self.lbl_perc_details.set_pos(0.4, 0, 0.2)
+        self.lbl_perc_shadows.set_pos(0.4, 0, 0.1)
+        self.lbl_perc_postpro.set_pos(0.4, 0, 0)
+        self.lbl_perc_antial.set_pos(0.4, 0, -0.1)
+        self.lbl_perc_ao.set_pos(0.4, 0, -0.2)
+        self.lbl_perc_bloom.set_pos(0.4, 0, -0.3)
+        self.lbl_perc_clouds.set_pos(0.4, 0, -0.4)
+        self.lbl_perc_cc.set_pos(0.4, 0, -0.5)
+
+        self.lbl_scattering.set_pos(0.8, 0, 0.3)
+        self.lbl_sky_ao.set_pos(0.8, 0, 0.2)
+        self.lbl_ssr.set_pos(0.8, 0, 0.1)
+        self.lbl_forward_shading.set_pos(0.8, 0, 0)
+        self.lbl_skin_shading.set_pos(0.8, 0, -0.1)
+        self.lbl_pssm.set_pos(0.8, 0, -0.2)
+        self.lbl_dof.set_pos(0.8, 0, -0.3)
+        self.lbl_env_probes.set_pos(0.8, 0, -0.4)
+        self.lbl_motion_blur.set_pos(0.8, 0, -0.5)
+        self.lbl_volumetrics.set_pos(0.8, 0, -0.6)
+
+        self.slider_scattering.set_pos(1.3, 0, 0.3)
+        self.slider_sky_ao.set_pos(1.3, 0, 0.2)
+        self.slider_ssr.set_pos(1.3, 0, 0.1)
+        self.slider_forward_shading.set_pos(1.3, 0, 0)
+        self.slider_skin_shading.set_pos(1.3, 0, -0.1)
+        self.slider_pssm.set_pos(1.3, 0, -0.2)
+        self.slider_dof.set_pos(1.3, 0, -0.3)
+        self.slider_env_probes.set_pos(1.3, 0, -0.4)
+        self.slider_motion_blur.set_pos(1.3, 0, -0.5)
+        self.slider_volumetrics.set_pos(1.3, 0, -0.6)
+
+        OnscreenImage(image=self.images['ui_slider_button'],
+                      scale=(.07, .07, .08)).reparent_to(self.slider_scattering.thumb)
+        OnscreenImage(image=self.images['ui_slider_button'],
+                      scale=(.07, .07, .08)).reparent_to(self.slider_sky_ao.thumb)
+        OnscreenImage(image=self.images['ui_slider_button'],
+                      scale=(.07, .07, .08)).reparent_to(self.slider_ssr.thumb)
+        OnscreenImage(image=self.images['ui_slider_button'],
+                      scale=(.07, .07, .08)).reparent_to(self.slider_forward_shading.thumb)
+        OnscreenImage(image=self.images['ui_slider_button'],
+                      scale=(.07, .07, .08)).reparent_to(self.slider_skin_shading.thumb)
+        OnscreenImage(image=self.images['ui_slider_button'],
+                      scale=(.07, .07, .08)).reparent_to(self.slider_pssm.thumb)
+        OnscreenImage(image=self.images['ui_slider_button'],
+                      scale=(.07, .07, .08)).reparent_to(self.slider_dof.thumb)
+        OnscreenImage(image=self.images['ui_slider_button'],
+                      scale=(.07, .07, .08)).reparent_to(self.slider_env_probes.thumb)
+        OnscreenImage(image=self.images['ui_slider_button'],
+                      scale=(.07, .07, .08)).reparent_to(self.slider_motion_blur.thumb)
+        OnscreenImage(image=self.images['ui_slider_button'],
+                      scale=(.07, .07, .08)).reparent_to(self.slider_volumetrics.thumb)
+
+        self.lbl_perc_scattering.set_pos(1.6, 0, 0.3)
+        self.lbl_perc_sky_ao.set_pos(1.6, 0, 0.2)
+        self.lbl_perc_ssr.set_pos(1.6, 0, 0.1)
+        self.lbl_perc_forward_shading.set_pos(1.6, 0, 0)
+        self.lbl_perc_skin_shading.set_pos(1.6, 0, -0.1)
+        self.lbl_perc_pssm.set_pos(1.6, 0, -0.2)
+        self.lbl_perc_dof.set_pos(1.6, 0, -0.3)
+        self.lbl_perc_env_probes.set_pos(1.6, 0, -0.4)
+        self.lbl_perc_motion_blur.set_pos(1.6, 0, -0.5)
+        self.lbl_perc_volumetrics.set_pos(1.6, 0, -0.6)
+
+        self.btn_param_defaults.set_pos(1.5, 0, -0.9)
+        self.btn_param_accept.set_pos(-0.6, 0, -0.9)
 
         self.menu_mode = True
+        base.active_frame = self.base.frame_int_gfx
 
     def unload_graphics_menu(self):
         """ Function    : unload_graphics_menu
@@ -672,11 +710,16 @@ class GraphicsMenuUI(Graphics):
 
             Return      : None
         """
+        if not self.base.frame_int_gfx:
+            return
+
+        if hasattr(base, "active_frame"):
+            base.active_frame.destroy()
+
         if self.game_mode:
             self.base.frame_int_gfx.destroy()
         self.base.frame_int_gfx.destroy()
         self.logo.destroy()
-        self.ornament_left.destroy()
         self.ornament_right.destroy()
 
     """ Wrapper functions """
@@ -772,7 +815,6 @@ class GraphicsMenuUI(Graphics):
         self.lbl_perc_antial.setText(string)
         self.save_antial_value(string)
 
-    # TODO: Implement RP-related calls
     def set_slider_ao_wrapper(self):
         """ Function    : set_slider_ao_wrapper
 

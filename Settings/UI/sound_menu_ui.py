@@ -41,28 +41,26 @@ class SoundMenuUI(Sound):
 
         """ Frame Sizes """
         # Left, right, bottom, top
-        self.base.frame_int_snd_size = [-3, -0.2, -1, 3]
+        self.base.frame_int_snd_size = [-0.9, 3, -1, 3]
 
         """ Frame Colors """
-        self.frm_opacity = 1
+        self.frm_opacity = 0.9
 
         """ Logo & Ornament Scaling, Positioning """
         self.logo = None
         self.ornament_left = None
         self.ornament_right = None
         self.logo_scale = (0.33, 0.30, 0.30)
-        self.logo_pos = (-1.4, 0, 0.4)
+        self.logo_pos = (-0.3, 0, 0.6)
         self.ornament_scale = (1.40, 0.05, 0.05)
-        self.ornament_l_pos = (-1.8, 0, -0.1)
-        self.ornament_r_pos = (-1.0, 0, -0.1)
+        self.ornament_r_pos = (1.8, 0, -0.1)
 
-        self.ornament_l_snd_pos = (-1.8, 0, -0.1)
-        self.ornament_r_snd_pos = (-0.3, 0, -0.1)
+        self.ornament_r_snd_pos = (1.8, 0, -0.1)
 
         """ Buttons, Label Scaling """
-        self.lbl_scale = .03
-        self.btn_scale = .03
-        self.inp_scale = .04
+        self.lbl_scale = .04
+        self.sli_scale = (.4, 0, .2)
+        self.btn_scale = .04
 
         """ Misc """
         self.m_settings = MenuSettings()
@@ -125,10 +123,11 @@ class SoundMenuUI(Sound):
 
             Return      : None
         """
-        self.logo = OnscreenImage(image=self.images['korlan_logo_tengri'],
+        self.unload_sound_menu()
+        self.logo = OnscreenImage(image=self.images['gamepad_icon'],
                                   pos=self.logo_pos)
-        self.ornament_left = OnscreenImage(image=self.images['ornament_kz'],
-                                           pos=self.ornament_l_pos, color=(63.9, 63.9, 63.9, 0.5))
+        self.logo.set_transparency(TransparencyAttrib.MAlpha)
+        
         self.ornament_right = OnscreenImage(image=self.images['ornament_kz'],
                                             pos=self.ornament_r_pos, color=(63.9, 63.9, 63.9, 0.5))
 
@@ -136,47 +135,47 @@ class SoundMenuUI(Sound):
                                               frameSize=self.base.frame_int_snd_size)
         self.base.frame_int_snd.setPos(self.pos_X, self.pos_Y, self.pos_Z)
 
-        self.lbl_snd_title = DirectLabel(text=self.language['sound'], text_bg=(0, 0, 0, 1),
-                                         text_fg=(255, 255, 255, 0.9),
+        self.lbl_snd_title = DirectLabel(text=self.language['sound'], 
+                                         text_fg=(255, 255, 255, 1),
                                          text_font=self.font.load_font(self.menu_font),
-                                         frameColor=(255, 255, 255, self.frm_opacity),
-                                         scale=.05, borderWidth=(self.w, self.h),
+                                         frameColor=(255, 255, 255, 0),
+                                         scale=.07, borderWidth=(self.w, self.h),
                                          parent=self.base.frame_int_snd)
 
-        self.lbl_sound = DirectLabel(text=self.language['sound'], text_bg=(0, 0, 0, 1),
-                                     text_fg=(255, 255, 255, 0.9),
+        self.lbl_sound = DirectLabel(text=self.language['sound'], 
+                                     text_fg=(255, 255, 255, 1),
                                      text_font=self.font.load_font(self.menu_font),
-                                     frameColor=(255, 255, 255, self.frm_opacity),
+                                     frameColor=(255, 255, 255, 0),
                                      scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                      parent=self.base.frame_int_snd)
 
-        self.lbl_music = DirectLabel(text=self.language['music'], text_bg=(0, 0, 0, 1),
-                                     text_fg=(255, 255, 255, 0.9),
+        self.lbl_music = DirectLabel(text=self.language['music'], 
+                                     text_fg=(255, 255, 255, 1),
                                      text_font=self.font.load_font(self.menu_font),
-                                     frameColor=(255, 255, 255, self.frm_opacity),
+                                     frameColor=(255, 255, 255, 0),
                                      scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                      parent=self.base.frame_int_snd)
 
-        self.lbl_effects = DirectLabel(text=self.language['effects'], text_bg=(0, 0, 0, 1),
-                                       text_fg=(255, 255, 255, 0.9),
+        self.lbl_effects = DirectLabel(text=self.language['effects'], 
+                                       text_fg=(255, 255, 255, 1),
                                        text_font=self.font.load_font(self.menu_font),
-                                       frameColor=(255, 255, 255, self.frm_opacity),
+                                       frameColor=(255, 255, 255, 0),
                                        scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                        parent=self.base.frame_int_snd)
 
         self.slider_sound = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
                                          value=self.get_sound_value(),
-                                         scale=.2, borderWidth=(self.w, self.h),
+                                         scale=self.sli_scale, borderWidth=(self.w, self.h),
                                          parent=self.base.frame_int_snd,
                                          command=self.set_slider_sound_wrapper)
         self.slider_music = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
                                          value=self.get_music_value(),
-                                         scale=.2, borderWidth=(self.w, self.h),
+                                         scale=self.sli_scale, borderWidth=(self.w, self.h),
                                          parent=self.base.frame_int_snd,
                                          command=self.set_slider_music_wrapper)
         self.slider_effects = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
                                            value=self.get_sfx_value(),
-                                           scale=.2, borderWidth=(self.w, self.h),
+                                           scale=self.sli_scale, borderWidth=(self.w, self.h),
                                            parent=self.base.frame_int_snd,
                                            command=self.set_slider_sfx_wrapper)
 
@@ -195,53 +194,56 @@ class SoundMenuUI(Sound):
                                              scale=self.lbl_scale,
                                              parent=self.base.frame_int_snd, mayChange=True)
 
-        self.btn_param_defaults = DirectButton(text="Load defaults", text_bg=(0, 0, 0, 1),
-                                               text_fg=(255, 255, 255, 0.9),
+        self.btn_param_defaults = DirectButton(text="Load defaults", 
+                                               text_fg=(255, 255, 255, 1),
                                                text_font=self.font.load_font(self.menu_font),
-                                               frameColor=(255, 255, 255, self.frm_opacity),
+                                               frameColor=(255, 255, 255, 0),
                                                scale=self.btn_scale, borderWidth=(self.w, self.h),
                                                parent=self.base.frame_int_snd,
                                                command=self.set_default_snd)
 
         self.btn_param_accept = DirectButton(text="OK", text_bg=(0, 0, 0, 0.9),
-                                             text_fg=(255, 255, 255, 0.9),
+                                             text_fg=(255, 255, 255, 1),
                                              text_font=self.font.load_font(self.menu_font),
-                                             frameColor=(255, 255, 255, self.frm_opacity),
+                                             frameColor=(255, 255, 255, 0),
                                              scale=self.btn_scale, borderWidth=(self.w, self.h),
                                              parent=self.base.frame_int_snd,
                                              command=self.unload_sound_menu)
 
         self.logo.reparent_to(self.base.frame_int_snd)
-        self.logo.set_scale(self.logo_scale)
+        self.logo.set_scale(0.35, 0.20, 0.20)
 
         self.ornament_right.reparent_to(self.base.frame_int_snd)
         self.ornament_right.set_scale(self.ornament_scale)
         self.ornament_right.set_hpr(0.0, 0.0, -90.0)
-        self.ornament_left.reparent_to(self.base.frame_int_snd)
-        self.ornament_left.set_scale(self.ornament_scale)
-        self.ornament_left.set_hpr(0.0, 0.0, -90.0)
         self.ornament_right.set_transparency(TransparencyAttrib.MAlpha)
-        self.ornament_left.set_transparency(TransparencyAttrib.MAlpha)
 
-        self.ornament_left.set_pos(self.ornament_l_snd_pos)
         self.ornament_right.set_pos(self.ornament_r_snd_pos)
 
-        self.lbl_snd_title.set_pos(-0.6, 0, 0.5)
-        self.lbl_sound.set_pos(-1.4, 0, 0)
-        self.lbl_music.set_pos(-1.4, 0, -0.1)
-        self.lbl_effects.set_pos(-1.4, 0, -0.2)
+        self.lbl_snd_title.set_pos(0.6, 0, 0.6)
+        self.lbl_sound.set_pos(-0.3, 0, 0)
+        self.lbl_music.set_pos(-0.3, 0, -0.1)
+        self.lbl_effects.set_pos(-0.3, 0, -0.2)
 
-        self.slider_sound.set_pos(-0.8, 0, 0)
-        self.slider_music.set_pos(-0.8, 0, -0.1)
-        self.slider_effects.set_pos(-0.8, 0, -0.2)
+        self.slider_sound.set_pos(0.6, 0, 0)
+        self.slider_music.set_pos(0.6, 0, -0.1)
+        self.slider_effects.set_pos(0.6, 0, -0.2)
 
-        self.lbl_perc_sound.set_pos(-0.5, 0, 0)
-        self.lbl_perc_music.set_pos(-0.5, 0, -0.1)
-        self.lbl_perc_effects.set_pos(-0.5, 0, -0.2)
+        OnscreenImage(image=self.images['ui_slider_button'],
+                      scale=(.07, .07, .08)).reparent_to(self.slider_sound.thumb)
+        OnscreenImage(image=self.images['ui_slider_button'],
+                      scale=(.07, .07, .08)).reparent_to(self.slider_music.thumb)
+        OnscreenImage(image=self.images['ui_slider_button'],
+                      scale=(.07, .07, .08)).reparent_to(self.slider_effects.thumb)
 
-        self.btn_param_defaults.set_pos(-0.7, 0, -0.9)
-        self.btn_param_accept.set_pos(-1.6, 0, -0.9)
+        self.lbl_perc_sound.set_pos(1.3, 0, 0)
+        self.lbl_perc_music.set_pos(1.3, 0, -0.1)
+        self.lbl_perc_effects.set_pos(1.3, 0, -0.2)
+
+        self.btn_param_defaults.set_pos(1.5, 0, -0.9)
+        self.btn_param_accept.set_pos(-0.6, 0, -0.9)
         self.menu_mode = True
+        base.active_frame = self.base.frame_int_snd
 
     def unload_sound_menu(self):
         """ Function    : unload_sound_menu
@@ -254,11 +256,16 @@ class SoundMenuUI(Sound):
 
             Return      : None
         """
+        if not self.base.frame_int_snd:
+            return
+
+        if hasattr(base, "active_frame"):
+            base.active_frame.destroy()
+
         if self.game_mode:
             self.base.frame_int_snd.destroy()
         self.base.frame_int_snd.destroy()
         self.logo.destroy()
-        self.ornament_left.destroy()
         self.ornament_right.destroy()
 
     """ Wrapper functions """
