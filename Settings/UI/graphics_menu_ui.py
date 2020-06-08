@@ -177,7 +177,7 @@ class GraphicsMenuUI(Graphics):
         """
         self.unload_graphics_menu()
 
-        self.logo = OnscreenImage(image=self.images['gamepad_icon'],
+        self.logo = OnscreenImage(image=self.images['display_icon'],
                                   pos=self.logo_pos)
         self.logo.set_transparency(TransparencyAttrib.MAlpha)
         self.ornament_right = OnscreenImage(image=self.images['ornament_kz'],
