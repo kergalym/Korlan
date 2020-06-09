@@ -144,6 +144,9 @@ class KeymapMenuUI(Keymap):
 
             Return      : None
         """
+        if hasattr(base, "active_frame"):
+            base.active_frame.destroy()
+
         self.unload_keymap_menu()
         
         self.logo = OnscreenImage(image=self.images['gamepad_icon'],

@@ -175,6 +175,9 @@ class GraphicsMenuUI(Graphics):
 
             Return      : None
         """
+        if hasattr(base, "active_frame"):
+            base.active_frame.destroy()
+
         self.unload_graphics_menu()
 
         self.logo = OnscreenImage(image=self.images['display_icon'],

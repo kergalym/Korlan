@@ -127,6 +127,9 @@ class GameMenuUI(Game):
 
             Return      : None
         """
+        if hasattr(base, "active_frame"):
+            base.active_frame.destroy()
+
         self.unload_game_menu()
 
         self.logo = OnscreenImage(image=self.images['gamepad_icon'],

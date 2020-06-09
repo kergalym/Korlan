@@ -118,6 +118,12 @@ class LangMenuUI(Language):
 
             Return      : None
         """
+
+        if hasattr(base, "active_frame"):
+            base.active_frame.destroy()
+
+        self.unload_language_menu()
+
         self.logo = OnscreenImage(image=self.images['lang_icon'],
                                   pos=self.logo_pos)
         self.logo.set_transparency(TransparencyAttrib.MAlpha)

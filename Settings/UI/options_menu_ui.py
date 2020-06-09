@@ -119,6 +119,10 @@ class OptionsMenuUI(MenuSettings):
 
             Return      : None
         """
+
+        if hasattr(base, "active_frame"):
+            base.active_frame.destroy()
+
         self.logo = OnscreenImage(image=self.images['korlan_logo_tengri'],
                                   pos=self.logo_pos)
         self.ornament_left = OnscreenImage(image=self.images['ornament_kz'],
