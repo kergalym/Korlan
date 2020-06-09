@@ -118,7 +118,7 @@ class LangMenuUI(Language):
 
             Return      : None
         """
-        self.logo = OnscreenImage(image=self.images['gamepad_icon'],
+        self.logo = OnscreenImage(image=self.images['lang_icon'],
                                   pos=self.logo_pos)
         self.logo.set_transparency(TransparencyAttrib.MAlpha)
         self.ornament_right = OnscreenImage(image=self.images['ornament_kz'],
@@ -200,7 +200,7 @@ class LangMenuUI(Language):
             for two blocks
         """
         self.logo.reparent_to(self.base.frame_int_lang)
-        self.logo.set_scale(0.35, 0.20, 0.20)
+        self.logo.set_scale(0.20, 0.20, 0.20)
 
         self.ornament_right.reparent_to(self.base.frame_int_lang)
         self.ornament_right.set_scale(self.ornament_scale)
