@@ -124,7 +124,7 @@ class SoundMenuUI(Sound):
             Return      : None
         """
         self.unload_sound_menu()
-        self.logo = OnscreenImage(image=self.images['gamepad_icon'],
+        self.logo = OnscreenImage(image=self.images['volume_icon'],
                                   pos=self.logo_pos)
         self.logo.set_transparency(TransparencyAttrib.MAlpha)
         
