@@ -137,10 +137,10 @@ class Main(ShowBase):
             render.explore()
 
         # Construct and create the pipeline
-
-        # Commented to prevent using it by deploying system
+        render_bg_tex = '{0}/Engine/Render/background.png'.format(self.game_dir)
         if self.game_settings['Main']['postprocessing'] == 'on':
             self.render_pipeline = RenderPipeline()
+            self.render_pipeline.set_loading_screen_image(render_bg_tex)
             self.render_pipeline.pre_showbase_init()
             self.render_pipeline.create(self)
 
