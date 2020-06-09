@@ -217,7 +217,7 @@ class LangMenuUI(Language):
             DirectRadioButton(text='', variable=[0], value=[lang_values['russian']], pos=(0.6, 0, -0.2),
                               parent=self.base.frame_int_lang, scale=self.rad_scale,
                               command=self.set_language_russian, color=(63.9, 63.9, 63.9, 1),
-                              boxGeomScale=1, boxGeom=lang_geoms_dict['russian'])
+                              boxGeomScale=3, boxGeom=lang_geoms_dict['russian'])
 
         ]
 

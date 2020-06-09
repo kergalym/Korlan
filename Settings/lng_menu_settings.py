@@ -34,25 +34,21 @@ class Language(MenuSettings):
         loaded_settings['Main']['language'] = 'english'
         with open(self.cfg_path, "w") as cfg_file:
             loaded_settings.write(cfg_file)
-            base.active_lang = 1
 
     def set_language_kazakh(self):
         loaded_settings = self.load_settings()
         loaded_settings['Main']['language'] = 'kazakh'
         with open(self.cfg_path, "w") as cfg_file:
             loaded_settings.write(cfg_file)
-            base.active_lang = 1
 
     def set_language_russian(self):
         loaded_settings = self.load_settings()
         loaded_settings['Main']['language'] = 'russian'
         with open(self.cfg_path, "w") as cfg_file:
             loaded_settings.write(cfg_file)
-            base.active_lang = 1
 
     def set_default_language(self):
         loaded_settings = self.load_settings()
         loaded_settings['Main']['language'] = 'english'
         with open(self.cfg_path, "w") as cfg_file:
             loaded_settings.write(cfg_file)
-            base.active_lang = 1
