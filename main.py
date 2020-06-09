@@ -561,6 +561,33 @@ class Main(ShowBase):
                         textures[key] = Filename.from_os_specific(path).getFullpath()
             return textures
 
+    def ui_geom_collector(self):
+        """ Function    : ui_geom_collector
+
+            Description : Collect textures.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : Dictionary
+        """
+        tex_path = self.transform_path(path="{0}/Settings/UI/ui_tex/menu/".format(self.game_dir),
+                                       style='compat')
+        ui_geoms = {}
+        if exists(tex_path):
+            for root, dirs, files in walk(tex_path, topdown=True):
+                for file in files:
+                    if file.endswith(".egg"):
+                        key = re.sub('.egg$', '', file)
+                        path = str(PurePath("{0}/".format(root), file))
+                        ui_geoms[key] = Filename.from_os_specific(path).getFullpath()
+                    elif file.endswith(".egg.bam"):
+                        key = re.sub('.egg.bam$', '', file)
+                        path = str(PurePath("{0}/".format(root), file))
+                        ui_geoms[key] = Filename.from_os_specific(path).getFullpath()
+            return ui_geoms
+
     def videos_collector(self):
         """ Function    : videos_collector
 

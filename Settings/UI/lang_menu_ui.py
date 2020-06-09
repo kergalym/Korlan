@@ -59,7 +59,7 @@ class LangMenuUI(Language):
         """ Buttons, Label Scaling """
         self.lbl_scale = .04
         self.btn_scale = .04
-        self.rad_scale = .04
+        self.rad_scale = .03
 
         """ Misc """
         self.m_settings = MenuSettings()
@@ -172,24 +172,52 @@ class LangMenuUI(Language):
                                            parent=self.base.frame_int_lang,
                                            command=self.unload_language_menu)
 
-        lng_value = self.get_selected_language()
+        lang_values = self.get_selected_language()
+        rad_btn_geom_path = 1  # non-active element
+
+        lang_geoms_dict = {'english': rad_btn_geom_path,
+                            'kazakh': rad_btn_geom_path,
+                            'russian': rad_btn_geom_path}
+
+        ui_geoms = base.ui_geom_collector()
+
+        if (lang_values['english'] == 0
+                and ui_geoms['radbtn_icon_pressed']):
+            lang_geoms_dict['english'] = ui_geoms['radbtn_icon_pressed']
+        elif (lang_values['english'] > 0
+              and ui_geoms['radbtn_icon']):
+            lang_geoms_dict['english'] = ui_geoms['radbtn_icon']
+
+        if (lang_values['kazakh'] == 0
+                and ui_geoms['radbtn_icon_pressed']):
+            lang_geoms_dict['kazakh'] = ui_geoms['radbtn_icon_pressed']
+        elif (lang_values['kazakh'] > 0
+              and ui_geoms['radbtn_icon']):
+            lang_geoms_dict['kazakh'] = ui_geoms['radbtn_icon']
+
+        if (lang_values['russian'] == 0
+                and ui_geoms['radbtn_icon_pressed']):
+            lang_geoms_dict['russian'] = ui_geoms['radbtn_icon_pressed']
+        elif (lang_values['russian'] > 0
+              and ui_geoms['radbtn_icon']):
+            lang_geoms_dict['russian'] = ui_geoms['radbtn_icon']
 
         radbuttons = [
 
-            DirectRadioButton(text='', variable=[0], value=[lng_value['english']], pos=(0.6, 0, -0.0),
+            DirectRadioButton(text='', variable=[0], value=[lang_values['english']], pos=(0.6, 0, -0.0),
                               parent=self.base.frame_int_lang, scale=self.rad_scale,
                               command=self.set_language_english, color=(63.9, 63.9, 63.9, 1),
-                              boxImage=self.images['ui_rad_button']),
+                              boxGeom=lang_geoms_dict['english']),
 
-            DirectRadioButton(text='', variable=[0], value=[lng_value['kazakh']], pos=(0.6, 0, -0.1),
+            DirectRadioButton(text='', variable=[0], value=[lang_values['kazakh']], pos=(0.6, 0, -0.1),
                               parent=self.base.frame_int_lang, scale=self.rad_scale,
                               command=self.set_language_kazakh, color=(63.9, 63.9, 63.9, 1),
-                              boxImage=self.images['ui_rad_button']),
+                              boxGeom=lang_geoms_dict['kazakh']),
 
-            DirectRadioButton(text='', variable=[0], value=[lng_value['russian']], pos=(0.6, 0, -0.2),
+            DirectRadioButton(text='', variable=[0], value=[lang_values['russian']], pos=(0.6, 0, -0.2),
                               parent=self.base.frame_int_lang, scale=self.rad_scale,
                               command=self.set_language_russian, color=(63.9, 63.9, 63.9, 1),
-                              boxImage=self.images['ui_rad_button'])
+                              boxGeomScale=1, boxGeom=lang_geoms_dict['russian'])
 
         ]
 
