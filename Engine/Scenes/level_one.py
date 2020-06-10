@@ -56,6 +56,11 @@ class LevelOne:
                 for i in range(render.find("**/World").get_num_nodes()):
                     render.find("**/World").remove_node()
 
+            # Remove Collisions
+            if not render.find("**/Collisions").is_empty():
+                for i in range(render.find("**/Collisions").get_num_nodes()):
+                    render.find("**/Collisions").remove_node()
+                    
             # make pattern list from assets dict
             pattern = [key for key in assets]
             # use pattern to remove nodes corresponding to asset names
@@ -94,6 +99,11 @@ class LevelOne:
         if not render.find("**/World").is_empty():
             for i in range(render.find("**/World").get_num_nodes()):
                 render.find("**/World").remove_node()
+
+        # Remove Collisions
+        if not render.find("**/Collisions").is_empty():
+            for i in range(render.find("**/Collisions").get_num_nodes()):
+                render.find("**/Collisions").remove_node()
 
         # make pattern list from assets dict
         pattern = [key for key in assets]
