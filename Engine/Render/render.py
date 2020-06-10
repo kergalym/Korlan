@@ -2,7 +2,9 @@ from os.path import exists
 from pathlib import Path, PurePath
 from os import walk
 
+from direct.gui.DirectGui import OnscreenText
 from panda3d.core import *
+from panda3d.core import FontPool, TextNode
 from Engine.Render.rpcore import PointLight
 
 
@@ -10,6 +12,9 @@ class RenderAttr:
 
     def __init__(self):
         self.game_dir = str(Path.cwd())
+        self.fonts = base.fonts_collector()
+        # instance of the abstract class
+        self.font = FontPool
         self.texture = None
         self.game_settings = base.game_settings
         if hasattr(base, "render_pipeline") and base.render_pipeline:
@@ -24,26 +29,46 @@ class RenderAttr:
         self.minutes = 0
         self.hour = 0
 
+        """ Texts & Fonts"""
+        # self.menu_font = self.fonts['OpenSans-Regular']
+        self.menu_font = self.fonts['JetBrainsMono-Regular']
+
         if self.game_settings['Main']['postprocessing'] == 'on':
             if self.render_pipeline:
                 self.render_pipeline.daytime_mgr.time = "8:45"
 
+        self.time_text_ui = OnscreenText(text="",
+                                         pos=(-1.8, -0.7),
+                                         scale=0.04,
+                                         fg=(255, 255, 255, 0.9),
+                                         font=self.font.load_font(self.menu_font),
+                                         align=TextNode.ALeft,
+                                         mayChange=True)
+
     def set_daytime_clock_task(self, task):
+        if (not base.game_mode
+                and base.menu_mode):
+            self.time_text_ui.hide()
+            return task.done
+        else:
+            if self.time_text_ui:
+                self.time_text_ui.show()
+
         if self.game_settings['Main']['postprocessing'] == 'on':
             if self.render_pipeline:
-                self.render_pipeline.daytime_mgr.time = "8:00"
+                self.render_pipeline.daytime_mgr.time = "21:00"
                 self.elapsed_seconds = round(globalClock.getRealTime())
 
                 self.minutes = self.elapsed_seconds // 60
 
-                self.hour = 8
+                self.hour = 21
                 self.hour += self.minutes // 60
 
                 if self.minutes < 10:
-                    print("0{0}:0{1}".format(self.hour, self.minutes))
+                    self.time_text_ui.setText("{0}:0{1}".format(self.hour, self.minutes))
                     self.render_pipeline.daytime_mgr.time = "{0}:0{1}".format(self.hour, self.minutes)
                 elif self.minutes > 9:
-                    print("{0}:{1}".format(self.hour, self.minutes))
+                    self.time_text_ui.setText("{0}:{1}".format(self.hour, self.minutes))
                     self.render_pipeline.daytime_mgr.time = "{0}:{1}".format(self.hour, self.minutes)
 
         return task.cont
