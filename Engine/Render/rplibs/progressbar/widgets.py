@@ -78,7 +78,7 @@ class WidgetHFill(Widget):
 
 
 class Timer(Widget):
-    'Widget which displays the elapsed seconds.'
+    'Widget which displays the elapsed elapsed_seconds.'
 
     TIME_SENSITIVE = True
 
@@ -200,7 +200,7 @@ class FormatLabel(Timer):
         'finished': ('finished', None),
         'last_update': ('last_update_time', None),
         'max': ('maxval', None),
-        'seconds': ('seconds_elapsed', None),
+        'elapsed_seconds': ('seconds_elapsed', None),
         'start': ('start_time', None),
         'value': ('currval', None)
     }

@@ -106,7 +106,7 @@ class ProgressBar(object):
      - maxval: maximum (and final) value
      - finished: True if the bar has finished (reached 100%)
      - start_time: the time when start() method of ProgressBar was called
-     - seconds_elapsed: seconds elapsed since start_time and last call to
+     - seconds_elapsed: elapsed_seconds elapsed since start_time and last call to
                         update
      - percentage(): progress in percent [0..100]
     '''

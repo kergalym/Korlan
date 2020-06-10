@@ -204,7 +204,7 @@ class CurveWidget(QWidget):
         # Draw legend
 
         # Compute amount of horizontal / vertical lines
-        num_vert_lines = 12  # 24 / 12 = 2, one entry per 2 hours
+        num_vert_lines = 12  # 24 / 12 = 2, one entry per 2 hour
         line_spacing_x = (self.width() - self._legend_border) / num_vert_lines
         line_spacing_y = (self.height() - self._legend_border - self._bar_h) / 20.0
         num_horiz_lines = int(math.ceil(canvas_height / float(line_spacing_y)) + 1)

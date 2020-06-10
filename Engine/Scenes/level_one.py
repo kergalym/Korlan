@@ -5,6 +5,7 @@ from Engine.Actors.Player.state import PlayerState
 from Engine.Actors.NPC.npc import NPC
 from Engine.FSM.env_ai import EnvAI
 from Engine.FSM.npc_ai import NpcAI
+from Engine.Render.render import RenderAttr
 from Engine.Scenes.scene import SceneOne
 from Engine.Physics.physics import PhysicsAttr
 from Settings.UI.stat_ui import StatUI
@@ -21,6 +22,7 @@ class LevelOne:
             self.render_pipeline = base.render_pipeline
         self.loader = base.loader
         self.node_path = NodePath()
+        self.render_attr = RenderAttr()
         self.scene_one = SceneOne()
         self.korlan = Korlan()
         self.npc = NPC()
@@ -114,6 +116,10 @@ class LevelOne:
 
     def load_new_game(self):
         self.unload_menu_scene()
+
+        taskMgr.add(self.render_attr.set_daytime_clock_task,
+                    "set_daytime_clock_task",
+                    appendTask=True)
 
         """ Assets """
 

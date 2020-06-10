@@ -98,7 +98,7 @@ class RenderPipeline(RPObject):
         """ Reloads all shaders. This will reload the shaders of all plugins,
         as well as the pipelines internally used shaders. Because of the
         complexity of some shaders, this operation take might take several
-        seconds. Also notice that all applied effects will be lost, and instead
+        elapsed_seconds. Also notice that all applied effects will be lost, and instead
         the default effect will be set on all elements again. Due to this fact,
         this method is primarly useful for fast iterations when developing new
         shaders. """

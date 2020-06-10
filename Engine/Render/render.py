@@ -18,10 +18,35 @@ class RenderAttr:
         self.set_color = 0.2
         self.shadow_size = 1024
         self.render = None
+
         # Set time of day
+        self.elapsed_seconds = 0
+        self.minutes = 0
+        self.hour = 0
+
         if self.game_settings['Main']['postprocessing'] == 'on':
             if self.render_pipeline:
-                self.render_pipeline.daytime_mgr.time = "10:45"
+                self.render_pipeline.daytime_mgr.time = "8:45"
+
+    def set_daytime_clock_task(self, task):
+        if self.game_settings['Main']['postprocessing'] == 'on':
+            if self.render_pipeline:
+                self.render_pipeline.daytime_mgr.time = "8:00"
+                self.elapsed_seconds = round(globalClock.getRealTime())
+
+                self.minutes = self.elapsed_seconds // 60
+
+                self.hour = 8
+                self.hour += self.minutes // 60
+
+                if self.minutes < 10:
+                    print("0{0}:0{1}".format(self.hour, self.minutes))
+                    self.render_pipeline.daytime_mgr.time = "{0}:0{1}".format(self.hour, self.minutes)
+                elif self.minutes > 9:
+                    print("{0}:{1}".format(self.hour, self.minutes))
+                    self.render_pipeline.daytime_mgr.time = "{0}:{1}".format(self.hour, self.minutes)
+
+        return task.cont
 
     def shader_collector(self):
         """ Function    : shader_collector
@@ -153,4 +178,3 @@ class RenderAttr:
 
     def transform_scene_lights(self):
         pass
-
