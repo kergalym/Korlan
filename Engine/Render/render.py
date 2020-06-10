@@ -20,9 +20,9 @@ class RenderAttr:
         self.render = None
 
         # Set time of day
-        self.elapsed_seconds = 0
+        self.elapsed_second = 0
         self.minutes = 0
-        self.hour = 0
+        self.hours = 0
 
         if self.game_settings['Main']['postprocessing'] == 'on':
             if self.render_pipeline:
@@ -45,7 +45,7 @@ class RenderAttr:
                 elif self.minutes > 9:
                     print("{0}:{1}".format(self.hour, self.minutes))
                     self.render_pipeline.daytime_mgr.time = "{0}:{1}".format(self.hour, self.minutes)
-
+ 
         return task.cont
 
     def shader_collector(self):
