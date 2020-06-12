@@ -79,6 +79,7 @@ class Mouse:
             self.base.camera.set_hpr(self.heading, self.pitch, self.rotation)
 
             direction = self.base.camera.get_mat().getRow3(1)
+
             self.base.camera.set_pos(self.focus - (direction * 180))
             self.focus = self.base.camera.get_pos() + (direction * 180)
             self.last = task.time

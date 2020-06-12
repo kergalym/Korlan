@@ -149,7 +149,7 @@ class KeymapMenuUI(Keymap):
 
         self.unload_keymap_menu()
         
-        self.logo = OnscreenImage(image=self.images['gamepad_icon'],
+        self.logo = OnscreenImage(image=self.images['kbdm_icon'],
                                   pos=self.logo_pos)
         self.logo.set_transparency(TransparencyAttrib.MAlpha)
         self.ornament_right = OnscreenImage(image=self.images['ornament_kz'],
@@ -411,7 +411,7 @@ class KeymapMenuUI(Keymap):
             for two blocks
         """
         self.logo.reparent_to(self.base.frame_int_keymap)
-        self.logo.set_scale(0.35, 0.20, 0.20)
+        self.logo.set_scale(0.40, 0.20, 0.20)
 
         self.ornament_right.reparent_to(self.base.frame_int_keymap)
         self.ornament_right.set_scale(self.ornament_scale)

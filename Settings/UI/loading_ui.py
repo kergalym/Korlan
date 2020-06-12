@@ -2,7 +2,7 @@ from direct.interval.IntervalGlobal import Sequence
 from direct.interval.IntervalGlobal import Parallel
 from direct.interval.IntervalGlobal import Func
 from direct.gui.DirectGui import *
-from panda3d.core import FontPool, TextNode
+from panda3d.core import FontPool, TextNode, Texture
 from Engine.Scenes.level_one import LevelOne
 from direct.task.TaskManagerGlobal import taskMgr
 
@@ -101,6 +101,13 @@ class LoadingUI:
                     self.loading_bar['value'] += len(nodes)
             # print(len(nodes), asset_num)
             if len(nodes) == asset_num:
+
+                for tex in render.findAllTextures():
+                    if tex.getNumComponents() == 4:
+                        tex.setFormat(Texture.F_srgb_alpha)
+                    elif tex.getNumComponents() == 3:
+                        tex.setFormat(Texture.F_srgb)
+
                 self.clear_loading_bar()
 
                 return task.done

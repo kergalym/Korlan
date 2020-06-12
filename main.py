@@ -46,7 +46,7 @@ game_settings['Main'] = {'disp_res': '1024x768',
                          'person_look_mode': 'third',
                          'gameplay_mode': 'simple',
                          'show_blood': 'on',
-                         'camera_distance': '4'
+                         'camera_distance': '4',
                          }
 
 game_settings['Keymap'] = {'forward': 'W',
@@ -67,7 +67,8 @@ game_settings['Keymap'] = {'forward': 'W',
                            'umai': '4'
                            }
 
-game_settings['Debug'] = {}
+game_settings['Misc'] = {'daytime': '20:00'}
+
 game_settings['Debug'] = {'set_debug_mode': 'NO',
                           'cache_autoclean': 'NO',
                           'player_pos_x': '0.0',

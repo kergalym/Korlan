@@ -35,6 +35,7 @@ class RenderAttr:
 
         if self.game_settings['Main']['postprocessing'] == 'on':
             if self.render_pipeline:
+                # TODO: Remove the time declaration after Menu Scene is constructed
                 self.render_pipeline.daytime_mgr.time = "8:45"
 
         self.time_text_ui = OnscreenText(text="",
@@ -56,12 +57,15 @@ class RenderAttr:
 
         if self.game_settings['Main']['postprocessing'] == 'on':
             if self.render_pipeline:
-                self.render_pipeline.daytime_mgr.time = "21:00"
+                time = str(self.game_settings['Misc']['daytime'])
+                self.render_pipeline.daytime_mgr.time = time
                 self.elapsed_seconds = round(globalClock.getRealTime())
 
                 self.minutes = self.elapsed_seconds // 60
 
-                self.hour = 21
+                hour = time.split(':')
+                hour = int(hour[0])
+                self.hour = hour
                 self.hour += self.minutes // 60
 
                 if self.minutes < 10:
@@ -178,8 +182,9 @@ class RenderAttr:
                     # so we check self.rp_light before adding light
                     light = PointLight()
                     light.pos = (pos[0], pos[1], pos[2])
-                    light.color = (0.2, 0.6, 1.0)
-                    light.energy = 1000.0
+                    light.color = (color[0], color[0], color[0])
+                    light.set_color_from_temperature(3000.0)
+                    light.energy = 100
                     light.ies_profile = self.render_pipeline.load_ies_profile("x_arrow.ies")
                     light.casts_shadows = True
                     light.shadow_map_resolution = 512
