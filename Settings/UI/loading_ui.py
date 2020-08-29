@@ -88,29 +88,34 @@ class LoadingUI:
         if self.title_loading_text:
             self.title_loading_text.hide()
 
+    def get_loading_queue_list(self, names):
+        if isinstance(names, list) and names:
+            queue = {}
+            num = 0
+            for name in names:
+                if not render.find("**/{0}".format(name)).is_empty():
+                    matched_name = render.find("**/{0}".format(names))
+                    queue[name] = matched_name
+                    num += 1
+            return [queue, num]
+
     def loading_measure(self, task):
         if hasattr(base, "level_assets"):
             assets = base.level_assets
-            nodes = base.asset_nodes_collector()
+            matched = self.get_loading_queue_list(assets['name'])
+            if matched:
+                num = matched[1]
+                asset_num = len(assets['name'])
 
-            # TODO: Improve loading measure
-            # Add Sky and +3 models count to assets
-            asset_num = len(assets['name']) + 4
-            if len(nodes) < asset_num:
-                if self.loading_bar:
-                    self.loading_bar['value'] += len(nodes)
-            # print(len(nodes), asset_num)
-            if len(nodes) == asset_num:
+                if num < asset_num:
+                    if self.loading_bar:
+                        self.loading_bar['value'] += num
+                        print(self.loading_bar['value'])
 
-                for tex in render.findAllTextures():
-                    if tex.getNumComponents() == 4:
-                        tex.setFormat(Texture.F_srgb_alpha)
-                    elif tex.getNumComponents() == 3:
-                        tex.setFormat(Texture.F_srgb)
+                if num == asset_num:
+                    self.clear_loading_bar()
 
-                self.clear_loading_bar()
-
-                return task.done
+                    return task.done
 
         return task.cont
 

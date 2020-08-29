@@ -172,9 +172,9 @@ class LevelOne:
         anims = self.base.asset_animations_collector()
 
         # List used by loading screen
-        level_assets = {'name': ['lvl_one', 'Korlan', 'NPC'],
-                        'type': ['env', 'player', 'npc'],
-                        'shape': ['auto', 'capsule', 'capsule']
+        level_assets = {'name': ['Sky', 'lvl_one', 'Korlan', 'NPC'],
+                        'type': [None, 'env', 'player', 'npc'],
+                        'shape': [None, 'auto', 'capsule', 'capsule']
                         }
         base.level_assets = level_assets
 

@@ -97,6 +97,12 @@ class Korlan:
 
                 self.korlan.reparent_to(render)
 
+                for tex in render.findAllTextures():
+                    if tex.getNumComponents() == 4:
+                        tex.setFormat(Texture.F_srgb_alpha)
+                    elif tex.getNumComponents() == 3:
+                        tex.setFormat(Texture.F_srgb)
+
                 # Set lights and Shadows
                 if self.game_settings['Main']['postprocessing'] == 'off':
                     # TODO: uncomment if character has normals
@@ -171,7 +177,12 @@ class Korlan:
                 self.korlan.set_transparency(True)
 
                 self.korlan.reparent_to(render)
-                self.korlan.write_bam_file('/tmp/korlan.bam')
+
+                for tex in render.findAllTextures():
+                    if tex.getNumComponents() == 4:
+                        tex.setFormat(Texture.F_srgb_alpha)
+                    elif tex.getNumComponents() == 3:
+                        tex.setFormat(Texture.F_srgb)
 
                 # Set lights and Shadows
                 if self.game_settings['Main']['postprocessing'] == 'off':

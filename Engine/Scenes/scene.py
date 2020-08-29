@@ -59,6 +59,12 @@ class SceneOne:
             scene.set_pos(pos_x, pos_y, pos_z)
             scene.set_hpr(scene, rot_h, 0, 0)
 
+            for tex in render.findAllTextures():
+                if tex.getNumComponents() == 4:
+                    tex.setFormat(Texture.F_srgb_alpha)
+                elif tex.getNumComponents() == 3:
+                    tex.setFormat(Texture.F_srgb)
+
             # Set two sided, since some model may be broken
             # scene.set_two_sided(culling)
 
@@ -130,6 +136,12 @@ class SceneOne:
                 scene.set_pos(pos_x, pos_y, pos_z)
                 scene.set_hpr(scene, rot_h, 0, 0)
 
+                for tex in render.findAllTextures():
+                    if tex.getNumComponents() == 4:
+                        tex.setFormat(Texture.F_srgb_alpha)
+                    elif tex.getNumComponents() == 3:
+                        tex.setFormat(Texture.F_srgb)
+
                 if name == 'Grass':
                     # scene.flatten_strong()
                     pass
@@ -180,6 +192,12 @@ class SceneOne:
                 scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
                 scene.set_pos(pos_x, pos_y, pos_z)
                 scene.set_hpr(scene, rot_h, 0, 0)
+
+                for tex in render.findAllTextures():
+                    if tex.getNumComponents() == 4:
+                        tex.setFormat(Texture.F_srgb_alpha)
+                    elif tex.getNumComponents() == 3:
+                        tex.setFormat(Texture.F_srgb)
 
                 if name == 'Grass':
                     # scene.flatten_strong()
@@ -232,6 +250,13 @@ class SceneOne:
                     scene.set_pos(pos_x, pos_y, pos_z)
                     scene.set_pos(self.base.camera, 0, 0, 0)
                     scene.set_hpr(scene, rot_h, 0, 0)
+
+                    for tex in render.findAllTextures():
+                        if tex.getNumComponents() == 4:
+                            tex.setFormat(Texture.F_srgb_alpha)
+                        elif tex.getNumComponents() == 3:
+                            tex.setFormat(Texture.F_srgb)
+
                 elif self.type == 'ground':
                     # Load the scene.
                     scene = self.base.loader.load_model(path, blocking=True)
@@ -240,6 +265,12 @@ class SceneOne:
                     scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
                     scene.set_pos(pos_x, pos_y, pos_z)
                     scene.set_hpr(scene, rot_h, 0, 0)
+
+                    for tex in render.findAllTextures():
+                        if tex.getNumComponents() == 4:
+                            tex.setFormat(Texture.F_srgb_alpha)
+                        elif tex.getNumComponents() == 3:
+                            tex.setFormat(Texture.F_srgb)
                 elif self.type == 'mountains':
                     # Load the scene.
                     scene = self.base.loader.load_model(path, blocking=True)
@@ -248,6 +279,12 @@ class SceneOne:
                     scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
                     scene.set_pos(pos_x, pos_y, pos_z)
                     scene.set_hpr(scene, rot_h, 0, 0)
+
+                    for tex in render.findAllTextures():
+                        if tex.getNumComponents() == 4:
+                            tex.setFormat(Texture.F_srgb_alpha)
+                        elif tex.getNumComponents() == 3:
+                            tex.setFormat(Texture.F_srgb)
                 else:
                     # Load the scene.
                     scene = self.base.loader.load_model(path, blocking=True)
@@ -256,6 +293,12 @@ class SceneOne:
                     scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
                     scene.set_pos(pos_x, pos_y, pos_z)
                     scene.set_hpr(scene, rot_h, 0, 0)
+
+                    for tex in render.findAllTextures():
+                        if tex.getNumComponents() == 4:
+                            tex.setFormat(Texture.F_srgb_alpha)
+                        elif tex.getNumComponents() == 3:
+                            tex.setFormat(Texture.F_srgb)
 
                 # Set two sided, since some model may be broken
                 scene.set_two_sided(culling)
@@ -331,6 +374,12 @@ class SceneOne:
                     scene.set_pos(pos_x, pos_y, pos_z)
                     scene.set_hpr(scene, rot_h, 0, 0)
 
+                for tex in render.findAllTextures():
+                    if tex.getNumComponents() == 4:
+                        tex.setFormat(Texture.F_srgb_alpha)
+                    elif tex.getNumComponents() == 3:
+                        tex.setFormat(Texture.F_srgb)
+
                 # Set two sided, since some model may be broken
                 scene.set_two_sided(culling)
 
@@ -348,3 +397,4 @@ class SceneOne:
                 # self.render_attr.set_shadows(scene, render)
 
                 return scene
+

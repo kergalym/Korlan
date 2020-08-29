@@ -1,5 +1,7 @@
 from direct.actor.Actor import Actor
 from direct.task.TaskManagerGlobal import taskMgr
+from panda3d.core import Texture
+
 from Engine.Actors.NPC.state import NpcState
 from Engine.FSM.env_ai import EnvAI
 from Engine.FSM.npc_ai import NpcAI
@@ -99,6 +101,12 @@ class NPC:
             self.actor.set_transparency(True)
 
             self.actor.reparentTo(self.render)
+
+            for tex in render.findAllTextures():
+                if tex.getNumComponents() == 4:
+                    tex.setFormat(Texture.F_srgb_alpha)
+                elif tex.getNumComponents() == 3:
+                    tex.setFormat(Texture.F_srgb)
 
             # Set lights and Shadows
             if self.game_settings['Main']['postprocessing'] == 'off':
