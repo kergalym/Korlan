@@ -103,6 +103,7 @@ class LoadingUI:
         if hasattr(base, "level_assets"):
             assets = base.level_assets
             matched = self.get_loading_queue_list(assets['name'])
+            
             if matched:
                 num = matched[1]
                 asset_num = len(assets['name'])
