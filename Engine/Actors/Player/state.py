@@ -297,17 +297,13 @@ class PlayerState:
                     digit = int(self.game_settings['Main']['camera_distance'])
                     if self.game_settings['Main']['person_look_mode'] == 'first':
                         if dist_vec[k][1] <= -0.0:
-                                base.cam.set_y(12)
-                                base.first_person_mode = True
+                            base.cam.set_y(12)
+                            base.first_person_mode = True
                         elif dist_vec[k][1] >= -0.0:
-                                base.cam.set_y(digit)
-                                base.first_person_mode = False
+                            base.cam.set_y(digit)
+                            base.first_person_mode = False
                     elif self.game_settings['Main']['person_look_mode'] == 'third':
-                        if dist_vec[k][1] <= -0.0:
-                                base.cam.set_y(digit)
-                                base.first_person_mode = True
-                        elif dist_vec[k][1] >= -0.0:
-                                base.cam.set_y(digit)
-                                base.first_person_mode = False
+                        base.first_person_mode = True
+                        base.first_person_mode = False
 
         return task.cont

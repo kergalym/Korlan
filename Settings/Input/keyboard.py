@@ -134,4 +134,8 @@ class Keyboard:
         inputState.watchWithModifiers('reverse', self.k_backward_lo)
         inputState.watchWithModifiers('left', self.k_left_lo)
         inputState.watchWithModifiers('right',  self.k_right_lo)
+
+        # inputState.watchWithModifiers('turnLeft', self.k_left_lo)
+        # inputState.watchWithModifiers('turnRight', self.k_right_lo)
+
         return inputState

@@ -103,7 +103,7 @@ class LoadingUI:
         if hasattr(base, "level_assets"):
             assets = base.level_assets
             matched = self.get_loading_queue_list(assets['name'])
-            
+
             if matched:
                 num = matched[1]
                 asset_num = len(assets['name'])
@@ -111,7 +111,6 @@ class LoadingUI:
                 if num < asset_num:
                     if self.loading_bar:
                         self.loading_bar['value'] += num
-                        print(self.loading_bar['value'])
 
                 if num == asset_num:
                     self.clear_loading_bar()
