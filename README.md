@@ -1,5 +1,3 @@
-<img src="http://www.redeyedman.ru/static/images/korlan///korlan_logo_tengri.png" />
-
 ### Korlan -- Daughter of the Steppes ###
 <img src="https://i.imgur.com/JZ7SrEd.png" />
 
