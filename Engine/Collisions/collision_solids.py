@@ -1,4 +1,4 @@
-from panda3d.core import Vec3
+from panda3d.core import Vec3, LVector3
 from panda3d.bullet import ZUp
 from panda3d.bullet import BulletSphereShape
 from panda3d.bullet import BulletCapsuleShape
@@ -93,7 +93,6 @@ class BulletCollisionSolids:
                     # Has it geom?
                     if hasattr(objects[1][x].node(), "get_geom"):
                         geom = col.node().get_geom(0)
-                        # geom = objects[1][x].node().get_geom(0)
                         mesh = BulletTriangleMesh()
                         mesh.add_geom(geom)
 

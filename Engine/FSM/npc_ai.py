@@ -33,10 +33,25 @@ class NpcAI(FSM):
                 return task.done
         return task.cont
 
+    def update_npc_ai_stat(self, actor, task):
+        if actor and "BS" in actor.get_parent().get_name():
+            actor = actor.get_parent()
+            # self.fsm_npc.set_npc_ai(actor=actor, behavior="seek")
+            # self.fsm_npc.set_npc_ai(actor=actor, behavior="flee")
+            # self.fsm_npc.set_npc_ai(actor=actor, behavior="pursuer")
+            # self.fsm_npc.set_npc_ai(actor=actor, behavior="evader")
+            self.set_npc_ai(actor=actor, behavior="wanderer")
+            # self.fsm_npc.set_npc_ai(actor=actor, behavior="obs_avoid")
+            # self.fsm_npc.set_npc_ai(actor=actor, behavior="path_follow")
+            # self.fsm_npc.set_npc_ai(actor=actor, behavior="path_finding")
+            # self.fsm_npc.request("Walk")
+            return task.done
+        return task.cont
+
     def get_npc(self, actor):
         if actor and isinstance(actor, str):
-            if not render.find("**/{}".format(actor)).is_empty():
-                avatar = render.find("**/{}".format(actor))
+            if not render.find("**/{0}".format(actor)).is_empty():
+                avatar = render.find("**/{0}".format(actor))
                 return avatar
 
     def set_npc_ai(self, actor, behavior):
@@ -51,39 +66,41 @@ class NpcAI(FSM):
                             "plane_flag": 0,
                             "area_of_effect": 10}
                     speed = 5
-                    player = None
+
                     ai_char = AICharacter(behavior, actor, 100, 0.05, speed)
                     base.ai_world.remove_ai_char(actor.get_name())
                     base.ai_world.add_ai_char(ai_char)
                     behaviors = ai_char.get_ai_behaviors()
+                    navmeshes = self.base.navmesh_collector()
+                    # behaviors.initPathFind(navmeshes["lvl_one"])
 
-                    if not render.find("**/Korlan:BS").is_empty():
-                        player = render.find("**/Korlan:BS")
+                    if actor:
                         if behavior == "obs_avoid":
                             behaviors.obstacle_avoidance(1.0)
-                            base.ai_world.add_obstacle(player)
+                            base.ai_world.add_obstacle(actor)
                         elif behavior == "seek":
-                            behaviors.seek(player)
+                            behaviors.seek(actor)
                         elif behavior == "flee":
-                            behaviors.flee(player,
+                            behaviors.flee(actor,
                                            vect['panic_dist'],
                                            vect['relax_dist'])
                         elif behavior == "pursuer":
-                            behaviors.pursue(player)
+                            behaviors.pursue(actor)
                         elif behavior == "evader":
-                            behaviors.evade(player,
+                            behaviors.evade(actor,
                                             vect['panic_dist'],
                                             vect['relax_dist'])
                         elif behavior == "wanderer":
                             behaviors.wander(vect["wander_radius"],
                                              vect["plane_flag"],
                                              vect["area_of_effect"])
+                            behaviors.initPathFind(navmeshes["lvl_one"])
                         elif behavior == "path_finding":
                             # TODO: Change it
-                            behaviors.initPathFind("navmesh.csv")
+                            behaviors.initPathFind(navmeshes["lvl_one"])
                         elif behavior == "path_follow":
                             behaviors.path_follow(1)
-                            behaviors.add_to_path(player.get_pos())
+                            behaviors.add_to_path(actor.get_pos())
                             behaviors.start_follow()
                         base.behaviors['walk'] = True
                         base.behaviors['idle'] = False

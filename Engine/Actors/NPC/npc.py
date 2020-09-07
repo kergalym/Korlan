@@ -1,6 +1,5 @@
 from direct.actor.Actor import Actor
 from direct.task.TaskManagerGlobal import taskMgr
-from panda3d.core import Texture
 
 from Engine.Actors.NPC.state import NpcState
 from Engine.FSM.env_ai import EnvAI
@@ -42,21 +41,6 @@ class NPC:
             self.base.actor_is_alive = True
         else:
             return False
-
-    def update_npc_ai_stat(self, task):
-        if "BS" in self.actor.get_parent().get_name():
-            actor = self.actor.get_parent()
-            # self.fsm_npc.set_npc_ai(actor=actor, behavior="seek")
-            # self.fsm_npc.set_npc_ai(actor=actor, behavior="flee")
-            # self.fsm_npc.set_npc_ai(actor=actor, behavior="pursuer")
-            # self.fsm_npc.set_npc_ai(actor=actor, behavior="evader")
-            self.fsm_npc.set_npc_ai(actor=actor, behavior="wanderer")
-            # self.fsm_npc.set_npc_ai(actor=actor, behavior="obs_avoid")
-            # self.fsm_npc.set_npc_ai(actor=actor, behavior="path_follow")
-            # self.fsm_npc.set_npc_ai(actor=actor, behavior="path_finding")
-            # self.fsm_npc.request("Walk")
-            return task.done
-        return task.cont
 
     async def set_actor(self, mode, name, path, animation, axis, rotation, scale, culling):
 
@@ -102,11 +86,9 @@ class NPC:
 
             self.actor.reparentTo(self.render)
 
-            for tex in render.findAllTextures():
-                if tex.getNumComponents() == 4:
-                    tex.setFormat(Texture.F_srgb_alpha)
-                elif tex.getNumComponents() == 3:
-                    tex.setFormat(Texture.F_srgb)
+            self.base.level_of_details(obj=self.actor)
+
+            self.base.set_textures_srgb(True)
 
             # Set lights and Shadows
             if self.game_settings['Main']['postprocessing'] == 'off':
@@ -127,6 +109,8 @@ class NPC:
 
             self.fsm_env.set_ai_world()
 
-            taskMgr.add(self.update_npc_ai_stat,
-                        "update_npc_ai_stat")
+            taskMgr.add(self.fsm_npc.update_npc_ai_stat,
+                        "update_npc_ai_stat",
+                        extraArgs=[self.actor],
+                        appendTask=True)
 

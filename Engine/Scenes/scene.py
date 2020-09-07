@@ -59,11 +59,16 @@ class SceneOne:
             scene.set_pos(pos_x, pos_y, pos_z)
             scene.set_hpr(scene, rot_h, 0, 0)
 
-            for tex in render.findAllTextures():
-                if tex.getNumComponents() == 4:
-                    tex.setFormat(Texture.F_srgb_alpha)
-                elif tex.getNumComponents() == 3:
-                    tex.setFormat(Texture.F_srgb)
+            self.base.level_of_details(obj=scene)
+
+            # TODO: Get Lightmap from Texture Collector
+            """ts = TextureStage("lightmap")
+            lightmap = base.loader.load_texture("/tmp/tex/ligtmap.png")
+            ts.setTexcoordName("lightmap")
+
+            scene.set_texture(ts, lightmap)"""
+
+            self.base.set_textures_srgb(True)
 
             # Set two sided, since some model may be broken
             # scene.set_two_sided(culling)
@@ -136,11 +141,7 @@ class SceneOne:
                 scene.set_pos(pos_x, pos_y, pos_z)
                 scene.set_hpr(scene, rot_h, 0, 0)
 
-                for tex in render.findAllTextures():
-                    if tex.getNumComponents() == 4:
-                        tex.setFormat(Texture.F_srgb_alpha)
-                    elif tex.getNumComponents() == 3:
-                        tex.setFormat(Texture.F_srgb)
+                self.base.set_textures_srgb(True)
 
                 if name == 'Grass':
                     # scene.flatten_strong()
@@ -193,11 +194,7 @@ class SceneOne:
                 scene.set_pos(pos_x, pos_y, pos_z)
                 scene.set_hpr(scene, rot_h, 0, 0)
 
-                for tex in render.findAllTextures():
-                    if tex.getNumComponents() == 4:
-                        tex.setFormat(Texture.F_srgb_alpha)
-                    elif tex.getNumComponents() == 3:
-                        tex.setFormat(Texture.F_srgb)
+                self.base.set_textures_srgb(True)
 
                 if name == 'Grass':
                     # scene.flatten_strong()
@@ -251,11 +248,8 @@ class SceneOne:
                     scene.set_pos(self.base.camera, 0, 0, 0)
                     scene.set_hpr(scene, rot_h, 0, 0)
 
-                    for tex in render.findAllTextures():
-                        if tex.getNumComponents() == 4:
-                            tex.setFormat(Texture.F_srgb_alpha)
-                        elif tex.getNumComponents() == 3:
-                            tex.setFormat(Texture.F_srgb)
+                    self.base.set_textures_srgb(True)
+
 
                 elif self.type == 'ground':
                     # Load the scene.
@@ -280,11 +274,8 @@ class SceneOne:
                     scene.set_pos(pos_x, pos_y, pos_z)
                     scene.set_hpr(scene, rot_h, 0, 0)
 
-                    for tex in render.findAllTextures():
-                        if tex.getNumComponents() == 4:
-                            tex.setFormat(Texture.F_srgb_alpha)
-                        elif tex.getNumComponents() == 3:
-                            tex.setFormat(Texture.F_srgb)
+                    self.base.set_textures_srgb(True)
+
                 else:
                     # Load the scene.
                     scene = self.base.loader.load_model(path, blocking=True)
@@ -374,11 +365,7 @@ class SceneOne:
                     scene.set_pos(pos_x, pos_y, pos_z)
                     scene.set_hpr(scene, rot_h, 0, 0)
 
-                for tex in render.findAllTextures():
-                    if tex.getNumComponents() == 4:
-                        tex.setFormat(Texture.F_srgb_alpha)
-                    elif tex.getNumComponents() == 3:
-                        tex.setFormat(Texture.F_srgb)
+                self.base.set_textures_srgb(True)
 
                 # Set two sided, since some model may be broken
                 scene.set_two_sided(culling)

@@ -1,7 +1,7 @@
 <img src="http://www.redeyedman.ru/static/images/korlan///korlan_logo_tengri.png" />
 
 ### Korlan -- Daughter of the Steppes ###
-<img src="http://www.redeyedman.ru/static/images/korlan//2019-09-17-174250_641x767_scrot.png" />
+<img src="https://i.imgur.com/JZ7SrEd.png" />
 
 ### About ###
 Development of 3D-person adventure openworld game about a family of the nomads, their life and struggle for survival in a harsh steppe full of danger.
@@ -10,19 +10,12 @@ The Game is dedicated to Tengri and Tengrism.
 
 ### Early Game Gallery (Working in progress) ###
 
-
-<img src="http://www.redeyedman.ru/static/images/korlan/family_of_Korlan.png" />
+<img src="https://i.imgur.com/Fm1SKOj.jpg" />
+<img src="https://i.imgur.com/aNyrjSd.jpg" />
  Characters and the Nomad's House
 
-<img src="http://www.redeyedman.ru/static/images/korlan/weapons_2.png" />
+<img src="https://i.imgur.com/CYPivTC.jpg" />
  Weapons Nomads use
-
-<img src="http://www.redeyedman.ru/static/images/korlan/main_menu.png" />
-<img src="http://www.redeyedman.ru/static/images/korlan/main_menu_options.png" />
-<img src="https://i.imgur.com/eXk6uca.png" />
-<img src="http://www.redeyedman.ru/static/images/korlan/main_menu_sound.png" />
-<img src="http://www.redeyedman.ru/static/images/korlan/main_menu_keymap.png" />
- Game menu
 
 ### Note: there is only Project Code uses the Game Engine API ###
 * No Assets included

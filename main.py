@@ -10,7 +10,7 @@ from os.path import isdir, isfile, exists
 
 import panda3d.core as p3d
 from direct.showbase.ShowBaseGlobal import render2d
-from panda3d.core import Filename
+from panda3d.core import Filename, LODNode, Texture
 from panda3d.core import WindowProperties
 from direct.showbase.ShowBase import ShowBase
 from direct.showbase.ShowBase import MovieTexture
@@ -67,7 +67,7 @@ game_settings['Keymap'] = {'forward': 'W',
                            'umai': '4'
                            }
 
-game_settings['Misc'] = {'daytime': '20:00'}
+game_settings['Misc'] = {'daytime': '15:00'}
 
 game_settings['Debug'] = {'set_debug_mode': 'NO',
                           'cache_autoclean': 'NO',
@@ -83,6 +83,10 @@ game_cfg = '{0}/Korlan - Daughter of the Steppes/settings.ini'.format(str(Path.h
 game_settings.read(game_cfg)
 disp_res = game_settings['Main']['disp_res']
 disp_res = disp_res.split("x")
+
+# TODO: Impl. fullscreen to config
+# fscreen = game_settings['Main']['fullscreen']
+fscreen = "f"
 
 p3d.load_prc_file_data(
     '',
@@ -101,6 +105,9 @@ p3d.load_prc_file_data(
     'hardware-animated-vertices false\n'
     'basic-shaders-only false\n'
     'default-far 10000\n'
+    'texture-compression t\n'
+    'driver-compress-textures t\n'
+    'fullscreen {0}\n'.format(fscreen)
 )
 
 
@@ -364,7 +371,7 @@ class Main(ShowBase):
 
             Return      : Dictionary
         """
-        asset_coll_path = self.transform_path(path="{0}/Engine/Collisions".format(self.game_dir),
+        asset_coll_path = self.transform_path(path="{0}/Assets/Colliders".format(self.game_dir),
                                               style='compat')
         asset_colls = {}
         exclude_anims = 'Animations'
@@ -713,6 +720,35 @@ class Main(ShowBase):
                         items[key] = (parent_node.get_pos())
                 return items
 
+    def navmesh_collector(self):
+        """ Function    : navmesh_collector
+
+            Description : Collect game navmeshes.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : Dictionary
+        """
+        sound_path = self.transform_path(path="{0}/Assets/NavMeshes".format(self.game_dir), style='compat')
+        sounds = {}
+        if exists(sound_path):
+            for root, dirs, files in walk(sound_path, topdown=True):
+                for file in files:
+                    if file.endswith(".csv"):
+                        key = re.sub('.csv$', '', file)
+                        path = str(PurePath("{0}/".format(root), file))
+                        sounds[key] = Filename.from_os_specific(path).getFullpath()
+            return sounds
+
+        """ Enable this when game will be ready for distribution
+        else:
+            logging.critical("\nI'm trying to load navmesh assets, but there aren't suitable navmesh assets. "
+                             "\nCurrent path: {0}".format(navmesh_path))
+            sys_exit("\nSomething is getting wrong. Please, check the game log first")
+        """
+
     def distance_calculate(self, items, actor):
         """ Function    : distance_calculate
 
@@ -785,7 +821,53 @@ class Main(ShowBase):
                                       round(vect_z, 1))
             return remained
 
+    def level_of_details(self, obj):
+        """ Function    : level_of_details
+
+            Description : Set the level of details for scene object.
+
+            Input       : Nodepath
+
+            Output      : None
+
+            Return      : None
+        """
+        if obj:
+            lod = LODNode('{0} LOD node'.format(obj.name))
+            scene_lod = NodePath(lod)
+            scene_lod.reparent_to(render)
+            lod.add_switch(70.0, 0.0)
+            obj.reparent_to(scene_lod)
+
+    def set_textures_srgb(self, bool):
+        """ Function    : set_textures_srgb
+
+            Description : Set sRGB format for all loaded textures
+
+            Input       : Boolean
+
+            Output      : None
+
+            Return      : False
+        """
+        if bool:
+            for tex in render.findAllTextures():
+                if tex.getNumComponents() == 4:
+                    tex.setFormat(Texture.F_srgb_alpha)
+                elif tex.getNumComponents() == 3:
+                    tex.setFormat(Texture.F_srgb)
+
     def video_status_task(self, media, type, task):
+        """ Function    : video_status_task
+
+            Description : Task for video wall.
+
+            Input       : Nodepath, String, Task
+
+            Output      : None
+
+            Return      : Task event
+        """
         if media and type and isinstance(type, str):
             base.accept("escape", media.stop)
 
@@ -807,6 +889,16 @@ class Main(ShowBase):
         return task.cont
 
     def load_video(self, file, type):
+        """ Function    : load_video
+
+            Description : Loads videofile to screen.
+
+            Input       : String
+
+            Output      : None
+
+            Return      : Dictionary
+        """
         if (file and type
                 and isinstance(file, str) and isinstance(type, str)):
             videos = self.videos_collector()
@@ -894,7 +986,7 @@ class Main(ShowBase):
                                       hpr=[180, 130, 0],
                                       color=[0.2],
                                       task="attach")
-        """self.render_attr.set_lighting(name='pointLight',
+        self.render_attr.set_lighting(name='pointLight',
                                       render=self.render,
                                       pos=[0, 30, 10],
                                       hpr=[0, -20, 0],
@@ -905,7 +997,7 @@ class Main(ShowBase):
                                       pos=[0, 8.0, 1],
                                       hpr=[0, -20, 0],
                                       color=[0.2],
-                                      task="attach")"""
+                                      task="attach")
 
         # assets is a dict containing paths + models
         # anims is a list containing two dicts.

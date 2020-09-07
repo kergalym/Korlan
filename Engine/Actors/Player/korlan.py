@@ -1,6 +1,6 @@
 from Engine.Actors.Player.actions import Actions
 from Engine.Actors.Player.state import PlayerState
-from direct.actor.Actor import Actor, Texture
+from direct.actor.Actor import Actor
 from panda3d.core import WindowProperties
 from panda3d.core import LPoint3f
 from direct.task.TaskManagerGlobal import taskMgr
@@ -97,11 +97,7 @@ class Korlan:
 
                 self.korlan.reparent_to(render)
 
-                for tex in render.findAllTextures():
-                    if tex.getNumComponents() == 4:
-                        tex.setFormat(Texture.F_srgb_alpha)
-                    elif tex.getNumComponents() == 3:
-                        tex.setFormat(Texture.F_srgb)
+                self.base.set_textures_srgb(True)
 
                 # Set lights and Shadows
                 if self.game_settings['Main']['postprocessing'] == 'off':
@@ -178,11 +174,7 @@ class Korlan:
 
                 self.korlan.reparent_to(render)
 
-                for tex in render.findAllTextures():
-                    if tex.getNumComponents() == 4:
-                        tex.setFormat(Texture.F_srgb_alpha)
-                    elif tex.getNumComponents() == 3:
-                        tex.setFormat(Texture.F_srgb)
+                self.base.set_textures_srgb(True)
 
                 # Set lights and Shadows
                 if self.game_settings['Main']['postprocessing'] == 'off':

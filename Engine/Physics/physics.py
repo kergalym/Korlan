@@ -200,7 +200,7 @@ class PhysicsAttr:
                                           shape=shape,
                                           mask=self.mask1)
 
-            # TODO: use in /Korlan/Engine/Items/items.py:
+            # TODO: move to and use in /Korlan/Engine/Items/items.py:
             if type == "item":
                 self.set_object_colliders(type='dynamic',
                                           shape=shape,
@@ -324,12 +324,9 @@ class PhysicsAttr:
                             # Make item position zero because now it's a child of bullet shape
                             obj.set_pos(0, 0, 0)
 
-                            # Reparent it to previous parent to get original position back for mesh
-                            # if top_parent:
-                            #     obj_bs_np.reparent_to(top_parent)
-
                             # Reparent the root node of the level to the World of Physics
                             if not render.find("**/Collisions/lvl*coll/lvl_*").is_empty():
                                 render.find("**/Collisions/lvl*coll/lvl_*").reparent_to(render.find("**/World"))
 
                             base.shaped_objects.append(obj_bs_name)
+

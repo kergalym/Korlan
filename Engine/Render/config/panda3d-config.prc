@@ -172,3 +172,6 @@ allow-incomplete-render #t
 
 
 no-singular-invert #f
+
+texture-compression t
+driver-compress-textures t
