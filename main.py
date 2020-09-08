@@ -67,7 +67,7 @@ game_settings['Keymap'] = {'forward': 'W',
                            'umai': '4'
                            }
 
-game_settings['Misc'] = {'daytime': '15:00'}
+game_settings['Misc'] = {'daytime': '10:00'}
 
 game_settings['Debug'] = {'set_debug_mode': 'NO',
                           'cache_autoclean': 'NO',

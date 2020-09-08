@@ -59,6 +59,10 @@ class SceneOne:
             scene.set_pos(pos_x, pos_y, pos_z)
             scene.set_hpr(scene, rot_h, 0, 0)
 
+            if not render.find("**/Grass").is_empty():
+                grass = render.find("**/Grass")
+                grass.set_two_sided(True)
+
             self.base.level_of_details(obj=scene)
 
             # TODO: Get Lightmap from Texture Collector
@@ -71,7 +75,7 @@ class SceneOne:
             self.base.set_textures_srgb(True)
 
             # Set two sided, since some model may be broken
-            # scene.set_two_sided(culling)
+            scene.set_two_sided(culling)
 
             # Panda3D 1.10 doesn't enable alpha blending for textures by default
             scene.set_transparency(True)
@@ -249,7 +253,6 @@ class SceneOne:
                     scene.set_hpr(scene, rot_h, 0, 0)
 
                     self.base.set_textures_srgb(True)
-
 
                 elif self.type == 'ground':
                     # Load the scene.

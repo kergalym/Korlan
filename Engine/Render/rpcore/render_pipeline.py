@@ -335,7 +335,8 @@ class RenderPipeline(RPObject):
                     if isinstance(prim, GeomTristrips):
                         needs_conversion = True
                         if not tristrips_warning_emitted:
-                            self.warn("At least one GeomNode (", geom_node.get_name(), "and possible more..) contains tristrips.")
+                            self.warn("At least one GeomNode (", geom_node.get_name(),
+                                      "and possible more..) contains tristrips.")
                             self.warn("Due to a NVIDIA Driver bug, we have to convert them to triangles now.")
                             self.warn("Consider exporting your models with the Bam Exporter to avoid this.")
                             tristrips_warning_emitted = True
@@ -349,18 +350,19 @@ class RenderPipeline(RPObject):
                     continue
 
                 material = state.get_attrib(MaterialAttrib).get_material()
-                shading_model = material.emission.x
+                if material.emission:
+                    shading_model = material.emission.x
 
-                # SHADING_MODEL_TRANSPARENT
-                if shading_model == 3:
-                    if geom_count > 1:
-                        self.error("Transparent materials must be on their own geom!\n"
-                                   "If you are exporting from blender, split them into\n"
-                                   "seperate meshes, then re-export your scene. The\n"
-                                   "problematic mesh is: " + geom_np.get_name())
-                        continue
-                    self.set_effect(geom_np, "effects/default.yaml",
-                                    {"render_forward": True, "render_gbuffer": False}, 100)
+                    # SHADING_MODEL_TRANSPARENT
+                    if shading_model == 3:
+                        if geom_count > 1:
+                            self.error("Transparent materials must be on their own geom!\n"
+                                       "If you are exporting from blender, split them into\n"
+                                       "seperate meshes, then re-export your scene. The\n"
+                                       "problematic mesh is: " + geom_np.get_name())
+                            continue
+                        self.set_effect(geom_np, "effects/default.yaml",
+                                        {"render_forward": True, "render_gbuffer": False}, 100)
 
         return {"lights": lights, "envprobes": envprobes,
                 "transparent_objects": transparent_objects}

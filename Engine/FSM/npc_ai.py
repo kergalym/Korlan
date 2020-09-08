@@ -94,10 +94,12 @@ class NpcAI(FSM):
                             behaviors.wander(vect["wander_radius"],
                                              vect["plane_flag"],
                                              vect["area_of_effect"])
-                            behaviors.initPathFind(navmeshes["lvl_one"])
+                            # behaviors.initPathFind(navmeshes["lvl_one"])
+                            pass
                         elif behavior == "path_finding":
                             # TODO: Change it
-                            behaviors.initPathFind(navmeshes["lvl_one"])
+                            # behaviors.initPathFind(navmeshes["lvl_one"])
+                            pass
                         elif behavior == "path_follow":
                             behaviors.path_follow(1)
                             behaviors.add_to_path(actor.get_pos())

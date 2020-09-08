@@ -1,6 +1,6 @@
-disabled: [dof, vxgi, fxaa, motion_blur, bloom, volumetrics]
+disabled: [dof, vxgi, fxaa, motion_blur, bloom]
 enabled: [ao, color_correction, forward_shading, pssm, scattering, skin_shading, sky_ao,
-  smaa, ssr, env_probes, clouds]
+  smaa, ssr, env_probes, clouds, volumetrics]
 overrides:
   ao: {alchemy_max_distance: 5.86, alchemy_sample_radius: 38.86, alchemy_sequence: halton_2D_8,
     blur_depth_factor: 0.88158, blur_normal_factor: 2.97, blur_quality: LOW, clip_length: 10,

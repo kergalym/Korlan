@@ -38,32 +38,36 @@ class Actions:
 
     def seq_move_wrapper(self, player, anims, state):
         if player and anims and isinstance(state, str):
-            if state == 'loop':
+            walking_forward_seq = player.get_anim_control(anims[self.walking_forward_action])
+            if state == 'loop' and walking_forward_seq.is_playing() is False:
                 player.loop(anims[self.walking_forward_action])
                 player.set_play_rate(self.base.actor_play_rate,
                                      anims[self.walking_forward_action])
-            elif state == 'stop':
+            elif state == 'stop' and walking_forward_seq.is_playing():
                 player.stop()
                 player.pose(anims[self.walking_forward_action], 0)
 
     def seq_run_wrapper(self, player, anims, state):
         if player and anims and isinstance(state, str):
-            if state == 'loop':
+            run_forward_seq = player.get_anim_control(anims[self.run_forward_action])
+            if state == 'loop' and run_forward_seq.is_playing() is False:
                 player.loop(anims[self.run_forward_action])
                 player.set_play_rate(2.2,
                                      anims[self.run_forward_action])
-            elif state == 'stop':
+            elif state == 'stop' and run_forward_seq.is_playing():
                 player.stop()
                 player.pose(anims[self.run_forward_action], 0)
 
     def seq_crouch_move_wrapper(self, player, anims, state):
         if player and anims and isinstance(state, str):
-            if state == 'loop':
+            crouch_walking_forward_seq = player.get_anim_control(anims[self.crouch_walking_forward_action])
+            if state == 'loop' and crouch_walking_forward_seq.is_playing() is False:
                 player.loop(anims[self.crouch_walking_forward_action])
                 player.set_play_rate(self.base.actor_play_rate,
                                      anims[self.crouch_walking_forward_action])
-            elif state == 'stop':
+            elif state == 'stop' and crouch_walking_forward_seq.is_playing():
                 player.stop()
+                player.pose(anims[self.crouch_walking_forward_action], 0)
 
     """ Sets current item after action """
 

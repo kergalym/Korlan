@@ -193,7 +193,7 @@ class LevelOne:
                                              axis=[0.0, 0.0, self.pos_z],
                                              rotation=[0, 0, 0],
                                              scale=[1.25, 1.25, 1.25],
-                                             culling=False))
+                                             culling=True))
 
         taskMgr.add(self.korlan.set_actor(mode="game",
                                           name="Korlan",

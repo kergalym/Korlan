@@ -115,7 +115,7 @@ void main()
         specular +=pow(max(dot(R, V), 0.0), 50.0)*light_color[i].a;
         }        
         
-    float ff=fog_factor*fog_factor;    
+    float ff=fog_factor*fog_factor;
     foam*=(1.0-ff);
     specular*=(1.0-ff); 
     specular*=(1.0-foam);     
