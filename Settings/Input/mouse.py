@@ -1,4 +1,4 @@
-from panda3d.core import WindowProperties, LVector3
+from panda3d.core import WindowProperties, LVector3, CompassEffect
 from direct.showbase import DirectObject
 from panda3d.core import NodePath, PandaNode
 
@@ -16,8 +16,7 @@ class Mouse:
         self.heading = 180
         self.pitch = 150
         self.rotation = 0
-        self.mouse_x = 0
-        self.mouse_y = 0
+        self.mouse_sens = 0.2
         self.last = 0
 
     def set_floater(self, player):
@@ -50,6 +49,38 @@ class Mouse:
             self.floater.set_z(self.pos_z)
             return self.floater
 
+    def mouse_rotate(self, task):
+        """ Function    : mouse_rotate
+
+            Description : Mouse-rotation business for 3rd person view.
+
+            Input       : Task
+
+            Output      : None
+
+            Return      : None
+        """
+        mouse_direction = self.base.win.getPointer(0)
+        x = mouse_direction.get_x()
+        y = mouse_direction.get_y()
+
+        if self.base.win.move_pointer(0, 100, 100):
+            self.heading = self.heading - (x - 100) * self.mouse_sens
+            self.pitch = self.pitch - (y - 100) * self.mouse_sens
+
+        if self.pitch > -177:
+            self.pitch = -177
+        elif self.pitch < -177:
+            self.pitch = -180
+
+        self.base.camera.set_hpr(self.heading, self.pitch, self.rotation)
+
+        direction = self.base.camera.get_mat().getRow3(1)
+
+        self.base.camera.set_pos(self.focus - (direction * 180))
+        self.focus = self.base.camera.get_pos() + (direction * 180)
+        self.last = task.time
+
     def mouse_look_cam(self, task):
         """ Function    : mouse_look_cam
 
@@ -64,43 +95,12 @@ class Mouse:
         # Figure out how much the mouse has moved (in pixels)
         if (hasattr(base, "is_ui_active") is False
                 and self.base.game_mode):
-            mouse_direction = self.base.win.getPointer(0)
-            x = mouse_direction.get_x()
-            y = mouse_direction.get_y()
-            if self.base.win.move_pointer(0, 100, 100):
-                self.heading = self.heading - (x - 100) * 0.2
-                self.pitch = self.pitch - (y - 100) * 0.2
-
-            if self.pitch > -177:
-                self.pitch = -177
-            elif self.pitch < -177:
-                self.pitch = -180
-
-            self.base.camera.set_hpr(self.heading, self.pitch, self.rotation)
-
-            direction = self.base.camera.get_mat().getRow3(1)
-
-            self.base.camera.set_pos(self.focus - (direction * 180))
-            self.focus = self.base.camera.get_pos() + (direction * 180)
-            self.last = task.time
+            self.mouse_rotate(task=task)
 
         elif (hasattr(base, "is_ui_active")
                 and base.is_ui_active is False
                 and self.base.game_mode):
-            mouse_direction = self.base.win.getPointer(0)
-            x = mouse_direction.get_x()
-            y = mouse_direction.get_y()
-            if self.base.win.move_pointer(0, 100, 100):
-                self.heading = self.heading - (x - 100) * 0.2
-            self.pitch = self.pitch - (y - 100) * 0.2
-
-            self.base.camera.set_hpr(self.heading, self.pitch, self.rotation)
-
-            direction = self.base.camera.get_mat().getRow3(1)
-
-            self.base.camera.set_pos(self.focus - (direction * 180))
-            self.focus = self.base.camera.get_pos() + (direction * 180)
-            self.last = task.time
+            self.mouse_rotate(task=task)
 
         if base.game_mode is False and base.menu_mode:
             return task.done

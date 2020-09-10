@@ -133,7 +133,7 @@ class LevelOne:
 
         """ Assets """
 
-        base.render_attr.set_lighting(name='light',
+        """base.render_attr.set_lighting(name='light',
                                       render=self.render,
                                       pos=[-7, 8, 8],
                                       hpr=[180, 130, 0],
@@ -145,13 +145,13 @@ class LevelOne:
                                       hpr=[180, 130, 0],
                                       color=[0.4],
                                       task="attach")
-        """base.render_attr.set_lighting(name='light',
+        base.render_attr.set_lighting(name='light',
                                       render=self.render,
                                       pos=[0, 3, 10],
                                       hpr=[0, -20, 0],
                                       color=[0.5],
-                                      task="attach")"""
-        """self.render_attr.set_lighting(name='light',
+                                      task="attach")
+        self.render_attr.set_lighting(name='light',
                                       render=self.render,
                                       pos=[0, -40, 10],
                                       hpr=[0, -20, 0],

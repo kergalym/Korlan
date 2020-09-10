@@ -33,28 +33,36 @@ class NpcAI(FSM):
                 return task.done
         return task.cont
 
+    def target_distance(self, actor):
+        if actor and not render.find("**/Korlan:BS").is_empty():
+            player = render.find("**/Korlan:BS")
+            dist = actor.get_y() - player.get_y()
+            return dist
+
     def update_npc_ai_stat(self, actor, task):
         if actor and "BS" in actor.get_parent().get_name():
             actor = actor.get_parent()
-            # self.fsm_npc.set_npc_ai(actor=actor, behavior="seek")
-            # self.fsm_npc.set_npc_ai(actor=actor, behavior="flee")
-            # self.fsm_npc.set_npc_ai(actor=actor, behavior="pursuer")
-            # self.fsm_npc.set_npc_ai(actor=actor, behavior="evader")
-            self.set_npc_ai(actor=actor, behavior="wanderer")
-            # self.fsm_npc.set_npc_ai(actor=actor, behavior="obs_avoid")
-            # self.fsm_npc.set_npc_ai(actor=actor, behavior="path_follow")
-            # self.fsm_npc.set_npc_ai(actor=actor, behavior="path_finding")
-            # self.fsm_npc.request("Walk")
+            self.set_npc_behavior(actor=actor, behavior="seek")
+            if self.target_distance(actor=actor) <= 1:
+                self.set_npc_behavior(actor=actor, behavior="flee")
+            if self.target_distance(actor=actor) > 50:
+                self.set_npc_behavior(actor=actor, behavior="pursuer")
+            if self.target_distance(actor=actor) <= 1:
+                self.set_npc_behavior(actor=actor, behavior="evader")
+            if self.target_distance(actor=actor) >= 1:
+                self.set_npc_behavior(actor=actor, behavior="wanderer")
+            if self.target_distance(actor=actor) <= 1:
+                self.set_npc_behavior(actor=actor, behavior="obs_avoid")
+            if self.target_distance(actor=actor) >= 1:
+                self.set_npc_behavior(actor=actor, behavior="path_follow")
+            if self.target_distance(actor=actor) > 50:
+                self.set_npc_behavior(actor=actor, behavior="path_finding")
+            # TODO: Fix the walk request
+            # self.request("Walk", actor, action="walk", state="loop")
             return task.done
         return task.cont
 
-    def get_npc(self, actor):
-        if actor and isinstance(actor, str):
-            if not render.find("**/{0}".format(actor)).is_empty():
-                avatar = render.find("**/{0}".format(actor))
-                return avatar
-
-    def set_npc_ai(self, actor, behavior):
+    def set_npc_behavior(self, actor, behavior):
         if (actor
                 and behavior
                 and isinstance(behavior, str)):
@@ -72,37 +80,44 @@ class NpcAI(FSM):
                     base.ai_world.add_ai_char(ai_char)
                     behaviors = ai_char.get_ai_behaviors()
                     navmeshes = self.base.navmesh_collector()
-                    # behaviors.initPathFind(navmeshes["lvl_one"])
 
-                    if actor:
+                    if actor and not render.find("**/Korlan:BS").is_empty():
+                        player = render.find("**/Korlan:BS")
+
                         if behavior == "obs_avoid":
                             behaviors.obstacle_avoidance(1.0)
                             base.ai_world.add_obstacle(actor)
+                            behaviors.initPathFind(navmeshes["lvl_one"])
+
                         elif behavior == "seek":
-                            behaviors.seek(actor)
+                            behaviors.seek(player)
+                            behaviors.initPathFind(navmeshes["lvl_one"])
+                            behaviors.path_find_to(player, "addPath")
                         elif behavior == "flee":
                             behaviors.flee(actor,
                                            vect['panic_dist'],
                                            vect['relax_dist'])
+                            behaviors.initPathFind(navmeshes["lvl_one"])
+                            behaviors.path_find_to(player, "addPath")
                         elif behavior == "pursuer":
-                            behaviors.pursue(actor)
+                            behaviors.pursue(player)
+                            behaviors.initPathFind(navmeshes["lvl_one"])
                         elif behavior == "evader":
-                            behaviors.evade(actor,
+                            behaviors.evade(player,
                                             vect['panic_dist'],
                                             vect['relax_dist'])
+                            behaviors.initPathFind(navmeshes["lvl_one"])
                         elif behavior == "wanderer":
                             behaviors.wander(vect["wander_radius"],
                                              vect["plane_flag"],
                                              vect["area_of_effect"])
-                            # behaviors.initPathFind(navmeshes["lvl_one"])
-                            pass
+                            behaviors.initPathFind(navmeshes["lvl_one"])
                         elif behavior == "path_finding":
-                            # TODO: Change it
-                            # behaviors.initPathFind(navmeshes["lvl_one"])
-                            pass
+                            behaviors.initPathFind(navmeshes["lvl_one"])
                         elif behavior == "path_follow":
+                            behaviors.initPathFind(navmeshes["lvl_one"])
                             behaviors.path_follow(1)
-                            behaviors.add_to_path(actor.get_pos())
+                            behaviors.add_to_path(player.get_pos())
                             behaviors.start_follow()
                         base.behaviors['walk'] = True
                         base.behaviors['idle'] = False

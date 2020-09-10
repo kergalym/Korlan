@@ -1,5 +1,6 @@
 from panda3d.core import *
 from Engine.Actors.Player.korlan import Korlan
+from Engine.Render.render import RenderAttr
 
 
 class SceneOne:
@@ -20,6 +21,7 @@ class SceneOne:
         self.task_mgr = None
         self.node_path = NodePath()
         self.korlan = Korlan()
+        self.render_attr = RenderAttr()
         self.base = base
         self.render = render
         self.game_settings = base.game_settings
@@ -63,8 +65,6 @@ class SceneOne:
                 grass = render.find("**/Grass")
                 grass.set_two_sided(True)
 
-            self.base.level_of_details(obj=scene)
-
             # TODO: Get Lightmap from Texture Collector
             """ts = TextureStage("lightmap")
             lightmap = base.loader.load_texture("/tmp/tex/ligtmap.png")
@@ -80,25 +80,29 @@ class SceneOne:
             # Panda3D 1.10 doesn't enable alpha blending for textures by default
             scene.set_transparency(True)
 
-            """lod = LODNode('Level_LOD')
-            lod_np = NodePath(lod)
-            lod_np.reparent_to(render)
-            lod.add_switch(50.0, 0.0)
-            scene.reparent_to(lod_np)"""
-
             render.set_attrib(LightRampAttrib.make_hdr1())
 
             if self.game_settings['Main']['postprocessing'] == 'off':
                 # Set Lights and Shadows
                 # self.render_attr.set_shadows(scene, render)
-                pass
 
-            # If you don't do this, none of the features
-            # listed above will have any effect. Panda will
-            # simply ignore normal maps, HDR, and so forth if
-            # shader generation is not enabled. It would be reasonable
-            # to enable shader generation for the entire game, using this call:
-            # scene.set_shader_auto()
+                # If you don't do this, none of the features
+                # listed above will have any effect. Panda will
+                # simply ignore normal maps, HDR, and so forth if
+                # shader generation is not enabled. It would be reasonable
+                # to enable shader generation for the entire game, using this call:
+                scene.set_shader_auto()
+
+                # Load the LOD
+                self.base.level_of_details(obj=scene)
+            else:                # Enable water
+                self.render_attr.set_water(True, water_lvl=30.0, adv_render=False)
+
+                # Enable grass
+                self.render_attr.set_grass(True, adv_render=False)
+
+                # Enable flare
+                self.render_attr.set_flare(True, adv_render=False)
 
             base.level_is_loaded = 1
 

@@ -67,7 +67,7 @@ game_settings['Keymap'] = {'forward': 'W',
                            'umai': '4'
                            }
 
-game_settings['Misc'] = {'daytime': '10:00'}
+game_settings['Misc'] = {'daytime': '12:00'}
 
 game_settings['Debug'] = {'set_debug_mode': 'NO',
                           'cache_autoclean': 'NO',
@@ -86,7 +86,7 @@ disp_res = disp_res.split("x")
 
 # TODO: Impl. fullscreen to config
 # fscreen = game_settings['Main']['fullscreen']
-fscreen = "f"
+fscreen = "t"
 
 p3d.load_prc_file_data(
     '',
@@ -836,7 +836,7 @@ class Main(ShowBase):
             lod = LODNode('{0} LOD node'.format(obj.name))
             scene_lod = NodePath(lod)
             scene_lod.reparent_to(render)
-            lod.add_switch(70.0, 0.0)
+            lod.add_switch(100.0, 0.0)
             obj.reparent_to(scene_lod)
 
     def set_textures_srgb(self, bool):
