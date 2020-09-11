@@ -6,7 +6,7 @@
 # --------------  Development options  --------------
 
 pstats-gpu-timing #t
-gl-debug #t
+gl-debug t
 gl-debug-object-labels #t
 
 # -------------- Production options ---------------
@@ -18,7 +18,7 @@ gl-debug-object-labels #t
 # ----------------- Misc Settings -----------------
 
 # Disable V-Sync
-sync-video #f
+sync-video f
 
 # Limit the pstats-rate. This causes huge lag on windows 10.
 pstats-max-rate 200
@@ -111,10 +111,10 @@ gl-version 4 3
 # hardware-animated-vertices #t
 
 # Try this options for performance
-# uniquify-matrix t
-# uniquify-transforms t
-# uniquify-states t
-# uniquify-attribs t
+uniquify-matrix t
+uniquify-transforms t
+uniquify-states t
+uniquify-attribs t
 
 # Enable garbarge collection
 garbage-collect-states #t
@@ -175,3 +175,5 @@ no-singular-invert #f
 
 texture-compression t
 driver-compress-textures t
+
+want-pstats 1

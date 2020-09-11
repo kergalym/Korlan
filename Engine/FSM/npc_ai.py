@@ -1,6 +1,8 @@
 from direct.fsm.FSM import FSM
 from direct.task.TaskManagerGlobal import taskMgr
+from panda3d.ai import AIWorld
 from panda3d.ai import AICharacter
+from Engine.FSM.player_fsm import FsmPlayer
 
 
 class NpcAI(FSM):
@@ -10,6 +12,10 @@ class NpcAI(FSM):
         self.render = render
         self.taskMgr = taskMgr
         self.ai_char = None
+        self.ai_world = None
+        self.fsm_player = FsmPlayer()
+        self.ai_behaviors = None
+
         base.behaviors = {
             "idle": True,
             "walk": False,
@@ -24,6 +30,33 @@ class NpcAI(FSM):
             "death": False,
             "misc_act": False
         }
+
+    def update_ai_world_task(self, task):
+        if self.ai_world:
+            self.ai_world.update()
+            if base.game_mode is False and base.menu_mode:
+                return task.done
+        return task.cont
+
+    def set_ai_world(self):
+        self.ai_world = AIWorld(render)
+
+        taskMgr.add(self.update_ai_world_task,
+                    "update_ai_world",
+                    appendTask=True)
+
+    def set_weather(self, weather):
+        if weather and isinstance(weather, str):
+            if weather == "wind":
+                pass
+            elif weather == "rain":
+                pass
+            elif weather == "storm":
+                pass
+            elif weather == "day":
+                pass
+            elif weather == "night":
+                pass
 
     def keep_actor_pitch_task(self, actor, task):
         if actor:
@@ -67,7 +100,7 @@ class NpcAI(FSM):
                 and behavior
                 and isinstance(behavior, str)):
             if hasattr(base, "ai_world"):
-                if base.ai_world:
+                if self.ai_world:
                     vect = {"panic_dist": 5,
                             "relax_dist": 5,
                             "wander_radius": 5,
@@ -76,8 +109,8 @@ class NpcAI(FSM):
                     speed = 5
 
                     ai_char = AICharacter(behavior, actor, 100, 0.05, speed)
-                    base.ai_world.remove_ai_char(actor.get_name())
-                    base.ai_world.add_ai_char(ai_char)
+                    self.ai_world.remove_ai_char(actor.get_name())
+                    self.ai_world.add_ai_char(ai_char)
                     behaviors = ai_char.get_ai_behaviors()
                     navmeshes = self.base.navmesh_collector()
 
@@ -86,7 +119,7 @@ class NpcAI(FSM):
 
                         if behavior == "obs_avoid":
                             behaviors.obstacle_avoidance(1.0)
-                            base.ai_world.add_obstacle(actor)
+                            self.ai_world.add_obstacle(actor)
                             behaviors.initPathFind(navmeshes["lvl_one"])
 
                         elif behavior == "seek":

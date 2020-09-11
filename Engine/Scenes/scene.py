@@ -99,10 +99,10 @@ class SceneOne:
                 self.render_attr.set_water(True, water_lvl=30.0, adv_render=False)
 
                 # Enable grass
-                self.render_attr.set_grass(True, adv_render=False)
+                # self.render_attr.set_grass(True, adv_render=False)
 
                 # Enable flare
-                self.render_attr.set_flare(True, adv_render=False)
+                # self.render_attr.set_flare(True, adv_render=False)
 
             base.level_is_loaded = 1
 

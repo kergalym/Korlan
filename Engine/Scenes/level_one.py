@@ -3,7 +3,6 @@ from panda3d.core import *
 from Engine.Actors.Player.korlan import Korlan
 from Engine.Actors.Player.state import PlayerState
 from Engine.Actors.NPC.npc import NPC
-from Engine.FSM.env_ai import EnvAI
 from Engine.FSM.npc_ai import NpcAI
 from Engine.Render.render import RenderAttr
 from Engine.Scenes.scene import SceneOne
@@ -29,7 +28,6 @@ class LevelOne:
         self.stat_ui = StatUI()
         self.player_state = PlayerState()
         self.physics_attr = PhysicsAttr()
-        self.fsm_env = EnvAI()
         self.fsm_npc = NpcAI()
         self.pos_x = None
         self.pos_y = None
@@ -54,12 +52,14 @@ class LevelOne:
             # Remove Bullet World
             if not render.find("**/World").is_empty():
                 for i in range(render.find("**/World").get_num_nodes()):
-                    render.find("**/World").remove_node()
+                    if not render.find("**/World").is_empty():
+                        render.find("**/World").remove_node()
 
             # Remove Collisions
             if not render.find("**/Collisions").is_empty():
                 for i in range(render.find("**/Collisions").get_num_nodes()):
-                    render.find("**/Collisions").remove_node()
+                    if not render.find("**/Collisions").is_empty():
+                        render.find("**/Collisions").remove_node()
 
             # make pattern list from assets dict
             pattern = [key for key in assets]
@@ -98,12 +98,14 @@ class LevelOne:
         # Remove Bullet World
         if not render.find("**/World").is_empty():
             for i in range(render.find("**/World").get_num_nodes()):
-                render.find("**/World").remove_node()
+                if not render.find("**/World").is_empty():
+                    render.find("**/World").remove_node()
 
         # Remove Collisions
         if not render.find("**/Collisions").is_empty():
             for i in range(render.find("**/Collisions").get_num_nodes()):
-                render.find("**/Collisions").remove_node()
+                if not render.find("**/Collisions").is_empty():
+                    render.find("**/Collisions").remove_node()
 
         # make pattern list from assets dict
         pattern = [key for key in assets]

@@ -107,7 +107,9 @@ p3d.load_prc_file_data(
     'default-far 10000\n'
     'texture-compression t\n'
     'driver-compress-textures t\n'
+    'want-pstats 1\n'
     'fullscreen {0}\n'.format(fscreen)
+
 )
 
 
@@ -701,6 +703,7 @@ class Main(ShowBase):
             for n, x in enumerate(exclude, 0):
                 # We exclude any item from assets,
                 # we need to retrieve the distance
+                # TODO: Remove this dirty hack
                 try:
                     if t[n].get_name() == x:
                         t.pop(n)
@@ -713,10 +716,12 @@ class Main(ShowBase):
                 for key in assets_children:
                     parent_node = assets_children[key].get_parent().get_parent()
                     # Get bullet shape node path if it's here
-                    if 'BS' in parent_node.get_parent().get_name():
+                    if (not parent_node.get_parent().is_empty()
+                            and 'BS' in parent_node.get_parent().get_name()):
                         bullet_shape_node = parent_node.get_parent()
                         items[key] = (bullet_shape_node.get_pos())
-                    elif 'BS' not in parent_node.get_parent().get_name():
+                    elif (not parent_node.get_parent().is_empty()
+                          and 'BS' not in parent_node.get_parent().get_name()):
                         items[key] = (parent_node.get_pos())
                 return items
 

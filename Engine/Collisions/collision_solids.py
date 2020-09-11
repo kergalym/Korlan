@@ -82,7 +82,11 @@ class BulletCollisionSolids:
             if hasattr(base, "shaped_objects") and not base.shaped_objects:
                 for x, col in zip(objects[1], colliders.get_children()):
                     # Skip already added bullet shapes to prevent duplicating
-                    parent_name = render.find('{0}'.format(x)).get_parent().get_name()
+                    parent_name = ''
+                    if not render.find('{0}'.format(x)).get_parent().is_empty():
+                        parent_name = render.find('{0}'.format(x)).get_parent().get_name()
+                        render.find('{0}'.format(x)).get_parent()
+
                     if "BS" in parent_name or "BS" in x:
                         continue
 

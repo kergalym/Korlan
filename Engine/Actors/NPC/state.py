@@ -14,7 +14,7 @@ class NpcState:
                                       'USABLE': 1,
                                       'DEFORMED': 2
                                       }
-        self.fsm_npc = NpcAI()
+        self.env_ai = NpcAI()
 
     def actor_behavior_task(self, actor, animation, task):
         if actor and animation and isinstance(animation, str):
@@ -26,13 +26,13 @@ class NpcState:
                     vect = base.npc_distance_calculate(player_bs, actor_bs)
                     if vect:
                         if vect['vector'][1] > 0.2:
-                            self.fsm_npc.request("Walk", actor, animation, "loop")
+                            self.env_ai.request("Walk", actor, animation, "loop")
                         if vect['vector'][1] > -0.2:
-                            self.fsm_npc.request("Walk", actor, animation, "loop")
+                            self.env_ai.request("Walk", actor, animation, "loop")
                         elif vect['vector'][1] < 0.2:
-                            self.fsm_npc.request("Walk", actor, animation, "loop")
+                            self.env_ai.request("Walk", actor, animation, "loop")
                         elif vect['vector'][1] < -0.2:
-                            self.fsm_npc.request("Walk", actor, animation, "loop")
+                            self.env_ai.request("Walk", actor, animation, "loop")
         if base.game_mode is False and base.menu_mode:
             return task.done
         return task.cont

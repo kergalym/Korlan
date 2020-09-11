@@ -27,7 +27,7 @@ class PhysicsAttr:
         self.cam_collider = None
         self.geom_collector = GeomCollector()
         self.bullet_solids = BulletCollisionSolids()
-        self.fsm_npc = NpcAI()
+        self.env_ai = NpcAI()
 
         self.korlan = None
 
