@@ -95,6 +95,7 @@ p3d.load_prc_file_data(
 
 p3d.load_prc_file_data(
     '',
+    'win-origin 110 0\n'
     'window-title Korlan - Daughter of the Steppes\n'
     'show-frame-rate-meter  t\n'
     'audio-library-name p3openal_audio\n'
@@ -140,7 +141,7 @@ class Main(ShowBase):
         if self.game_settings['Debug']['cache_autoclean'] == 'YES':
             if (exists("{}/Cache".format(self.game_dir))
                     and isdir("{}/Cache".format(self.game_dir))):
-                rmtree("{}/Cache".format(self.game_dir))
+                rmtree("{}/Cache/".format(self.game_dir))
 
         if self.game_settings['Debug']['set_debug_mode'] == 'YES':
             print("Is threading supported: ", Thread.isThreadingSupported(), "\n")

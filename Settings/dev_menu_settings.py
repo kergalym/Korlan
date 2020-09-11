@@ -243,7 +243,6 @@ class DevMode(MenuSettings):
                 else:
                     self.cfg_parser = ConfigParser()
                     self.cfg_parser.read(self.cfg_path_default)
-                    # import pdb; pdb.set_trace()
                     render.find("**/{}*".format(x)).setX(float(self.cfg_parser[x]['pos_x']))
                     render.find("**/{}*".format(x)).setY(float(self.cfg_parser[x]['pos_y']))
                     render.find("**/{}*".format(x)).setZ(float(self.cfg_parser[x]['pos_z']))
@@ -259,7 +258,6 @@ class DevMode(MenuSettings):
 
     def node_exp_value(self):
         loaded_settings = self.load_settings()
-        # import pdb; pdb.set_trace()
         if loaded_settings['Debug']['set_debug_mode'] == 'YES':
             return 1
         elif loaded_settings['Debug']['set_debug_mode'] == 'NO':
@@ -278,7 +276,6 @@ class DevMode(MenuSettings):
 
     def cc_value(self):
         loaded_settings = self.load_settings()
-        # import pdb; pdb.set_trace()
         if loaded_settings['Debug']['cache_autoclean'] == 'YES':
             return 1
         elif loaded_settings['Debug']['cache_autoclean'] == 'NO':

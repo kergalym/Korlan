@@ -103,12 +103,13 @@ class NPC:
             taskMgr.add(self.actor_life,
                         "actor_life")
 
+            self.fsm_npc.setAI(self.actor)
+            # self.fsm_npc.set_ai_world(actor=self.actor, actor_cls="enemy")
+
             self.npc_state.set_actor_state(actor=self.actor)
 
-            self.fsm_npc.set_ai_world()
-
-            taskMgr.add(self.fsm_npc.update_npc_ai_stat,
+            """taskMgr.add(self.fsm_npc.update_npc_ai_stat,
                         "update_npc_ai_stat",
                         extraArgs=[self.actor],
-                        appendTask=True)
+                        appendTask=True)"""
 
