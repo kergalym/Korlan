@@ -112,15 +112,15 @@ class NpcAI(FSM):
             return task.done
         return task.cont
 
+    # TODO: Run this call in task
     def set_npc_behavior(self, actor, behavior):
         if (actor
                 and behavior
                 and isinstance(behavior, str)):
 
-            if not render.find("**/Korlan:BS").is_empty():
-                self.player = render.find("**/Korlan:BS")
+            self.player = render.find("**/Korlan:BS")
 
-            if self.ai_world and self.ai_behaviors:
+            if self.ai_world:
                 vect = {"panic_dist": 5,
                         "relax_dist": 5,
                         "wander_radius": 5,
