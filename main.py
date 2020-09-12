@@ -501,6 +501,52 @@ class Main(ShowBase):
 
                 return children
 
+    def get_actor_bullet_shape_nodes(self, assets, type):
+        if (assets and type
+                and isinstance(assets, dict)
+                and isinstance(type, str)):
+            lvl_npcs = []
+            for k in assets:
+                if k == 'name':
+                    if type == "NPC":
+                        if "NPC" in assets[k]:
+                            name = assets[k]
+                            if not render.find("**/{0}:BS".format(name)).is_empty():
+                                lvl_npcs = render.find("**/{0}:BS".format(name))
+
+                    elif type == "Player":
+                        if "Player" in assets[k]:
+                            name = assets[k]
+                            if not render.find("**/{0}:BS".format(name)).is_empty():
+                                lvl_npcs = render.find("**/{0}:BS".format(name))
+            if lvl_npcs:
+                return lvl_npcs
+
+    def get_actor_bullet_shape_node(self, asset, type):
+        if (asset and type
+                and isinstance(asset, str)
+                and isinstance(type, str)):
+            if type == "NPC":
+                if "NPC" in asset:
+                    name = asset
+                    if not render.find("**/{0}:BS".format(name)).is_empty():
+                        return render.find("**/{0}:BS".format(name))
+
+            elif type == "Player":
+                if "Player" in asset:
+                    name = asset
+                    if not render.find("**/{0}:BS".format(name)).is_empty():
+                        return render.find("**/{0}:BS".format(name))
+
+    def get_static_bullet_shape_node(self, asset):
+        if (asset and type
+                and isinstance(asset, str)
+                and isinstance(type, str)):
+            if "BS" not in asset:
+                name = asset
+                if not render.find("**/{0}:BS".format(name)).is_empty():
+                    return render.find("**/{0}:BS".format(name))
+
     def cfg_collector(self, path):
         """ Function    : cfg_collector
 

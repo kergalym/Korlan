@@ -36,27 +36,6 @@ class LevelOne:
         self.pos_z = 0
         self.anim = None
 
-    def get_npc_bullet_shape_nodes(self, assets, type):
-        if (assets and type
-                and isinstance(assets, dict)
-                and isinstance(type, dict)):
-            lvl_npcs = []
-            for k in assets:
-                if k == 'name':
-                    if type == "NPC":
-                        if "NPC" in assets[k]:
-                            name = assets[k]
-                            if not render.find("**/{0}:BS".format(name)).is_empty():
-                                lvl_npcs = render.find("**/{0}:BS".format(name))
-
-                    elif type == "Player":
-                        if "Player" in assets[k]:
-                            name = assets[k]
-                            if not render.find("**/{0}:BS".format(name)).is_empty():
-                                lvl_npcs = render.find("**/{0}:BS".format(name))
-            if lvl_npcs:
-                return lvl_npcs
-
     def unload_game_scene(self):
         if self.base.game_mode:
             self.base.game_mode = False
@@ -245,8 +224,8 @@ class LevelOne:
 
         self.physics_attr.set_physics_world(assets=level_assets)
 
-        actors = self.get_npc_bullet_shape_nodes(assets=level_assets, type="NPC")
-        player = self.get_npc_bullet_shape_nodes(assets=level_assets, type="Player")
+        actors = self.base.get_actor_bullet_shape_nodes(assets=level_assets, type="NPC")
+        player = self.base.get_actor_bullet_shape_nodes(assets=level_assets, type="Player")
 
         self.fsm_npc.set_ai_world(actors=actors, player=player, actor_cls="enemy")
 

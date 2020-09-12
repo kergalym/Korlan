@@ -92,9 +92,9 @@ class Actions:
     def seq_set_player_pos_wrapper(self, player, pos_y):
         if (player and pos_y
                 and isinstance(pos_y, float)):
-            if "BS" in player.get_parent().get_name():
-                player = player.get_parent()
-            player.set_y(player, pos_y)
+            player = self.base.get_actor_bullet_shape_node(asset=player.get_name(), type="Player")
+            if player:
+                player.set_y(player, pos_y)
 
     """ Prepares actions for scene"""
 
@@ -187,8 +187,7 @@ class Actions:
         # If the camera is too far from player, move it closer.
         # If the camera is too close to player, move it farther.
         # If player has the bullet shape
-        if "BS" in player.get_parent().get_name():
-            player = player.get_parent()
+        player = self.base.get_actor_bullet_shape_node(asset=player.get_name(), type="Player")
 
         camvec = player.get_pos() - self.base.camera.get_pos()
         camvec.set_z(0)
@@ -227,23 +226,21 @@ class Actions:
 
             base.gameplay_mode = self.game_settings['Main']['gameplay_mode']
 
+            player_bs = self.base.get_actor_bullet_shape_node(asset=player.get_name(), type="Player")
+
             if hasattr(base, "gameplay_mode"):
                 if base.gameplay_mode == 'enhanced':
-                    if self.kbd.keymap["left"]:
-                        if "BS" in player.get_parent().get_name():
-                            player.get_parent().setH(player.get_parent().getH() + 60 * dt)
-                    if self.kbd.keymap["right"]:
-                        if "BS" in player.get_parent().get_name():
-                            player.get_parent().setH(player.get_parent().getH() - 60 * dt)
+                    if self.kbd.keymap["left"] and player_bs:
+                        player_bs.set_h(player_bs.get_h() + 60 * dt)
+                    if self.kbd.keymap["right"] and player_bs:
+                        player_bs.set_h(player_bs.get_h() - 60 * dt)
 
             if hasattr(base, "gameplay_mode"):
-                if base.gameplay_mode == 'simple':
-                    if "BS" in player.get_parent().get_name():
-                        player.get_parent().set_h(self.base.camera.get_h())
+                if base.gameplay_mode == 'simple' and player:
+                    player_bs.set_h(self.base.camera.get_h())
 
-                if hasattr(base, "first_person_mode") and base.first_person_mode:
-                    if "BS" in player.get_parent().get_name():
-                        player.get_parent().set_h(self.base.camera.get_h())
+                if hasattr(base, "first_person_mode") and base.first_person_mode and player_bs:
+                    player_bs.set_h(self.base.camera.get_h())
 
             if (self.kbd.keymap["forward"]
                     and self.kbd.keymap["run"] == 0

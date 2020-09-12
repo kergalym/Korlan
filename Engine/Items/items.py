@@ -69,14 +69,12 @@ class Items:
             if assets_children:
 
                 for key in assets_children:
-                    parent_node = assets_children[key].get_parent().get_parent()
                     # Get bullet shape node path if it's here
-                    if (not parent_node.get_parent().is_empty()
-                            and 'BS' in parent_node.get_parent().get_name()):
-                        parent_node = parent_node.get_parent()
-                    items[key] = (parent_node.get_pos())
-
-                return items
+                    bs_np = self.base.get_static_bullet_shape_node(asset=key)
+                    if bs_np:
+                        items[key] = (bs_np.get_pos())
+                if items:
+                    return items
 
     def get_item_distance_task(self, player, task):
         if player and base.game_mode and base.menu_mode is False:
