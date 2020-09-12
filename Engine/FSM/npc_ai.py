@@ -33,31 +33,52 @@ class NpcAI(FSM):
             "misc_act": False
         }
 
-    def set_ai_world(self, actors, actor_cls, player):
-        if (actors and actor_cls and player
-                and isinstance(actors, list)
-                and isinstance(actor_cls, str)):
+    def get_actor_instance(self, actor):
+        if actor:
+            return actor
+
+    def set_ai_world(self, assets, task):
+        if assets and isinstance(assets, dict):
             self.ai_world = AIWorld(render)
-            self.player = player
-            for actor in actors:
-                self.actor = actor
+            if assets.get("name") and assets.get("class"):
+                for actor in assets.get("name"):
+                    if actor == "NPC":
+                        actor = self.base.get_actor_bullet_shape_node(asset=actor, type="NPC")
+                        self.actor = actor
+                    if actor == "Player":
+                        player = self.base.get_actor_bullet_shape_node(asset=actor, type="Player")
+                        self.player = player
 
-                speed = 5
+                    for actor_cls in assets.get("class"):
+                        if actor_cls:
+                            if "env" not in actor_cls or "hero" not in actor_cls:
+                                if self.actor and self.player:
+                                    speed = 5
+                                    self.ai_char = AICharacter(actor_cls, self.actor, 100, 0.05, speed)
+                                    self.ai_world.add_ai_char(self.ai_char)
+                                    self.ai_behaviors = self.ai_char.get_ai_behaviors()
 
-                self.ai_char = AICharacter(actor_cls, self.actor, 100, 0.05, speed)
-                self.ai_world.add_ai_char(self.ai_char)
-                self.ai_behaviors = self.ai_char.get_ai_behaviors()
+                                    base.behaviors['walk'] = True
+                                    base.behaviors['idle'] = False
 
-                base.behaviors['walk'] = True
-                base.behaviors['idle'] = False
+                                    taskMgr.add(self.update_ai_world_task,
+                                                "update_ai_world",
+                                                appendTask=True)
 
-            taskMgr.add(self.update_ai_world_task,
-                        "update_ai_world",
-                        appendTask=True)
+                                    taskMgr.add(self.update_npc_actions,
+                                                "update_npc_actions",
+                                                appendTask=True)
+
+                                    return task.done
+        return task.cont
 
     def update_ai_world_task(self, task):
         if self.ai_world:
-            self.ai_world.update()
+            # TODO: Debug
+            try:
+                self.ai_world.update()
+            except AssertionError:
+                import pdb; pdb.set_trace()
             if base.game_mode is False and base.menu_mode:
                 return task.done
         return task.cont
@@ -84,39 +105,34 @@ class NpcAI(FSM):
         return task.cont
 
     def target_distance(self, actor):
-        if actor and not render.find("**/Korlan:BS").is_empty():
-            player = render.find("**/Korlan:BS")
+        player = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
+        if actor and player:
             dist = actor.get_y() - player.get_y()
             return dist
 
-    def update_npc_ai_stat(self, actors, task):
-        if base.game_mode and base.menu_mode is False:
-            if actors and self.player:
-                for actor in actors:
-                    if actor:
-                        self.actor = actor
-                        self.set_npc_behavior(actor=self.actor, behavior="seek")
-                        if self.target_distance(actor=self.actor) <= 1:
-                            self.set_npc_behavior(actor=self.actor, behavior="flee")
-                        if self.target_distance(actor=self.actor) > 50:
-                            self.set_npc_behavior(actor=self.actor, behavior="pursuer")
-                        if self.target_distance(actor=self.actor) <= 1:
-                            self.set_npc_behavior(actor=self.actor, behavior="evader")
-                        if self.target_distance(actor=self.actor) >= 1:
-                            self.set_npc_behavior(actor=self.actor, behavior="wanderer")
-                        if self.target_distance(actor=self.actor) <= 1:
-                            self.set_npc_behavior(actor=self.actor, behavior="obs_avoid")
-                        if self.target_distance(actor=self.actor) >= 1:
-                            self.set_npc_behavior(actor=self.actor, behavior="path_follow")
-                        if self.target_distance(actor=self.actor) > 50:
-                            self.set_npc_behavior(actor=self.actor, behavior="path_finding")
-                        # TODO: Fix the walk request
-                        # self.request("Walk", self.actor, action="walk", state="loop")
-                        return task.done
+    def update_npc_actions(self, task):
+        if self.actor:
+            self.set_npc_behavior(actor=self.actor, behavior="seek")
+            if self.target_distance(actor=self.actor) <= 1:
+                """self.set_npc_behavior(actor=self.actor, behavior="flee")
+            if self.target_distance(actor=self.actor) > 50:
+                self.set_npc_behavior(actor=self.actor, behavior="pursuer")
+            if self.target_distance(actor=self.actor) <= 1:
+                self.set_npc_behavior(actor=self.actor, behavior="evader")
+            if self.target_distance(actor=self.actor) >= 1:
+                self.set_npc_behavior(actor=self.actor, behavior="wanderer")
+            if self.target_distance(actor=self.actor) <= 1:
+                self.set_npc_behavior(actor=self.actor, behavior="obs_avoid")
+            if self.target_distance(actor=self.actor) >= 1:
+                self.set_npc_behavior(actor=self.actor, behavior="path_follow")
+            if self.target_distance(actor=self.actor) > 50:
+                self.set_npc_behavior(actor=self.actor, behavior="path_finding")"""
+            # TODO: Fix the walk request
+            self.request("Walk", self.actor, "Walking", "loop")
+            return task.done
 
-            if base.game_mode is False and base.menu_mode:
-                return task.done
-
+        if base.game_mode is False and base.menu_mode:
+            return task.done
         return task.cont
 
     def set_npc_behavior(self, actor, behavior):
@@ -202,16 +218,21 @@ class NpcAI(FSM):
         if actor and action and state:
             base.behaviors['idle'] = False
             base.behaviors['walk'] = True
-            any_action = actor.getAnimControl(action)
-            if (isinstance(state, str)
-                    and any_action.isPlaying() is False
-                    and base.behaviors['idle'] is False
-                    and base.behaviors['walk']):
-                if state == "play":
-                    actor.play(action)
-                elif state == "loop":
-                    actor.loop(action)
-                actor.set_play_rate(self.base.actor_play_rate, action)
+            # Since it's Bullet shaped actor, we need access the model which is now child of
+            if hasattr(base, 'actor_node') and base.actor_node:
+                actor_node = base.actor_node
+                # Check if node is same as bullet shape node
+                if actor_node.get_name() in self.actor.get_name():
+                    any_action = actor_node.actor_interval(action)
+                    if (isinstance(state, str)
+                            and any_action.isPlaying() is False
+                            and base.behaviors['idle'] is False
+                            and base.behaviors['walk']):
+                        if state == "play":
+                            actor_node.play(action)
+                        elif state == "loop":
+                            actor_node.loop(action)
+                        actor_node.set_play_rate(self.base.actor_play_rate, action)
 
     def exitWalk(self):
         base.behaviors['idle'] = True

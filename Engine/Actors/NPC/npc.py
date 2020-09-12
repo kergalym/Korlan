@@ -1,5 +1,6 @@
 from direct.actor.Actor import Actor
 from direct.task.TaskManagerGlobal import taskMgr
+from Engine.FSM.npc_ai import NpcAI
 
 
 class NPC:
@@ -22,6 +23,7 @@ class NPC:
         self.actor_life_perc = None
         self.base.actor_is_dead = False
         self.base.actor_is_alive = False
+        self.fsm_npc = NpcAI()
 
     def actor_life(self, task):
         self.has_actor_life()
@@ -79,7 +81,7 @@ class NPC:
 
             self.actor.reparentTo(self.render)
 
-            self.base.level_of_details(obj=self.actor)
+            # self.base.level_of_details(obj=self.actor)
 
             self.base.set_textures_srgb(True)
 
@@ -95,8 +97,13 @@ class NPC:
 
             base.npc_is_loaded = 1
 
+            base.actor_node = self.actor
+
             taskMgr.add(self.actor_life,
                         "actor_life")
+
+
+
 
 
 

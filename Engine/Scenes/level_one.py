@@ -178,7 +178,8 @@ class LevelOne:
         # List used by loading screen
         level_assets = {'name': ['Sky', 'lvl_one', 'Player', 'NPC'],
                         'type': [None, 'env', 'player', 'npc'],
-                        'shape': [None, 'auto', 'capsule', 'capsule']
+                        'shape': [None, 'auto', 'capsule', 'capsule'],
+                        'class': [None, 'env', 'hero', 'enemy']
                         }
         base.level_assets = level_assets
 
@@ -224,17 +225,14 @@ class LevelOne:
 
         self.physics_attr.set_physics_world(assets=level_assets)
 
-        actors = self.base.get_actor_bullet_shape_nodes(assets=level_assets, type="NPC")
-        player = self.base.get_actor_bullet_shape_nodes(assets=level_assets, type="Player")
+        taskMgr.add(self.fsm_npc.set_ai_world,
+                    "set_ai_world",
+                    extraArgs=[level_assets],
+                    appendTask=True)
 
-        self.fsm_npc.set_ai_world(actors=actors, player=player, actor_cls="enemy")
+        actors = self.base.get_actor_bullet_shape_nodes(assets=level_assets, type="NPC")
 
         self.npc_state.set_actor_state(actors=actors)
-
-        taskMgr.add(self.fsm_npc.update_npc_ai_stat,
-                    "update_npc_ai_stat",
-                    extraArgs=[actors],
-                    appendTask=True)
 
     def save_game(self):
         pass

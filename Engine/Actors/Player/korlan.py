@@ -195,7 +195,7 @@ class Korlan:
                             "player_state",
                             appendTask=True)
 
-                self.act.scene_actions_init(self.korlan, animation[0])
+                self.act.player_actions_init(self.korlan, animation[0])
 
                 taskMgr.add(self.state.actor_life,
                             "actor_life",

@@ -98,7 +98,7 @@ class Actions:
 
     """ Prepares actions for scene"""
 
-    def scene_actions_init(self, player, anims):
+    def player_actions_init(self, player, anims):
         if (player
                 and anims
                 and isinstance(anims, dict)):
