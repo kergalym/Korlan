@@ -189,28 +189,29 @@ class Actions:
         # If player has the bullet shape
         player = self.base.get_actor_bullet_shape_node(asset=player.get_name(), type="Player")
 
-        camvec = player.get_pos() - self.base.camera.get_pos()
-        camvec.set_z(0)
-        camdist = camvec.length()
-        camvec.normalize()
-        if camdist > 10.0:
-            self.base.camera.set_pos(self.base.camera.get_pos() + camvec * (camdist - 10))
-            camdist = 10.0
-        if camdist < 5.0:
-            self.base.camera.set_pos(self.base.camera.get_pos() - camvec * (5 - camdist))
-            camdist = 5.0
+        if player:
+            camvec = player.get_pos() - self.base.camera.get_pos()
+            camvec.set_z(0)
+            camdist = camvec.length()
+            camvec.normalize()
+            if camdist > 10.0:
+                self.base.camera.set_pos(self.base.camera.get_pos() + camvec * (camdist - 10))
+                camdist = 10.0
+            if camdist < 5.0:
+                self.base.camera.set_pos(self.base.camera.get_pos() - camvec * (5 - camdist))
+                camdist = 5.0
 
-        if self.base.camera.get_z() < player.get_z() + 2.0:
-            self.base.camera.set_z(player.get_z() + 2.0)
+            if self.base.camera.get_z() < player.get_z() + 2.0:
+                self.base.camera.set_z(player.get_z() + 2.0)
 
-        # The camera should look in Korlan direction,
-        # but it should also try to stay horizontal, so look at
-        # a floater which hovers above Korlan's head.
+            # The camera should look in Korlan direction,
+            # but it should also try to stay horizontal, so look at
+            # a floater which hovers above Korlan's head.
 
-        self.base.camera.look_at(self.mouse.set_floater(player))
+            self.base.camera.look_at(self.mouse.set_floater(player))
 
-        if base.game_mode is False and base.menu_mode:
-            return task.done
+            if base.game_mode is False and base.menu_mode:
+                return task.done
 
         return task.cont
 

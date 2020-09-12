@@ -5,6 +5,7 @@ from Engine.FSM.npc_ai import NpcAI
 class NpcState:
 
     def __init__(self):
+        self.base = base
         base.actor_unarmed = False
         base.actor_armed = False
         base.actor_magic = False
@@ -18,12 +19,10 @@ class NpcState:
 
     def actor_behavior_task(self, actor, animation, task):
         if actor and animation and isinstance(animation, str):
+            player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
             if hasattr(base, "npc_distance_calculate"):
-                if (not render.find("**/Korlan:BS").is_empty()
-                        and not render.find("**/{0}:BS".format(actor.get_name())).is_empty()):
-                    player_bs = render.find("**/Korlan:BS")
-                    actor_bs = render.find("**/{0}:BS".format(actor.get_name()))
-                    vect = base.npc_distance_calculate(player_bs, actor_bs)
+                if player_bs:
+                    vect = base.npc_distance_calculate(player_bs, actor)
                     if vect:
                         if vect['vector'][1] > 0.2:
                             self.env_ai.request("Walk", actor, animation, "loop")

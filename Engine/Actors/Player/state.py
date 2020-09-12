@@ -217,6 +217,7 @@ class PlayerState:
     def drop_item(self, player):
         if player and not render.find('**/World').is_empty():
             item = self.render.find("**/{0}".format(base.in_use_item_name))
+            player_bs = self.base.get_actor_bullet_shape_node(asset=player.get_name(), type="Player")
             world = render.find('**/World')
             item.reparent_to(world)
             # TODO: Remove temporary scale definition
@@ -224,9 +225,8 @@ class PlayerState:
             item.set_hpr(0, 0, 0)
             # Put the item near player
             # If player has the bullet shape
-            if "BS" in player.get_parent().get_name():
-                player = player.get_parent()
-            item.set_pos(player.get_pos() - (0.20, -0.5, 0))
+            if player_bs:
+                item.set_pos(player_bs.get_pos() - (0.20, -0.5, 0))
             item.node().set_kinematic(False)
 
             base.is_item_in_use = False
@@ -243,14 +243,12 @@ class PlayerState:
                 and isinstance(items_dist_vect, dict)):
             item = self.get_distance_to(items_dist_vect)
             exposed_joint = player.expose_joint(None, "modelRoot", joint)
+            # Get bullet shape node path
+            item = self.base.get_static_bullet_shape_node(asset=item.get_name())
 
             if (item
                     and exposed_joint.find(item.get_name()).is_empty()):
-                # Get bullet shape node path
-                if "BS" in item.get_parent().get_name():
-                    item = item.get_parent()
-
-                # we want to keep original scale of the item
+                # We want to keep original scale of the item
                 item.wrt_reparent_to(exposed_joint)
 
                 # Set kinematics to make item follow actor joint
