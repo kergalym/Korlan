@@ -8,6 +8,7 @@ from Engine.Render.render import RenderAttr
 from Engine.Scenes.scene import SceneOne
 from Engine.Physics.physics import PhysicsAttr
 from Settings.UI.stat_ui import StatUI
+from Engine.Actors.NPC.state import NpcState
 
 
 class LevelOne:
@@ -26,6 +27,7 @@ class LevelOne:
         self.korlan = Korlan()
         self.npc = NPC()
         self.stat_ui = StatUI()
+        self.npc_state = NpcState()
         self.player_state = PlayerState()
         self.physics_attr = PhysicsAttr()
         self.fsm_npc = NpcAI()
@@ -33,6 +35,27 @@ class LevelOne:
         self.pos_y = None
         self.pos_z = 0
         self.anim = None
+
+    def get_npc_bullet_shape_nodes(self, assets, type):
+        if (assets and type
+                and isinstance(assets, dict)
+                and isinstance(type, dict)):
+            lvl_npcs = []
+            for k in assets:
+                if k == 'name':
+                    if type == "NPC":
+                        if "NPC" in assets[k]:
+                            name = assets[k]
+                            if not render.find("**/{0}:BS".format(name)).is_empty():
+                                lvl_npcs = render.find("**/{0}:BS".format(name))
+
+                    elif type == "Player":
+                        if "Player" in assets[k]:
+                            name = assets[k]
+                            if not render.find("**/{0}:BS".format(name)).is_empty():
+                                lvl_npcs = render.find("**/{0}:BS".format(name))
+            if lvl_npcs:
+                return lvl_npcs
 
     def unload_game_scene(self):
         if self.base.game_mode:
@@ -174,7 +197,7 @@ class LevelOne:
         anims = self.base.asset_animations_collector()
 
         # List used by loading screen
-        level_assets = {'name': ['Sky', 'lvl_one', 'Korlan', 'NPC'],
+        level_assets = {'name': ['Sky', 'lvl_one', 'Player', 'NPC'],
                         'type': [None, 'env', 'player', 'npc'],
                         'shape': [None, 'auto', 'capsule', 'capsule']
                         }
@@ -198,7 +221,7 @@ class LevelOne:
                                              culling=True))
 
         taskMgr.add(self.korlan.set_actor(mode="game",
-                                          name="Korlan",
+                                          name="Player",
                                           path=assets['Korlan'],
                                           animation=anims,
                                           axis=[0, 15.0, self.pos_z],
@@ -221,6 +244,18 @@ class LevelOne:
                     appendTask=True)
 
         self.physics_attr.set_physics_world(assets=level_assets)
+
+        actors = self.get_npc_bullet_shape_nodes(assets=level_assets, type="NPC")
+        player = self.get_npc_bullet_shape_nodes(assets=level_assets, type="Player")
+
+        self.fsm_npc.set_ai_world(actors=actors, player=player, actor_cls="enemy")
+
+        self.npc_state.set_actor_state(actors=actors)
+
+        taskMgr.add(self.fsm_npc.update_npc_ai_stat,
+                    "update_npc_ai_stat",
+                    extraArgs=[actors],
+                    appendTask=True)
 
     def save_game(self):
         pass

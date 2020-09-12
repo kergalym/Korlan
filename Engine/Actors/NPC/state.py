@@ -50,12 +50,14 @@ class NpcState:
             base.actor_state_magic = False
         return task.cont"""
 
-    def set_actor_state(self, actor):
-        if actor:
-            taskMgr.add(self.actor_behavior_task,
-                        'actor_behavior',
-                        extraArgs=[actor, 'Walking'],
-                        appendTask=True)
+    def set_actor_state(self, actors):
+        # TODO: Improve self.actor_behavior_task() !
+        if actors and isinstance(actors, list):
+            for actor in actors:
+                taskMgr.add(self.actor_behavior_task,
+                            'actor_behavior',
+                            extraArgs=[actor, 'Walking'],
+                            appendTask=True)
 
     def set_creature_state(self, task):
         if base.creature_unarmed:

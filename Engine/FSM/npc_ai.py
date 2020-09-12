@@ -33,23 +33,23 @@ class NpcAI(FSM):
             "misc_act": False
         }
 
-    def set_ai_world(self, actor, actor_cls):
-        if actor and actor_cls and isinstance(actor_cls, str):
-            self.actor = actor
+    def set_ai_world(self, actors, actor_cls, player):
+        if (actors and actor_cls and player
+                and isinstance(actors, list)
+                and isinstance(actor_cls, str)):
             self.ai_world = AIWorld(render)
-            self.player = render.find("**/Korlan:BS")
+            self.player = player
+            for actor in actors:
+                self.actor = actor
 
-            if "BS" in self.actor.get_parent().get_name():
-                self.actor = self.actor.get_parent()
+                speed = 5
 
-            speed = 5
+                self.ai_char = AICharacter(actor_cls, self.actor, 100, 0.05, speed)
+                self.ai_world.add_ai_char(self.ai_char)
+                self.ai_behaviors = self.ai_char.get_ai_behaviors()
 
-            self.ai_char = AICharacter(actor_cls, self.actor, 100, 0.05, speed)
-            self.ai_world.add_ai_char(self.ai_char)
-            self.ai_behaviors = self.ai_char.get_ai_behaviors()
-
-            base.behaviors['walk'] = True
-            base.behaviors['idle'] = False
+                base.behaviors['walk'] = True
+                base.behaviors['idle'] = False
 
             taskMgr.add(self.update_ai_world_task,
                         "update_ai_world",
@@ -89,36 +89,40 @@ class NpcAI(FSM):
             dist = actor.get_y() - player.get_y()
             return dist
 
-    def update_npc_ai_stat(self, actor, task):
-        if actor and "BS" in actor.get_parent().get_name():
-            self.actor = actor.get_parent()
-            self.set_npc_behavior(actor=self.actor, behavior="seek")
-            if self.target_distance(actor=self.actor) <= 1:
-                self.set_npc_behavior(actor=self.actor, behavior="flee")
-            if self.target_distance(actor=self.actor) > 50:
-                self.set_npc_behavior(actor=self.actor, behavior="pursuer")
-            if self.target_distance(actor=self.actor) <= 1:
-                self.set_npc_behavior(actor=self.actor, behavior="evader")
-            if self.target_distance(actor=self.actor) >= 1:
-                self.set_npc_behavior(actor=self.actor, behavior="wanderer")
-            if self.target_distance(actor=self.actor) <= 1:
-                self.set_npc_behavior(actor=self.actor, behavior="obs_avoid")
-            if self.target_distance(actor=self.actor) >= 1:
-                self.set_npc_behavior(actor=self.actor, behavior="path_follow")
-            if self.target_distance(actor=self.actor) > 50:
-                self.set_npc_behavior(actor=self.actor, behavior="path_finding")
-            # TODO: Fix the walk request
-            # self.request("Walk", actor, action="walk", state="loop")
-            return task.done
+    def update_npc_ai_stat(self, actors, task):
+        if base.game_mode and base.menu_mode is False:
+            if actors and self.player:
+                for actor in actors:
+                    if actor:
+                        self.actor = actor
+                        self.set_npc_behavior(actor=self.actor, behavior="seek")
+                        if self.target_distance(actor=self.actor) <= 1:
+                            self.set_npc_behavior(actor=self.actor, behavior="flee")
+                        if self.target_distance(actor=self.actor) > 50:
+                            self.set_npc_behavior(actor=self.actor, behavior="pursuer")
+                        if self.target_distance(actor=self.actor) <= 1:
+                            self.set_npc_behavior(actor=self.actor, behavior="evader")
+                        if self.target_distance(actor=self.actor) >= 1:
+                            self.set_npc_behavior(actor=self.actor, behavior="wanderer")
+                        if self.target_distance(actor=self.actor) <= 1:
+                            self.set_npc_behavior(actor=self.actor, behavior="obs_avoid")
+                        if self.target_distance(actor=self.actor) >= 1:
+                            self.set_npc_behavior(actor=self.actor, behavior="path_follow")
+                        if self.target_distance(actor=self.actor) > 50:
+                            self.set_npc_behavior(actor=self.actor, behavior="path_finding")
+                        # TODO: Fix the walk request
+                        # self.request("Walk", self.actor, action="walk", state="loop")
+                        return task.done
+
+            if base.game_mode is False and base.menu_mode:
+                return task.done
+
         return task.cont
 
-    # TODO: Run this call in task
     def set_npc_behavior(self, actor, behavior):
         if (actor
                 and behavior
                 and isinstance(behavior, str)):
-
-            self.player = render.find("**/Korlan:BS")
 
             if self.ai_world:
                 vect = {"panic_dist": 5,

@@ -1,9 +1,6 @@
 from direct.actor.Actor import Actor
 from direct.task.TaskManagerGlobal import taskMgr
 
-from Engine.Actors.NPC.state import NpcState
-from Engine.FSM.npc_ai import NpcAI
-
 
 class NPC:
     def __init__(self):
@@ -22,8 +19,6 @@ class NPC:
         self.anims = None
         self.game_settings = base.game_settings
         self.game_dir = base.game_dir
-        self.npc_state = NpcState()
-        self.fsm_npc = NpcAI()
         self.actor_life_perc = None
         self.base.actor_is_dead = False
         self.base.actor_is_alive = False
@@ -103,12 +98,5 @@ class NPC:
             taskMgr.add(self.actor_life,
                         "actor_life")
 
-            self.fsm_npc.set_ai_world(actor=self.actor, actor_cls="enemy")
 
-            self.npc_state.set_actor_state(actor=self.actor)
-
-            """taskMgr.add(self.fsm_npc.update_npc_ai_stat,
-                        "update_npc_ai_stat",
-                        extraArgs=[self.actor],
-                        appendTask=True)"""
 
