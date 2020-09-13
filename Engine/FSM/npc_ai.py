@@ -109,28 +109,20 @@ class NpcAI(FSM):
     def update_npc_actions(self, task):
         if self.actor:
             self.set_npc_behavior(actor=self.actor, behavior="seek")
-            print("seek")
             if self.target_distance(actor=self.actor) <= 1:
                 self.set_npc_behavior(actor=self.actor, behavior="flee")
-                print("flee")
             if self.target_distance(actor=self.actor) > 50:
                 self.set_npc_behavior(actor=self.actor, behavior="pursuer")
-                print("pursuer")
             if self.target_distance(actor=self.actor) <= 1:
                 self.set_npc_behavior(actor=self.actor, behavior="evader")
-                print("evader")
             if self.target_distance(actor=self.actor) >= 1:
                 self.set_npc_behavior(actor=self.actor, behavior="wanderer")
-                print("wanderer")
             if self.target_distance(actor=self.actor) <= 1:
                 self.set_npc_behavior(actor=self.actor, behavior="obs_avoid")
-                print("obs_avoid")
             if self.target_distance(actor=self.actor) >= 1:
                 self.set_npc_behavior(actor=self.actor, behavior="path_follow")
-                print("path_follow")
             if self.target_distance(actor=self.actor) > 50:
                 self.set_npc_behavior(actor=self.actor, behavior="path_finding")
-                print("path_finding")
             # TODO: Fix the walk request
             self.request("Walk", self.actor, "Walking", "loop")
             return task.done
