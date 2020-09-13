@@ -3,7 +3,7 @@ from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.ai import AIWorld
 from panda3d.ai import AICharacter
 from Engine.FSM.player_fsm import FsmPlayer
-from Engine.Actors.NPC.npc_husband import Husband
+from Engine.Actors.NPC.Classes.npc_husband import Husband
 
 
 class NpcAI(FSM):
