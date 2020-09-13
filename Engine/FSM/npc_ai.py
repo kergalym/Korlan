@@ -100,31 +100,35 @@ class NpcAI(FSM):
                 return task.done
         return task.cont
 
-    def target_distance(self, actor):
-        player = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
-        if actor and player:
-            dist = actor.get_y() - player.get_y()
-            return dist
-
     def update_npc_actions(self, task):
-        if self.actor:
-            self.set_npc_behavior(actor=self.actor, behavior="seek")
-            if self.target_distance(actor=self.actor) <= 1:
-                self.set_npc_behavior(actor=self.actor, behavior="flee")
-            if self.target_distance(actor=self.actor) > 50:
-                self.set_npc_behavior(actor=self.actor, behavior="pursuer")
-            if self.target_distance(actor=self.actor) <= 1:
-                self.set_npc_behavior(actor=self.actor, behavior="evader")
-            if self.target_distance(actor=self.actor) >= 1:
-                self.set_npc_behavior(actor=self.actor, behavior="wanderer")
-            if self.target_distance(actor=self.actor) <= 1:
-                self.set_npc_behavior(actor=self.actor, behavior="obs_avoid")
-            if self.target_distance(actor=self.actor) >= 1:
-                self.set_npc_behavior(actor=self.actor, behavior="path_follow")
-            if self.target_distance(actor=self.actor) > 50:
-                self.set_npc_behavior(actor=self.actor, behavior="path_finding")
-            self.request("Walk", self.actor, "Walking", "loop")
-            return task.done
+        if self.actor and self.player:
+            xyz_vec = self.base.npc_distance_calculate(player=self.player, actor=self.actor)['vector']
+            if xyz_vec:
+                print("seek")
+                self.set_npc_behavior(actor=self.actor, behavior="seek")
+                if int(xyz_vec[0]) < 1:
+                    self.set_npc_behavior(actor=self.actor, behavior="flee")
+                    print("flee")
+                if int(xyz_vec[0]) > 50:
+                    self.set_npc_behavior(actor=self.actor, behavior="pursuer")
+                    print("pursuer")
+                if int(xyz_vec[0]) < 1:
+                    self.set_npc_behavior(actor=self.actor, behavior="evader")
+                    print("evader")
+                if int(xyz_vec[0]) > 1:
+                    self.set_npc_behavior(actor=self.actor, behavior="wanderer")
+                    print("wanderer")
+                if int(xyz_vec[0]) < 1:
+                    self.set_npc_behavior(actor=self.actor, behavior="obs_avoid")
+                    print("obs_avoid")
+                if int(xyz_vec[0]) > 1:
+                    self.set_npc_behavior(actor=self.actor, behavior="path_follow")
+                    print("path_follow")
+                if int(xyz_vec[0]) > 50:
+                    self.set_npc_behavior(actor=self.actor, behavior="path_finding")
+                    print("path_finding")
+                self.request("Walk", self.actor, "Walking", "loop")
+                return task.done
 
         if base.game_mode is False and base.menu_mode:
             return task.done
