@@ -3,6 +3,7 @@ from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.ai import AIWorld
 from panda3d.ai import AICharacter
 from Engine.FSM.player_fsm import FsmPlayer
+from Engine.Actors.NPC.npc_husband import Husband
 
 
 class NpcAI(FSM):
@@ -15,8 +16,9 @@ class NpcAI(FSM):
         self.actor = None
         self.player = None
         self.ai_world = None
-        self.fsm_player = FsmPlayer()
         self.ai_behaviors = None
+        self.fsm_player = FsmPlayer()
+        self.husband = Husband()
 
         base.behaviors = {
             "idle": True,
@@ -53,7 +55,7 @@ class NpcAI(FSM):
                         if actor_cls:
                             if "env" not in actor_cls or "hero" not in actor_cls:
                                 if self.actor and self.player:
-                                    speed = 5
+                                    speed = 6
                                     self.ai_char = AICharacter(actor_cls, self.actor, 100, 0.05, speed)
                                     self.ai_world.add_ai_char(self.ai_char)
                                     self.ai_behaviors = self.ai_char.get_ai_behaviors()
@@ -103,36 +105,51 @@ class NpcAI(FSM):
     def update_npc_actions(self, task):
         if self.actor and self.player:
             xyz_vec = self.base.npc_distance_calculate(player=self.player, actor=self.actor)['vector']
-            if xyz_vec:
-                print("seek")
-                self.set_npc_behavior(actor=self.actor, behavior="seek")
-                if int(xyz_vec[0]) < 1:
-                    self.set_npc_behavior(actor=self.actor, behavior="flee")
-                    print("flee")
-                if int(xyz_vec[0]) > 50:
+            npc_class = self.set_npc_class(actor=self.actor)
+            if xyz_vec and npc_class:
+                if npc_class.get('class') == "friend":
                     self.set_npc_behavior(actor=self.actor, behavior="pursuer")
-                    print("pursuer")
-                if int(xyz_vec[0]) < 1:
-                    self.set_npc_behavior(actor=self.actor, behavior="evader")
-                    print("evader")
-                if int(xyz_vec[0]) > 1:
-                    self.set_npc_behavior(actor=self.actor, behavior="wanderer")
-                    print("wanderer")
-                if int(xyz_vec[0]) < 1:
-                    self.set_npc_behavior(actor=self.actor, behavior="obs_avoid")
-                    print("obs_avoid")
-                if int(xyz_vec[0]) > 1:
-                    self.set_npc_behavior(actor=self.actor, behavior="path_follow")
-                    print("path_follow")
-                if int(xyz_vec[0]) > 50:
-                    self.set_npc_behavior(actor=self.actor, behavior="path_finding")
-                    print("path_finding")
-                self.request("Walk", self.actor, "Walking", "loop")
+                    self.request("Walk", self.actor, "Walking", "loop")
+                else:
+                    print("seek")
+                    self.set_npc_behavior(actor=self.actor, behavior="seek")
+                    if int(xyz_vec[0]) < 1:
+                        self.set_npc_behavior(actor=self.actor, behavior="flee")
+                        print("flee")
+                    if int(xyz_vec[0]) > 50:
+                        self.set_npc_behavior(actor=self.actor, behavior="pursuer")
+                        print("pursuer")
+                    if int(xyz_vec[0]) < 1:
+                        self.set_npc_behavior(actor=self.actor, behavior="evader")
+                        print("evader")
+                    if int(xyz_vec[0]) > 1:
+                        self.set_npc_behavior(actor=self.actor, behavior="wanderer")
+                        print("wanderer")
+                    if int(xyz_vec[0]) < 1:
+                        self.set_npc_behavior(actor=self.actor, behavior="obs_avoid")
+                        print("obs_avoid")
+                    if int(xyz_vec[0]) > 1:
+                        self.set_npc_behavior(actor=self.actor, behavior="path_follow")
+                        print("path_follow")
+                    if int(xyz_vec[0]) > 50:
+                        self.set_npc_behavior(actor=self.actor, behavior="path_finding")
+                        print("path_finding")
+                    self.request("Walk", self.actor, "Walking", "loop")
+
                 return task.done
 
         if base.game_mode is False and base.menu_mode:
             return task.done
+
         return task.cont
+
+    def set_npc_class(self, actor):
+        if actor and not actor.is_empty():
+            if self.husband.name in self.actor.get_name():
+                return {'class': 'friend'}
+
+            # elif self.mongol_warrior.name in self.actor.get_name():
+                # return {'class': 'enemy'}
 
     def set_npc_behavior(self, actor, behavior):
         if (actor and self.player
@@ -177,7 +194,6 @@ class NpcAI(FSM):
                 elif behavior == "path_finding":
                     self.ai_behaviors.path_find_to(self.player, "addPath")
                 elif behavior == "path_follow":
-                    self.ai_behaviors.path_find_to(self.player, "addPath")
                     self.ai_behaviors.path_follow(1)
                     self.ai_behaviors.add_to_path(self.player.get_pos())
                     self.ai_behaviors.start_follow()
@@ -222,6 +238,7 @@ class NpcAI(FSM):
                             actor_node.play(action)
                         elif state == "loop":
                             actor_node.loop(action)
+                            self.enter_walk = 1
                         actor_node.set_play_rate(self.base.actor_play_rate, action)
 
     def exitWalk(self):

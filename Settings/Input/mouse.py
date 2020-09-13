@@ -14,7 +14,7 @@ class Mouse:
         # self.focus = LVector3(55, -55, 20)
         self.focus = LVector3(0, 0, 0)
         self.heading = 180
-        self.pitch = 150
+        self.pitch = 0
         self.rotation = 0
         self.mouse_sens = 0.2
         self.last = 0
@@ -66,12 +66,12 @@ class Mouse:
 
         if self.base.win.move_pointer(0, 100, 100):
             self.heading = self.heading - (x - 100) * self.mouse_sens
-            self.pitch = self.pitch - (y - 100) * self.mouse_sens
+            # self.pitch = self.pitch - (y - 100) * self.mouse_sens
 
-        if self.pitch > -177:
+        """if self.pitch > -177:
             self.pitch = -177
         elif self.pitch < -177:
-            self.pitch = -180
+            self.pitch = -180"""
 
         self.base.camera.set_hpr(self.heading, self.pitch, self.rotation)
 
