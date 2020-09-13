@@ -146,7 +146,7 @@ class NpcAI(FSM):
                 and behavior
                 and isinstance(behavior, str)):
 
-            if self.ai_world:
+            if self.ai_world and self.ai_behaviors:
                 vect = {"panic_dist": 5,
                         "relax_dist": 5,
                         "wander_radius": 5,
@@ -154,42 +154,34 @@ class NpcAI(FSM):
                         "area_of_effect": 10}
 
                 navmeshes = self.base.navmesh_collector()
+                self.ai_behaviors.init_path_find(navmeshes["lvl_one"])
                 if behavior == "obs_avoid":
-                    self.ai_behaviors.initPathFind(navmeshes["lvl_one"])
                     self.ai_behaviors.path_find_to(self.player, "addPath")
-                    # self.ai_behaviors.obstacle_avoidance(1.0)
                     self.ai_behaviors.add_dynamic_obstacle(self.player)
                 elif behavior == "seek":
-                    self.ai_behaviors.initPathFind(navmeshes["lvl_one"])
                     self.ai_behaviors.path_find_to(self.player, "addPath")
                     self.ai_behaviors.seek(self.player)
                 elif behavior == "flee":
-                    self.ai_behaviors.initPathFind(navmeshes["lvl_one"])
                     self.ai_behaviors.path_find_to(self.player, "addPath")
                     self.ai_behaviors.flee(actor,
                                            vect['panic_dist'],
                                            vect['relax_dist'])
                 elif behavior == "pursuer":
-                    self.ai_behaviors.initPathFind(navmeshes["lvl_one"])
                     self.ai_behaviors.path_find_to(self.player, "addPath")
                     self.ai_behaviors.pursue(self.player)
                 elif behavior == "evader":
-                    self.ai_behaviors.initPathFind(navmeshes["lvl_one"])
                     self.ai_behaviors.path_find_to(self.player, "addPath")
                     self.ai_behaviors.evade(self.player,
                                             vect['panic_dist'],
                                             vect['relax_dist'])
                 elif behavior == "wanderer":
-                    self.ai_behaviors.initPathFind(navmeshes["lvl_one"])
                     self.ai_behaviors.path_find_to(self.player, "addPath")
                     self.ai_behaviors.wander(vect["wander_radius"],
                                              vect["plane_flag"],
                                              vect["area_of_effect"])
                 elif behavior == "path_finding":
-                    self.ai_behaviors.initPathFind(navmeshes["lvl_one"])
                     self.ai_behaviors.path_find_to(self.player, "addPath")
                 elif behavior == "path_follow":
-                    self.ai_behaviors.initPathFind(navmeshes["lvl_one"])
                     self.ai_behaviors.path_find_to(self.player, "addPath")
                     self.ai_behaviors.path_follow(1)
                     self.ai_behaviors.add_to_path(self.player.get_pos())
