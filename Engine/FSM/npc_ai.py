@@ -157,8 +157,8 @@ class NpcAI(FSM):
                 if behavior == "obs_avoid":
                     self.ai_behaviors.initPathFind(navmeshes["lvl_one"])
                     self.ai_behaviors.path_find_to(self.player, "addPath")
-                    self.ai_behaviors.obstacle_avoidance(1.0)
-                    self.ai_world.add_dynamic_obstacle(self.player)
+                    # self.ai_behaviors.obstacle_avoidance(1.0)
+                    self.ai_behaviors.add_dynamic_obstacle(self.player)
                 elif behavior == "seek":
                     self.ai_behaviors.initPathFind(navmeshes["lvl_one"])
                     self.ai_behaviors.path_find_to(self.player, "addPath")
