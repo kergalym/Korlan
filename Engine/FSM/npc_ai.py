@@ -123,7 +123,6 @@ class NpcAI(FSM):
                 self.set_npc_behavior(actor=self.actor, behavior="path_follow")
             if self.target_distance(actor=self.actor) > 50:
                 self.set_npc_behavior(actor=self.actor, behavior="path_finding")
-            # TODO: Fix the walk request
             self.request("Walk", self.actor, "Walking", "loop")
             return task.done
 
@@ -178,8 +177,6 @@ class NpcAI(FSM):
                     self.ai_behaviors.path_follow(1)
                     self.ai_behaviors.add_to_path(self.player.get_pos())
                     self.ai_behaviors.start_follow()
-                base.behaviors['walk'] = True
-                base.behaviors['idle'] = False
 
                 taskMgr.add(self.keep_actor_pitch_task,
                             "keep_actor_pitch",
