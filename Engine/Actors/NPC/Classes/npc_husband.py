@@ -1,7 +1,7 @@
 class Husband:
     def __init__(self):
         # TODO: Change the name to Ernar
-        self.name = "NPC"
+        self.name = "NPC_Ernar"
         self.age = 32
         self.iq = 95
         self.health = 100

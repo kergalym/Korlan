@@ -56,7 +56,7 @@ class Items:
                 # We exclude any actor from assets,
                 # we need to retrieve the distance
                 if (asset.get_name() != player.get_name()
-                        and asset.get_name() != "NPC"
+                        and "NPC" not in asset.get_name()
                         and asset.get_name() != "Sky"
                         and asset.get_name() != "Mountains"
                         and asset.get_name() != "Ground"

@@ -96,6 +96,24 @@ class Actions:
             if player:
                 player.set_y(player, pos_y)
 
+    """ Helps to coordinate the bullet shape with player actions """
+
+    def player_bullet_jump_helper(self):
+        if hasattr(base, "bullet_char_contr_node"):
+            if base.bullet_char_contr_node:
+                # TODO: Implement player_bullet_jump_helper
+                if not base.bullet_char_contr_node.is_on_ground():
+                    base.bullet_char_contr_node.set_max_jump_height(2.0)
+                    base.bullet_char_contr_node.set_jump_speed(self.base.actor_play_rate)
+
+    def player_bullet_crouch_helper(self):
+        if hasattr(base, "bullet_char_contr_node"):
+            if base.bullet_char_contr_node:
+                # TODO: Implement player_bullet_crouch_helper
+                pass
+                # size = 0.6
+                # base.bullet_char_contr_node.get_shape().setLocalScale(Vec3(1, 1, size))
+
     """ Prepares actions for scene"""
 
     def player_actions_init(self, player, anims):
@@ -388,6 +406,7 @@ class Actions:
                                                                 playRate=self.base.actor_play_rate)
 
                     Sequence(Parallel(stand_to_crouch_seq,
+                                      Func(self.player_bullet_crouch_helper),
                                       Func(self.state.set_action_state, "is_crouching", True)),
                              Func(self.state.set_action_state_crouched, "is_crouch_moving", True)
                              ).start()
@@ -430,9 +449,11 @@ class Actions:
                 elif (base.states['is_jumping'] is False
                       and crouched_to_standing.is_playing() is False
                       and base.states['is_crouching'] is False):
+                    # Do an animation sequence if player is stayed.
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
                     Sequence(Parallel(any_action_seq,
+                                      Func(self.player_bullet_jump_helper),
                                       Func(self.state.set_action_state, "is_jumping", True)),
                              Func(self.state.set_action_state, "is_jumping", False)
                              ).start()

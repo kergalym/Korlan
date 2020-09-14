@@ -12,10 +12,10 @@ class NpcAI(FSM):
         self.base = base
         self.render = render
         self.taskMgr = taskMgr
+        self.ai_world = AIWorld(render)
         self.ai_char = None
         self.actor = None
         self.player = None
-        self.ai_world = None
         self.ai_behaviors = None
         self.fsm_player = FsmPlayer()
         self.husband = Husband()
@@ -35,13 +35,8 @@ class NpcAI(FSM):
             "misc_act": False
         }
 
-    def get_actor_instance(self, actor):
-        if actor:
-            return actor
-
     def set_ai_world(self, assets, task):
         if assets and isinstance(assets, dict):
-            self.ai_world = AIWorld(render)
             if assets.get("name") and assets.get("class"):
                 for actor in assets.get("name"):
                     if actor == "NPC":
@@ -76,7 +71,13 @@ class NpcAI(FSM):
 
     def update_ai_world_task(self, task):
         if self.ai_world:
-            self.ai_world.update()
+            # Oh... Workaround for evil assertion error, again!
+            try:
+                self.ai_world.update()
+            except AssertionError:
+                pass
+                self.ai_world.update()
+
             if base.game_mode is False and base.menu_mode:
                 return task.done
         return task.cont
@@ -108,31 +109,31 @@ class NpcAI(FSM):
             npc_class = self.set_npc_class(actor=self.actor)
             if xyz_vec and npc_class:
                 if npc_class.get('class') == "friend":
-                    self.set_npc_behavior(actor=self.actor, behavior="pursuer")
+                    self.set_basic_npc_behaviors(actor=self.actor, behavior="pursuer")
                     self.request("Walk", self.actor, "Walking", "loop")
                 else:
                     print("seek")
-                    self.set_npc_behavior(actor=self.actor, behavior="seek")
+                    self.set_basic_npc_behaviors(actor=self.actor, behavior="seek")
                     if int(xyz_vec[0]) < 1:
-                        self.set_npc_behavior(actor=self.actor, behavior="flee")
+                        self.set_basic_npc_behaviors(actor=self.actor, behavior="flee")
                         print("flee")
                     if int(xyz_vec[0]) > 50:
-                        self.set_npc_behavior(actor=self.actor, behavior="pursuer")
+                        self.set_basic_npc_behaviors(actor=self.actor, behavior="pursuer")
                         print("pursuer")
                     if int(xyz_vec[0]) < 1:
-                        self.set_npc_behavior(actor=self.actor, behavior="evader")
+                        self.set_basic_npc_behaviors(actor=self.actor, behavior="evader")
                         print("evader")
                     if int(xyz_vec[0]) > 1:
-                        self.set_npc_behavior(actor=self.actor, behavior="wanderer")
+                        self.set_basic_npc_behaviors(actor=self.actor, behavior="wanderer")
                         print("wanderer")
                     if int(xyz_vec[0]) < 1:
-                        self.set_npc_behavior(actor=self.actor, behavior="obs_avoid")
+                        self.set_basic_npc_behaviors(actor=self.actor, behavior="obs_avoid")
                         print("obs_avoid")
                     if int(xyz_vec[0]) > 1:
-                        self.set_npc_behavior(actor=self.actor, behavior="path_follow")
+                        self.set_basic_npc_behaviors(actor=self.actor, behavior="path_follow")
                         print("path_follow")
                     if int(xyz_vec[0]) > 50:
-                        self.set_npc_behavior(actor=self.actor, behavior="path_finding")
+                        self.set_basic_npc_behaviors(actor=self.actor, behavior="path_finding")
                         print("path_finding")
                     self.request("Walk", self.actor, "Walking", "loop")
 
@@ -147,11 +148,14 @@ class NpcAI(FSM):
         if actor and not actor.is_empty():
             if self.husband.name in self.actor.get_name():
                 return {'class': 'friend'}
+            # test
+            elif "NPC" in self.husband.name:
+                return {'class': 'friend'}
 
             # elif self.mongol_warrior.name in self.actor.get_name():
                 # return {'class': 'enemy'}
 
-    def set_npc_behavior(self, actor, behavior):
+    def set_basic_npc_behaviors(self, actor, behavior):
         if (actor and self.player
                 and not actor.is_empty()
                 and not self.player.is_empty()
