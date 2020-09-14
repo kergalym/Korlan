@@ -109,8 +109,7 @@ class NpcAI(FSM):
             npc_class = self.set_npc_class(actor=self.actor)
             if xyz_vec and npc_class:
                 if npc_class.get('class') == "friend":
-                    self.set_basic_npc_behaviors(actor=self.actor, behavior="pursuer")
-                    self.request("Walk", self.actor, "Walking", "loop")
+                    self.npc_friend_logic(xyz_vec=xyz_vec)
                 else:
                     print("seek")
                     self.set_basic_npc_behaviors(actor=self.actor, behavior="seek")
@@ -308,3 +307,31 @@ class NpcAI(FSM):
 
     def exitMiscAct(self):
         pass
+
+    def npc_friend_logic(self, xyz_vec):
+        if self.actor and xyz_vec:
+            self.set_basic_npc_behaviors(actor=self.actor, behavior="pursuer")
+            if int(xyz_vec[0]) > 1:
+                self.request("Walk", self.actor, "Walking", "loop")
+            elif int(xyz_vec[0]) < 2:
+                # TODO: Change action to something more suitable
+                self.request("Idle", self.actor, "LookingAround", "loop")
+
+    def npc_neutral_logic(self, xyz_vec):
+        if self.actor and xyz_vec:
+            self.set_basic_npc_behaviors(actor=self.actor, behavior="flee")
+            if int(xyz_vec[0]) > 1:
+                self.request("Walk", self.actor, "Walking", "loop")
+            elif int(xyz_vec[0]) < 2:
+                # TODO: Change action to something more suitable
+                self.request("Idle", self.actor, "LookingAround", "loop")
+
+    def npc_enemy_logic(self, xyz_vec):
+        if self.actor and xyz_vec:
+            if int(xyz_vec[0]) > 1:
+                self.set_basic_npc_behaviors(actor=self.actor, behavior="pursuer")
+                self.request("Walk", self.actor, "Walking", "loop")
+            elif int(xyz_vec[0]) < 2 and int(xyz_vec[0]) == 10:
+                self.set_basic_npc_behaviors(actor=self.actor, behavior="evader")
+                # TODO: Change action to something more suitable
+                self.request("Idle", self.actor, "LookingAround", "loop")
