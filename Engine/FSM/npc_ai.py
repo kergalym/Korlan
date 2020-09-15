@@ -21,6 +21,8 @@ class NpcAI(FSM):
         self.ai_behaviors = None
         self.fsm_player = FsmPlayer()
         self.husband = Husband()
+        self.npcs_names = []
+        self.npcs_xyz_vec = {}
 
         base.behaviors = {
             "idle": True,
@@ -36,6 +38,20 @@ class NpcAI(FSM):
             "death": False,
             "misc_act": False
         }
+
+    def npc_distance_calculate_task(self, task):
+        if self.npcs_names:
+            for npc in self.npcs_names:
+                actor = self.base.get_actor_bullet_shape_node(asset=npc, type="NPC")
+                xyz_vec = self.base.npc_distance_calculate(player=self.player, actor=actor).get('vector')
+                if xyz_vec and self.npcs_xyz_vec:
+                    int_xyz_vec = int(xyz_vec)
+                    self.npcs_xyz_vec[self.actor.get_name()] = int_xyz_vec
+
+        if base.game_mode is False and base.menu_mode:
+            return task.done
+
+        return task.cont
 
     def npc_friend_logic(self, bool):
         if self.actor and bool:
@@ -70,6 +86,8 @@ class NpcAI(FSM):
         if assets and isinstance(assets, dict):
             if assets.get("name") and assets.get("class"):
                 for actor in assets.get("name"):
+                    self.npcs_names = actor.get_name()
+
                     if actor == "NPC":
                         actor = self.base.get_actor_bullet_shape_node(asset=actor, type="NPC")
                         self.actor = actor
@@ -86,12 +104,16 @@ class NpcAI(FSM):
                                     self.ai_world.add_ai_char(self.ai_char)
                                     self.ai_behaviors = self.ai_char.get_ai_behaviors()
 
-                                    taskMgr.add(self.update_ai_world_task,
-                                                "update_ai_world",
+                                    taskMgr.add(self.npc_distance_calculate_task,
+                                                "npc_distance_calculate_task",
                                                 appendTask=True)
 
                                     taskMgr.add(self.update_npc_actions,
                                                 "update_npc_actions",
+                                                appendTask=True)
+
+                                    taskMgr.add(self.update_ai_world_task,
+                                                "update_ai_world",
                                                 appendTask=True)
 
                                     return task.done
@@ -247,10 +269,10 @@ class NpcAI(FSM):
                             and base.behaviors['idle']
                             and base.behaviors['walk'] is False):
                         if state == "play":
-                            actor.play(action)
+                            actor_node.play(action)
                         elif state == "loop":
-                            actor.loop(action)
-                        actor.set_play_rate(self.base.actor_play_rate, action)
+                            actor_node.loop(action)
+                        actor_node.set_play_rate(self.base.actor_play_rate, action)
 
     def exitIdle(self):
         base.behaviors['idle'] = False
