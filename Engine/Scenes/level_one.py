@@ -8,7 +8,6 @@ from Engine.Render.render import RenderAttr
 from Engine.Scenes.scene import SceneOne
 from Engine.Physics.physics import PhysicsAttr
 from Settings.UI.stat_ui import StatUI
-from Engine.Actors.NPC.state import NpcState
 
 
 class LevelOne:
@@ -27,7 +26,6 @@ class LevelOne:
         self.korlan = Korlan()
         self.npc = NPC()
         self.stat_ui = StatUI()
-        self.npc_state = NpcState()
         self.player_state = PlayerState()
         self.physics_attr = PhysicsAttr()
         self.fsm_npc = NpcAI()
@@ -229,10 +227,6 @@ class LevelOne:
                     "set_ai_world",
                     extraArgs=[level_assets],
                     appendTask=True)
-
-        actors = self.base.get_actor_bullet_shape_nodes(assets=level_assets, type="NPC")
-
-        self.npc_state.set_actor_state(actors=actors)
 
     def save_game(self):
         pass

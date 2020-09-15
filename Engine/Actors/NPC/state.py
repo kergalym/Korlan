@@ -1,5 +1,3 @@
-from direct.task.TaskManagerGlobal import taskMgr
-from Engine.FSM.npc_ai import NpcAI
 
 
 class NpcState:
@@ -15,26 +13,6 @@ class NpcState:
                                       'USABLE': 1,
                                       'DEFORMED': 2
                                       }
-        self.env_ai = NpcAI()
-
-    def actor_behavior_task(self, actor, animation, task):
-        if actor and animation and isinstance(animation, str):
-            player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
-            if hasattr(base, "npc_distance_calculate"):
-                if player_bs:
-                    vect = base.npc_distance_calculate(player_bs, actor)
-                    if vect:
-                        if vect['vector'][1] > 0.2:
-                            self.env_ai.request("Walk", actor, animation, "loop")
-                        if vect['vector'][1] > -0.2:
-                            self.env_ai.request("Walk", actor, animation, "loop")
-                        elif vect['vector'][1] < 0.2:
-                            self.env_ai.request("Walk", actor, animation, "loop")
-                        elif vect['vector'][1] < -0.2:
-                            self.env_ai.request("Walk", actor, animation, "loop")
-        if base.game_mode is False and base.menu_mode:
-            return task.done
-        return task.cont
 
     """def set_actor_state(self, task):
         base.actor_state_unarmed = True
@@ -48,15 +26,6 @@ class NpcState:
             base.actor_state_armed = False
             base.actor_state_magic = False
         return task.cont"""
-
-    def set_actor_state(self, actors):
-        # TODO: Improve self.actor_behavior_task() !
-        if actors and isinstance(actors, list):
-            for actor in actors:
-                taskMgr.add(self.actor_behavior_task,
-                            'actor_behavior',
-                            extraArgs=[actor, 'Walking'],
-                            appendTask=True)
 
     def set_creature_state(self, task):
         if base.creature_unarmed:
