@@ -40,13 +40,21 @@ class NpcAI(FSM):
         }
 
     def npc_distance_calculate_task(self, task):
-        if self.npcs_names:
+        if self.npcs_names and isinstance(self.npcs_names, list):
             for npc in self.npcs_names:
+
+                # Drop :BS suffix since we'll get Bullet Shape Nodepath here
+                # by our special get_actor_bullet_shape_node()
+                npc = npc.split(":")[0]
+
                 actor = self.base.get_actor_bullet_shape_node(asset=npc, type="NPC")
-                xyz_vec = self.base.npc_distance_calculate(player=self.player, actor=actor).get('vector')
-                if xyz_vec and self.npcs_xyz_vec:
-                    int_xyz_vec = int(xyz_vec)
-                    self.npcs_xyz_vec[self.actor.get_name()] = int_xyz_vec
+                xyz_vec = self.base.npc_distance_calculate(player=self.player, actor=actor)
+
+                if xyz_vec:
+                    tuple_xyz_vec = xyz_vec['vector']
+                    # Here we put tuple xyz values to our class member npcs_xyz_vec
+                    # for every actor name like 'NPC_Ernar:BS'
+                    self.npcs_xyz_vec = {actor.get_name(): tuple_xyz_vec}
 
         if base.game_mode is False and base.menu_mode:
             return task.done
@@ -54,30 +62,48 @@ class NpcAI(FSM):
         return task.cont
 
     def npc_friend_logic(self, bool):
-        if self.actor and bool:
+        if (self.actor and bool and self.npcs_xyz_vec
+                and isinstance(self.npcs_xyz_vec, dict)):
+            name = self.actor.get_name()
+            x = int(self.npcs_xyz_vec[name][0])
+            y = int(self.npcs_xyz_vec[name][1])
+            z = int(self.npcs_xyz_vec[name][2])
+
             self.set_basic_npc_behaviors(actor=self.actor, behavior="pursuer")
-            if int(self.base.npc_distance_calculate(player=self.player, actor=self.actor)['vector'][0]) > 1:
+            if x > 1:
                 self.request("Walk", self.actor, "Walking", "loop")
-            elif int(self.base.npc_distance_calculate(player=self.player, actor=self.actor)['vector'][0]) < 2:
+            elif x < 2:
+                # import pdb; pdb.set_trace()
                 # TODO: Change action to something more suitable
                 self.request("Idle", self.actor, "LookingAround", "loop")
 
     def npc_neutral_logic(self, bool):
-        if self.actor and bool:
+        if (self.actor and bool and self.npcs_xyz_vec
+                and isinstance(self.npcs_xyz_vec, dict)):
+            name = self.actor.get_name()
+            x = int(self.npcs_xyz_vec[name][0])
+            y = int(self.npcs_xyz_vec[name][1])
+            z = int(self.npcs_xyz_vec[name][2])
+
             self.set_basic_npc_behaviors(actor=self.actor, behavior="flee")
-            if int(self.base.npc_distance_calculate(player=self.player, actor=self.actor)['vector'][0]) > 1:
+            if x > 1:
                 self.request("Walk", self.actor, "Walking", "loop")
-            elif int(self.base.npc_distance_calculate(player=self.player, actor=self.actor)['vector'][0]) < 2:
+            elif x < 2:
                 # TODO: Change action to something more suitable
                 self.request("Idle", self.actor, "LookingAround", "loop")
 
     def npc_enemy_logic(self, bool):
-        if self.actor and bool:
-            if int(self.base.npc_distance_calculate(player=self.player, actor=self.actor)['vector'][0]) > 1:
+        if (self.actor and bool and self.npcs_xyz_vec
+                and isinstance(self.npcs_xyz_vec, dict)):
+            name = self.actor.get_name()
+            x = int(self.npcs_xyz_vec[name][0])
+            y = int(self.npcs_xyz_vec[name][1])
+            z = int(self.npcs_xyz_vec[name][2])
+
+            if x > 1:
                 self.set_basic_npc_behaviors(actor=self.actor, behavior="pursuer")
                 self.request("Walk", self.actor, "Walking", "loop")
-            elif (int(self.base.npc_distance_calculate(player=self.player, actor=self.actor)['vector'][0]) < 2
-                    and int(self.base.npc_distance_calculate(player=self.player, actor=self.actor)['vector'][0]) == 10):
+            elif x < 2 and x == 10:
                 self.set_basic_npc_behaviors(actor=self.actor, behavior="evader")
                 # TODO: Change action to something more suitable
                 self.request("Idle", self.actor, "LookingAround", "loop")
@@ -86,8 +112,6 @@ class NpcAI(FSM):
         if assets and isinstance(assets, dict):
             if assets.get("name") and assets.get("class"):
                 for actor in assets.get("name"):
-                    self.npcs_names = actor.get_name()
-
                     if actor == "NPC":
                         actor = self.base.get_actor_bullet_shape_node(asset=actor, type="NPC")
                         self.actor = actor
@@ -100,6 +124,11 @@ class NpcAI(FSM):
                             if "env" not in actor_cls or "hero" not in actor_cls:
                                 if self.actor and self.player:
                                     speed = 6
+
+                                    # Do not duplicate if name is exist
+                                    if self.actor.get_name() not in self.npcs_names:
+                                        self.npcs_names.append(self.actor.get_name())
+
                                     self.ai_char = AICharacter(actor_cls, self.actor, 100, 0.05, speed)
                                     self.ai_world.add_ai_char(self.ai_char)
                                     self.ai_behaviors = self.ai_char.get_ai_behaviors()
