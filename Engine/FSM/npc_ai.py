@@ -23,9 +23,29 @@ class NpcAI(FSM):
         self.husband = Husband()
         self.npcs_names = []
         self.npcs_xyz_vec = {}
-        self.walking_state = 0
-        self.idle_state = 0
 
+        """ States for animations starting point"""
+        self.walking_state = 0
+        self.walk_crouching_state = 0
+        self.crouch_state = 0
+        self.jump_state = 0
+        self.path_follow_state = 0
+        self.idle_state = 0
+        self.evader_state = 0
+        self.wanderer_state = 0
+        self.flee_state = 0
+        self.seek_state = 0
+        self.obs_avoid_state = 0
+        self.attack_state = 0
+        self.f_attack_state = 0
+        self.h_attack_state = 0
+        self.block_state = 0
+        self.interact_state = 0
+        self.swim_state = 0
+        self.life_state = 0
+        self.death_state = 0
+
+        """Behavior states"""
         base.behaviors = {
             "idle": True,
             "walk": False,
@@ -35,6 +55,9 @@ class NpcAI(FSM):
             "crouch": False,
             "lay": False,
             "attack": False,
+            "f_attack": False,
+            "h_attack": False,
+            "block": False,
             "interact": False,
             "life": False,
             "death": False,
@@ -67,19 +90,23 @@ class NpcAI(FSM):
         if (self.actor and bool and self.npcs_xyz_vec
                 and isinstance(self.npcs_xyz_vec, dict)):
             name = self.actor.get_name()
-            if int(self.npcs_xyz_vec[name][0]) > 1 and self.walking_state == 0:
-                self.set_basic_npc_behaviors(actor=self.actor, behavior="pursuer")
-                self.request("Walk", self.actor, "Walking", "loop")
-            if int(self.npcs_xyz_vec[name][0]) < 1 and self.idle_state == 0:
+            if int(self.npcs_xyz_vec[name][0]) > 1 and self.path_follow_state == 0:
                 self.set_basic_npc_behaviors(actor=self.actor, behavior="path_follow")
+                self.request("Walk", self.actor, "Walking", "loop")
+
+            if int(self.npcs_xyz_vec[name][0]) < 1 and self.idle_state == 0:
                 # TODO: Change action to something more suitable
                 self.request("Idle", self.actor, "LookingAround", "loop")
+
+            if int(self.npcs_xyz_vec[name][0]) < 1 and self.attack_state == 0:
+                # self.set_basic_npc_behaviors(actor=self.actor, behavior="path_follow")
+                self.request("Attack", self.actor, "Boxing", "loop")
 
     def npc_neutral_logic(self, bool):
         if (self.actor and bool and self.npcs_xyz_vec
                 and isinstance(self.npcs_xyz_vec, dict)):
             name = self.actor.get_name()
-            if int(self.npcs_xyz_vec[name][0]) > 1 and self.walking_state == 0:
+            if int(self.npcs_xyz_vec[name][0]) > 1 and self.path_follow_state == 0:
                 self.set_basic_npc_behaviors(actor=self.actor, behavior="flee")
                 self.request("Walk", self.actor, "Walking", "loop")
             if int(self.npcs_xyz_vec[name][0]) < 1 and self.idle_state == 0:
@@ -91,7 +118,7 @@ class NpcAI(FSM):
         if (self.actor and bool and self.npcs_xyz_vec
                 and isinstance(self.npcs_xyz_vec, dict)):
             name = self.actor.get_name()
-            if int(self.npcs_xyz_vec[name][0]) > 1 and self.walking_state == 0:
+            if int(self.npcs_xyz_vec[name][0]) > 1 and self.path_follow_state == 0:
                 self.set_basic_npc_behaviors(actor=self.actor, behavior="pursuer")
                 self.request("Walk", self.actor, "Walking", "loop")
             if int(self.npcs_xyz_vec[name][0]) < 1 and self.idle_state == 0:
@@ -313,7 +340,7 @@ class NpcAI(FSM):
                                 actor_node.play(action)
                         elif state == "loop":
                             if not any_action.isPlaying():
-                                self.walking_state = 1
+                                self.path_follow_state = 1
                                 actor_node.loop(action)
                             else:
                                 actor_node.stop(action)
@@ -361,10 +388,52 @@ class NpcAI(FSM):
     def exitLay(self):
         pass
 
-    def EnterAttack(self):
-        pass
+    def enterAttack(self, actor, action, state):
+        if actor and action and state:
+            base.behaviors['idle'] = False
+            base.behaviors['attack'] = True
+            # Since it's Bullet shaped actor, we need access the model which is now child of
+            if hasattr(base, 'actor_node') and base.actor_node:
+                actor_node = base.actor_node
+                # Check if node is same as bullet shape node
+                if actor_node.get_name() in self.actor.get_name():
+                    any_action = actor_node.actor_interval(action)
+                    if (isinstance(state, str)
+                            and base.behaviors['idle'] is False
+                            and base.behaviors['attack']):
+                        if state == "play":
+                            if not any_action.isPlaying():
+                                actor_node.play(action)
+                        elif state == "loop":
+                            if not any_action.isPlaying():
+                                self.attack_state = 1
+                                actor_node.loop(action)
+                            else:
+                                actor_node.stop(action)
+                        actor_node.set_play_rate(self.base.actor_play_rate, action)
 
     def exitAttack(self):
+        base.behaviors['idle'] = True
+        base.behaviors['attack'] = False
+        actor_node = base.actor_node
+        actor_node.stop("Boxing")
+
+    def enterHAttack(self):
+        pass
+
+    def exitHAttack(self):
+        pass
+
+    def enterFAttack(self):
+        pass
+
+    def exitFAttack(self):
+        pass
+
+    def enterBlock(self):
+        pass
+
+    def exitBlock(self):
         pass
 
     def enterInteract(self):
