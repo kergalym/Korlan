@@ -24,30 +24,9 @@ class NpcAI(FSM):
         self.npcs_names = []
         self.npcs_xyz_vec = {}
 
-        """ States for animations starting point"""
-        self.walking_state = 0
-        self.walk_crouching_state = 0
-        self.crouch_state = 0
-        self.jump_state = 0
-        self.path_follow_state = 0
-        self.idle_state = 0
-        self.evader_state = 0
-        self.wanderer_state = 0
-        self.flee_state = 0
-        self.seek_state = 0
-        self.obs_avoid_state = 0
-        self.attack_state = 0
-        self.f_attack_state = 0
-        self.h_attack_state = 0
-        self.block_state = 0
-        self.interact_state = 0
-        self.swim_state = 0
-        self.life_state = 0
-        self.death_state = 0
-
         """Behavior states"""
-        base.behaviors = {
-            "idle": True,
+        base.npc_states = {
+            "idle": False,
             "walk": False,
             "swim": False,
             "stay": False,
@@ -61,7 +40,8 @@ class NpcAI(FSM):
             "interact": False,
             "life": False,
             "death": False,
-            "misc_act": False
+            "misc_act": False,
+            "obs_avoid": False
         }
 
     def npc_distance_calculate_task(self, task):
@@ -85,46 +65,6 @@ class NpcAI(FSM):
             return task.done
 
         return task.cont
-
-    def npc_friend_logic(self, bool):
-        if (self.actor and bool and self.npcs_xyz_vec
-                and isinstance(self.npcs_xyz_vec, dict)):
-            name = self.actor.get_name()
-            if int(self.npcs_xyz_vec[name][0]) > 1 and self.path_follow_state == 0:
-                self.set_basic_npc_behaviors(actor=self.actor, behavior="path_follow")
-                self.request("Walk", self.actor, "Walking", "loop")
-
-            if int(self.npcs_xyz_vec[name][0]) < 1 and self.idle_state == 0:
-                # TODO: Change action to something more suitable
-                self.request("Idle", self.actor, "LookingAround", "loop")
-
-            if int(self.npcs_xyz_vec[name][0]) < 1 and self.attack_state == 0:
-                # self.set_basic_npc_behaviors(actor=self.actor, behavior="path_follow")
-                self.request("Attack", self.actor, "Boxing", "loop")
-
-    def npc_neutral_logic(self, bool):
-        if (self.actor and bool and self.npcs_xyz_vec
-                and isinstance(self.npcs_xyz_vec, dict)):
-            name = self.actor.get_name()
-            if int(self.npcs_xyz_vec[name][0]) > 1 and self.path_follow_state == 0:
-                self.set_basic_npc_behaviors(actor=self.actor, behavior="flee")
-                self.request("Walk", self.actor, "Walking", "loop")
-            if int(self.npcs_xyz_vec[name][0]) < 1 and self.idle_state == 0:
-                self.set_basic_npc_behaviors(actor=self.actor, behavior="path_follow")
-                # TODO: Change action to something more suitable
-                self.request("Idle", self.actor, "LookingAround", "loop")
-
-    def npc_enemy_logic(self, bool):
-        if (self.actor and bool and self.npcs_xyz_vec
-                and isinstance(self.npcs_xyz_vec, dict)):
-            name = self.actor.get_name()
-            if int(self.npcs_xyz_vec[name][0]) > 1 and self.path_follow_state == 0:
-                self.set_basic_npc_behaviors(actor=self.actor, behavior="pursuer")
-                self.request("Walk", self.actor, "Walking", "loop")
-            if int(self.npcs_xyz_vec[name][0]) < 1 and self.idle_state == 0:
-                self.set_basic_npc_behaviors(actor=self.actor, behavior="path_follow")
-                # TODO: Change action to something more suitable
-                self.request("Idle", self.actor, "LookingAround", "loop")
 
     def set_ai_world(self, assets, task):
         if assets and isinstance(assets, dict):
@@ -155,8 +95,8 @@ class NpcAI(FSM):
                                                 "npc_distance_calculate_task",
                                                 appendTask=True)
 
-                                    taskMgr.add(self.update_npc_actions_task,
-                                                "update_npc_actions_task",
+                                    taskMgr.add(self.update_npc_states_task,
+                                                "update_npc_states_task",
                                                 appendTask=True)
 
                                     taskMgr.add(self.update_ai_world_task,
@@ -199,7 +139,7 @@ class NpcAI(FSM):
                 return task.done
         return task.cont
 
-    def update_npc_actions_task(self, task):
+    def update_npc_states_task(self, task):
         if self.actor and self.player:
             npc_class = self.set_npc_class(actor=self.actor)
             if npc_class:
@@ -297,64 +237,111 @@ class NpcAI(FSM):
                             extraArgs=[actor],
                             appendTask=True)
 
-    def enterIdle(self, actor, action, state):
-        if actor and action and state:
-            base.behaviors['idle'] = True
-            base.behaviors['walk'] = False
+    def npc_friend_logic(self, bool):
+        if (self.actor and bool and self.npcs_xyz_vec
+                and isinstance(self.npcs_xyz_vec, dict)):
+            name = self.actor.get_name()
+            states = base.npc_states
+            vec_x = int(self.npcs_xyz_vec[name][0])
+
+            # If NPC is far from Player and is not attacking, do attack
+            if vec_x > 1:
+                if not states['walk']:
+                    self.set_basic_npc_behaviors(actor=self.actor, behavior="path_follow")
+                    self.request("Walk", self.actor, "Walking", "loop", states)
+            # If NPC is far from Player and is attacking, make it stop attack and pursue Player
+            elif vec_x > 1 and states['attack']:
+                states['walk'] = False
+
+            # If NPC is close to Player, just stay
+            if vec_x < 1:
+                if not states['idle']:
+                    # TODO: Change action to something more suitable
+                    self.request("Idle", self.actor, "LookingAround", "loop", states)
+            # If NPC is close to Player and is doing attack, just stay
+            elif vec_x > 1 and states['attack']:
+                states['idle'] = False
+
+            # If NPC is close to Player, do attack
+            if vec_x < 1:
+                if not states['attack']:
+                    self.request("Attack", self.actor, "Boxing", "loop", states)
+            # If NPC is far from Player and is doing attack, stop it
+            elif vec_x > 1 and not states['attack']:
+                states['attack'] = True
+
+    def npc_neutral_logic(self, bool):
+        if (self.actor and bool and self.npcs_xyz_vec
+                and isinstance(self.npcs_xyz_vec, dict)):
+            name = self.actor.get_name()
+            states = base.npc_states
+            if int(self.npcs_xyz_vec[name][0]) > 1 and not states['walk']:
+                self.set_basic_npc_behaviors(actor=self.actor, behavior="flee")
+                self.request("Walk", self.actor, "Walking", "loop", states)
+            if int(self.npcs_xyz_vec[name][0]) < 1 and not states['idle']:
+                self.set_basic_npc_behaviors(actor=self.actor, behavior="path_follow")
+                # TODO: Change action to something more suitable
+                self.request("Idle", self.actor, "LookingAround", "loop", states)
+
+    def npc_enemy_logic(self, bool):
+        if (self.actor and bool and self.npcs_xyz_vec
+                and isinstance(self.npcs_xyz_vec, dict)):
+            name = self.actor.get_name()
+            states = base.npc_states
+            if int(self.npcs_xyz_vec[name][0]) > 1 and not states['walk']:
+                self.set_basic_npc_behaviors(actor=self.actor, behavior="pursuer")
+                self.request("Walk", self.actor, "Walking", "loop", states)
+            if int(self.npcs_xyz_vec[name][0]) < 1 and not states['idle']:
+                self.set_basic_npc_behaviors(actor=self.actor, behavior="path_follow")
+                # TODO: Change action to something more suitable
+                self.request("Idle", self.actor, "LookingAround", "loop", states)
+
+    def enterIdle(self, actor, action, task, states):
+        if actor and action and task and states:
             # Since it's Bullet shaped actor, we need access the model which is now child of
             if hasattr(base, 'actor_node') and base.actor_node:
                 actor_node = base.actor_node
                 # Check if node is same as bullet shape node
                 if actor_node.get_name() in self.actor.get_name():
                     any_action = actor_node.actor_interval(action)
-                    if (isinstance(state, str)
-                            and base.behaviors['idle']
-                            and base.behaviors['walk'] is False):
-                        if state == "play":
+                    if isinstance(task, str):
+                        if task == "play":
                             if not any_action.isPlaying():
                                 actor_node.play(action)
-                        elif state == "loop":
+                        elif task == "loop":
                             if not any_action.isPlaying():
-                                self.idle_state = 1
+                                states['idle'] = True
                                 actor_node.stop("Walking")
                                 actor_node.loop(action)
                             else:
                                 actor_node.stop(action)
                         actor_node.set_play_rate(self.base.actor_play_rate, action)
 
-    def enterWalk(self, actor, action, state):
-        if actor and action and state:
-            base.behaviors['idle'] = False
-            base.behaviors['walk'] = True
+    def enterWalk(self, actor, action, task, states):
+        if actor and action and task and states:
             # Since it's Bullet shaped actor, we need access the model which is now child of
             if hasattr(base, 'actor_node') and base.actor_node:
                 actor_node = base.actor_node
                 # Check if node is same as bullet shape node
                 if actor_node.get_name() in self.actor.get_name():
                     any_action = actor_node.actor_interval(action)
-                    if (isinstance(state, str)
-                            and base.behaviors['idle'] is False
-                            and base.behaviors['walk']):
-                        if state == "play":
+                    if isinstance(task, str):
+                        if task == "play":
                             if not any_action.isPlaying():
                                 actor_node.play(action)
-                        elif state == "loop":
+                        elif task == "loop":
                             if not any_action.isPlaying():
-                                self.path_follow_state = 1
+                                states['walk'] = True
                                 actor_node.loop(action)
                             else:
                                 actor_node.stop(action)
                         actor_node.set_play_rate(self.base.actor_play_rate, action)
 
     def exitIdle(self):
-        base.behaviors['idle'] = False
-        base.behaviors['walk'] = False
         actor_node = base.actor_node
         actor_node.stop("LookingAround")
 
     def exitWalk(self):
-        base.behaviors['idle'] = True
-        base.behaviors['walk'] = False
         actor_node = base.actor_node
         actor_node.stop("Walking")
 
@@ -388,33 +375,27 @@ class NpcAI(FSM):
     def exitLay(self):
         pass
 
-    def enterAttack(self, actor, action, state):
-        if actor and action and state:
-            base.behaviors['idle'] = False
-            base.behaviors['attack'] = True
+    def enterAttack(self, actor, action, task, states):
+        if actor and action and task and states:
             # Since it's Bullet shaped actor, we need access the model which is now child of
             if hasattr(base, 'actor_node') and base.actor_node:
                 actor_node = base.actor_node
                 # Check if node is same as bullet shape node
                 if actor_node.get_name() in self.actor.get_name():
                     any_action = actor_node.actor_interval(action)
-                    if (isinstance(state, str)
-                            and base.behaviors['idle'] is False
-                            and base.behaviors['attack']):
-                        if state == "play":
+                    if isinstance(task, str):
+                        if task == "play":
                             if not any_action.isPlaying():
                                 actor_node.play(action)
-                        elif state == "loop":
+                        elif task == "loop":
                             if not any_action.isPlaying():
-                                self.attack_state = 1
+                                states['attack'] = True
                                 actor_node.loop(action)
                             else:
                                 actor_node.stop(action)
                         actor_node.set_play_rate(self.base.actor_play_rate, action)
 
     def exitAttack(self):
-        base.behaviors['idle'] = True
-        base.behaviors['attack'] = False
         actor_node = base.actor_node
         actor_node.stop("Boxing")
 
