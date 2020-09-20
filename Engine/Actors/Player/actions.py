@@ -1,8 +1,7 @@
 from panda3d.core import Vec3
 
 from Engine.Actors.Player.state import PlayerState
-from Engine.FSM.player_fsm import FsmPlayer
-from Engine.FSM.npc_ai import NpcAI
+from Engine.FSM.player_fsm import PlayerFSM
 from Engine.Items.items import Items
 from direct.task.TaskManagerGlobal import taskMgr
 
@@ -28,8 +27,7 @@ class Actions:
         self.taskMgr = taskMgr
         self.kbd = Keyboard()
         self.mouse = Mouse()
-        self.fsm_npc = NpcAI()
-        self.fsm_player = FsmPlayer()
+        self.fsm_player = PlayerFSM()
         self.items = Items()
         self.player_menu = PlayerMenuUI()
         self.state = PlayerState()

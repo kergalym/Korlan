@@ -1,6 +1,5 @@
 from direct.actor.Actor import Actor
 from direct.task.TaskManagerGlobal import taskMgr
-from Engine.FSM.npc_ai import NpcAI
 
 
 class NPC:
@@ -23,7 +22,6 @@ class NPC:
         self.actor_life_perc = None
         self.base.actor_is_dead = False
         self.base.actor_is_alive = False
-        self.fsm_npc = NpcAI()
 
     def actor_life(self, task):
         self.has_actor_life()

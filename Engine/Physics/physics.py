@@ -1,6 +1,5 @@
 from Engine.Collisions.geom_collector import GeomCollector
 from Engine.Collisions.collision_solids import BulletCollisionSolids
-from Engine.FSM.npc_ai import NpcAI
 from panda3d.bullet import BulletCharacterControllerNode
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import Vec3, BitMask32
@@ -27,7 +26,6 @@ class PhysicsAttr:
         self.cam_collider = None
         self.geom_collector = GeomCollector()
         self.bullet_solids = BulletCollisionSolids()
-        self.env_ai = NpcAI()
 
         self.korlan = None
 

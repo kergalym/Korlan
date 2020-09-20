@@ -4,9 +4,9 @@ from configparser import ConfigParser
 from direct.task.TaskManagerGlobal import taskMgr
 
 
-class FsmPlayer(FSM):
+class PlayerFSM(FSM):
     def __init__(self):
-        FSM.__init__(self, 'FsmPlayer')
+        FSM.__init__(self, 'PlayerFSM')
         self.d_object = DirectObject()
         self.cfg_parser = ConfigParser()
         self.is_moving = False
@@ -26,18 +26,19 @@ class FsmPlayer(FSM):
 
     def get_player(self, actor):
         if actor and isinstance(actor, str):
-            if not render.find("**/{}:BS").is_empty():
-                self.player = render.find("**/{}:BS")
+            if not render.find("**/{0}:BS").is_empty():
+                self.player = render.find("**/{0}:BS")
                 return self.player
 
     def enterIdle(self, player, action, state):
         if player and action:
             self.player = player
-            if state == "play":
-                self.player.play(action)
-            elif state == "loop":
-                self.player.loop(action)
-            self.player.setPlayRate(self.base.actor_play_rate, action)
+            if isinstance(state, str):
+                if state == "play":
+                    self.player.play(action)
+                elif state == "loop":
+                    self.player.loop(action)
+                self.player.setPlayRate(self.base.actor_play_rate, action)
 
     # TODO: code review
     def enterWalk(self, actor, action, state):

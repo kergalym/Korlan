@@ -3,7 +3,7 @@ from panda3d.core import *
 from Engine.Actors.Player.korlan import Korlan
 from Engine.Actors.Player.state import PlayerState
 from Engine.Actors.NPC.npc import NPC
-from Engine.FSM.npc_ai import NpcAI
+from Engine.AI.ai import AI
 from Engine.Render.render import RenderAttr
 from Engine.Scenes.scene import SceneOne
 from Engine.Physics.physics import PhysicsAttr
@@ -28,7 +28,7 @@ class LevelOne:
         self.stat_ui = StatUI()
         self.player_state = PlayerState()
         self.physics_attr = PhysicsAttr()
-        self.fsm_npc = NpcAI()
+        self.ai = AI()
         self.pos_x = None
         self.pos_y = None
         self.pos_z = 0
@@ -223,7 +223,7 @@ class LevelOne:
 
         self.physics_attr.set_physics_world(assets=level_assets)
 
-        taskMgr.add(self.fsm_npc.set_ai_world,
+        taskMgr.add(self.ai.set_ai_world,
                     "set_ai_world",
                     extraArgs=[level_assets],
                     appendTask=True)
