@@ -2,7 +2,7 @@ from panda3d.ai import AIWorld
 from panda3d.ai import AICharacter
 from direct.task.TaskManagerGlobal import taskMgr
 from Engine.FSM.player_fsm import PlayerFSM
-from Engine.FSM.npc_ai import NpcFSM
+from Engine.FSM.npc_fsm import NpcFSM
 
 
 class AI:
