@@ -14,6 +14,7 @@ class NpcFSM(FSM):
         self.husband = Husband()
         self.npcs_names = []
         self.npcs_xyz_vec = {}
+        self.is_state_active = 0
 
     def npc_distance_calculate_task(self, player, actor, task):
         if (player and actor and self.npcs_names
@@ -60,6 +61,7 @@ class NpcFSM(FSM):
 
     def enterIdle(self, actor, action, task):
         if actor and action and task:
+            base.fsm = self
             # Since it's Bullet shaped actor, we need access the model which is now child of
             if hasattr(base, 'actor_node') and base.actor_node:
                 actor_node = base.actor_node
@@ -77,6 +79,7 @@ class NpcFSM(FSM):
 
     def enterWalk(self, actor, action, task):
         if actor and action and task:
+            base.fsm = self
             # Since it's Bullet shaped actor, we need access the model which is now child of
             if hasattr(base, 'actor_node') and base.actor_node:
                 actor_node = base.actor_node
@@ -94,6 +97,7 @@ class NpcFSM(FSM):
 
     def enterAttack(self, actor, action, task):
         if actor and action and task:
+            base.fsm = self
             # Since it's Bullet shaped actor, we need access the model which is now child of
             if hasattr(base, 'actor_node') and base.actor_node:
                 actor_node = base.actor_node
@@ -111,7 +115,7 @@ class NpcFSM(FSM):
                                 actor_node.stop(action)
                         actor_node.set_play_rate(self.base.actor_play_rate, action)
 
-    """def exitIdle(self):
+    def exitIdle(self):
         actor_node = base.actor_node
         actor_node.stop("LookingAround")
 
@@ -121,7 +125,7 @@ class NpcFSM(FSM):
 
     def exitAttack(self):
         actor_node = base.actor_node
-        actor_node.stop("Boxing")"""
+        actor_node.stop("Boxing")
 
     def exitSwim(self):
         pass
@@ -196,13 +200,13 @@ class NpcFSM(FSM):
         pass
 
     def filterIdle(self, request, args):
-        if request in ['Idle']:
-            return None
-        else:
+        if request not in ['Idle']:
             return (request,) + args
+        else:
+            return None
 
     def filterWalk(self, request, args):
-        if request in ['Walk']:
-            return None
-        else:
+        if request not in ['Walk']:
             return (request,) + args
+        else:
+            return None

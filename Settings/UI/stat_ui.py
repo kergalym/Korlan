@@ -119,6 +119,22 @@ class StatUI:
                                                           align=TextNode.ALeft,
                                                           mayChange=True)
 
+            self.title_dbg_mode_npc_state = OnscreenText(text="",
+                                                         pos=(0.5, 0.1),
+                                                         scale=0.03,
+                                                         fg=(255, 255, 255, 0.9),
+                                                         font=self.font.load_font(self.menu_font),
+                                                         align=TextNode.ALeft,
+                                                         mayChange=True)
+
+            self.text_npc_action_stat_p = OnscreenText(text="",
+                                                       pos=(0.5, 0.0),
+                                                       scale=0.03,
+                                                       fg=(255, 255, 255, 0.9),
+                                                       font=self.font.load_font(self.menu_font),
+                                                       align=TextNode.ALeft,
+                                                       mayChange=True)
+
     def gen_stat_text_h(self, records):
         """ Function    : gen_stat_text_h
 
@@ -217,6 +233,21 @@ class StatUI:
             for key in base.states:
                 records_designed += "{0}: {1}\n".format(key, base.states[key])
             return records_designed
+
+    def gen_stat_npc_action_text_p(self):
+        """ Function    : gen_stat_npc_action_text_p
+
+            Description : Generate stat text
+
+            Input       : None
+
+            Output      : None
+
+            Return      : String
+        """
+        if hasattr(base, "fsm"):
+            if base.fsm:
+                return "State: {0}\nis in transition: {1}".format(base.fsm.state, base.fsm.isInTransition())
 
     def set_stat_text(self, records_h, records_p, set_mode):
         """ Function    : set_stat_text
@@ -322,7 +353,6 @@ class StatUI:
                         and set_mode == 'show'):
                     self.title_dbg_mode_player_state.setText("DEBUG MODE: Character Actions")
                     self.text_player_action_stat_p.setText(records_p)
-
                     self.title_dbg_mode_player_state.show()
                     self.text_player_action_stat_p.show()
 
@@ -331,6 +361,35 @@ class StatUI:
                       and set_mode == 'hide'):
                     self.title_dbg_mode_player_state.hide()
                     self.text_player_action_stat_p.hide()
+
+    def set_npc_action_stat_text(self, records_p, set_mode):
+        """ Function    : set_npc_action_stat_text
+
+            Description : Generate stat text
+
+            Input       : String
+
+            Output      : None
+
+            Return      : None
+        """
+        if (records_p
+                and isinstance(records_p, str)
+                and isinstance(set_mode, str)):
+            if self.game_settings['Debug']['set_debug_mode'] == "YES":
+                if (base.game_mode
+                        and base.menu_mode is False
+                        and set_mode == 'show'):
+                    self.title_dbg_mode_npc_state.setText("DEBUG MODE: NPC States")
+                    self.text_npc_action_stat_p.setText(records_p)
+                    self.title_dbg_mode_npc_state.show()
+                    self.text_npc_action_stat_p.show()
+
+                elif (base.game_mode is False
+                      and base.menu_mode is True
+                      and set_mode == 'hide'):
+                    self.title_dbg_mode_npc_state.hide()
+                    self.text_npc_action_stat_p.hide()
 
     def show_game_stat_task(self, task):
         """ Function    : show_game_stat_task
@@ -354,9 +413,11 @@ class StatUI:
                 stat_obj_fmt_h = self.gen_stat_obj_text_h()
                 stat_obj_fmt_p = self.gen_stat_obj_text_p()
                 stat_player_action_fmt_p = self.gen_stat_player_action_text_p()
+                stat_npc_action_fmt_p = self.gen_stat_npc_action_text_p()
                 self.set_stat_text(dist_vec_fmt_h, dist_vec_fmt_p, set_mode='show')
                 self.set_obj_stat_text(stat_obj_fmt_h, stat_obj_fmt_p, set_mode='show')
                 self.set_player_action_stat_text(stat_player_action_fmt_p, set_mode='show')
+                self.set_npc_action_stat_text(stat_npc_action_fmt_p, set_mode='show')
                 self.text_toggle_col.show()
 
         if (hasattr(base, "player")
@@ -370,10 +431,13 @@ class StatUI:
             stat_obj_fmt_h = self.gen_stat_obj_text_h()
             stat_obj_fmt_p = self.gen_stat_obj_text_p()
             stat_player_action_fmt_p = self.gen_stat_player_action_text_p()
+            stat_npc_action_fmt_p = self.gen_stat_npc_action_text_p()
             self.set_stat_text(dist_vec_fmt_h, dist_vec_fmt_p, set_mode='hide')
             self.set_obj_stat_text(stat_obj_fmt_h, stat_obj_fmt_p, set_mode='hide')
             self.set_player_action_stat_text(stat_player_action_fmt_p, set_mode='hide')
+            self.set_npc_action_stat_text(stat_npc_action_fmt_p, set_mode='hide')
             self.text_toggle_col.hide()
+
             return task.done
 
         return task.cont
