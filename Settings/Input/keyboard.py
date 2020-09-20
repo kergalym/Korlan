@@ -29,22 +29,22 @@ class Keyboard:
         self.k_umai_lo = self.game_settings['Keymap']['umai'].lower()
 
         self.keymap = {
-            'forward': 0,
-            'backward': 0,
-            'left': 0,
-            'right': 0,
-            'run': 0,
-            'crouch': 0,
-            'jump': 0,
-            'use': 0,
-            'attack': 0,
-            'h_attack': 0,
-            'f_attack': 0,
-            'block': 0,
-            'sword': 0,
-            'bow': 0,
-            'tengri': 0,
-            'umai': 0
+            'forward': False,
+            'backward': False,
+            'left': False,
+            'right': False,
+            'run': False,
+            'crouch': False,
+            'jump': False,
+            'use': False,
+            'attack': False,
+            'h_attack': False,
+            'f_attack': False,
+            'block': False,
+            'sword': False,
+            'bow': False,
+            'tengri': False,
+            'umai': False
         }
 
     def set_key(self, key, value):

@@ -91,16 +91,16 @@ class NpcAI(FSM):
                                     self.ai_world.add_ai_char(self.ai_char)
                                     self.ai_behaviors = self.ai_char.get_ai_behaviors()
 
+                                    taskMgr.add(self.update_ai_world_task,
+                                                "update_ai_world",
+                                                appendTask=True)
+
                                     taskMgr.add(self.npc_distance_calculate_task,
                                                 "npc_distance_calculate_task",
                                                 appendTask=True)
 
                                     taskMgr.add(self.update_npc_states_task,
                                                 "update_npc_states_task",
-                                                appendTask=True)
-
-                                    taskMgr.add(self.update_ai_world_task,
-                                                "update_ai_world",
                                                 appendTask=True)
 
                                     return task.done
@@ -147,27 +147,28 @@ class NpcAI(FSM):
                 if npc_class.get('class') == "friend":
                     self.npc_friend_logic(True)
                 else:
+                    states = base.npc_states
                     if int(self.npcs_xyz_vec[name][0]) > 1:
-                        self.request("Walk", self.actor, "Walking", "loop")
+                        self.request("Walk", self.actor, "Walking", "loop", states)
                         self.set_basic_npc_behaviors(actor=self.actor, behavior="seek")
                     if int(self.npcs_xyz_vec[name][0]) < 2:
-                        self.request("Idle", self.actor, "LookingAround", "loop")
+                        self.request("Idle", self.actor, "Walking", "loop", states)
                         self.set_basic_npc_behaviors(actor=self.actor, behavior="flee")
                     if int(self.npcs_xyz_vec[name][0]) < 1:
                         self.set_basic_npc_behaviors(actor=self.actor, behavior="evader")
-                        self.request("Idle", self.actor, "LookingAround", "loop")
+                        self.request("Idle", self.actor, "Walking", "loop", states)
                     if int(self.npcs_xyz_vec[name][0]) > 1:
                         self.set_basic_npc_behaviors(actor=self.actor, behavior="wanderer")
-                        self.request("Walk", self.actor, "Walking", "loop")
+                        self.request("Walk", self.actor, "Walking", "loop", states)
                     if int(self.npcs_xyz_vec[name][0]) < 1:
                         self.set_basic_npc_behaviors(actor=self.actor, behavior="obs_avoid")
-                        self.request("Idle", self.actor, "LookingAround", "loop")
+                        self.request("Idle", self.actor, "Walking", "loop", states)
                     if int(self.npcs_xyz_vec[name][0]) > 1:
                         self.set_basic_npc_behaviors(actor=self.actor, behavior="path_follow")
-                        self.request("Idle", self.actor, "LookingAround", "loop")
+                        self.request("Idle", self.actor, "Walking", "loop", states)
                     if int(self.npcs_xyz_vec[name][0]) > 1:
                         self.set_basic_npc_behaviors(actor=self.actor, behavior="path_finding")
-                        self.request("Idle", self.actor, "LookingAround", "loop")
+                        self.request("Idle", self.actor, "Walking", "loop", states)
 
         if base.game_mode is False and base.menu_mode:
             return task.done
@@ -244,16 +245,18 @@ class NpcAI(FSM):
             states = base.npc_states
             vec_x = int(self.npcs_xyz_vec[name][0])
 
-            # If NPC is far from Player, do pursue
+            # If NPC is far from Player
             if vec_x > 1:
                 if not states['walk']:
                     self.set_basic_npc_behaviors(actor=self.actor, behavior="path_follow")
+                    states['walk'] = True
                     self.request("Walk", self.actor, "Walking", "loop", states)
 
             # If NPC is close to Player, just stay
             if vec_x < 1:
                 if not states['idle']:
                     # TODO: Change action to something more suitable
+                    states['idle'] = True
                     self.request("Idle", self.actor, "LookingAround", "loop", states)
 
             """# If NPC is close to Player and is doing attack, just stay
@@ -329,14 +332,13 @@ class NpcAI(FSM):
                 actor_node = base.actor_node
                 # Check if node is same as bullet shape node
                 if actor_node.get_name() in self.actor.get_name():
-                    any_action = actor_node.actor_interval(action)
+                    any_action = actor_node.get_anim_control(action)
                     if isinstance(task, str):
                         if task == "play":
                             if not any_action.isPlaying():
                                 actor_node.play(action)
                         elif task == "loop":
                             if not any_action.isPlaying():
-                                states['idle'] = True
                                 actor_node.loop(action)
                         actor_node.set_play_rate(self.base.actor_play_rate, action)
 
@@ -347,50 +349,47 @@ class NpcAI(FSM):
                 actor_node = base.actor_node
                 # Check if node is same as bullet shape node
                 if actor_node.get_name() in self.actor.get_name():
-                    any_action = actor_node.actor_interval(action)
+                    any_action = actor_node.get_anim_control(action)
                     if isinstance(task, str):
                         if task == "play":
                             if not any_action.isPlaying():
                                 actor_node.play(action)
                         elif task == "loop":
                             if not any_action.isPlaying():
-                                states['walk'] = True
                                 actor_node.loop(action)
                         actor_node.set_play_rate(self.base.actor_play_rate, action)
 
     def exitIdle(self):
         actor_node = base.actor_node
         actor_node.stop("LookingAround")
+        states = base.npc_states
+        states['walk'] = False
+        states['idle'] = True
 
     def exitWalk(self):
         actor_node = base.actor_node
         actor_node.stop("Walking")
+        states = base.npc_states
+        states['walk'] = True
+        states['idle'] = False
 
-    def enterCrouch(self):
-        pass
-
-    def exitCrouch(self):
-        pass
-
-    def enterSwim(self):
-        pass
+    def exitAttack(self):
+        actor_node = base.actor_node
+        actor_node.stop("Boxing")
+        states = base.npc_states
+        states['attack'] = True
+        states['idle'] = False
 
     def exitSwim(self):
-        pass
-
-    def enterStay(self):
         pass
 
     def exitStay(self):
         pass
 
-    def enterJump(self):
+    def exitCrouch(self):
         pass
 
     def exitJump(self):
-        pass
-
-    def enterLay(self):
         pass
 
     def exitLay(self):
@@ -410,55 +409,74 @@ class NpcAI(FSM):
                                 actor_node.play(action)
                         elif task == "loop":
                             if not any_action.isPlaying():
-                                states['attack'] = True
                                 actor_node.loop(action)
                             else:
                                 actor_node.stop(action)
                         actor_node.set_play_rate(self.base.actor_play_rate, action)
 
-    def exitAttack(self):
-        actor_node = base.actor_node
-        actor_node.stop("Boxing")
-
     def enterHAttack(self):
-        pass
-
-    def exitHAttack(self):
         pass
 
     def enterFAttack(self):
         pass
 
-    def exitFAttack(self):
-        pass
-
     def enterBlock(self):
-        pass
-
-    def exitBlock(self):
         pass
 
     def enterInteract(self):
         pass
 
-    def exitInteract(self):
-        pass
-
     def enterLife(self):
-        pass
-
-    def exitLife(self):
         pass
 
     def enterDeath(self):
         pass
 
-    def exitDeath(self):
+    def enterMiscAct(self):
         pass
 
-    def enterMiscAct(self):
+    def enterCrouch(self):
+        pass
+
+    def enterSwim(self):
+        pass
+
+    def enterStay(self):
+        pass
+
+    def enterJump(self):
+        pass
+
+    def enterLay(self):
+        pass
+
+    def exitHAttack(self):
+        pass
+
+    def exitFAttack(self):
+        pass
+
+    def exitBlock(self):
+        pass
+
+    def exitInteract(self):
+        pass
+
+    def exitLife(self):
+        pass
+
+    def exitDeath(self):
         pass
 
     def exitMiscAct(self):
         pass
 
+    def filterIdle(self, request, args):
+        if request in ['Idle']:
+            return (request,) + args
+        return None
+
+    def filterWalk(self, request, args):
+        if request in ['Walk']:
+            return (request,) + args
+        return None

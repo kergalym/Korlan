@@ -262,7 +262,7 @@ class Actions:
                     player_bs.set_h(self.base.camera.get_h())
 
             if (self.kbd.keymap["forward"]
-                    and self.kbd.keymap["run"] == 0
+                    and self.kbd.keymap["run"] is False
                     and base.states['is_moving']
                     and base.states['is_running'] is False
                     and base.states['is_crouch_moving'] is False
@@ -270,7 +270,7 @@ class Actions:
                 if base.input_state.is_set('forward'):
                     speed.setY(-move_unit)
             if (self.kbd.keymap["forward"]
-                    and self.kbd.keymap["run"] == 0
+                    and self.kbd.keymap["run"] is False
                     and base.states['is_moving'] is False
                     and base.states['is_running'] is False
                     and base.states['is_crouch_moving']
@@ -278,14 +278,14 @@ class Actions:
                 if base.input_state.is_set('forward'):
                     speed.setY(-move_unit)
             if (self.kbd.keymap["backward"]
-                    and self.kbd.keymap["run"] == 0
+                    and self.kbd.keymap["run"] is False
                     and base.states['is_moving']
                     and base.states['is_crouch_moving'] is False
                     and base.states['is_idle']):
                 if base.input_state.is_set('reverse'):
                     speed.setY(move_unit)
             if (self.kbd.keymap["backward"]
-                    and self.kbd.keymap["run"] == 0
+                    and self.kbd.keymap["run"] is False
                     and base.states['is_moving'] is False
                     and base.states['is_crouch_moving']
                     and base.states['is_idle'] is False):
@@ -300,7 +300,7 @@ class Actions:
             # If the player does action, loop the animation.
             # If it is standing still, stop the animation.
             if (self.kbd.keymap["forward"]
-                    and self.kbd.keymap["run"] == 0
+                    and self.kbd.keymap["run"] is False
                     or self.kbd.keymap["backward"]
                     or self.kbd.keymap["left"]
                     or self.kbd.keymap["right"]):
@@ -328,9 +328,10 @@ class Actions:
                         and base.states["is_running"] is False
                         and base.states['is_crouch_moving']):
                     Sequence(Func(self.seq_crouch_move_wrapper, player, anims, 'stop')).start()
+
             # Actor backward movement
             if (self.kbd.keymap["backward"]
-                    and self.kbd.keymap["run"] == 0
+                    and self.kbd.keymap["run"] is False
                     and base.states["is_running"] is False):
                 player.set_play_rate(-1.0,
                                      anims[self.walking_forward_action])
@@ -357,7 +358,6 @@ class Actions:
             # If it is standing still, stop the animation.
             if (self.kbd.keymap["forward"]
                     and self.kbd.keymap["run"]
-                    or self.kbd.keymap["backward"]
                     or self.kbd.keymap["left"]
                     or self.kbd.keymap["right"]):
                 if (base.states['is_moving'] is False
@@ -373,6 +373,7 @@ class Actions:
                         and base.states['is_idle'] is False):
                     Sequence(Func(self.seq_run_wrapper, player, anims, 'loop')
                              ).start()
+
             else:
                 if (base.states['is_running']
                         and base.states["is_moving"] is False
