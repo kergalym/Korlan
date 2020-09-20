@@ -16,7 +16,6 @@ class NpcFSM(FSM):
         self.npcs_xyz_vec = {}
 
     def npc_distance_calculate_task(self, player, actor, task):
-        print(self.npcs_names)
         if (player and actor and self.npcs_names
                 and isinstance(self.npcs_names, list)):
 
@@ -58,18 +57,6 @@ class NpcFSM(FSM):
 
             # elif self.mongol_warrior.name in actor.get_name():
                 # return {'class': 'enemy'}
-
-    def filterIdle(self, request, args):
-        if request in ['Idle']:
-            return None
-        else:
-            return (request,) + args
-
-    def filterWalk(self, request, args):
-        if request in ['Walk']:
-            return None
-        else:
-            return (request,) + args
 
     def enterIdle(self, actor, action, task):
         if actor and action and task:
@@ -207,3 +194,15 @@ class NpcFSM(FSM):
 
     def exitMiscAct(self):
         pass
+
+    def filterIdle(self, request, args):
+        if request in ['Idle']:
+            return None
+        else:
+            return (request,) + args
+
+    def filterWalk(self, request, args):
+        if request in ['Walk']:
+            return None
+        else:
+            return (request,) + args

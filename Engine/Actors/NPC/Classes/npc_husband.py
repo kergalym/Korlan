@@ -1,5 +1,4 @@
 from direct.fsm.FSM import FSM
-from direct.task.TaskManagerGlobal import taskMgr
 
 
 class Husband(FSM):
