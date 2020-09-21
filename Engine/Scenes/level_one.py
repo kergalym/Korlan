@@ -45,6 +45,7 @@ class LevelOne:
                 render.clearLight()
                 if not render.find("**/+Light").is_empty():
                     render.find("**/+Light").remove_node()
+                    render.find("**/+Light").clear()
             elif (self.render_pipeline
                   and self.game_settings['Main']['postprocessing'] == 'on'):
                 base.render_attr.clear_lighting()
@@ -54,12 +55,14 @@ class LevelOne:
                 for i in range(render.find("**/World").get_num_nodes()):
                     if not render.find("**/World").is_empty():
                         render.find("**/World").remove_node()
+                        render.find("**/World").clear()
 
             # Remove Collisions
             if not render.find("**/Collisions").is_empty():
                 for i in range(render.find("**/Collisions").get_num_nodes()):
                     if not render.find("**/Collisions").is_empty():
                         render.find("**/Collisions").remove_node()
+                        render.find("**/Collisions").clear()
 
             # make pattern list from assets dict
             pattern = [key for key in assets]
@@ -73,6 +76,7 @@ class LevelOne:
                         self.npc.actor.cleanup()
 
                     render.find("**/{0}".format(node)).remove_node()
+                    render.find("**/{0}".format(node)).clear()
 
             for key in assets:
                 self.loader.unload_model(assets[key])
@@ -91,6 +95,7 @@ class LevelOne:
             render.clearLight()
             if not render.find("**/+Light").is_empty():
                 render.find("**/+Light").remove_node()
+                render.find("**/+Light").clear()
         elif (self.render_pipeline
               and self.game_settings['Main']['postprocessing'] == 'on'):
             base.render_attr.clear_lighting()
@@ -100,12 +105,14 @@ class LevelOne:
             for i in range(render.find("**/World").get_num_nodes()):
                 if not render.find("**/World").is_empty():
                     render.find("**/World").remove_node()
+                    render.find("**/World").clear()
 
         # Remove Collisions
         if not render.find("**/Collisions").is_empty():
             for i in range(render.find("**/Collisions").get_num_nodes()):
                 if not render.find("**/Collisions").is_empty():
                     render.find("**/Collisions").remove_node()
+                    render.find("**/Collisions").clear()
 
         # make pattern list from assets dict
         pattern = [key for key in assets]
@@ -119,6 +126,7 @@ class LevelOne:
                     self.npc.actor.cleanup()
 
                 render.find("**/{0}".format(node)).remove_node()
+                render.find("**/{0}".format(node)).clear()
 
         for key in assets:
             self.loader.unload_model(assets[key])
