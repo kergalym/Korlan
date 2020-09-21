@@ -76,6 +76,10 @@ class PhysicsAttr:
                 if (not render.find('**/World').is_empty()
                         and render.find('**/World').find("**/Level_LOD").is_empty()):
                     render.find('**/Level_LOD').reparent_to(render.find('**/World'))
+
+        if base.game_mode is False and base.menu_mode:
+            return task.done
+
         return task.cont
 
     def add_asset_collision_task(self, assets, task):
@@ -106,6 +110,9 @@ class PhysicsAttr:
                         self.set_collision(obj=render.find("**/{0}".format(name)),
                                            type=type,
                                            shape=shape)
+
+        if base.game_mode is False and base.menu_mode:
+            return task.done
 
         return task.cont
 
@@ -162,7 +169,7 @@ class PhysicsAttr:
                     appendTask=True)
 
         taskMgr.add(self.add_asset_collision_task,
-                    "update_asset_stat",
+                    "add_asset_collision_task",
                     extraArgs=[assets],
                     appendTask=True)
 

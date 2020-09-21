@@ -304,4 +304,7 @@ class PlayerState:
                         base.first_person_mode = True
                         base.first_person_mode = False
 
+        if base.game_mode is False and base.menu_mode:
+            return task.done
+
         return task.cont
