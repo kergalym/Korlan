@@ -14,7 +14,6 @@ class NpcFSM(FSM):
         self.husband = Husband()
         self.npcs_names = []
         self.npcs_xyz_vec = {}
-        self.is_state_active = 0
 
     def npc_distance_calculate_task(self, player, actor, task):
         if (player and actor and self.npcs_names
@@ -44,9 +43,11 @@ class NpcFSM(FSM):
         if actor:
             # Prevent pitch changing
             actor.set_p(0)
-            if base.game_mode is False and base.menu_mode:
-                return task.done
-        return task.cont
+
+        if base.game_mode is False and base.menu_mode:
+            return task.done
+
+        return task.done
 
     def set_npc_class(self, actor):
         if actor and not actor.is_empty():

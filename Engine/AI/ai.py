@@ -57,6 +57,7 @@ class AI:
                                                 appendTask=True)
 
                                     return task.done
+
         return task.cont
 
     def update_ai_world_task(self, task):
@@ -67,14 +68,15 @@ class AI:
             except AssertionError:
                 pass
 
-            if base.game_mode is False and base.menu_mode:
-                return task.done
+        if base.game_mode is False and base.menu_mode:
+            return task.done
+
         return task.cont
 
     def update_npc_states_task(self, task):
         if self.actor and self.player:
             npc_class = self.npc_fsm.set_npc_class(actor=self.actor)
-            if npc_class:
+            if npc_class and self.npc_fsm.npcs_xyz_vec:
                 name = self.actor.get_name()
                 if npc_class.get('class') == "friend":
                     self.npc_friend_logic(True)
