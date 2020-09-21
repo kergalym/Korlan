@@ -29,34 +29,45 @@ class AI:
                         player = self.base.get_actor_bullet_shape_node(asset=actor, type="Player")
                         self.player = player
 
-                    for actor_cls in assets.get("class"):
+                    for actor_cls in assets["class"]:
                         if actor_cls:
-                            if "env" not in actor_cls or "hero" not in actor_cls:
-                                if self.actor and self.player:
-                                    speed = 6
 
-                                    # Do not duplicate if name is exist
-                                    if self.actor.get_name() not in self.npc_fsm.npcs_names:
-                                        self.npc_fsm.npcs_names.append(self.actor.get_name())
+                            if "env" in actor_cls:
+                                continue
+                            elif "hero" in actor_cls:
+                                continue
 
-                                    self.ai_char = AICharacter(actor_cls, self.actor, 100, 0.05, speed)
-                                    self.ai_world.add_ai_char(self.ai_char)
-                                    self.ai_behaviors = self.ai_char.get_ai_behaviors()
+                            if self.actor and self.player:
+                                speed = 6
 
-                                    taskMgr.add(self.update_ai_world_task,
-                                                "update_ai_world",
-                                                appendTask=True)
+                                # Do not duplicate if name is exist
+                                if self.actor.get_name() not in self.npc_fsm.npcs_names:
+                                    self.npc_fsm.npcs_names.append(self.actor.get_name())
 
-                                    taskMgr.add(self.update_npc_states_task,
-                                                "update_npc_states_task",
-                                                appendTask=True)
+                                # Remove any AI character object(s) for every method call
+                                if self.ai_char:
+                                    self.ai_world.remove_ai_char(actor_cls)
+                                    self.ai_world.remove_ai_char(self.actor.get_name())
+                                    self.ai_world = AIWorld(render)
 
-                                    taskMgr.add(self.npc_fsm.npc_distance_calculate_task,
-                                                "npc_distance_calculate_task",
-                                                extraArgs=[self.player, self.actor],
-                                                appendTask=True)
+                                self.ai_char = AICharacter(actor_cls, self.actor, 100, 0.05, speed)
+                                self.ai_world.add_ai_char(self.ai_char)
+                                self.ai_behaviors = self.ai_char.get_ai_behaviors()
 
-                                    return task.done
+                                taskMgr.add(self.update_ai_world_task,
+                                            "update_ai_world",
+                                            appendTask=True)
+
+                                taskMgr.add(self.update_npc_states_task,
+                                            "update_npc_states_task",
+                                            appendTask=True)
+
+                                taskMgr.add(self.npc_fsm.npc_distance_calculate_task,
+                                            "npc_distance_calculate_task",
+                                            extraArgs=[self.player, self.actor],
+                                            appendTask=True)
+
+                                return task.done
 
         return task.cont
 
@@ -66,6 +77,7 @@ class AI:
             try:
                 self.ai_world.update()
             except AssertionError:
+                # self.ai_world.update()
                 pass
 
         if base.game_mode is False and base.menu_mode:
