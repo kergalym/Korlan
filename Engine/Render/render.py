@@ -82,13 +82,15 @@ class RenderAttr:
                     water_texture.set_wrap_u(Texture.WMClamp)
                     water_texture.set_wrap_v(Texture.WMClamp)
                     water_texture.setMinfilter(Texture.FTLinearMipmapLinear)
+
                     # Create plane for clipping and for reflection matrix
                     water_plane = Plane(Vec3(0, 0, 1), Point3(0, 0, water_lvl))
-                    water_plane_np = render.attachNewNode(PlaneNode("water", water_plane))
-                    tmpNP = NodePath("StateInitializer")
-                    tmpNP.set_clip_plane(water_plane_np)
-                    tmpNP.setAttrib(CullFaceAttrib.makeReverse())
-                    self.water_camera.node().set_initial_state(tmpNP.getState())
+                    water_plane_np = render.attachNewNode(PlaneNode("WaterNodePath", water_plane))
+
+                    state_init = NodePath("StateInitializer")
+                    state_init.set_clip_plane(water_plane_np)
+                    state_init.setAttrib(CullFaceAttrib.makeReverse())
+                    self.water_camera.node().set_initial_state(state_init.getState())
 
                     # reflect UV generated on the shader - faster(?)
                     self.water_np.set_shader_input('camera', self.water_camera)

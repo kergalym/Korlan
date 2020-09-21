@@ -64,6 +64,20 @@ class LevelOne:
                         render.find("**/Collisions").remove_node()
                         render.find("**/Collisions").clear()
 
+            # Remove WaterNodePath
+            if not render.find("**/WaterNodePath").is_empty():
+                for i in range(render.find("**/WaterNodePath").get_num_nodes()):
+                    if not render.find("**/WaterNodePath").is_empty():
+                        render.find("**/WaterNodePath").remove_node()
+                        render.find("**/WaterNodePath").clear()
+
+            # Remove StateInitializer
+            if not render.find("**/StateInitializer").is_empty():
+                for i in range(render.find("**/StateInitializer").get_num_nodes()):
+                    if not render.find("**/StateInitializer").is_empty():
+                        render.find("**/StateInitializer").remove_node()
+                        render.find("**/StateInitializer").clear()
+
             # make pattern list from assets dict
             pattern = [key for key in assets]
             # use pattern to remove nodes corresponding to asset names
@@ -113,6 +127,20 @@ class LevelOne:
                 if not render.find("**/Collisions").is_empty():
                     render.find("**/Collisions").remove_node()
                     render.find("**/Collisions").clear()
+
+        # Remove WaterNodePath
+        if not render.find("**/WaterNodePath").is_empty():
+            for i in range(render.find("**/WaterNodePath").get_num_nodes()):
+                if not render.find("**/WaterNodePath").is_empty():
+                    render.find("**/WaterNodePath").remove_node()
+                    render.find("**/WaterNodePath").clear()
+
+        # Remove StateInitializer
+        if not render.find("**/StateInitializer").is_empty():
+            for i in range(render.find("**/StateInitializer").get_num_nodes()):
+                if not render.find("**/StateInitializer").is_empty():
+                    render.find("**/StateInitializer").remove_node()
+                    render.find("**/StateInitializer").clear()
 
         # make pattern list from assets dict
         pattern = [key for key in assets]
