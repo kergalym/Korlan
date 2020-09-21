@@ -85,8 +85,10 @@ class LevelOne:
                 if not render.find("**/{0}".format(node)).is_empty():
                     # Player and actor cleanup
                     if self.korlan.korlan:
+                        self.korlan.korlan.delete()
                         self.korlan.korlan.cleanup()
                     if self.npc.actor:
+                        self.npc.actor.delete()
                         self.npc.actor.cleanup()
 
                     render.find("**/{0}".format(node)).remove_node()
@@ -149,8 +151,10 @@ class LevelOne:
             if not render.find("**/{0}".format(node)).is_empty():
                 # Player and actor cleanup
                 if self.korlan.korlan:
+                    self.korlan.korlan.delete()
                     self.korlan.korlan.cleanup()
                 if self.npc.actor:
+                    self.npc.actor.delete()
                     self.npc.actor.cleanup()
 
                 render.find("**/{0}".format(node)).remove_node()
