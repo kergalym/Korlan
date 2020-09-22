@@ -138,8 +138,7 @@ class AI:
             self.actor = render.find("*/{0}".format(self.actor.get_name()))
 
             # If NPC is far from Player
-            if (vec_x > 1.0
-                    or vec_x < -1.0):
+            if vec_x > 1.0 or vec_x < -1.0:
                 self.npc_fsm.request("Walk", self.actor, self.player, self.ai_behaviors,
                                      "pursuer", "Walking", "loop")
 
