@@ -81,9 +81,6 @@ class AI:
                 # self.ai_world.update()
                 pass
 
-            if self.ai_behaviors:
-                self.ai_behaviors.behavior_status("pursue")
-
         if base.game_mode is False and base.menu_mode:
             return task.done
 
