@@ -139,7 +139,7 @@ class AI:
             # If NPC is far from Player
             if vec_x > 1:
                 self.npc_fsm.request("Walk", self.actor, self.player, self.ai_behaviors,
-                                     "path_follow", "Walking", "loop")
+                                     "pursuer", "Walking", "loop")
 
             # If NPC is close to Player, just stay
             if vec_x < 1:
