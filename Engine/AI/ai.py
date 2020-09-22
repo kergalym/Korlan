@@ -44,11 +44,12 @@ class AI:
                                 if self.actor.get_name() not in self.npc_fsm.npcs_names:
                                     self.npc_fsm.npcs_names.append(self.actor.get_name())
 
-                                # Remove any AI character object(s) for every method call
+                                # Reset object(s) for every method call
                                 if self.ai_char:
                                     self.ai_world.remove_ai_char(actor_cls)
                                     self.ai_world.remove_ai_char(self.actor.get_name())
                                     self.ai_world = AIWorld(render)
+                                    self.npc_fsm.state = "Off"
 
                                 self.ai_char = AICharacter(actor_cls, self.actor, 100, 0.05, speed)
                                 self.ai_world.add_ai_char(self.ai_char)
@@ -177,6 +178,9 @@ class AI:
                 and isinstance(self.npc_fsm.npcs_xyz_vec, dict)):
             name = self.actor.get_name()
             vec_x = int(self.npc_fsm.npcs_xyz_vec[name][0])
+
+            # Get correct NodePath
+            self.actor = render.find("*/{0}".format(self.actor.get_name()))
 
             # If NPC is far from Player
             if vec_x > 1:

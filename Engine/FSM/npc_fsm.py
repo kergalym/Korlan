@@ -83,6 +83,7 @@ class NpcFSM(FSM):
             base.fsm = self
             # Since it's Bullet shaped actor, we need access the model which is now child of
             if hasattr(base, 'actor_node') and base.actor_node:
+                print(1)
                 actor_node = base.actor_node
                 # Check if node is same as bullet shape node
                 if actor_node.get_name() in actor.get_name():
