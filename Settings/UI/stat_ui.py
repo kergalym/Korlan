@@ -247,7 +247,7 @@ class StatUI:
         """
         if hasattr(base, "fsm"):
             if base.fsm:
-                return "State: {0}\nis in transition: {1}".format(base.fsm.state, base.fsm.isInTransition())
+                return "State: {0}\n".format(base.fsm.state)
 
     def set_stat_text(self, records_h, records_p, set_mode):
         """ Function    : set_stat_text

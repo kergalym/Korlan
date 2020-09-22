@@ -148,8 +148,8 @@ class AI:
                 self.npc_fsm.request("Idle", self.actor, "LookingAround", "loop")
 
             """# If NPC is close to Player, do attack
-            if vec_x < 1:
-                self.request("Attack", self.actor, "Boxing", "loop")"""
+            elif self.ai_behaviors.behavior_status("pursue") == "done":
+                self.npc_fsm.request("Attack", self.actor, "Boxing", "loop")"""
 
     def npc_neutral_logic(self, boolean):
         if (self.actor and boolean and self.npc_fsm.npcs_xyz_vec
@@ -157,13 +157,16 @@ class AI:
             name = self.actor.get_name()
             vec_x = int(self.npc_fsm.npcs_xyz_vec[name][0])
 
-            # If NPC is far from Player, do walk
-            if vec_x > 1:
+            # Get correct NodePath
+            self.actor = render.find("*/{0}".format(self.actor.get_name()))
+
+            # If NPC is far from Player
+            if vec_x > 1.0 or vec_x < -1.0:
                 self.npc_fsm.request("Walk", self.actor, self.player, self.ai_behaviors,
-                                     "path_follow", "Walking", "loop")
+                                     "pursuer", "Walking", "loop")
 
             # If NPC is close to Player, just stay
-            if vec_x < 1:
+            elif self.ai_behaviors.behavior_status("pursue") == "done":
                 # TODO: Change action to something more suitable
                 self.npc_fsm.request("Idle", self.actor, "LookingAround", "loop")
 
@@ -173,18 +176,21 @@ class AI:
             name = self.actor.get_name()
             vec_x = int(self.npc_fsm.npcs_xyz_vec[name][0])
 
+            # Get correct NodePath
+            self.actor = render.find("*/{0}".format(self.actor.get_name()))
+
             # If NPC is far from Player
-            if vec_x > 1:
+            if vec_x > 1.0 or vec_x < -1.0:
                 self.npc_fsm.request("Walk", self.actor, self.player, self.ai_behaviors,
-                                     "path_follow", "Walking", "loop")
+                                     "pursuer", "Walking", "loop")
 
             # If NPC is close to Player, just stay
-            if vec_x < 1:
+            elif self.ai_behaviors.behavior_status("pursue") == "done":
                 # TODO: Change action to something more suitable
                 self.npc_fsm.request("Idle", self.actor, "LookingAround", "loop")
 
             # If NPC is close to Player, do attack
-            if vec_x < 1:
+            elif self.ai_behaviors.behavior_status("pursue") == "done":
                 self.npc_fsm.request("Attack", self.actor, "Boxing", "loop")
 
     def set_weather(self, weather):
