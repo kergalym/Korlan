@@ -81,6 +81,9 @@ class AI:
                 # self.ai_world.update()
                 pass
 
+            if self.ai_behaviors:
+                self.ai_behaviors.behavior_status("pursue")
+
         if base.game_mode is False and base.menu_mode:
             return task.done
 
@@ -91,6 +94,7 @@ class AI:
             npc_class = self.npc_fsm.set_npc_class(actor=self.actor)
             if npc_class and self.npc_fsm.npcs_xyz_vec:
                 name = self.actor.get_name()
+
                 if npc_class.get('class') == "friend":
                     self.npc_friend_logic(True)
                 else:
@@ -131,18 +135,19 @@ class AI:
         if (self.actor and boolean and self.npc_fsm.npcs_xyz_vec
                 and isinstance(self.npc_fsm.npcs_xyz_vec, dict)):
             name = self.actor.get_name()
-            vec_x = int(self.npc_fsm.npcs_xyz_vec[name][0])
+            vec_x = self.npc_fsm.npcs_xyz_vec[name][0]
 
             # Get correct NodePath
             self.actor = render.find("*/{0}".format(self.actor.get_name()))
 
             # If NPC is far from Player
-            if vec_x > 1:
+            if (vec_x > 1.0
+                    or vec_x < -1.0):
                 self.npc_fsm.request("Walk", self.actor, self.player, self.ai_behaviors,
                                      "pursuer", "Walking", "loop")
 
             # If NPC is close to Player, just stay
-            if vec_x < 1:
+            elif self.ai_behaviors.behavior_status("pursue") == "done":
                 # TODO: Change action to something more suitable
                 self.npc_fsm.request("Idle", self.actor, "LookingAround", "loop")
 
