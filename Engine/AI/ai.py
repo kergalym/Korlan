@@ -44,7 +44,7 @@ class AI:
                                 if self.actor.get_name() not in self.npc_fsm.npcs_names:
                                     self.npc_fsm.npcs_names.append(self.actor.get_name())
 
-                                # Reset object(s) for every method call
+                                # Reset object(s) for every method call to prevent Assertion errors
                                 if self.ai_char:
                                     self.ai_world.remove_ai_char(actor_cls)
                                     self.ai_world.remove_ai_char(self.actor.get_name())
@@ -95,83 +95,37 @@ class AI:
                     self.npc_friend_logic(True)
                 else:
                     if int(self.npc_fsm.npcs_xyz_vec[name][0]) > 1:
-                        self.npc_fsm.request("Walk", self.actor, "Walking", "loop")
-                        self.set_basic_npc_behaviors(actor=self.actor, behavior="seek")
+                        self.npc_fsm.request("Walk", self.actor, self.player, self.ai_behaviors,
+                                             "seek", "Walking", "loop")
+
                     if int(self.npc_fsm.npcs_xyz_vec[name][0]) < 2:
-                        self.npc_fsm.request("Idle", self.actor, "Walking", "loop")
-                        self.set_basic_npc_behaviors(actor=self.actor, behavior="flee")
+                        self.npc_fsm.request("Walk", self.actor, self.player, self.ai_behaviors,
+                                             "flee", "Walking", "loop")
+
                     if int(self.npc_fsm.npcs_xyz_vec[name][0]) < 1:
-                        self.set_basic_npc_behaviors(actor=self.actor, behavior="evader")
-                        self.npc_fsm.request("Idle", self.actor, "Walking", "loop")
+                        self.npc_fsm.request("Walk", self.actor, self.player, self.ai_behaviors,
+                                             "evader", "Walking", "loop")
+
                     if int(self.npc_fsm.npcs_xyz_vec[name][0]) > 1:
-                        self.set_basic_npc_behaviors(actor=self.actor, behavior="wanderer")
-                        self.npc_fsm.request("Walk", self.actor, "Walking", "loop")
+                        self.npc_fsm.request("Walk", self.actor, self.player, self.ai_behaviors,
+                                             "wanderer", "Walking", "loop")
+
                     if int(self.npc_fsm.npcs_xyz_vec[name][0]) < 1:
-                        self.set_basic_npc_behaviors(actor=self.actor, behavior="obs_avoid")
-                        self.npc_fsm.request("Idle", self.actor, "Walking", "loop")
+                        self.npc_fsm.request("Walk", self.actor, self.player, self.ai_behaviors,
+                                             "obs_avoid", "Walking", "loop")
+
                     if int(self.npc_fsm.npcs_xyz_vec[name][0]) > 1:
-                        self.set_basic_npc_behaviors(actor=self.actor, behavior="path_follow")
-                        self.npc_fsm.request("Idle", self.actor, "Walking", "loop")
+                        self.npc_fsm.request("Walk", self.actor, self.player, self.ai_behaviors,
+                                             "path_follow", "Walking", "loop")
+
                     if int(self.npc_fsm.npcs_xyz_vec[name][0]) > 1:
-                        self.set_basic_npc_behaviors(actor=self.actor, behavior="path_finding")
-                        self.npc_fsm.request("Idle", self.actor, "Walking", "loop")
+                        self.npc_fsm.request("Walk", self.actor, self.player, self.ai_behaviors,
+                                             "path_finding", "Walking", "loop")
 
         if base.game_mode is False and base.menu_mode:
             return task.done
 
         return task.cont
-
-    def set_basic_npc_behaviors(self, actor, behavior):
-        if (actor and self.player
-                and not actor.is_empty()
-                and not self.player.is_empty()
-                and behavior
-                and isinstance(behavior, str)):
-
-            if self.ai_world and self.ai_behaviors:
-                vect = {"panic_dist": 5,
-                        "relax_dist": 5,
-                        "wander_radius": 5,
-                        "plane_flag": 0,
-                        "area_of_effect": 10}
-
-                navmeshes = self.base.navmesh_collector()
-                self.ai_behaviors.init_path_find(navmeshes["lvl_one"])
-                if behavior == "obs_avoid":
-                    self.ai_behaviors.path_find_to(self.player, "addPath")
-                    self.ai_behaviors.add_dynamic_obstacle(self.player)
-                elif behavior == "seek":
-                    self.ai_behaviors.path_find_to(self.player, "addPath")
-                    self.ai_behaviors.seek(self.player)
-                elif behavior == "flee":
-                    self.ai_behaviors.path_find_to(self.player, "addPath")
-                    self.ai_behaviors.flee(actor,
-                                           vect['panic_dist'],
-                                           vect['relax_dist'])
-                elif behavior == "pursuer":
-                    self.ai_behaviors.path_find_to(self.player, "addPath")
-                    self.ai_behaviors.pursue(self.player)
-                elif behavior == "evader":
-                    self.ai_behaviors.path_find_to(self.player, "addPath")
-                    self.ai_behaviors.evade(self.player,
-                                            vect['panic_dist'],
-                                            vect['relax_dist'])
-                elif behavior == "wanderer":
-                    self.ai_behaviors.path_find_to(self.player, "addPath")
-                    self.ai_behaviors.wander(vect["wander_radius"],
-                                             vect["plane_flag"],
-                                             vect["area_of_effect"])
-                elif behavior == "path_finding":
-                    self.ai_behaviors.path_find_to(self.player, "addPath")
-                elif behavior == "path_follow":
-                    self.ai_behaviors.path_follow(1)
-                    self.ai_behaviors.add_to_path(self.player.get_pos())
-                    self.ai_behaviors.start_follow()
-
-                taskMgr.add(self.npc_fsm.keep_actor_pitch_task,
-                            "keep_actor_pitch",
-                            extraArgs=[actor],
-                            appendTask=True)
 
     def npc_friend_logic(self, boolean):
         if (self.actor and boolean and self.npc_fsm.npcs_xyz_vec
@@ -184,8 +138,8 @@ class AI:
 
             # If NPC is far from Player
             if vec_x > 1:
-                self.set_basic_npc_behaviors(actor=self.actor, behavior="path_follow")
-                self.npc_fsm.request("Walk", self.actor, "Walking", "loop")
+                self.npc_fsm.request("Walk", self.actor, self.player, self.ai_behaviors,
+                                     "path_follow", "Walking", "loop")
 
             # If NPC is close to Player, just stay
             if vec_x < 1:
@@ -204,8 +158,8 @@ class AI:
 
             # If NPC is far from Player, do walk
             if vec_x > 1:
-                self.set_basic_npc_behaviors(actor=self.actor, behavior="path_follow")
-                self.npc_fsm.request("Walk", self.actor, "Walking", "loop")
+                self.npc_fsm.request("Walk", self.actor, self.player, self.ai_behaviors,
+                                     "path_follow", "Walking", "loop")
 
             # If NPC is close to Player, just stay
             if vec_x < 1:
@@ -220,8 +174,8 @@ class AI:
 
             # If NPC is far from Player
             if vec_x > 1:
-                self.set_basic_npc_behaviors(actor=self.actor, behavior="path_follow")
-                self.npc_fsm.request("Walk", self.actor, "Walking", "loop")
+                self.npc_fsm.request("Walk", self.actor, self.player, self.ai_behaviors,
+                                     "path_follow", "Walking", "loop")
 
             # If NPC is close to Player, just stay
             if vec_x < 1:

@@ -39,6 +39,58 @@ class NpcFSM(FSM):
 
         return task.cont
 
+    def set_basic_npc_behaviors(self, actor, player, ai_behaviors, behavior):
+        if (actor and player
+                and not actor.is_empty()
+                and not player.is_empty()
+                and behavior
+                and isinstance(behavior, str)
+                and ai_behaviors):
+
+            if ai_behaviors:
+                vect = {"panic_dist": 5,
+                        "relax_dist": 5,
+                        "wander_radius": 5,
+                        "plane_flag": 0,
+                        "area_of_effect": 10}
+                navmeshes = self.base.navmesh_collector()
+                ai_behaviors.init_path_find(navmeshes["lvl_one"])
+                if behavior == "obs_avoid":
+                    ai_behaviors.path_find_to(player, "addPath")
+                    ai_behaviors.add_dynamic_obstacle(player)
+                elif behavior == "seek":
+                    ai_behaviors.path_find_to(player, "addPath")
+                    ai_behaviors.seek(player)
+                elif behavior == "flee":
+                    ai_behaviors.path_find_to(player, "addPath")
+                    ai_behaviors.flee(actor,
+                                      vect['panic_dist'],
+                                      vect['relax_dist'])
+                elif behavior == "pursuer":
+                    ai_behaviors.path_find_to(player, "addPath")
+                    ai_behaviors.pursue(player)
+                elif behavior == "evader":
+                    ai_behaviors.path_find_to(player, "addPath")
+                    ai_behaviors.evade(player,
+                                       vect['panic_dist'],
+                                       vect['relax_dist'])
+                elif behavior == "wanderer":
+                    ai_behaviors.path_find_to(player, "addPath")
+                    ai_behaviors.wander(vect["wander_radius"],
+                                        vect["plane_flag"],
+                                        vect["area_of_effect"])
+                elif behavior == "path_finding":
+                    ai_behaviors.path_find_to(player, "addPath")
+                elif behavior == "path_follow":
+                    ai_behaviors.path_follow(1)
+                    ai_behaviors.add_to_path(player.get_pos())
+                    ai_behaviors.start_follow()
+
+                taskMgr.add(self.keep_actor_pitch_task,
+                            "keep_actor_pitch",
+                            extraArgs=[actor],
+                            appendTask=True)
+
     def keep_actor_pitch_task(self, actor, task):
         if actor:
             # Prevent pitch changing
@@ -58,7 +110,7 @@ class NpcFSM(FSM):
                 return {'class': 'friend'}
 
             # elif self.mongol_warrior.name in actor.get_name():
-                # return {'class': 'enemy'}
+            # return {'class': 'enemy'}
 
     def enterIdle(self, actor, action, task):
         if actor and action and task:
@@ -78,16 +130,16 @@ class NpcFSM(FSM):
                                 actor_node.loop(action)
                         actor_node.set_play_rate(self.base.actor_play_rate, action)
 
-    def enterWalk(self, actor, action, task):
-        if actor and action and task:
+    def enterWalk(self, actor, player, ai_behaviors, behavior, action, task):
+        if actor and player and ai_behaviors and behavior and action and task:
             base.fsm = self
             # Since it's Bullet shaped actor, we need access the model which is now child of
             if hasattr(base, 'actor_node') and base.actor_node:
-                print(1)
                 actor_node = base.actor_node
                 # Check if node is same as bullet shape node
                 if actor_node.get_name() in actor.get_name():
                     any_action = actor_node.get_anim_control(action)
+
                     if isinstance(task, str):
                         if task == "play":
                             if not any_action.isPlaying():
@@ -96,6 +148,11 @@ class NpcFSM(FSM):
                             if not any_action.isPlaying():
                                 actor_node.loop(action)
                         actor_node.set_play_rate(self.base.actor_play_rate, action)
+
+                    self.set_basic_npc_behaviors(actor=actor,
+                                                 player=player,
+                                                 ai_behaviors=ai_behaviors,
+                                                 behavior=behavior)
 
     def enterAttack(self, actor, action, task):
         if actor and action and task:
@@ -106,6 +163,7 @@ class NpcFSM(FSM):
                 # Check if node is same as bullet shape node
                 if actor_node.get_name() in actor.get_name():
                     any_action = actor_node.actor_interval(action)
+
                     if isinstance(task, str):
                         if task == "play":
                             if not any_action.isPlaying():
