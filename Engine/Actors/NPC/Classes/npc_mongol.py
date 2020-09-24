@@ -1,11 +1,11 @@
 from direct.fsm.FSM import FSM
 
 
-class Husband(FSM):
+class Mongol(FSM):
     def __init__(self):
-        FSM.__init__(self, "Husband")
+        FSM.__init__(self, "Mongol")
         self.base = base
-        self.name = "NPC_Ernar"
+        self.name = "NPC_Mongol"
         self.age = 32
         self.iq = 95
         self.health = 100

@@ -33,6 +33,21 @@ class LevelOne:
         self.pos_y = None
         self.pos_z = 0
         self.anim = None
+        self.base.npcs_actor_refs = {}
+
+    # TODO: FIXME!
+    def collect_actor_refs_task(self, task):
+        if hasattr(base, "npc_is_loaded") and base.npc_is_loaded == 1:
+            if self.npc.actor:
+                actor_ref = self.npc.actor
+                # Get only Actor, not a child of NodePath
+                if "BS" not in actor_ref.get_parent().get_name():
+                    base.npcs_actor_refs[actor_ref.get_name()] = actor_ref
+
+        if hasattr(base, "loading_is_done") and base.loading_is_done == 1:
+            return task.done
+
+        return task.cont
 
     def unload_game_scene(self):
         if self.base.game_mode:
@@ -214,12 +229,16 @@ class LevelOne:
         anims = self.base.asset_animations_collector()
 
         # List used by loading screen
-        level_assets = {'name': ['Sky', 'lvl_one', 'Player', 'NPC'],
-                        'type': [None, 'env', 'player', 'npc'],
-                        'shape': [None, 'auto', 'capsule', 'capsule'],
-                        'class': [None, 'env', 'hero', 'enemy']
+        level_assets = {'name': ['Sky', 'lvl_one', 'Player', 'NPC_Ernar', 'NPC_Mongol'],
+                        'type': [None, 'env', 'player', 'npc', 'npc'],
+                        'shape': [None, 'auto', 'capsule', 'capsule', 'capsule'],
+                        'class': [None, 'env', 'hero', 'friend', 'enemy']
                         }
         base.level_assets = level_assets
+
+        taskMgr.add(self.collect_actor_refs_task,
+                    "collect_actor_refs_task",
+                    appendTask=True)
 
         """ Async Loading """
         taskMgr.add(self.scene_one.set_env(path=assets['Sky'],
@@ -247,8 +266,9 @@ class LevelOne:
                                           scale=[1.25, 1.25, 1.25],
                                           culling=True))
 
+        # TODO: Make multiple actors loading
         taskMgr.add(self.npc.set_actor(mode="game",
-                                       name="NPC",
+                                       name="NPC_Ernar",
                                        path=assets['NPC'],
                                        animation=anims,
                                        axis=[-15.0, 15.0, self.pos_z],
@@ -256,6 +276,14 @@ class LevelOne:
                                        scale=[1.25, 1.25, 1.25],
                                        culling=True))
 
+        taskMgr.add(self.npc.set_actor(mode="game",
+                                       name="NPC_Mongol",
+                                       path=assets['NPC'],
+                                       animation=anims,
+                                       axis=[-15.0, 15.0, self.pos_z],
+                                       rotation=[0, 0, 0],
+                                       scale=[1.25, 1.25, 1.25],
+                                       culling=True))
         """ Task for Debug mode """
         taskMgr.add(self.stat_ui.show_game_stat_task,
                     "show_game_stat",
@@ -266,6 +294,14 @@ class LevelOne:
         taskMgr.add(self.ai.set_ai_world,
                     "set_ai_world",
                     extraArgs=[level_assets],
+                    appendTask=True)
+
+        taskMgr.add(self.ai.update_ai_world_task,
+                    "update_ai_world",
+                    appendTask=True)
+
+        taskMgr.add(self.ai.update_npc_states_task,
+                    "update_npc_states_task",
                     appendTask=True)
 
     def save_game(self):

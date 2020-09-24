@@ -2,6 +2,7 @@ from direct.fsm.FSM import FSM
 from direct.task.TaskManagerGlobal import taskMgr
 from Engine.Actors.NPC.state import NpcState
 from Engine.Actors.NPC.Classes.npc_husband import Husband
+from Engine.Actors.NPC.Classes.npc_mongol import Mongol
 
 
 class NpcFSM(FSM):
@@ -12,20 +13,31 @@ class NpcFSM(FSM):
         self.taskMgr = taskMgr
         self.npc_state = NpcState()
         self.husband = Husband()
+        self.mongol = Mongol()
+
+        self.npcs_classes = {
+            self.husband.name: {'class': 'friend'},
+            self.mongol.name: {'class': 'enemy'},
+        }
+
+        self.npcs_actor_refs = {}
+
         self.npcs_names = []
         self.npcs_xyz_vec = {}
+        base.fsm = self
 
-    def npc_distance_calculate_task(self, player, actor, task):
-        if (player and actor and self.npcs_names
+    def npc_distance_calculate_task(self, player, actor, npcs_actor_refs, task):
+        if (player and actor and npcs_actor_refs and self.npcs_names
+                and isinstance(npcs_actor_refs, dict)
                 and isinstance(self.npcs_names, list)):
+            for npc, ref in zip(self.npcs_names, npcs_actor_refs):
 
-            for npc in self.npcs_names:
-
-                # Drop :BS suffix since we'll get Bullet Shape Nodepath here
+                # Drop :BS suffix since we'll get Bullet Shape NodePath here
                 # by our special get_actor_bullet_shape_node()
-                npc = npc.split(":")[0]
+                # npc = npc.split(":")[0]
 
-                actor = self.base.get_actor_bullet_shape_node(asset=npc, type="NPC")
+                # if npc == ref:
+                actor = self.base.get_actor_bullet_shape_node(asset=ref, type="NPC")
                 xyz_vec = self.base.npc_distance_calculate(player=player, actor=actor)
 
                 if xyz_vec:
@@ -103,79 +115,58 @@ class NpcFSM(FSM):
 
     def set_npc_class(self, actor):
         if actor and not actor.is_empty():
-            if self.husband.name in actor.get_name():
-                return {'class': 'friend'}
-            # test
-            elif "NPC" in self.husband.name:
-                return {'class': 'friend'}
-
-            # elif self.mongol_warrior.name in actor.get_name():
-            # return {'class': 'enemy'}
+            for actor_cls in self.npcs_classes:
+                if actor_cls in actor.get_name():
+                    return self.npcs_classes[actor_cls]
 
     def enterIdle(self, actor, action, task):
         if actor and action and task:
-            base.fsm = self
-            # Since it's Bullet shaped actor, we need access the model which is now child of
-            if hasattr(base, 'actor_node') and base.actor_node:
-                actor_node = base.actor_node
-                # Check if node is same as bullet shape node
-                if actor_node.get_name() in actor.get_name():
-                    any_action = actor_node.get_anim_control(action)
-                    if isinstance(task, str):
-                        if task == "play":
-                            if not any_action.isPlaying():
-                                actor_node.play(action)
-                        elif task == "loop":
-                            if not any_action.isPlaying():
-                                actor_node.loop(action)
-                        actor_node.set_play_rate(self.base.actor_play_rate, action)
+            any_action = actor.get_anim_control(action)
+
+            if isinstance(task, str):
+                if task == "play":
+                    if not any_action.isPlaying():
+                        actor.play(action)
+                elif task == "loop":
+                    if not any_action.isPlaying():
+                        actor.loop(action)
+                actor.set_play_rate(self.base.actor_play_rate, action)
 
     def enterWalk(self, actor, player, ai_behaviors, behavior, action, task):
         if actor and player and ai_behaviors and behavior and action and task:
-            base.fsm = self
-            # Since it's Bullet shaped actor, we need access the model which is now child of
-            if hasattr(base, 'actor_node') and base.actor_node:
-                actor_node = base.actor_node
-                # Check if node is same as bullet shape node
-                if actor_node.get_name() in actor.get_name():
-                    any_action = actor_node.get_anim_control(action)
+            any_action = actor.get_anim_control(action)
 
-                    if isinstance(task, str):
-                        if task == "play":
-                            if not any_action.isPlaying():
-                                actor_node.play(action)
-                        elif task == "loop":
-                            if not any_action.isPlaying():
-                                actor_node.loop(action)
-                        actor_node.set_play_rate(self.base.actor_play_rate, action)
+            if isinstance(task, str):
+                if task == "play":
+                    if not any_action.isPlaying():
+                        actor.play(action)
+                elif task == "loop":
+                    if not any_action.isPlaying():
+                        actor.loop(action)
+                actor.set_play_rate(self.base.actor_play_rate, action)
 
-                    self.set_basic_npc_behaviors(actor=actor,
-                                                 player=player,
-                                                 ai_behaviors=ai_behaviors,
-                                                 behavior=behavior)
+            # Get correct NodePath
+            actor = render.find("**/{0}".format(actor.get_name()))
+
+            self.set_basic_npc_behaviors(actor=actor,
+                                         player=player,
+                                         ai_behaviors=ai_behaviors,
+                                         behavior=behavior)
 
     def enterAttack(self, actor, action, task):
         if actor and action and task:
-            base.fsm = self
-            # Since it's Bullet shaped actor, we need access the model which is now child of
-            if hasattr(base, 'actor_node') and base.actor_node:
-                actor_node = base.actor_node
-                # Check if node is same as bullet shape node
-                if actor_node.get_name() in actor.get_name():
-                    any_action = actor_node.actor_interval(action)
+            any_action = actor.get_anim_control(action)
 
-                    if isinstance(task, str):
-                        if task == "play":
-                            if not any_action.isPlaying():
-                                actor_node.play(action)
-                        elif task == "loop":
-                            if not any_action.isPlaying():
-                                actor_node.loop(action)
-                            else:
-                                actor_node.stop(action)
-                        actor_node.set_play_rate(self.base.actor_play_rate, action)
+            if isinstance(task, str):
+                if task == "play":
+                    if not any_action.isPlaying():
+                        actor.play(action)
+                elif task == "loop":
+                    if not any_action.isPlaying():
+                        actor.loop(action)
+                actor.set_play_rate(self.base.actor_play_rate, action)
 
-    def exitIdle(self):
+    """def exitIdle(self):
         actor_node = base.actor_node
         actor_node.stop("LookingAround")
 
@@ -185,7 +176,7 @@ class NpcFSM(FSM):
 
     def exitAttack(self):
         actor_node = base.actor_node
-        actor_node.stop("Boxing")
+        actor_node.stop("Boxing")"""
 
     def exitSwim(self):
         pass

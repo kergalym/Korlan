@@ -10,6 +10,7 @@ from direct.task.TaskManagerGlobal import taskMgr
 class LoadingUI:
 
     def __init__(self):
+        self.base = base
         self.level_one = LevelOne()
         self.game_settings = base.game_settings
         self.game_dir = base.game_dir
@@ -31,6 +32,7 @@ class LoadingUI:
         self.menu_font = self.fonts['OpenSans-Regular']
 
         self.title_loading_text = None
+        self.base.loading_is_done = 0
 
     def gen_loading_items(self):
         if hasattr(base, "assets_collector"):
@@ -114,6 +116,8 @@ class LoadingUI:
 
                 if num == asset_num:
                     self.clear_loading_bar()
+
+                    self.base.loading_is_done = 1
 
                     return task.done
 

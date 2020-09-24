@@ -1,5 +1,6 @@
 from direct.actor.Actor import Actor
 from direct.task.TaskManagerGlobal import taskMgr
+from Engine.FSM.npc_fsm import NpcFSM
 
 
 class NPC:
@@ -22,6 +23,7 @@ class NPC:
         self.actor_life_perc = None
         self.base.actor_is_dead = False
         self.base.actor_is_alive = False
+        self.npc_fsm = NpcFSM()
 
     def actor_life(self, task):
         self.has_actor_life()
@@ -68,6 +70,8 @@ class NPC:
             self.actor.set_p(self.actor, self.rot_p)
             self.actor.set_r(self.actor, self.rot_r)
 
+            base.npc_is_loaded = 1
+
             # Get actor joints
             base.actor_joints = self.actor.get_joints()
 
@@ -92,10 +96,6 @@ class NPC:
 
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
                 self.render.analyze()
-
-            base.npc_is_loaded = 1
-
-            base.actor_node = self.actor
 
             taskMgr.add(self.actor_life,
                         "actor_life")

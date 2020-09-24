@@ -40,7 +40,7 @@ class Korlan:
         self.kbd = Keyboard()
         self.mouse = Mouse()
         self.render_attr = RenderAttr()
-        self.act = Actions()
+        self.actions = Actions()
         self.state = PlayerState()
         self.actor_life_perc = None
         self.base.actor_is_dead = False
@@ -195,7 +195,7 @@ class Korlan:
                             "player_state",
                             appendTask=True)
 
-                self.act.player_actions_init(self.korlan, animation[0])
+                self.actions.player_actions_init(self.korlan, animation[0])
 
                 taskMgr.add(self.state.actor_life,
                             "actor_life",
