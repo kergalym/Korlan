@@ -47,8 +47,6 @@ class AI:
                                     if actor.get_name() not in self.npc_fsm.npcs_names:
                                         self.npc_fsm.npcs_names.append(actor.get_name())
 
-                                    print(self.npc_fsm.npcs_names)
-
                                     # TODO: Add more characters
                                     # Reset object(s) for every method call to prevent Assertion errors
                                     if self.ai_char:
