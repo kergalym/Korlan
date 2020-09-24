@@ -79,7 +79,7 @@ class AI:
                 # self.ai_world.update()
                 pass
 
-            self.ai_world.print_list()
+            # self.ai_world.print_list()
 
         if base.game_mode is False and base.menu_mode:
             return task.done
