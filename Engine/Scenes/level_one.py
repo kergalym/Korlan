@@ -43,11 +43,9 @@ class LevelOne:
             if (self.npc_ernar.actor
                     and self.npc_mongol.actor):
                 # Get only Actor, not a child of NodePath
-                if "BS" not in self.npc_ernar.actor.get_parent().get_name():
-                    base.npcs_actor_refs[self.npc_ernar.actor.get_name()] = self.npc_ernar.actor
+                base.npcs_actor_refs[self.npc_ernar.actor.get_name()] = self.npc_ernar.actor
 
-                if "BS" not in self.npc_mongol.actor.get_parent().get_name():
-                    base.npcs_actor_refs[self.npc_mongol.actor.get_name()] = self.npc_mongol.actor
+                base.npcs_actor_refs[self.npc_mongol.actor.get_name()] = self.npc_mongol.actor
 
             print(base.npcs_actor_refs)
         if hasattr(base, "loading_is_done") and base.loading_is_done == 1:

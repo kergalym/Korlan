@@ -31,7 +31,6 @@ class NpcFSM(FSM):
         if (player and ai_chars and npcs_actor_refs and self.npcs_names
                 and isinstance(npcs_actor_refs, dict)
                 and isinstance(self.npcs_names, list)):
-            import pdb; pdb.set_trace()
             for npc, ref in zip(self.npcs_names, npcs_actor_refs):
 
                 # Drop :BS suffix since we'll get Bullet Shape NodePath here

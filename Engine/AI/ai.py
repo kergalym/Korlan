@@ -68,7 +68,7 @@ class AI:
 
                                     return task.done
 
-            return task.cont
+        return task.cont
 
     def update_ai_world_task(self, task):
         if self.ai_world:
@@ -202,9 +202,9 @@ class AI:
                     # TODO: Change action to something more suitable
                     self.npc_fsm.request("Idle", actor, "LookingAround", "loop")
 
-            # If NPC is close to Player, do attack
-            elif self.ai_behaviors.behavior_status("pursue") == "done":
-                self.npc_fsm.request("Attack", actor, "Boxing", "loop")
+                # If NPC is close to Player, do attack
+                elif self.ai_behaviors.behavior_status("pursue") == "done":
+                    self.npc_fsm.request("Attack", actor, "Boxing", "loop")
 
     def set_weather(self, weather):
         if weather and isinstance(weather, str):
