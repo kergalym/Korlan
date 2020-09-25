@@ -15,6 +15,7 @@ class NpcFSM(FSM):
         self.husband = Husband()
         self.mongol = Mongol()
 
+        # TODO: Get classes from level asset, not npcs_classes
         self.npcs_classes = {
             self.husband.name: {'class': 'friend'},
             self.mongol.name: {'class': 'enemy'},
@@ -26,17 +27,17 @@ class NpcFSM(FSM):
         self.npcs_xyz_vec = {}
         base.fsm = self
 
-    def npc_distance_calculate_task(self, player, actor, npcs_actor_refs, task):
-        if (player and actor and npcs_actor_refs and self.npcs_names
+    def npc_distance_calculate_task(self, player, ai_chars, npcs_actor_refs, task):
+        if (player and ai_chars and npcs_actor_refs and self.npcs_names
                 and isinstance(npcs_actor_refs, dict)
                 and isinstance(self.npcs_names, list)):
+            import pdb; pdb.set_trace()
             for npc, ref in zip(self.npcs_names, npcs_actor_refs):
 
                 # Drop :BS suffix since we'll get Bullet Shape NodePath here
                 # by our special get_actor_bullet_shape_node()
                 # npc = npc.split(":")[0]
 
-                # if npc == ref:
                 actor = self.base.get_actor_bullet_shape_node(asset=ref, type="NPC")
                 xyz_vec = self.base.npc_distance_calculate(player=player, actor=actor)
 

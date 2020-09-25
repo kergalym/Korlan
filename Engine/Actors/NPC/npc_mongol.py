@@ -1,9 +1,8 @@
 from direct.actor.Actor import Actor
 from direct.task.TaskManagerGlobal import taskMgr
-from Engine.FSM.npc_fsm import NpcFSM
 
 
-class NPC:
+class NpcMongol:
     def __init__(self):
         self.scale_x = 1.25
         self.scale_y = 1.25
@@ -14,16 +13,15 @@ class NPC:
         self.rot_h = -0.10
         self.rot_p = 0
         self.rot_r = 0
-        self.actor = None
         self.base = base
         self.render = render
+        self.actor = None
         self.anims = None
         self.game_settings = base.game_settings
         self.game_dir = base.game_dir
         self.actor_life_perc = None
         self.base.actor_is_dead = False
         self.base.actor_is_alive = False
-        self.npc_fsm = NpcFSM()
 
     def actor_life(self, task):
         self.has_actor_life()
@@ -63,14 +61,14 @@ class NPC:
             self.actor = await self.base.loader.load_model(path, blocking=False)
             self.actor = Actor(self.actor, animation[1])
 
+            base.npc_is_loaded = 1
+
             self.actor.set_name(name)
             self.actor.set_scale(self.actor, self.scale_x, self.scale_y, self.scale_z)
             self.actor.set_pos(self.pos_x, self.pos_y, self.pos_z)
             self.actor.set_h(self.actor, self.rot_h)
             self.actor.set_p(self.actor, self.rot_p)
             self.actor.set_r(self.actor, self.rot_r)
-
-            base.npc_is_loaded = 1
 
             # Get actor joints
             base.actor_joints = self.actor.get_joints()
@@ -99,7 +97,6 @@ class NPC:
 
             taskMgr.add(self.actor_life,
                         "actor_life")
-
 
 
 

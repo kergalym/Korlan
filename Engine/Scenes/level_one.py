@@ -2,7 +2,8 @@ from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import *
 from Engine.Actors.Player.korlan import Korlan
 from Engine.Actors.Player.state import PlayerState
-from Engine.Actors.NPC.npc import NPC
+from Engine.Actors.NPC.npc_ernar import NpcErnar
+from Engine.Actors.NPC.npc_mongol import NpcMongol
 from Engine.AI.ai import AI
 from Engine.Render.render import RenderAttr
 from Engine.Scenes.scene import SceneOne
@@ -24,7 +25,8 @@ class LevelOne:
         self.render_attr = RenderAttr()
         self.scene_one = SceneOne()
         self.korlan = Korlan()
-        self.npc = NPC()
+        self.npc_ernar = NpcErnar()
+        self.npc_mongol = NpcMongol()
         self.stat_ui = StatUI()
         self.player_state = PlayerState()
         self.physics_attr = PhysicsAttr()
@@ -38,12 +40,16 @@ class LevelOne:
     # TODO: FIXME!
     def collect_actor_refs_task(self, task):
         if hasattr(base, "npc_is_loaded") and base.npc_is_loaded == 1:
-            if self.npc.actor:
-                actor_ref = self.npc.actor
+            if (self.npc_ernar.actor
+                    and self.npc_mongol.actor):
                 # Get only Actor, not a child of NodePath
-                if "BS" not in actor_ref.get_parent().get_name():
-                    base.npcs_actor_refs[actor_ref.get_name()] = actor_ref
+                if "BS" not in self.npc_ernar.actor.get_parent().get_name():
+                    base.npcs_actor_refs[self.npc_ernar.actor.get_name()] = self.npc_ernar.actor
 
+                if "BS" not in self.npc_mongol.actor.get_parent().get_name():
+                    base.npcs_actor_refs[self.npc_mongol.actor.get_name()] = self.npc_mongol.actor
+
+            print(base.npcs_actor_refs)
         if hasattr(base, "loading_is_done") and base.loading_is_done == 1:
             return task.done
 
@@ -102,9 +108,12 @@ class LevelOne:
                     if self.korlan.korlan:
                         self.korlan.korlan.delete()
                         self.korlan.korlan.cleanup()
-                    if self.npc.actor:
-                        self.npc.actor.delete()
-                        self.npc.actor.cleanup()
+                    if self.npc_ernar.actor:
+                        self.npc_ernar.actor.delete()
+                        self.npc_ernar.actor.cleanup()
+                    if self.npc_mongol.actor:
+                        self.npc_mongol.actor.delete()
+                        self.npc_mongol.actor.cleanup()
 
                     render.find("**/{0}".format(node)).remove_node()
                     render.find("**/{0}".format(node)).clear()
@@ -168,9 +177,12 @@ class LevelOne:
                 if self.korlan.korlan:
                     self.korlan.korlan.delete()
                     self.korlan.korlan.cleanup()
-                if self.npc.actor:
-                    self.npc.actor.delete()
-                    self.npc.actor.cleanup()
+                if self.npc_ernar.actor:
+                    self.npc_ernar.actor.delete()
+                    self.npc_ernar.actor.cleanup()
+                if self.npc_mongol.actor:
+                    self.npc_mongol.actor.delete()
+                    self.npc_mongol.actor.cleanup()
 
                 render.find("**/{0}".format(node)).remove_node()
                 render.find("**/{0}".format(node)).clear()
@@ -266,24 +278,24 @@ class LevelOne:
                                           scale=[1.25, 1.25, 1.25],
                                           culling=True))
 
-        # TODO: Make multiple actors loading
-        taskMgr.add(self.npc.set_actor(mode="game",
-                                       name="NPC_Ernar",
-                                       path=assets['NPC'],
-                                       animation=anims,
-                                       axis=[-15.0, 15.0, self.pos_z],
-                                       rotation=[0, 0, 0],
-                                       scale=[1.25, 1.25, 1.25],
-                                       culling=True))
+        taskMgr.add(self.npc_ernar.set_actor(mode="game",
+                                             name="NPC_Ernar",
+                                             path=assets['NPC_Ernar'],
+                                             animation=anims,
+                                             axis=[-15.0, 15.0, self.pos_z],
+                                             rotation=[0, 0, 0],
+                                             scale=[1.25, 1.25, 1.25],
+                                             culling=True))
 
-        taskMgr.add(self.npc.set_actor(mode="game",
-                                       name="NPC_Mongol",
-                                       path=assets['NPC'],
-                                       animation=anims,
-                                       axis=[-15.0, 15.0, self.pos_z],
-                                       rotation=[0, 0, 0],
-                                       scale=[1.25, 1.25, 1.25],
-                                       culling=True))
+        taskMgr.add(self.npc_mongol.set_actor(mode="game",
+                                              name="NPC_Mongol",
+                                              path=assets['NPC_Mongol'],
+                                              animation=anims,
+                                              axis=[-15.0, 15.0, self.pos_z],
+                                              rotation=[0, 0, 0],
+                                              scale=[1.25, 1.25, 1.25],
+                                              culling=True))
+
         """ Task for Debug mode """
         taskMgr.add(self.stat_ui.show_game_stat_task,
                     "show_game_stat",
