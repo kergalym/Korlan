@@ -47,7 +47,6 @@ class LevelOne:
 
                 base.npcs_actor_refs[self.npc_mongol.actor.get_name()] = self.npc_mongol.actor
 
-            print(base.npcs_actor_refs)
         if hasattr(base, "loading_is_done") and base.loading_is_done == 1:
             return task.done
 

@@ -27,16 +27,14 @@ class NpcFSM(FSM):
         self.npcs_xyz_vec = {}
         base.fsm = self
 
-    def npc_distance_calculate_task(self, player, ai_chars, npcs_actor_refs, task):
-        if (player and ai_chars and npcs_actor_refs and self.npcs_names
+    def npc_distance_calculate_task(self, player, npcs_actor_refs, task):
+        if (player and npcs_actor_refs and self.npcs_names
                 and isinstance(npcs_actor_refs, dict)
                 and isinstance(self.npcs_names, list)):
             for npc, ref in zip(self.npcs_names, npcs_actor_refs):
-
                 # Drop :BS suffix since we'll get Bullet Shape NodePath here
                 # by our special get_actor_bullet_shape_node()
                 # npc = npc.split(":")[0]
-
                 actor = self.base.get_actor_bullet_shape_node(asset=ref, type="NPC")
                 xyz_vec = self.base.npc_distance_calculate(player=player, actor=actor)
 
@@ -44,7 +42,7 @@ class NpcFSM(FSM):
                     tuple_xyz_vec = xyz_vec['vector']
                     # Here we put tuple xyz values to our class member npcs_xyz_vec
                     # for every actor name like 'NPC_Ernar:BS'
-                    self.npcs_xyz_vec = {actor.get_name(): tuple_xyz_vec}
+                    self.npcs_xyz_vec[actor.get_name()] = tuple_xyz_vec
 
         if base.game_mode is False and base.menu_mode:
             return task.done

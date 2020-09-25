@@ -61,12 +61,12 @@ class AI:
                                     self.ai_behaviors = self.ai_char.get_ai_behaviors()
                                     self.ai_chars[actor.get_name()] = actor
 
-                                    taskMgr.add(self.npc_fsm.npc_distance_calculate_task,
-                                                "npc_distance_calculate_task",
-                                                extraArgs=[self.player, actor, base.npcs_actor_refs],
-                                                appendTask=True)
+                taskMgr.add(self.npc_fsm.npc_distance_calculate_task,
+                            "npc_distance_calculate_task",
+                            extraArgs=[self.player, base.npcs_actor_refs],
+                            appendTask=True)
 
-                                    return task.done
+                return task.done
 
         return task.cont
 
@@ -189,7 +189,6 @@ class AI:
             actor_bs_name = "{0}:BS".format(actor.get_name())
 
             if actor_bs_name:
-                import pdb; pdb.set_trace()
                 vec_x = self.npc_fsm.npcs_xyz_vec[actor_bs_name][0]
 
                 # If NPC is far from Player
