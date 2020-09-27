@@ -5,9 +5,9 @@ from Engine.Actors.NPC.Classes.npc_husband import Husband
 from Engine.Actors.NPC.Classes.npc_mongol import Mongol
 
 
-class NpcFSM(FSM):
+class NpcMongolFSM(FSM):
     def __init__(self):
-        FSM.__init__(self, "NpcFSM")
+        FSM.__init__(self, "NpcErnarFSM")
         self.base = base
         self.render = render
         self.taskMgr = taskMgr
@@ -98,13 +98,14 @@ class NpcFSM(FSM):
 
                 taskMgr.add(self.keep_actor_pitch_task,
                             "keep_actor_pitch",
-                            extraArgs=[actor],
                             appendTask=True)
 
-    def keep_actor_pitch_task(self, actor, task):
-        if actor:
-            # Prevent pitch changing
-            actor.set_p(0)
+    def keep_actor_pitch_task(self, task):
+        for name in self.npcs_names:
+            if not render.find("**/{0}".format(name)).is_empty():
+                actor = render.find("**/{0}".format(name))
+                # Prevent pitch changing
+                actor.set_p(0)
 
         if base.game_mode is False and base.menu_mode:
             return task.done

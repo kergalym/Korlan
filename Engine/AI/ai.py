@@ -2,7 +2,8 @@ from panda3d.ai import AIWorld
 from panda3d.ai import AICharacter
 from direct.task.TaskManagerGlobal import taskMgr
 from Engine.FSM.player_fsm import PlayerFSM
-from Engine.FSM.npc_fsm import NpcFSM
+from Engine.FSM.npc_ernar_fsm import NpcErnarFSM
+from Engine.FSM.npc_mongol_fsm import NpcMongolFSM
 
 
 class AI:
@@ -12,11 +13,11 @@ class AI:
         self.taskMgr = taskMgr
         self.ai_world = AIWorld(render)
         self.player_fsm = PlayerFSM()
-        self.npc_fsm = NpcFSM()
+        self.npc_ernar_fsm = NpcErnarFSM()
+        self.npc_mongol_fsm = NpcMongolFSM()
         self.ai_char = None
-        self.ai_chars = {}
         self.player = None
-        self.ai_behaviors = None
+        self.ai_behaviors = {}
 
     def set_ai_world(self, assets, task):
         if (assets and isinstance(assets, dict)
@@ -45,8 +46,8 @@ class AI:
                                     speed = 6
 
                                     # Do not duplicate if name is exist
-                                    if actor.get_name() not in self.npc_fsm.npcs_names:
-                                        self.npc_fsm.npcs_names.append(actor.get_name())
+                                    if actor.get_name() not in self.npc_ernar_fsm.npcs_names:
+                                        self.npc_ernar_fsm.npcs_names.append(actor.get_name())
 
                                     # TODO: Add more characters
                                     # Reset object(s) for every method call to prevent Assertion errors
@@ -54,14 +55,14 @@ class AI:
                                         # self.ai_world.remove_ai_char(actor_cls)
                                         # self.ai_world.remove_ai_char(actor.get_name())
                                         # self.ai_world = AIWorld(render)
-                                        self.npc_fsm.state = "Off"
+                                        self.npc_ernar_fsm.state = "Off"
 
                                     self.ai_char = AICharacter(actor_cls, actor, 100, 0.05, speed)
                                     self.ai_world.add_ai_char(self.ai_char)
-                                    self.ai_behaviors = self.ai_char.get_ai_behaviors()
-                                    self.ai_chars[actor.get_name()] = actor
+                                    child_name = actor.get_child(0).get_name()
+                                    self.ai_behaviors[child_name] = self.ai_char.get_ai_behaviors()
 
-                taskMgr.add(self.npc_fsm.npc_distance_calculate_task,
+                taskMgr.add(self.npc_ernar_fsm.npc_distance_calculate_task,
                             "npc_distance_calculate_task",
                             extraArgs=[self.player, base.npcs_actor_refs],
                             appendTask=True)
@@ -92,45 +93,45 @@ class AI:
                 and base.npcs_actor_refs):
             for actor_name in base.npcs_actor_refs:
                 actor = base.npcs_actor_refs[actor_name]
-                npc_class = self.npc_fsm.set_npc_class(actor=actor)
-                if npc_class and self.npc_fsm.npcs_xyz_vec:
+                npc_class = self.npc_ernar_fsm.set_npc_class(actor=actor)
+                if npc_class and self.npc_ernar_fsm.npcs_xyz_vec:
 
                     # Add :BS suffix since we'll get Bullet Shape NodePath here
-                    actor_bs_name = "{0}:BS".format(actor.get_name())
+                    # actor_bs_name = "{0}:BS".format(actor.get_name())
 
                     if npc_class.get('class') == "friend":
                         self.npc_friend_logic(actor=actor, boolean=True)
                     if npc_class.get('class') == "enemy":
                         self.npc_enemy_logic(actor=actor, boolean=True)
 
-                    else:
-                        if int(self.npc_fsm.npcs_xyz_vec[actor_bs_name][0]) > 1:
-                            self.npc_fsm.request("Walk", actor, self.player, self.ai_behaviors,
-                                                 "seek", "Walking", "loop")
+                    """else:
+                        if int(self.npc_ernar_fsm.npcs_xyz_vec[actor_bs_name][0]) > 1:
+                            self.npc_ernar_fsm.request("Walk", actor, self.player, self.ai_behaviors[actor.get_name()],
+                                                       "seek", "Walking", "loop")
 
-                        if int(self.npc_fsm.npcs_xyz_vec[actor_bs_name][0]) < 2:
-                            self.npc_fsm.request("Walk", actor, self.player, self.ai_behaviors,
-                                                 "flee", "Walking", "loop")
+                        if int(self.npc_ernar_fsm.npcs_xyz_vec[actor_bs_name][0]) < 2:
+                            self.npc_ernar_fsm.request("Walk", actor, self.player, self.ai_behaviors[actor.get_name()],
+                                                       "flee", "Walking", "loop")
 
-                        if int(self.npc_fsm.npcs_xyz_vec[actor_bs_name][0]) < 1:
-                            self.npc_fsm.request("Walk", actor, self.player, self.ai_behaviors,
-                                                 "evader", "Walking", "loop")
+                        if int(self.npc_ernar_fsm.npcs_xyz_vec[actor_bs_name][0]) < 1:
+                            self.npc_ernar_fsm.request("Walk", actor, self.player, self.ai_behaviors[actor.get_name()],
+                                                       "evader", "Walking", "loop")
 
-                        if int(self.npc_fsm.npcs_xyz_vec[actor_bs_name][0]) > 1:
-                            self.npc_fsm.request("Walk", actor, self.player, self.ai_behaviors,
-                                                 "wanderer", "Walking", "loop")
+                        if int(self.npc_ernar_fsm.npcs_xyz_vec[actor_bs_name][0]) > 1:
+                            self.npc_ernar_fsm.request("Walk", actor, self.player, self.ai_behaviors[actor.get_name()],
+                                                       "wanderer", "Walking", "loop")
 
-                        if int(self.npc_fsm.npcs_xyz_vec[actor_bs_name][0]) < 1:
-                            self.npc_fsm.request("Walk", actor, self.player, self.ai_behaviors,
-                                                 "obs_avoid", "Walking", "loop")
+                        if int(self.npc_ernar_fsm.npcs_xyz_vec[actor_bs_name][0]) < 1:
+                            self.npc_ernar_fsm.request("Walk", actor, self.player, self.ai_behaviors[actor.get_name()],
+                                                       "obs_avoid", "Walking", "loop")
 
-                        if int(self.npc_fsm.npcs_xyz_vec[actor_bs_name][0]) > 1:
-                            self.npc_fsm.request("Walk", actor, self.player, self.ai_behaviors,
-                                                 "path_follow", "Walking", "loop")
+                        if int(self.npc_ernar_fsm.npcs_xyz_vec[actor_bs_name][0]) > 1:
+                            self.npc_ernar_fsm.request("Walk", actor, self.player, self.ai_behaviors[actor.get_name()],
+                                                       "path_follow", "Walking", "loop")
 
-                        if int(self.npc_fsm.npcs_xyz_vec[actor_bs_name][0]) > 1:
-                            self.npc_fsm.request("Walk", actor, self.player, self.ai_behaviors,
-                                                 "path_finding", "Walking", "loop")
+                        if int(self.npc_ernar_fsm.npcs_xyz_vec[actor_bs_name][0]) > 1:
+                            self.npc_ernar_fsm.request("Walk", actor, self.player, self.ai_behaviors[actor.get_name()],
+                                                       "path_finding", "Walking", "loop")"""
 
         if base.game_mode is False and base.menu_mode:
             return task.done
@@ -138,72 +139,71 @@ class AI:
         return task.cont
 
     def npc_friend_logic(self, actor, boolean):
-        if (actor and boolean and self.npc_fsm.npcs_xyz_vec
-                and isinstance(self.npc_fsm.npcs_xyz_vec, dict)):
+        if (actor and boolean and self.npc_ernar_fsm.npcs_xyz_vec
+                and isinstance(self.npc_ernar_fsm.npcs_xyz_vec, dict)):
 
             # Add :BS suffix since we'll get Bullet Shape NodePath here
             actor_bs_name = "{0}:BS".format(actor.get_name())
 
             if actor_bs_name:
-                vec_x = self.npc_fsm.npcs_xyz_vec[actor_bs_name][0]
-
+                vec_x = self.npc_ernar_fsm.npcs_xyz_vec[actor_bs_name][0]
                 # If NPC is far from Player
                 if vec_x > 1.0 or vec_x < -1.0:
-                    self.npc_fsm.request("Walk", actor, self.player, self.ai_behaviors,
-                                         "pursuer", "Walking", "loop")
+                    self.npc_ernar_fsm.request("Walk", actor, self.player, self.ai_behaviors[actor.get_name()],
+                                               "pursuer", "Walking", "loop")
 
                 # If NPC is close to Player, just stay
-                elif self.ai_behaviors.behavior_status("pursue") == "done":
+                elif self.ai_behaviors[actor.get_name()].behavior_status("pursue") == "done":
                     # TODO: Change action to something more suitable
-                    self.npc_fsm.request("Idle", actor, "LookingAround", "loop")
+                    self.npc_ernar_fsm.request("Idle", actor, "LookingAround", "loop")
 
                 """# If NPC is close to Player, do attack
                 elif self.ai_behaviors.behavior_status("pursue") == "done":
-                    self.npc_fsm.request("Attack", actor, "Boxing", "loop")"""
+                    self.npc_ernar_fsm.request("Attack", actor, "Boxing", "loop")"""
 
     def npc_neutral_logic(self, actor, boolean):
-        if (actor and boolean and self.npc_fsm.npcs_xyz_vec
-                and isinstance(self.npc_fsm.npcs_xyz_vec, dict)):
+        if (actor and boolean and self.npc_ernar_fsm.npcs_xyz_vec
+                and isinstance(self.npc_ernar_fsm.npcs_xyz_vec, dict)):
 
             # Add :BS suffix since we'll get Bullet Shape NodePath here
             actor_bs_name = "{0}:BS".format(actor.get_name())
 
             if actor_bs_name:
-                vec_x = self.npc_fsm.npcs_xyz_vec[actor_bs_name][0]
+                vec_x = self.npc_ernar_fsm.npcs_xyz_vec[actor_bs_name][0]
 
                 # If NPC is far from Player
                 if vec_x > 1.0 or vec_x < -1.0:
-                    self.npc_fsm.request("Walk", actor, self.player, self.ai_behaviors,
-                                         "pursuer", "Walking", "loop")
+                    self.npc_ernar_fsm.request("Walk", actor, self.player, self.ai_behaviors[actor.get_name()],
+                                               "pursuer", "Walking", "loop")
 
                 # If NPC is close to Player, just stay
-                elif self.ai_behaviors.behavior_status("pursue") == "done":
+                elif self.ai_behaviors[actor.get_name()].behavior_status("pursue") == "done":
                     # TODO: Change action to something more suitable
-                    self.npc_fsm.request("Idle", actor, "LookingAround", "loop")
+                    self.npc_ernar_fsm.request("Idle", actor, "LookingAround", "loop")
 
     def npc_enemy_logic(self, actor, boolean):
-        if (actor and boolean and self.npc_fsm.npcs_xyz_vec
-                and isinstance(self.npc_fsm.npcs_xyz_vec, dict)):
+        if (actor and boolean and self.npc_mongol_fsm.npcs_xyz_vec
+                and isinstance(self.npc_mongol_fsm.npcs_xyz_vec, dict)):
 
             # Add :BS suffix since we'll get Bullet Shape NodePath here
             actor_bs_name = "{0}:BS".format(actor.get_name())
 
             if actor_bs_name:
-                vec_x = self.npc_fsm.npcs_xyz_vec[actor_bs_name][0]
+                vec_x = self.npc_mongol_fsm.npcs_xyz_vec[actor_bs_name][0]
 
                 # If NPC is far from Player
                 if vec_x > 1.0 or vec_x < -1.0:
-                    self.npc_fsm.request("Walk", actor, self.player, self.ai_behaviors,
-                                         "pursuer", "Walking", "loop")
+                    self.npc_mongol_fsm.request("Walk", actor, self.player, self.ai_behaviors[actor.get_name()],
+                                               "pursuer", "Walking", "loop")
 
                 # If NPC is close to Player, just stay
-                elif self.ai_behaviors.behavior_status("pursue") == "done":
+                elif self.ai_behaviors[actor.get_name()].behavior_status("pursue") == "done":
                     # TODO: Change action to something more suitable
-                    self.npc_fsm.request("Idle", actor, "LookingAround", "loop")
+                    self.npc_mongol_fsm.request("Idle", actor, "LookingAround", "loop")
 
                 # If NPC is close to Player, do attack
-                elif self.ai_behaviors.behavior_status("pursue") == "done":
-                    self.npc_fsm.request("Attack", actor, "Boxing", "loop")
+                elif self.ai_behaviors[actor.get_name()].behavior_status("pursue") == "done":
+                    self.npc_mongol_fsm.request("Attack", actor, "Boxing", "loop")
 
     def set_weather(self, weather):
         if weather and isinstance(weather, str):
