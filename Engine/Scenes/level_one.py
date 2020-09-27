@@ -31,11 +31,11 @@ class LevelOne:
         self.player_state = PlayerState()
         self.physics_attr = PhysicsAttr()
         self.ai = AI()
+        self.base.npcs_actor_refs = {}
         self.pos_x = None
         self.pos_y = None
         self.pos_z = 0
         self.anim = None
-        self.base.npcs_actor_refs = {}
 
     # TODO: FIXME!
     def collect_actor_refs_task(self, task):
@@ -288,7 +288,7 @@ class LevelOne:
                                               name="NPC_Mongol",
                                               path=assets['NPC_Mongol'],
                                               animation=anims,
-                                              axis=[-15.0, 15.0, self.pos_z],
+                                              axis=[-25.0, 15.0, self.pos_z],
                                               rotation=[0, 0, 0],
                                               scale=[1.25, 1.25, 1.25],
                                               culling=True))
