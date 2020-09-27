@@ -155,7 +155,7 @@ class AI:
                                                "pursuer", "Walking", "loop")
 
                 # If NPC is close to Player, just stay
-                elif self.ai_behaviors[actor.get_name()].behavior_status("pursue") == "done":
+                if self.ai_behaviors[actor.get_name()].behavior_status("pursue") == "done":
                     # TODO: Change action to something more suitable
                     self.npc_ernar_fsm.request("Idle", actor, "LookingAround", "loop")
 
@@ -179,7 +179,7 @@ class AI:
                                                "pursuer", "Walking", "loop")
 
                 # If NPC is close to Player, just stay
-                elif self.ai_behaviors[actor.get_name()].behavior_status("pursue") == "done":
+                if self.ai_behaviors[actor.get_name()].behavior_status("pursue") == "done":
                     # TODO: Change action to something more suitable
                     self.npc_ernar_fsm.request("Idle", actor, "LookingAround", "loop")
 
@@ -199,12 +199,12 @@ class AI:
                                                 "pursuer", "Walking", "loop")
 
                 # If NPC is close to Player, just stay
-                elif self.ai_behaviors[actor.get_name()].behavior_status("pursue") == "done":
+                """"if self.ai_behaviors[actor.get_name()].behavior_status("pursue") == "done":
                     # TODO: Change action to something more suitable
-                    self.npc_mongol_fsm.request("Idle", actor, "LookingAround", "loop")
+                    self.npc_mongol_fsm.request("Idle", actor, "LookingAround", "loop")"""
 
                 # If NPC is close to Player, do attack
-                elif self.ai_behaviors[actor.get_name()].behavior_status("pursue") == "done":
+                if self.ai_behaviors[actor.get_name()].behavior_status("pursue") == "done":
                     self.npc_mongol_fsm.request("Attack", actor, "Boxing", "loop")
 
     def set_weather(self, weather):

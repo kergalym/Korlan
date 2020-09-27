@@ -154,3 +154,9 @@ class NpcMongolFSM(FSM):
             return (request,) + args
         else:
             return None
+
+    def filterAttack(self, request, args):
+        if request not in ['Attack']:
+            return (request,) + args
+        else:
+            return None
