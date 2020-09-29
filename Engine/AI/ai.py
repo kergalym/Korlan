@@ -79,8 +79,6 @@ class AI:
 
             # Debug: delete soon
             # self.ai_world.print_list()
-            # print(self.npc_fsm.npcs_xyz_vec)
-            # self.player = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
 
         if base.game_mode is False and base.menu_mode:
             return task.done
