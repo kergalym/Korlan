@@ -1,7 +1,5 @@
 from direct.task.TaskManagerGlobal import taskMgr
 from Engine.Actors.NPC.state import NpcState
-from Engine.Actors.NPC.Classes.npc_husband import Husband
-from Engine.Actors.NPC.Classes.npc_mongol import Mongol
 
 
 class NpcFSM:
@@ -10,17 +8,8 @@ class NpcFSM:
         self.render = render
         self.taskMgr = taskMgr
         self.npc_state = NpcState()
-        self.husband = Husband()
-        self.mongol = Mongol()
-
-        # TODO: Get classes from level asset, not npcs_classes
-        self.npcs_classes = {
-            self.husband.name: {'class': 'friend'},
-            self.mongol.name: {'class': 'enemy'},
-        }
 
         self.npcs_actor_refs = {}
-
         self.npcs_names = []
         self.npcs_xyz_vec = {}
 
@@ -112,8 +101,10 @@ class NpcFSM:
 
         return task.done
 
-    def set_npc_class(self, actor):
-        if actor and not actor.is_empty():
-            for actor_cls in self.npcs_classes:
+    def set_npc_class(self, actor, npc_classes):
+        if (actor and not actor.is_empty()
+                and npc_classes and isinstance(npc_classes, dict)):
+
+            for actor_cls in npc_classes:
                 if actor_cls in actor.get_name():
-                    return self.npcs_classes[actor_cls]
+                    return npc_classes[actor_cls]
