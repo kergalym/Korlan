@@ -25,11 +25,11 @@ class AI:
         if (assets and isinstance(assets, dict)
                 and hasattr(base, "npcs_actor_refs")
                 and base.npcs_actor_refs):
+
             if assets.get("name") and assets.get("class"):
                 actor = None
 
                 for name, in zip(assets.get("name")):
-
                     if name == "Player":
                         self.player = self.base.get_actor_bullet_shape_node(asset=name, type="Player")
 
@@ -51,16 +51,9 @@ class AI:
                                     if actor.get_name() not in self.npc_fsm.npcs_names:
                                         self.npc_fsm.npcs_names.append(actor.get_name())
 
-                                    # TODO: Add more characters
-                                    # Reset object(s) for every method call to prevent Assertion errors
-                                    if self.ai_char:
-                                        # self.ai_world.remove_ai_char(actor_cls)
-                                        # self.ai_world.remove_ai_char(actor.get_name())
-                                        # self.ai_world = AIWorld(render)
-                                        self.npc_ernar_fsm.state = "Off"
-
                                     self.ai_char = AICharacter(actor_cls, actor, 100, 0.05, speed)
                                     self.ai_world.add_ai_char(self.ai_char)
+
                                     child_name = actor.get_child(0).get_name()
                                     self.ai_behaviors[child_name] = self.ai_char.get_ai_behaviors()
 
@@ -82,6 +75,7 @@ class AI:
                 # self.ai_world.update()
                 pass
 
+            # Debug: delete soon
             # self.ai_world.print_list()
 
         if base.game_mode is False and base.menu_mode:
@@ -103,6 +97,8 @@ class AI:
 
                     if npc_class.get('class') == "friend":
                         self.npc_friend_logic(actor=actor, boolean=True)
+                    if npc_class.get('class') == "neutral":
+                        self.npc_enemy_logic(actor=actor, boolean=True)
                     if npc_class.get('class') == "enemy":
                         self.npc_enemy_logic(actor=actor, boolean=True)
 

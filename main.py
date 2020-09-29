@@ -529,6 +529,7 @@ class Main(ShowBase):
             if type == "NPC":
                 if "NPC" in asset:
                     name = asset
+
                     if not render.find("**/{0}:BS".format(name)).is_empty():
                         return render.find("**/{0}:BS".format(name))
 

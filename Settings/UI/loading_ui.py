@@ -102,6 +102,7 @@ class LoadingUI:
             return [queue, num]
 
     def loading_measure(self, task):
+        self.base.loading_is_done = 0
         if hasattr(base, "level_assets"):
             assets = base.level_assets
             matched = self.get_loading_queue_list(assets['name'])
