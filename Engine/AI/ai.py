@@ -26,12 +26,15 @@ class AI:
                 and hasattr(base, "npcs_actor_refs")
                 and base.npcs_actor_refs):
 
+            self.npc_ernar_fsm.state = "Off"
+            self.npc_mongol_fsm.state = "Off"
+
             if assets.get("name") and assets.get("class"):
                 actor = None
 
-                for name, in zip(assets.get("name")):
-                    if name == "Player":
-                        self.player = self.base.get_actor_bullet_shape_node(asset=name, type="Player")
+                self.player = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
+
+                if self.player:
 
                     for actor_cls in assets["class"]:
                         if actor_cls:
@@ -57,12 +60,11 @@ class AI:
                                     child_name = actor.get_child(0).get_name()
                                     self.ai_behaviors[child_name] = self.ai_char.get_ai_behaviors()
 
-                taskMgr.add(self.npc_fsm.npc_distance_calculate_task,
-                            "npc_distance_calculate_task",
-                            extraArgs=[self.player, base.npcs_actor_refs],
-                            appendTask=True)
-
-                return task.done
+                    taskMgr.add(self.npc_fsm.npc_distance_calculate_task,
+                                "npc_distance_calculate_task",
+                                extraArgs=[self.player],
+                                appendTask=True)
+                    return task.done
 
         return task.cont
 
@@ -77,6 +79,8 @@ class AI:
 
             # Debug: delete soon
             # self.ai_world.print_list()
+            # print(self.npc_fsm.npcs_xyz_vec)
+            # self.player = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
 
         if base.game_mode is False and base.menu_mode:
             return task.done

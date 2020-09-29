@@ -24,11 +24,14 @@ class NpcFSM:
         self.npcs_names = []
         self.npcs_xyz_vec = {}
 
-    def npc_distance_calculate_task(self, player, npcs_actor_refs, task):
-        if (player and npcs_actor_refs and self.npcs_names
-                and isinstance(npcs_actor_refs, dict)
+    def npc_distance_calculate_task(self, player, task):
+        if (hasattr(base, 'npcs_actor_refs')
+                and isinstance(base.npcs_actor_refs, dict)
+                and self.npcs_names
                 and isinstance(self.npcs_names, list)):
-            for npc, ref in zip(self.npcs_names, npcs_actor_refs):
+            self.npcs_xyz_vec = {}
+
+            for npc, ref in zip(self.npcs_names, base.npcs_actor_refs):
                 # Drop :BS suffix since we'll get Bullet Shape NodePath here
                 # by our special get_actor_bullet_shape_node()
                 # npc = npc.split(":")[0]

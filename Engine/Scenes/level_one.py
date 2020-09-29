@@ -37,14 +37,12 @@ class LevelOne:
         self.pos_z = 0
         self.anim = None
 
-    # TODO: FIXME!
     def collect_actor_refs_task(self, task):
         if hasattr(base, "npc_is_loaded") and base.npc_is_loaded == 1:
             if (self.npc_ernar.actor
                     and self.npc_mongol.actor):
                 # Get only Actor, not a child of NodePath
                 base.npcs_actor_refs[self.npc_ernar.actor.get_name()] = self.npc_ernar.actor
-
                 base.npcs_actor_refs[self.npc_mongol.actor.get_name()] = self.npc_mongol.actor
 
         if hasattr(base, "loading_is_done") and base.loading_is_done == 1:
