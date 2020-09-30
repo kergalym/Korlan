@@ -112,35 +112,6 @@ class AI:
                     if npc_class == "enemy":
                         self.npc_enemy_logic(actor=actor, request=request, boolean=True)
 
-                    """else:
-                        if int(self.npc_ernar_fsm.npcs_xyz_vec[actor_bs_name][0]) > 1:
-                            self.npc_ernar_fsm.request("Walk", actor, self.player, self.ai_behaviors[actor.get_name()],
-                                                       "seek", "Walking", "loop")
-
-                        if int(self.npc_ernar_fsm.npcs_xyz_vec[actor_bs_name][0]) < 2:
-                            self.npc_ernar_fsm.request("Walk", actor, self.player, self.ai_behaviors[actor.get_name()],
-                                                       "flee", "Walking", "loop")
-
-                        if int(self.npc_ernar_fsm.npcs_xyz_vec[actor_bs_name][0]) < 1:
-                            self.npc_ernar_fsm.request("Walk", actor, self.player, self.ai_behaviors[actor.get_name()],
-                                                       "evader", "Walking", "loop")
-
-                        if int(self.npc_ernar_fsm.npcs_xyz_vec[actor_bs_name][0]) > 1:
-                            self.npc_ernar_fsm.request("Walk", actor, self.player, self.ai_behaviors[actor.get_name()],
-                                                       "wanderer", "Walking", "loop")
-
-                        if int(self.npc_ernar_fsm.npcs_xyz_vec[actor_bs_name][0]) < 1:
-                            self.npc_ernar_fsm.request("Walk", actor, self.player, self.ai_behaviors[actor.get_name()],
-                                                       "obs_avoid", "Walking", "loop")
-
-                        if int(self.npc_ernar_fsm.npcs_xyz_vec[actor_bs_name][0]) > 1:
-                            self.npc_ernar_fsm.request("Walk", actor, self.player, self.ai_behaviors[actor.get_name()],
-                                                       "path_follow", "Walking", "loop")
-
-                        if int(self.npc_ernar_fsm.npcs_xyz_vec[actor_bs_name][0]) > 1:
-                            self.npc_ernar_fsm.request("Walk", actor, self.player, self.ai_behaviors[actor.get_name()],
-                                                       "path_finding", "Walking", "loop")"""
-
         if base.game_mode is False and base.menu_mode:
             return task.done
 
