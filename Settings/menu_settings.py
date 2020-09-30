@@ -4,7 +4,6 @@ from pathlib import Path
 from os.path import exists
 from os.path import isfile
 from sys import exit as sys_exit
-from panda3d.core import WindowProperties
 
 
 class MenuSettings:
@@ -14,7 +13,6 @@ class MenuSettings:
         self.node = None
         self.lod = None
         self.game_settings = None
-        self.props = WindowProperties()
         self.cfg_parser = ConfigParser()
         self.allowed_keys = ['Q', 'W', 'E', 'R', 'T', 'Y', 'U',
                              'I', 'O', 'P', 'A', 'S', 'D', 'F',
@@ -209,5 +207,4 @@ class MenuSettings:
                 sys_exit("\nNo configuration loaded. "
                          "Please delete damaged configuration file and restart the game."
                          "\nFile: {0}".format(self.cfg_path_default))
-
 

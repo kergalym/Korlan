@@ -2,16 +2,14 @@ from direct.interval.IntervalGlobal import Sequence
 from direct.interval.IntervalGlobal import Parallel
 from direct.interval.IntervalGlobal import Func
 from direct.gui.DirectGui import *
-from panda3d.core import FontPool, TextNode, Texture
-from Engine.Scenes.level_one import LevelOne
+from panda3d.core import FontPool, TextNode
 from direct.task.TaskManagerGlobal import taskMgr
 
 
-class LoadingUI:
+class UnloadingUI:
 
     def __init__(self):
         self.base = base
-        self.level_one = LevelOne()
         self.game_settings = base.game_settings
         self.game_dir = base.game_dir
         self.fonts = base.fonts_collector()
@@ -102,12 +100,13 @@ class LoadingUI:
                     num += 1
             return [queue, num]
 
-    def loading_measure(self, task):
-        self.base.loading_is_done = 0
+    def unloading_measure(self, task):
+        self.base.unloading_is_done = 0
         if hasattr(base, "level_assets"):
             assets = base.level_assets
-            matched = self.get_loading_queue_list(assets['name'])
+            matched = self.get_loading_queue_list(assets['name'])  # unload
 
+            # TODO: Debug
             if matched:
                 num = matched[1]
                 asset_num = len(assets['name'])
@@ -116,31 +115,28 @@ class LoadingUI:
                     if self.loading_bar:
                         self.loading_bar['value'] += num
 
-                if num == asset_num:
+                if num == 0:
                     self.clear_loading_bar()
 
-                    self.base.loading_is_done = 1
+                    self.base.unloading_is_done = 1
 
                     return task.done
 
         return task.cont
 
-    def set_parallel_loading(self, type):
+    def set_parallel_unloading(self, type):
         if type and isinstance(type, str):
-            if type == "new_game":
+            if type == "exit_from_game":
 
                 # Remove all remained nodes
                 if not render.find('**/*').is_empty():
                     render.find('**/*').remove_node()
 
-                Sequence(Parallel(Func(self.set_loading_bar),
-                                  Func(self.level_one.load_new_game))
-                         ).start()
-                taskMgr.add(self.loading_measure,
-                            "loading_measure",
-                            appendTask=True)
-
-            elif type == "load_game":
-                self.level_one.load_saved_game()
-            elif type == "load_free_game":
-                self.level_one.load_free_game()
+                if (hasattr(base, 'unload_game_scene')
+                        and self.base.unload_game_scene):
+                    Sequence(Parallel(Func(self.set_loading_bar),
+                                      Func(self.base.unload_game_scene))
+                             ).start()
+                    taskMgr.add(self.unloading_measure,
+                                "unloading_measure",
+                                appendTask=True)

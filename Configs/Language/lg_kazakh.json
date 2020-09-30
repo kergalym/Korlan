@@ -6,8 +6,11 @@
   "options": "Баптамалар",
   "credits": "Әзірлеушілер",
   "dev_mode": "Әзірлеуші режимі",
-  "exit": "Шығу",
+  "quit_game": "Ойынды тоқтату",
+  "exit_game": "Ойыннан шығу",
+  "continue": "Ойынға оралу",
   "game":"Ойын баптаулары",
+  "game_exit_title": "Ішің пісті ма?",
   "graphics": "Графика",
   "sound": "Дыбыс",
   "language": "Тілді таңдау",
@@ -67,5 +70,9 @@
   "rot_p": "Rotation by P Axis",
   "rot_r": "Rotation by R Axis",
   "node_exp": "Enable Node Explorer",
-  "cache_clean": "Кэшті автоматты тазалау"
+  "cache_clean": "Кэшті автоматты тазалау",
+  "ok": "ОК",
+  "cancel": "Болдырмау",
+  "yes_exit_game": "Иә",
+  "no_exit_game": "Жоқ"
 }

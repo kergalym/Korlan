@@ -194,7 +194,7 @@ class MenuUI(MenuSettings):
                                          parent=self.base.frame,
                                          command=self.menu_dev.load_dev_mode_menu)
 
-        self.btn_exit = DirectButton(text=self.language['exit'], text_bg=(0, 0, 0, 1),
+        self.btn_exit = DirectButton(text=self.language['quit_game'], text_bg=(0, 0, 0, 1),
                                      text_fg=(255, 255, 255, 0.9),
                                      text_font=self.font.load_font(self.menu_font),
                                      frameColor=(255, 255, 255, self.frm_opacity),

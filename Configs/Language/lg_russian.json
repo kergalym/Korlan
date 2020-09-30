@@ -6,8 +6,11 @@
   "options": "Настройки",
   "credits": "Разработчики",
   "dev_mode": "Режим разработчика",
-  "exit": "Выход",
+  "quit_game": "Выйти из игры",
+  "exit_game": "Завершить игру",
+  "continue": "Продолжить",
   "game":"Параметры игры",
+  "game_exit_title": "Уже наскучило?",
   "graphics": "Графика",
   "sound": "Звук",
   "language": "Язык",
@@ -67,5 +70,9 @@
   "rot_p": "Rotation by P Axis",
   "rot_r": "Rotation by R Axis",
   "node_exp": "Enable Node Explorer",
-  "cache_clean": "Автоочистка кэша"
+  "cache_clean": "Автоочистка кэша",
+  "ok": "ОК",
+  "cancel": "Отмена",
+  "yes_exit_game": "Да",
+  "no_exit_game": "Нет"
 }

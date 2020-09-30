@@ -11,6 +11,7 @@ from Engine.Render.render import RenderAttr
 from Engine.Scenes.scene import SceneOne
 from Engine.Physics.physics import PhysicsAttr
 from Settings.UI.stat_ui import StatUI
+from Settings.UI.pause_menu_ui import PauseMenuUI
 
 
 class LevelOne:
@@ -32,6 +33,7 @@ class LevelOne:
         self.npc_ernar_fsm = NpcErnarFSM()
         self.npc_mongol_fsm = NpcMongolFSM()
         self.stat_ui = StatUI()
+        self.pause_game_ui = PauseMenuUI()
         self.player_state = PlayerState()
         self.physics_attr = PhysicsAttr()
         self.ai = AI()
@@ -127,7 +129,6 @@ class LevelOne:
             base.menu_mode = True
 
     def unload_menu_scene(self):
-        self.base.accept("escape", self.unload_game_scene)
         assets = self.base.assets_collector()
 
         # Remove all lights
@@ -195,6 +196,12 @@ class LevelOne:
 
     def load_new_game(self):
         self.unload_menu_scene()
+
+        # We make any unload_game_scene() method accessible
+        # to unload via UnloadingUI.set_parallel_unloading()
+        self.base.unload_game_scene = self.unload_game_scene
+
+        self.base.accept("escape", self.pause_game_ui.load_pause_menu)
 
         taskMgr.add(self.render_attr.set_daytime_clock_task,
                     "set_daytime_clock_task",

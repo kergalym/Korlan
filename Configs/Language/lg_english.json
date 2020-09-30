@@ -5,8 +5,11 @@
   "options": "Options",
   "credits": "Credits",
   "dev_mode": "Developer Mode",
-  "exit": "Exit",
+  "quit_game": "Quit Game",
+  "exit_game": "Exit Game",
+  "continue": "Continue",
   "game":"Game Options",
+  "game_exit_title": "Got upsetting?",
   "graphics": "Graphics",
   "sound": "Sound",
   "language": "Language",
@@ -66,5 +69,9 @@
   "rot_p": "Rotation by P Axis",
   "rot_r": "Rotation by R Axis",
   "node_exp": "Enable Node Explorer",
-  "cache_clean": "Automatic cache cleaning"
+  "cache_clean": "Automatic cache cleaning",
+  "ok": "OK",
+  "cancel": "Cancel",
+  "yes_exit_game": "Yes",
+  "no_exit_game": "No"
 }
