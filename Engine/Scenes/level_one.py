@@ -4,6 +4,8 @@ from Engine.Actors.Player.korlan import Korlan
 from Engine.Actors.Player.state import PlayerState
 from Engine.Actors.NPC.npc_ernar import NpcErnar
 from Engine.Actors.NPC.npc_mongol import NpcMongol
+from Engine.FSM.npc_ernar_fsm import NpcErnarFSM
+from Engine.FSM.npc_mongol_fsm import NpcMongolFSM
 from Engine.AI.ai import AI
 from Engine.Render.render import RenderAttr
 from Engine.Scenes.scene import SceneOne
@@ -27,11 +29,14 @@ class LevelOne:
         self.korlan = Korlan()
         self.npc_ernar = NpcErnar()
         self.npc_mongol = NpcMongol()
+        self.npc_ernar_fsm = NpcErnarFSM()
+        self.npc_mongol_fsm = NpcMongolFSM()
         self.stat_ui = StatUI()
         self.player_state = PlayerState()
         self.physics_attr = PhysicsAttr()
         self.ai = AI()
         self.base.npcs_actor_refs = {}
+        self.npcs_fsm_states = {}
         self.pos_x = None
         self.pos_y = None
         self.pos_z = 0
@@ -241,6 +246,13 @@ class LevelOne:
                         'shape': [None, 'auto', 'capsule', 'capsule', 'capsule'],
                         'class': [None, 'env', 'hero', 'friend', 'enemy']
                         }
+
+        for actor in level_assets['name']:
+            if "NPC_Ernar" in actor:
+                self.npcs_fsm_states[actor] = self.npc_ernar_fsm
+            if "NPC_Mongol" in actor:
+                self.npcs_fsm_states[actor] = self.npc_mongol_fsm
+
         base.level_assets = level_assets
 
         taskMgr.add(self.collect_actor_refs_task,
@@ -300,7 +312,7 @@ class LevelOne:
 
         taskMgr.add(self.ai.set_ai_world,
                     "set_ai_world",
-                    extraArgs=[level_assets],
+                    extraArgs=[level_assets,  self.npcs_fsm_states],
                     appendTask=True)
 
         taskMgr.add(self.ai.update_ai_world_task,
