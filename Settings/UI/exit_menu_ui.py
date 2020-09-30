@@ -50,8 +50,8 @@ class ExitMenuUI(ExitGame):
         self.logo = None
         self.ornament_left = None
         self.ornament_right = None
-        self.logo_scale = (0.33, 0.30, 0.30)
-        self.logo_pos = (-0.3, 0, 0.6)
+        self.logo_scale = (0.30, 0.30, 0.30)
+        self.logo_pos = (0.3, 0, 0.4)
         self.ornament_scale = (1.40, 0.05, 0.05)
         self.ornament_r_pos = (1.8, 0, -0.1)
 
@@ -116,7 +116,7 @@ class ExitMenuUI(ExitGame):
 
         self.unload_exit_menu()
 
-        self.logo = OnscreenImage(image=self.images['volume_icon'],
+        self.logo = OnscreenImage(image=self.images['korlan_logo_tengri'],
                                   pos=self.logo_pos)
         self.logo.set_transparency(TransparencyAttrib.MAlpha)
 
@@ -160,10 +160,10 @@ class ExitMenuUI(ExitGame):
 
         self.ornament_right.set_pos(self.ornament_r_snd_pos)
 
-        self.lbl_exit_title.set_pos(0.6, 0, 0.6)
+        self.lbl_exit_title.set_pos(0.3, 0, 0.1)
 
-        self.btn_param_decline.set_pos(1.5, 0, -0.9)
-        self.btn_param_accept.set_pos(-0.6, 0, -0.9)
+        self.btn_param_accept.set_pos(0.6, 0, -0.0)
+        self.btn_param_decline.set_pos(-0.0, 0, -0.0)
         # self.menu_mode = True
         base.active_frame = self.base.frame_int_exit
 
