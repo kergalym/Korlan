@@ -72,7 +72,9 @@ class LoadingUI:
             self.loading_bar.set_scale(0.9, 0, 0.1)
             self.loading_bar.reparent_to(self.loading_screen)
             self.title_loading_text.reparent_to(self.loading_screen)
-            self.loading_bar['range'] = len(assets)
+
+            if assets:
+                self.loading_bar['range'] = len(assets)
 
     def clear_loading_bar(self):
         if self.loading_bar:
