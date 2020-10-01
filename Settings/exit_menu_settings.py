@@ -20,5 +20,6 @@ class ExitGame(MenuSettings):
             Return      : None
         """
         self.unloading_ui.set_parallel_unloading(type="exit_from_game")
-        if hasattr(self.base, 'unload_pause_menu'):
+        if (hasattr(self.base, 'unload_pause_menu')
+                and self.base.unload_pause_menu):
             self.base.unload_pause_menu()

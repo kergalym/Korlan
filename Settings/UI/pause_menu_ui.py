@@ -244,7 +244,6 @@ class PauseMenuUI(MenuSettings):
             base.active_frame.destroy()
             base.is_ui_active = False
 
-        # TODO: Check it!
         if self.game_mode:
             self.base.frame_int_pause.destroy()
         self.base.frame_int_pause.destroy()

@@ -31,6 +31,7 @@ class Actions:
         self.items = Items()
         self.player_menu = PlayerMenuUI()
         self.state = PlayerState()
+        self.base.is_ui_active = False
 
     """ Play animation after action """
 
@@ -165,40 +166,41 @@ class Actions:
         # Here we accept keys
         # TODO: change animation and implement state for actions
         #  except movement, crouch and jump action
-        if base.player_state_unarmed:
-            self.player_movement_action(player, anims)
-            self.player_run_action(player, anims)
-            self.player_crouch_action(player, 'crouch', anims)
-            self.player_jump_action(player, "jump", anims, "Jumping")
-            self.player_use_action(player, "use", anims, "PickingUp")
-            self.player_hit_action(player, "attack", anims, "Boxing")
-            self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
-            self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
-            self.player_block_action(player, "block", anims, "center_blocking")
-        if base.player_state_armed:
-            self.player_movement_action(player, anims)
-            self.player_run_action(player, anims)
-            self.player_crouch_action(player, 'crouch', anims)
-            self.player_jump_action(player, "jump", anims, "Jumping")
-            self.player_use_action(player, "use", anims, "PickingUp")
-            # self.player_hit_action(player, "attack", anims, "Boxing")
-            # self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
-            # self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
-            # self.player_block_action(player, "block", anims, "center_blocking")
-            # self.player_sword_action(player, "sword", anims, "PickingUp")
-            # self.player_bow_action(player, "bow", anims, "PickingUp")
-        if base.player_state_magic:
-            self.player_movement_action(player, anims)
-            self.player_run_action(player, anims)
-            self.player_crouch_action(player, 'crouch', anims)
-            self.player_jump_action(player, "jump", anims, "Jumping")
-            self.player_use_action(player, "use", anims, "PickingUp")
-            self.player_hit_action(player, "attack", anims, "Boxing")
-            self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
-            self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
-            self.player_block_action(player, "block", anims, "center_blocking")
-            self.player_tengri_action(player, "tengri", anims, "PickingUp")
-            self.player_umai_action(player, "umai", anims, "PickingUp")
+        if not self.base.is_ui_active:
+            if base.player_state_unarmed:
+                self.player_movement_action(player, anims)
+                self.player_run_action(player, anims)
+                self.player_crouch_action(player, 'crouch', anims)
+                self.player_jump_action(player, "jump", anims, "Jumping")
+                self.player_use_action(player, "use", anims, "PickingUp")
+                self.player_hit_action(player, "attack", anims, "Boxing")
+                self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
+                self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
+                self.player_block_action(player, "block", anims, "center_blocking")
+            if base.player_state_armed:
+                self.player_movement_action(player, anims)
+                self.player_run_action(player, anims)
+                self.player_crouch_action(player, 'crouch', anims)
+                self.player_jump_action(player, "jump", anims, "Jumping")
+                self.player_use_action(player, "use", anims, "PickingUp")
+                # self.player_hit_action(player, "attack", anims, "Boxing")
+                # self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
+                # self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
+                # self.player_block_action(player, "block", anims, "center_blocking")
+                # self.player_sword_action(player, "sword", anims, "PickingUp")
+                # self.player_bow_action(player, "bow", anims, "PickingUp")
+            if base.player_state_magic:
+                self.player_movement_action(player, anims)
+                self.player_run_action(player, anims)
+                self.player_crouch_action(player, 'crouch', anims)
+                self.player_jump_action(player, "jump", anims, "Jumping")
+                self.player_use_action(player, "use", anims, "PickingUp")
+                self.player_hit_action(player, "attack", anims, "Boxing")
+                self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
+                self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
+                self.player_block_action(player, "block", anims, "center_blocking")
+                self.player_tengri_action(player, "tengri", anims, "PickingUp")
+                self.player_umai_action(player, "umai", anims, "PickingUp")
 
         # If the camera is too far from player, move it closer.
         # If the camera is too close to player, move it farther.
