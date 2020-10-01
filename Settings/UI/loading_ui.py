@@ -35,15 +35,6 @@ class LoadingUI:
         self.base.loading_is_done = 0
         self.base.unloading_is_done = 0
 
-    def gen_loading_items(self):
-        if hasattr(base, "assets_collector"):
-            data = base.assets_collector()
-            text = None
-            for obj in data:
-                text = "{0}\n".format(obj)
-                text += "{0}\n".format(obj)
-            return text
-
     def set_loading_bar(self):
         if (self.loading_bar
                 and self.title_loading_text
