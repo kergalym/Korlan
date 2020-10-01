@@ -116,7 +116,7 @@ class ExitMenuUI(ExitGame):
 
         self.unload_exit_menu()
 
-        self.logo = OnscreenImage(image=self.images['korlan_logo_tengri'],
+        self.logo = OnscreenImage(image=self.images['got_upsetting'],
                                   pos=self.logo_pos)
         self.logo.set_transparency(TransparencyAttrib.MAlpha)
 
