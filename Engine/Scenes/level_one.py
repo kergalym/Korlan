@@ -62,7 +62,6 @@ class LevelOne:
             self.base.game_mode = False
             self.base.menu_mode = True
             assets = self.base.assets_collector()
-            self.base.unloaded_asset = 0
 
             # Remove all lights
             if self.game_settings['Main']['postprocessing'] == 'off':
@@ -74,8 +73,6 @@ class LevelOne:
                   and self.game_settings['Main']['postprocessing'] == 'on'):
                 base.render_attr.clear_lighting()
 
-            self.base.unloaded_asset = 1
-
             # Remove Bullet World
             if not render.find("**/World").is_empty():
                 for i in range(render.find("**/World").get_num_nodes()):
@@ -83,16 +80,12 @@ class LevelOne:
                         render.find("**/World").remove_node()
                         render.find("**/World").clear()
 
-            self.base.unloaded_asset = 2
-
             # Remove Collisions
             if not render.find("**/Collisions").is_empty():
                 for i in range(render.find("**/Collisions").get_num_nodes()):
                     if not render.find("**/Collisions").is_empty():
                         render.find("**/Collisions").remove_node()
                         render.find("**/Collisions").clear()
-
-            self.base.unloaded_asset = 3
 
             # Remove WaterNodePath
             if not render.find("**/WaterNodePath").is_empty():
@@ -107,8 +100,6 @@ class LevelOne:
                     if not render.find("**/StateInitializer").is_empty():
                         render.find("**/StateInitializer").remove_node()
                         render.find("**/StateInitializer").clear()
-
-            self.base.unloaded_asset = 4
 
             # make pattern list from assets dict
             pattern = [key for key in assets]
@@ -133,8 +124,6 @@ class LevelOne:
                 self.loader.unload_model(assets[key])
 
             self.player_state.clear_state()
-
-            self.base.unloaded_asset = 5
 
             base.game_mode = False
             base.menu_mode = True

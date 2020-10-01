@@ -1,4 +1,4 @@
-from direct.interval.IntervalGlobal import Sequence
+from direct.interval.IntervalGlobal import Sequence, Wait
 from direct.interval.IntervalGlobal import Parallel
 from direct.interval.IntervalGlobal import Func
 from direct.gui.DirectGui import *
@@ -40,7 +40,6 @@ class UnloadingUI:
             self.title_unloading_text.show()
             self.unloading_screen.show()
         else:
-            assets = base.assets_collector()
             self.title_unloading_text = OnscreenText(text="",
                                                      pos=(-1.8, 0.9),
                                                      scale=0.03,
@@ -69,13 +68,12 @@ class UnloadingUI:
             self.unloading_bar.set_scale(0.9, 0, 0.1)
             self.unloading_bar.reparent_to(self.unloading_screen)
             self.title_unloading_text.reparent_to(self.unloading_screen)
-
-            if assets:
-                self.unloading_bar['range'] = 5
+            self.unloading_bar['range'] = 1
 
     def clear_unloading_bar(self):
         if self.unloading_bar:
             self.unloading_bar.hide()
+            self.unloading_bar['value'] = 0
         if self.unloading_screen:
             self.unloading_screen.hide()
         if self.title_unloading_text:
@@ -83,24 +81,13 @@ class UnloadingUI:
 
     def unloading_measure(self, task):
         self.base.unloading_is_done = 0
-        if hasattr(base, "unloaded_asset"):
-            matched = self.base.unloaded_asset
-
-            # TODO: Debug
-            if matched:
-                num = matched
-
-                if self.unloading_bar:
-                    self.unloading_bar['value'] += num
-
-                if num == 5:
-                    self.clear_unloading_bar()
-
-                    self.base.unloading_is_done = 1
-
-                    self.base.unloaded_asset = 0
-
-                    return task.done
+        if base.game_mode is False and base.menu_mode:
+            if self.unloading_bar:
+                Wait(1.0)
+                self.unloading_bar['value'] += 1
+                self.clear_unloading_bar()
+                self.base.unloading_is_done = 1
+                return task.done
 
         return task.cont
 

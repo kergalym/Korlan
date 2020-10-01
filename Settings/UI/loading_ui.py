@@ -79,6 +79,7 @@ class LoadingUI:
     def clear_loading_bar(self):
         if self.loading_bar:
             self.loading_bar.hide()
+            self.loading_bar['value'] = 0
         if self.loading_screen:
             self.loading_screen.hide()
         if self.title_loading_text:
