@@ -44,14 +44,14 @@ class ExitMenuUI(ExitGame):
         self.base.frame_int_exit_size = [-0.9, 3, -1, 3]
 
         """ Frame Colors """
-        self.frm_opacity = 0.9
+        self.frm_opacity = 0.94
 
         """ Logo & Ornament Scaling, Positioning """
         self.logo = None
         self.ornament_left = None
         self.ornament_right = None
         self.logo_scale = (0.30, 0.30, 0.30)
-        self.logo_pos = (0.3, 0, 0.4)
+        self.logo_pos = (0.3, 0, 0.1)
         self.ornament_scale = (1.40, 0.05, 0.05)
         self.ornament_r_pos = (1.8, 0, -0.1)
 
@@ -60,7 +60,7 @@ class ExitMenuUI(ExitGame):
         """ Buttons, Label Scaling """
         self.lbl_scale = .04
         self.sli_scale = (.4, 0, .2)
-        self.btn_scale = .06
+        self.btn_scale = .07
 
         """ Misc """
         self.m_settings = MenuSettings()
@@ -160,13 +160,13 @@ class ExitMenuUI(ExitGame):
 
         self.ornament_right.set_pos(self.ornament_r_snd_pos)
 
-        self.lbl_exit_title.set_pos(0.3, 0, 0.1)
+        self.lbl_exit_title.set_pos(0.3, 0, 0.4)
 
-        self.btn_param_accept.set_pos(0.5, 0, -0.0)
-        self.btn_param_decline.set_pos(0.1, 0, -0.0)
+        self.btn_param_accept.set_pos(0.4, 0, -0.15)
+        self.btn_param_decline.set_pos(0.22, 0, -0.13)
 
-        self.btn_param_accept.setImage(self.images['button'])
-        self.btn_param_decline.setImage(self.images['button'])
+        self.btn_param_accept.setImage(self.images['button_yes'])
+        self.btn_param_decline.setImage(self.images['button_no'])
 
         base.active_frame = self.base.frame_int_exit
 
