@@ -97,7 +97,7 @@ p3d.load_prc_file_data(
     '',
     'win-origin 110 0\n'
     'window-title Korlan - Daughter of the Steppes\n'
-    'show-frame-rate-meter  t\n'
+    'show-frame-rate-meter  f\n'
     'audio-library-name p3openal_audio\n'
     'model-cache-dir Cache\n'
     'model-cache-textures t\n'
