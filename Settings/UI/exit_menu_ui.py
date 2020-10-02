@@ -27,8 +27,8 @@ class ExitMenuUI(ExitGame):
         self.pos_Y = 0
         self.pos_Z = 0
 
-        self.w = 0
-        self.h = 0
+        self.w = 1
+        self.h = 1
 
         self.node_frame_item = None
 
@@ -60,7 +60,7 @@ class ExitMenuUI(ExitGame):
         """ Buttons, Label Scaling """
         self.lbl_scale = .04
         self.sli_scale = (.4, 0, .2)
-        self.btn_scale = .04
+        self.btn_scale = .06
 
         """ Misc """
         self.m_settings = MenuSettings()
@@ -142,7 +142,7 @@ class ExitMenuUI(ExitGame):
                                               parent=self.base.frame_int_exit,
                                               command=self.unload_exit_menu)
 
-        self.btn_param_accept = DirectButton(text=self.language['yes_exit_game'], text_bg=(0, 0, 0, 0.9),
+        self.btn_param_accept = DirectButton(text=self.language['yes_exit_game'],
                                              text_fg=(255, 255, 255, 1),
                                              text_font=self.font.load_font(self.menu_font),
                                              frameColor=(255, 255, 255, 0),
@@ -162,9 +162,12 @@ class ExitMenuUI(ExitGame):
 
         self.lbl_exit_title.set_pos(0.3, 0, 0.1)
 
-        self.btn_param_accept.set_pos(0.6, 0, -0.0)
-        self.btn_param_decline.set_pos(-0.0, 0, -0.0)
-        # self.menu_mode = True
+        self.btn_param_accept.set_pos(0.5, 0, -0.0)
+        self.btn_param_decline.set_pos(0.1, 0, -0.0)
+
+        self.btn_param_accept.setImage(self.images['button'])
+        self.btn_param_decline.setImage(self.images['button'])
+
         base.active_frame = self.base.frame_int_exit
 
     def unload_exit_menu(self):
