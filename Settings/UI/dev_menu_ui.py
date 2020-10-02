@@ -320,22 +320,24 @@ class DevMenuUI(DevMode):
                                       orientation=DGG.HORIZONTAL,
                                       command=self.set_slider_cache_clean_wrapper)
 
-        self.btn_back_options = DirectButton(text=self.language['back'], text_bg=(0, 0, 0, 1),
+        self.btn_back_options = DirectButton(text=self.language['back'],
                                              text_fg=(255, 255, 255, 0.9),
                                              text_font=self.font.load_font(self.menu_font),
                                              frameColor=(255, 255, 255, self.frm_opacity),
                                              scale=self.btn_scale, borderWidth=(self.w, self.h),
                                              parent=self.base.frame_int_dev,
-                                             geom=geoms,
+                                             geom=geoms, geom_scale=(5.1, 0, 2),
+                                             clickSound=self.base.sound_gui_click,
                                              command=self.unload_dev_mode_menu)
 
-        self.btn_save_changes = DirectButton(text='OK', text_bg=(0, 0, 0, 1),
+        self.btn_save_changes = DirectButton(text='OK',
                                              text_fg=(255, 255, 255, 0.9),
                                              text_font=self.font.load_font(self.menu_font),
                                              frameColor=(255, 255, 255, self.frm_opacity),
                                              scale=self.btn_scale, borderWidth=(self.w, self.h),
                                              parent=self.base.frame_int_dev,
-                                             geom=geoms,
+                                             geom=geoms, geom_scale=(5.1, 0, 2),
+                                             clickSound=self.base.sound_gui_click,
                                              command=self.dev_mode_menu_save_changes)
 
         self.ornament_right.reparent_to(self.base.frame_int_dev)

@@ -75,7 +75,7 @@ class MenuUI(MenuSettings):
 
         """ Buttons, Label Scaling """
         self.lbl_scale = .03
-        self.btn_scale = .03
+        self.btn_scale = .04
         self.inp_scale = .04
 
         """ Misc """
@@ -136,6 +136,14 @@ class MenuUI(MenuSettings):
 
             Return      : None
         """
+
+        ui_geoms = base.ui_geom_collector()
+
+        maps = base.loader.loadModel(ui_geoms['btn_t_icon'])
+        geoms = (maps.find('**/button_any'),
+                 maps.find('**/button_pressed'),
+                 maps.find('**/button_rollover'))
+
         self.base.frame = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
                                       frameSize=self.base.frame_size)
 
@@ -146,60 +154,74 @@ class MenuUI(MenuSettings):
         self.ornament_right = OnscreenImage(image=self.images['ornament_kz'],
                                             pos=self.ornament_r_pos, color=(63.9, 63.9, 63.9, 0.5))
 
-        self.btn_new_game = DirectButton(text=self.language['new_game'], text_bg=(0, 0, 0, 1),
+        self.btn_new_game = DirectButton(text=self.language['new_game'],
                                          text_fg=(255, 255, 255, 0.9),
                                          text_font=self.font.load_font(self.menu_font),
                                          frameColor=(255, 255, 255, self.frm_opacity),
                                          scale=self.btn_scale, borderWidth=(self.w, self.h),
                                          parent=self.base.frame,
+                                         geom=geoms, geom_scale=(15.3, 0, 2),
+                                         clickSound=self.base.sound_gui_click,
                                          command=self.load_new_game_wrapper)
 
-        self.btn_load_game = DirectButton(text=self.language['load_game'], text_bg=(0, 0, 0, 1),
+        self.btn_load_game = DirectButton(text=self.language['load_game'],
                                           text_fg=(255, 255, 255, 0.9),
                                           text_font=self.font.load_font(self.menu_font),
                                           frameColor=(255, 255, 255, self.frm_opacity),
                                           scale=self.btn_scale, borderWidth=(self.w, self.h),
                                           parent=self.base.frame,
+                                          geom=geoms, geom_scale=(15.3, 0, 2),
+                                          clickSound=self.base.sound_gui_click,
                                           command=self.load_game_wrapper)
 
-        self.btn_save_game = DirectButton(text=self.language['save_game'], text_bg=(0, 0, 0, 1),
+        self.btn_save_game = DirectButton(text=self.language['save_game'],
                                           text_fg=(255, 255, 255, 0.9),
                                           text_font=self.font.load_font(self.menu_font),
                                           frameColor=(255, 255, 255, self.frm_opacity),
                                           scale=self.btn_scale, borderWidth=(self.w, self.h),
                                           parent=self.base.frame,
+                                          geom=geoms, geom_scale=(15.3, 0, 2),
+                                          clickSound=self.base.sound_gui_click,
                                           command=self.save_game_wrapper)
 
-        self.btn_options = DirectButton(text=self.language['options'], text_bg=(0, 0, 0, 1),
+        self.btn_options = DirectButton(text=self.language['options'],
                                         text_fg=(255, 255, 255, 0.9),
                                         text_font=self.font.load_font(self.menu_font),
                                         frameColor=(255, 255, 255, self.frm_opacity),
                                         scale=self.btn_scale, borderWidth=(self.w, self.h),
                                         parent=self.base.frame,
+                                        geom=geoms, geom_scale=(15.3, 0, 2),
+                                        clickSound=self.base.sound_gui_click,
                                         command=self.menu_options.load_options_menu)
 
-        self.btn_credits = DirectButton(text=self.language['credits'], text_bg=(0, 0, 0, 1),
+        self.btn_credits = DirectButton(text=self.language['credits'],
                                         text_fg=(255, 255, 255, 0.9),
                                         text_font=self.font.load_font(self.menu_font),
                                         frameColor=(255, 255, 255, self.frm_opacity),
                                         scale=self.btn_scale, borderWidth=(self.w, self.h),
                                         parent=self.base.frame,
+                                        geom=geoms, geom_scale=(15.3, 0, 2),
+                                        clickSound=self.base.sound_gui_click,
                                         command="")
 
-        self.btn_dev_mode = DirectButton(text=self.language['dev_mode'], text_bg=(0, 0, 0, 1),
+        self.btn_dev_mode = DirectButton(text=self.language['dev_mode'],
                                          text_fg=(255, 255, 255, 0.9),
                                          text_font=self.font.load_font(self.menu_font),
                                          frameColor=(255, 255, 255, self.frm_opacity),
                                          scale=self.btn_scale, borderWidth=(self.w, self.h),
                                          parent=self.base.frame,
+                                         geom=geoms, geom_scale=(15.3, 0, 2),
+                                         clickSound=self.base.sound_gui_click,
                                          command=self.menu_dev.load_dev_mode_menu)
 
-        self.btn_exit = DirectButton(text=self.language['quit_game'], text_bg=(0, 0, 0, 1),
+        self.btn_exit = DirectButton(text=self.language['quit_game'],
                                      text_fg=(255, 255, 255, 0.9),
                                      text_font=self.font.load_font(self.menu_font),
                                      frameColor=(255, 255, 255, self.frm_opacity),
                                      scale=self.btn_scale, borderWidth=(self.w, self.h),
                                      parent=self.base.frame,
+                                     geom=geoms, geom_scale=(15.3, 0, 2),
+                                     clickSound=self.base.sound_gui_click,
                                      command=sys.exit)
         self.base.frame.setPos(self.pos_X, self.pos_Y, self.pos_Z)
         self.logo.reparent_to(self.base.frame)

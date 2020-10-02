@@ -130,6 +130,13 @@ class GameMenuUI(Game):
         if hasattr(base, "active_frame"):
             base.active_frame.destroy()
 
+        ui_geoms = base.ui_geom_collector()
+
+        maps = base.loader.loadModel(ui_geoms['btn_t_icon'])
+        geoms = (maps.find('**/button_any'),
+                 maps.find('**/button_pressed'),
+                 maps.find('**/button_rollover'))
+
         self.unload_game_menu()
 
         self.logo = OnscreenImage(image=self.images['gamepad_icon'],
@@ -228,6 +235,8 @@ class GameMenuUI(Game):
                                                frameColor=(255, 255, 255, 0),
                                                scale=self.btn_scale, borderWidth=(self.w, self.h),
                                                parent=self.base.frame_int_game,
+                                               geom=geoms, geom_scale=(8.1, 0, 2),
+                                               clickSound=self.base.sound_gui_click,
                                                command=self.set_default_game)
 
         self.btn_param_accept = DirectButton(text="OK",
@@ -236,6 +245,8 @@ class GameMenuUI(Game):
                                              frameColor=(255, 255, 255, 0),
                                              scale=self.btn_scale, borderWidth=(self.w, self.h),
                                              parent=self.base.frame_int_game,
+                                             geom=geoms, geom_scale=(5.1, 0, 2),
+                                             clickSound=self.base.sound_gui_click,
                                              command=self.unload_game_menu)
 
         self.logo.reparent_to(self.base.frame_int_game)

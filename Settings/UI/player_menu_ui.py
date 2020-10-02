@@ -29,6 +29,7 @@ class PlayerMenuUI(Inventory):
         # instance of the abstract class
         self.font = FontPool
         self.text = TextNode("TextNode")
+        self.sound_gui_click = None
         self.m_settings = MenuSettings()
         self.menu_font = None
         self.cfg_path = None
@@ -97,20 +98,35 @@ class PlayerMenuUI(Inventory):
                                        pos='', color=(63.9, 63.9, 63.9, 0.5))
         """
 
-        self.btn_param_decline = DirectButton(text="Cancel", text_bg=(0, 0, 0, 1),
+        ui_geoms = base.ui_geom_collector()
+
+        maps = base.loader.loadModel(ui_geoms['btn_t_icon'])
+        geoms = (maps.find('**/button_any'),
+                 maps.find('**/button_pressed'),
+                 maps.find('**/button_rollover'))
+
+        sounds = self.base.sounds_collector()
+
+        sound_gui_click = self.base.loader.load_sfx(sounds.get('zapsplat_button_click'))
+
+        self.btn_param_decline = DirectButton(text="Cancel",
                                               text_fg=(255, 255, 255, 0.9),
                                               text_font=self.font.load_font(self.menu_font),
                                               frameColor=(255, 255, 255, self.frm_opacity),
                                               scale=self.btn_scale, borderWidth=(self.w, self.h),
                                               parent=self.base.frame_inv,
+                                              geom=geoms, geom_scale=(8.1, 0, 2),
+                                              clickSound=sound_gui_click,
                                               command=self.clear_ui_inventory)
 
-        self.btn_param_accept = DirectButton(text="OK", text_bg=(0, 0, 0, 0.9),
+        self.btn_param_accept = DirectButton(text="OK",
                                              text_fg=(255, 255, 255, 0.9),
                                              text_font=self.font.load_font(self.menu_font),
                                              frameColor=(255, 255, 255, self.frm_opacity),
                                              scale=self.btn_scale, borderWidth=(self.w, self.h),
                                              parent=self.base.frame_inv,
+                                             geom=geoms, geom_scale=(5.1, 0, 2),
+                                             clickSound=sound_gui_click,
                                              command=self.clear_ui_inventory)
 
         self.base.frame_inv.set_pos(self.pos_X, self.pos_Y, self.pos_Z)

@@ -147,6 +147,13 @@ class KeymapMenuUI(Keymap):
         if hasattr(base, "active_frame"):
             base.active_frame.destroy()
 
+        ui_geoms = base.ui_geom_collector()
+
+        maps = base.loader.loadModel(ui_geoms['btn_t_icon'])
+        geoms = (maps.find('**/button_any'),
+                 maps.find('**/button_pressed'),
+                 maps.find('**/button_rollover'))
+
         self.unload_keymap_menu()
         
         self.logo = OnscreenImage(image=self.images['kbdm_icon'],
@@ -397,6 +404,8 @@ class KeymapMenuUI(Keymap):
                                               frameColor=(255, 255, 255, 0),
                                               scale=self.btn_scale, borderWidth=(self.w, self.h),
                                               parent=self.base.frame_int_keymap,
+                                              geom=geoms, geom_scale=(5.1, 0, 2),
+                                              clickSound=self.base.sound_gui_click,
                                               command=self.unload_keymap_menu)
 
         self.btn_param_defaults = DirectButton(text="Load defaults",
@@ -405,6 +414,8 @@ class KeymapMenuUI(Keymap):
                                                frameColor=(255, 255, 255, 0),
                                                scale=self.btn_scale, borderWidth=(self.w, self.h),
                                                parent=self.base.frame_int_keymap,
+                                               geom=geoms, geom_scale=(8.1, 0, 2),
+                                               clickSound=self.base.sound_gui_click,
                                                command=self.set_default_keymap)
 
         """ Positioning objects of the keymapping menu:

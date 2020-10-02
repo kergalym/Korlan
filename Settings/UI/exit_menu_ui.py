@@ -44,7 +44,7 @@ class ExitMenuUI(ExitGame):
         self.base.frame_int_exit_size = [-0.9, 3, -1, 3]
 
         """ Frame Colors """
-        self.frm_opacity = 0.94
+        self.frm_opacity = 0.9
 
         """ Logo & Ornament Scaling, Positioning """
         self.logo = None
@@ -147,7 +147,8 @@ class ExitMenuUI(ExitGame):
                                               frameColor=(255, 255, 255, 0),
                                               scale=self.btn_scale, borderWidth=(self.w, self.h),
                                               parent=self.base.frame_int_exit,
-                                              geom=geoms,
+                                              geom=geoms, geom_scale=(2.5, 0, 2),
+                                              clickSound=self.base.sound_gui_click,
                                               command=self.unload_exit_menu)
 
         self.btn_param_accept = DirectButton(text=self.language['yes_exit_game'],
@@ -156,7 +157,8 @@ class ExitMenuUI(ExitGame):
                                              frameColor=(255, 255, 255, 0),
                                              scale=self.btn_scale, borderWidth=(self.w, self.h),
                                              parent=self.base.frame_int_exit,
-                                             geom=geoms,
+                                             geom=geoms, geom_scale=(2.5, 0, 2),
+                                             clickSound=self.base.sound_gui_click,
                                              command=self.do_accepted_event_wrapper)
 
         self.logo.reparent_to(self.base.frame_int_exit)

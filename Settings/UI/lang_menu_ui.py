@@ -122,6 +122,13 @@ class LangMenuUI(Language):
         if hasattr(base, "active_frame"):
             base.active_frame.destroy()
 
+        ui_geoms = base.ui_geom_collector()
+
+        maps = base.loader.loadModel(ui_geoms['btn_t_icon'])
+        geoms_btn = (maps.find('**/button_any'),
+                     maps.find('**/button_pressed'),
+                     maps.find('**/button_rollover'))
+
         self.unload_language_menu()
 
         self.logo = OnscreenImage(image=self.images['lang_icon'],
@@ -168,6 +175,8 @@ class LangMenuUI(Language):
                                                frameColor=(255, 255, 255, 0),
                                                scale=self.btn_scale, borderWidth=(self.w, self.h),
                                                parent=self.base.frame_int_lang,
+                                               geom=geoms_btn, geom_scale=(8.1, 0, 2),
+                                               clickSound=self.base.sound_gui_click,
                                                command=self.set_default_language)
 
         self.btn_param_back = DirectButton(text="Back",
@@ -176,6 +185,8 @@ class LangMenuUI(Language):
                                            frameColor=(255, 255, 255, 0),
                                            scale=self.btn_scale, borderWidth=(self.w, self.h),
                                            parent=self.base.frame_int_lang,
+                                           geom=geoms_btn, geom_scale=(5.1, 0, 2),
+                                           clickSound=self.base.sound_gui_click,
                                            command=self.unload_language_menu)
 
         lang_values = self.get_selected_language()
@@ -194,16 +205,19 @@ class LangMenuUI(Language):
 
             DirectRadioButton(text='', variable=[0], value=[lang_values['english']], pos=(0.6, 0, -0.0),
                               parent=self.base.frame_int_lang, scale=self.rad_scale,
+                              clickSound=self.base.sound_gui_click,
                               command=self.set_language_english, color=(63.9, 63.9, 63.9, 1),
                               boxGeom=geoms, boxPlacement='left', frameColor=(255, 255, 255, 0)),
 
             DirectRadioButton(text='', variable=[0], value=[lang_values['kazakh']], pos=(0.6, 0, -0.1),
                               parent=self.base.frame_int_lang, scale=self.rad_scale,
+                              clickSound=self.base.sound_gui_click,
                               command=self.set_language_kazakh, color=(63.9, 63.9, 63.9, 1),
                               boxGeom=geoms, boxPlacement='left', frameColor=(255, 255, 255, 0)),
 
             DirectRadioButton(text='', variable=[0], value=[lang_values['russian']], pos=(0.6, 0, -0.2),
                               parent=self.base.frame_int_lang, scale=self.rad_scale,
+                              clickSound=self.base.sound_gui_click,
                               command=self.set_language_russian, color=(63.9, 63.9, 63.9, 1),
                               boxGeom=geoms, boxPlacement='left', frameColor=(255, 255, 255, 0))
 

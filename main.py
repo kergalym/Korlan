@@ -121,6 +121,7 @@ class Main(ShowBase):
         self.manual_recenter_Mouse = None
         self.gfx = Graphics()
         ShowBase.__init__(self)
+
         self.props = WindowProperties()
         self.props.set_cursor_hidden(True)
         self.win.request_properties(self.props)
