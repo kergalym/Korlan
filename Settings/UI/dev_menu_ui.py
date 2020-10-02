@@ -135,6 +135,13 @@ class DevMenuUI(DevMode):
 
             Return      : None
         """
+        ui_geoms = base.ui_geom_collector()
+
+        maps = base.loader.loadModel(ui_geoms['btn_t_icon'])
+        geoms = (maps.find('**/button_any'),
+                 maps.find('**/button_pressed'),
+                 maps.find('**/button_rollover'))
+
         self.logo = OnscreenImage(image=self.images['korlan_logo_tengri'],
                                   pos=self.logo_pos)
         self.ornament_left = OnscreenImage(image=self.images['ornament_kz'],
@@ -319,6 +326,7 @@ class DevMenuUI(DevMode):
                                              frameColor=(255, 255, 255, self.frm_opacity),
                                              scale=self.btn_scale, borderWidth=(self.w, self.h),
                                              parent=self.base.frame_int_dev,
+                                             geom=geoms,
                                              command=self.unload_dev_mode_menu)
 
         self.btn_save_changes = DirectButton(text='OK', text_bg=(0, 0, 0, 1),
@@ -327,6 +335,7 @@ class DevMenuUI(DevMode):
                                              frameColor=(255, 255, 255, self.frm_opacity),
                                              scale=self.btn_scale, borderWidth=(self.w, self.h),
                                              parent=self.base.frame_int_dev,
+                                             geom=geoms,
                                              command=self.dev_mode_menu_save_changes)
 
         self.ornament_right.reparent_to(self.base.frame_int_dev)
@@ -368,6 +377,10 @@ class DevMenuUI(DevMode):
 
         self.btn_back_options.set_pos(-1.5, 0, -0.9)
         self.btn_save_changes.set_pos(-0.5, 0, -0.9)
+
+        # self.btn_save_changes.setImage(self.images['button_any'])
+        # self.btn_back_options.setImage(self.images['button_any'])
+
         self.logo.reparent_to(self.base.frame_int_dev)
         self.logo.set_scale(self.logo_scale)
 

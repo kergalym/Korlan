@@ -116,6 +116,13 @@ class ExitMenuUI(ExitGame):
 
         self.unload_exit_menu()
 
+        ui_geoms = base.ui_geom_collector()
+
+        maps = base.loader.loadModel(ui_geoms['btn_t_icon'])
+        geoms = (maps.find('**/button_any'),
+                 maps.find('**/button_pressed'),
+                 maps.find('**/button_rollover'))
+
         self.logo = OnscreenImage(image=self.images['got_upsetting'],
                                   pos=self.logo_pos)
         self.logo.set_transparency(TransparencyAttrib.MAlpha)
@@ -140,6 +147,7 @@ class ExitMenuUI(ExitGame):
                                               frameColor=(255, 255, 255, 0),
                                               scale=self.btn_scale, borderWidth=(self.w, self.h),
                                               parent=self.base.frame_int_exit,
+                                              geom=geoms,
                                               command=self.unload_exit_menu)
 
         self.btn_param_accept = DirectButton(text=self.language['yes_exit_game'],
@@ -148,6 +156,7 @@ class ExitMenuUI(ExitGame):
                                              frameColor=(255, 255, 255, 0),
                                              scale=self.btn_scale, borderWidth=(self.w, self.h),
                                              parent=self.base.frame_int_exit,
+                                             geom=geoms,
                                              command=self.do_accepted_event_wrapper)
 
         self.logo.reparent_to(self.base.frame_int_exit)
@@ -162,11 +171,8 @@ class ExitMenuUI(ExitGame):
 
         self.lbl_exit_title.set_pos(0.3, 0, 0.4)
 
-        self.btn_param_accept.set_pos(0.4, 0, -0.15)
-        self.btn_param_decline.set_pos(0.22, 0, -0.13)
-
-        self.btn_param_accept.setImage(self.images['button_yes'])
-        self.btn_param_decline.setImage(self.images['button_no'])
+        self.btn_param_accept.set_pos(0.4, 0, -0.2)
+        self.btn_param_decline.set_pos(0.22, 0, -0.2)
 
         base.active_frame = self.base.frame_int_exit
 
