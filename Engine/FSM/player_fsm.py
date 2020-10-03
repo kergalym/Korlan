@@ -40,7 +40,6 @@ class PlayerFSM(FSM):
                     self.player.loop(action)
                 self.player.setPlayRate(self.base.actor_play_rate, action)
 
-    # TODO: code review
     def enterWalk(self, actor, action, state):
         if actor and action and state:
             any_action = actor.getAnimControl(action)
@@ -115,3 +114,15 @@ class PlayerFSM(FSM):
 
     def exitMiscAct(self):
         pass
+
+    def filterWalk(self, request, args):
+        if request not in ['Walk']:
+            return (request,) + args
+        else:
+            return None
+
+    def filterAttack(self, request, args):
+        if request not in ['Attack']:
+            return (request,) + args
+        else:
+            return None

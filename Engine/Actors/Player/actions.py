@@ -161,7 +161,7 @@ class Actions:
                 and base.states['is_crouching'] is False):
             self.fsm_player.request("Idle", player,
                                     anims['LookingAround'],
-                                    "play")
+                                    "loop")
 
         # Here we accept keys
         # TODO: change animation and implement state for actions
