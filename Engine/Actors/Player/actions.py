@@ -155,13 +155,15 @@ class Actions:
 
         if (any_action.is_playing() is False
                 and base.states['is_idle']
+                and base.states['is_attacked'] is False
+                and base.states['is_busy'] is False
                 and base.states['is_moving'] is False
                 and base.states['is_running'] is False
                 and base.states['is_crouch_moving'] is False
                 and base.states['is_crouching'] is False):
             self.fsm_player.request("Idle", player,
                                     anims['LookingAround'],
-                                    "loop")
+                                    "play")
 
         # Here we accept keys
         # TODO: change animation and implement state for actions

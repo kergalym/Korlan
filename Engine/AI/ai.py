@@ -184,8 +184,8 @@ class AI:
                 if self.ai_behaviors[actor.get_name()].behavior_status("pursue") == "done":
                     request.request("Attack", actor, "Boxing", "loop")
 
-                    if actor.get_current_frame("Boxing") == 25:
-                        self.player.loop("BigHitToHead")
+                    if actor.get_current_frame("Boxing") == 24 or 25:
+                        self.player_fsm.request("BigHitToHead", self.base.player_ref, "BigHitToHead", "play")
 
     def set_weather(self, weather):
         if weather and isinstance(weather, str):

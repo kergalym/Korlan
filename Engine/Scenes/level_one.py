@@ -44,6 +44,19 @@ class LevelOne:
         self.pos_z = 0
         self.anim = None
 
+    def world_sfx_task(self, task):
+        if (hasattr(self.base, 'sound_sfx_nature')
+                and self.base.sound_sfx_nature):
+            if hasattr(self.base, 'loading_is_done') and self.base.loading_is_done == 1:
+                if self.base.sound_sfx_nature.status() != self.base.sound_sfx_nature.PLAYING:
+                    self.base.sound_sfx_nature.play()
+
+        if self.base.game_mode is False and self.base.menu_mode:
+            self.base.sound_sfx_nature.stop()
+            return task.done
+
+        return task.cont
+
     def collect_actor_refs_task(self, task):
         if hasattr(base, "npc_is_loaded") and base.npc_is_loaded == 1:
             if (self.npc_ernar.actor
@@ -51,6 +64,9 @@ class LevelOne:
                 # Get only Actor, not a child of NodePath
                 base.npcs_actor_refs[self.npc_ernar.actor.get_name()] = self.npc_ernar.actor
                 base.npcs_actor_refs[self.npc_mongol.actor.get_name()] = self.npc_mongol.actor
+
+                if self.korlan.korlan:
+                    base.player_ref = self.korlan.korlan
 
         if hasattr(base, "loading_is_done") and base.loading_is_done == 1:
             return task.done
@@ -328,6 +344,10 @@ class LevelOne:
 
         taskMgr.add(self.ai.update_npc_states_task,
                     "update_npc_states_task",
+                    appendTask=True)
+
+        taskMgr.add(self.world_sfx_task,
+                    "world_sfx_task",
                     appendTask=True)
 
     def save_game(self):

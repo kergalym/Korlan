@@ -40,25 +40,26 @@ class PlayerFSM(FSM):
                     self.player.loop(action)
                 self.player.setPlayRate(self.base.actor_play_rate, action)
 
-    def enterWalk(self, actor, action, state):
-        if actor and action and state:
-            any_action = actor.getAnimControl(action)
-            if (isinstance(state, str)
-                    and any_action.isPlaying() is False
-                    and self.is_moving):
-                if state == "play":
-                    actor.play(action)
-                elif state == "loop":
-                    actor.loop(action)
+    def enterBigHitToHead(self, actor, action, task):
+        if actor and action and task:
+            any_action = actor.get_anim_control(action)
+
+            if isinstance(task, str):
+                if task == "play":
+                    if not any_action.isPlaying():
+                        actor.play(action)
+                elif task == "loop":
+                    if not any_action.isPlaying():
+                        actor.loop(action)
                 actor.set_play_rate(self.base.actor_play_rate, action)
 
-    def exitWalk(self):
-        self.is_moving = False
-
-    def enterCrouch(self):
+    def exitBigHitToHead(self):
         pass
 
-    def exitCrouch(self):
+    def enterBigHitToBody(self):
+        pass
+
+    def exitBigHitToBody(self):
         pass
 
     def enterSwim(self):
@@ -67,34 +68,10 @@ class PlayerFSM(FSM):
     def exitSwim(self):
         pass
 
-    def enterStay(self):
-        pass
-
-    def exitStay(self):
-        pass
-
-    def enterJump(self):
-        pass
-
-    def exitJump(self):
-        pass
-
     def enterLay(self):
         pass
 
     def exitLay(self):
-        pass
-
-    def EnterAttack(self):
-        pass
-
-    def exitAttack(self):
-        pass
-
-    def enterInteract(self):
-        pass
-
-    def exitInteract(self):
         pass
 
     def enterLife(self):
@@ -109,20 +86,40 @@ class PlayerFSM(FSM):
     def exitDeath(self):
         pass
 
-    def enterMiscAct(self):
-        pass
+    def filterBigHitToHead(self, request, args):
+        if (base.states['is_attacked'] is False
+                and request in ['BigHitToHead']):
+            base.states['is_attacked'] = True
+            return (request,) + args
 
-    def exitMiscAct(self):
-        pass
+        # Prevent per-frame calling the request
+        else:
+            # import pdb; pdb.set_trace()
+            # base.states['is_attacked'] = False
+            return None
 
-    def filterWalk(self, request, args):
-        if request not in ['Walk']:
+    def filterBigHitToBody(self, request, args):
+        if request not in ['BigHitToBody']:
+            base.states['is_attacked'] = True
+            return (request,) + args
+        else:
+            base.states['is_attacked'] = False
+            return None
+
+    def filterLay(self, request, args):
+        if request not in ['Lay']:
             return (request,) + args
         else:
             return None
 
-    def filterAttack(self, request, args):
-        if request not in ['Attack']:
+    def filterLife(self, request, args):
+        if request not in ['Life']:
+            return (request,) + args
+        else:
+            return None
+
+    def filterDeath(self, request, args):
+        if request not in ['Death']:
             return (request,) + args
         else:
             return None

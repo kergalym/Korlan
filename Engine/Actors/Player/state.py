@@ -24,6 +24,8 @@ class PlayerState:
             "has_bow": False,
             "has_tengri": False,
             "has_umai": False,
+            "is_attacked": False,
+            "is_busy": False
         }
         base.player_state_unarmed = False
         base.player_state_armed = False

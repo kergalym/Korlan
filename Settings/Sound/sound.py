@@ -27,6 +27,7 @@ class Sound:
 
         if sounds and isinstance(sounds, dict):
             self.base.sound_gui_click = self.base.loader.load_sfx(sounds.get('zapsplat_button_click'))
+            self.base.sound_sfx_nature = self.base.loader.load_sfx(sounds.get('forest birds'))
 
             # TODO: do something with them
             # m_sound = self.base.loader.load_sfx(sounds["theme"])
