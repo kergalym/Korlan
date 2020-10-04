@@ -18,6 +18,44 @@ class AI:
         self.npcs_fsm_states = None
         self.ai_char = None
         self.player = None
+        self.npcs_hits = {
+            'great_sword_kick': 0,
+            'great_sword_slash_3': 0,
+            'great_sword_slash_2': 0,
+            'Kicking': 0,
+            'great_sword_slash_4': 0,
+            'BigHitToHead': 0,
+            'Kicking_4': 0,
+            'great_sword_slash_5': 0,
+            'great_sword_kick_fix': 0,
+            'great_sword_slash_fixed': 0,
+            'great_sword_kick_2': 0,
+            'Kicking_5': 0,
+            'Kicking_3': 0,
+            'Boxing': 23,
+            'PunchToElbowCombo': 0,
+            'HitToBody': 0,
+            'great_sword_slash': 0,
+            'KickingAtThePlace': 0
+        }
+
+    def get_npc_hits(self):
+        anims = self.base.asset_animations_collector()[0]
+        hits = {}
+
+        if anims:
+            for anim in anims:
+                if ("Hit" in anim
+                        or "Punch" in anim
+                        or "Boxing" in anim
+                        or "Kicking" in anim
+                        or "Kick" in anim
+                        or "kick" in anim
+                        or "slash" in anim):
+                    hits[anim] = 0
+
+        if hits:
+            return hits
 
     def set_ai_world(self, assets, npcs_fsm_states, task):
         if (assets and isinstance(assets, dict)
@@ -147,6 +185,9 @@ class AI:
             # Add :BS suffix since we'll get Bullet Shape NodePath here
             actor_bs_name = "{0}:BS".format(actor.get_name())
 
+            # Leave it here for debugging purposes
+            # self.get_npc_hits()
+
             if actor_bs_name and self.npc_fsm.npcs_xyz_vec.get(actor_bs_name):
                 vec_x = self.npc_fsm.npcs_xyz_vec[actor_bs_name][0]
 
@@ -167,6 +208,9 @@ class AI:
             # Add :BS suffix since we'll get Bullet Shape NodePath here
             actor_bs_name = "{0}:BS".format(actor.get_name())
 
+            # Leave it here for debugging purposes
+            # self.get_npc_hits()
+
             if actor_bs_name and self.npc_fsm.npcs_xyz_vec.get(actor_bs_name):
                 vec_x = self.npc_fsm.npcs_xyz_vec[actor_bs_name][0]
 
@@ -184,7 +228,7 @@ class AI:
                 if self.ai_behaviors[actor.get_name()].behavior_status("pursue") == "done":
                     request.request("Attack", actor, "Boxing", "loop")
 
-                    if actor.get_current_frame("Boxing") == 23:
+                    if actor.get_current_frame("Boxing") == self.npcs_hits["Boxing"]:
                         self.player_fsm.request("BigHitToHead", self.base.player_ref, "BigHitToHead", "play")
 
     def set_weather(self, weather):

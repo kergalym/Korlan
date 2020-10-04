@@ -14,19 +14,6 @@ class NpcState:
                                       'DEFORMED': 2
                                       }
 
-    """def set_actor_state(self, task):
-        base.actor_state_unarmed = True
-        if base.actor_state_armed:
-            base.actor_state_unarmed = False
-            base.actor_state_magic = False
-        elif base.actor_state_magic:
-            base.actor_state_unarmed = False
-            base.actor_state_armed = False
-        elif base.actor_state_unarmed:
-            base.actor_state_armed = False
-            base.actor_state_magic = False
-        return task.cont"""
-
     def set_creature_state(self, task):
         if base.creature_unarmed:
             base.creature_magic = False
