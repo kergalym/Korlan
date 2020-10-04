@@ -12,6 +12,7 @@ from Engine.Scenes.scene import SceneOne
 from Engine.Physics.physics import PhysicsAttr
 from Settings.UI.stat_ui import StatUI
 from Settings.UI.pause_menu_ui import PauseMenuUI
+from direct.gui.OnscreenText import OnscreenText
 
 
 class LevelOne:
@@ -62,13 +63,32 @@ class LevelOne:
             if (self.npc_ernar.actor
                     and self.npc_mongol.actor):
                 # Get only Actor, not a child of NodePath
-                base.npcs_actor_refs[self.npc_ernar.actor.get_name()] = self.npc_ernar.actor
-                base.npcs_actor_refs[self.npc_mongol.actor.get_name()] = self.npc_mongol.actor
+                ernar_name = self.npc_ernar.actor.get_name()
+                mongol_name = self.npc_mongol.actor.get_name()
+
+                base.npcs_actor_refs[ernar_name] = self.npc_ernar.actor
+                base.npcs_actor_refs[mongol_name] = self.npc_mongol.actor
 
                 if self.korlan.korlan:
                     base.player_ref = self.korlan.korlan
 
         if hasattr(base, "loading_is_done") and base.loading_is_done == 1:
+            return task.done
+
+        return task.cont
+
+    def set_npcs_label(self, task):
+        labels_applied = 0
+        if base.npcs_actor_refs:
+            for name in base.npcs_actor_refs:
+                if name:
+                    actor_bs = self.base.get_actor_bullet_shape_node(asset=name, type="NPC")
+                    mongol_label = OnscreenText(text=name, pos=(0.0, 1),
+                                                fg=(255, 255, 255, 0.9), scale=.04)
+                    mongol_label.reparent_to(actor_bs)
+                    labels_applied = 1
+
+        if labels_applied == 1:
             return task.done
 
         return task.cont
@@ -348,6 +368,10 @@ class LevelOne:
 
         taskMgr.add(self.world_sfx_task,
                     "world_sfx_task",
+                    appendTask=True)
+
+        taskMgr.add(self.set_npcs_label,
+                    "set_npcs_label",
                     appendTask=True)
 
     def save_game(self):

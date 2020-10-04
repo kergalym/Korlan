@@ -229,11 +229,12 @@ class AI:
 
                         # If NPC is close to Enemy, do enemy attack
                         if self.ai_behaviors[actor.get_name()].behavior_status("pursue") == "done":
-                            request.request("Attack", actor, "Boxing", "loop")
 
                             # Head the enemy for NPC
                             self.set_actor_accurate_heading(master_name=actor_bs_name,
                                                             slave=enemy_npc_bs)
+                            request.request("Attack", actor, "Boxing", "loop")
+
                             # Enemy is attacked!
                             if actor.get_current_frame("Boxing") == self.npcs_hits["Boxing"]:
                                 enemy_fsm_request.request("Attacked", enemy_npc_ref, "BigHitToHead", "play")
