@@ -228,7 +228,7 @@ class StatUI:
 
             Return      : String
         """
-        if hasattr(base, "states"):
+        if hasattr(base, "player_states"):
             records_designed = ''
             for key in base.player_states:
                 records_designed += "{0}: {1}\n".format(key, base.player_states[key])
