@@ -39,6 +39,59 @@ class AI:
             'KickingAtThePlace': 0
         }
 
+    def update_ai_world_task(self, task):
+        if self.ai_world:
+            # Oh... Workaround for evil assertion error, again!
+            try:
+                self.ai_world.update()
+            except AssertionError:
+                # self.ai_world.update()
+                pass
+
+            # Debug: delete soon
+            # self.ai_world.print_list()
+
+        if base.game_mode is False and base.menu_mode:
+            return task.done
+
+        return task.cont
+
+    def update_npc_states_task(self, task):
+        if (self.player
+                and hasattr(base, 'npcs_actor_refs')
+                and base.npcs_actor_refs):
+            for actor_name, fsm_name in zip(base.npcs_actor_refs, self.npcs_fsm_states):
+                actor = base.npcs_actor_refs[actor_name]
+                request = self.npcs_fsm_states[fsm_name]
+                npc_class = self.npc_fsm.set_npc_class(actor=actor,
+                                                       npc_classes=self.npc_classes)
+
+                if npc_class and self.npc_fsm.npcs_xyz_vec:
+                    if npc_class == "friend":
+                        self.npc_friend_logic(actor=actor, request=request, boolean=True)
+                    if npc_class == "neutral":
+                        self.npc_enemy_logic(actor=actor, request=request, boolean=True)
+                    if npc_class == "enemy":
+                        self.npc_enemy_logic(actor=actor, request=request, boolean=True)
+
+        if base.game_mode is False and base.menu_mode:
+            return task.done
+
+        return task.cont
+
+    def set_weather(self, weather):
+        if weather and isinstance(weather, str):
+            if weather == "wind":
+                pass
+            elif weather == "rain":
+                pass
+            elif weather == "storm":
+                pass
+            elif weather == "day":
+                pass
+            elif weather == "night":
+                pass
+
     def get_npc_hits(self):
         anims = self.base.asset_animations_collector()[0]
         hits = {}
@@ -112,46 +165,6 @@ class AI:
                                 extraArgs=[self.player],
                                 appendTask=True)
                     return task.done
-
-        return task.cont
-
-    def update_ai_world_task(self, task):
-        if self.ai_world:
-            # Oh... Workaround for evil assertion error, again!
-            try:
-                self.ai_world.update()
-            except AssertionError:
-                # self.ai_world.update()
-                pass
-
-            # Debug: delete soon
-            # self.ai_world.print_list()
-
-        if base.game_mode is False and base.menu_mode:
-            return task.done
-
-        return task.cont
-
-    def update_npc_states_task(self, task):
-        if (self.player
-                and hasattr(base, 'npcs_actor_refs')
-                and base.npcs_actor_refs):
-            for actor_name, fsm_name in zip(base.npcs_actor_refs, self.npcs_fsm_states):
-                actor = base.npcs_actor_refs[actor_name]
-                request = self.npcs_fsm_states[fsm_name]
-                npc_class = self.npc_fsm.set_npc_class(actor=actor,
-                                                       npc_classes=self.npc_classes)
-
-                if npc_class and self.npc_fsm.npcs_xyz_vec:
-                    if npc_class == "friend":
-                        self.npc_friend_logic(actor=actor, request=request, boolean=True)
-                    if npc_class == "neutral":
-                        self.npc_enemy_logic(actor=actor, request=request, boolean=True)
-                    if npc_class == "enemy":
-                        self.npc_enemy_logic(actor=actor, request=request, boolean=True)
-
-        if base.game_mode is False and base.menu_mode:
-            return task.done
 
         return task.cont
 
@@ -231,15 +244,3 @@ class AI:
                     if actor.get_current_frame("Boxing") == self.npcs_hits["Boxing"]:
                         self.player_fsm.request("BigHitToHead", self.base.player_ref, "BigHitToHead", "play")
 
-    def set_weather(self, weather):
-        if weather and isinstance(weather, str):
-            if weather == "wind":
-                pass
-            elif weather == "rain":
-                pass
-            elif weather == "storm":
-                pass
-            elif weather == "day":
-                pass
-            elif weather == "night":
-                pass
