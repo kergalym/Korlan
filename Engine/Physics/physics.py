@@ -52,9 +52,12 @@ class PhysicsAttr:
             # Get the time that elapsed since last frame.
             dt = globalClock.getDt()
             self.world.do_physics(dt, 10, 1. / 30)
+
+            # Disable colliding
             self.world.set_group_collision_flag(0, 0, False)
-            # TODO: set group collision for colliding and non-colliding objects
+            # Enable colliding
             self.world.set_group_collision_flag(0, 1, True)
+
             # Do update RigidBodyNode parent node's position for every frame
             if hasattr(base, "close_item_name"):
                 name = base.close_item_name
@@ -205,7 +208,7 @@ class PhysicsAttr:
                                           shape=shape,
                                           mask=self.mask1)
 
-            # TODO: move to and use in /Korlan/Engine/Items/items.py:
+            # TODO: move item to and use in /Korlan/Engine/Items/items.py:
             if type == "item":
                 self.set_object_colliders(type='dynamic',
                                           shape=shape,
@@ -227,7 +230,7 @@ class PhysicsAttr:
                 self.set_actor_collider(actor=obj,
                                         col_name='{0}:BS'.format(obj.get_name()),
                                         shape=shape,
-                                        mask=self.mask1,
+                                        mask=self.mask2,
                                         type="npc")
 
     def set_actor_collider(self, actor, col_name, shape, mask, type):

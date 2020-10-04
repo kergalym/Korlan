@@ -267,6 +267,8 @@ class Actions:
                     and self.kbd.keymap["run"] is False
                     and base.states['is_moving']
                     and base.states['is_running'] is False
+                    and base.states['is_attacked'] is False
+                    and base.states['is_busy'] is False
                     and base.states['is_crouch_moving'] is False
                     and base.states['is_idle']):
                 if base.input_state.is_set('forward'):
@@ -274,6 +276,8 @@ class Actions:
             if (self.kbd.keymap["forward"]
                     and self.kbd.keymap["run"] is False
                     and base.states['is_moving'] is False
+                    and base.states['is_attacked'] is False
+                    and base.states['is_busy'] is False
                     and base.states['is_running'] is False
                     and base.states['is_crouch_moving']
                     and base.states['is_idle'] is False):
@@ -282,6 +286,8 @@ class Actions:
             if (self.kbd.keymap["backward"]
                     and self.kbd.keymap["run"] is False
                     and base.states['is_moving']
+                    and base.states['is_attacked'] is False
+                    and base.states['is_busy'] is False
                     and base.states['is_crouch_moving'] is False
                     and base.states['is_idle']):
                 if base.input_state.is_set('reverse'):
@@ -289,6 +295,8 @@ class Actions:
             if (self.kbd.keymap["backward"]
                     and self.kbd.keymap["run"] is False
                     and base.states['is_moving'] is False
+                    and base.states['is_attacked'] is False
+                    and base.states['is_busy'] is False
                     and base.states['is_crouch_moving']
                     and base.states['is_idle'] is False):
                 if base.input_state.is_set('reverse'):
@@ -307,6 +315,8 @@ class Actions:
                     or self.kbd.keymap["left"]
                     or self.kbd.keymap["right"]):
                 if (base.states['is_moving'] is False
+                        and base.states['is_attacked'] is False
+                        and base.states['is_busy'] is False
                         and base.states['is_crouch_moving'] is False
                         and base.states["is_running"] is False
                         and base.states['is_idle']):
@@ -314,6 +324,8 @@ class Actions:
                                       Func(self.state.set_action_state, "is_moving", True)),
                              ).start()
                 if (base.states['is_moving'] is False
+                        and base.states['is_attacked'] is False
+                        and base.states['is_busy'] is False
                         and base.states["is_running"] is False
                         and base.states['is_crouch_moving']
                         and base.states['is_idle'] is False):
@@ -321,18 +333,24 @@ class Actions:
                              ).start()
             else:
                 if (base.states['is_moving']
+                        and base.states['is_attacked'] is False
+                        and base.states['is_busy'] is False
                         and base.states["is_running"] is False
                         and base.states['is_crouch_moving'] is False):
                     Sequence(Func(self.seq_move_wrapper, player, anims, 'stop'),
                              Func(self.state.set_action_state, "is_moving", False)
                              ).start()
                 if (base.states['is_moving'] is False
+                        and base.states['is_attacked'] is False
+                        and base.states['is_busy'] is False
                         and base.states["is_running"] is False
                         and base.states['is_crouch_moving']):
                     Sequence(Func(self.seq_crouch_move_wrapper, player, anims, 'stop')).start()
 
             # Actor backward movement
             if (self.kbd.keymap["backward"]
+                    and base.states['is_attacked'] is False
+                    and base.states['is_busy'] is False
                     and self.kbd.keymap["run"] is False
                     and base.states["is_running"] is False):
                 player.set_play_rate(-1.0,
@@ -363,6 +381,8 @@ class Actions:
                     or self.kbd.keymap["left"]
                     or self.kbd.keymap["right"]):
                 if (base.states['is_moving'] is False
+                        and base.states['is_attacked'] is False
+                        and base.states['is_busy'] is False
                         and base.states['is_crouch_moving'] is False
                         and base.states["is_running"] is False
                         and base.states['is_idle']):
@@ -370,6 +390,8 @@ class Actions:
                                       Func(self.state.set_action_state, "is_running", True)),
                              ).start()
                 if (base.states['is_moving'] is False
+                        and base.states['is_attacked'] is False
+                        and base.states['is_busy'] is False
                         and base.states["is_crouch_moving"] is False
                         and base.states['is_running']
                         and base.states['is_idle'] is False):
@@ -378,12 +400,16 @@ class Actions:
 
             else:
                 if (base.states['is_running']
+                        and base.states['is_attacked'] is False
+                        and base.states['is_busy'] is False
                         and base.states["is_moving"] is False
                         and base.states['is_crouch_moving'] is False):
                     Sequence(Func(self.seq_run_wrapper, player, anims, 'stop'),
                              Func(self.state.set_action_state, "is_running", False)
                              ).start()
                 if (base.states['is_moving'] is False
+                        and base.states['is_attacked'] is False
+                        and base.states['is_busy'] is False
                         and base.states["is_crouch_moving"] is False
                         and base.states['is_running']):
                     Sequence(Func(self.seq_run_wrapper, player, anims, 'stop')).start()
