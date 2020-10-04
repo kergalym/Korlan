@@ -214,26 +214,25 @@ class AI:
                             enemy_npc_ref = base.npcs_actor_refs[k]
 
                     enemy_fsm_request = None
-
                     for fsm_name in self.npcs_fsm_states:
                         if actor.get_name() not in fsm_name:
                             enemy_fsm_request = self.npcs_fsm_states[fsm_name]
 
-                    # If NPC is far from Player
-                    if vec_x > 1.0 or vec_x < -1.0:
-                        if enemy_npc_ref:
-                            request.request("Walk", actor, enemy_npc_ref.get_parent(),
+                    if enemy_npc_ref and enemy_fsm_request:
+                        enemy_npc_ref_name = enemy_npc_ref.get_name()
+                        enemy_npc_bs = self.base.get_actor_bullet_shape_node(asset=enemy_npc_ref_name, type="NPC")
+
+                        # If NPC is far from Player
+                        if vec_x > 1.0 or vec_x < -1.0:
+                            request.request("Walk", actor, enemy_npc_bs,
                                             self.ai_behaviors[actor.get_name()],
                                             "pursuer", "Walking", "loop")
 
-                    # If NPC is close to Player, do attack
-                    if self.ai_behaviors[actor.get_name()].behavior_status("pursue") == "done":
-                        if enemy_npc_ref and enemy_fsm_request:
+                        # If NPC is close to Player, do attack
+                        if self.ai_behaviors[actor.get_name()].behavior_status("pursue") == "done":
                             request.request("Attack", actor, "Boxing", "loop")
-
                             self.set_actor_accurate_heading(master_name=actor_bs_name,
-                                                            slave=enemy_npc_ref.get_parent())
-
+                                                            slave=enemy_npc_bs)
                             if actor.get_current_frame("Boxing") == self.npcs_hits["Boxing"]:
                                 enemy_fsm_request.request("Attacked", enemy_npc_ref, "BigHitToHead", "play")
 
@@ -303,4 +302,3 @@ class AI:
                         if self.base.player_states["is_hitting"]:
                             if self.base.player_ref.get_current_frame("Boxing") == self.npcs_hits["Boxing"]:
                                 request.request("Attacked", actor, "BigHitToHead", "Boxing", "play")
-
