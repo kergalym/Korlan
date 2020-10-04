@@ -190,13 +190,12 @@ class AI:
             if actor_bs_name and self.npc_fsm.npcs_xyz_vec.get(actor_bs_name):
                 vec_x = self.npc_fsm.npcs_xyz_vec[actor_bs_name][0]
 
-                # Just stay
                 if passive:
-
+                    # Just stay
                     # TODO: Change action to something more suitable
                     # request.request("Idle", actor, "LookingAround", "loop")
 
-                    # If NPC is far from Player
+                    # If NPC is far from Player, do pursue player
                     if vec_x > 1.0 or vec_x < -1.0:
                         request.request("Walk", actor, self.player,
                                         self.ai_behaviors[actor.get_name()],
@@ -222,17 +221,20 @@ class AI:
                         enemy_npc_ref_name = enemy_npc_ref.get_name()
                         enemy_npc_bs = self.base.get_actor_bullet_shape_node(asset=enemy_npc_ref_name, type="NPC")
 
-                        # If NPC is far from Player
+                        # If NPC is far from enemy, do pursue enemy
                         if vec_x > 1.0 or vec_x < -1.0:
                             request.request("Walk", actor, enemy_npc_bs,
                                             self.ai_behaviors[actor.get_name()],
                                             "pursuer", "Walking", "loop")
 
-                        # If NPC is close to Player, do attack
+                        # If NPC is close to Enemy, do enemy attack
                         if self.ai_behaviors[actor.get_name()].behavior_status("pursue") == "done":
                             request.request("Attack", actor, "Boxing", "loop")
+
+                            # Head the enemy for NPC
                             self.set_actor_accurate_heading(master_name=actor_bs_name,
                                                             slave=enemy_npc_bs)
+                            # Enemy is attacked!
                             if actor.get_current_frame("Boxing") == self.npcs_hits["Boxing"]:
                                 enemy_fsm_request.request("Attacked", enemy_npc_ref, "BigHitToHead", "play")
 
@@ -250,12 +252,12 @@ class AI:
             if actor_bs_name and self.npc_fsm.npcs_xyz_vec.get(actor_bs_name):
                 vec_x = self.npc_fsm.npcs_xyz_vec[actor_bs_name][0]
 
-                # Just stay
                 if passive:
+                    # Just stay
                     request.request("Idle", actor, "LookingAround", "loop")
 
                 elif passive is False:
-                    # If NPC is far from Player
+                    # If NPC is far from Player, do pursue Player
                     if vec_x > 1.0 or vec_x < -1.0:
                         request.request("Walk", actor, self.player, self.ai_behaviors[actor.get_name()],
                                         "pursuer", "Walking", "loop")
@@ -284,21 +286,23 @@ class AI:
                     request.request("Idle", actor, "LookingAround", "loop")
 
                 elif passive is False:
-                    # If NPC is far from Player
+                    # If NPC is far from Player, do pursue Player
                     if vec_x > 1.0 or vec_x < -1.0:
                         request.request("Walk", actor, self.player, self.ai_behaviors[actor.get_name()],
                                         "pursuer", "Walking", "loop")
 
-                    # If NPC is close to Player, do attack
+                    # If NPC is close to Player, do enemy attack
                     if self.ai_behaviors[actor.get_name()].behavior_status("pursue") == "done":
-
                         request.request("Attack", actor, "Boxing", "loop")
 
+                        # Head the player for enamy
                         self.set_actor_accurate_heading(master_name=actor_bs_name, slave=self.player)
 
+                        # Player is attacked by enemy!
                         if actor.get_current_frame("Boxing") == self.npcs_hits["Boxing"]:
                             self.player_fsm.request("Attacked", self.base.player_ref, "BigHitToHead", "play")
 
+                        # Enemy is attacked by player!
                         if self.base.player_states["is_hitting"]:
                             if self.base.player_ref.get_current_frame("Boxing") == self.npcs_hits["Boxing"]:
                                 request.request("Attacked", actor, "BigHitToHead", "Boxing", "play")
