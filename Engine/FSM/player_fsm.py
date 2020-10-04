@@ -1,4 +1,6 @@
 from direct.fsm.FSM import FSM
+from direct.interval.FunctionInterval import Func
+from direct.interval.MetaInterval import Sequence
 from direct.showbase.DirectObject import DirectObject
 from configparser import ConfigParser
 from direct.task.TaskManagerGlobal import taskMgr
@@ -24,6 +26,11 @@ class PlayerFSM(FSM):
         self.player = None
         self.taskMgr = taskMgr
 
+    def fsm_state_wrapper(self, state, boolean):
+        if (state and isinstance(state, str)
+                and isinstance(boolean, bool)):
+            base.states[state] = boolean
+
     def get_player(self, actor):
         if actor and isinstance(actor, str):
             if not render.find("**/{0}:BS").is_empty():
@@ -43,83 +50,167 @@ class PlayerFSM(FSM):
     def enterBigHitToHead(self, actor, action, task):
         if actor and action and task:
             any_action = actor.get_anim_control(action)
+            any_action_seq = actor.actor_interval(action)
 
             if isinstance(task, str):
                 if task == "play":
                     if not any_action.isPlaying():
-                        actor.play(action)
+                        Sequence(any_action_seq, Func(self.fsm_state_wrapper, "is_attacked", False)).start()
+
                 elif task == "loop":
                     if not any_action.isPlaying():
                         actor.loop(action)
                 actor.set_play_rate(self.base.actor_play_rate, action)
 
-    def exitBigHitToHead(self):
-        pass
+    def enterBigHitToBody(self, actor, action, task):
+        if actor and action and task:
+            any_action = actor.get_anim_control(action)
+            any_action_seq = actor.actor_interval(action)
 
-    def enterBigHitToBody(self):
-        pass
+            if isinstance(task, str):
+                if task == "play":
+                    if not any_action.isPlaying():
+                        Sequence(any_action_seq, Func(self.fsm_state_wrapper, "is_attacked", False)).start()
 
-    def exitBigHitToBody(self):
-        pass
+                elif task == "loop":
+                    if not any_action.isPlaying():
+                        actor.loop(action)
+                actor.set_play_rate(self.base.actor_play_rate, action)
 
-    def enterSwim(self):
-        pass
+    def enterSwim(self, actor, action, task):
+        if actor and action and task:
+            any_action = actor.get_anim_control(action)
+            any_action_seq = actor.actor_interval(action)
 
-    def exitSwim(self):
-        pass
+            if isinstance(task, str):
+                if task == "play":
+                    if not any_action.isPlaying():
+                        Sequence(any_action_seq, Func(self.fsm_state_wrapper, "is_busy", False)).start()
 
-    def enterLay(self):
-        pass
+                elif task == "loop":
+                    if not any_action.isPlaying():
+                        actor.loop(action)
+                actor.set_play_rate(self.base.actor_play_rate, action)
 
-    def exitLay(self):
-        pass
+    def enterLay(self, actor, action, task):
+        if actor and action and task:
+            any_action = actor.get_anim_control(action)
+            any_action_seq = actor.actor_interval(action)
 
-    def enterLife(self):
-        pass
+            if isinstance(task, str):
+                if task == "play":
+                    if not any_action.isPlaying():
+                        Sequence(any_action_seq, Func(self.fsm_state_wrapper, "is_busy", False)).start()
 
-    def exitLife(self):
-        pass
+                elif task == "loop":
+                    if not any_action.isPlaying():
+                        actor.loop(action)
+                actor.set_play_rate(self.base.actor_play_rate, action)
 
-    def enterDeath(self):
-        pass
+    def enterLife(self, actor, action, task):
+        if actor and action and task:
+            any_action = actor.get_anim_control(action)
+            any_action_seq = actor.actor_interval(action)
 
-    def exitDeath(self):
-        pass
+            if isinstance(task, str):
+                if task == "play":
+                    if not any_action.isPlaying():
+                        Sequence(any_action_seq, Func(self.fsm_state_wrapper, "is_busy", False)).start()
+
+                elif task == "loop":
+                    if not any_action.isPlaying():
+                        actor.loop(action)
+                actor.set_play_rate(self.base.actor_play_rate, action)
+
+    def enterDeath(self, actor, action, task):
+        if actor and action and task:
+            any_action = actor.get_anim_control(action)
+            any_action_seq = actor.actor_interval(action)
+
+            if isinstance(task, str):
+                if task == "play":
+                    if not any_action.isPlaying():
+                        Sequence(any_action_seq, Func(self.fsm_state_wrapper, "is_busy", False)).start()
+
+                elif task == "loop":
+                    if not any_action.isPlaying():
+                        actor.loop(action)
+                actor.set_play_rate(self.base.actor_play_rate, action)
 
     def filterBigHitToHead(self, request, args):
-        if (base.states['is_attacked'] is False
-                and request in ['BigHitToHead']):
-            base.states['is_attacked'] = True
-            return (request,) + args
-
-        # Prevent per-frame calling the request
-        else:
-            # import pdb; pdb.set_trace()
-            # base.states['is_attacked'] = False
-            return None
+        if (hasattr(self.base, 'player_ref')
+                and self.base.player_ref):
+            any_action = self.base.player_ref.get_anim_control('BigHitToHead')
+            if (any_action.isPlaying() is False
+                    and request in ['BigHitToHead']):
+                base.states['is_attacked'] = True
+                return (request,) + args
+            elif (any_action.isPlaying()
+                    and request in ['BigHitToHead']):
+                base.states['is_attacked'] = False
+                return None
 
     def filterBigHitToBody(self, request, args):
-        if request not in ['BigHitToBody']:
-            base.states['is_attacked'] = True
-            return (request,) + args
-        else:
-            base.states['is_attacked'] = False
-            return None
+        if (hasattr(self.base, 'player_ref')
+                and self.base.player_ref):
+            any_action = self.base.player_ref.get_anim_control('BigHitToBody')
+            if (any_action.isPlaying() is False
+                    and request in ['BigHitToBody']):
+                base.states['is_attacked'] = True
+                return (request,) + args
+            elif (any_action.isPlaying()
+                    and request in ['BigHitToBody']):
+                base.states['is_attacked'] = False
+                return None
+
+    def filterSwim(self, request, args):
+        if (hasattr(self.base, 'player_ref')
+                and self.base.player_ref):
+            any_action = self.base.player_ref.get_anim_control('Swim')
+            if (any_action.isPlaying() is False
+                    and request in ['Swim']):
+                base.states['is_busy'] = True
+                return (request,) + args
+            elif (any_action.isPlaying()
+                    and request in ['Swim']):
+                base.states['is_busy'] = False
+                return None
 
     def filterLay(self, request, args):
-        if request not in ['Lay']:
-            return (request,) + args
-        else:
-            return None
+        if (hasattr(self.base, 'player_ref')
+                and self.base.player_ref):
+            any_action = self.base.player_ref.get_anim_control('Lay')
+            if (any_action.isPlaying() is False
+                    and request in ['Lay']):
+                base.states['is_attacked'] = True
+                return (request,) + args
+            elif (any_action.isPlaying()
+                    and request in ['Lay']):
+                base.states['is_attacked'] = False
+                return None
 
     def filterLife(self, request, args):
-        if request not in ['Life']:
-            return (request,) + args
-        else:
-            return None
+        if (hasattr(self.base, 'player_ref')
+                and self.base.player_ref):
+            any_action = self.base.player_ref.get_anim_control('Life')
+            if (any_action.isPlaying() is False
+                    and request in ['Life']):
+                base.states['is_attacked'] = True
+                return (request,) + args
+            elif (any_action.isPlaying()
+                    and request in ['Life']):
+                base.states['is_attacked'] = False
+                return None
 
     def filterDeath(self, request, args):
-        if request not in ['Death']:
-            return (request,) + args
-        else:
-            return None
+        if (hasattr(self.base, 'player_ref')
+                and self.base.player_ref):
+            any_action = self.base.player_ref.get_anim_control('Death')
+            if (any_action.isPlaying() is False
+                    and request in ['Death']):
+                base.states['is_attacked'] = True
+                return (request,) + args
+            elif (any_action.isPlaying()
+                    and request in ['Death']):
+                base.states['is_attacked'] = False
+                return None

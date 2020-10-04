@@ -1,4 +1,6 @@
 from direct.fsm.FSM import FSM
+from direct.interval.FunctionInterval import Func
+from direct.interval.MetaInterval import Sequence
 from direct.task.TaskManagerGlobal import taskMgr
 from Engine.FSM.npc_fsm import NpcFSM
 
@@ -11,6 +13,11 @@ class NpcMongolFSM(FSM):
         self.taskMgr = taskMgr
         self.npc_fsm = NpcFSM()
         base.fsm = self
+
+    def fsm_state_wrapper(self, state, boolean):
+        if (state and isinstance(state, str)
+                and isinstance(boolean, bool)):
+            base.states[state] = boolean
 
     def enterIdle(self, actor, action, task):
         if actor and action and task:
@@ -49,27 +56,18 @@ class NpcMongolFSM(FSM):
     def enterAttack(self, actor, action, task):
         if actor and action and task:
             any_action = actor.get_anim_control(action)
+            any_action_seq = actor.actor_interval(action)
 
             if isinstance(task, str):
                 if task == "play":
                     if not any_action.isPlaying():
-                        actor.play(action)
+                        Sequence(any_action_seq, Func(self.fsm_state_wrapper, "is_attacked", False)).start()
+
                 elif task == "loop":
                     if not any_action.isPlaying():
                         actor.loop(action)
                 actor.set_play_rate(self.base.actor_play_rate, action)
 
-    """def exitIdle(self):
-        actor_node = base.actor_node
-        actor_node.stop("LookingAround")
-
-    def exitWalk(self):
-        actor_node = base.actor_node
-        actor_node.stop("Walking")
-
-    def exitAttack(self):
-        actor_node = base.actor_node
-        actor_node.stop("Boxing")"""
 
     def exitSwim(self):
         pass
