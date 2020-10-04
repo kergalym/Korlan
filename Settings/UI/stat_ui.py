@@ -230,8 +230,8 @@ class StatUI:
         """
         if hasattr(base, "states"):
             records_designed = ''
-            for key in base.states:
-                records_designed += "{0}: {1}\n".format(key, base.states[key])
+            for key in base.player_states:
+                records_designed += "{0}: {1}\n".format(key, base.player_states[key])
             return records_designed
 
     def gen_stat_npc_action_text_p(self):
