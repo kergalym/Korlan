@@ -84,9 +84,9 @@ class LevelOne:
                 if name:
                     actor_bs = self.base.get_actor_bullet_shape_node(asset=name, type="NPC")
                     name_to_disp = name.split("_")[1]
-                    mongol_label = OnscreenText(text=name_to_disp, pos=(0.0, 0.9),
+                    npc_label = OnscreenText(text=name_to_disp, pos=(0.0, 0.9),
                                                 fg=(255, 255, 255, 1), scale=.10)
-                    mongol_label.reparent_to(actor_bs)
+                    npc_label.reparent_to(actor_bs)
                     labels_applied = 1
 
         if labels_applied == 1:
