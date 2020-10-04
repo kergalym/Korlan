@@ -110,6 +110,17 @@ class AI:
         if hits:
             return hits
 
+    def set_actor_accurate_heading(self, master_name, slave):
+        # Oops, these words are not SJW-approved
+        if master_name and slave and isinstance(master_name, str):
+            master = render.find("**/{0}".format(master_name))
+            master_heading = master.get_h()
+            if not master.is_empty():
+                if master_heading > 0:
+                    slave.set_h(-master_heading)
+                elif master_heading < 0:
+                    slave.set_h(master_heading)
+
     def set_ai_world(self, assets, npcs_fsm_states, task):
         if (assets and isinstance(assets, dict)
                 and npcs_fsm_states
@@ -240,6 +251,8 @@ class AI:
                 # If NPC is close to Player, do attack
                 if self.ai_behaviors[actor.get_name()].behavior_status("pursue") == "done":
                     request.request("Attack", actor, "Boxing", "loop")
+
+                    self.set_actor_accurate_heading(master_name=actor_bs_name, slave=self.player)
 
                     if actor.get_current_frame("Boxing") == self.npcs_hits["Boxing"]:
                         self.player_fsm.request("BigHitToHead", self.base.player_ref, "BigHitToHead", "play")
