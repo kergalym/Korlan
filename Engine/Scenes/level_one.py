@@ -77,14 +77,14 @@ class LevelOne:
 
         return task.cont
 
-    def set_npcs_label(self, task):
+    def set_npcs_label_task(self, task):
         labels_applied = 0
         if base.npcs_actor_refs:
             for name in base.npcs_actor_refs:
                 if name:
                     actor_bs = self.base.get_actor_bullet_shape_node(asset=name, type="NPC")
                     mongol_label = OnscreenText(text=name, pos=(0.0, 1),
-                                                fg=(255, 255, 255, 0.9), scale=.04)
+                                                fg=(255, 255, 255, 0.9), scale=.07)
                     mongol_label.reparent_to(actor_bs)
                     labels_applied = 1
 
@@ -370,8 +370,8 @@ class LevelOne:
                     "world_sfx_task",
                     appendTask=True)
 
-        taskMgr.add(self.set_npcs_label,
-                    "set_npcs_label",
+        taskMgr.add(self.set_npcs_label_task,
+                    "set_npcs_label_task",
                     appendTask=True)
 
     def save_game(self):
