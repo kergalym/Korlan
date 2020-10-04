@@ -1,4 +1,5 @@
 from direct.fsm.FSM import FSM
+from direct.interval.MetaInterval import Sequence
 from direct.task.TaskManagerGlobal import taskMgr
 from Engine.FSM.npc_fsm import NpcFSM
 
@@ -49,42 +50,32 @@ class NpcErnarFSM(FSM):
     def enterAttack(self, actor, action, task):
         if actor and action and task:
             any_action = actor.get_anim_control(action)
+            any_action_seq = actor.actor_interval(action)
 
             if isinstance(task, str):
                 if task == "play":
                     if not any_action.isPlaying():
-                        actor.play(action)
+                        Sequence(any_action_seq).start()
+
                 elif task == "loop":
                     if not any_action.isPlaying():
                         actor.loop(action)
                 actor.set_play_rate(self.base.actor_play_rate, action)
 
-    """def exitIdle(self):
-        actor_node = base.actor_node
-        actor_node.stop("LookingAround")
+    def enterAttacked(self, actor, action, task):
+        if actor and action and task:
+            any_action = actor.get_anim_control(action)
+            any_action_seq = actor.actor_interval(action)
 
-    def exitWalk(self):
-        actor_node = base.actor_node
-        actor_node.stop("Walking")
+            if isinstance(task, str):
+                if task == "play":
+                    if not any_action.isPlaying():
+                        Sequence(any_action_seq).start()
 
-    def exitAttack(self):
-        actor_node = base.actor_node
-        actor_node.stop("Boxing")"""
-
-    def exitSwim(self):
-        pass
-
-    def exitStay(self):
-        pass
-
-    def exitCrouch(self):
-        pass
-
-    def exitJump(self):
-        pass
-
-    def exitLay(self):
-        pass
+                elif task == "loop":
+                    if not any_action.isPlaying():
+                        actor.loop(action)
+                actor.set_play_rate(self.base.actor_play_rate, action)
 
     def enterHAttack(self):
         pass
@@ -122,27 +113,6 @@ class NpcErnarFSM(FSM):
     def enterLay(self):
         pass
 
-    def exitHAttack(self):
-        pass
-
-    def exitFAttack(self):
-        pass
-
-    def exitBlock(self):
-        pass
-
-    def exitInteract(self):
-        pass
-
-    def exitLife(self):
-        pass
-
-    def exitDeath(self):
-        pass
-
-    def exitMiscAct(self):
-        pass
-
     def filterIdle(self, request, args):
         if request not in ['Idle']:
             return (request,) + args
@@ -157,6 +127,12 @@ class NpcErnarFSM(FSM):
 
     def filterAttack(self, request, args):
         if request not in ['Attack']:
+            return (request,) + args
+        else:
+            return None
+
+    def filterAttacked(self, request, args):
+        if request not in ['Attacked']:
             return (request,) + args
         else:
             return None

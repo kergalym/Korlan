@@ -47,22 +47,7 @@ class PlayerFSM(FSM):
                     self.player.loop(action)
                 self.player.setPlayRate(self.base.actor_play_rate, action)
 
-    def enterBigHitToHead(self, actor, action, task):
-        if actor and action and task:
-            any_action = actor.get_anim_control(action)
-            any_action_seq = actor.actor_interval(action)
-
-            if isinstance(task, str):
-                if task == "play":
-                    if not any_action.isPlaying():
-                        Sequence(any_action_seq, Func(self.fsm_state_wrapper, "is_attacked", False)).start()
-
-                elif task == "loop":
-                    if not any_action.isPlaying():
-                        actor.loop(action)
-                actor.set_play_rate(self.base.actor_play_rate, action)
-
-    def enterBigHitToBody(self, actor, action, task):
+    def enterAttacked(self, actor, action, task):
         if actor and action and task:
             any_action = actor.get_anim_control(action)
             any_action_seq = actor.actor_interval(action)
@@ -137,29 +122,16 @@ class PlayerFSM(FSM):
                         actor.loop(action)
                 actor.set_play_rate(self.base.actor_play_rate, action)
 
-    def filterBigHitToHead(self, request, args):
+    def filterAttacked(self, request, args):
         if (hasattr(self.base, 'player_ref')
                 and self.base.player_ref):
             any_action = self.base.player_ref.get_anim_control('BigHitToHead')
             if (any_action.isPlaying() is False
-                    and request in ['BigHitToHead']):
+                    and request in ['Attacked']):
                 base.player_states['is_attacked'] = True
                 return (request,) + args
             elif (any_action.isPlaying()
-                    and request in ['BigHitToHead']):
-                base.player_states['is_attacked'] = False
-                return None
-
-    def filterBigHitToBody(self, request, args):
-        if (hasattr(self.base, 'player_ref')
-                and self.base.player_ref):
-            any_action = self.base.player_ref.get_anim_control('BigHitToBody')
-            if (any_action.isPlaying() is False
-                    and request in ['BigHitToBody']):
-                base.player_states['is_attacked'] = True
-                return (request,) + args
-            elif (any_action.isPlaying()
-                    and request in ['BigHitToBody']):
+                    and request in ['Attacked']):
                 base.player_states['is_attacked'] = False
                 return None
 
