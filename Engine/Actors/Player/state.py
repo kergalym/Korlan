@@ -7,7 +7,7 @@ class PlayerState:
 
     def __init__(self):
         self.game_settings = base.game_settings
-        base.states = {
+        base.player_states = {
             "is_idle": True,
             "is_moving": False,
             "is_running": False,
@@ -108,35 +108,35 @@ class PlayerState:
                 and isinstance(action, str)
                 and isinstance(state, bool)):
             if state:
-                base.states[action] = state
-                for key in base.states:
+                base.player_states[action] = state
+                for key in base.player_states:
                     if (state
                             and key != "is_idle"
                             and key != action):
-                        base.states[key] = False
+                        base.player_states[key] = False
 
             elif state is False:
-                for key in base.states:
-                    base.states[key] = False
-                    base.states["is_idle"] = True
+                for key in base.player_states:
+                    base.player_states[key] = False
+                    base.player_states["is_idle"] = True
 
     def set_action_state_crouched(self, action, state):
         if (action
                 and isinstance(action, str)
                 and isinstance(state, bool)):
             if state:
-                for key in base.states:
+                for key in base.player_states:
                     if action == "is_crouch_moving":
-                        base.states[key] = False
-                        base.states["is_idle"] = False
-                        base.states["is_crouch_moving"] = True
+                        base.player_states[key] = False
+                        base.player_states["is_idle"] = False
+                        base.player_states["is_crouch_moving"] = True
                     elif action == "is_idle":
-                        base.states[key] = False
-                        base.states["is_idle"] = True
+                        base.player_states[key] = False
+                        base.player_states["is_idle"] = True
             elif state is False:
                 if action == "is_crouch_moving":
-                    base.states["is_idle"] = True
-                    base.states["is_crouch_moving"] = False
+                    base.player_states["is_idle"] = True
+                    base.player_states["is_crouch_moving"] = False
 
     def set_player_equip_state(self, task):
         base.player_state_unarmed = True

@@ -29,7 +29,7 @@ class PlayerFSM(FSM):
     def fsm_state_wrapper(self, state, boolean):
         if (state and isinstance(state, str)
                 and isinstance(boolean, bool)):
-            base.states[state] = boolean
+            base.player_states[state] = boolean
 
     def get_player(self, actor):
         if actor and isinstance(actor, str):
@@ -143,11 +143,11 @@ class PlayerFSM(FSM):
             any_action = self.base.player_ref.get_anim_control('BigHitToHead')
             if (any_action.isPlaying() is False
                     and request in ['BigHitToHead']):
-                base.states['is_attacked'] = True
+                base.player_states['is_attacked'] = True
                 return (request,) + args
             elif (any_action.isPlaying()
                     and request in ['BigHitToHead']):
-                base.states['is_attacked'] = False
+                base.player_states['is_attacked'] = False
                 return None
 
     def filterBigHitToBody(self, request, args):
@@ -156,11 +156,11 @@ class PlayerFSM(FSM):
             any_action = self.base.player_ref.get_anim_control('BigHitToBody')
             if (any_action.isPlaying() is False
                     and request in ['BigHitToBody']):
-                base.states['is_attacked'] = True
+                base.player_states['is_attacked'] = True
                 return (request,) + args
             elif (any_action.isPlaying()
                     and request in ['BigHitToBody']):
-                base.states['is_attacked'] = False
+                base.player_states['is_attacked'] = False
                 return None
 
     def filterSwim(self, request, args):
@@ -169,11 +169,11 @@ class PlayerFSM(FSM):
             any_action = self.base.player_ref.get_anim_control('Swim')
             if (any_action.isPlaying() is False
                     and request in ['Swim']):
-                base.states['is_busy'] = True
+                base.player_states['is_busy'] = True
                 return (request,) + args
             elif (any_action.isPlaying()
                     and request in ['Swim']):
-                base.states['is_busy'] = False
+                base.player_states['is_busy'] = False
                 return None
 
     def filterLay(self, request, args):
@@ -182,11 +182,11 @@ class PlayerFSM(FSM):
             any_action = self.base.player_ref.get_anim_control('Lay')
             if (any_action.isPlaying() is False
                     and request in ['Lay']):
-                base.states['is_attacked'] = True
+                base.player_states['is_attacked'] = True
                 return (request,) + args
             elif (any_action.isPlaying()
                     and request in ['Lay']):
-                base.states['is_attacked'] = False
+                base.player_states['is_attacked'] = False
                 return None
 
     def filterLife(self, request, args):
@@ -195,11 +195,11 @@ class PlayerFSM(FSM):
             any_action = self.base.player_ref.get_anim_control('Life')
             if (any_action.isPlaying() is False
                     and request in ['Life']):
-                base.states['is_attacked'] = True
+                base.player_states['is_attacked'] = True
                 return (request,) + args
             elif (any_action.isPlaying()
                     and request in ['Life']):
-                base.states['is_attacked'] = False
+                base.player_states['is_attacked'] = False
                 return None
 
     def filterDeath(self, request, args):
@@ -208,9 +208,9 @@ class PlayerFSM(FSM):
             any_action = self.base.player_ref.get_anim_control('Death')
             if (any_action.isPlaying() is False
                     and request in ['Death']):
-                base.states['is_attacked'] = True
+                base.player_states['is_attacked'] = True
                 return (request,) + args
             elif (any_action.isPlaying()
                     and request in ['Death']):
-                base.states['is_attacked'] = False
+                base.player_states['is_attacked'] = False
                 return None
