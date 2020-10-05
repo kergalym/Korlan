@@ -2,6 +2,7 @@ from direct.interval.IntervalGlobal import Sequence, Wait
 from direct.interval.IntervalGlobal import Parallel
 from direct.interval.IntervalGlobal import Func
 from direct.gui.DirectGui import *
+from direct.showbase.ShowBaseGlobal import aspect2d
 from panda3d.core import FontPool, TextNode
 from direct.task.TaskManagerGlobal import taskMgr
 
@@ -49,10 +50,12 @@ class UnloadingUI:
                                                 frameSize=self.unloading_frame_size)
             self.unloading_screen.set_name("UnloadingScreen")
             self.unloading_text.reparent_to(self.unloading_screen)
+            self.base.build_info.reparent_to(self.unloading_screen)
 
     def clear_unloading_screen(self):
         if self.unloading_screen:
             self.unloading_screen.hide()
+            self.base.build_info.reparent_to(aspect2d)
         if self.unloading_text:
             self.unloading_text.hide()
 
