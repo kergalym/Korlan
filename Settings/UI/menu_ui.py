@@ -8,6 +8,7 @@ from pathlib import Path
 from direct.gui.DirectGui import *
 from direct.gui.OnscreenImage import OnscreenImage
 from direct.gui.OnscreenImage import TransparencyAttrib
+from direct.showbase.ShowBaseGlobal import aspect2d
 from panda3d.core import FontPool
 from panda3d.core import TextNode
 
@@ -146,6 +147,7 @@ class MenuUI(MenuSettings):
 
         self.base.frame = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
                                       frameSize=self.base.frame_size)
+        self.base.build_info.reparent_to(self.base.frame)
 
         self.logo = OnscreenImage(image=self.images['korlan_logo_tengri'],
                                   pos=self.logo_pos)
@@ -257,6 +259,7 @@ class MenuUI(MenuSettings):
 
             Return      : None
         """
+        self.base.build_info.reparent_to(aspect2d)
         self.base.frame.hide()
 
     """ Wrapper functions """

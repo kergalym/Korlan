@@ -1,7 +1,7 @@
 import json
 from os.path import exists
 
-from direct.showbase.ShowBaseGlobal import render2d
+from direct.showbase.ShowBaseGlobal import render2d, aspect2d
 
 from Engine.Actors.Player.inventory import Inventory
 from Settings.menu_settings import MenuSettings
@@ -84,6 +84,7 @@ class PlayerMenuUI(Inventory):
 
         self.base.frame_inv = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
                                           frameSize=self.base.frame_inv_size)
+        self.base.build_info.reparent_to(self.base.frame_inv)
 
         self.base.frame_inv_int = DirectScrolledFrame(frameColor=(0, 0, 0, self.frm_opacity),
                                                       frameSize=self.base.frame_inv_int_size,
@@ -155,6 +156,7 @@ class PlayerMenuUI(Inventory):
         self.base.frame_inv.hide()
 
     def clear_ui_inventory(self):
+        self.base.build_info.reparent_to(aspect2d)
         self.base.frame_inv.hide()
         props = WindowProperties()
         props.set_cursor_hidden(True)

@@ -6,6 +6,7 @@ from pathlib import Path
 
 from direct.gui.DirectGui import *
 from direct.gui.OnscreenImage import OnscreenImage, TransparencyAttrib
+from direct.showbase.ShowBaseGlobal import aspect2d
 from panda3d.core import FontPool
 from panda3d.core import TextNode
 
@@ -196,6 +197,7 @@ class GraphicsMenuUI(Graphics):
         self.base.frame_int_gfx = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
                                               frameSize=self.base.frame_int_gfx_size)
         self.base.frame_int_gfx.setPos(self.pos_X, self.pos_Y, self.pos_Z)
+        self.base.build_info.reparent_to(self.base.frame_int_gfx)
 
         self.lbl_gfx_title = DirectLabel(text=self.language['graphics'],
                                          text_fg=(255, 255, 255, 1),
@@ -729,6 +731,8 @@ class GraphicsMenuUI(Graphics):
 
         if hasattr(base, "active_frame"):
             base.active_frame.destroy()
+
+        self.base.build_info.reparent_to(aspect2d)
 
         if self.game_mode:
             self.base.frame_int_gfx.destroy()

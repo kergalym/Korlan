@@ -125,7 +125,6 @@ class Main(ShowBase):
         self.build_info_txt = "Build 0.1. 10/2020"
         self.build_info = OnscreenText(text=self.build_info_txt, pos=(1.6, -0.95),
                                        fg=(255, 255, 255, 1), scale=.025)
-        print(self.build_info)
         self.props = WindowProperties()
         self.props.set_cursor_hidden(True)
         self.win.request_properties(self.props)

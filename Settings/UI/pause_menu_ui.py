@@ -6,6 +6,7 @@ from pathlib import Path
 
 from direct.gui.DirectGui import *
 from direct.gui.OnscreenImage import OnscreenImage, TransparencyAttrib
+from direct.showbase.ShowBaseGlobal import aspect2d
 from panda3d.core import FontPool, WindowProperties
 from panda3d.core import TextNode
 
@@ -153,6 +154,7 @@ class PauseMenuUI(MenuSettings):
         self.base.frame_int_pause = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
                                                 frameSize=self.base.frame_int_pause_size)
         self.base.frame_int_pause.setPos(self.pos_X, self.pos_Y, self.pos_Z)
+        self.base.build_info.reparent_to(self.base.frame_int_pause)
 
         self.btn_continue = DirectButton(text=self.language['continue'],
                                          text_fg=(255, 255, 255, 0.9),
@@ -260,6 +262,8 @@ class PauseMenuUI(MenuSettings):
         """
         if not self.base.frame_int_pause:
             return False
+
+        self.base.build_info.reparent_to(aspect2d)
 
         if hasattr(base, "active_frame"):
             base.active_frame.destroy()
