@@ -85,7 +85,7 @@ class LevelOne:
                     actor_bs = self.base.get_actor_bullet_shape_node(asset=name, type="NPC")
                     name_to_disp = name.split("_")[1]
                     npc_label = OnscreenText(text=name_to_disp, pos=(0.0, 0.9),
-                                                fg=(255, 255, 255, 1), scale=.10)
+                                             fg=(255, 255, 255, 1), scale=.10)
                     npc_label.reparent_to(actor_bs)
                     labels_applied = 1
 

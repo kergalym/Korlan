@@ -112,7 +112,6 @@ class LoadingUI:
 
                 if num == asset_num:
                     self.clear_loading_bar()
-
                     self.base.loading_is_done = 1
 
                     return task.done

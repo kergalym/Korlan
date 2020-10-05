@@ -9,6 +9,7 @@ from os import mkdir, listdir, walk
 from os.path import isdir, isfile, exists
 
 import panda3d.core as p3d
+from direct.gui.OnscreenText import OnscreenText
 from direct.showbase.ShowBaseGlobal import render2d
 from panda3d.core import Filename, LODNode, Texture
 from panda3d.core import WindowProperties
@@ -121,7 +122,9 @@ class Main(ShowBase):
         self.manual_recenter_Mouse = None
         self.gfx = Graphics()
         ShowBase.__init__(self)
-
+        self.build_info_txt = "Build 0.1. 10/2020"
+        self.build_info = OnscreenText(text=self.build_info_txt, pos=(1.6, -0.95),
+                                       fg=(255, 255, 255, 1), scale=.025)
         self.props = WindowProperties()
         self.props.set_cursor_hidden(True)
         self.win.request_properties(self.props)
@@ -979,6 +982,7 @@ class Main(ShowBase):
                         if not render2d.find("**/LoadingScreen").is_empty():
                             loading_screen_np = render2d.find("**/LoadingScreen")
                             card.reparent_to(loading_screen_np)
+
                     elif type == "main_menu":
                         card.reparent_to(render2d)
 
