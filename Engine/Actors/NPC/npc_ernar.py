@@ -25,6 +25,7 @@ class NpcErnar:
         self.actor_life_perc = None
         self.actor_is_dead = False
         self.actor_is_alive = False
+        self.npc_life_label = None
 
     def actor_life(self, task):
         if self.actor:
@@ -47,13 +48,12 @@ class NpcErnar:
     def set_actor_life(self, actor_bs):
         if actor_bs:
             self.actor_life_perc = 150
-            npc_life_label = DirectWaitBar(text="", value=self.actor_life_perc,
-                                           range=self.actor_life_perc,
-                                           pos=(0.0, 0.0, 0.85), scale=.10)
-            npc_life_label.reparent_to(actor_bs)
-            npc_life_label.set_billboard_point_eye()
-            npc_life_label.set_bin("fixed", 0)
-            return npc_life_label
+            self.npc_life_label = DirectWaitBar(text="", value=self.actor_life_perc,
+                                                range=self.actor_life_perc,
+                                                pos=(0.0, 0.0, 0.85), scale=.10)
+            self.npc_life_label.reparent_to(actor_bs)
+            self.npc_life_label.set_billboard_point_eye()
+            self.npc_life_label.set_bin("fixed", 0)
 
     def set_actor_label(self, name, actor_bs):
         if actor_bs and name and isinstance(name, str):

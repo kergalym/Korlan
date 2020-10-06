@@ -93,8 +93,20 @@ class NpcMongolFSM(FSM):
     def enterLife(self):
         pass
 
-    def enterDeath(self):
-        pass
+    def enterDeath(self, actor, action, task):
+        if actor and action and task:
+            any_action = actor.get_anim_control(action)
+            any_action_seq = actor.actor_interval(action)
+
+            if isinstance(task, str):
+                if task == "play":
+                    if not any_action.isPlaying():
+                        Sequence(any_action_seq).start()
+
+                elif task == "loop":
+                    if not any_action.isPlaying():
+                        actor.loop(action)
+                actor.set_play_rate(self.base.actor_play_rate, action)
 
     def enterMiscAct(self):
         pass
@@ -134,6 +146,12 @@ class NpcMongolFSM(FSM):
 
     def filterAttacked(self, request, args):
         if request not in ['Attacked']:
+            return (request,) + args
+        else:
+            return None
+
+    def filterDeath(self, request, args):
+        if request not in ['Death']:
             return (request,) + args
         else:
             return None

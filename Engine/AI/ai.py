@@ -275,6 +275,7 @@ class AI:
 
             # Add :BS suffix since we'll get Bullet Shape NodePath here
             actor_bs_name = "{0}:BS".format(actor.get_name())
+            actor_name = actor.get_name()
 
             # Leave it here for debugging purposes
             # self.get_npc_hits()
@@ -307,3 +308,10 @@ class AI:
                         if self.base.player_states["is_hitting"]:
                             if self.base.player_ref.get_current_frame("Boxing") == self.npcs_hits["Boxing"]:
                                 request.request("Attacked", actor, "BigHitToHead", "Boxing", "play")
+
+                            if hasattr(base, "npcs_actors_health") and base.npcs_actors_health:
+                                if base.npcs_actors_health[actor_name].getPercent() != 0:
+                                    base.npcs_actors_health[actor_name]['value'] -= 5
+                                else:
+                                    request.request("Death", actor, "Dying", "play")
+

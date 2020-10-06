@@ -56,6 +56,7 @@ class LoadingUI:
             self.loading_bar = DirectWaitBar(text="",
                                              value=0,
                                              range=100,
+                                             barColor=(255, 0, 0, 1),
                                              pos=(0, 0.4, -0.95))
 
             self.loading_screen = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),

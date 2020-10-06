@@ -24,6 +24,7 @@ class Korlan:
         self.rot_r = None
         self.korlan = None
         self.korlan_start_pos = None
+        self.korlan_life_perc = None
         self.base = base
         self.render = render
         self.anims = None
@@ -42,7 +43,6 @@ class Korlan:
         self.render_attr = RenderAttr()
         self.actions = Actions()
         self.state = PlayerState()
-        self.actor_life_perc = None
         self.base.actor_is_dead = False
         self.base.actor_is_alive = False
         self.base.actor_play_rate = 1.0
@@ -196,6 +196,8 @@ class Korlan:
                             appendTask=True)
 
                 self.actions.player_actions_init(self.korlan, animation[0])
+
+                self.korlan_life_perc = 100
 
                 taskMgr.add(self.state.actor_life,
                             "actor_life",

@@ -12,7 +12,6 @@ from Engine.Scenes.scene import SceneOne
 from Engine.Physics.physics import PhysicsAttr
 from Settings.UI.stat_ui import StatUI
 from Settings.UI.pause_menu_ui import PauseMenuUI
-from direct.gui.OnscreenText import OnscreenText
 
 
 class LevelOne:
@@ -39,6 +38,7 @@ class LevelOne:
         self.physics_attr = PhysicsAttr()
         self.ai = AI()
         self.base.npcs_actor_refs = {}
+        self.base.npcs_actors_health = {}
         self.npcs_fsm_states = {}
         self.pos_x = None
         self.pos_y = None
@@ -77,23 +77,23 @@ class LevelOne:
 
         return task.cont
 
-    """def set_npcs_label_task(self, task):
-        labels_applied = 0
-        if base.npcs_actor_refs:
-            for name in base.npcs_actor_refs:
-                if name:
-                    actor_bs = self.base.get_actor_bullet_shape_node(asset=name, type="NPC")
-                    if actor_bs:
-                        name_to_disp = name.split("_")[1]
-                        npc_label = OnscreenText(text=name_to_disp, pos=(0.0, 0.7),
-                                                 fg=(255, 255, 255, 1), scale=.10)
-                        npc_label.reparent_to(actor_bs)
-                        labels_applied = 1
+    def collect_actors_health_task(self, task):
+        if hasattr(base, "npc_is_loaded") and base.npc_is_loaded == 1:
+            if (self.npc_ernar.actor
+                    and self.npc_mongol.actor):
+                ernar_name = self.npc_ernar.actor.get_name()
+                mongol_name = self.npc_mongol.actor.get_name()
 
-        if labels_applied == 1:
+                base.npcs_actors_health[ernar_name] = self.npc_ernar.npc_life_label
+                base.npcs_actors_health[mongol_name] = self.npc_mongol.npc_life_label
+
+                if self.korlan.korlan:
+                    base.player_health = self.korlan.korlan_life_perc
+
+        if self.base.game_mode is False and self.base.menu_mode:
             return task.done
 
-        return task.cont"""
+        return task.cont
 
     def unload_game_scene(self):
         if self.base.game_mode:
@@ -372,9 +372,9 @@ class LevelOne:
                     "world_sfx_task",
                     appendTask=True)
 
-        """taskMgr.add(self.set_npcs_label_task,
-                    "set_npcs_label_task",
-                    appendTask=True)"""
+        taskMgr.add(self.collect_actors_health_task,
+                    "collect_actors_health_task",
+                    appendTask=True)
 
     def save_game(self):
         pass
