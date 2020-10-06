@@ -292,11 +292,11 @@ class AI:
                 elif passive is False and self.base.alive_actors[actor_name]:
                     # If NPC is far from Player, do pursue Player
                     if vec_x > 1.0 or vec_x < -1.0:
-                        request.request("Walk", actor, self.player, self.ai_behaviors[actor.get_name()],
+                        request.request("Walk", actor, self.player, self.ai_behaviors[actor_name],
                                         "pursuer", "Walking", "loop")
 
                     # If NPC is close to Player, do enemy attack
-                    if self.ai_behaviors[actor.get_name()].behavior_status("pursue") == "done":
+                    if self.ai_behaviors[actor_name].behavior_status("pursue") == "done":
                         request.request("Attack", actor, "Boxing", "loop")
 
                         # Head the player for enamy
@@ -318,4 +318,4 @@ class AI:
                                 else:
                                     request.request("Death", actor, "Dying", "play")
                                     self.base.alive_actors[actor_name] = False
-                                    self.ai_behaviors[actor.get_name()].pause_ai("pursue")
+                                    self.ai_behaviors[actor_name].pause_ai("pursue")
