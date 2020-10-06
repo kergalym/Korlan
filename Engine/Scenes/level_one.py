@@ -77,7 +77,7 @@ class LevelOne:
 
         return task.cont
 
-    def set_npcs_label_task(self, task):
+    """def set_npcs_label_task(self, task):
         labels_applied = 0
         if base.npcs_actor_refs:
             for name in base.npcs_actor_refs:
@@ -85,7 +85,7 @@ class LevelOne:
                     actor_bs = self.base.get_actor_bullet_shape_node(asset=name, type="NPC")
                     if actor_bs:
                         name_to_disp = name.split("_")[1]
-                        npc_label = OnscreenText(text=name_to_disp, pos=(0.0, 0.9),
+                        npc_label = OnscreenText(text=name_to_disp, pos=(0.0, 0.7),
                                                  fg=(255, 255, 255, 1), scale=.10)
                         npc_label.reparent_to(actor_bs)
                         labels_applied = 1
@@ -93,7 +93,7 @@ class LevelOne:
         if labels_applied == 1:
             return task.done
 
-        return task.cont
+        return task.cont"""
 
     def unload_game_scene(self):
         if self.base.game_mode:
@@ -372,9 +372,9 @@ class LevelOne:
                     "world_sfx_task",
                     appendTask=True)
 
-        taskMgr.add(self.set_npcs_label_task,
+        """taskMgr.add(self.set_npcs_label_task,
                     "set_npcs_label_task",
-                    appendTask=True)
+                    appendTask=True)"""
 
     def save_game(self):
         pass

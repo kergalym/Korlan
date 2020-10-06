@@ -1,4 +1,6 @@
 from direct.actor.Actor import Actor
+from direct.gui.DirectWaitBar import DirectWaitBar
+from direct.gui.OnscreenText import OnscreenText
 from direct.task.TaskManagerGlobal import taskMgr
 
 
@@ -20,20 +22,48 @@ class NpcMongol:
         self.game_settings = base.game_settings
         self.game_dir = base.game_dir
         self.actor_life_perc = None
-        self.base.actor_is_dead = False
-        self.base.actor_is_alive = False
+        self.actor_is_dead = False
+        self.actor_is_alive = False
 
     def actor_life(self, task):
-        self.has_actor_life()
+        if self.actor:
+            actor_bs = self.base.get_actor_bullet_shape_node(asset=self.actor.get_name(), type="NPC")
+            if actor_bs:
+                self.set_actor_label(name=actor_bs.get_name(), actor_bs=actor_bs)
+                self.set_actor_life(actor_bs=actor_bs)
+                return task.done
+        # self.has_actor_life()
         return task.cont
 
     def has_actor_life(self):
-        if (self.base.actor_is_dead is False
-                and self.base.actor_is_alive is False):
-            self.actor_life_perc = 100
-            self.base.actor_is_alive = True
+        if (self.actor_is_dead is False
+                and self.actor_is_alive is False):
+            self.actor_is_alive = True
+            self.actor_life_perc = 200
         else:
             return False
+
+    def set_actor_life(self, actor_bs):
+        if actor_bs:
+            self.actor_life_perc = 200
+            npc_life_label = DirectWaitBar(text="", value=self.actor_life_perc,
+                                           range=self.actor_life_perc,
+                                           pos=(0.0, 0.0, 0.85), scale=.10)
+            npc_life_label.reparent_to(actor_bs)
+            npc_life_label.set_billboard_point_eye()
+            npc_life_label.set_bin("fixed", 0)
+            return npc_life_label
+
+    def set_actor_label(self, name, actor_bs):
+        if actor_bs and name and isinstance(name, str):
+            if "_" in name and ":BS" in name:
+                name_to_disp = name.split("_")[1]
+                name_to_disp = name_to_disp.split(":")[0]
+                npc_label = OnscreenText(text=name_to_disp, pos=(0.0, 0.9),
+                                         fg=(255, 255, 255, 1), scale=.10)
+                npc_label.reparent_to(actor_bs)
+                npc_label.set_billboard_point_eye()
+                npc_label.set_bin("fixed", 0)
 
     async def set_actor(self, mode, name, path, animation, axis, rotation, scale, culling):
 
