@@ -70,6 +70,9 @@ class LevelOne:
                 base.npcs_actor_refs[ernar_name] = self.npc_ernar.actor
                 base.npcs_actor_refs[mongol_name] = self.npc_mongol.actor
 
+                self.base.alive_actors[ernar_name] = True
+                self.base.alive_actors[mongol_name] = True
+
                 if self.korlan.korlan:
                     base.player_ref = self.korlan.korlan
 
@@ -86,9 +89,7 @@ class LevelOne:
                 mongol_name = self.npc_mongol.actor.get_name()
 
                 self.base.npcs_actors_health[ernar_name] = self.npc_ernar.npc_life_label
-                self.base.alive_actors["NPC_{0}".format(ernar_name)] = True
                 self.base.npcs_actors_health[mongol_name] = self.npc_mongol.npc_life_label
-                self.base.alive_actors["NPC_{0}".format(mongol_name)] = True
 
                 if self.korlan.korlan:
                     base.player_health = self.korlan.korlan_life_perc
