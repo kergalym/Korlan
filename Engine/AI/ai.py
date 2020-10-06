@@ -311,7 +311,9 @@ class AI:
 
                             if hasattr(self.base, "alive_actors") and self.base.alive_actors:
                                 # Enemy will die if no health:
-                                if hasattr(base, "npcs_actors_health") and base.npcs_actors_health:
+                                if (hasattr(base, "npcs_actors_health")
+                                        and base.npcs_actors_health
+                                        and self.base.alive_actors[actor_name]):
                                     if base.npcs_actors_health[actor_name].getPercent() != 0:
                                         base.npcs_actors_health[actor_name]['value'] -= 5
                                     else:
