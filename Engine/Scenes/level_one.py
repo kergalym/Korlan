@@ -39,6 +39,7 @@ class LevelOne:
         self.ai = AI()
         self.base.npcs_actor_refs = {}
         self.base.npcs_actors_health = {}
+        self.base.alive_actors = {}
         self.npcs_fsm_states = {}
         self.pos_x = None
         self.pos_y = None
@@ -84,8 +85,10 @@ class LevelOne:
                 ernar_name = self.npc_ernar.actor.get_name()
                 mongol_name = self.npc_mongol.actor.get_name()
 
-                base.npcs_actors_health[ernar_name] = self.npc_ernar.npc_life_label
-                base.npcs_actors_health[mongol_name] = self.npc_mongol.npc_life_label
+                self.base.npcs_actors_health[ernar_name] = self.npc_ernar.npc_life_label
+                self.base.alive_actors["NPC_{0}".format(ernar_name)] = True
+                self.base.npcs_actors_health[mongol_name] = self.npc_mongol.npc_life_label
+                self.base.alive_actors["NPC_{0}".format(mongol_name)] = True
 
                 if self.korlan.korlan:
                     base.player_health = self.korlan.korlan_life_perc

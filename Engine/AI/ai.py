@@ -309,12 +309,13 @@ class AI:
                             if self.base.player_ref.get_current_frame("Boxing") == self.npcs_hits["Boxing"]:
                                 request.request("Attacked", actor, "BigHitToHead", "Boxing", "play")
 
-                            actor_is_dead = 0
-                            if hasattr(base, "npcs_actors_health") and base.npcs_actors_health:
-                                if base.npcs_actors_health[actor_name].getPercent() != 0:
-                                    base.npcs_actors_health[actor_name]['value'] -= 5
-                                else:
-                                    if actor_is_dead == 0:
+                            if hasattr(self.base, "alive_actors") and self.base.alive_actors:
+                                # Enemy will die if no health:
+                                if hasattr(base, "npcs_actors_health") and base.npcs_actors_health:
+                                    if base.npcs_actors_health[actor_name].getPercent() != 0:
+                                        base.npcs_actors_health[actor_name]['value'] -= 5
+                                    else:
                                         request.request("Death", actor, "Dying", "play")
-                                        actor_is_dead = 1
+                                        self.base.alive_actors[actor_name] = False
+
 
