@@ -3,6 +3,8 @@ from panda3d.ai import AICharacter
 from direct.task.TaskManagerGlobal import taskMgr
 from Engine.FSM.player_fsm import PlayerFSM
 from Engine.FSM.npc_fsm import NpcFSM
+from Settings.UI.cmd_dialogus_ui import CmdDialogusUI
+from Engine.Dialogs import dialogs_multi_lng
 
 
 class AI:
@@ -38,6 +40,8 @@ class AI:
             'great_sword_slash': 0,
             'KickingAtThePlace': 0
         }
+        self.dialogus = CmdDialogusUI()
+        self.dialogus_actor = None
 
     def update_ai_world_task(self, task):
         if self.ai_world:
@@ -68,7 +72,7 @@ class AI:
 
                 if npc_class and self.npc_fsm.npcs_xyz_vec:
                     if npc_class == "friend":
-                        self.npc_friend_logic(actor=actor, request=request, passive=False)
+                        self.npc_friend_logic(actor=actor, request=request, passive=True)
                     if npc_class == "neutral":
                         self.npc_neutral_logic(actor=actor, request=request, passive=True)
                     if npc_class == "enemy":
@@ -179,6 +183,15 @@ class AI:
 
         return task.cont
 
+    # TODO: Pass actor_name
+    def npc_commands(self, command):
+        if self.ai_behaviors and self.dialogus_actor:
+            if command == "stay":
+                print(command)
+                self.ai_behaviors[self.dialogus_actor].pause_ai("pursue")
+            if command == "follow":
+                self.ai_behaviors[self.dialogus_actor].resume_ai("pursue")
+
     def npc_friend_logic(self, actor, request, passive):
         if (actor and request and self.npc_fsm.npcs_xyz_vec
                 and isinstance(passive, bool)
@@ -186,6 +199,7 @@ class AI:
 
             # Add :BS suffix since we'll get Bullet Shape NodePath here
             actor_bs_name = "{0}:BS".format(actor.get_name())
+            self.dialogus_actor = actor.get_name()
 
             if actor_bs_name and self.npc_fsm.npcs_xyz_vec.get(actor_bs_name):
                 vec_x = self.npc_fsm.npcs_xyz_vec[actor_bs_name][0]
@@ -202,9 +216,23 @@ class AI:
                                         "pursuer", "Walking", "loop")
 
                     # If NPC is close to Player, just stay
+                    if self.ai_behaviors[actor.get_name()].behavior_status("pursue") == "paused":
+                        # TODO: Change action to something more suitable
+                        request.request("Idle", actor, "LookingAround", "loop")
+                        self.dialogus_actor = actor.get_name()
+                        self.base.npc_commands = self.npc_commands
+                        self.base.accept("t", self.dialogus.set_ui_dialog,
+                                         extraArgs=[dialogs_multi_lng.cmd_dialog_en,
+                                                    dialogs_multi_lng.cmd_dialog_text_interval])
+
                     if self.ai_behaviors[actor.get_name()].behavior_status("pursue") == "done":
                         # TODO: Change action to something more suitable
                         request.request("Idle", actor, "LookingAround", "loop")
+                        self.dialogus_actor = actor.get_name()
+                        self.base.npc_commands = self.npc_commands
+                        self.base.accept("t", self.dialogus.set_ui_dialog,
+                                         extraArgs=[dialogs_multi_lng.cmd_dialog_en,
+                                                    dialogs_multi_lng.cmd_dialog_text_interval])
 
                 if passive is False:
                     enemy_npc_ref = None
@@ -246,6 +274,7 @@ class AI:
 
             # Add :BS suffix since we'll get Bullet Shape NodePath here
             actor_bs_name = "{0}:BS".format(actor.get_name())
+            # self.dialogus_actor = actor.get_name()
 
             # Leave it here for debugging purposes
             # self.get_npc_hits()
@@ -278,6 +307,7 @@ class AI:
             # Add :BS suffix since we'll get Bullet Shape NodePath here
             actor_bs_name = "{0}:BS".format(actor.get_name())
             actor_name = actor.get_name()
+            # self.dialogus_actor = actor_name
 
             # Leave it here for debugging purposes
             # self.get_npc_hits()

@@ -192,14 +192,8 @@ class LangMenuUI(Language):
                                            command=self.unload_language_menu)
 
         lang_values = self.get_selected_language()
-        rad_btn_geom_path = 1  # non-active element
-
-        lang_geoms_dict = {'english': rad_btn_geom_path,
-                           'kazakh': rad_btn_geom_path,
-                           'russian': rad_btn_geom_path}
 
         ui_geoms = base.ui_geom_collector()
-
         maps = base.loader.loadModel(ui_geoms['radbtn_t_icon'])
         geoms = (maps.find('**/radbutton'), maps.find('**/radbutton_pressed'))
 
