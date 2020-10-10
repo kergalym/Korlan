@@ -187,7 +187,6 @@ class AI:
     def npc_commands(self, command):
         if self.ai_behaviors and self.dialogus_actor:
             if command == "stay":
-                print(command)
                 self.ai_behaviors[self.dialogus_actor].pause_ai("pursue")
             if command == "follow":
                 self.ai_behaviors[self.dialogus_actor].resume_ai("pursue")
@@ -232,7 +231,8 @@ class AI:
                         self.base.npc_commands = self.npc_commands
                         self.base.accept("t", self.dialogus.set_ui_dialog,
                                          extraArgs=[dialogs_multi_lng.cmd_dialog_en,
-                                                    dialogs_multi_lng.cmd_dialog_text_interval])
+                                                    dialogs_multi_lng.cmd_dialog_text_interval,
+                                                    actor])
 
                 if passive is False:
                     enemy_npc_ref = None

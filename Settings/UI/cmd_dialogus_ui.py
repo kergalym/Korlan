@@ -44,7 +44,10 @@ class CmdDialogusUI:
         self.base.frame_dlg_size = [-2, 2.5, -1.5, -1]
 
         """ Frame Colors """
-        self.frm_opacity = 0.9
+        self.frm_opacity = 0.7
+
+        """ Buttons, Label Scaling """
+        self.btn_scale = .04
 
         if exists(self.configs['cfg_path']):
             with open(self.configs['cfg_path']) as json_file:
@@ -62,13 +65,13 @@ class CmdDialogusUI:
         """ Buttons & Fonts"""
         self.menu_font = self.fonts['OpenSans-Regular']
 
-    def set_ui_dialog(self, dialog, txt_interval):
+    def set_ui_dialog(self, dialog, txt_interval, actor):
         if base.game_mode and base.menu_mode is False:
             props = WindowProperties()
             props.set_cursor_hidden(False)
             self.base.win.request_properties(props)
             base.is_ui_active = True
-
+            self.base.is_dialog_active = False
             if not self.base.frame_dlg:
                 self.base.frame_dlg = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
                                                   frameSize=self.base.frame_dlg_size)
@@ -77,36 +80,35 @@ class CmdDialogusUI:
                 self.base.frame_dlg.set_pos(self.pos_X, self.pos_Y, self.pos_Z)
                 self.base.frame_dlg.set_pos(self.pos_int_X, self.pos_int_Y, self.pos_int_Z)
 
-                ui_geoms = base.ui_geom_collector()
-                maps = self.base.loader.loadModel(ui_geoms['radbtn_t_icon'])
-                geoms = (maps.find('**/radbutton'), maps.find('**/radbutton_pressed'))
-
                 if (dialog and isinstance(dialog, dict)
                         and txt_interval and isinstance(txt_interval, list)):
-                    radbuttons = []
                     dlg_count = range(len(dialog))
                     for elem, interval, index in zip(dialog, txt_interval, dlg_count):
-                        text = dialog[elem]
-                        OnscreenText(text=text, pos=(-1.0, interval),
-                                     fg=(255, 255, 255, 1), scale=.03,
-                                     parent=self.base.frame_dlg)
-                        radbuttons.append(DirectRadioButton(text='', variable=[index], value=[index],
-                                                            parent=self.base.frame_dlg, scale=.03,
-                                                            clickSound=self.base.sound_gui_click,
-                                                            pos=(-1.1, 0, interval),
-                                                            command=self.rad_cmd_wrapper,
-                                                            extraArgs=[index],
-                                                            color=(63.9, 63.9, 63.9, 1),
-                                                            boxGeom=geoms, boxPlacement='left',
-                                                            frameColor=(255, 255, 255, 0)))
-
-                    if radbuttons:
-                        for radbutton in radbuttons:
-                            radbutton.setOthers(radbuttons)
-
+                        text = "{0}. {1}".format(index + 1, dialog[elem])
+                        DirectButton(text=text, parent=self.base.frame_dlg,
+                                     pos=(1.1, 0, interval),
+                                     text_fg=(255, 255, 255, 0),
+                                     text_bg=(0, 0, 0, 0),
+                                     text_font=self.font.load_font(self.menu_font),
+                                     text_shadow=(255, 255, 255, 1),
+                                     frameColor=(255, 255, 255, 0),
+                                     scale=self.btn_scale, borderWidth=(self.w, self.h),
+                                     clickSound=self.base.sound_gui_click,
+                                     command=self.btn_cmd_wrapper,
+                                     extraArgs=[index])
+                        if actor:
+                            # Show actor perspective from player camera
+                            self.base.cam.set_pos(0, 9, 0)
+                            self.base.cam.set_hpr(0, 0, 0)
             else:
                 if self.base.frame_dlg.is_hidden():
                     self.base.frame_dlg.show()
+                    if actor:
+                        # Show actor perspective from player camera
+                        self.base.cam.set_pos(0, 9, 0)
+                        self.base.cam.set_hpr(0, 0, 0)
+
+        self.base.is_dialog_active = True
 
     def clear_ui_dialog(self):
         self.base.build_info.reparent_to(aspect2d)
@@ -117,8 +119,9 @@ class CmdDialogusUI:
 
         if self.base.frame_dlg:
             self.base.frame_dlg.hide()
+            self.base.cam.set_y(0)
 
-    def rad_cmd_wrapper(self, index):
+    def btn_cmd_wrapper(self, index):
         if hasattr(self.base, 'npc_commands') and self.base.npc_commands:
             if index == 0:
                 self.clear_ui_dialog()

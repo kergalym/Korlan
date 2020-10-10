@@ -87,7 +87,7 @@ disp_res = disp_res.split("x")
 
 # TODO: Impl. fullscreen to config
 # fscreen = game_settings['Main']['fullscreen']
-fscreen = "t"
+fscreen = "f"
 
 p3d.load_prc_file_data(
     '',

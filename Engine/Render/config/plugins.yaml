@@ -29,7 +29,7 @@ overrides:
         blur_normal_factor: 2.97
         blur_depth_factor: 0.88158
         occlusion_strength: 2.19
-        clip_length: 10
+        clip_length: 1
         technique: SSAO
         ssao_sample_radius: 95.29
         ssao_sequence: halton_3D_8
