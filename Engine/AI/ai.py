@@ -231,8 +231,7 @@ class AI:
                         self.base.npc_commands = self.npc_commands
                         self.base.accept("t", self.dialogus.set_ui_dialog,
                                          extraArgs=[dialogs_multi_lng.cmd_dialog_en,
-                                                    dialogs_multi_lng.cmd_dialog_text_interval,
-                                                    actor])
+                                                    dialogs_multi_lng.cmd_dialog_text_interval])
 
                 if passive is False:
                     enemy_npc_ref = None

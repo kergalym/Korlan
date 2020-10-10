@@ -32,6 +32,7 @@ class Actions:
         self.player_menu = PlayerMenuUI()
         self.state = PlayerState()
         self.base.is_ui_active = False
+        self.base.is_cutscene_active = False
 
     """ Play animation after action """
 
@@ -227,8 +228,8 @@ class Actions:
             # The camera should look in Korlan direction,
             # but it should also try to stay horizontal, so look at
             # a floater which hovers above Korlan's head.
-
-            self.base.camera.look_at(self.mouse.set_floater(player))
+            if self.base.is_cutscene_active is False:
+                self.base.camera.look_at(self.mouse.set_floater(player))
 
             if base.game_mode is False and base.menu_mode:
                 return task.done

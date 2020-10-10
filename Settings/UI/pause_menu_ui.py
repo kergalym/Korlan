@@ -128,9 +128,9 @@ class PauseMenuUI(MenuSettings):
         if self.pause_mode == 1:
             return False
 
-        if (hasattr(self.base, 'is_dialog_active')
-                and self.base.is_dialog_active):
-            return False
+        if hasattr(self.base, 'is_dialog_active'):
+            if self.base.is_dialog_active:
+                return False
 
         if hasattr(base, "active_frame"):
             base.active_frame.destroy()

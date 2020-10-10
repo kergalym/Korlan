@@ -65,7 +65,7 @@ class CmdDialogusUI:
         """ Buttons & Fonts"""
         self.menu_font = self.fonts['OpenSans-Regular']
 
-    def set_ui_dialog(self, dialog, txt_interval, actor):
+    def set_ui_dialog(self, dialog, txt_interval):
         if base.game_mode and base.menu_mode is False:
             props = WindowProperties()
             props.set_cursor_hidden(False)
@@ -96,17 +96,18 @@ class CmdDialogusUI:
                                      clickSound=self.base.sound_gui_click,
                                      command=self.btn_cmd_wrapper,
                                      extraArgs=[index])
-                        if actor:
-                            # Show actor perspective from player camera
-                            self.base.cam.set_pos(0, 9, 0)
-                            self.base.cam.set_hpr(0, 0, 0)
+
+                        # Show actor perspective from player camera
+                        self.base.camera.set_pos(6, 9, 2)
+                        self.base.camera.set_hpr(-90, 0, 0)
+                        self.base.cam.set_y(5.5)
             else:
                 if self.base.frame_dlg.is_hidden():
                     self.base.frame_dlg.show()
-                    if actor:
-                        # Show actor perspective from player camera
-                        self.base.cam.set_pos(0, 9, 0)
-                        self.base.cam.set_hpr(0, 0, 0)
+                    # Show actor perspective from player camera
+                    self.base.camera.set_pos(6, 9, 2)
+                    self.base.camera.set_hpr(-90, 0, 0)
+                    self.base.cam.set_y(5.5)
 
         self.base.is_dialog_active = True
 
@@ -119,6 +120,7 @@ class CmdDialogusUI:
 
         if self.base.frame_dlg:
             self.base.frame_dlg.hide()
+            self.base.is_dialog_active = False
             self.base.cam.set_y(0)
 
     def btn_cmd_wrapper(self, index):
