@@ -192,6 +192,9 @@ class AI:
             actor_bs_name = "{0}:BS".format(actor.get_name())
             actor_name = actor.get_name()
 
+            # if actor_bs_name and self.npc_fsm.npcs_xyz_vec.get(actor_bs_name):
+            # vec_x = self.npc_fsm.npcs_xyz_vec[actor_bs_name][0]
+
             for name in self.ai_behaviors:
                 if actor_name != name:
                     enemy_npc_bs = self.base.get_actor_bullet_shape_node(asset=name, type="NPC")
@@ -199,9 +202,6 @@ class AI:
                         self.ai_behaviors[actor_name].path_find_to(self.player, "addPath")
                         self.ai_behaviors[actor_name].add_dynamic_obstacle(enemy_npc_bs)
                         self.is_dyn_obstacles_added = True
-
-            # if actor_bs_name and self.npc_fsm.npcs_xyz_vec.get(actor_bs_name):
-            # vec_x = self.npc_fsm.npcs_xyz_vec[actor_bs_name][0]
 
             if passive:
                 # Just stay
