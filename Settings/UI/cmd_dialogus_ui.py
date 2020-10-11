@@ -65,7 +65,7 @@ class CmdDialogusUI:
         """ Buttons & Fonts"""
         self.menu_font = self.fonts['OpenSans-Regular']
 
-    def set_ui_dialog(self, dialog, txt_interval):
+    def set_ui_dialog(self, dialog, txt_interval, behaviors, behavior_name):
         if base.game_mode and base.menu_mode is False:
             props = WindowProperties()
             props.set_cursor_hidden(False)
@@ -95,7 +95,7 @@ class CmdDialogusUI:
                                      scale=self.btn_scale, borderWidth=(self.w, self.h),
                                      clickSound=self.base.sound_gui_click,
                                      command=self.btn_cmd_wrapper,
-                                     extraArgs=[index])
+                                     extraArgs=[index, behaviors, behavior_name])
 
                         # Show actor perspective from player camera
                         self.base.camera.set_pos(6, 9, 2)
@@ -123,13 +123,13 @@ class CmdDialogusUI:
             self.base.is_dialog_active = False
             self.base.cam.set_y(0)
 
-    def btn_cmd_wrapper(self, index):
-        if hasattr(self.base, 'npc_commands') and self.base.npc_commands:
+    def btn_cmd_wrapper(self, index, behaviors, behavior_name):
+        if behaviors and behavior_name:
             if index == 0:
                 self.clear_ui_dialog()
-                self.base.npc_commands(command="follow")
+                behaviors.resume_ai(behavior_name)
             elif index == 1:
                 self.clear_ui_dialog()
-                self.base.npc_commands(command="stay")
+                behaviors.pause_ai(behavior_name)
             else:
                 self.clear_ui_dialog()
