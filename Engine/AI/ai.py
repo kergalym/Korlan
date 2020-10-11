@@ -192,12 +192,13 @@ class AI:
             actor_bs_name = "{0}:BS".format(actor.get_name())
             actor_name = actor.get_name()
 
-            """for name in self.ai_behaviors:
+            for name in self.ai_behaviors:
                 if actor_name != name:
                     enemy_npc_bs = self.base.get_actor_bullet_shape_node(asset=name, type="NPC")
                     if enemy_npc_bs and self.is_dyn_obstacles_added is False:
-                        self.ai_behaviors[actor_name].add_dynamic_obstacle(enemy_npc_bs.get_parent())
-                        self.is_dyn_obstacles_added = True"""
+                        self.ai_behaviors[actor_name].path_find_to(self.player, "addPath")
+                        self.ai_behaviors[actor_name].add_dynamic_obstacle(enemy_npc_bs)
+                        self.is_dyn_obstacles_added = True
 
             # if actor_bs_name and self.npc_fsm.npcs_xyz_vec.get(actor_bs_name):
             # vec_x = self.npc_fsm.npcs_xyz_vec[actor_bs_name][0]
@@ -253,7 +254,7 @@ class AI:
                         self.set_actor_accurate_heading(master_name=actor_bs_name,
                                                         slave=enemy_npc_bs)
                         request.request("Attack", actor, "Boxing", "loop")
-          
+
                         # Enemy is attacked!
                         if actor.get_current_frame("Boxing") == self.npcs_hits["Boxing"]:
                             enemy_fsm_request.request("Attacked", enemy_npc_ref, "BigHitToHead", "play")
@@ -332,11 +333,15 @@ class AI:
                             and self.base.alive_actors[actor_name]):
                         if self.base.player_ref.get_current_frame("Boxing") == self.npcs_hits["Boxing"]:
                             request.request("Attacked", actor, "BigHitToHead", "Boxing", "play")
-                        # Enemy will die if no health:
+                        # Enemy will die if no health or flee:
                         if (hasattr(base, "npcs_actors_health")
                                 and base.npcs_actors_health):
                             if base.npcs_actors_health[actor_name].getPercent() != 0:
                                 base.npcs_actors_health[actor_name]['value'] -= 5
+                                # buggy?
+                                if base.npcs_actors_health[actor_name].getPercent() == 50:
+                                    request.request("Walk", actor, self.player, self.ai_behaviors[actor_name],
+                                                    "evader", "Walking", "loop")
                             else:
                                 request.request("Death", actor, "Dying", "play")
                                 self.base.alive_actors[actor_name] = False

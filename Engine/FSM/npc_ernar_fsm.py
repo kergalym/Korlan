@@ -41,8 +41,7 @@ class NpcErnarFSM(FSM):
 
             # Get correct NodePath
             actor = render.find("**/{0}".format(actor.get_name()))
-
-            self.npc_fsm.set_basic_npc_behaviors(actor=actor,
+            self.npc_fsm.set_basic_npc_behaviors(actor=actor.get_parent(),
                                                  player=player,
                                                  ai_behaviors=ai_behaviors,
                                                  behavior=behavior)

@@ -45,41 +45,38 @@ class NpcFSM:
                 and behavior
                 and isinstance(behavior, str)
                 and ai_behaviors):
-
             if ai_behaviors:
                 vect = {"panic_dist": 5,
                         "relax_dist": 5,
                         "wander_radius": 5,
                         "plane_flag": 0,
                         "area_of_effect": 10}
+                # player could be another npc actor instead
                 navmeshes = self.base.navmesh_collector()
                 ai_behaviors.init_path_find(navmeshes["lvl_one"])
-                if behavior == "obs_avoid":
-                    ai_behaviors.path_find_to(player, "addPath")
-                    ai_behaviors.add_dynamic_obstacle(player)
-                elif behavior == "seek":
+                if behavior == "seek":
                     ai_behaviors.path_find_to(player, "addPath")
                     ai_behaviors.seek(player)
+                    # if player is static object do flee
                 elif behavior == "flee":
                     ai_behaviors.path_find_to(player, "addPath")
-                    ai_behaviors.flee(actor,
+                    ai_behaviors.flee(player,
                                       vect['panic_dist'],
                                       vect['relax_dist'])
-                elif behavior == "pursuer":
-                    ai_behaviors.path_find_to(player, "addPath")
-                    ai_behaviors.pursue(player)
+                    # if player is dynamic object do evade
                 elif behavior == "evader":
                     ai_behaviors.path_find_to(player, "addPath")
                     ai_behaviors.evade(player,
                                        vect['panic_dist'],
                                        vect['relax_dist'])
+                elif behavior == "pursuer":
+                    ai_behaviors.path_find_to(player, "addPath")
+                    ai_behaviors.pursue(player)
                 elif behavior == "wanderer":
                     ai_behaviors.path_find_to(player, "addPath")
                     ai_behaviors.wander(vect["wander_radius"],
                                         vect["plane_flag"],
                                         vect["area_of_effect"])
-                elif behavior == "path_finding":
-                    ai_behaviors.path_find_to(player, "addPath")
                 elif behavior == "path_follow":
                     ai_behaviors.path_follow(1)
                     ai_behaviors.add_to_path(player.get_pos())
