@@ -195,13 +195,13 @@ class AI:
             # if actor_bs_name and self.npc_fsm.npcs_xyz_vec.get(actor_bs_name):
             # vec_x = self.npc_fsm.npcs_xyz_vec[actor_bs_name][0]
 
-            for name in self.ai_behaviors:
+            """for name in self.ai_behaviors:
                 if actor_name != name:
                     enemy_npc_bs = self.base.get_actor_bullet_shape_node(asset=name, type="NPC")
                     if enemy_npc_bs and self.is_dyn_obstacles_added is False:
                         self.ai_behaviors[actor_name].path_find_to(self.player, "addPath")
                         self.ai_behaviors[actor_name].add_dynamic_obstacle(enemy_npc_bs)
-                        self.is_dyn_obstacles_added = True
+                        self.is_dyn_obstacles_added = True"""
 
             if passive:
                 # Just stay
@@ -304,8 +304,9 @@ class AI:
             # Leave it here for debugging purposes
             # self.get_npc_hits()
 
-            # if actor_bs_name and self.npc_fsm.npcs_xyz_vec.get(actor_bs_name):
-            # vec_x = self.npc_fsm.npcs_xyz_vec[actor_bs_name][0]
+            vec_x = None
+            if self.npc_fsm.npcs_xyz_vec.get(actor_bs_name):
+                vec_x = self.npc_fsm.npcs_xyz_vec[actor_bs_name][0]
 
             # Just stay
             if passive and self.base.alive_actors[actor_name]:
@@ -338,11 +339,19 @@ class AI:
                                 and base.npcs_actors_health):
                             if base.npcs_actors_health[actor_name].getPercent() != 0:
                                 base.npcs_actors_health[actor_name]['value'] -= 5
-                                # buggy?
                                 if base.npcs_actors_health[actor_name].getPercent() == 50:
+                                    self.ai_behaviors[actor_name].remove_ai("pursue")
                                     request.request("Walk", actor, self.player, self.ai_behaviors[actor_name],
                                                     "evader", "Walking", "loop")
                             else:
                                 request.request("Death", actor, "Dying", "play")
                                 self.base.alive_actors[actor_name] = False
                                 self.ai_behaviors[actor_name].pause_ai("pursue")
+
+                if base.npcs_actors_health[actor_name]:
+                    if (base.npcs_actors_health[actor_name].getPercent() == 50.0
+                            and vec_x == 10.0 or vec_x == -10.0
+                            and self.ai_behaviors[actor_name].behavior_status("evade") == "paused"):
+                        self.ai_behaviors[actor_name].remove_ai("evade")
+                        request.request("Idle", actor, "LookingAround", "loop")
+
