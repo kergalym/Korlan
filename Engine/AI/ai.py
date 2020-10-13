@@ -191,6 +191,7 @@ class AI:
             # Add :BS suffix since we'll get Bullet Shape NodePath here
             actor_bs_name = "{0}:BS".format(actor.get_name())
             actor_name = actor.get_name()
+            actor.set_blend(frameBlend=True)
 
             # if actor_bs_name and self.npc_fsm.npcs_xyz_vec.get(actor_bs_name):
             # vec_x = self.npc_fsm.npcs_xyz_vec[actor_bs_name][0]
@@ -300,7 +301,7 @@ class AI:
             # Add :BS suffix since we'll get Bullet Shape NodePath here
             actor_bs_name = "{0}:BS".format(actor.get_name())
             actor_name = actor.get_name()
-
+            actor.set_blend(frameBlend=True)
             # Leave it here for debugging purposes
             # self.get_npc_hits()
 
@@ -329,11 +330,13 @@ class AI:
                     # Player is attacked by enemy!
                     if actor.get_current_frame("Boxing") == self.npcs_hits["Boxing"]:
                         self.player_fsm.request("Attacked", self.base.player_ref, "BigHitToHead", "play")
+
                     # Enemy is attacked by player!
                     if (self.base.player_states["is_hitting"]
                             and self.base.alive_actors[actor_name]):
                         if self.base.player_ref.get_current_frame("Boxing") == self.npcs_hits["Boxing"]:
                             request.request("Attacked", actor, "BigHitToHead", "Boxing", "play")
+
                         # Enemy will die if no health or flee:
                         if (hasattr(base, "npcs_actors_health")
                                 and base.npcs_actors_health):
@@ -348,6 +351,7 @@ class AI:
                                 self.base.alive_actors[actor_name] = False
                                 self.ai_behaviors[actor_name].pause_ai("pursue")
 
+                # Enemy returns back
                 if base.npcs_actors_health[actor_name]:
                     if (base.npcs_actors_health[actor_name].getPercent() == 50.0
                             and vec_x == 10.0 or vec_x == -10.0

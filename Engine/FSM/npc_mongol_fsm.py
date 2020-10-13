@@ -20,6 +20,8 @@ class NpcMongolFSM(FSM):
 
             if isinstance(task, str):
                 if task == "play":
+                    if actor.get_current_frame(action) == actor.get_num_frames():
+                        actor.stop(action)
                     if not any_action.isPlaying():
                         actor.play(action)
                 elif task == "loop":
@@ -33,6 +35,8 @@ class NpcMongolFSM(FSM):
 
             if isinstance(task, str):
                 if task == "play":
+                    if actor.get_current_frame(action) == actor.get_num_frames():
+                        actor.stop(action)
                     if not any_action.isPlaying():
                         actor.play(action)
                 elif task == "loop":
@@ -51,12 +55,13 @@ class NpcMongolFSM(FSM):
     def enterAttack(self, actor, action, task):
         if actor and action and task:
             any_action = actor.get_anim_control(action)
-            any_action_seq = actor.actor_interval(action)
 
             if isinstance(task, str):
                 if task == "play":
+                    if actor.get_current_frame(action) == actor.get_num_frames():
+                        actor.stop(action)
                     if not any_action.isPlaying():
-                        Sequence(any_action_seq).start()
+                        actor.play(action)
 
                 elif task == "loop":
                     if not any_action.isPlaying():
@@ -69,6 +74,8 @@ class NpcMongolFSM(FSM):
 
             if isinstance(task, str):
                 if task == "play":
+                    if actor.get_current_frame(action) == actor.get_num_frames():
+                        actor.stop(action)
                     if not any_action.isPlaying():
                         Sequence(actor.actor_interval(action, loop=0),
                                  actor.actor_interval(action_next, loop=1)).start()
