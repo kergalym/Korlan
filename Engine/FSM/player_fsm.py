@@ -42,12 +42,8 @@ class PlayerFSM(FSM):
             self.player = player
             if isinstance(state, str):
                 if state == "play":
-                    if self.player.get_current_frame(action) == self.player.get_num_frames():
-                        self.player.stop(action)
                     self.player.play(action)
                 elif state == "loop":
-                    if self.player.get_current_frame(action) == self.player.get_num_frames():
-                        self.player.stop(action)
                     self.player.loop(action)
                 self.player.setPlayRate(self.base.actor_play_rate, action)
 
@@ -58,8 +54,6 @@ class PlayerFSM(FSM):
 
             if isinstance(task, str):
                 if task == "play":
-                    if actor.get_current_frame(action) == actor.get_num_frames():
-                        actor.stop(action)
                     if not any_action.isPlaying():
                         Sequence(any_action_seq, Func(self.fsm_state_wrapper, "is_attacked", False)).start()
 
@@ -75,8 +69,6 @@ class PlayerFSM(FSM):
 
             if isinstance(task, str):
                 if task == "play":
-                    if actor.get_current_frame(action) == actor.get_num_frames():
-                        actor.stop(action)
                     if not any_action.isPlaying():
                         Sequence(any_action_seq, Func(self.fsm_state_wrapper, "is_busy", False)).start()
 
@@ -92,8 +84,6 @@ class PlayerFSM(FSM):
 
             if isinstance(task, str):
                 if task == "play":
-                    if actor.get_current_frame(action) == actor.get_num_frames():
-                        actor.stop(action)
                     if not any_action.isPlaying():
                         Sequence(any_action_seq, Func(self.fsm_state_wrapper, "is_busy", False)).start()
 
@@ -109,8 +99,6 @@ class PlayerFSM(FSM):
 
             if isinstance(task, str):
                 if task == "play":
-                    if actor.get_current_frame(action) == actor.get_num_frames():
-                        actor.stop(action)
                     if not any_action.isPlaying():
                         Sequence(any_action_seq, Func(self.fsm_state_wrapper, "is_busy", False)).start()
 
@@ -126,8 +114,6 @@ class PlayerFSM(FSM):
 
             if isinstance(task, str):
                 if task == "play":
-                    if actor.get_current_frame(action) == actor.get_num_frames():
-                        actor.stop(action)
                     if not any_action.isPlaying():
                         Sequence(any_action_seq, Func(self.fsm_state_wrapper, "is_busy", False)).start()
 

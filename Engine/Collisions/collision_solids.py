@@ -8,6 +8,7 @@ from panda3d.bullet import BulletConeShape
 from panda3d.bullet import BulletPlaneShape
 from panda3d.bullet import BulletTriangleMesh
 from panda3d.bullet import BulletTriangleMeshShape
+from panda3d.bullet import BulletGhostNode
 
 from direct.showbase.PhysicsManagerGlobal import physicsMgr
 
@@ -16,6 +17,37 @@ class BulletCollisionSolids:
 
     def __init__(self):
         self.physics_mgr = physicsMgr
+
+    def set_bs_hitbox(self, actor, joints, mask, world):
+        if (actor and joints and mask and world
+                and isinstance(joints, list)):
+            if (hasattr(base, 'npcs_actor_refs')
+                    and base.npcs_actor_refs
+                    and hasattr(base, "player_ref")
+                    and base.player_ref):
+                for joint in joints:
+                    shape = BulletBoxShape(Vec3(1, 1, 1))
+                    name_hb = "{0}:HB".format(actor.get_name())
+                    name = actor.get_name()
+                    ghost = BulletGhostNode(name_hb)
+                    ghost.add_shape(shape)
+                    ghost_np = render.attachNewNode(ghost)
+                    ghost_np.set_pos(0, 0, 0)
+                    ghost_np.set_scale(8, 8, 8)
+                    ghost_np.set_collide_mask(mask)
+
+                    exposed_joint = None
+                    if name == "Player":
+                        char_joint = base.player_ref.get_part_bundle('modelRoot').get_name()
+                        joint = "{0}:{1}".format(char_joint, joint)
+                        exposed_joint = base.player_ref.expose_joint(None, "modelRoot", joint)
+                    if name != "Player":
+                        char_joint = base.npcs_actor_refs[name].get_part_bundle('modelRoot').get_name()
+                        joint = "{0}:{1}".format(char_joint, joint)
+                        exposed_joint = base.npcs_actor_refs[name].expose_joint(None, "modelRoot", joint)
+
+                    ghost_np.reparent_to(exposed_joint)
+                    world.attach_ghost(ghost)
 
     def set_bs_sphere(self):
         radius = 0.6

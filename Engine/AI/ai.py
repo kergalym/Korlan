@@ -1,3 +1,4 @@
+from direct.gui.OnscreenText import OnscreenText
 from panda3d.ai import AIWorld
 from panda3d.ai import AICharacter
 from direct.task.TaskManagerGlobal import taskMgr
@@ -42,6 +43,18 @@ class AI:
         }
         self.dialogus = CmdDialogusUI()
         self.is_dyn_obstacles_added = False
+
+        self.dbg_text_npc_frame_hit = OnscreenText(text="",
+                                                   pos=(0.5, 0.0),
+                                                   scale=0.5,
+                                                   fg=(255, 255, 255, 0.9),
+                                                   mayChange=True)
+
+        self.dbg_text_plr_frame_hit = OnscreenText(text="",
+                                                   pos=(0.5, -0.2),
+                                                   scale=0.5,
+                                                   fg=(255, 255, 255, 0.9),
+                                                   mayChange=True)
 
     def update_ai_world_task(self, task):
         if self.ai_world:
@@ -328,6 +341,11 @@ class AI:
                     self.set_actor_accurate_heading(master_name=actor_bs_name, slave=self.player)
 
                     # Player is attacked by enemy!
+                    if (hasattr(base, "npcs_actors_health")
+                            and base.npcs_actors_health):
+                        value = base.npcs_actors_health[actor_name]['value']
+                        self.dbg_text_plr_frame_hit.setText(str(value))
+
                     if actor.get_current_frame("Boxing") == self.npcs_hits["Boxing"]:
                         self.player_fsm.request("Attacked", self.base.player_ref, "BigHitToHead", "play")
 
@@ -335,14 +353,19 @@ class AI:
                     if (self.base.player_states["is_hitting"]
                             and self.base.alive_actors[actor_name]):
                         if self.base.player_ref.get_current_frame("Boxing") == self.npcs_hits["Boxing"]:
+
+                            # Enemy health decreased
+                            if hasattr(base, "npcs_actors_health") and base.npcs_actors_health:
+                                if base.npcs_actors_health[actor_name].getPercent() != 0:
+                                    base.npcs_actors_health[actor_name]['value'] -= 5
                             request.request("Attacked", actor, "BigHitToHead", "Boxing", "play")
 
                         # Enemy will die if no health or flee:
                         if (hasattr(base, "npcs_actors_health")
                                 and base.npcs_actors_health):
                             if base.npcs_actors_health[actor_name].getPercent() != 0:
-                                base.npcs_actors_health[actor_name]['value'] -= 5
-                                if base.npcs_actors_health[actor_name].getPercent() == 50:
+                                # Evade or attack the player
+                                if base.npcs_actors_health[actor_name].getPercent() == 50.0:
                                     self.ai_behaviors[actor_name].remove_ai("pursue")
                                     request.request("Walk", actor, self.player, self.ai_behaviors[actor_name],
                                                     "evader", "Walking", "loop")
@@ -358,4 +381,3 @@ class AI:
                             and self.ai_behaviors[actor_name].behavior_status("evade") == "paused"):
                         self.ai_behaviors[actor_name].remove_ai("evade")
                         request.request("Idle", actor, "LookingAround", "loop")
-

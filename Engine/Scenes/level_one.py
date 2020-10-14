@@ -45,6 +45,7 @@ class LevelOne:
         self.pos_y = None
         self.pos_z = 0
         self.anim = None
+        self.names = []
 
     def world_sfx_task(self, task):
         if (hasattr(self.base, 'sound_sfx_nature')
@@ -93,6 +94,31 @@ class LevelOne:
 
                 if self.korlan.korlan:
                     base.player_health = self.korlan.korlan_life_perc
+
+        if self.base.game_mode is False and self.base.menu_mode:
+            return task.done
+
+        return task.cont
+
+    def test_check_overlapping_hitboxes(self, task):
+        if (self.npc_ernar.actor
+                and self.npc_mongol.actor
+                and self.korlan.korlan):
+            # Get only Actor, not a child of NodePath
+            ernar_name = self.npc_ernar.actor.get_name()
+            mongol_name = self.npc_mongol.actor.get_name()
+            korlan_name = self.korlan.korlan.get_name()
+
+            self.names.append(ernar_name)
+            self.names.append(mongol_name)
+            self.names.append(korlan_name)
+
+        for name in self.names:
+            if not render.find("**/{0}:HB".format(name)).is_empty():
+                hitbox = render.find("**/{0}:HB".format(name)).node()
+                for node in hitbox.getOverlappingNodes():
+                    # print(node)
+                    pass
 
         if self.base.game_mode is False and self.base.menu_mode:
             return task.done
@@ -379,6 +405,10 @@ class LevelOne:
         taskMgr.add(self.collect_actors_health_task,
                     "collect_actors_health_task",
                     appendTask=True)
+
+        """taskMgr.add(self.test_check_overlapping_hitboxes,
+                    "test_check_overlapping_hitboxes",
+                    appendTask=True)"""
 
     def save_game(self):
         pass

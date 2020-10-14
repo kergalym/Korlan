@@ -36,6 +36,7 @@ class PhysicsAttr:
         self.mask2 = BitMask32.bit(2)
         self.mask3 = BitMask32.bit(3)
         self.mask5 = BitMask32.bit(5)
+        self.ghost_mask = BitMask32(0x0f)
 
     def update_physics_task(self, task):
         """ Function    : update_physics_task
@@ -279,6 +280,11 @@ class PhysicsAttr:
                 # It should not get own position values.
                 actor.set_y(0)
                 actor.set_x(0)
+
+                self.bullet_solids.set_bs_hitbox(actor=actor,
+                                                 joints=["LeftHand", "RightHand"],
+                                                 mask=self.ghost_mask,
+                                                 world=self.world)
 
     def set_object_colliders(self, type, shape, mask):
         if not (isinstance(type, str)

@@ -19,8 +19,6 @@ class NpcErnarFSM(FSM):
 
             if isinstance(task, str):
                 if task == "play":
-                    if actor.get_current_frame(action) == actor.get_num_frames():
-                        actor.stop(action)
                     if not any_action.isPlaying():
                         actor.play(action)
                 elif task == "loop":
@@ -34,8 +32,6 @@ class NpcErnarFSM(FSM):
 
             if isinstance(task, str):
                 if task == "play":
-                    if actor.get_current_frame(action) == actor.get_num_frames():
-                        actor.stop(action)
                     if not any_action.isPlaying():
                         actor.play(action)
                 elif task == "loop":
@@ -57,8 +53,6 @@ class NpcErnarFSM(FSM):
 
             if isinstance(task, str):
                 if task == "play":
-                    if actor.get_current_frame(action) == actor.get_num_frames():
-                        actor.stop(action)
                     if not any_action.isPlaying():
                         Sequence(any_action_seq).start()
 
@@ -74,8 +68,6 @@ class NpcErnarFSM(FSM):
 
             if isinstance(task, str):
                 if task == "play":
-                    if actor.get_current_frame(action) == actor.get_num_frames():
-                        actor.stop(action)
                     if not any_action.isPlaying():
                         Sequence(any_action_seq).start()
 

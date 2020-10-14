@@ -71,20 +71,22 @@ class Actions:
 
     """ Sets current item after action """
 
-    def seq_use_item_wrapper_task(self, player, anims, task):
-        if player and anims:
+    def seq_use_item_wrapper_task(self, player, anims, joint, task):
+        if player and anims and joint:
             if player.get_current_frame(anims["PickingUp"]) == 69:
+                char_joint = player.get_part_bundle("modelRoot").get_name()
+                joint = "{0}:{1}".format(char_joint, joint)
                 self.items.item_selector(actor=player,
-                                         joint="Korlan:RightHand")
+                                         joint=joint)
                 return task.done
         return task.cont
 
-    def seq_use_item_wrapper(self, player, anims):
-        if player and anims and base.player_states['is_using']:
+    def seq_use_item_wrapper(self, player, anims, joint):
+        if player and anims and joint and base.player_states['is_using']:
             # Do task every frame until we get a respective frame
             taskMgr.add(self.seq_use_item_wrapper_task,
                         "seq_use_item_wrapper_task",
-                        extraArgs=[player, anims],
+                        extraArgs=[player, anims, joint],
                         appendTask=True)
 
     """ Sets current player position after action """
@@ -151,7 +153,7 @@ class Actions:
         # Pass the player object to FSM
         self.fsm_player.get_player(actor=player)
         player.set_blend(frameBlend=True)
-        
+
         # TODO: change animation
         any_action = player.get_anim_control(anims['LookingAround'])
 
@@ -516,7 +518,7 @@ class Actions:
                         Sequence(crouch_to_stand_seq,
                                  Parallel(any_action_seq,
                                           Func(self.state.set_action_state, "is_using", True),
-                                          Func(self.seq_use_item_wrapper, player, anims)),
+                                          Func(self.seq_use_item_wrapper, player, anims, "RightHand")),
                                  Func(self.state.set_action_state, "is_using", False)
                                  ).start()
 
@@ -527,7 +529,7 @@ class Actions:
                                                                playRate=self.base.actor_play_rate)
                         Sequence(Parallel(any_action_seq,
                                           Func(self.state.set_action_state, "is_using", True),
-                                          Func(self.seq_use_item_wrapper, player, anims)),
+                                          Func(self.seq_use_item_wrapper, player, anims, "RightHand")),
                                  Func(self.state.set_action_state, "is_using", False)
                                  ).start()
 
@@ -550,7 +552,7 @@ class Actions:
                         Sequence(crouch_to_stand_seq,
                                  Parallel(any_action_seq,
                                           Func(self.state.set_action_state, "is_using", True),
-                                          Func(self.seq_use_item_wrapper, player, anims)),
+                                          Func(self.seq_use_item_wrapper, player, anims, "RightHand")),
                                  Func(self.state.set_action_state, "is_using", False)
                                  ).start()
 
@@ -561,7 +563,7 @@ class Actions:
                                                                playRate=self.base.actor_play_rate)
                         Sequence(Parallel(any_action_seq,
                                           Func(self.state.set_action_state, "is_using", True),
-                                          Func(self.seq_use_item_wrapper, player, anims)),
+                                          Func(self.seq_use_item_wrapper, player, anims, "RightHand")),
                                  Func(self.state.set_action_state, "is_using", False)
                                  ).start()
 
