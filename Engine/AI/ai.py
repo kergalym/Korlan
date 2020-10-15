@@ -317,7 +317,8 @@ class AI:
             actor.set_blend(frameBlend=True)
             hitbox = None
             if hasattr(self.base, "npcs_hits"):
-                hitbox = self.base.npcs_hits[actor_name]
+                hitbox = self.base.npcs_hits
+
             # Leave it here for debugging purposes
             # self.get_npc_hits()
 
@@ -350,15 +351,15 @@ class AI:
                         self.dbg_text_plr_frame_hit.setText(str(value))
 
                     # if actor.get_current_frame("Boxing") == self.npcs_hits["Boxing"]:
-                    if hitbox:
+                    if hitbox.get(actor_name):
                         print("Attacked")
                         self.player_fsm.request("Attacked", self.base.player_ref, "BigHitToHead", "play")
 
                     # Enemy is attacked by player!
                     if (self.base.player_states["is_hitting"]
                             and self.base.alive_actors[actor_name]):
-                        if self.base.player_ref.get_current_frame("Boxing") == self.npcs_hits["Boxing"]:
-
+                        # if self.base.player_ref.get_current_frame("Boxing") == self.npcs_hits["Boxing"]:
+                        if hitbox.get(self.base.player_ref.get_name()):
                             # Enemy health decreased
                             if hasattr(base, "npcs_actors_health") and base.npcs_actors_health:
                                 if base.npcs_actors_health[actor_name].getPercent() != 0:

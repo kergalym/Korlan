@@ -116,6 +116,13 @@ class LevelOne:
         for name in self.names:
             if not render.find("**/{0}:HB".format(name)).is_empty():
                 hitbox = render.find("**/{0}:HB".format(name)).node()
+                """if hitbox.getOverlappingNode(0).get_name() == name:
+                    node = hitbox.getOverlappingNode(0)
+                    if node.get_tag(key="{0}:HB".format(name)):
+                        self.base.npcs_hits[name] = True
+                    else:
+                        self.base.npcs_hits[name] = False"""
+
                 for node in hitbox.getOverlappingNodes():
                     if node:
                         if node.get_tag(key="{0}:HB".format(name)):

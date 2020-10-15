@@ -60,7 +60,6 @@ class PhysicsAttr:
             self.world.set_group_collision_flag(0, 1, True)
             self.world.set_group_collision_flag(0, 2, True)
 
-
             # Do update RigidBodyNode parent node's position for every frame
             if hasattr(base, "close_item_name"):
                 name = base.close_item_name
