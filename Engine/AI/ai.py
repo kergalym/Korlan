@@ -315,6 +315,9 @@ class AI:
             actor_bs_name = "{0}:BS".format(actor.get_name())
             actor_name = actor.get_name()
             actor.set_blend(frameBlend=True)
+            hitbox = None
+            if hasattr(self.base, "npcs_hits"):
+                hitbox = self.base.npcs_hits[actor_name]
             # Leave it here for debugging purposes
             # self.get_npc_hits()
 
@@ -346,7 +349,9 @@ class AI:
                         value = base.npcs_actors_health[actor_name]['value']
                         self.dbg_text_plr_frame_hit.setText(str(value))
 
-                    if actor.get_current_frame("Boxing") == self.npcs_hits["Boxing"]:
+                    # if actor.get_current_frame("Boxing") == self.npcs_hits["Boxing"]:
+                    if hitbox:
+                        print("Attacked")
                         self.player_fsm.request("Attacked", self.base.player_ref, "BigHitToHead", "play")
 
                     # Enemy is attacked by player!

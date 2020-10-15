@@ -18,8 +18,8 @@ class BulletCollisionSolids:
     def __init__(self):
         self.physics_mgr = physicsMgr
 
-    def set_bs_hitbox(self, actor, joints, mask, world):
-        if (actor and joints and mask and world
+    def set_bs_hitbox(self, actor, joints, world):
+        if (actor and joints and world
                 and isinstance(joints, list)):
             if (hasattr(base, 'npcs_actor_refs')
                     and base.npcs_actor_refs
@@ -34,7 +34,9 @@ class BulletCollisionSolids:
                     ghost_np = render.attachNewNode(ghost)
                     ghost_np.set_pos(0, 0, 0)
                     ghost_np.set_scale(8, 8, 8)
-                    ghost_np.set_collide_mask(mask)
+                    mask = actor.get_collide_mask()
+                    ghost_np.node().set_into_collide_mask(mask)
+                    ghost_np.set_tag(key=name_hb, value=joint)
 
                     exposed_joint = None
                     if name == "Player":

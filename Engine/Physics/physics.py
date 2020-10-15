@@ -36,7 +36,7 @@ class PhysicsAttr:
         self.mask2 = BitMask32.bit(2)
         self.mask3 = BitMask32.bit(3)
         self.mask5 = BitMask32.bit(5)
-        self.ghost_mask = BitMask32(0x0f)
+        self.ghost_mask = BitMask32.bit(1)
 
     def update_physics_task(self, task):
         """ Function    : update_physics_task
@@ -56,8 +56,10 @@ class PhysicsAttr:
 
             # Disable colliding
             self.world.set_group_collision_flag(0, 0, False)
-            # Enable colliding
+            # Enable colliding: player (0), static (1) and npc (2)
             self.world.set_group_collision_flag(0, 1, True)
+            self.world.set_group_collision_flag(0, 2, True)
+
 
             # Do update RigidBodyNode parent node's position for every frame
             if hasattr(base, "close_item_name"):
@@ -165,7 +167,7 @@ class PhysicsAttr:
         ground_nodepath = self.world_nodepath.attachNewNode(BulletRigidBodyNode('Ground'))
         ground_nodepath.node().addShape(ground_shape)
         ground_nodepath.set_pos(0, 0, 0.10)
-        ground_nodepath.set_collide_mask(self.mask)
+        ground_nodepath.node().set_into_collide_mask(self.mask)
         self.world.attach_rigid_body(ground_nodepath.node())
 
         taskMgr.add(self.update_lod_nodes_parent_task,
@@ -280,10 +282,9 @@ class PhysicsAttr:
                 # It should not get own position values.
                 actor.set_y(0)
                 actor.set_x(0)
-
+                
                 self.bullet_solids.set_bs_hitbox(actor=actor,
                                                  joints=["LeftHand", "RightHand"],
-                                                 mask=self.ghost_mask,
                                                  world=self.world)
 
     def set_object_colliders(self, type, shape, mask):
@@ -324,11 +325,11 @@ class PhysicsAttr:
                             if type == 'static':
                                 obj_bs_np.node().set_mass(0.0)
                                 obj_bs_np.node().add_shape(bs)
-                                obj_bs_np.set_collide_mask(mask)
+                                obj_bs_np.node().set_into_collide_mask(mask)
                             elif type == 'dynamic':
                                 obj_bs_np.node().set_mass(0.2)
                                 obj_bs_np.node().add_shape(bs)
-                                obj_bs_np.set_collide_mask(self.mask)
+                                obj_bs_np.node().set_into_collide_mask(self.mask)
 
                             self.world.attach(obj_bs_np.node())
                             obj.reparent_to(obj_bs_np)
