@@ -47,6 +47,8 @@ class LevelOne:
         self.anim = None
         self.names = []
         self.base.npcs_hits = {}
+        self.no_mask = BitMask32.allOff()
+        self.mask = BitMask32.allOn()
 
     def world_sfx_task(self, task):
         if (hasattr(self.base, 'sound_sfx_nature')
@@ -101,31 +103,48 @@ class LevelOne:
 
         return task.cont
 
-    def test_check_overlapping_hitboxes(self, task):
-        if (self.npc_ernar.actor
-                and self.npc_mongol.actor
-                and self.korlan.korlan):
-            ernar_name = self.npc_ernar.actor.get_name()
-            mongol_name = self.npc_mongol.actor.get_name()
-            korlan_name = self.korlan.korlan.get_name()
+    def check_overlapping_hitboxes(self, task):
+        if (self.physics_attr.world
+                and hasattr(self.base, 'actor_hb')
+                and self.base.actor_hb
+                and hasattr(self.base, 'actor_hb_masks')
+                and self.base.actor_hb_masks):
+            # dt = globalClock.getDt()
+            # hit_delay = (5 * dt / 30)
+            # if hit_delay:
+            #    print(hit_delay)
+            for hitboxes in self.physics_attr.world.getGhosts():
+                name_hb = hitboxes.get_name()
+                # Drop the HB suffix to get pure name
+                name = hitboxes.get_name().split(":")[0]
 
-            self.names.append(ernar_name)
-            self.names.append(mongol_name)
-            self.names.append(korlan_name)
+                for node in hitboxes.getOverlappingNodes():
+                    if node and name_hb:
+                        if node.get_tag(key=name_hb):
+                            if node.get_tag(key=name_hb) == "RightHand":
+                                mask = self.base.actor_hb_masks[name_hb]
+                                self.base.actor_hb[name_hb].set_into_collide_mask(mask)
+                            else:
+                                self.base.actor_hb[name_hb].set_into_collide_mask(self.no_mask)
 
-        for name in self.names:
-            if not render.find("**/{0}:HB".format(name)).is_empty():
-                hitbox = render.find("**/{0}:HB".format(name)).node()
-                """if hitbox.getOverlappingNode(0).get_name() == name:
-                    node = hitbox.getOverlappingNode(0)
-                    if node.get_tag(key="{0}:HB".format(name)):
-                        self.base.npcs_hits[name] = True
-                    else:
-                        self.base.npcs_hits[name] = False"""
+                            if node.get_tag(key=name_hb) == "LeftHand":
+                                mask = self.base.actor_hb_masks[name_hb]
+                                self.base.actor_hb[name_hb].set_into_collide_mask(mask)
+                            else:
+                                self.base.actor_hb[name_hb].set_into_collide_mask(self.no_mask)
 
-                for node in hitbox.getOverlappingNodes():
-                    if node:
-                        if node.get_tag(key="{0}:HB".format(name)):
+                            if node.get_tag(key=name_hb) == "RightFoot":
+                                mask = self.base.actor_hb_masks[name_hb]
+                                self.base.actor_hb[name_hb].set_into_collide_mask(mask)
+                            else:
+                                self.base.actor_hb[name_hb].set_into_collide_mask(self.no_mask)
+
+                            if node.get_tag(key=name_hb) == "LeftFoot":
+                                mask = self.base.actor_hb_masks[name_hb]
+                                self.base.actor_hb[name_hb].set_into_collide_mask(mask)
+                            else:
+                                self.base.actor_hb[name_hb].set_into_collide_mask(self.no_mask)
+
                             self.base.npcs_hits[name] = True
                         else:
                             self.base.npcs_hits[name] = False
@@ -397,7 +416,7 @@ class LevelOne:
 
         taskMgr.add(self.ai.set_ai_world,
                     "set_ai_world",
-                    extraArgs=[level_assets,  self.npcs_fsm_states],
+                    extraArgs=[level_assets, self.npcs_fsm_states],
                     appendTask=True)
 
         taskMgr.add(self.ai.update_ai_world_task,
@@ -416,8 +435,8 @@ class LevelOne:
                     "collect_actors_health_task",
                     appendTask=True)
 
-        taskMgr.add(self.test_check_overlapping_hitboxes,
-                    "test_check_overlapping_hitboxes",
+        taskMgr.add(self.check_overlapping_hitboxes,
+                    "check_overlapping_hitboxes",
                     appendTask=True)
 
     def save_game(self):

@@ -154,8 +154,6 @@ class PhysicsAttr:
             base.accept("f1", self.toggle_physics_debug)
 
         self.world = BulletWorld()
-        # Make bullet world instance global to use where it necessary
-        # base.bullet_world = self.world
         self.world.set_gravity(Vec3(0, 0, -9.81))
 
         if self.game_settings['Debug']['set_debug_mode'] == "YES":

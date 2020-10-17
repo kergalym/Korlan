@@ -152,7 +152,7 @@ class Actions:
     def player_init(self, player, anims, task):
         # Pass the player object to FSM
         self.fsm_player.get_player(actor=player)
-        player.set_blend(frameBlend=True)
+        # player.set_blend(frameBlend=True)
 
         # TODO: change animation
         any_action = player.get_anim_control(anims['LookingAround'])

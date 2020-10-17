@@ -84,8 +84,8 @@ class AI:
                                                        npc_classes=self.npc_classes)
 
                 if npc_class and self.npc_fsm.npcs_xyz_vec:
-                    if npc_class == "friend":
-                        self.npc_friend_logic(actor=actor, request=request, passive=True)
+                    # if npc_class == "friend":
+                        # self.npc_friend_logic(actor=actor, request=request, passive=True)
                     if npc_class == "neutral":
                         self.npc_neutral_logic(actor=actor, request=request, passive=True)
                     if npc_class == "enemy":
@@ -108,24 +108,6 @@ class AI:
                 pass
             elif weather == "night":
                 pass
-
-    def get_npc_hits(self):
-        anims = self.base.asset_animations_collector()[0]
-        hits = {}
-
-        if anims:
-            for anim in anims:
-                if ("Hit" in anim
-                        or "Punch" in anim
-                        or "Boxing" in anim
-                        or "Kicking" in anim
-                        or "Kick" in anim
-                        or "kick" in anim
-                        or "slash" in anim):
-                    hits[anim] = 0
-
-        if hits:
-            return hits
 
     def set_actor_accurate_heading(self, master_name, slave):
         # Oops, these words are not SJW-approved
@@ -204,7 +186,7 @@ class AI:
             # Add :BS suffix since we'll get Bullet Shape NodePath here
             actor_bs_name = "{0}:BS".format(actor.get_name())
             actor_name = actor.get_name()
-            actor.set_blend(frameBlend=True)
+            # actor.set_blend(frameBlend=True)
 
             # if actor_bs_name and self.npc_fsm.npcs_xyz_vec.get(actor_bs_name):
             # vec_x = self.npc_fsm.npcs_xyz_vec[actor_bs_name][0]
@@ -281,6 +263,7 @@ class AI:
             # Add :BS suffix since we'll get Bullet Shape NodePath here
             # actor_bs_name = "{0}:BS".format(actor.get_name())
             actor_name = actor.get_name()
+            # actor.set_blend(frameBlend=True)
 
             # Leave it here for debugging purposes
             # self.get_npc_hits()
@@ -314,7 +297,7 @@ class AI:
             # Add :BS suffix since we'll get Bullet Shape NodePath here
             actor_bs_name = "{0}:BS".format(actor.get_name())
             actor_name = actor.get_name()
-            actor.set_blend(frameBlend=True)
+            # actor.set_blend(frameBlend=True)
             hitbox = None
             if hasattr(self.base, "npcs_hits"):
                 hitbox = self.base.npcs_hits
@@ -350,16 +333,13 @@ class AI:
                         value = base.npcs_actors_health[actor_name]['value']
                         self.dbg_text_plr_frame_hit.setText(str(value))
 
-                    # if actor.get_current_frame("Boxing") == self.npcs_hits["Boxing"]:
-                    if hitbox.get(actor_name):
-                        print("Attacked")
+                    if hitbox and hitbox.get(actor_name):
                         self.player_fsm.request("Attacked", self.base.player_ref, "BigHitToHead", "play")
 
                     # Enemy is attacked by player!
                     if (self.base.player_states["is_hitting"]
                             and self.base.alive_actors[actor_name]):
-                        # if self.base.player_ref.get_current_frame("Boxing") == self.npcs_hits["Boxing"]:
-                        if hitbox.get(self.base.player_ref.get_name()):
+                        if hitbox and hitbox.get(self.base.player_ref.get_name()):
                             # Enemy health decreased
                             if hasattr(base, "npcs_actors_health") and base.npcs_actors_health:
                                 if base.npcs_actors_health[actor_name].getPercent() != 0:

@@ -17,6 +17,9 @@ class BulletCollisionSolids:
 
     def __init__(self):
         self.physics_mgr = physicsMgr
+        self.base = base
+        self.base.actor_hb = {}
+        self.base.actor_hb_masks = {}
 
     def set_bs_hitbox(self, actor, joints, world):
         if (actor and joints and world
@@ -50,6 +53,8 @@ class BulletCollisionSolids:
 
                     ghost_np.reparent_to(exposed_joint)
                     world.attach_ghost(ghost)
+                    self.base.actor_hb[name_hb] = ghost_np.node()
+                    self.base.actor_hb_masks[name_hb] = mask
 
     def set_bs_sphere(self):
         radius = 0.6
