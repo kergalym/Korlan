@@ -45,7 +45,7 @@ class LevelOne:
         self.pos_y = None
         self.pos_z = 0
         self.anim = None
-        self.names = []
+        self.base.npcs_active_actions = {}
         self.base.npcs_hits = {}
         self.no_mask = BitMask32.allOff()
         self.mask = BitMask32.allOn()
@@ -109,45 +109,34 @@ class LevelOne:
                 and self.base.actor_hb
                 and hasattr(self.base, 'actor_hb_masks')
                 and self.base.actor_hb_masks):
-            # dt = globalClock.getDt()
-            # hit_delay = (5 * dt / 30)
-            # if hit_delay:
-            #    print(hit_delay)
-            for hitboxes in self.physics_attr.world.getGhosts():
-                name_hb = hitboxes.get_name()
-                # Drop the HB suffix to get pure name
-                name = hitboxes.get_name().split(":")[0]
+            dt = globalClock.getDt()
+            hit_delay = (5 * dt / 30)
+            if hit_delay:
+                print(hit_delay)
+                for hitboxes in self.physics_attr.world.getGhosts():
+                    name_hb = hitboxes.get_name()
+                    # Drop the HB suffix to get pure name
+                    name = hitboxes.get_name().split(":")[0]
 
-                for node in hitboxes.getOverlappingNodes():
-                    if node and name_hb:
-                        if node.get_tag(key=name_hb):
-                            if node.get_tag(key=name_hb) == "RightHand":
-                                mask = self.base.actor_hb_masks[name_hb]
-                                self.base.actor_hb[name_hb].set_into_collide_mask(mask)
+                    for node in hitboxes.getOverlappingNodes():
+                        if node and name_hb:
+                            if node.get_tag(key=name_hb):
+                                # Make "hitbox overlapping" associated with certain animation
+                                # Firstly we should know what type of action is active
+                                # and if it's Boxing then enable only RightHand hitbox,
+
+                                if (self.base.npcs_active_actions
+                                        and self.base.npcs_active_actions[name] == "Boxing"):
+                                    if node.get_tag(key=name_hb) == "LeftHand":
+                                        mask = self.base.actor_hb_masks[name_hb]
+                                        self.base.actor_hb[name_hb].set_into_collide_mask(mask)
+                                    if node.get_tag(key=name_hb) == "RightHand":
+                                        # import pdb; pdb.set_trace()
+                                        self.base.actor_hb[name_hb].set_into_collide_mask(self.no_mask)
+
+                                self.base.npcs_hits[name] = True
                             else:
-                                self.base.actor_hb[name_hb].set_into_collide_mask(self.no_mask)
-
-                            if node.get_tag(key=name_hb) == "LeftHand":
-                                mask = self.base.actor_hb_masks[name_hb]
-                                self.base.actor_hb[name_hb].set_into_collide_mask(mask)
-                            else:
-                                self.base.actor_hb[name_hb].set_into_collide_mask(self.no_mask)
-
-                            if node.get_tag(key=name_hb) == "RightFoot":
-                                mask = self.base.actor_hb_masks[name_hb]
-                                self.base.actor_hb[name_hb].set_into_collide_mask(mask)
-                            else:
-                                self.base.actor_hb[name_hb].set_into_collide_mask(self.no_mask)
-
-                            if node.get_tag(key=name_hb) == "LeftFoot":
-                                mask = self.base.actor_hb_masks[name_hb]
-                                self.base.actor_hb[name_hb].set_into_collide_mask(mask)
-                            else:
-                                self.base.actor_hb[name_hb].set_into_collide_mask(self.no_mask)
-
-                            self.base.npcs_hits[name] = True
-                        else:
-                            self.base.npcs_hits[name] = False
+                                self.base.npcs_hits[name] = False
 
         if self.base.game_mode is False and self.base.menu_mode:
             return task.done

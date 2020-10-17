@@ -46,15 +46,16 @@ class AI:
 
         self.dbg_text_npc_frame_hit = OnscreenText(text="",
                                                    pos=(0.5, 0.0),
-                                                   scale=0.5,
+                                                   scale=0.2,
                                                    fg=(255, 255, 255, 0.9),
                                                    mayChange=True)
 
         self.dbg_text_plr_frame_hit = OnscreenText(text="",
                                                    pos=(0.5, -0.2),
-                                                   scale=0.5,
-                                                   fg=(255, 255, 255, 0.9),
+                                                   scale=0.2,
+                                                   fg=(255, 255, 255, 1.1),
                                                    mayChange=True)
+        self.integer = 0
 
     def update_ai_world_task(self, task):
         if self.ai_world:
@@ -322,23 +323,32 @@ class AI:
 
                 # If NPC is close to Player, do enemy attack
                 if self.ai_behaviors[actor_name].behavior_status("pursue") == "done":
+                    if hasattr(self.base, 'npcs_active_actions'):
+                        self.base.npcs_active_actions[self.base.player_ref.get_name()] = None
+                        self.base.npcs_active_actions[actor_name] = "Boxing"
                     request.request("Attack", actor, "Boxing", "loop")
 
                     # Head the player for enamy
                     self.set_actor_accurate_heading(master_name=actor_bs_name, slave=self.player)
 
-                    # Player is attacked by enemy!
+                    # Temporary thing, leave it here
                     if (hasattr(base, "npcs_actors_health")
                             and base.npcs_actors_health):
                         value = base.npcs_actors_health[actor_name]['value']
-                        self.dbg_text_plr_frame_hit.setText(str(value))
+                        self.dbg_text_npc_frame_hit.setText(str(value) + actor_name)
 
+                    # Player is attacked by enemy!
                     if hitbox and hitbox.get(actor_name):
+                        self.integer += 1
+                        self.dbg_text_plr_frame_hit.setText(str(self.integer) + actor_name)
                         self.player_fsm.request("Attacked", self.base.player_ref, "BigHitToHead", "play")
 
                     # Enemy is attacked by player!
                     if (self.base.player_states["is_hitting"]
                             and self.base.alive_actors[actor_name]):
+                        if hasattr(self.base, 'npcs_active_actions'):
+                            self.base.npcs_active_actions[actor_name] = None
+                            self.base.npcs_active_actions[self.base.player_ref.get_name()] = "Boxing"
                         if hitbox and hitbox.get(self.base.player_ref.get_name()):
                             # Enemy health decreased
                             if hasattr(base, "npcs_actors_health") and base.npcs_actors_health:
