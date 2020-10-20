@@ -21,26 +21,6 @@ class AI:
         self.npcs_fsm_states = None
         self.ai_char = None
         self.player = None
-        self.npcs_hits = {
-            'great_sword_kick': 0,
-            'great_sword_slash_3': 0,
-            'great_sword_slash_2': 0,
-            'Kicking': 0,
-            'great_sword_slash_4': 0,
-            'BigHitToHead': 0,
-            'Kicking_4': 0,
-            'great_sword_slash_5': 0,
-            'great_sword_kick_fix': 0,
-            'great_sword_slash_fixed': 0,
-            'great_sword_kick_2': 0,
-            'Kicking_5': 0,
-            'Kicking_3': 0,
-            'Boxing': 23,
-            'PunchToElbowCombo': 0,
-            'HitToBody': 0,
-            'great_sword_slash': 0,
-            'KickingAtThePlace': 0
-        }
         self.dialogus = CmdDialogusUI()
         self.is_dyn_obstacles_added = False
 
@@ -188,6 +168,9 @@ class AI:
             actor_bs_name = "{0}:BS".format(actor.get_name())
             actor_name = actor.get_name()
             # actor.set_blend(frameBlend=True)
+            hitbox = None
+            if hasattr(self.base, "npcs_hits"):
+                hitbox = self.base.npcs_hits
 
             # if actor_bs_name and self.npc_fsm.npcs_xyz_vec.get(actor_bs_name):
             # vec_x = self.npc_fsm.npcs_xyz_vec[actor_bs_name][0]
@@ -253,7 +236,7 @@ class AI:
                         request.request("Attack", actor, "Boxing", "loop")
 
                         # Enemy is attacked!
-                        if actor.get_current_frame("Boxing") == self.npcs_hits["Boxing"]:
+                        if hitbox and hitbox.get(actor_name):
                             enemy_fsm_request.request("Attacked", enemy_npc_ref, "BigHitToHead", "play")
 
     def npc_neutral_logic(self, actor, request, passive):
@@ -298,10 +281,8 @@ class AI:
             # Add :BS suffix since we'll get Bullet Shape NodePath here
             actor_bs_name = "{0}:BS".format(actor.get_name())
             actor_name = actor.get_name()
+            player_name = self.base.player_ref.get_name()
             # actor.set_blend(frameBlend=True)
-            hitbox = None
-            if hasattr(self.base, "npcs_hits"):
-                hitbox = self.base.npcs_hits
 
             # Leave it here for debugging purposes
             # self.get_npc_hits()
@@ -338,18 +319,18 @@ class AI:
                         self.dbg_text_npc_frame_hit.setText(str(value) + actor_name)
 
                     # Player is attacked by enemy!
-                    if hitbox and hitbox.get(actor_name):
-                        self.integer += 1
-                        self.dbg_text_plr_frame_hit.setText(str(self.integer) + actor_name)
+                    if (hasattr(self.base, "npcs_hits")
+                            and self.base.npcs_hits
+                            and self.base.npcs_hits.get(actor_name)):
+                        self.dbg_text_plr_frame_hit.setText(str(self.base.npcs_hits[actor_name] == "RightHand"))
                         self.player_fsm.request("Attacked", self.base.player_ref, "BigHitToHead", "play")
 
                     # Enemy is attacked by player!
                     if (self.base.player_states["is_hitting"]
                             and self.base.alive_actors[actor_name]):
-                        if hasattr(self.base, 'npcs_active_actions'):
-                            self.base.npcs_active_actions[actor_name] = None
-                            self.base.npcs_active_actions[self.base.player_ref.get_name()] = "Boxing"
-                        if hitbox and hitbox.get(self.base.player_ref.get_name()):
+                        if (hasattr(self.base, "npcs_hits")
+                                and self.base.npcs_hits
+                                and self.base.npcs_hits.get(player_name)):
                             # Enemy health decreased
                             if hasattr(base, "npcs_actors_health") and base.npcs_actors_health:
                                 if base.npcs_actors_health[actor_name].getPercent() != 0:

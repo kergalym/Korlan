@@ -52,6 +52,10 @@ class NpcMongolFSM(FSM):
         if actor and action and task:
             any_action = actor.get_anim_control(action)
             any_action_seq = actor.actor_interval(action)
+            actor_name = actor.get_name()
+            if (hasattr(self.base, "npcs_hits")
+                    and self.base.npcs_hits):
+                self.base.npcs_hits[actor_name] = True
 
             if isinstance(task, str):
                 if task == "play":
