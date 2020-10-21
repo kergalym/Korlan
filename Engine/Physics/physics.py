@@ -281,7 +281,7 @@ class PhysicsAttr:
                 actor.set_x(0)
                 
                 self.bullet_solids.set_bs_hitbox(actor=actor,
-                                                 joints=["LeftHand", "RightHand"],
+                                                 joints=["LeftHand", "RightHand", "Hips"],
                                                  world=self.world)
 
     def set_object_colliders(self, type, shape, mask):

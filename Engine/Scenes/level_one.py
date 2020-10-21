@@ -105,20 +105,25 @@ class LevelOne:
     def hitbox_handling_task(self, task):
         if self.physics_attr.world:
             for hitboxes in self.physics_attr.world.get_ghosts():
-                name_hb = hitboxes.get_name()
-                # Drop the HB suffix to get pure name
+                # Drop the HB suffix
                 name = hitboxes.get_name().split(":")[0]
-                for node in hitboxes.getOverlappingNodes():
-                    # print(node.get_tag(key=name_hb), name_hb)
-                    if node and name_hb:
-                        if node.get_tag(key=name_hb):
-                            # Make "hitbox overlapping" associated with certain animation
-                            # Firstly we should know what type of action is active
-                            # and if it's Boxing then enable only RightHand hitbox,
-                            if node.get_tag(key=name_hb) == "RightHand":
-                                self.base.npcs_hits[name] = node.get_tag(key=name_hb)
-                            else:
-                                self.base.npcs_hits[name] = None
+                # Reconstruct name with dropping joint suffix to be consistent with pure name
+                if "NPC" in name:
+                    name = name.split("_")
+                    name = "{0}_{1}".format(name[0], name[1])
+                elif "Player" in name:
+                    name = name.split("_")[0]
+
+                for node in hitboxes.get_overlapping_nodes():
+                    # TODO: Decompose this block to function
+                    if node and node.is_active() and "NPC_Mongol_RightHand" in node.get_name():
+                        for hit in node.get_overlapping_nodes():
+                            if hit and hit.is_active():
+                                if "Player_Hips" in hit.get_name():
+                                    self.base.npcs_hits[name] = True
+                                else:
+                                    self.base.npcs_hits[name] = False
+                                    # self.base.npcs_hits[name] = hit_zone.get_tag(key=name_hb)
 
         if self.base.game_mode is False and self.base.menu_mode:
             return task.done

@@ -321,8 +321,8 @@ class AI:
                     # Player is attacked by enemy!
                     if (hasattr(self.base, "npcs_hits")
                             and self.base.npcs_hits
-                            and self.base.npcs_hits.get(actor_name)):
-                        self.dbg_text_plr_frame_hit.setText(str(self.base.npcs_hits[actor_name] == "RightHand"))
+                            and self.base.npcs_hits.get(actor_name)
+                            and self.base.player_states["is_blocking"] is False):
                         self.player_fsm.request("Attacked", self.base.player_ref, "BigHitToHead", "play")
 
                     # Enemy is attacked by player!
