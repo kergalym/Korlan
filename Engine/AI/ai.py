@@ -65,6 +65,7 @@ class AI:
                                                        npc_classes=self.npc_classes)
 
                 if npc_class and self.npc_fsm.npcs_xyz_vec:
+                    # TODO: Uncomment when I done with enemy
                     # if npc_class == "friend":
                         # self.npc_friend_logic(actor=actor, request=request, passive=True)
                     if npc_class == "neutral":

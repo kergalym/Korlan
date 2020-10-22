@@ -208,30 +208,20 @@ class Actions:
                 self.player_tengri_action(player, "tengri", anims, "PickingUp")
                 self.player_umai_action(player, "umai", anims, "PickingUp")
 
-        # If the camera is too far from player, move it closer.
-        # If the camera is too close to player, move it farther.
         # If player has the bullet shape
         player = self.base.get_actor_bullet_shape_node(asset=player.get_name(), type="Player")
 
         if player:
-            camvec = player.get_pos() - self.base.camera.get_pos()
-            camvec.set_z(0)
-            camdist = camvec.length()
-            camvec.normalize()
-            if camdist > 10.0:
-                self.base.camera.set_pos(self.base.camera.get_pos() + camvec * (camdist - 10))
-                camdist = 10.0
-            if camdist < 5.0:
-                self.base.camera.set_pos(self.base.camera.get_pos() - camvec * (5 - camdist))
-                camdist = 5.0
-
-            if self.base.camera.get_z() < player.get_z() + 2.0:
-                self.base.camera.set_z(player.get_z() + 2.0)
 
             # The camera should look in Korlan direction,
             # but it should also try to stay horizontal, so look at
             # a floater which hovers above Korlan's head.
             if self.base.is_cutscene_active is False:
+                self.mouse.mouse_control_setup(player=player)
+                self.base.camera.look_at(self.mouse.set_floater(player))
+
+            if self.base.is_ui_active is False:
+                self.mouse.mouse_control_setup(player=player)
                 self.base.camera.look_at(self.mouse.set_floater(player))
 
         if self.base.game_mode is False and self.base.menu_mode:
