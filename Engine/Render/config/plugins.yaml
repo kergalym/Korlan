@@ -1,9 +1,9 @@
-disabled: [dof, vxgi, fxaa, motion_blur, bloom]
-enabled: [ao, color_correction, forward_shading, pssm, scattering, skin_shading, sky_ao,
-  smaa, ssr, env_probes, clouds, volumetrics]
+disabled: [motion_blur, smaa, dof, fxaa, vxgi]
+enabled: [ao, bloom, color_correction, forward_shading, pssm, scattering, skin_shading,
+  sky_ao, ssr, clouds, env_probes, volumetrics]
 overrides:
   ao: {alchemy_max_distance: 5.86, alchemy_sample_radius: 38.86, alchemy_sequence: halton_2D_8,
-    blur_depth_factor: 0.88158, blur_normal_factor: 2.97, blur_quality: LOW, clip_length: 10,
+    blur_depth_factor: 0.88158, blur_normal_factor: 2.97, blur_quality: MEDIUM, clip_length: 1,
     hbao_max_distance: 11.5, hbao_ray_count: 4, hbao_ray_steps: 3, hbao_sample_radius: 255.0,
     hbao_tangent_bias: 0.64997, occlusion_strength: 2.19, ssao_bias: 0.0143, ssao_max_distance: 7.5,
     ssao_sample_radius: 95.29, ssao_sequence: halton_3D_8, ssvo_max_distance: 3.19,
@@ -23,7 +23,7 @@ overrides:
   env_probes: {diffuse_probe_resolution: 2, max_probes: 16, max_probes_per_cell: 3,
     probe_resolution: 128}
   forward_shading: null
-  fxaa: {edge_threshold: 0.166, min_threshold: 0.833, quality: low, subpixel_quality: 0.5}
+  fxaa: {edge_threshold: 0.166, min_threshold: 0.833, quality: ultra, subpixel_quality: 0.5}
   motion_blur: {blur_factor: 0.5, camera_blur_factor: 0.4, enable_object_blur: false,
     max_blur_radius: 10.0, num_camera_samples: 6, num_samples: 12, tile_size: 32}
   pssm: {border_bias: 0.058, dist_shadow_clipsize: 400.0, dist_shadow_resolution: 4096,
@@ -39,7 +39,7 @@ overrides:
   skin_shading: {blur_scale: 0.43, quality: medium}
   sky_ao: {ao_bias: 0.0, ao_multiplier: 0.83, blend_factor: 0.01, capture_height: 568.75,
     max_radius: 500.0, resolution: 1024, sample_radius: 17.17, sample_sequence: poisson_2D_32}
-  smaa: {history_length: 8, jitter_amount: 0.16143, jitter_pattern: uniform2, smaa_quality: low,
+  smaa: {history_length: 8, jitter_amount: 0.16143, jitter_pattern: halton8, smaa_quality: low,
     use_reprojection: true}
   ssr: {abort_on_object_infront: true, border_fade: 0.005, effect_scale: 1.0, history_length: 16,
     hit_tolerance: 0.1, intial_bias: 0.1, roughness_fade: 0.72, skip_invalid_samples: false,
