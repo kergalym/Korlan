@@ -234,8 +234,8 @@ class Actions:
             if self.base.is_cutscene_active is False:
                 self.base.camera.look_at(self.mouse.set_floater(player))
 
-            if base.game_mode is False and base.menu_mode:
-                return task.done
+        if self.base.game_mode is False and self.base.menu_mode:
+            return task.done
 
         return task.cont
 

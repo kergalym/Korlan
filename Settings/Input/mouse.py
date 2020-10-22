@@ -49,12 +49,12 @@ class Mouse:
             self.floater.set_z(self.pos_z)
             return self.floater
 
-    def mouse_rotate(self, task):
-        """ Function    : mouse_rotate
+    def mouse_control(self):
+        """ Function    : mouse_control
 
             Description : Mouse-rotation business for 3rd person view.
 
-            Input       : Task
+            Input       : None
 
             Output      : None
 
@@ -66,23 +66,61 @@ class Mouse:
 
         if self.base.win.move_pointer(0, 100, 100):
             self.heading = self.heading - (x - 100) * self.mouse_sens
-            # self.pitch = self.pitch - (y - 100) * self.mouse_sens
-
-        """if self.pitch > -177:
-            self.pitch = -177
-        elif self.pitch < -177:
-            self.pitch = -180"""
+            self.pitch = self.pitch - (y - 100) * self.mouse_sens
 
         self.base.camera.set_hpr(self.heading, self.pitch, self.rotation)
 
         direction = self.base.camera.get_mat().getRow3(1)
-
         self.base.camera.set_pos(self.focus - (direction * 180))
         self.focus = self.base.camera.get_pos() + (direction * 180)
-        self.last = task.time
 
-    def mouse_look_cam(self, task):
-        """ Function    : mouse_look_cam
+    def mouse_control_new(self):
+        """ Function    : mouse_control_new
+
+            Description : Mouse-rotation business for 3rd person view.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
+        # If the camera is too far from player, move it closer.
+        # If the camera is too close to player, move it farther.
+        # If player has the bullet shape
+        player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
+
+        if player_bs:
+            camvec = player_bs.get_pos() - self.base.camera.get_pos()
+            camvec.set_z(0)
+            camdist = camvec.length()
+            camvec.normalize()
+            if camdist > 10.0:
+                self.base.camera.set_pos(self.base.camera.get_pos() + camvec * (camdist - 10))
+                camdist = 10.0
+            if camdist < 5.0:
+                self.base.camera.set_pos(self.base.camera.get_pos() - camvec * (5 - camdist))
+                camdist = 5.0
+
+            if self.base.camera.get_z() < player_bs.get_z() + 2.0:
+                self.base.camera.set_z(player_bs.get_z() + 2.0)
+
+            # The camera should look in Korlan direction,
+            # but it should also try to stay horizontal, so look at
+            # a floater which hovers above Korlan's head.
+            if (hasattr(self.base, "is_cutscene_active")
+                    and self.base.is_cutscene_active is False):
+                self.base.camera.reparent_to(self.set_floater(player_bs))
+
+        md = base.win.getPointer(0)
+
+        if base.win.movePointer(0, int(base.win.getXSize() / 2), int(base.win.getYSize() / 2)):
+            self.heading = self.base.camera.get_h() - (md.get_x() - base.win.getXSize() / 2) * self.mouse_sens
+            self.pitch = self.base.camera.get_p() - (md.get_y() - base.win.getYSize() / 2) * self.mouse_sens
+            self.base.camera.set_hpr(self.heading, self.pitch, self.rotation)
+
+    def mouse_control_task(self, task):
+        """ Function    : mouse_control_task
 
             Description : Mouse-looking camera for 3rd person view.
 
@@ -95,12 +133,14 @@ class Mouse:
         # Figure out how much the mouse has moved (in pixels)
         if (hasattr(base, "is_ui_active") is False
                 and self.base.game_mode):
-            self.mouse_rotate(task=task)
+            self.mouse_control()
+            # self.mouse_control_new()
 
         elif (hasattr(base, "is_ui_active")
                 and base.is_ui_active is False
                 and self.base.game_mode):
-            self.mouse_rotate(task=task)
+            self.mouse_control()
+            # self.mouse_control_new()
 
         if base.game_mode is False and base.menu_mode:
             return task.done
@@ -119,6 +159,7 @@ class Mouse:
             Return      : None
         """
         if mode:
+            print(mode)
             wp = WindowProperties()
             wp.set_mouse_mode(mode)
             self.base.mouse_mode = mode

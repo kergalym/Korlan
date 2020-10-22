@@ -118,17 +118,6 @@ class Korlan:
             # Disable the camera trackball controls.
             self.base.disable_mouse()
 
-            # control mapping of mouse movement to character movement
-            self.base.mouse_magnitude = 1
-
-            self.base.rotate_x = 0
-
-            self.base.last_mouse_x = None
-
-            self.base.hide_mouse = False
-
-            self.base.manual_recenter_mouse = True
-
             self.mouse.set_mouse_mode(WindowProperties.M_absolute)
 
             if (isinstance(path, str)
@@ -188,9 +177,10 @@ class Korlan:
                     base.player = self.korlan
                     self.render.analyze()
 
-                taskMgr.add(self.mouse.mouse_look_cam,
-                            "mouse_look",
+                taskMgr.add(self.mouse.mouse_control_task,
+                            "mouse_control_task",
                             appendTask=True)
+
                 taskMgr.add(self.state.set_player_equip_state,
                             "player_state",
                             appendTask=True)

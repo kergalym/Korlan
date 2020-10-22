@@ -119,7 +119,6 @@ class Main(ShowBase):
 
     def __init__(self):
         self.cfg_path = None
-        self.manual_recenter_Mouse = None
         self.gfx = Graphics()
         ShowBase.__init__(self)
         self.build_info_txt = "Build 0.1. 10/2020"

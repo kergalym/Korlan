@@ -102,6 +102,19 @@ class LevelOne:
 
         return task.cont
 
+    def npc_focus_switch_task(self, enemies, task):
+        if enemies and isinstance(enemies, dict):
+            for enemy in enemies:
+                if not enemies.get(enemy)[0].is_empty():  # is enemy here?
+                    vec_x = enemies.get(enemy)[1][0]  # get its x vector
+                    if base.camera.get_h() == vec_x:
+                        base.camera.look_at(enemies.get(enemy)[1])
+
+        if self.base.game_mode is False and self.base.menu_mode:
+            return task.done
+
+        return task.cont
+
     def hitbox_handling_task(self, task):
         if self.physics_attr.world:
             for hitboxes in self.physics_attr.world.get_ghosts():
@@ -113,13 +126,20 @@ class LevelOne:
                     name = "{0}_{1}".format(name[0], name[1])
                 elif "Player" in name:
                     name = name.split("_")[0]
-
+                is_hips_overlapped = 0
                 for node in hitboxes.get_overlapping_nodes():
                     # TODO: Decompose this block to function
-                    if node and node.is_active() and "NPC_Mongol_RightHand" in node.get_name():
+                    if is_hips_overlapped == 0:
+                        continue
+
+                    if (node and node.is_active()
+                            and "NPC" in node.get_name()
+                            and "RightHand" in node.get_name()):
                         for hit in node.get_overlapping_nodes():
                             if hit and hit.is_active():
-                                if "Player_Hips" in hit.get_name():
+                                if ("Player" in hit.get_name()
+                                        and "Hips" in hit.get_name()):
+                                    is_hips_overlapped = 1
                                     self.base.npcs_hits[name] = True
                                 else:
                                     self.base.npcs_hits[name] = False
