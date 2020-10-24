@@ -12,7 +12,6 @@ from Engine.Scenes.scene import SceneOne
 from Engine.Physics.physics import PhysicsAttr
 from Settings.UI.stat_ui import StatUI
 from Settings.UI.pause_menu_ui import PauseMenuUI
-from Settings.UI.rp_lights_manager_ui import RPLightsMgrUI
 
 
 class LevelOne:
@@ -38,7 +37,6 @@ class LevelOne:
         self.player_state = PlayerState()
         self.physics_attr = PhysicsAttr()
         self.ai = AI()
-        self.rp_lights_mgr_ui = RPLightsMgrUI()
         self.base.npcs_actor_refs = {}
         self.base.npcs_actors_health = {}
         self.base.alive_actors = {}
@@ -436,9 +434,6 @@ class LevelOne:
         taskMgr.add(self.hitbox_handling_task,
                     "hitbox_handling_task",
                     appendTask=True)
-
-        if self.game_settings['Debug']['set_debug_mode'] == 'YES':
-            self.rp_lights_mgr_ui.set_ui_rpmgr()
 
     def save_game(self):
         pass

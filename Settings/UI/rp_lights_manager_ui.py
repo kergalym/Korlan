@@ -84,11 +84,12 @@ class RPLightsMgrUI:
             props = WindowProperties()
             props.set_cursor_hidden(False)
             self.base.win.request_properties(props)
+            self.base.enable_mouse()
             base.is_ui_active = True
-            self.base.is_dialog_active = False
+            base.is_dev_ui_active = True
             if not self.base.frame_rpmgr:
                 self.base.frame_rpmgr = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
-                                                  frameSize=self.base.frame_rpmgr_size)
+                                                    frameSize=self.base.frame_rpmgr_size)
                 self.base.build_info.reparent_to(self.base.frame_rpmgr)
 
                 self.base.frame_rpmgr.set_pos(self.pos_X, self.pos_Y, self.pos_Z)
@@ -136,8 +137,7 @@ class RPLightsMgrUI:
                                              scale=.03, borderWidth=(self.w, self.h),
                                              parent=self.base.frame_rpmgr)
 
-                dev = self.m_settings.input_validate(self.cfg_path, 'dev')
-                self.inp_pos_x = DirectEntry(initialText=dev['Debug']['player_pos_x'],
+                self.inp_pos_x = DirectEntry(initialText="",
                                              text_bg=(0, 0, 0, 1),
                                              entryFont=self.font.load_font(self.menu_font),
                                              text_align=TextNode.A_center,
@@ -145,7 +145,7 @@ class RPLightsMgrUI:
                                              parent=self.base.frame_rpmgr,
                                              command=self.set_node_pos_x)
 
-                self.inp_pos_y = DirectEntry(initialText=dev['Debug']['player_pos_y'],
+                self.inp_pos_y = DirectEntry(initialText="",
                                              text_bg=(0, 0, 0, 1),
                                              entryFont=self.font.load_font(self.menu_font),
                                              text_align=TextNode.A_center,
@@ -153,7 +153,7 @@ class RPLightsMgrUI:
                                              parent=self.base.frame_rpmgr,
                                              command=self.set_node_pos_y)
 
-                self.inp_pos_z = DirectEntry(initialText=dev['Debug']['player_pos_z'],
+                self.inp_pos_z = DirectEntry(initialText="",
                                              text_bg=(0, 0, 0, 1),
                                              entryFont=self.font.load_font(self.menu_font),
                                              text_align=TextNode.A_center,
@@ -161,7 +161,7 @@ class RPLightsMgrUI:
                                              parent=self.base.frame_rpmgr,
                                              command=self.set_node_pos_z)
 
-                self.inp_rot_h = DirectEntry(initialText=dev['Debug']['player_rot_h'],
+                self.inp_rot_h = DirectEntry(initialText="",
                                              text_bg=(0, 0, 0, 1),
                                              entryFont=self.font.load_font(self.menu_font),
                                              text_align=TextNode.A_center,
@@ -169,7 +169,7 @@ class RPLightsMgrUI:
                                              parent=self.base.frame_rpmgr,
                                              command=self.set_node_rot_h)
 
-                self.inp_rot_p = DirectEntry(initialText=dev['Debug']['player_rot_p'],
+                self.inp_rot_p = DirectEntry(initialText="",
                                              text_bg=(0, 0, 0, 1),
                                              entryFont=self.font.load_font(self.menu_font),
                                              text_align=TextNode.A_center,
@@ -177,7 +177,7 @@ class RPLightsMgrUI:
                                              parent=self.base.frame_rpmgr,
                                              command=self.set_node_rot_p)
 
-                self.inp_rot_r = DirectEntry(initialText=dev['Debug']['player_rot_r'],
+                self.inp_rot_r = DirectEntry(initialText="",
                                              text_bg=(0, 0, 0, 1),
                                              entryFont=self.font.load_font(self.menu_font),
                                              text_align=TextNode.A_center,
@@ -185,51 +185,56 @@ class RPLightsMgrUI:
                                              parent=self.base.frame_rpmgr,
                                              command=self.set_node_rot_r)
 
-                # Show actor perspective from player camera
-                self.base.camera.set_pos(6, 9, 2)
-                self.base.camera.set_hpr(-90, 0, 0)
-                self.base.cam.set_y(5.5)
-
             else:
                 if self.base.frame_rpmgr.is_hidden():
                     self.base.frame_rpmgr.show()
 
-            self.lbl_pos_x.set_pos(-1.5, 0, -0.1)
-            self.lbl_pos_y.set_pos(-1.5, 0, -0.2)
-            self.lbl_pos_z.set_pos(-1.5, 0, -0.3)
-            self.lbl_rot_h.set_pos(-1.5, 0, -0.4)
-            self.lbl_rot_p.set_pos(-1.5, 0, -0.5)
-            self.lbl_rot_r.set_pos(-1.5, 0, -0.6)
+            self.lbl_pos_x.set_pos(-1.0, 0, -1.1)
+            self.lbl_pos_y.set_pos(-1.0, 0, -1.2)
+            self.lbl_pos_z.set_pos(-1.0, 0, -1.3)
 
-            self.inp_pos_x.set_pos(-0.5, 0, -0.1)
-            self.inp_pos_y.set_pos(-0.5, 0, -0.2)
-            self.inp_pos_z.set_pos(-0.5, 0, -0.3)
-            self.inp_rot_h.set_pos(-0.5, 0, -0.4)
-            self.inp_rot_p.set_pos(-0.5, 0, -0.5)
-            self.inp_rot_r.set_pos(-0.5, 0, -0.6)
+            self.lbl_rot_h.set_pos(0.5, 0, -1.1)
+            self.lbl_rot_p.set_pos(0.5, 0, -1.2)
+            self.lbl_rot_r.set_pos(0.5, 0, -1.3)
 
-            self.base.is_dialog_active = True
+            self.inp_pos_x.set_pos(-0.5, 0, -1.1)
+            self.inp_pos_y.set_pos(-0.5, 0, -1.2)
+            self.inp_pos_z.set_pos(-0.5, 0, -1.3)
+
+            self.inp_rot_h.set_pos(1.0, 0, -1.1)
+            self.inp_rot_p.set_pos(1.0, 0, -1.2)
+            self.inp_rot_r.set_pos(1.0, 0, -1.3)
 
     def clear_ui_rpmgr(self):
         self.base.build_info.reparent_to(aspect2d)
         props = WindowProperties()
         props.set_cursor_hidden(True)
         self.base.win.request_properties(props)
+        self.base.disable_mouse()
+
         base.is_ui_active = False
+        base.is_dev_ui_active = False
 
         if self.base.frame_rpmgr:
             self.base.frame_rpmgr.hide()
-            self.base.is_dialog_active = False
-            self.base.cam.set_y(0)
 
-    def btn_wrapper(self, index, behaviors, behavior_name):
-        if behaviors and behavior_name:
-            if index == 0:
-                self.clear_ui_rpmgr()
-            elif index == 1:
-                self.clear_ui_rpmgr()
-            else:
-                self.clear_ui_rpmgr()
+    def get_node_pos_x(self):
+        pass
+
+    def get_node_pos_y(self):
+        pass
+
+    def get_node_pos_z(self):
+        pass
+
+    def get_node_rot_h(self):
+        pass
+
+    def get_node_rot_p(self):
+        pass
+
+    def get_node_rot_r(self):
+        pass
 
     def set_node_pos_x(self):
         pass
@@ -248,3 +253,4 @@ class RPLightsMgrUI:
 
     def set_node_rot_r(self):
         pass
+

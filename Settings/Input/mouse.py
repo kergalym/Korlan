@@ -108,13 +108,11 @@ class Mouse:
         if (hasattr(base, "is_ui_active") is False
                 and self.base.game_mode):
             self.mouse_control()
-            # self.mouse_control_new()
 
         elif (hasattr(base, "is_ui_active")
                 and base.is_ui_active is False
                 and self.base.game_mode):
             self.mouse_control()
-            # self.mouse_control_new()
 
         if base.game_mode is False and base.menu_mode:
             return task.done

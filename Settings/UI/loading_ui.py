@@ -6,6 +6,7 @@ from direct.showbase.ShowBaseGlobal import aspect2d
 from panda3d.core import FontPool, TextNode, Texture
 from Engine.Scenes.level_one import LevelOne
 from direct.task.TaskManagerGlobal import taskMgr
+from Settings.UI.rp_lights_manager_ui import RPLightsMgrUI
 
 
 class LoadingUI:
@@ -13,6 +14,7 @@ class LoadingUI:
     def __init__(self):
         self.base = base
         self.level_one = LevelOne()
+        self.rp_lights_mgr_ui = RPLightsMgrUI()
         self.game_settings = base.game_settings
         self.game_dir = base.game_dir
         self.fonts = base.fonts_collector()
@@ -117,6 +119,10 @@ class LoadingUI:
                 if num == asset_num:
                     self.clear_loading_bar()
                     self.base.loading_is_done = 1
+
+                    if self.game_settings['Debug']['set_debug_mode'] == 'YES':
+                        if self.base.loading_is_done == 1:
+                            self.rp_lights_mgr_ui.set_ui_rpmgr()
 
                     return task.done
 

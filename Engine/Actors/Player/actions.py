@@ -32,6 +32,7 @@ class Actions:
         self.player_menu = PlayerMenuUI()
         self.state = PlayerState()
         self.base.is_ui_active = False
+        self.base.is_dev_ui_active = False
         self.base.is_cutscene_active = False
 
     """ Play animation after action """
@@ -172,7 +173,9 @@ class Actions:
         # Here we accept keys
         # TODO: change animation and implement state for actions
         #  except movement, crouch and jump action
-        if not self.base.is_ui_active:
+        if (not self.base.is_ui_active
+                and not self.base.is_dev_ui_active
+                or self.base.is_dev_ui_active):
             if base.player_state_unarmed:
                 self.player_movement_action(player, anims)
                 self.player_run_action(player, anims)
