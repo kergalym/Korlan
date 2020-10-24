@@ -45,7 +45,7 @@ class LangMenuUI(Language):
         self.base.frame_int_lang_size = [-0.9, 3, -1, 3]
 
         """ Frame Colors """
-        self.frm_opacity = 0.9
+        self.frm_opacity = 1
 
         """ Logo & Ornament Scaling, Positioning """
         self.logo = None

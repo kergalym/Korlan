@@ -85,9 +85,15 @@ game_settings.read(game_cfg)
 disp_res = game_settings['Main']['disp_res']
 disp_res = disp_res.split("x")
 
-# TODO: Impl. fullscreen to config
-# fscreen = game_settings['Main']['fullscreen']
-fscreen = "t"
+fscreen = "f"
+wintype = "onscreen"
+if game_settings['Main']['fullscreen'] == "on":
+    fscreen = "t"
+    wintype = "onscreen"
+
+elif game_settings['Main']['fullscreen'] == "off":
+    fscreen = "f"
+    wintype = "onscreen"
 
 p3d.load_prc_file_data(
     '',
@@ -96,7 +102,12 @@ p3d.load_prc_file_data(
 
 p3d.load_prc_file_data(
     '',
-    'win-origin 110 0\n'
+    'window-type {0}\n'.format(wintype)
+)
+
+p3d.load_prc_file_data(
+    '',
+    'win-origin -1 -2\n'
     'window-title Korlan - Daughter of the Steppes\n'
     'show-frame-rate-meter  t\n'
     'audio-library-name p3openal_audio\n'
@@ -111,7 +122,6 @@ p3d.load_prc_file_data(
     'driver-compress-textures t\n'
     'want-pstats 1\n'
     'fullscreen {0}\n'.format(fscreen)
-
 )
 
 
