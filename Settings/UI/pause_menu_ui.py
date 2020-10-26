@@ -271,7 +271,14 @@ class PauseMenuUI(MenuSettings):
 
         if hasattr(base, "active_frame"):
             base.active_frame.destroy()
-            base.is_ui_active = False
+
+            if hasattr(base, "is_dev_ui_active"):
+                if base.is_dev_ui_active:
+                    base.is_ui_active = True
+                else:
+                    base.is_ui_active = False
+            else:
+                base.is_ui_active = False
 
         if self.game_mode:
             self.base.frame_int_pause.destroy()
@@ -283,5 +290,19 @@ class PauseMenuUI(MenuSettings):
         props = WindowProperties()
         props.set_cursor_hidden(True)
         self.base.win.request_properties(props)
-        base.is_ui_active = False
+
+        if hasattr(base, "is_dev_ui_active"):
+            if base.is_dev_ui_active:
+                props.set_cursor_hidden(False)
+                self.base.win.request_properties(props)
+                base.is_ui_active = True
+            else:
+                props.set_cursor_hidden(True)
+                self.base.win.request_properties(props)
+                base.is_ui_active = False
+        else:
+            props.set_cursor_hidden(True)
+            self.base.win.request_properties(props)
+            base.is_ui_active = False
+
         self.pause_mode = 0

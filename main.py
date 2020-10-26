@@ -69,6 +69,7 @@ game_settings['Keymap'] = {'forward': 'W',
                            }
 
 game_settings['Debug'] = {'set_debug_mode': 'NO',
+                          'render_explore': 'NO',
                           'cache_autoclean': 'NO',
                           'player_pos_x': '0.0',
                           'player_pos_y': '8.0',
@@ -162,6 +163,8 @@ class Main(ShowBase):
 
         if self.game_settings['Debug']['set_debug_mode'] == 'YES':
             print("Is threading supported: ", Thread.isThreadingSupported(), "\n")
+
+        if self.game_settings['Debug']['render_explore'] == 'YES':
             render.explore()
 
         # Construct and create the pipeline

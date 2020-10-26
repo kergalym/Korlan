@@ -36,7 +36,6 @@ class RPLightsMgrUI:
         self.inp_pos = None
         self.inp_hpr = None
         self.scrolled_list = None
-        self.is_light_picked_up = False
         self.picked_light_num = None
         self.active_light = None
 
@@ -90,8 +89,10 @@ class RPLightsMgrUI:
             props = WindowProperties()
             props.set_cursor_hidden(False)
             self.base.win.request_properties(props)
+            self.base.enable_mouse()
             base.is_ui_active = True
             base.is_dev_ui_active = True
+
             if not self.base.frame_rpmgr:
                 self.base.frame_rpmgr = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
                                                     frameSize=self.base.frame_rpmgr_size)
@@ -188,8 +189,8 @@ class RPLightsMgrUI:
         self.base.build_info.reparent_to(aspect2d)
         props = WindowProperties()
         props.set_cursor_hidden(True)
+        self.base.disable_mouse()
         self.base.win.request_properties(props)
-        # self.base.disable_mouse()
 
         base.is_ui_active = False
         base.is_dev_ui_active = False
