@@ -68,8 +68,6 @@ game_settings['Keymap'] = {'forward': 'W',
                            'umai': '4'
                            }
 
-game_settings['Misc'] = {'daytime': '12:00'}
-
 game_settings['Debug'] = {'set_debug_mode': 'NO',
                           'cache_autoclean': 'NO',
                           'player_pos_x': '0.0',
@@ -79,6 +77,9 @@ game_settings['Debug'] = {'set_debug_mode': 'NO',
                           'player_rot_p': '0.0',
                           'player_rot_r': '-0.0'
                           }
+
+
+game_settings['Misc'] = {'daytime': '23:00'}
 
 game_cfg = '{0}/Korlan - Daughter of the Steppes/settings.ini'.format(str(Path.home()))
 game_settings.read(game_cfg)

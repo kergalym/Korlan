@@ -38,10 +38,10 @@ class RenderAttr:
         # self.menu_font = self.fonts['OpenSans-Regular']
         self.menu_font = self.fonts['JetBrainsMono-Regular']
 
-        if self.game_settings['Main']['postprocessing'] == 'on':
+        """if self.game_settings['Main']['postprocessing'] == 'on':
             if self.render_pipeline:
                 # TODO: Remove the time declaration after Menu Scene is constructed
-                self.render_pipeline.daytime_mgr.time = "8:45"
+                self.render_pipeline.daytime_mgr.time = "8:45"""
 
         self.time_text_ui = OnscreenText(text="",
                                          pos=(-1.8, -0.7),

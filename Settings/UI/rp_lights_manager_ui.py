@@ -9,6 +9,7 @@ from direct.gui.DirectGui import *
 from panda3d.core import FontPool
 from panda3d.core import TextNode
 from panda3d.core import WindowProperties
+from direct.task.TaskManagerGlobal import taskMgr
 
 
 class RPLightsMgrUI:
@@ -42,6 +43,10 @@ class RPLightsMgrUI:
         self.inp_rot_h = None
         self.inp_rot_p = None
         self.inp_rot_r = None
+        self.scrolled_list = None
+        self.is_light_picked_up = False
+        self.picked_light_num = None
+        self.active_light = None
 
         """ Frame Positions """
         self.pos_X = 0
@@ -56,6 +61,8 @@ class RPLightsMgrUI:
         """ Frame Sizes """
         # Left, right, bottom, top
         self.base.frame_rpmgr_size = [-2, 2.5, -1.5, -1]
+        self.base.frame_scrolled_size = [0.0, 0.7, -0.05, 0.40]
+        self.base.frame_scrolled_inner_size = [-0.2, 0.2, -0.20, 0.11]
 
         """ Frame Colors """
         self.frm_opacity = 0.7
@@ -79,12 +86,31 @@ class RPLightsMgrUI:
         """ Buttons & Fonts"""
         self.menu_font = self.fonts['OpenSans-Regular']
 
+    def update_pight_picking_state_task(self, task):
+        if self.base.mouseWatcherNode.hasMouse():
+            mpos = self.base.mouseWatcherNode.getMouse()
+
+            if hasattr(base, 'rp_lights') and base.rp_lights:
+                for i, light in enumerate(base.rp_lights, 0):
+                    if light:
+                        if (light.pos[0] == mpos.x
+                                and light.pos[1] == mpos.y
+                                and light.pos[2] == mpos.z):
+                            self.is_light_picked_up = True
+                            self.picked_light_num = i
+                            print(i)
+
+        if base.game_mode is False and base.menu_mode:
+            self.clear_ui_rpmgr()
+            return task.done
+
+        return task.cont
+
     def set_ui_rpmgr(self):
         if base.game_mode and base.menu_mode is False:
             props = WindowProperties()
             props.set_cursor_hidden(False)
             self.base.win.request_properties(props)
-            self.base.enable_mouse()
             base.is_ui_active = True
             base.is_dev_ui_active = True
             if not self.base.frame_rpmgr:
@@ -95,45 +121,45 @@ class RPLightsMgrUI:
                 self.base.frame_rpmgr.set_pos(self.pos_X, self.pos_Y, self.pos_Z)
                 self.base.frame_rpmgr.set_pos(self.pos_int_X, self.pos_int_Y, self.pos_int_Z)
 
-                self.lbl_pos_x = DirectLabel(text=self.language['pos_x'], text_bg=(0, 0, 0, 1),
+                self.lbl_pos_x = DirectLabel(text=self.language['pos_x'],
                                              text_fg=(255, 255, 255, 0.9),
                                              text_font=self.font.load_font(self.menu_font),
-                                             frameColor=(255, 255, 255, self.frm_opacity),
+                                             frameColor=(255, 255, 255, 0),
                                              scale=.03, borderWidth=(self.w, self.h),
                                              parent=self.base.frame_rpmgr)
 
-                self.lbl_pos_y = DirectLabel(text=self.language['pos_y'], text_bg=(0, 0, 0, 1),
+                self.lbl_pos_y = DirectLabel(text=self.language['pos_y'],
                                              text_fg=(255, 255, 255, 0.9),
                                              text_font=self.font.load_font(self.menu_font),
-                                             frameColor=(255, 255, 255, self.frm_opacity),
+                                             frameColor=(255, 255, 255, 0),
                                              scale=.03, borderWidth=(self.w, self.h),
                                              parent=self.base.frame_rpmgr)
 
-                self.lbl_pos_z = DirectLabel(text=self.language['pos_z'], text_bg=(0, 0, 0, 1),
+                self.lbl_pos_z = DirectLabel(text=self.language['pos_z'],
                                              text_fg=(255, 255, 255, 0.9),
                                              text_font=self.font.load_font(self.menu_font),
-                                             frameColor=(255, 255, 255, self.frm_opacity),
+                                             frameColor=(255, 255, 255, 0),
                                              scale=.03, borderWidth=(self.w, self.h),
                                              parent=self.base.frame_rpmgr)
 
-                self.lbl_rot_h = DirectLabel(text=self.language['rot_h'], text_bg=(0, 0, 0, 1),
+                self.lbl_rot_h = DirectLabel(text=self.language['rot_h'],
                                              text_fg=(255, 255, 255, 0.9),
                                              text_font=self.font.load_font(self.menu_font),
-                                             frameColor=(255, 255, 255, self.frm_opacity),
+                                             frameColor=(255, 255, 255, 0),
                                              scale=.03, borderWidth=(self.w, self.h),
                                              parent=self.base.frame_rpmgr)
 
-                self.lbl_rot_p = DirectLabel(text=self.language['rot_p'], text_bg=(0, 0, 0, 1),
+                self.lbl_rot_p = DirectLabel(text=self.language['rot_p'],
                                              text_fg=(255, 255, 255, 0.9),
                                              text_font=self.font.load_font(self.menu_font),
-                                             frameColor=(255, 255, 255, self.frm_opacity),
+                                             frameColor=(255, 255, 255, 0),
                                              scale=.03, borderWidth=(self.w, self.h),
                                              parent=self.base.frame_rpmgr)
 
-                self.lbl_rot_r = DirectLabel(text=self.language['rot_r'], text_bg=(0, 0, 0, 1),
+                self.lbl_rot_r = DirectLabel(text=self.language['rot_r'],
                                              text_fg=(255, 255, 255, 0.9),
                                              text_font=self.font.load_font(self.menu_font),
-                                             frameColor=(255, 255, 255, self.frm_opacity),
+                                             frameColor=(255, 255, 255, 0),
                                              scale=.03, borderWidth=(self.w, self.h),
                                              parent=self.base.frame_rpmgr)
 
@@ -185,6 +211,42 @@ class RPLightsMgrUI:
                                              parent=self.base.frame_rpmgr,
                                              command=self.set_node_rot_r)
 
+                if hasattr(base, 'rp_lights') and base.rp_lights:
+                    lights_num = len(base.rp_lights)
+                    btn_list = []
+                    for index, light in enumerate(base.rp_lights, 1):
+                        btn = DirectButton(text="Light {0}".format(index),
+                                           text_fg=(0, 0, 0, 1), relief=2,
+                                           text_font=self.font.load_font(self.menu_font),
+                                           text_shadow=(255, 255, 255, 1),
+                                           frameColor=(255, 255, 255, 0),
+                                           scale=self.btn_scale, borderWidth=(self.w, self.h),
+                                           clickSound=self.base.sound_gui_click,
+                                           command=self.pickup_light,
+                                           extraArgs=[light])
+                        btn_list.append(btn)
+
+                    self.scrolled_list = DirectScrolledList(
+                        decButton_pos=(0.35, 0, 0.53),
+                        decButton_text="Dec",
+                        decButton_text_scale=0.04,
+                        decButton_borderWidth=(0.005, 0.005),
+
+                        incButton_pos=(0.35, 0, 0.15),
+                        incButton_text="Inc",
+                        incButton_text_scale=0.04,
+                        incButton_borderWidth=(0.005, 0.005),
+
+                        frameSize=self.base.frame_scrolled_size,
+                        frameColor=(0, 0, 0, 0),
+                        numItemsVisible=lights_num,
+                        forceHeight=0.11,
+                        items=btn_list,
+                        itemFrame_frameSize=self.base.frame_scrolled_inner_size,
+                        itemFrame_pos=(0.35, 0, 0.4),
+                        parent=self.base.frame_rpmgr
+                    )
+
             else:
                 if self.base.frame_rpmgr.is_hidden():
                     self.base.frame_rpmgr.show()
@@ -205,12 +267,18 @@ class RPLightsMgrUI:
             self.inp_rot_p.set_pos(1.0, 0, -1.2)
             self.inp_rot_r.set_pos(1.0, 0, -1.3)
 
+            self.scrolled_list.set_pos(1.5, 0, -1.6)
+
+            taskMgr.add(self.update_pight_picking_state_task,
+                        "update_pight_picking_state_task",
+                        appendTask=True)
+
     def clear_ui_rpmgr(self):
         self.base.build_info.reparent_to(aspect2d)
         props = WindowProperties()
         props.set_cursor_hidden(True)
         self.base.win.request_properties(props)
-        self.base.disable_mouse()
+        # self.base.disable_mouse()
 
         base.is_ui_active = False
         base.is_dev_ui_active = False
@@ -218,39 +286,79 @@ class RPLightsMgrUI:
         if self.base.frame_rpmgr:
             self.base.frame_rpmgr.hide()
 
-    def get_node_pos_x(self):
-        pass
+    def get_node_pos_x(self, light):
+        if self.is_light_picked_up and light:
+            return "{0}".format(light.pos[0])
 
-    def get_node_pos_y(self):
-        pass
+    def get_node_pos_y(self, light):
+        if self.is_light_picked_up and light:
+            return "{0}".format(light.pos[1])
 
-    def get_node_pos_z(self):
-        pass
+    def get_node_pos_z(self, light):
+        if self.is_light_picked_up and light:
+            return "{0}".format(light.pos[2])
 
     def get_node_rot_h(self):
-        pass
+        if self.is_light_picked_up:
+            pass
 
     def get_node_rot_p(self):
-        pass
+        if self.is_light_picked_up:
+            pass
 
     def get_node_rot_r(self):
-        pass
+        if self.is_light_picked_up:
+            pass
 
-    def set_node_pos_x(self):
-        pass
+    def set_node_pos_x(self, pos_x):
+        if (self.is_light_picked_up
+                and pos_x
+                and isinstance(pos_x, str)
+                or isinstance(pos_x, float)):
+            if self.active_light:
+                self.active_light.pos[0] = pos_x
 
-    def set_node_pos_y(self):
-        pass
+    def set_node_pos_y(self, pos_y):
+        if (self.is_light_picked_up
+                and pos_y
+                and isinstance(pos_y, str)
+                or isinstance(pos_y, float)):
+            if self.active_light:
+                self.active_light.pos[1] = pos_y
 
-    def set_node_pos_z(self):
-        pass
+    def set_node_pos_z(self, pos_z):
+        if (self.is_light_picked_up
+                and pos_z
+                and isinstance(pos_z, str)
+                or isinstance(pos_z, float)):
+            if self.active_light:
+                self.active_light.pos[2] = pos_z
 
     def set_node_rot_h(self):
-        pass
+        if self.is_light_picked_up:
+            pass
 
     def set_node_rot_p(self):
-        pass
+        if self.is_light_picked_up:
+            pass
 
     def set_node_rot_r(self):
-        pass
+        if self.is_light_picked_up:
+            pass
 
+    def pickup_light(self, light):
+        if light:
+            self.active_light = light
+            if (self.inp_pos_x
+                    and self.inp_pos_y
+                    and self.inp_pos_z):
+                # import pdb; pdb.set_trace()
+                pos_x = self.get_node_pos_x(light=self.active_light)
+                pos_y = self.get_node_pos_y(light=self.active_light)
+                pos_z = self.get_node_pos_z(light=self.active_light)
+
+                if pos_x and pos_y and pos_z:
+                    self.inp_pos_x.enterText(pos_x)
+                    self.inp_pos_y.enterText(pos_y)
+                    self.inp_pos_z.enterText(pos_z)
+            print(self.active_light)

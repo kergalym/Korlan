@@ -17,9 +17,9 @@ enabled:
     - sky_ao
     - smaa
     - ssr
-    - volumetrics
     # - dof
     # - fxaa
+    # - volumetrics
     # - vxgi
 
 
