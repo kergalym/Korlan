@@ -287,15 +287,15 @@ class RPLightsMgrUI:
             self.base.frame_rpmgr.hide()
 
     def get_node_pos_x(self, light):
-        if self.is_light_picked_up and light:
+        if light:
             return "{0}".format(light.pos[0])
 
     def get_node_pos_y(self, light):
-        if self.is_light_picked_up and light:
+        if light:
             return "{0}".format(light.pos[1])
 
     def get_node_pos_z(self, light):
-        if self.is_light_picked_up and light:
+        if light:
             return "{0}".format(light.pos[2])
 
     def get_node_rot_h(self):
@@ -311,24 +311,21 @@ class RPLightsMgrUI:
             pass
 
     def set_node_pos_x(self, pos_x):
-        if (self.is_light_picked_up
-                and pos_x
+        if (pos_x
                 and isinstance(pos_x, str)
                 or isinstance(pos_x, float)):
             if self.active_light:
                 self.active_light.pos[0] = pos_x
 
     def set_node_pos_y(self, pos_y):
-        if (self.is_light_picked_up
-                and pos_y
+        if (pos_y
                 and isinstance(pos_y, str)
                 or isinstance(pos_y, float)):
             if self.active_light:
                 self.active_light.pos[1] = pos_y
 
     def set_node_pos_z(self, pos_z):
-        if (self.is_light_picked_up
-                and pos_z
+        if (pos_z
                 and isinstance(pos_z, str)
                 or isinstance(pos_z, float)):
             if self.active_light:
@@ -352,7 +349,6 @@ class RPLightsMgrUI:
             if (self.inp_pos_x
                     and self.inp_pos_y
                     and self.inp_pos_z):
-                # import pdb; pdb.set_trace()
                 pos_x = self.get_node_pos_x(light=self.active_light)
                 pos_y = self.get_node_pos_y(light=self.active_light)
                 pos_z = self.get_node_pos_z(light=self.active_light)
