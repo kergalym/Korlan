@@ -179,6 +179,10 @@ class Actions:
             if base.player_state_unarmed:
                 self.player_movement_action(player, anims)
                 self.player_run_action(player, anims)
+
+        if (not self.base.is_ui_active
+                and not self.base.is_dev_ui_active):
+            if base.player_state_unarmed:
                 self.player_crouch_action(player, 'crouch', anims)
                 self.player_jump_action(player, "jump", anims, "Jumping")
                 self.player_use_action(player, "use", anims, "PickingUp")
