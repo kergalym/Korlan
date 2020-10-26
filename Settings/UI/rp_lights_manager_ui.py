@@ -86,20 +86,7 @@ class RPLightsMgrUI:
         """ Buttons & Fonts"""
         self.menu_font = self.fonts['OpenSans-Regular']
 
-    def update_pight_picking_state_task(self, task):
-        if self.base.mouseWatcherNode.hasMouse():
-            mpos = self.base.mouseWatcherNode.getMouse()
-
-            if hasattr(base, 'rp_lights') and base.rp_lights:
-                for i, light in enumerate(base.rp_lights, 0):
-                    if light:
-                        if (light.pos[0] == mpos.x
-                                and light.pos[1] == mpos.y
-                                and light.pos[2] == mpos.z):
-                            self.is_light_picked_up = True
-                            self.picked_light_num = i
-                            print(i)
-
+    def update_rp_mgr_task(self, task):
         if base.game_mode is False and base.menu_mode:
             self.clear_ui_rpmgr()
             return task.done
@@ -163,7 +150,7 @@ class RPLightsMgrUI:
                                              scale=.03, borderWidth=(self.w, self.h),
                                              parent=self.base.frame_rpmgr)
 
-                self.inp_pos_x = DirectEntry(initialText="",
+                self.inp_pos_x = DirectEntry(initialText="Pos X",
                                              text_bg=(0, 0, 0, 1),
                                              entryFont=self.font.load_font(self.menu_font),
                                              text_align=TextNode.A_center,
@@ -171,7 +158,7 @@ class RPLightsMgrUI:
                                              parent=self.base.frame_rpmgr,
                                              command=self.set_node_pos_x)
 
-                self.inp_pos_y = DirectEntry(initialText="",
+                self.inp_pos_y = DirectEntry(initialText="Pos Y",
                                              text_bg=(0, 0, 0, 1),
                                              entryFont=self.font.load_font(self.menu_font),
                                              text_align=TextNode.A_center,
@@ -179,7 +166,7 @@ class RPLightsMgrUI:
                                              parent=self.base.frame_rpmgr,
                                              command=self.set_node_pos_y)
 
-                self.inp_pos_z = DirectEntry(initialText="",
+                self.inp_pos_z = DirectEntry(initialText="Pos Z",
                                              text_bg=(0, 0, 0, 1),
                                              entryFont=self.font.load_font(self.menu_font),
                                              text_align=TextNode.A_center,
@@ -187,7 +174,7 @@ class RPLightsMgrUI:
                                              parent=self.base.frame_rpmgr,
                                              command=self.set_node_pos_z)
 
-                self.inp_rot_h = DirectEntry(initialText="",
+                self.inp_rot_h = DirectEntry(initialText="Rot H",
                                              text_bg=(0, 0, 0, 1),
                                              entryFont=self.font.load_font(self.menu_font),
                                              text_align=TextNode.A_center,
@@ -195,7 +182,7 @@ class RPLightsMgrUI:
                                              parent=self.base.frame_rpmgr,
                                              command=self.set_node_rot_h)
 
-                self.inp_rot_p = DirectEntry(initialText="",
+                self.inp_rot_p = DirectEntry(initialText="Rot P",
                                              text_bg=(0, 0, 0, 1),
                                              entryFont=self.font.load_font(self.menu_font),
                                              text_align=TextNode.A_center,
@@ -203,7 +190,7 @@ class RPLightsMgrUI:
                                              parent=self.base.frame_rpmgr,
                                              command=self.set_node_rot_p)
 
-                self.inp_rot_r = DirectEntry(initialText="",
+                self.inp_rot_r = DirectEntry(initialText="Rot R",
                                              text_bg=(0, 0, 0, 1),
                                              entryFont=self.font.load_font(self.menu_font),
                                              text_align=TextNode.A_center,
@@ -269,8 +256,8 @@ class RPLightsMgrUI:
 
             self.scrolled_list.set_pos(1.5, 0, -1.6)
 
-            taskMgr.add(self.update_pight_picking_state_task,
-                        "update_pight_picking_state_task",
+            taskMgr.add(self.update_rp_mgr_task,
+                        "update_rp_mgr_task",
                         appendTask=True)
 
     def clear_ui_rpmgr(self):
@@ -357,4 +344,3 @@ class RPLightsMgrUI:
                     self.inp_pos_x.enterText(pos_x)
                     self.inp_pos_y.enterText(pos_y)
                     self.inp_pos_z.enterText(pos_z)
-            print(self.active_light)
