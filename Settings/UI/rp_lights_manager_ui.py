@@ -53,7 +53,7 @@ class RPLightsMgrUI:
         # Left, right, bottom, top
         self.base.frame_rpmgr_size = [-2, 2.5, -1.5, -1]
         self.base.frame_scrolled_size = [0.0, 0.7, -0.05, 0.40]
-        self.base.frame_scrolled_inner_size = [-0.2, 0.2, -0.20, 0.11]
+        self.base.frame_scrolled_inner_size = [-0.2, 0.2, -0.20, 0.01]
 
         """ Frame Colors """
         self.frm_opacity = 0.7
@@ -131,14 +131,14 @@ class RPLightsMgrUI:
                                            parent=self.base.frame_rpmgr,
                                            command=self.set_node_hpr)
 
-                if hasattr(base, 'rp_lights') and base.rp_lights:
+                ui_geoms = base.ui_geom_collector()
+                if hasattr(base, 'rp_lights') and base.rp_lights and ui_geoms:
                     lights_num = len(base.rp_lights)
 
-                    ui_geoms = base.ui_geom_collector()
                     maps_scrolled_dbtn = base.loader.loadModel(ui_geoms['btn_t_icon'])
                     geoms_scrolled_dbtn = (maps_scrolled_dbtn.find('**/button_any'),
-                                          maps_scrolled_dbtn.find('**/button_pressed'),
-                                          maps_scrolled_dbtn.find('**/button_rollover'))
+                                           maps_scrolled_dbtn.find('**/button_pressed'),
+                                           maps_scrolled_dbtn.find('**/button_rollover'))
 
                     maps_scrolled_dec = base.loader.loadModel(ui_geoms['btn_t_icon_dec'])
                     geoms_scrolled_dec = (maps_scrolled_dec.find('**/button_any'),
@@ -165,7 +165,7 @@ class RPLightsMgrUI:
 
                     self.scrolled_list = DirectScrolledList(
                         decButton_pos=(0.35, 0, 0.53),
-                        # decButton_scale=0.08,
+                        decButton_scale=(5, 1, 1),
                         decButton_text="Dec",
                         decButton_text_scale=0.04,
                         decButton_borderWidth=(0.005, 0.005),
@@ -173,7 +173,7 @@ class RPLightsMgrUI:
                         decButton_geom_scale=0.08,
 
                         incButton_pos=(0.35, 0, 0.15),
-                        # incButton_scale=0.08,
+                        incButton_scale=(5, 1, 1),
                         incButton_text="Inc",
                         incButton_text_scale=0.04,
                         incButton_borderWidth=(0.005, 0.005),
