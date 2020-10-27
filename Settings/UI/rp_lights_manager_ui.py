@@ -53,7 +53,7 @@ class RPLightsMgrUI:
         # Left, right, bottom, top
         self.base.frame_rpmgr_size = [-2, 2.5, -1.5, -1]
         self.base.frame_scrolled_size = [0.0, 0.7, -0.05, 0.40]
-        self.base.frame_scrolled_inner_size = [-0.2, 0.2, -0.01, 0.01]
+        self.base.frame_scrolled_inner_size = [-0.2, 0.2, -0.00, 0.00]
 
         """ Frame Colors """
         self.frm_opacity = 0.7
@@ -164,7 +164,7 @@ class RPLightsMgrUI:
                         btn_list.append(btn)
 
                     self.scrolled_list = DirectScrolledList(
-                        decButton_pos=(0.35, 0, 0.50),
+                        decButton_pos=(0.35, 0, 0.49),
                         decButton_scale=(5, 1, 0.5),
                         decButton_text="Dec",
                         decButton_text_scale=0.04,
@@ -172,7 +172,7 @@ class RPLightsMgrUI:
                         decButton_geom=geoms_scrolled_dec,
                         decButton_geom_scale=0.08,
 
-                        incButton_pos=(0.35, 0, 0.30),
+                        incButton_pos=(0.35, 0, 0.31),
                         incButton_scale=(5, 1, 0.5),
                         incButton_text="Inc",
                         incButton_text_scale=0.04,
@@ -198,7 +198,7 @@ class RPLightsMgrUI:
             self.lbl_hpr.set_pos(0.5, 0, -1.4)
             self.inp_pos.set_pos(-0.5, 0, -1.4)
             self.inp_hpr.set_pos(1.0, 0, -1.4)
-            self.scrolled_list.set_pos(1.5, 0, -1.7)
+            self.scrolled_list.set_pos(1.5, 0, -1.75)
 
             taskMgr.add(self.update_rp_mgr_task,
                         "update_rp_mgr_task",
