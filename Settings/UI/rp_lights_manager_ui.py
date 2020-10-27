@@ -51,7 +51,7 @@ class RPLightsMgrUI:
 
         """ Frame Sizes """
         # Left, right, bottom, top
-        self.base.frame_rpmgr_size = [-2, 2.5, -1.5, -1]
+        self.base.frame_rpmgr_size = [-2, 2.5, -1.5, -1.1]
         self.base.frame_scrolled_size = [0.0, 0.7, -0.05, 0.40]
         self.base.frame_scrolled_inner_size = [-0.2, 0.2, -0.00, 0.00]
 
@@ -120,7 +120,7 @@ class RPLightsMgrUI:
                                            entryFont=self.font.load_font(self.menu_font),
                                            text_align=TextNode.A_center,
                                            scale=.03, width=7, borderWidth=(self.w, self.h),
-                                           parent=self.base.frame_rpmgr,
+                                           parent=self.base.frame_rpmgr, cursorKeys=1,
                                            command=self.set_node_pos)
 
                 self.inp_hpr = DirectEntry(initialText="HPR",
@@ -128,7 +128,7 @@ class RPLightsMgrUI:
                                            entryFont=self.font.load_font(self.menu_font),
                                            text_align=TextNode.A_center,
                                            scale=.03, width=7, borderWidth=(self.w, self.h),
-                                           parent=self.base.frame_rpmgr,
+                                           parent=self.base.frame_rpmgr, cursorKeys=1,
                                            command=self.set_node_hpr)
 
                 ui_geoms = base.ui_geom_collector()
@@ -219,10 +219,15 @@ class RPLightsMgrUI:
 
     def get_node_pos(self, light):
         if light:
-            return "{0}, {1}, {2}".format(light.pos[0], light.pos[1], light.pos[2])
+            if hasattr(light, "pos"):
+                return "{0}, {1}, {2}".format(light.pos[0], light.pos[1], light.pos[2])
 
-    def get_node_hpr(self):
-        pass
+    def get_node_hpr(self, light):
+        if light:
+            if hasattr(light, "direction"):
+                return "{0}, {1}, {2}".format(light.direction[0], light.direction[1], light.direction[2])
+            else:
+                return "HPR"
 
     def set_node_pos(self, pos):
         if (pos
@@ -236,14 +241,27 @@ class RPLightsMgrUI:
                 int_z = float(z)
                 self.active_light.pos = LVecBase3f(int_x, int_y, int_z)
 
-    def set_node_hpr(self):
-        pass
+    def set_node_hpr(self, hpr):
+        if (hpr
+                and isinstance(hpr, str)):
+            if self.active_light:
+                # We convert pos strings which we get from DirectEntry to integers
+                hpr_list = hpr.split(",")
+                x, y, z = hpr_list
+                int_x = float(x)
+                int_y = float(y)
+                int_z = float(z)
+                if hasattr(self.active_light, "direction"):
+                    self.active_light.direction = LVecBase3f(int_x, int_y, int_z)
 
     def pickup_light(self, light):
         if light:
             self.active_light = light
             if self.inp_pos:
                 pos = self.get_node_pos(light=self.active_light)
+                hpr = self.get_node_hpr(light=self.active_light)
 
                 if pos:
                     self.inp_pos.enterText(pos)
+                if hpr:
+                    self.inp_hpr.enterText(hpr)

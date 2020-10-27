@@ -302,31 +302,31 @@ class LevelOne:
 
         """ Assets """
 
-        base.render_attr.set_lighting(name='light',
+        base.render_attr.set_lighting(name='plight',
                                       render=self.render,
                                       pos=[-7, 8, 8],
                                       hpr=[180, 130, 0],
                                       color=[0.4],
                                       task="attach")
-        base.render_attr.set_lighting(name='light',
+        base.render_attr.set_lighting(name='plight',
                                       render=self.render,
                                       pos=[-12, 8, 8],
                                       hpr=[180, 130, 0],
                                       color=[0.4],
                                       task="attach")
-        """base.render_attr.set_lighting(name='light',
+        """base.render_attr.set_lighting(name='slight',
                                       render=self.render,
                                       pos=[0, 3, 10],
                                       hpr=[0, -20, 0],
                                       color=[0.5],
                                       task="attach")
-        self.render_attr.set_lighting(name='light',
+        self.render_attr.set_lighting(name='dlight',
                                       render=self.render,
                                       pos=[0, -40, 10],
                                       hpr=[0, -20, 0],
                                       color=[0.7],
                                       task="attach")
-        self.render_attr.set_lighting(name='light',
+        self.render_attr.set_lighting(name='alight',
                                       render=self.render,
                                       pos=[0, 8.0, 10],
                                       hpr=[0, -20, 0],

@@ -5,7 +5,7 @@ from os import walk
 from direct.gui.DirectGui import OnscreenText
 from panda3d.core import *
 from panda3d.core import FontPool, TextNode
-from Engine.Render.rpcore import PointLight
+from Engine.Render.rpcore import PointLight, SpotLight
 
 
 class RenderAttr:
@@ -323,33 +323,83 @@ class RenderAttr:
             self.render = render
 
             if task == 'attach':
-                if self.game_settings['Main']['postprocessing'] == 'off':
-                    if render.find("**/{0}".format(name)).is_empty():
-                        light = DirectionalLight(name)
-                        light.set_color((color[0], color[0], color[0], 1))
-                        light_np = self.render.attach_new_node(light)
-                        # This light is facing backwards, towards the camera.
-                        light_np.set_hpr(hpr[0], hpr[1], hpr[2])
-                        light_np.set_pos(pos[0], pos[1], pos[2])
-                        light_np.set_scale(100)
-                        self.render.set_light(light_np)
-                    else:
-                        render.clearLight()
+                if name == "plight":
+                    if self.game_settings['Main']['postprocessing'] == 'off':
+                        pass
 
-                if self.game_settings['Main']['postprocessing'] == 'on':
-                    # RP doesn't have nodegraph-like structure to find and remove lights,
-                    # so we check self.rp_light before adding light
-                    light = PointLight()
-                    light.pos = (pos[0], pos[1], pos[2])
-                    light.color = (color[0], color[0], color[0])
-                    light.set_color_from_temperature(3000.0)
-                    light.energy = 100
-                    light.ies_profile = self.render_pipeline.load_ies_profile("x_arrow.ies")
-                    light.casts_shadows = True
-                    light.shadow_map_resolution = 512
-                    light.near_plane = 0.2
-                    base.rp_lights.append(light)
-                    self.render_pipeline.add_light(light)
+                    if self.game_settings['Main']['postprocessing'] == 'on':
+                        # RP doesn't have nodegraph-like structure to find and remove lights,
+                        # so we check self.rp_light before adding light
+                        light = PointLight()
+                        light.pos = (pos[0], pos[1], pos[2])
+                        light.color = (color[0], color[0], color[0])
+                        light.set_color_from_temperature(3000.0)
+                        light.energy = 100
+                        light.ies_profile = self.render_pipeline.load_ies_profile("x_arrow.ies")
+                        light.casts_shadows = True
+                        light.shadow_map_resolution = 512
+                        light.near_plane = 0.2
+                        base.rp_lights.append(light)
+                        self.render_pipeline.add_light(light)
+
+                if name == 'slight':
+                    if self.game_settings['Main']['postprocessing'] == 'off':
+                        if render.find("**/{0}".format(name)).is_empty():
+                            light = Spotlight(name)
+                            light.set_color((color[0], color[0], color[0], 1))
+                            lens = PerspectiveLens()
+                            light.set_lens(lens)
+                            light_np = self.render.attach_new_node(light)
+                            # This light is facing backwards, towards the camera.
+                            light_np.set_hpr(hpr[0], hpr[1], hpr[2])
+                            light_np.set_pos(pos[0], pos[1], pos[2])
+                            light_np.set_scale(100)
+                            light.look_at(light_np)
+                            self.render.set_light(light_np)
+                        else:
+                            render.clearLight()
+
+                    if self.game_settings['Main']['postprocessing'] == 'on':
+                        # RP doesn't have nodegraph-like structure to find and remove lights,
+                        # so we check self.rp_light before adding light
+                        light = SpotLight()
+                        light.pos = (pos[0], pos[1], pos[2])
+                        light.color = (color[0], color[0], color[0])
+                        light.set_color_from_temperature(3000.0)
+                        light.energy = 100
+                        light.ies_profile = self.render_pipeline.load_ies_profile("x_arrow.ies")
+                        light.casts_shadows = True
+                        light.shadow_map_resolution = 512
+                        light.near_plane = 0.2
+                        light.radius = 0.5
+                        light.fov = 10
+                        light.direction = (hpr[0], hpr[1], hpr[2])
+                        base.rp_lights.append(light)
+                        self.render_pipeline.add_light(light)
+
+                if name == 'dlight':
+                    if self.game_settings['Main']['postprocessing'] == 'off':
+                        if render.find("**/{0}".format(name)).is_empty():
+                            light = DirectionalLight(name)
+                            light.set_color((color[0], color[0], color[0], 1))
+                            light_np = self.render.attach_new_node(light)
+                            # This light is facing backwards, towards the camera.
+                            light_np.set_hpr(hpr[0], hpr[1], hpr[2])
+                            light_np.set_pos(pos[0], pos[1], pos[2])
+                            light_np.set_scale(100)
+                            self.render.set_light(light_np)
+                        else:
+                            render.clearLight()
+
+                if name == 'alight':
+                    if self.game_settings['Main']['postprocessing'] == 'off':
+                        if render.find("**/{0}".format(name)).is_empty():
+                            light = AmbientLight(name)
+                            light.set_color((color[0], color[0], color[0], 1))
+                            light_np = self.render.attach_new_node(light)
+                            self.render.set_light(light_np)
+                        else:
+                            render.clearLight()
 
     def clear_lighting(self):
         if base.rp_lights and self.render_pipeline.light_mgr.num_lights > 0:
