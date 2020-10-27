@@ -29,8 +29,9 @@ from Settings.Sound.sound import Sound
 from Settings.UI.menu_ui import MenuUI
 from Settings.gfx_menu_settings import Graphics
 from panda3d.core import Thread
+from direct.stdpy import threading
+from code import InteractiveConsole
 from direct.task.TaskManagerGlobal import taskMgr
-
 from Engine.Render.rpcore.render_pipeline import RenderPipeline
 
 game_settings = configparser.ConfigParser()
@@ -163,6 +164,8 @@ class Main(ShowBase):
 
         if self.game_settings['Debug']['set_debug_mode'] == 'YES':
             print("Is threading supported: ", Thread.isThreadingSupported(), "\n")
+            ic_thread = threading.Thread(target=InteractiveConsole(globals()).interact)
+            ic_thread.start()
 
         if self.game_settings['Debug']['render_explore'] == 'YES':
             render.explore()
