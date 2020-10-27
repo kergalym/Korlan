@@ -165,18 +165,18 @@ class RPLightsMgrUI:
 
                     self.scrolled_list = DirectScrolledList(
                         decButton_pos=(0.35, 0, 0.50),
-                        decButton_scale=(5, 1, 1),
+                        decButton_scale=(5, 1, 0.5),
                         decButton_text="Dec",
                         decButton_text_scale=0.04,
-                        # decButton_borderWidth=(0.006, 0.006),
+                        decButton_borderWidth=(0, 0),
                         decButton_geom=geoms_scrolled_dec,
                         decButton_geom_scale=0.08,
 
                         incButton_pos=(0.35, 0, 0.30),
-                        incButton_scale=(5, 1, 1),
+                        incButton_scale=(5, 1, 0.5),
                         incButton_text="Inc",
                         incButton_text_scale=0.04,
-                        # incButton_borderWidth=(0.006, 0.006),
+                        incButton_borderWidth=(0, 0),
                         incButton_geom=geoms_scrolled_inc,
                         incButton_geom_scale=0.08,
 
@@ -195,10 +195,10 @@ class RPLightsMgrUI:
                 if self.base.frame_rpmgr.is_hidden():
                     self.base.frame_rpmgr.show()
 
-            self.lbl_pos.set_pos(-1.0, 0, -1.1)
-            self.lbl_hpr.set_pos(0.5, 0, -1.1)
-            self.inp_pos.set_pos(-0.5, 0, -1.1)
-            self.inp_hpr.set_pos(1.0, 0, -1.1)
+            self.lbl_pos.set_pos(-1.0, 0, -1.4)
+            self.lbl_hpr.set_pos(0.5, 0, -1.4)
+            self.inp_pos.set_pos(-0.5, 0, -1.4)
+            self.inp_hpr.set_pos(1.0, 0, -1.4)
             self.scrolled_list.set_pos(1.5, 0, -1.7)
 
             taskMgr.add(self.update_rp_mgr_task,
