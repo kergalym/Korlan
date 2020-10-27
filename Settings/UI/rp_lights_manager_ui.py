@@ -141,12 +141,12 @@ class RPLightsMgrUI:
                                            maps_scrolled_dbtn.find('**/button_rollover'))
 
                     maps_scrolled_dec = base.loader.loadModel(ui_geoms['btn_t_icon_dec'])
-                    geoms_scrolled_dec = (maps_scrolled_dec.find('**/button_any'),
+                    geoms_scrolled_dec = (maps_scrolled_dec.find('**/button_any_dec'),
                                           maps_scrolled_dec.find('**/button_pressed_dec'),
                                           maps_scrolled_dec.find('**/button_rollover_dec'))
 
                     maps_scrolled_inc = base.loader.loadModel(ui_geoms['btn_t_icon_inc'])
-                    geoms_scrolled_inc = (maps_scrolled_inc.find('**/button_any'),
+                    geoms_scrolled_inc = (maps_scrolled_inc.find('**/button_any_inc'),
                                           maps_scrolled_inc.find('**/button_pressed_inc'),
                                           maps_scrolled_inc.find('**/button_rollover_inc'))
 
