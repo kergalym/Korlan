@@ -40,6 +40,7 @@ class LevelOne:
         self.base.npcs_actor_refs = {}
         self.base.npcs_actors_health = {}
         self.base.alive_actors = {}
+        self.base.focused_actor = None
         self.npcs_fsm_states = {}
         self.pos_x = None
         self.pos_y = None
@@ -104,11 +105,13 @@ class LevelOne:
 
     def npc_focus_switch_task(self, enemies, task):
         if enemies and isinstance(enemies, dict):
-            for enemy in enemies:
-                if not enemies.get(enemy)[0].is_empty():  # is enemy here?
-                    vec_x = enemies.get(enemy)[1][0]  # get its x vector
+            for name in enemies['name']:
+                enemy_npc_bs = self.base.get_actor_bullet_shape_node(asset=name, type="NPC")
+                if not enemy_npc_bs.is_empty():  # is enemy here?
+                    vec_x = enemy_npc_bs.get_x()  # get its x vector
                     if base.camera.get_h() == vec_x:
-                        base.camera.look_at(enemies.get(enemy)[1])
+                        base.camera.look_at(enemy_npc_bs)
+                        self.base.focused_actor = name
 
         if self.base.game_mode is False and self.base.menu_mode:
             return task.done
@@ -121,29 +124,29 @@ class LevelOne:
                 # Drop the HB suffix
                 name = hitboxes.get_name().split(":")[0]
                 # Reconstruct name with dropping joint suffix to be consistent with pure name
-                if "NPC" in name:
+                if name == self.base.focused_actor:
+                    import pdb; pdb.set_trace()
                     name = name.split("_")
                     name = "{0}_{1}".format(name[0], name[1])
-                elif "Player" in name:
-                    name = name.split("_")[0]
-                is_hips_overlapped = 0
-                for node in hitboxes.get_overlapping_nodes():
-                    # TODO: Decompose this block to function
-                    if is_hips_overlapped == 0:
-                        continue
-
-                    if (node and node.is_active()
-                            and "NPC" in node.get_name()
-                            and "RightHand" in node.get_name()):
-                        for hit in node.get_overlapping_nodes():
-                            if hit and hit.is_active():
-                                if ("Player" in hit.get_name()
-                                        and "Hips" in hit.get_name()):
-                                    is_hips_overlapped = 1
-                                    self.base.npcs_hits[name] = True
-                                else:
-                                    self.base.npcs_hits[name] = False
-                                    # self.base.npcs_hits[name] = hit_zone.get_tag(key=name_hb)
+                    if "Player" in name:
+                        name = name.split("_")[0]
+                    for node in hitboxes.get_overlapping_nodes():
+                        # TODO: Decompose this block to function
+                        if (node and node.is_active()
+                                and "NPC" in node.get_name()
+                                and "RightHand" in node.get_name()):
+                            for hit in node.get_overlapping_nodes():
+                                if hit and hit.is_active():
+                                    if ("Player" in hit.get_name()
+                                            and "Hips" in hit.get_name()):
+                                        is_hips_overlapped = 1
+                                        self.base.npcs_hits[name] = True
+                                    else:
+                                        is_hips_overlapped = 0
+                                        self.base.npcs_hits[name] = False
+                                        # self.base.npcs_hits[name] = hit_zone.get_tag(key=name_hb)
+                                    if is_hips_overlapped == 0:
+                                        continue
 
         if self.base.game_mode is False and self.base.menu_mode:
             return task.done
@@ -429,6 +432,11 @@ class LevelOne:
 
         taskMgr.add(self.collect_actors_health_task,
                     "collect_actors_health_task",
+                    appendTask=True)
+
+        taskMgr.add(self.npc_focus_switch_task,
+                    "npc_focus_switch_task",
+                    extraArgs=[level_assets],
                     appendTask=True)
 
         taskMgr.add(self.hitbox_handling_task,
