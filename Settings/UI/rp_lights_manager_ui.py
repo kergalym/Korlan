@@ -156,7 +156,7 @@ class RPLightsMgrUI:
                                            text_fg=(255, 255, 255, 1), relief=2,
                                            text_font=self.font.load_font(self.menu_font),
                                            frameColor=(0, 0, 0, 1),
-                                           scale=self.btn_scale, borderWidth=(self.w, self.h),
+                                           scale=.03, borderWidth=(self.w, self.h),
                                            geom=geoms_scrolled_dbtn, geom_scale=(15.3, 0, 2),
                                            clickSound=self.base.sound_gui_click,
                                            command=self.pickup_light,
