@@ -186,7 +186,6 @@ class RPLightsMgrUI:
                         forceHeight=0.11,
                         items=btn_list,
                         itemFrame_frameSize=self.base.frame_scrolled_inner_size,
-                        # itemFrame_color=(0, 0, 0, 0),
                         itemFrame_pos=(0.35, 0, 0.4),
                         parent=self.base.frame_rpmgr
                     )
