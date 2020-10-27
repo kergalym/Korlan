@@ -53,7 +53,7 @@ class RPLightsMgrUI:
         # Left, right, bottom, top
         self.base.frame_rpmgr_size = [-2, 2.5, -1.5, -1]
         self.base.frame_scrolled_size = [0.0, 0.7, -0.05, 0.40]
-        self.base.frame_scrolled_inner_size = [-0.2, 0.2, -0.20, 0.01]
+        self.base.frame_scrolled_inner_size = [-0.2, 0.2, -0.01, 0.01]
 
         """ Frame Colors """
         self.frm_opacity = 0.7
@@ -182,7 +182,7 @@ class RPLightsMgrUI:
 
                         frameSize=self.base.frame_scrolled_size,
                         frameColor=(0, 0, 0, 0),
-                        numItemsVisible=lights_num,
+                        numItemsVisible=1,
                         forceHeight=0.11,
                         items=btn_list,
                         itemFrame_frameSize=self.base.frame_scrolled_inner_size,
