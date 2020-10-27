@@ -133,14 +133,31 @@ class RPLightsMgrUI:
 
                 if hasattr(base, 'rp_lights') and base.rp_lights:
                     lights_num = len(base.rp_lights)
+
+                    ui_geoms = base.ui_geom_collector()
+                    maps_scrolled_dbtn = base.loader.loadModel(ui_geoms['btn_t_icon'])
+                    geoms_scrolled_dbtn = (maps_scrolled_dbtn.find('**/button_any'),
+                                          maps_scrolled_dbtn.find('**/button_pressed'),
+                                          maps_scrolled_dbtn.find('**/button_rollover'))
+
+                    maps_scrolled_dec = base.loader.loadModel(ui_geoms['btn_t_icon_dec'])
+                    geoms_scrolled_dec = (maps_scrolled_dec.find('**/button_any'),
+                                          maps_scrolled_dec.find('**/button_pressed_dec'),
+                                          maps_scrolled_dec.find('**/button_rollover_dec'))
+
+                    maps_scrolled_inc = base.loader.loadModel(ui_geoms['btn_t_icon_inc'])
+                    geoms_scrolled_inc = (maps_scrolled_inc.find('**/button_any'),
+                                          maps_scrolled_inc.find('**/button_pressed_inc'),
+                                          maps_scrolled_inc.find('**/button_rollover_inc'))
+
                     btn_list = []
                     for index, light in enumerate(base.rp_lights, 1):
                         btn = DirectButton(text="Light {0}".format(index),
-                                           text_fg=(0, 0, 0, 1), relief=2,
+                                           text_fg=(255, 255, 255, 1), relief=2,
                                            text_font=self.font.load_font(self.menu_font),
-                                           text_shadow=(255, 255, 255, 1),
-                                           frameColor=(255, 255, 255, 0),
+                                           frameColor=(0, 0, 0, 1),
                                            scale=self.btn_scale, borderWidth=(self.w, self.h),
+                                           geom=geoms_scrolled_dbtn, geom_scale=(15.3, 0, 2),
                                            clickSound=self.base.sound_gui_click,
                                            command=self.pickup_light,
                                            extraArgs=[light])
@@ -148,14 +165,20 @@ class RPLightsMgrUI:
 
                     self.scrolled_list = DirectScrolledList(
                         decButton_pos=(0.35, 0, 0.53),
+                        # decButton_scale=0.08,
                         decButton_text="Dec",
                         decButton_text_scale=0.04,
                         decButton_borderWidth=(0.005, 0.005),
+                        decButton_geom=geoms_scrolled_dec,
+                        decButton_geom_scale=0.08,
 
                         incButton_pos=(0.35, 0, 0.15),
+                        # incButton_scale=0.08,
                         incButton_text="Inc",
                         incButton_text_scale=0.04,
                         incButton_borderWidth=(0.005, 0.005),
+                        incButton_geom=geoms_scrolled_inc,
+                        incButton_geom_scale=0.08,
 
                         frameSize=self.base.frame_scrolled_size,
                         frameColor=(0, 0, 0, 0),
@@ -163,6 +186,7 @@ class RPLightsMgrUI:
                         forceHeight=0.11,
                         items=btn_list,
                         itemFrame_frameSize=self.base.frame_scrolled_inner_size,
+                        # itemFrame_color=(0, 0, 0, 0),
                         itemFrame_pos=(0.35, 0, 0.4),
                         parent=self.base.frame_rpmgr
                     )
@@ -172,13 +196,9 @@ class RPLightsMgrUI:
                     self.base.frame_rpmgr.show()
 
             self.lbl_pos.set_pos(-1.0, 0, -1.1)
-
             self.lbl_hpr.set_pos(0.5, 0, -1.1)
-
             self.inp_pos.set_pos(-0.5, 0, -1.1)
-
             self.inp_hpr.set_pos(1.0, 0, -1.1)
-
             self.scrolled_list.set_pos(1.5, 0, -1.6)
 
             taskMgr.add(self.update_rp_mgr_task,

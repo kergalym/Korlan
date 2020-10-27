@@ -136,7 +136,6 @@ class PauseMenuUI(MenuSettings):
             base.active_frame.destroy()
 
         ui_geoms = base.ui_geom_collector()
-
         maps = base.loader.loadModel(ui_geoms['btn_t_icon'])
         geoms = (maps.find('**/button_any'),
                  maps.find('**/button_pressed'),
