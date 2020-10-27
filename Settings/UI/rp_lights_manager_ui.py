@@ -239,7 +239,8 @@ class RPLightsMgrUI:
                 int_x = float(x)
                 int_y = float(y)
                 int_z = float(z)
-                self.active_light.pos = LVecBase3f(int_x, int_y, int_z)
+                if hasattr(self.active_light, "pos"):
+                    self.active_light.pos = LVecBase3f(int_x, int_y, int_z)
 
     def set_node_hpr(self, hpr):
         if (hpr
