@@ -107,7 +107,7 @@ class LevelOne:
         if enemies and isinstance(enemies, dict):
             for name in enemies['name']:
                 enemy_npc_bs = self.base.get_actor_bullet_shape_node(asset=name, type="NPC")
-                if not enemy_npc_bs.is_empty():  # is enemy here?
+                if enemy_npc_bs and not enemy_npc_bs.is_empty():  # is enemy here?
                     vec_x = enemy_npc_bs.get_x()  # get its x vector
                     if base.camera.get_h() == vec_x:
                         base.camera.look_at(enemy_npc_bs)
