@@ -1054,19 +1054,19 @@ class Main(ShowBase):
         """
         """ Assets """
 
-        self.render_attr.set_lighting(name='pointLight',
+        self.render_attr.set_lighting(name='plight',
                                       render=self.render,
                                       pos=[0, 50, 10],
                                       hpr=[180, 130, 0],
                                       color=[0.2],
                                       task="attach")
-        self.render_attr.set_lighting(name='pointLight',
+        self.render_attr.set_lighting(name='plight',
                                       render=self.render,
                                       pos=[0, 30, 10],
                                       hpr=[0, -20, 0],
                                       color=[0.2],
                                       task="attach")
-        self.render_attr.set_lighting(name='playerLight',
+        self.render_attr.set_lighting(name='plight',
                                       render=self.render,
                                       pos=[0, 8.0, 1],
                                       hpr=[0, -20, 0],
