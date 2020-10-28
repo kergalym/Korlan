@@ -107,16 +107,13 @@ class LevelOne:
     def npc_focus_switch_task(self, enemies, task):
         if enemies and isinstance(enemies, dict):
             for name in enemies['name']:
-                print(self.base.npcs_lbl_np)
-
-                if name == "NPC":
+                if "NPC" in name:
                     if self.base.npcs_lbl_np[name]:
                         self.base.npcs_lbl_np[name].hide()
 
                         enemy_npc_bs = self.base.get_actor_bullet_shape_node(asset=name, type="NPC")
                         if enemy_npc_bs and not enemy_npc_bs.is_empty():  # is enemy here?
-                            vec_x = enemy_npc_bs.get_x()  # get its x vector
-                            if base.camera.get_h() == vec_x:
+                            if enemy_npc_bs.get_y() in [1.0, -1.0]:
                                 if self.base.npcs_lbl_np[name]:
                                     self.base.npcs_lbl_np[name].show()
 
@@ -126,15 +123,20 @@ class LevelOne:
         return task.cont
 
     def collect_npcs_label_nodepaths_task(self, enemies, task):
-        for name in enemies['name']:
-            if name == "NPC":
-                if self.npc_ernar.npc_label_np and self.npc_ernar.npc_label_np:
-                    if name in self.npc_ernar.npc_label_np.get_name():
-                        self.base.npcs_lbl_np[name] = self.npc_ernar.npc_label_np
-                    elif name in self.npc_mongol.npc_label_np.get_name():
-                        self.base.npcs_lbl_np[name] = self.npc_mongol.npc_label_np
+        if enemies and isinstance(enemies, dict):
+            for npc in [self.npc_ernar, self.npc_mongol]:
+                if npc.npc_label_np:
+                    name = npc.npc_label_np.get_name()
+                    self.base.npcs_lbl_np[name] = npc.npc_label_np
 
-                    return task.done
+            # Drop item which is not NPC and indicate that collecting is done
+            if len(enemies['name'])-3 == len(self.base.npcs_lbl_np):
+                taskMgr.add(self.npc_focus_switch_task,
+                            "npc_focus_switch_task",
+                            extraArgs=[enemies],
+                            appendTask=True)
+
+                return task.done
 
         return task.cont
 
@@ -459,11 +461,6 @@ class LevelOne:
 
         taskMgr.add(self.collect_npcs_label_nodepaths_task,
                     "collect_npcs_label_nodepaths_task",
-                    extraArgs=[level_assets],
-                    appendTask=True)
-
-        taskMgr.add(self.npc_focus_switch_task,
-                    "npc_focus_switch_task",
                     extraArgs=[level_assets],
                     appendTask=True)
 

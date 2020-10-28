@@ -31,9 +31,10 @@ class NpcMongol:
 
     def actor_life(self, task):
         if self.actor:
-            actor_bs = self.base.get_actor_bullet_shape_node(asset=self.actor.get_name(), type="NPC")
+            actor_name = self.actor.get_name()
+            actor_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
             if actor_bs:
-                self.npc_label_np = NodePath(actor_bs.get_name())
+                self.npc_label_np = NodePath(actor_name)
                 self.set_actor_label(name=actor_bs.get_name(), np=self.npc_label_np)
                 self.set_actor_life(np=self.npc_label_np)
                 self.npc_label_np.reparent_to(aspect2d)
