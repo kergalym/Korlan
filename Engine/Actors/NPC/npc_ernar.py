@@ -1,8 +1,9 @@
 from direct.actor.Actor import Actor
 from direct.gui.DirectWaitBar import DirectWaitBar
 from direct.gui.OnscreenText import OnscreenText
+from direct.showbase.ShowBaseGlobal import aspect2d
 from direct.task.TaskManagerGlobal import taskMgr
-from panda3d.core import TextNode
+from panda3d.core import TextNode, NodePath
 
 
 class NpcErnar:
@@ -26,13 +27,17 @@ class NpcErnar:
         self.actor_is_dead = False
         self.actor_is_alive = False
         self.npc_life_label = None
+        self.npc_label = None
+        self.npc_label_np = None
 
     def actor_life(self, task):
         if self.actor:
             actor_bs = self.base.get_actor_bullet_shape_node(asset=self.actor.get_name(), type="NPC")
             if actor_bs:
-                self.set_actor_label(name=actor_bs.get_name(), actor_bs=actor_bs)
-                self.set_actor_life(actor_bs=actor_bs)
+                self.npc_label_np = NodePath(actor_bs.get_name())
+                self.set_actor_label(name=actor_bs.get_name(), np=self.npc_label_np)
+                self.set_actor_life(np=self.npc_label_np)
+                self.npc_label_np.reparent_to(aspect2d)
                 return task.done
         # self.has_actor_life()
         return task.cont
@@ -45,29 +50,28 @@ class NpcErnar:
         else:
             return False
 
-    def set_actor_life(self, actor_bs):
-        if actor_bs:
+    def set_actor_life(self, np):
+        if np:
             self.actor_life_perc = 150
             self.npc_life_label = DirectWaitBar(text="", value=self.actor_life_perc,
                                                 range=self.actor_life_perc,
                                                 pos=(0.0, 0.0, 0.85), scale=.10)
-            self.npc_life_label.reparent_to(actor_bs)
-            self.npc_life_label.set_billboard_point_eye()
+            self.npc_life_label.reparent_to(np)
+            # self.npc_life_label.set_billboard_point_eye()
             self.npc_life_label.set_bin("fixed", 0)
 
-    def set_actor_label(self, name, actor_bs):
-        if actor_bs and name and isinstance(name, str):
+    def set_actor_label(self, name, np):
+        if np and name and isinstance(name, str):
             if "_" in name and ":BS" in name:
                 name_to_disp = name.split("_")[1]
                 name_to_disp = name_to_disp.split(":")[0]
-                npc_label = OnscreenText(text=name_to_disp, pos=(0.0, 0.9),
-                                         fg=(255, 255, 255, 1), scale=.10)
-                npc_label.reparent_to(actor_bs)
-                npc_label.set_billboard_point_eye()
-                npc_label.set_bin("fixed", 0)
+                self.npc_label = OnscreenText(text=name_to_disp, pos=(0.0, 0.9),
+                                              fg=(255, 255, 255, 1), scale=.10)
+                self.npc_label.reparent_to(np)
+                # self.npc_label.set_billboard_point_eye()
+                self.npc_label.set_bin("fixed", 0)
 
     async def set_actor(self, mode, name, path, animation, axis, rotation, scale, culling):
-
         if (isinstance(path, str)
                 and isinstance(name, str)
                 and isinstance(axis, list)

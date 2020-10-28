@@ -99,8 +99,14 @@ class AI:
             if not master.is_empty():
                 if master_heading > 0:
                     slave.set_h(-master_heading)
+                    master_name = master_name.split(":")[0]
+                    return master_name
                 elif master_heading < 0:
                     slave.set_h(master_heading)
+                    master_name = master_name.split(":")[0]
+                    return master_name
+                else:
+                    return None
 
     def set_ai_world(self, assets, npcs_fsm_states, task):
         if (assets and isinstance(assets, dict)
@@ -310,8 +316,9 @@ class AI:
                         self.base.npcs_active_actions[actor_name] = "Boxing"
                     request.request("Attack", actor, "Boxing", "loop")
 
-                    # Head the player for enamy
-                    self.set_actor_accurate_heading(master_name=actor_bs_name, slave=self.player)
+                    # Head the player for enemy
+                    self.set_actor_accurate_heading(master_name=actor_bs_name,
+                                                    slave=self.player)
 
                     # Temporary thing, leave it here
                     if (hasattr(base, "npcs_actors_health")
