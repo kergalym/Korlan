@@ -2,16 +2,18 @@ from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import *
 from Engine.Actors.Player.korlan import Korlan
 from Engine.Actors.Player.state import PlayerState
-from Engine.Actors.NPC.npc_ernar import NpcErnar
-from Engine.Actors.NPC.npc_mongol import NpcMongol
 from Engine.FSM.npc_ernar_fsm import NpcErnarFSM
 from Engine.FSM.npc_mongol_fsm import NpcMongolFSM
+from Engine.FSM.npc_mongol2_fsm import NpcMongol2FSM
 from Engine.AI.ai import AI
 from Engine.Render.render import RenderAttr
 from Engine.Scenes.scene import SceneOne
 from Engine.Physics.physics import PhysicsAttr
 from Settings.UI.stat_ui import StatUI
 from Settings.UI.pause_menu_ui import PauseMenuUI
+from Engine.Actors.NPC.npc_ernar import NpcErnar
+from Engine.Actors.NPC.npc_mongol import NpcMongol
+from Engine.Actors.NPC.npc_mongol2 import NpcMongol2
 
 
 class LevelOne:
@@ -30,8 +32,10 @@ class LevelOne:
         self.korlan = Korlan()
         self.npc_ernar = NpcErnar()
         self.npc_mongol = NpcMongol()
+        self.npc_mongol2 = NpcMongol2()
         self.npc_ernar_fsm = NpcErnarFSM()
         self.npc_mongol_fsm = NpcMongolFSM()
+        self.npc_mongol2_fsm = NpcMongol2FSM()
         self.stat_ui = StatUI()
         self.pause_game_ui = PauseMenuUI()
         self.player_state = PlayerState()
@@ -71,12 +75,15 @@ class LevelOne:
                 # Get only Actor, not a child of NodePath
                 ernar_name = self.npc_ernar.actor.get_name()
                 mongol_name = self.npc_mongol.actor.get_name()
+                mongol2_name = self.npc_mongol2.actor.get_name()
 
                 base.npcs_actor_refs[ernar_name] = self.npc_ernar.actor
                 base.npcs_actor_refs[mongol_name] = self.npc_mongol.actor
+                base.npcs_actor_refs[mongol2_name] = self.npc_mongol2.actor
 
                 self.base.alive_actors[ernar_name] = True
                 self.base.alive_actors[mongol_name] = True
+                self.base.alive_actors[mongol2_name] = True
 
                 if self.korlan.korlan:
                     base.player_ref = self.korlan.korlan
@@ -92,9 +99,11 @@ class LevelOne:
                     and self.npc_mongol.actor):
                 ernar_name = self.npc_ernar.actor.get_name()
                 mongol_name = self.npc_mongol.actor.get_name()
+                mongol2_name = self.npc_mongol2.actor.get_name()
 
                 self.base.npcs_actors_health[ernar_name] = self.npc_ernar.npc_life_label
                 self.base.npcs_actors_health[mongol_name] = self.npc_mongol.npc_life_label
+                self.base.npcs_actors_health[mongol2_name] = self.npc_mongol.npc_life_label
 
                 if self.korlan.korlan:
                     base.player_health = self.korlan.korlan_life_perc
@@ -113,9 +122,11 @@ class LevelOne:
 
                         enemy_npc_bs = self.base.get_actor_bullet_shape_node(asset=name, type="NPC")
                         if enemy_npc_bs and not enemy_npc_bs.is_empty():  # is enemy here?
-                            if self.ai and self.ai.near_actors.get(name):
-                                if self.base.npcs_lbl_np.get(name):
+                            if self.ai and self.ai.near_npc.get(name):
+                                if (self.base.npcs_lbl_np.get(name)
+                                        and self.base.alive_actors[name]):
                                     self.base.npcs_lbl_np[name].show()
+                                    self.base.camera.look_at(enemy_npc_bs)
 
         if self.base.game_mode is False and self.base.menu_mode:
             return task.done
@@ -124,13 +135,13 @@ class LevelOne:
 
     def collect_npcs_label_nodepaths_task(self, enemies, task):
         if enemies and isinstance(enemies, dict):
-            for npc in [self.npc_ernar, self.npc_mongol]:
+            for npc in [self.npc_ernar, self.npc_mongol, self.npc_mongol2]:
                 if npc.npc_label_np:
                     name = npc.npc_label_np.get_name()
                     self.base.npcs_lbl_np[name] = npc.npc_label_np
 
             # Drop item which is not NPC and indicate that collecting is done
-            if len(enemies['name'])-3 == len(self.base.npcs_lbl_np):
+            if len(enemies['name']) - 3 == len(self.base.npcs_lbl_np):
                 taskMgr.add(self.npc_focus_switch_task,
                             "npc_focus_switch_task",
                             extraArgs=[enemies],
@@ -228,13 +239,17 @@ class LevelOne:
                         self.korlan.korlan.delete()
                         self.korlan.korlan.cleanup()
                     if self.npc_ernar.actor:
-                        self.npc_ernar.npc_label_np = None
+                        self.npc_ernar.npc_label_np.destroy()
                         self.npc_ernar.actor.delete()
                         self.npc_ernar.actor.cleanup()
                     if self.npc_mongol.actor:
-                        self.npc_mongol.npc_label_np = None
+                        self.npc_mongol.npc_label_np.destroy()
                         self.npc_mongol.actor.delete()
                         self.npc_mongol.actor.cleanup()
+                    if self.npc_mongol2.actor:
+                        self.npc_mongol2.npc_label_np.destroy()
+                        self.npc_mongol2.actor.delete()
+                        self.npc_mongol2.actor.cleanup()
 
                     render.find("**/{0}".format(node)).remove_node()
                     render.find("**/{0}".format(node)).clear()
@@ -298,13 +313,17 @@ class LevelOne:
                     self.korlan.korlan.delete()
                     self.korlan.korlan.cleanup()
                 if self.npc_ernar.actor:
-                    self.npc_ernar.npc_label_np = None
+                    self.npc_ernar.npc_label_np.destroy()
                     self.npc_ernar.actor.delete()
                     self.npc_ernar.actor.cleanup()
                 if self.npc_mongol.actor:
-                    self.npc_mongol.npc_label_np = None
+                    self.npc_mongol.npc_label_np.destroy()
                     self.npc_mongol.actor.delete()
                     self.npc_mongol.actor.cleanup()
+                if self.npc_mongol2.actor:
+                    self.npc_mongol2.npc_label_np.destroy()
+                    self.npc_mongol2.actor.delete()
+                    self.npc_mongol2.actor.cleanup()
 
                 render.find("**/{0}".format(node)).remove_node()
                 render.find("**/{0}".format(node)).clear()
@@ -369,10 +388,10 @@ class LevelOne:
         anims = self.base.asset_animations_collector()
 
         # List used by loading screen
-        level_assets = {'name': ['Sky', 'lvl_one', 'Player', 'NPC_Ernar', 'NPC_Mongol'],
-                        'type': [None, 'env', 'player', 'npc', 'npc'],
-                        'shape': [None, 'auto', 'capsule', 'capsule', 'capsule'],
-                        'class': [None, 'env', 'hero', 'friend', 'enemy']
+        level_assets = {'name': ['Sky', 'lvl_one', 'Player', 'NPC_Ernar', 'NPC_Mongol', 'NPC_Mongol2'],
+                        'type': [None, 'env', 'player', 'npc', 'npc', 'npc'],
+                        'shape': [None, 'auto', 'capsule', 'capsule', 'capsule', 'capsule'],
+                        'class': [None, 'env', 'hero', 'friend', 'enemy', 'enemy']
                         }
 
         for actor in level_assets['name']:
@@ -380,6 +399,8 @@ class LevelOne:
                 self.npcs_fsm_states[actor] = self.npc_ernar_fsm
             if "NPC_Mongol" in actor:
                 self.npcs_fsm_states[actor] = self.npc_mongol_fsm
+            if "NPC_Mongol2" in actor:
+                self.npcs_fsm_states[actor] = self.npc_mongol2_fsm
 
         base.level_assets = level_assets
 
@@ -422,11 +443,20 @@ class LevelOne:
                                              scale=[1.25, 1.25, 1.25],
                                              culling=True))
 
+        taskMgr.add(self.npc_mongol2.set_actor(mode="game",
+                                               name="NPC_Mongol",
+                                               path=assets['NPC_Mongol'],
+                                               animation=anims,
+                                               axis=[-25.0, 15.0, self.pos_z],
+                                               rotation=[0, 0, 0],
+                                               scale=[1.25, 1.25, 1.25],
+                                               culling=True))
+
         taskMgr.add(self.npc_mongol.set_actor(mode="game",
-                                              name="NPC_Mongol",
-                                              path=assets['NPC_Mongol'],
+                                              name="NPC_Mongol2",
+                                              path=assets['NPC_Mongol2'],
                                               animation=anims,
-                                              axis=[-25.0, 15.0, self.pos_z],
+                                              axis=[-35.0, 15.0, self.pos_z],
                                               rotation=[0, 0, 0],
                                               scale=[1.25, 1.25, 1.25],
                                               culling=True))

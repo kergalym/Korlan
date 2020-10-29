@@ -5,7 +5,7 @@ from direct.task.TaskManagerGlobal import taskMgr
 from Engine.FSM.npc_fsm import NpcFSM
 
 
-class NpcMongolFSM(FSM):
+class NpcMongol2FSM(FSM):
     def __init__(self):
         FSM.__init__(self, "NpcMongol2FSM")
         self.base = base

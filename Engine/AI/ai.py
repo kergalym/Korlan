@@ -23,7 +23,7 @@ class AI:
         self.player = None
         self.dialogus = CmdDialogusUI()
         self.is_dyn_obstacles_added = False
-        self.near_actors = {}
+        self.near_npc = {}
 
         self.dbg_text_npc_frame_hit = OnscreenText(text="",
                                                    pos=(0.5, 0.0),
@@ -91,23 +91,6 @@ class AI:
                 pass
             elif weather == "night":
                 pass
-
-    def set_actor_accurate_heading(self, master_name, slave):
-        # Oops, these words are not SJW-approved
-        if master_name and slave and isinstance(master_name, str):
-            master = render.find("**/{0}".format(master_name))
-            master_heading = master.get_h()
-            if not master.is_empty():
-                if master_heading > 0:
-                    slave.set_h(-master_heading)
-                    master_name = master_name.split(":")[0]
-                    return master_name
-                elif master_heading < 0:
-                    slave.set_h(master_heading)
-                    master_name = master_name.split(":")[0]
-                    return master_name
-                else:
-                    return None
 
     def set_ai_world(self, assets, npcs_fsm_states, task):
         if (assets and isinstance(assets, dict)
@@ -238,9 +221,6 @@ class AI:
                     # If NPC is close to Enemy, do enemy attack
                     if (self.ai_behaviors[actor_name].behavior_status("pursue") == "done"
                             or self.ai_behaviors[actor_name].behavior_status("pursue") == "paused"):
-                        # Head the enemy for NPC
-                        self.set_actor_accurate_heading(master_name=actor_bs_name,
-                                                        slave=enemy_npc_bs)
                         request.request("Attack", actor, "Boxing", "loop")
 
                         # Enemy is attacked!
@@ -312,15 +292,11 @@ class AI:
 
                 # If NPC is close to Player, do enemy attack
                 if self.ai_behaviors[actor_name].behavior_status("pursue") == "done":
-                    self.near_actors[actor_name] = True
+                    self.near_npc[actor_name] = True
                     if hasattr(self.base, 'npcs_active_actions'):
                         self.base.npcs_active_actions[self.base.player_ref.get_name()] = None
                         self.base.npcs_active_actions[actor_name] = "Boxing"
                     request.request("Attack", actor, "Boxing", "loop")
-
-                    # Head the player for enemy
-                    self.set_actor_accurate_heading(master_name=actor_bs_name,
-                                                    slave=self.player)
 
                     # Temporary thing, leave it here
                     if (hasattr(base, "npcs_actors_health")
@@ -352,15 +328,17 @@ class AI:
                                 and base.npcs_actors_health):
                             if base.npcs_actors_health[actor_name].getPercent() != 0:
                                 # Evade or attack the player
-                                if base.npcs_actors_health[actor_name].getPercent() == 50.0:
-                                    self.near_actors[actor_name] = False
+                                """if base.npcs_actors_health[actor_name].getPercent() == 50.0:
+                                    self.near_npc[actor_name] = False
                                     self.ai_behaviors[actor_name].remove_ai("pursue")
                                     request.request("Walk", actor, self.player, self.ai_behaviors[actor_name],
-                                                    "evader", "Walking", "loop")
+                                                    "evader", "Walking", "loop")"""
+                                pass
                             else:
                                 request.request("Death", actor, "Dying", "play")
                                 self.base.alive_actors[actor_name] = False
                                 self.ai_behaviors[actor_name].pause_ai("pursue")
+                                self.near_npc[actor_name] = False
 
                 # Enemy returns back
                 if base.npcs_actors_health[actor_name]:
