@@ -23,6 +23,7 @@ class AI:
         self.player = None
         self.dialogus = CmdDialogusUI()
         self.is_dyn_obstacles_added = False
+        self.near_actors = {}
 
         self.dbg_text_npc_frame_hit = OnscreenText(text="",
                                                    pos=(0.5, 0.0),
@@ -311,6 +312,7 @@ class AI:
 
                 # If NPC is close to Player, do enemy attack
                 if self.ai_behaviors[actor_name].behavior_status("pursue") == "done":
+                    self.near_actors[actor_name] = True
                     if hasattr(self.base, 'npcs_active_actions'):
                         self.base.npcs_active_actions[self.base.player_ref.get_name()] = None
                         self.base.npcs_active_actions[actor_name] = "Boxing"
@@ -351,6 +353,7 @@ class AI:
                             if base.npcs_actors_health[actor_name].getPercent() != 0:
                                 # Evade or attack the player
                                 if base.npcs_actors_health[actor_name].getPercent() == 50.0:
+                                    self.near_actors[actor_name] = False
                                     self.ai_behaviors[actor_name].remove_ai("pursue")
                                     request.request("Walk", actor, self.player, self.ai_behaviors[actor_name],
                                                     "evader", "Walking", "loop")

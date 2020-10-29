@@ -113,7 +113,7 @@ class LevelOne:
 
                         enemy_npc_bs = self.base.get_actor_bullet_shape_node(asset=name, type="NPC")
                         if enemy_npc_bs and not enemy_npc_bs.is_empty():  # is enemy here?
-                            if enemy_npc_bs.get_y() in [1.0, -1.0]:
+                            if self.ai and self.ai.near_actors[name]:
                                 if self.base.npcs_lbl_np[name]:
                                     self.base.npcs_lbl_np[name].show()
 
