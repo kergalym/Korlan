@@ -108,13 +108,13 @@ class LevelOne:
         if enemies and isinstance(enemies, dict):
             for name in enemies['name']:
                 if "NPC" in name:
-                    if self.base.npcs_lbl_np[name]:
+                    if self.base.npcs_lbl_np.get(name):
                         self.base.npcs_lbl_np[name].hide()
 
                         enemy_npc_bs = self.base.get_actor_bullet_shape_node(asset=name, type="NPC")
                         if enemy_npc_bs and not enemy_npc_bs.is_empty():  # is enemy here?
-                            if self.ai and self.ai.near_actors[name]:
-                                if self.base.npcs_lbl_np[name]:
+                            if self.ai and self.ai.near_actors.get(name):
+                                if self.base.npcs_lbl_np.get(name):
                                     self.base.npcs_lbl_np[name].show()
 
         if self.base.game_mode is False and self.base.menu_mode:
