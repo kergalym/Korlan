@@ -2,18 +2,25 @@ from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import *
 from Engine.Actors.Player.korlan import Korlan
 from Engine.Actors.Player.state import PlayerState
-from Engine.FSM.npc_ernar_fsm import NpcErnarFSM
-from Engine.FSM.npc_mongol_fsm import NpcMongolFSM
-from Engine.FSM.npc_mongol2_fsm import NpcMongol2FSM
 from Engine.AI.ai import AI
 from Engine.Render.render import RenderAttr
 from Engine.Scenes.scene import SceneOne
 from Engine.Physics.physics import PhysicsAttr
 from Settings.UI.stat_ui import StatUI
 from Settings.UI.pause_menu_ui import PauseMenuUI
-from Engine.Actors.NPC.npc_ernar import NpcErnar
+
+from Engine.Scenes import py_npc_actor_classes
+from Engine.Scenes import py_npc_fsm_classes
+from Engine.Scenes import level_npc_assets
+from Engine.Scenes import level_npc_axis
+
+"""from Engine.Actors.NPC.npc_ernar import NpcErnar
 from Engine.Actors.NPC.npc_mongol import NpcMongol
 from Engine.Actors.NPC.npc_mongol2 import NpcMongol2
+
+from Engine.FSM.npc_ernar_fsm import NpcErnarFSM
+from Engine.FSM.npc_mongol_fsm import NpcMongolFSM
+from Engine.FSM.npc_mongol2_fsm import NpcMongol2FSM"""
 
 
 class LevelOne:
@@ -30,12 +37,24 @@ class LevelOne:
         self.render_attr = RenderAttr()
         self.scene_one = SceneOne()
         self.korlan = Korlan()
-        self.npc_ernar = NpcErnar()
+        self.actor_classes = []
+        self.actor_fsm_classes = []
+
+        for npc_cls in py_npc_actor_classes:
+            npc_cls_self = npc_cls()
+            self.actor_classes.append(npc_cls_self)
+
+        for npc_fsm_cls in py_npc_fsm_classes:
+            npc_fsm_cls_self = npc_fsm_cls()
+            self.actor_fsm_classes.append(npc_fsm_cls_self)
+
+        """self.npc_ernar = NpcErnar()
         self.npc_mongol = NpcMongol()
         self.npc_mongol2 = NpcMongol2()
         self.npc_ernar_fsm = NpcErnarFSM()
         self.npc_mongol_fsm = NpcMongolFSM()
-        self.npc_mongol2_fsm = NpcMongol2FSM()
+        self.npc_mongol2_fsm = NpcMongol2FSM()"""
+
         self.stat_ui = StatUI()
         self.pause_game_ui = PauseMenuUI()
         self.player_state = PlayerState()
@@ -47,8 +66,6 @@ class LevelOne:
         self.base.alive_actors = {}
         self.base.focused_actor = None
         self.npcs_fsm_states = {}
-        self.pos_x = None
-        self.pos_y = None
         self.pos_z = 0
         self.anim = None
         self.base.npcs_active_actions = {}
@@ -70,20 +87,14 @@ class LevelOne:
 
     def collect_actor_refs_task(self, task):
         if hasattr(base, "npc_is_loaded") and base.npc_is_loaded == 1:
-            if (self.npc_ernar.actor
-                    and self.npc_mongol.actor):
-                # Get only Actor, not a child of NodePath
-                ernar_name = self.npc_ernar.actor.get_name()
-                mongol_name = self.npc_mongol.actor.get_name()
-                mongol2_name = self.npc_mongol2.actor.get_name()
+            for npc_cls in self.actor_classes:
+                if npc_cls:
+                    # Get only Actor, not a child of NodePath
+                    name = npc_cls.actor.get_name()
 
-                base.npcs_actor_refs[ernar_name] = self.npc_ernar.actor
-                base.npcs_actor_refs[mongol_name] = self.npc_mongol.actor
-                base.npcs_actor_refs[mongol2_name] = self.npc_mongol2.actor
+                    base.npcs_actor_refs[name] = npc_cls.actor
 
-                self.base.alive_actors[ernar_name] = True
-                self.base.alive_actors[mongol_name] = True
-                self.base.alive_actors[mongol2_name] = True
+                    self.base.alive_actors[name] = True
 
                 if self.korlan.korlan:
                     base.player_ref = self.korlan.korlan
@@ -95,15 +106,10 @@ class LevelOne:
 
     def collect_actors_health_task(self, task):
         if hasattr(base, "npc_is_loaded") and base.npc_is_loaded == 1:
-            if (self.npc_ernar.actor
-                    and self.npc_mongol.actor):
-                ernar_name = self.npc_ernar.actor.get_name()
-                mongol_name = self.npc_mongol.actor.get_name()
-                mongol2_name = self.npc_mongol2.actor.get_name()
-
-                self.base.npcs_actors_health[ernar_name] = self.npc_ernar.npc_life_label
-                self.base.npcs_actors_health[mongol_name] = self.npc_mongol.npc_life_label
-                self.base.npcs_actors_health[mongol2_name] = self.npc_mongol.npc_life_label
+            for npc_cls in self.actor_classes:
+                if npc_cls and npc_cls.actor:
+                    name = npc_cls.actor.get_name()
+                    self.base.npcs_actors_health[name] = npc_cls.npc_life_label
 
                 if self.korlan.korlan:
                     base.player_health = self.korlan.korlan_life_perc
@@ -135,7 +141,7 @@ class LevelOne:
 
     def collect_npcs_label_nodepaths_task(self, enemies, task):
         if enemies and isinstance(enemies, dict):
-            for npc in [self.npc_ernar, self.npc_mongol, self.npc_mongol2]:
+            for npc in self.actor_classes:
                 if npc.npc_label_np:
                     name = npc.npc_label_np.get_name()
                     self.base.npcs_lbl_np[name] = npc.npc_label_np
@@ -238,18 +244,12 @@ class LevelOne:
                     if self.korlan.korlan:
                         self.korlan.korlan.delete()
                         self.korlan.korlan.cleanup()
-                    if self.npc_ernar.actor:
-                        self.npc_ernar.npc_label_np.destroy()
-                        self.npc_ernar.actor.delete()
-                        self.npc_ernar.actor.cleanup()
-                    if self.npc_mongol.actor:
-                        self.npc_mongol.npc_label_np.destroy()
-                        self.npc_mongol.actor.delete()
-                        self.npc_mongol.actor.cleanup()
-                    if self.npc_mongol2.actor:
-                        self.npc_mongol2.npc_label_np.destroy()
-                        self.npc_mongol2.actor.delete()
-                        self.npc_mongol2.actor.cleanup()
+
+                        for npc_cls in self.actor_classes:
+                            if npc_cls.actor:
+                                npc_cls.npc_label_np.remove_node()
+                                npc_cls.actor.delete()
+                                npc_cls.actor.cleanup()
 
                     render.find("**/{0}".format(node)).remove_node()
                     render.find("**/{0}".format(node)).clear()
@@ -312,18 +312,12 @@ class LevelOne:
                 if self.korlan.korlan:
                     self.korlan.korlan.delete()
                     self.korlan.korlan.cleanup()
-                if self.npc_ernar.actor:
-                    self.npc_ernar.npc_label_np.destroy()
-                    self.npc_ernar.actor.delete()
-                    self.npc_ernar.actor.cleanup()
-                if self.npc_mongol.actor:
-                    self.npc_mongol.npc_label_np.destroy()
-                    self.npc_mongol.actor.delete()
-                    self.npc_mongol.actor.cleanup()
-                if self.npc_mongol2.actor:
-                    self.npc_mongol2.npc_label_np.destroy()
-                    self.npc_mongol2.actor.delete()
-                    self.npc_mongol2.actor.cleanup()
+
+                for npc_cls in self.actor_classes:
+                    if npc_cls.actor:
+                        npc_cls.npc_label_np.remove_node()
+                        npc_cls.actor.delete()
+                        npc_cls.actor.cleanup()
 
                 render.find("**/{0}".format(node)).remove_node()
                 render.find("**/{0}".format(node)).clear()
@@ -388,21 +382,23 @@ class LevelOne:
         anims = self.base.asset_animations_collector()
 
         # List used by loading screen
-        level_assets = {'name': ['Sky', 'lvl_one', 'Player', 'NPC_Ernar', 'NPC_Mongol', 'NPC_Mongol2'],
-                        'type': [None, 'env', 'player', 'npc', 'npc', 'npc'],
-                        'shape': [None, 'auto', 'capsule', 'capsule', 'capsule', 'capsule'],
-                        'class': [None, 'env', 'hero', 'friend', 'enemy', 'enemy']
+        level_assets = {'name': ['Sky', 'lvl_one', 'Player'],
+                        'type': [None, 'env', 'player'],
+                        'shape': [None, 'auto', 'capsule'],
+                        'class': [None, 'env', 'hero']
                         }
 
-        for actor in level_assets['name']:
-            if "NPC_Ernar" in actor:
-                self.npcs_fsm_states[actor] = self.npc_ernar_fsm
-            if "NPC_Mongol" in actor:
-                self.npcs_fsm_states[actor] = self.npc_mongol_fsm
-            if "NPC_Mongol2" in actor:
-                self.npcs_fsm_states[actor] = self.npc_mongol2_fsm
+        for actor, npc_fsm_cls in zip(level_npc_assets['name'], self.actor_fsm_classes):
+            if "NPC" in actor and npc_fsm_cls:
+                self.npcs_fsm_states[actor] = npc_fsm_cls
 
-        base.level_assets = level_assets
+        # Join list values into one shared dict
+        level_assets_joined = {}
+        for a_key, b_key in zip(level_assets, level_npc_assets):
+            if a_key == b_key:
+                level_assets_joined[a_key] = level_assets[a_key] + level_npc_assets[a_key]
+
+        base.level_assets = level_assets_joined
 
         taskMgr.add(self.collect_actor_refs_task,
                     "collect_actor_refs_task",
@@ -434,29 +430,16 @@ class LevelOne:
                                           scale=[1.25, 1.25, 1.25],
                                           culling=True))
 
-        taskMgr.add(self.npc_ernar.set_actor(mode="game",
-                                             name="NPC_Ernar",
-                                             path=assets['NPC_Ernar'],
-                                             animation=anims,
-                                             axis=[-15.0, 15.0, self.pos_z],
-                                             rotation=[0, 0, 0],
-                                             scale=[1.25, 1.25, 1.25],
-                                             culling=True))
-
-        taskMgr.add(self.npc_mongol2.set_actor(mode="game",
-                                               name="NPC_Mongol",
-                                               path=assets['NPC_Mongol'],
-                                               animation=anims,
-                                               axis=[-25.0, 15.0, self.pos_z],
-                                               rotation=[0, 0, 0],
-                                               scale=[1.25, 1.25, 1.25],
-                                               culling=True))
-
-        taskMgr.add(self.npc_mongol.set_actor(mode="game",
-                                              name="NPC_Mongol2",
-                                              path=assets['NPC_Mongol2'],
+        for actor, npc_cls, axis_actor in zip(level_npc_assets['name'],
+                                              self.actor_classes,
+                                              level_npc_axis):
+            if actor == axis_actor:
+                axis = level_npc_axis[axis_actor]
+                taskMgr.add(npc_cls.set_actor(mode="game",
+                                              name=actor,
+                                              path=assets[actor],
                                               animation=anims,
-                                              axis=[-35.0, 15.0, self.pos_z],
+                                              axis=axis,
                                               rotation=[0, 0, 0],
                                               scale=[1.25, 1.25, 1.25],
                                               culling=True))
@@ -466,11 +449,11 @@ class LevelOne:
                     "show_game_stat",
                     appendTask=True)
 
-        self.physics_attr.set_physics_world(assets=level_assets)
+        self.physics_attr.set_physics_world(assets=level_assets_joined)
 
         taskMgr.add(self.ai.set_ai_world,
                     "set_ai_world",
-                    extraArgs=[level_assets, self.npcs_fsm_states],
+                    extraArgs=[level_assets_joined, self.npcs_fsm_states],
                     appendTask=True)
 
         taskMgr.add(self.ai.update_ai_world_task,
@@ -491,7 +474,7 @@ class LevelOne:
 
         taskMgr.add(self.collect_npcs_label_nodepaths_task,
                     "collect_npcs_label_nodepaths_task",
-                    extraArgs=[level_assets],
+                    extraArgs=[level_assets_joined],
                     appendTask=True)
 
         taskMgr.add(self.hitbox_handling_task,
