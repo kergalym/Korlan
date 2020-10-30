@@ -88,7 +88,7 @@ class LevelOne:
     def collect_actor_refs_task(self, task):
         if hasattr(base, "npc_is_loaded") and base.npc_is_loaded == 1:
             for npc_cls in self.actor_classes:
-                if npc_cls:
+                if npc_cls and npc_cls.actor:
                     # Get only Actor, not a child of NodePath
                     name = npc_cls.actor.get_name()
 
