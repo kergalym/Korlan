@@ -109,16 +109,6 @@ class LevelOne:
 
         return task.cont
 
-    def hide_actor_label(self, actors):
-        if self.actor_focus_index != 0:
-            name = actors[self.actor_focus_index]
-            if self.ai and not self.ai.near_npc.get(name):
-                if self.base.npcs_lbl_np.get(name):
-                    self.base.npcs_lbl_np[name].hide()
-                else:
-                    if self.base.npcs_lbl_np.get(name):
-                        self.base.npcs_lbl_np[name].hide()
-
     def show_actor_label(self, name):
         if name:
             enemy_npc_bs = self.base.get_actor_bullet_shape_node(asset=name, type="NPC")
@@ -137,12 +127,10 @@ class LevelOne:
     def select_by_mouse_wheel(self, actors):
         if (actors and isinstance(actors, dict)
                 and self.ai and self.ai.near_npc):
-            name = ''
             if self.mouse.keymap["wheel_up"]:
                 if (self.actor_focus_index < len(actors)
                         and not self.actor_focus_index < 0
                         and self.actor_focus_index != 0):
-                    # self.hide_actor_label(actors=actors)
                     self.actor_focus_index += 1
                     self.base.focused_actor = actors[self.actor_focus_index]
                     self.show_actor_label(name=self.base.focused_actor)
@@ -153,14 +141,11 @@ class LevelOne:
                 if (self.actor_focus_index != 0
                         and not self.actor_focus_index < len(actors) - 1
                         and not self.actor_focus_index > len(actors)):
-                    # self.hide_actor_label(actors=actors)
                     self.actor_focus_index -= 1
                     self.base.focused_actor = actors[self.actor_focus_index]
                     self.show_actor_label(name=self.base.focused_actor)
                     self.base.focused_actor = actors[self.actor_focus_index]
                 self.mouse.keymap['wheel_down'] = False
-
-        print(self.actor_focus_index)
 
     def npc_focus_switch_task(self, task):
         self.select_by_mouse_wheel(actors=self.actors_for_focus)
