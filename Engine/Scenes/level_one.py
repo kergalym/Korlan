@@ -168,7 +168,7 @@ class LevelOne:
                     self.base.npcs_lbl_np[name] = npc.npc_label_np
 
             # Drop item which is not NPC and indicate that collecting is done
-            if len(enemies['name']) - 3 == len(self.base.npcs_lbl_np):
+            if len(enemies['name'])-3 == len(self.base.npcs_lbl_np):
                 taskMgr.add(self.npc_focus_switch_task,
                             "npc_focus_switch_task",
                             appendTask=True)
