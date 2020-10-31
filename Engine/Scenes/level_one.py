@@ -1,4 +1,3 @@
-from direct.showbase.MessengerGlobal import messenger
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import *
 from Engine.Actors.Player.korlan import Korlan
@@ -57,10 +56,7 @@ class LevelOne:
         self.actor_focus_index = 1
         self.npcs_fsm_states = {}
         self.pos_z = 0
-        self.anim = None
-        self.base.npcs_active_actions = {}
         self.base.npcs_hits = {}
-        self.base.npcs_hits_pos = {}
 
     def world_sfx_task(self, task):
         if (hasattr(self.base, 'sound_sfx_nature')
