@@ -120,18 +120,19 @@ class LevelOne:
                         self.base.npcs_lbl_np[name].hide()
 
     def show_actor_label(self, name):
-        enemy_npc_bs = self.base.get_actor_bullet_shape_node(asset=name, type="NPC")
-        if enemy_npc_bs and not enemy_npc_bs.is_empty():  # is enemy here?
-            if self.ai and self.ai.near_npc.get(name):
-                if (self.base.npcs_lbl_np.get(name)
-                        and self.base.alive_actors[name]):
+        if name:
+            enemy_npc_bs = self.base.get_actor_bullet_shape_node(asset=name, type="NPC")
+            if enemy_npc_bs and not enemy_npc_bs.is_empty():  # is enemy here?
+                if self.ai and self.ai.near_npc.get(name):
+                    if (self.base.npcs_lbl_np.get(name)
+                            and self.base.alive_actors[name]):
 
-                    for i in self.base.npcs_lbl_np:
-                        if name != i:
-                            self.base.npcs_lbl_np[i].hide()
+                        for i in self.base.npcs_lbl_np:
+                            if name != i:
+                                self.base.npcs_lbl_np[i].hide()
 
-                    self.base.npcs_lbl_np[name].show()
-                    self.base.camera.look_at(enemy_npc_bs)
+                        self.base.npcs_lbl_np[name].show()
+                        self.base.camera.look_at(enemy_npc_bs)
 
     def select_by_mouse_wheel(self, actors):
         if (actors and isinstance(actors, dict)
@@ -144,7 +145,7 @@ class LevelOne:
                     # self.hide_actor_label(actors=actors)
                     self.actor_focus_index += 1
                     self.base.focused_actor = actors[self.actor_focus_index]
-                    self.show_actor_label(name=name)
+                    self.show_actor_label(name=self.base.focused_actor)
                     self.base.focused_actor = actors[self.actor_focus_index]
                 self.mouse.keymap['wheel_up'] = False
 
@@ -155,11 +156,11 @@ class LevelOne:
                     # self.hide_actor_label(actors=actors)
                     self.actor_focus_index -= 1
                     self.base.focused_actor = actors[self.actor_focus_index]
-                    self.show_actor_label(name=name)
+                    self.show_actor_label(name=self.base.focused_actor)
                     self.base.focused_actor = actors[self.actor_focus_index]
                 self.mouse.keymap['wheel_down'] = False
 
-        # print(self.actor_focus_index)
+        print(self.actor_focus_index)
 
     def npc_focus_switch_task(self, task):
         self.select_by_mouse_wheel(actors=self.actors_for_focus)
