@@ -38,8 +38,8 @@ class NpcMongol:
                 self.set_actor_label(name=actor_bs.get_name(), np=self.npc_label_np)
                 self.set_actor_life(np=self.npc_label_np)
                 self.npc_label_np.reparent_to(aspect2d)
+                self.npc_label_np.hide()
                 return task.done
-        # self.has_actor_life()
         return task.cont
 
     def has_actor_life(self):
@@ -57,7 +57,6 @@ class NpcMongol:
                                                 range=self.actor_life_perc,
                                                 pos=(0.0, 0.0, 0.85), scale=.10)
             self.npc_life_label.reparent_to(np)
-            # self.npc_life_label.set_billboard_point_eye()
             self.npc_life_label.set_bin("fixed", 0)
 
     def set_actor_label(self, name, np):
@@ -68,7 +67,6 @@ class NpcMongol:
                 npc_label = OnscreenText(text=name_to_disp, pos=(0.0, 0.9),
                                          fg=(255, 255, 255, 1), scale=.10)
                 npc_label.reparent_to(np)
-                # npc_label.set_billboard_point_eye()
                 npc_label.set_bin("fixed", 0)
 
     async def set_actor(self, mode, name, path, animation, axis, rotation, scale, culling):

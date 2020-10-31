@@ -1,3 +1,4 @@
+from direct.showbase.MessengerGlobal import messenger
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import *
 from Engine.Actors.Player.korlan import Korlan
@@ -8,19 +9,12 @@ from Engine.Scenes.scene import SceneOne
 from Engine.Physics.physics import PhysicsAttr
 from Settings.UI.stat_ui import StatUI
 from Settings.UI.pause_menu_ui import PauseMenuUI
+from Settings.Input.mouse import Mouse
 
 from Engine.Scenes import py_npc_actor_classes
 from Engine.Scenes import py_npc_fsm_classes
 from Engine.Scenes import level_npc_assets
 from Engine.Scenes import level_npc_axis
-
-"""from Engine.Actors.NPC.npc_ernar import NpcErnar
-from Engine.Actors.NPC.npc_mongol import NpcMongol
-from Engine.Actors.NPC.npc_mongol2 import NpcMongol2
-
-from Engine.FSM.npc_ernar_fsm import NpcErnarFSM
-from Engine.FSM.npc_mongol_fsm import NpcMongolFSM
-from Engine.FSM.npc_mongol2_fsm import NpcMongol2FSM"""
 
 
 class LevelOne:
@@ -48,23 +42,19 @@ class LevelOne:
             npc_fsm_cls_self = npc_fsm_cls()
             self.actor_fsm_classes.append(npc_fsm_cls_self)
 
-        """self.npc_ernar = NpcErnar()
-        self.npc_mongol = NpcMongol()
-        self.npc_mongol2 = NpcMongol2()
-        self.npc_ernar_fsm = NpcErnarFSM()
-        self.npc_mongol_fsm = NpcMongolFSM()
-        self.npc_mongol2_fsm = NpcMongol2FSM()"""
-
         self.stat_ui = StatUI()
         self.pause_game_ui = PauseMenuUI()
         self.player_state = PlayerState()
         self.physics_attr = PhysicsAttr()
         self.ai = AI()
+        self.mouse = Mouse()
         self.base.npcs_actor_refs = {}
         self.base.npcs_actors_health = {}
         self.base.npcs_lbl_np = {}
         self.base.alive_actors = {}
         self.base.focused_actor = None
+        self.actors_for_focus = None
+        self.actor_focus_index = 1
         self.npcs_fsm_states = {}
         self.pos_z = 0
         self.anim = None
@@ -119,20 +109,60 @@ class LevelOne:
 
         return task.cont
 
-    def npc_focus_switch_task(self, enemies, task):
-        if enemies and isinstance(enemies, dict):
-            for name in enemies['name']:
-                if "NPC" in name:
+    def hide_actor_label(self, actors):
+        if self.actor_focus_index != 0:
+            name = actors[self.actor_focus_index]
+            if self.ai and not self.ai.near_npc.get(name):
+                if self.base.npcs_lbl_np.get(name):
+                    self.base.npcs_lbl_np[name].hide()
+                else:
                     if self.base.npcs_lbl_np.get(name):
                         self.base.npcs_lbl_np[name].hide()
 
-                        enemy_npc_bs = self.base.get_actor_bullet_shape_node(asset=name, type="NPC")
-                        if enemy_npc_bs and not enemy_npc_bs.is_empty():  # is enemy here?
-                            if self.ai and self.ai.near_npc.get(name):
-                                if (self.base.npcs_lbl_np.get(name)
-                                        and self.base.alive_actors[name]):
-                                    self.base.npcs_lbl_np[name].show()
-                                    self.base.camera.look_at(enemy_npc_bs)
+    def show_actor_label(self, name):
+        enemy_npc_bs = self.base.get_actor_bullet_shape_node(asset=name, type="NPC")
+        if enemy_npc_bs and not enemy_npc_bs.is_empty():  # is enemy here?
+            if self.ai and self.ai.near_npc.get(name):
+                if (self.base.npcs_lbl_np.get(name)
+                        and self.base.alive_actors[name]):
+
+                    for i in self.base.npcs_lbl_np:
+                        if name != i:
+                            self.base.npcs_lbl_np[i].hide()
+
+                    self.base.npcs_lbl_np[name].show()
+                    self.base.camera.look_at(enemy_npc_bs)
+
+    def select_by_mouse_wheel(self, actors):
+        if (actors and isinstance(actors, dict)
+                and self.ai and self.ai.near_npc):
+            name = ''
+            if self.mouse.keymap["wheel_up"]:
+                if (self.actor_focus_index < len(actors)
+                        and not self.actor_focus_index < 0
+                        and self.actor_focus_index != 0):
+                    # self.hide_actor_label(actors=actors)
+                    self.actor_focus_index += 1
+                    self.base.focused_actor = actors[self.actor_focus_index]
+                    self.show_actor_label(name=name)
+                    self.base.focused_actor = actors[self.actor_focus_index]
+                self.mouse.keymap['wheel_up'] = False
+
+            if self.mouse.keymap["wheel_down"]:
+                if (self.actor_focus_index != 0
+                        and not self.actor_focus_index < len(actors) - 1
+                        and not self.actor_focus_index > len(actors)):
+                    # self.hide_actor_label(actors=actors)
+                    self.actor_focus_index -= 1
+                    self.base.focused_actor = actors[self.actor_focus_index]
+                    self.show_actor_label(name=name)
+                    self.base.focused_actor = actors[self.actor_focus_index]
+                self.mouse.keymap['wheel_down'] = False
+
+        # print(self.actor_focus_index)
+
+    def npc_focus_switch_task(self, task):
+        self.select_by_mouse_wheel(actors=self.actors_for_focus)
 
         if self.base.game_mode is False and self.base.menu_mode:
             return task.done
@@ -150,7 +180,6 @@ class LevelOne:
             if len(enemies['name']) - 3 == len(self.base.npcs_lbl_np):
                 taskMgr.add(self.npc_focus_switch_task,
                             "npc_focus_switch_task",
-                            extraArgs=[enemies],
                             appendTask=True)
 
                 return task.done
@@ -258,6 +287,7 @@ class LevelOne:
                 self.loader.unload_model(assets[key])
 
             self.player_state.clear_state()
+            self.actor_focus_index = 1
 
             base.game_mode = False
             base.menu_mode = True
@@ -325,11 +355,15 @@ class LevelOne:
         for key in assets:
             self.loader.unload_model(assets[key])
 
+        self.actor_focus_index = 1
+
         base.game_mode = True
         base.menu_mode = False
 
     def load_new_game(self):
         self.unload_menu_scene()
+
+        self.mouse.mouse_wheel_init()
 
         # We make any unload_game_scene() method accessible
         # to unload via UnloadingUI.set_parallel_unloading()
@@ -399,6 +433,10 @@ class LevelOne:
                 level_assets_joined[a_key] = level_assets[a_key] + level_npc_assets[a_key]
 
         base.level_assets = level_assets_joined
+
+        self.actors_for_focus = {}
+        for index, actor in enumerate(level_npc_assets['name'], 1):
+            self.actors_for_focus[index] = actor
 
         taskMgr.add(self.collect_actor_refs_task,
                     "collect_actor_refs_task",

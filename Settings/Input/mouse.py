@@ -11,13 +11,35 @@ class Mouse:
         self.floater = None
         self.pos_z = 0.6
         # Set the current viewing target
-        # self.focus = LVector3(55, -55, 20)
         self.focus = LVector3(0, 0, 0)
         self.heading = 180
         self.pitch = 0
         self.rotation = 0
         self.mouse_sens = 0.2
         self.last = 0
+        self.keymap = {
+            'wheel_up': False,
+            'wheel_down': False
+        }
+
+    def set_key(self, key, value):
+        """ Function    : set_key
+
+            Description : Set the state of the actions keys
+
+            Input       : String, Boolean
+
+            Output      : None
+
+            Return      : None
+        """
+        if (key and isinstance(key, str)
+                and isinstance(value, bool)):
+            self.keymap[key] = value
+
+    def mouse_wheel_init(self):
+        self.base.accept("wheel_up", self.set_key, ['wheel_up', True])
+        self.base.accept("wheel_down", self.set_key, ['wheel_down', True])
 
     def set_floater(self, player):
         """ Function    : set_floater
