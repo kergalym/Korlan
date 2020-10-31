@@ -1,4 +1,3 @@
-from direct.showbase.MessengerGlobal import messenger
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import *
 from Engine.Actors.Player.korlan import Korlan
@@ -31,6 +30,7 @@ class LevelOne:
         self.render_attr = RenderAttr()
         self.scene_one = SceneOne()
         self.korlan = Korlan()
+        self.pos_z = 0
         self.actor_classes = []
         self.actor_fsm_classes = []
 
@@ -56,11 +56,7 @@ class LevelOne:
         self.actors_for_focus = None
         self.actor_focus_index = 1
         self.npcs_fsm_states = {}
-        self.pos_z = 0
-        self.anim = None
-        self.base.npcs_active_actions = {}
         self.base.npcs_hits = {}
-        self.base.npcs_hits_pos = {}
 
     def world_sfx_task(self, task):
         if (hasattr(self.base, 'sound_sfx_nature')
@@ -138,8 +134,17 @@ class LevelOne:
                 self.mouse.keymap['wheel_up'] = False
 
             if self.mouse.keymap["wheel_down"]:
+                # TODO: Remove this block when hitboxes will be fixed
+                #  and friend npc is uncommented in ai.py,
+                #  but right now we have only one active NPC,
+                #  so, we shouldn't decrement the length of actors variable
+                if len(actors)-1 > 1:
+                    actors_num = len(actors)-1
+                else:
+                    actors_num = len(actors)
+
                 if (self.actor_focus_index != 0
-                        and not self.actor_focus_index < len(actors) - 1
+                        and not self.actor_focus_index < actors_num  # actually, should be len(actors)
                         and not self.actor_focus_index > len(actors)):
                     self.actor_focus_index -= 1
                     self.base.focused_actor = actors[self.actor_focus_index]
