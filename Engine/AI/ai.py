@@ -159,9 +159,6 @@ class AI:
             actor_bs_name = "{0}:BS".format(actor.get_name())
             actor_name = actor.get_name()
             # actor.set_blend(frameBlend=True)
-            hitbox = None
-            if hasattr(self.base, "npcs_hits"):
-                hitbox = self.base.npcs_hits
 
             # if actor_bs_name and self.npc_fsm.npcs_xyz_vec.get(actor_bs_name):
             # vec_x = self.npc_fsm.npcs_xyz_vec[actor_bs_name][0]
@@ -224,7 +221,8 @@ class AI:
                         request.request("Attack", actor, "Boxing", "loop")
 
                         # Enemy is attacked!
-                        if hitbox and hitbox.get(actor_name):
+                        if (self.base.player_ref.getCurrentFrame() >= 23
+                                and self.base.player_ref.getCurrentFrame() <= 25):
                             enemy_fsm_request.request("Attacked", enemy_npc_ref, "BigHitToHead", "play")
 
     def npc_neutral_logic(self, actor, request, passive):
@@ -305,18 +303,16 @@ class AI:
                         self.dbg_text_npc_frame_hit.setText(str(value) + actor_name)
 
                     # Player is attacked by enemy!
-                    if (hasattr(self.base, "npcs_hits")
-                            and self.base.npcs_hits
-                            and self.base.npcs_hits.get(actor_name)
+                    if (actor.get_current_frame("Boxing") >= 23
+                            and actor.get_current_frame("Boxing") <= 25
                             and self.base.player_states["is_blocking"] is False):
                         self.player_fsm.request("Attacked", self.base.player_ref, "BigHitToHead", "play")
 
                     # Enemy is attacked by player!
                     if (self.base.player_states["is_hitting"]
                             and self.base.alive_actors[actor_name]):
-                        if (hasattr(self.base, "npcs_hits")
-                                and self.base.npcs_hits
-                                and self.base.npcs_hits.get(player_name)):
+                        if (self.base.player_ref.get_current_frame("Boxing") >= 23
+                                and self.base.player_ref.get_current_frame("Boxing") <= 25):
                             # Enemy health decreased
                             if hasattr(base, "npcs_actors_health") and base.npcs_actors_health:
                                 if base.npcs_actors_health[actor_name].getPercent() != 0:
@@ -347,3 +343,4 @@ class AI:
                             and self.ai_behaviors[actor_name].behavior_status("evade") == "paused"):
                         self.ai_behaviors[actor_name].remove_ai("evade")
                         request.request("Idle", actor, "LookingAround", "loop")
+

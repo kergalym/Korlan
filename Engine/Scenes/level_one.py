@@ -178,6 +178,7 @@ class LevelOne:
         return task.cont
 
     def hitbox_handling_task(self, task):
+        # TODO: Use for advanced damage handling in further
         if self.physics_attr.world:
             for hitboxes in self.physics_attr.world.get_ghosts():
                 # Drop the HB suffix
@@ -188,11 +189,7 @@ class LevelOne:
                     name = "{0}_{1}".format(name[0], name[1])
                 elif "Player" in name:
                     name = name.split("_")[0]
-                # is_hips_overlapped = 0
                 for node in hitboxes.get_overlapping_nodes():
-                    # if is_hips_overlapped == 0:
-                    #  continue
-
                     if (node and node.is_active()
                             and "NPC" in node.get_name()
                             and "RightHand" in node.get_name()):
@@ -200,11 +197,9 @@ class LevelOne:
                             if hit and hit.is_active():
                                 if ("Player" in hit.get_name()
                                         and "Hips" in hit.get_name()):
-                                    # is_hips_overlapped = 1
-                                    self.base.npcs_hits[name] = True
+                                    pass
                                 else:
-                                    self.base.npcs_hits[name] = False
-                                    # self.base.npcs_hits[name] = hit_zone.get_tag(key=name_hb)
+                                    pass
 
         if self.base.game_mode is False and self.base.menu_mode:
             return task.done
@@ -506,9 +501,9 @@ class LevelOne:
                     extraArgs=[level_assets_joined],
                     appendTask=True)
 
-        taskMgr.add(self.hitbox_handling_task,
+        """taskMgr.add(self.hitbox_handling_task,
                     "hitbox_handling_task",
-                    appendTask=True)
+                    appendTask=True)"""
 
     def save_game(self):
         pass
