@@ -179,9 +179,12 @@ class AI:
                 # If NPC is far from Player, do pursue player
                 if (self.ai_behaviors[actor_name].behavior_status("pursue") == "disabled"
                         or self.ai_behaviors[actor_name].behavior_status("pursue") == "active"):
-                    request.request("Walk", actor, self.player,
+
+                    request.request("WalkAny", actor, "Walking", 5, "loop")
+
+                    """request.request("Walk", actor, self.player,
                                     self.ai_behaviors[actor.get_name()],
-                                    "pursuer", "Walking", "loop")
+                                    "pursuer", "Walking", "loop")"""
 
                 # If NPC is close to Player, just stay
                 if (self.ai_behaviors[actor_name].behavior_status("pursue") == "done"
@@ -332,12 +335,11 @@ class AI:
                                 and base.npcs_actors_health):
                             if base.npcs_actors_health[actor_name].getPercent() != 0:
                                 # Evade or attack the player
-                                if base.npcs_actors_health[actor_name].getPercent() == 50.0:
+                                """if base.npcs_actors_health[actor_name].getPercent() == 50.0:
                                     self.near_npc[actor_name] = False
                                     self.ai_behaviors[actor_name].remove_ai("pursue")
-                                    # request.request("Walk", actor, self.player, self.ai_behaviors[actor_name],
-                                    #                 "evader", "Walking", "loop")
-                                    request.request("WalkAny", actor, "Walking", 5, "loop")
+                                    request.request("Walk", actor, self.player, self.ai_behaviors[actor_name],
+                                                    "evader", "Walking", "loop")"""
                                 pass
                             else:
                                 request.request("Death", actor, "Dying", "play")
