@@ -179,12 +179,9 @@ class AI:
                 # If NPC is far from Player, do pursue player
                 if (self.ai_behaviors[actor_name].behavior_status("pursue") == "disabled"
                         or self.ai_behaviors[actor_name].behavior_status("pursue") == "active"):
-
-                    request.request("WalkAny", actor, "Walking", 5, "loop")
-
-                    """request.request("Walk", actor, self.player,
+                    request.request("Walk", actor, self.player,
                                     self.ai_behaviors[actor.get_name()],
-                                    "pursuer", "Walking", "loop")"""
+                                    "pursuer", "Walking", "loop")
 
                 # If NPC is close to Player, just stay
                 if (self.ai_behaviors[actor_name].behavior_status("pursue") == "done"
@@ -316,14 +313,17 @@ class AI:
                             and self.base.alive_actors[actor_name]):
                         if (self.base.player_ref.get_current_frame("Boxing") >= 23
                                 and self.base.player_ref.get_current_frame("Boxing") <= 25):
+
+                            # Enemy does a block
                             request.request("Block", actor, "center_blocking", "Boxing", "play")
 
-                        # Enemy does a block
                         if (actor.get_current_frame("center_blocking")
                                 and actor.get_current_frame("center_blocking") >= 14
                                 and actor.get_current_frame("center_blocking") <= 17):
                             pass
-                        else:
+                        elif (actor.get_current_frame("center_blocking")
+                                and actor.get_current_frame("center_blocking") >= 5
+                                and actor.get_current_frame("center_blocking") <= 12):
                             # Enemy health decreased
                             if hasattr(base, "npcs_actors_health") and base.npcs_actors_health:
                                 if base.npcs_actors_health[actor_name].getPercent() != 0:
