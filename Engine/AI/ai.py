@@ -67,8 +67,8 @@ class AI:
 
                 if npc_class and self.npc_fsm.npcs_xyz_vec:
                     # TODO: Uncomment when I done with enemy
-                    if npc_class == "friend":
-                        self.npc_friend_logic(actor=actor, request=request, passive=True)
+                    """if npc_class == "friend":
+                        self.npc_friend_logic(actor=actor, request=request, passive=True)"""
                     if npc_class == "neutral":
                         self.npc_neutral_logic(actor=actor, request=request, passive=True)
                     if npc_class == "enemy":
@@ -296,12 +296,6 @@ class AI:
                         self.base.npcs_active_actions[actor_name] = "Boxing"
                     request.request("Attack", actor, "Boxing", "loop")
 
-                    # Temporary thing, leave it here
-                    if (hasattr(base, "npcs_actors_health")
-                            and base.npcs_actors_health):
-                        value = base.npcs_actors_health[actor_name]['value']
-                        self.dbg_text_npc_frame_hit.setText(str(value) + actor_name)
-
                     # Player is attacked by enemy!
                     if (actor.get_current_frame("Boxing") >= 23
                             and actor.get_current_frame("Boxing") <= 25
@@ -317,18 +311,19 @@ class AI:
                             # Enemy does a block
                             request.request("Block", actor, "center_blocking", "Boxing", "play")
 
+                        # Enemy health decreased when enemy miss a hits
                         if (actor.get_current_frame("center_blocking")
-                                and actor.get_current_frame("center_blocking") >= 14
-                                and actor.get_current_frame("center_blocking") <= 17):
-                            pass
-                        elif (actor.get_current_frame("center_blocking")
-                                and actor.get_current_frame("center_blocking") >= 5
-                                and actor.get_current_frame("center_blocking") <= 12):
-                            # Enemy health decreased
+                                and actor.get_current_frame("center_blocking") == 1):
                             if hasattr(base, "npcs_actors_health") and base.npcs_actors_health:
                                 if base.npcs_actors_health[actor_name].getPercent() != 0:
                                     base.npcs_actors_health[actor_name]['value'] -= 5
                             request.request("Attacked", actor, "BigHitToHead", "Boxing", "play")
+
+                        # Temporary thing, leave it here
+                        if (hasattr(base, "npcs_actors_health")
+                                and base.npcs_actors_health):
+                            value = base.npcs_actors_health[actor_name]['value']
+                            self.dbg_text_npc_frame_hit.setText(str(value) + actor_name)
 
                         # Enemy will die if no health or flee:
                         if (hasattr(base, "npcs_actors_health")
@@ -354,4 +349,3 @@ class AI:
                             and self.ai_behaviors[actor_name].behavior_status("evade") == "paused"):
                         self.ai_behaviors[actor_name].remove_ai("evade")
                         request.request("Idle", actor, "LookingAround", "loop")
-

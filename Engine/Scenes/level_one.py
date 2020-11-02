@@ -174,7 +174,7 @@ class LevelOne:
         return task.cont
 
     def hitbox_handling_task(self, task):
-        # TODO: Use for advanced damage handling in further
+        # TODO: Use it to stop previous action animations
         if self.physics_attr.world:
             for hitboxes in self.physics_attr.world.get_ghosts():
                 # Drop the HB suffix
