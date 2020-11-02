@@ -123,8 +123,9 @@ class LevelOne:
     def select_by_mouse_wheel(self, actors):
         if (actors and isinstance(actors, dict)
                 and self.ai and self.ai.near_npc):
+            actors_num = len(actors)
             if self.mouse.keymap["wheel_up"]:
-                if (self.actor_focus_index < len(actors)
+                if (self.actor_focus_index < actors_num
                         and not self.actor_focus_index < 0
                         and self.actor_focus_index != 0):
                     self.actor_focus_index += 1
@@ -134,18 +135,11 @@ class LevelOne:
                 self.mouse.keymap['wheel_up'] = False
 
             if self.mouse.keymap["wheel_down"]:
-                # TODO: Remove this block when hitboxes will be fixed
-                #  and friend npc is uncommented in ai.py,
-                #  but right now we have only one active NPC,
-                #  so, we shouldn't decrement the length of actors variable
-                if len(actors)-1 > 1:
-                    actors_num = len(actors)-1
-                else:
-                    actors_num = len(actors)
-
+                if actors_num-1 > 1:
+                    actors_num = actors_num-1
                 if (self.actor_focus_index != 0
-                        and not self.actor_focus_index < actors_num  # actually, should be len(actors)
-                        and not self.actor_focus_index > len(actors)):
+                        and not self.actor_focus_index < actors_num
+                        and not self.actor_focus_index > actors_num):
                     self.actor_focus_index -= 1
                     self.base.focused_actor = actors[self.actor_focus_index]
                     self.show_actor_label(name=self.base.focused_actor)

@@ -67,8 +67,8 @@ class AI:
 
                 if npc_class and self.npc_fsm.npcs_xyz_vec:
                     # TODO: Uncomment when I done with enemy
-                    # if npc_class == "friend":
-                        # self.npc_friend_logic(actor=actor, request=request, passive=True)
+                    if npc_class == "friend":
+                        self.npc_friend_logic(actor=actor, request=request, passive=True)
                     if npc_class == "neutral":
                         self.npc_neutral_logic(actor=actor, request=request, passive=True)
                     if npc_class == "enemy":
@@ -313,6 +313,14 @@ class AI:
                             and self.base.alive_actors[actor_name]):
                         if (self.base.player_ref.get_current_frame("Boxing") >= 23
                                 and self.base.player_ref.get_current_frame("Boxing") <= 25):
+                            request.request("Block", actor, "center_blocking", "Boxing", "play")
+
+                        # Enemy does a block
+                        if (actor.get_current_frame("center_blocking")
+                                and actor.get_current_frame("center_blocking") >= 14
+                                and actor.get_current_frame("center_blocking") <= 17):
+                            pass
+                        else:
                             # Enemy health decreased
                             if hasattr(base, "npcs_actors_health") and base.npcs_actors_health:
                                 if base.npcs_actors_health[actor_name].getPercent() != 0:
@@ -324,11 +332,12 @@ class AI:
                                 and base.npcs_actors_health):
                             if base.npcs_actors_health[actor_name].getPercent() != 0:
                                 # Evade or attack the player
-                                """if base.npcs_actors_health[actor_name].getPercent() == 50.0:
+                                if base.npcs_actors_health[actor_name].getPercent() == 50.0:
                                     self.near_npc[actor_name] = False
                                     self.ai_behaviors[actor_name].remove_ai("pursue")
-                                    request.request("Walk", actor, self.player, self.ai_behaviors[actor_name],
-                                                    "evader", "Walking", "loop")"""
+                                    # request.request("Walk", actor, self.player, self.ai_behaviors[actor_name],
+                                    #                 "evader", "Walking", "loop")
+                                    request.request("WalkAny", actor, "Walking", 5, "loop")
                                 pass
                             else:
                                 request.request("Death", actor, "Dying", "play")

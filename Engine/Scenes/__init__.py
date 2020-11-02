@@ -18,7 +18,7 @@ py_npc_fsm_classes = [
     NpcMongol2FSM
 ]
 
-"""# List used by loading screen
+# List used by loading screen
 level_npc_assets = {'name': ['NPC_Ernar', 'NPC_Mongol', 'NPC_Mongol2'],
                     'type': ['npc', 'npc', 'npc'],
                     'shape': ['capsule', 'capsule', 'capsule'],
@@ -40,3 +40,4 @@ level_npc_assets = {'name': ['NPC_Ernar', 'NPC_Mongol'],
 level_npc_axis = {'NPC_Ernar': [-15.0, 15.0, 0],
                   'NPC_Mongol': [-25.0, 15.0, 0],
                   }
+"""
