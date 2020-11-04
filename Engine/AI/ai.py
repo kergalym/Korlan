@@ -2,6 +2,8 @@ from direct.gui.OnscreenText import OnscreenText
 from panda3d.ai import AIWorld
 from panda3d.ai import AICharacter
 from direct.task.TaskManagerGlobal import taskMgr
+from panda3d.core import LVecBase3f
+
 from Engine.FSM.player_fsm import PlayerFSM
 from Engine.FSM.npc_fsm import NpcFSM
 from Settings.UI.cmd_dialogus_ui import CmdDialogusUI
@@ -177,7 +179,7 @@ class AI:
 
                 # If NPC is far from Player, do pursue player
                 path_x, path_y, path_z = self.player.get_pos()
-                path = [path_x, path_y-5, path_z]
+                path = LVecBase3f(path_x, path_y-5, path_z)
                 if (self.ai_behaviors[actor_name].behavior_status("pursue") == "disabled"
                         or self.ai_behaviors[actor_name].behavior_status("pursue") == "active"):
                     request.request("WalkAny", actor, path,
