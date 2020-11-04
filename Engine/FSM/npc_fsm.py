@@ -38,19 +38,15 @@ class NpcFSM:
 
         return task.cont
 
-    def set_basic_npc_behaviors(self, actor, player, ai_behaviors, behavior):
+    def set_basic_npc_behaviors(self, actor, player, ai_behaviors, behavior, vect):
         if (actor and player
                 and not actor.is_empty()
                 and not player.is_empty()
                 and behavior
                 and isinstance(behavior, str)
+                and isinstance(vect, dict)
                 and ai_behaviors):
-            if ai_behaviors:
-                vect = {"panic_dist": 5,
-                        "relax_dist": 5,
-                        "wander_radius": 5,
-                        "plane_flag": 0,
-                        "area_of_effect": 10}
+            if ai_behaviors and vect:
                 # player could be another npc actor instead
                 navmeshes = self.base.navmesh_collector()
                 ai_behaviors.init_path_find(navmeshes["lvl_one"])

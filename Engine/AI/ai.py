@@ -157,6 +157,12 @@ class AI:
                 and isinstance(passive, bool)
                 and isinstance(self.npc_fsm.npcs_xyz_vec, dict)):
 
+            vect = {"panic_dist": 5,
+                    "relax_dist": 5,
+                    "wander_radius": 5,
+                    "plane_flag": 0,
+                    "area_of_effect": 10}
+
             # Add :BS suffix since we'll get Bullet Shape NodePath here
             actor_name = actor.get_name()
             # actor.set_blend(frameBlend=True)
@@ -182,15 +188,17 @@ class AI:
                 path = LVecBase3f(path_x+5, path_y, path_z)
                 if (self.ai_behaviors[actor_name].behavior_status("pursue") == "disabled"
                         or self.ai_behaviors[actor_name].behavior_status("pursue") == "active"):
-                    request.request("WalkAny", actor, path,
+                    request.request("Walk", actor, self.player,
                                     self.ai_behaviors[actor_name],
-                                    "pathfollow", "Walking", "loop")
+                                    "pathfollow", "Walking", vect, "loop")
 
                 # If NPC is close to Player, just stay
-                if (self.ai_behaviors[actor_name].behavior_status("pathfollow") == "done"
-                        or self.ai_behaviors[actor_name].behavior_status("pathfollow") == "paused"):
+                if (self.ai_behaviors[actor_name].behavior_status("pursue") == "done"
+                        or self.ai_behaviors[actor_name].behavior_status("pursue") == "paused"):
                     # TODO: Change action to something more suitable
-                    request.request("Idle", actor, "LookingAround", "loop")
+                    # request.request("Idle", actor, "LookingAround", "loop")
+                    request.request("Walk", actor, self.player, self.ai_behaviors[actor_name],
+                                    "evader", "Walking", vect, "loop")
                     self.base.accept("t", self.dialogus.set_ui_dialog,
                                      extraArgs=[dialogs_multi_lng.cmd_dialog_en,
                                                 dialogs_multi_lng.cmd_dialog_text_interval,
@@ -216,7 +224,7 @@ class AI:
                             or self.ai_behaviors[actor_name].behavior_status("pursue") == "active"):
                         request.request("Walk", actor, enemy_npc_bs,
                                         self.ai_behaviors[actor_name],
-                                        "pursuer", "Walking", "loop")
+                                        "pursuer", "Walking", vect, "loop")
 
                     # If NPC is close to Enemy, do enemy attack
                     if (self.ai_behaviors[actor_name].behavior_status("pursue") == "done"
@@ -232,6 +240,11 @@ class AI:
         if (actor and request and self.npc_fsm.npcs_xyz_vec
                 and isinstance(passive, bool)
                 and isinstance(self.npc_fsm.npcs_xyz_vec, dict)):
+            vect = {"panic_dist": 5,
+                    "relax_dist": 5,
+                    "wander_radius": 5,
+                    "plane_flag": 0,
+                    "area_of_effect": 10}
 
             # Add :BS suffix since we'll get Bullet Shape NodePath here
             # actor_bs_name = "{0}:BS".format(actor.get_name())
@@ -253,7 +266,7 @@ class AI:
                 if (self.ai_behaviors[actor_name].behavior_status("pursue") == "disabled"
                         or self.ai_behaviors[actor_name].behavior_status("pursue") == "active"):
                     request.request("Walk", actor, self.player, self.ai_behaviors[actor_name],
-                                    "pursuer", "Walking", "loop")
+                                    "pursuer", "Walking", vect, "loop")
 
                     # If NPC is close to Player, just stay
                     if self.ai_behaviors[actor_name].behavior_status("pursue") == "done":
@@ -266,6 +279,11 @@ class AI:
                 and isinstance(self.npc_fsm.npcs_xyz_vec, dict)
                 and hasattr(self.base, "alive_actors")
                 and self.base.alive_actors):
+            vect = {"panic_dist": 5,
+                    "relax_dist": 5,
+                    "wander_radius": 5,
+                    "plane_flag": 0,
+                    "area_of_effect": 10}
 
             # Add :BS suffix since we'll get Bullet Shape NodePath here
             actor_bs_name = "{0}:BS".format(actor.get_name())
@@ -288,7 +306,7 @@ class AI:
                 if (self.ai_behaviors[actor_name].behavior_status("pursue") == "disabled"
                         or self.ai_behaviors[actor_name].behavior_status("pursue") == "active"):
                     request.request("Walk", actor, self.player, self.ai_behaviors[actor_name],
-                                    "pursuer", "Walking", "loop")
+                                    "pursuer", "Walking", vect, "loop")
 
                 # If NPC is close to Player, do enemy attack
                 if self.ai_behaviors[actor_name].behavior_status("pursue") == "done":
@@ -336,7 +354,7 @@ class AI:
                                     self.near_npc[actor_name] = False
                                     self.ai_behaviors[actor_name].remove_ai("pursue")
                                     request.request("Walk", actor, self.player, self.ai_behaviors[actor_name],
-                                                    "evader", "Walking", "loop")
+                                                    "evader", "Walking", vect, "loop")
                                 pass
                             else:
                                 request.request("Death", actor, "Dying", "play")

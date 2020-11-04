@@ -26,7 +26,7 @@ class NpcErnarFSM(FSM):
                         actor.loop(action)
                 actor.set_play_rate(self.base.actor_play_rate, action)
 
-    def enterWalk(self, actor, player, ai_behaviors, behavior, action, task):
+    def enterWalk(self, actor, player, ai_behaviors, behavior, action, vect, task):
         if actor and player and ai_behaviors and behavior and action and task:
             any_action = actor.get_anim_control(action)
 
@@ -44,7 +44,8 @@ class NpcErnarFSM(FSM):
             self.npc_fsm.set_basic_npc_behaviors(actor=actor.get_parent(),
                                                  player=player,
                                                  ai_behaviors=ai_behaviors,
-                                                 behavior=behavior)
+                                                 behavior=behavior,
+                                                 vect=vect)
 
     def enterWalkAny(self, actor, path, ai_behaviors, behavior, action, task):
         if actor and path and ai_behaviors and behavior and action and task:
