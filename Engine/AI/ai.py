@@ -183,7 +183,7 @@ class AI:
                 if (self.ai_behaviors[actor_name].behavior_status("pursue") == "disabled"
                         or self.ai_behaviors[actor_name].behavior_status("pursue") == "active"):
                     request.request("WalkAny", actor, path,
-                                    self.ai_behaviors[actor.get_name()],
+                                    self.ai_behaviors[actor_name],
                                     "pathfollow", "Walking", "loop")
 
                 # If NPC is close to Player, just stay
