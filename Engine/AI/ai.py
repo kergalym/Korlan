@@ -179,7 +179,7 @@ class AI:
 
                 # If NPC is far from Player, do pursue player
                 path_x, path_y, path_z = self.player.get_pos()
-                path = LVecBase3f(path_x, path_y-5, path_z)
+                path = LVecBase3f(path_x+5, path_y, path_z)
                 if (self.ai_behaviors[actor_name].behavior_status("pursue") == "disabled"
                         or self.ai_behaviors[actor_name].behavior_status("pursue") == "active"):
                     request.request("WalkAny", actor, path,

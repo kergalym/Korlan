@@ -230,7 +230,7 @@ class PhysicsAttr:
                 self.set_actor_collider(actor=obj,
                                         col_name='{0}:BS'.format(obj.get_name()),
                                         shape=shape,
-                                        mask=self.mask2,
+                                        mask=self.mask0,
                                         type="npc")
 
     def set_actor_collider(self, actor, col_name, shape, mask, type):
