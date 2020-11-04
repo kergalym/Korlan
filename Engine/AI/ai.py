@@ -164,11 +164,13 @@ class AI:
                     "area_of_effect": 10}
 
             # Add :BS suffix since we'll get Bullet Shape NodePath here
+            actor_bs_name = "{0}:BS".format(actor.get_name())
             actor_name = actor.get_name()
             # actor.set_blend(frameBlend=True)
 
-            # if actor_bs_name and self.npc_fsm.npcs_xyz_vec.get(actor_bs_name):
-            # vec_x = self.npc_fsm.npcs_xyz_vec[actor_bs_name][0]
+            vec_x = None
+            if self.npc_fsm.npcs_xyz_vec.get(actor_bs_name):
+                vec_x = self.npc_fsm.npcs_xyz_vec[actor_bs_name][0]
 
             """for name in self.ai_behaviors:
                 if actor_name != name:
@@ -184,25 +186,34 @@ class AI:
                 # request.request("Idle", actor, "LookingAround", "loop")
 
                 # If NPC is far from Player, do pursue player
-                path_x, path_y, path_z = self.player.get_pos()
-                path = LVecBase3f(path_x+5, path_y, path_z)
+                # path_x, path_y, path_z = self.player.get_pos()
+                # path = LVecBase3f(path_x+5, path_y, path_z)
                 if (self.ai_behaviors[actor_name].behavior_status("pursue") == "disabled"
                         or self.ai_behaviors[actor_name].behavior_status("pursue") == "active"):
-                    request.request("Walk", actor, self.player,
-                                    self.ai_behaviors[actor_name],
-                                    "pathfollow", "Walking", vect, "loop")
+                    request.request("Walk", actor, self.player, self.ai_behaviors[actor_name],
+                                    "pursuer", "Walking", vect, "loop")
 
-                # If NPC is close to Player, just stay
-                if (self.ai_behaviors[actor_name].behavior_status("pursue") == "done"
-                        or self.ai_behaviors[actor_name].behavior_status("pursue") == "paused"):
+                # If NPC is close to Player, evade
+                elif self.ai_behaviors[actor_name].behavior_status("pursue") == "done":
                     # TODO: Change action to something more suitable
-                    # request.request("Idle", actor, "LookingAround", "loop")
+                    # self.near_npc[actor_name] = False
+                    self.ai_behaviors[actor_name].remove_ai("pursue")
+                    request.request("Idle", actor, "LookingAround", "loop")
                     request.request("Walk", actor, self.player, self.ai_behaviors[actor_name],
                                     "evader", "Walking", vect, "loop")
+
                     self.base.accept("t", self.dialogus.set_ui_dialog,
                                      extraArgs=[dialogs_multi_lng.cmd_dialog_en,
                                                 dialogs_multi_lng.cmd_dialog_text_interval,
                                                 self.ai_behaviors[actor_name], "pursue"])
+
+                # If NPC is not close to Player, just stay
+                if (vec_x == 10.0 or vec_x == -10.0
+                        and self.ai_behaviors[actor_name].behavior_status("evade") == "paused"):
+                    # self.near_npc[actor_name] = False
+                    self.ai_behaviors[actor_name].remove_ai("evade")
+                    # TODO: Change action to something more suitable
+                    request.request("Idle", actor, "LookingAround", "loop")
 
             if passive is False:
                 enemy_npc_ref = None
@@ -368,5 +379,6 @@ class AI:
                             and vec_x == 10.0 or vec_x == -10.0
                             and self.ai_behaviors[actor_name].behavior_status("evade") == "paused"):
                         self.ai_behaviors[actor_name].remove_ai("evade")
+                        # TODO: Change action to something more suitable
                         request.request("Idle", actor, "LookingAround", "loop")
 

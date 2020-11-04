@@ -145,6 +145,12 @@ class NpcErnarFSM(FSM):
         else:
             return None
 
+    def filterWalkAny(self, request, args):
+        if request not in ['WalkAny']:
+            return (request,) + args
+        else:
+            return None
+
     def filterAttack(self, request, args):
         if request not in ['Attack']:
             return (request,) + args
