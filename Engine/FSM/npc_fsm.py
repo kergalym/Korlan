@@ -77,7 +77,7 @@ class NpcFSM:
                     ai_behaviors.wander(vect["wander_radius"],
                                         vect["plane_flag"],
                                         vect["area_of_effect"])
-                elif behavior == "path_follow":
+                elif behavior == "pathfollow":
                     ai_behaviors.path_follow(1)
                     ai_behaviors.add_to_path(player.get_pos())
                     ai_behaviors.start_follow()
@@ -85,6 +85,19 @@ class NpcFSM:
                 taskMgr.add(self.keep_actor_pitch_task,
                             "keep_actor_pitch",
                             appendTask=True)
+
+    def set_pathfollow_static_behavior(self, actor, path, ai_behaviors, behavior):
+        if (actor and path, not actor.is_empty()
+                and behavior
+                and isinstance(behavior, str)
+                and isinstance(path, list)
+                or isinstance(path, int)
+                or isinstance(path, float)
+                and ai_behaviors):
+            if behavior == "pathfollow":
+                ai_behaviors.path_follow(1)
+                ai_behaviors.add_to_path(path)
+                ai_behaviors.start_follow()
 
     def keep_actor_pitch_task(self, task):
         for name in self.npcs_names:

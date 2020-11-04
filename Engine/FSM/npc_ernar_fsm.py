@@ -46,6 +46,26 @@ class NpcErnarFSM(FSM):
                                                  ai_behaviors=ai_behaviors,
                                                  behavior=behavior)
 
+    def enterWalkAny(self, actor, path, ai_behaviors, behavior, action, task):
+        if actor and path and ai_behaviors and behavior and action and task:
+            any_action = actor.get_anim_control(action)
+
+            if isinstance(task, str):
+                if task == "play":
+                    if not any_action.isPlaying():
+                        actor.play(action)
+                elif task == "loop":
+                    if not any_action.isPlaying():
+                        actor.loop(action)
+                actor.set_play_rate(self.base.actor_play_rate, action)
+
+            # Get correct NodePath
+            actor = render.find("**/{0}".format(actor.get_name()))
+            self.npc_fsm.set_pathfollow_static_behavior(actor=actor.get_parent(),
+                                                        path=path,
+                                                        ai_behaviors=ai_behaviors,
+                                                        behavior=behavior)
+
     def enterAttack(self, actor, action, task):
         if actor and action and task:
             any_action = actor.get_anim_control(action)

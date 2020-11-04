@@ -67,8 +67,8 @@ class AI:
 
                 if npc_class and self.npc_fsm.npcs_xyz_vec:
                     # TODO: Uncomment when I done with enemy
-                    """if npc_class == "friend":
-                        self.npc_friend_logic(actor=actor, request=request, passive=True)"""
+                    if npc_class == "friend":
+                        self.npc_friend_logic(actor=actor, request=request, passive=True)
                     if npc_class == "neutral":
                         self.npc_neutral_logic(actor=actor, request=request, passive=True)
                     if npc_class == "enemy":
@@ -156,7 +156,6 @@ class AI:
                 and isinstance(self.npc_fsm.npcs_xyz_vec, dict)):
 
             # Add :BS suffix since we'll get Bullet Shape NodePath here
-            actor_bs_name = "{0}:BS".format(actor.get_name())
             actor_name = actor.get_name()
             # actor.set_blend(frameBlend=True)
 
@@ -177,15 +176,17 @@ class AI:
                 # request.request("Idle", actor, "LookingAround", "loop")
 
                 # If NPC is far from Player, do pursue player
+                path_x, path_y, path_z = self.player.get_pos()
+                path = [path_x, path_y-5, path_z]
                 if (self.ai_behaviors[actor_name].behavior_status("pursue") == "disabled"
                         or self.ai_behaviors[actor_name].behavior_status("pursue") == "active"):
-                    request.request("Walk", actor, self.player,
+                    request.request("WalkAny", actor, path,
                                     self.ai_behaviors[actor.get_name()],
-                                    "pursuer", "Walking", "loop")
+                                    "pathfollow", "Walking", "loop")
 
                 # If NPC is close to Player, just stay
-                if (self.ai_behaviors[actor_name].behavior_status("pursue") == "done"
-                        or self.ai_behaviors[actor_name].behavior_status("pursue") == "paused"):
+                if (self.ai_behaviors[actor_name].behavior_status("pathfollow") == "done"
+                        or self.ai_behaviors[actor_name].behavior_status("pathfollow") == "paused"):
                     # TODO: Change action to something more suitable
                     request.request("Idle", actor, "LookingAround", "loop")
                     self.base.accept("t", self.dialogus.set_ui_dialog,
@@ -267,7 +268,6 @@ class AI:
             # Add :BS suffix since we'll get Bullet Shape NodePath here
             actor_bs_name = "{0}:BS".format(actor.get_name())
             actor_name = actor.get_name()
-            player_name = self.base.player_ref.get_name()
             # actor.set_blend(frameBlend=True)
 
             # Leave it here for debugging purposes
@@ -330,11 +330,11 @@ class AI:
                                 and base.npcs_actors_health):
                             if base.npcs_actors_health[actor_name].getPercent() != 0:
                                 # Evade or attack the player
-                                """if base.npcs_actors_health[actor_name].getPercent() == 50.0:
+                                if base.npcs_actors_health[actor_name].getPercent() == 50.0:
                                     self.near_npc[actor_name] = False
                                     self.ai_behaviors[actor_name].remove_ai("pursue")
                                     request.request("Walk", actor, self.player, self.ai_behaviors[actor_name],
-                                                    "evader", "Walking", "loop")"""
+                                                    "evader", "Walking", "loop")
                                 pass
                             else:
                                 request.request("Death", actor, "Dying", "play")
@@ -349,3 +349,4 @@ class AI:
                             and self.ai_behaviors[actor_name].behavior_status("evade") == "paused"):
                         self.ai_behaviors[actor_name].remove_ai("evade")
                         request.request("Idle", actor, "LookingAround", "loop")
+
