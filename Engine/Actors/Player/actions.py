@@ -129,6 +129,7 @@ class Actions:
 
             # Define a player menu here
             base.accept('tab', self.player_menu.set_ui_inventory)
+            base.accept("mouse1", self.player_hit_action, extraArgs=[player, "attack", anims, "Boxing"])
 
             taskMgr.add(self.player_init, "player_init",
                         extraArgs=[player, anims],
@@ -186,7 +187,6 @@ class Actions:
                 self.player_crouch_action(player, 'crouch', anims)
                 self.player_jump_action(player, "jump", anims, "Jumping")
                 self.player_use_action(player, "use", anims, "PickingUp")
-                self.player_hit_action(player, "attack", anims, "Boxing")
                 self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
                 self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
                 self.player_block_action(player, "block", anims, "center_blocking")
@@ -196,7 +196,6 @@ class Actions:
                 self.player_crouch_action(player, 'crouch', anims)
                 self.player_jump_action(player, "jump", anims, "Jumping")
                 self.player_use_action(player, "use", anims, "PickingUp")
-                # self.player_hit_action(player, "attack", anims, "Boxing")
                 # self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
                 # self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
                 # self.player_block_action(player, "block", anims, "center_blocking")
@@ -208,7 +207,6 @@ class Actions:
                 self.player_crouch_action(player, 'crouch', anims)
                 self.player_jump_action(player, "jump", anims, "Jumping")
                 self.player_use_action(player, "use", anims, "PickingUp")
-                self.player_hit_action(player, "attack", anims, "Boxing")
                 self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
                 self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
                 self.player_block_action(player, "block", anims, "center_blocking")
@@ -570,33 +568,32 @@ class Actions:
                 and isinstance(key, str)):
             crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
 
-            if self.kbd.keymap[key]:
-                base.player_states['is_idle'] = False
+            base.player_states['is_idle'] = False
 
-                if (base.player_states['is_hitting'] is False
-                        and crouched_to_standing.is_playing() is False
-                        and base.player_states['is_crouching'] is True):
-                    # TODO: Use blending for smooth transition between animations
-                    # Do an animation sequence if player is crouched.
-                    crouch_to_stand_seq = player.actor_interval(anims[self.crouched_to_standing_action],
-                                                                playRate=self.base.actor_play_rate)
-                    any_action_seq = player.actor_interval(anims[action],
-                                                           playRate=self.base.actor_play_rate)
-                    Sequence(crouch_to_stand_seq,
-                             Parallel(any_action_seq,
-                                      Func(self.state.set_action_state, "is_hitting", True)),
-                             Func(self.state.set_action_state, "is_hitting", False)
-                             ).start()
+            if (base.player_states['is_hitting'] is False
+                    and crouched_to_standing.is_playing() is False
+                    and base.player_states['is_crouching'] is True):
+                # TODO: Use blending for smooth transition between animations
+                # Do an animation sequence if player is crouched.
+                crouch_to_stand_seq = player.actor_interval(anims[self.crouched_to_standing_action],
+                                                            playRate=self.base.actor_play_rate)
+                any_action_seq = player.actor_interval(anims[action],
+                                                       playRate=self.base.actor_play_rate)
+                Sequence(crouch_to_stand_seq,
+                         Parallel(any_action_seq,
+                                  Func(self.state.set_action_state, "is_hitting", True)),
+                         Func(self.state.set_action_state, "is_hitting", False)
+                         ).start()
 
-                elif (base.player_states['is_hitting'] is False
-                      and crouched_to_standing.is_playing() is False
-                      and base.player_states['is_crouching'] is False):
-                    any_action_seq = player.actor_interval(anims[action],
-                                                           playRate=self.base.actor_play_rate)
-                    Sequence(Parallel(any_action_seq,
-                                      Func(self.state.set_action_state, "is_hitting", True)),
-                             Func(self.state.set_action_state, "is_hitting", False)
-                             ).start()
+            elif (base.player_states['is_hitting'] is False
+                  and crouched_to_standing.is_playing() is False
+                  and base.player_states['is_crouching'] is False):
+                any_action_seq = player.actor_interval(anims[action],
+                                                       playRate=self.base.actor_play_rate)
+                Sequence(Parallel(any_action_seq,
+                                  Func(self.state.set_action_state, "is_hitting", True)),
+                         Func(self.state.set_action_state, "is_hitting", False)
+                         ).start()
 
     def player_h_kick_action(self, player, key, anims, action):
         if (player and isinstance(anims, dict)

@@ -290,6 +290,7 @@ class AI:
                 and isinstance(self.npc_fsm.npcs_xyz_vec, dict)
                 and hasattr(self.base, "alive_actors")
                 and self.base.alive_actors):
+
             vect = {"panic_dist": 5,
                     "relax_dist": 5,
                     "wander_radius": 5,
