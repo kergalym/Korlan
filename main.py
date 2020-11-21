@@ -933,7 +933,7 @@ class Main(ShowBase):
                 elif tex.getNumComponents() == 3:
                     tex.setFormat(Texture.F_srgb)
 
-    def video_status_task(self, media, type, task):
+    def video_status_task(self, media, type, file, task):
         """ Function    : video_status_task
 
             Description : Task for video wall.
@@ -944,23 +944,48 @@ class Main(ShowBase):
 
             Return      : Task event
         """
-        if media and type and isinstance(type, str):
+        if media and type and isinstance(type, str) and "REDSTUDIO_FHD" in file:
             base.accept("escape", media.stop)
 
-            if AudioSound.status(media) == 1:
-                if type == "player_avatar":
-                    media.play()
-                else:
-                    media.stop()
+        if AudioSound.status(media) == 1:
+            if type == "player_avatar":
+                media.play()
+            else:
+                media.stop()
 
+            if type != "menu_scene":
                 if not render2d.find("**/VideoWall").is_empty():
                     render2d.find("**/VideoWall").remove_node()
 
-                if type == "main_menu":
-                    self.intro_mode = False
-                    self.menu_mode = True
-                    self.menu.load_main_menu()
-                    return task.done
+            if type == "main_menu":
+                self.intro_mode = False
+                self.menu_mode = True
+                self.menu.load_main_menu()
+                # Disable the camera trackball controls.
+                self.disable_mouse()
+                props = WindowProperties()
+                props.set_cursor_hidden(False)
+                self.win.request_properties(props)
+                self.load_video(file="MENU_SCENE_VID", type="menu_scene")
+                return task.done
+
+        return task.cont
+
+    def menu_scene_video_status_task(self, task):
+        """ Function    : menu_scene_video_status_task
+
+            Description : Task for video wall.
+
+            Input       : Nodepath, String, Task
+
+            Output      : None
+
+            Return      : Task event
+        """
+        if base.menu_mode is False and base.game_mode:
+            if not render2d.find("**/VideoWall").is_empty():
+                render2d.find("**/VideoWall").remove_node()
+            return task.done
 
         return task.cont
 
@@ -1011,11 +1036,18 @@ class Main(ShowBase):
                         card.set_scale(0.3)
                         card.set_pos(0, 0, 0)
 
+                    if type == "menu_scene":
+                        card.reparent_to(render2d)
+
                     if type == "player_avatar":
                         card.set_scale(0.3, 0.3, 0.15)
                         card.set_pos(0, 0, -0.85)
 
                     media = base.loader.load_sfx(videos[file])
+
+                    if "MENU_SCENE_VID" in media.get_name():
+                        base.menu_scene_vid = media
+
                     # Synchronize the video to the sound.
                     tex.synchronize_to(media)
 
@@ -1024,18 +1056,26 @@ class Main(ShowBase):
 
                         taskMgr.add(self.video_status_task,
                                     "video_status",
-                                    extraArgs=[media, type],
+                                    extraArgs=[media, type, file],
                                     appendTask=True)
 
                     if type == "loading_menu":
                         return media
+
+                    if type == "menu_scene":
+                        AudioSound.set_loop(media, loop=True)
+                        media.play()
+
+                        taskMgr.add(self.menu_scene_video_status_task,
+                                    "menu_scene_video_status_task",
+                                    appendTask=True)
 
                     if type == "player_avatar":
                         media.play()
 
                         taskMgr.add(self.video_status_task,
                                     "video_status",
-                                    extraArgs=[media, type],
+                                    extraArgs=[media, type, file],
                                     appendTask=True)
 
                 else:
@@ -1045,101 +1085,13 @@ class Main(ShowBase):
                         self.menu.load_main_menu()
 
     def load_menu_scene(self):
-        """ Function    : load_menu_scene
-
-            Description : Load menu scene.
-
-            Input       : None
-
-            Output      : None
-
-            Return      : None
-        """
-        """ Assets """
-
-        self.render_attr.set_lighting(name='plight',
-                                      render=self.render,
-                                      pos=[0, 50, 10],
-                                      hpr=[180, 130, 0],
-                                      color=[0.2],
-                                      task="attach")
-        self.render_attr.set_lighting(name='plight',
-                                      render=self.render,
-                                      pos=[0, 30, 10],
-                                      hpr=[0, -20, 0],
-                                      color=[0.2],
-                                      task="attach")
-        self.render_attr.set_lighting(name='plight',
-                                      render=self.render,
-                                      pos=[0, 8.0, 1],
-                                      hpr=[0, -20, 0],
-                                      color=[0.2],
-                                      task="attach")
-
-        # assets is a dict containing paths + models
-        # anims is a list containing two dicts.
-        # anims[0] is a dict containing names of animations
-        # anims[1] is a dict containing paths + animations
-        assets = self.assets_collector()
-        anims = self.asset_animations_collector()
-
-        # Test scene
-        taskMgr.add(self.scene_one.set_env(path=assets['Sky'],
-                                           mode="menu",
-                                           name="Sky",
-                                           axis=[0.0, 10.0, -1.09],
-                                           rotation=[0, 0, 0],
-                                           scale=[1.25, 1.25, 1.25],
-                                           type='skybox',
-                                           culling=False))
-
-        taskMgr.add(self.scene_one.set_asset(path=assets['Grass'],
-                                             mode="menu",
-                                             name="Grass",
-                                             axis=[20.0, 10.0, -1.09],
-                                             rotation=[0, 0, 0],
-                                             scale=[1.25, 1.25, 1.25], culling=False))
-
-        taskMgr.add(self.scene_one.set_asset(path=assets['Nomad_house'],
-                                             mode="menu",
-                                             name="Nomad_house",
-                                             axis=[9.0, 8.0, -1.09],
-                                             rotation=[16.70, 0, 0],
-                                             scale=[1.25, 1.25, 1.25],
-                                             culling=False))
-
-        taskMgr.add(self.scene_one.set_env(path=assets['Ground'],
-                                           mode="menu",
-                                           name="Ground",
-                                           axis=[0.0, 10.0, -1.09],
-                                           rotation=[0, 0, 0],
-                                           scale=[1.25, 1.25, 1.25],
-                                           type='ground',
-                                           culling=False))
-
-        taskMgr.add(self.scene_one.set_env(path=assets['Mountains'],
-                                           mode="menu",
-                                           name="Mountains",
-                                           axis=[0.0, 20.0, -1.09],
-                                           rotation=[0, 0, 0],
-                                           scale=[1.25, 1.25, 1.25],
-                                           type='mountains',
-                                           culling=False))
-
-        taskMgr.add(self.korlan.set_actor(mode="menu",
-                                          name="Korlan",
-                                          path=assets['Korlan'],
-                                          animation=[anims[0]['LookingAround'],
-                                                     anims[1]['LookingAround']],
-                                          axis=[0, 8.0, -1.09],
-                                          rotation=[0, 0, 0],
-                                          scale=[1.25, 1.25, 1.25],
-                                          culling=True))
+        self.menu_mode = True
+        self.menu.load_main_menu()
+        self.load_video(file="MENU_SCENE_VID", type="menu_scene")
 
 
 app = Main()
 app.load_video(file="REDSTUDIO_FHD", type="main_menu")
-app.load_menu_scene()
 
 if __name__ == '__main__':
     app.run()

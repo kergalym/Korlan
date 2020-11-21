@@ -342,6 +342,12 @@ class LevelOne:
         base.game_mode = True
         base.menu_mode = False
 
+        if hasattr(base, "menu_scene_vid") and base.menu_scene_vid:
+            if "MENU_SCENE_VID" in base.menu_scene_vid.get_name():
+                base.menu_scene_vid.stop()
+                """if not render2d.find("**/VideoWall").is_empty():
+                    render2d.find("**/VideoWall").remove_node()"""
+
     def load_new_game(self):
         self.unload_menu_scene()
 
