@@ -57,6 +57,7 @@ class LevelOne:
         self.actor_focus_index = 1
         self.npcs_fsm_states = {}
         self.base.npcs_hits = {}
+        self.assets = None
 
     def world_sfx_task(self, task):
         if (hasattr(self.base, 'sound_sfx_nature')
@@ -134,8 +135,8 @@ class LevelOne:
                 self.mouse.keymap['wheel_up'] = False
 
             if self.mouse.keymap["wheel_down"]:
-                if len(actors)-1 > 1:
-                    actors_num = len(actors)-1
+                if len(actors) - 1 > 1:
+                    actors_num = len(actors) - 1
                 else:
                     actors_num = len(actors)
 
@@ -164,7 +165,7 @@ class LevelOne:
                     self.base.npcs_lbl_np[name] = npc.npc_label_np
 
             # Drop item which is not NPC and indicate that collecting is done
-            if len(enemies['name'])-3 == len(self.base.npcs_lbl_np):
+            if len(enemies['name']) - 3 == len(self.base.npcs_lbl_np):
                 taskMgr.add(self.npc_focus_switch_task,
                             "npc_focus_switch_task",
                             appendTask=True)
@@ -207,6 +208,7 @@ class LevelOne:
             self.base.game_mode = False
             self.base.menu_mode = True
             assets = self.base.assets_collector()
+            self.assets = assets
 
             # Remove all lights
             if self.game_settings['Main']['postprocessing'] == 'off':
@@ -271,8 +273,9 @@ class LevelOne:
             self.player_state.clear_state()
             self.actor_focus_index = 1
 
-            base.game_mode = False
-            base.menu_mode = True
+            taskMgr.add(self.unload_game_scene_status_task,
+                        "unload_game_scene_status_task",
+                        appendTask=True)
 
     def unload_menu_scene(self):
         assets = self.base.assets_collector()
@@ -345,6 +348,35 @@ class LevelOne:
         if hasattr(base, "menu_scene_vid") and base.menu_scene_vid:
             if "MENU_SCENE_VID" in base.menu_scene_vid.get_name():
                 base.menu_scene_vid.stop()
+
+    def unload_game_scene_status_task(self, task):
+        if self.assets:
+            # make pattern list from assets dict
+            pattern = [key for key in self.assets]
+            # use pattern to remove nodes corresponding to asset names
+            unloaded_assets = []
+            is_assets_unloaded = False
+            for index, node in enumerate(pattern, start=1):
+
+                if render.find("**/{0}".format(node)).is_empty():
+                    # Register that they are unloaded
+                    unloaded_assets.append(index)
+
+            if len(unloaded_assets) == len(self.assets):
+                is_assets_unloaded = True
+
+            if (render.find("**/World").is_empty()
+                    and render.find("**/Collisions").is_empty()
+                    and render.find("**/WaterNodePath").is_empty()
+                    and render.find("**/StateInitializer").is_empty()
+                    and is_assets_unloaded):
+
+                base.game_mode = False
+                base.menu_mode = True
+
+                return task.done
+
+        return task.cont
 
     def load_new_game(self):
         self.unload_menu_scene()
