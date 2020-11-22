@@ -16,6 +16,7 @@ class NpcErnarFSM(FSM):
     def enterIdle(self, actor, action, task):
         if actor and action and task:
             any_action = actor.get_anim_control(action)
+            self.base.debug_any_action = any_action
 
             if isinstance(task, str):
                 if task == "play":
@@ -29,6 +30,7 @@ class NpcErnarFSM(FSM):
     def enterWalk(self, actor, player, ai_behaviors, behavior, action, vect, task):
         if actor and player and ai_behaviors and behavior and action and task:
             any_action = actor.get_anim_control(action)
+            self.base.debug_any_action = any_action
 
             if isinstance(task, str):
                 if task == "play":

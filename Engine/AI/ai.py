@@ -70,7 +70,7 @@ class AI:
                 if npc_class and self.npc_fsm.npcs_xyz_vec:
                     # TODO: Uncomment when I done with enemy
                     if npc_class == "friend":
-                        self.npc_friend_logic(actor=actor, request=request, passive=True)
+                        self.npc_friend_logic(actor=actor, request=request, passive=False)
                     if npc_class == "neutral":
                         self.npc_neutral_logic(actor=actor, request=request, passive=True)
                     if npc_class == "enemy":
@@ -182,38 +182,7 @@ class AI:
 
             if passive:
                 # Just stay
-                # TODO: Change action to something more suitable
-                # request.request("Idle", actor, "LookingAround", "loop")
-
-                # If NPC is far from Player, do pursue player
-                # path_x, path_y, path_z = self.player.get_pos()
-                # path = LVecBase3f(path_x+5, path_y, path_z)
-                if (self.ai_behaviors[actor_name].behavior_status("pursue") == "disabled"
-                        or self.ai_behaviors[actor_name].behavior_status("pursue") == "active"):
-                    request.request("Walk", actor, self.player, self.ai_behaviors[actor_name],
-                                    "pursuer", "Walking", vect, "loop")
-
-                # If NPC is close to Player, evade
-                elif self.ai_behaviors[actor_name].behavior_status("pursue") == "done":
-                    # TODO: Change action to something more suitable
-                    # self.near_npc[actor_name] = False
-                    self.ai_behaviors[actor_name].remove_ai("pursue")
-                    request.request("Idle", actor, "LookingAround", "loop")
-                    request.request("Walk", actor, self.player, self.ai_behaviors[actor_name],
-                                    "evader", "Walking", vect, "loop")
-
-                    self.base.accept("t", self.dialogus.set_ui_dialog,
-                                     extraArgs=[dialogs_multi_lng.cmd_dialog_en,
-                                                dialogs_multi_lng.cmd_dialog_text_interval,
-                                                self.ai_behaviors[actor_name], "pursue"])
-
-                # If NPC is not close to Player, just stay
-                if (vec_x == 10.0 or vec_x == -10.0
-                        and self.ai_behaviors[actor_name].behavior_status("evade") == "paused"):
-                    # self.near_npc[actor_name] = False
-                    self.ai_behaviors[actor_name].remove_ai("evade")
-                    # TODO: Change action to something more suitable
-                    request.request("Idle", actor, "LookingAround", "loop")
+                request.request("Idle", actor, "LookingAround", "loop")
 
             if passive is False:
                 enemy_npc_ref = None
@@ -240,12 +209,14 @@ class AI:
                     # If NPC is close to Enemy, do enemy attack
                     if (self.ai_behaviors[actor_name].behavior_status("pursue") == "done"
                             or self.ai_behaviors[actor_name].behavior_status("pursue") == "paused"):
-                        request.request("Attack", actor, "Boxing", "loop")
+                        request.request("Idle", actor, "LookingAround", "loop")
 
                         # Enemy is attacked!
-                        if (self.base.player_ref.getCurrentFrame() >= 23
-                                and self.base.player_ref.getCurrentFrame() <= 25):
-                            enemy_fsm_request.request("Attacked", enemy_npc_ref, "BigHitToHead", "play")
+                        if self.base.player_ref.get_current_frame("Boxing"):
+                            request.request("Attack", actor, "Boxing", "play")
+                            if (self.base.player_ref.get_current_frame("Boxing") >= 23
+                                    and self.base.player_ref.get_current_frame("Boxing") <= 25):
+                                enemy_fsm_request.request("Attacked", enemy_npc_ref, "BigHitToHead", "Boxing", "play")
 
     def npc_neutral_logic(self, actor, request, passive):
         if (actor and request and self.npc_fsm.npcs_xyz_vec
