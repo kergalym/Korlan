@@ -194,11 +194,39 @@ class LevelOne:
                             if hit and hit.is_active():
                                 if ("Player" in hit.get_name()
                                         and "Hips" in hit.get_name()):
-                                    pass
+                                    # import pdb; pdb.set_trace()
+                                    self.base.npcs_hits[name] = True
                                 else:
-                                    pass
+                                    self.base.npcs_hits[name] = False
+                                if ("NPC" in hit.get_name()
+                                        and "Hips" in hit.get_name()):
+                                    self.base.npcs_hits[name] = True
+                                else:
+                                    self.base.npcs_hits[name] = False
 
         if self.base.game_mode is False and self.base.menu_mode:
+            return task.done
+
+        return task.cont
+
+    def add_level_obstacles_task(self, task):
+        if self.ai and self.ai.ai_world and self.ai.ai_behaviors:
+            navmeshes = self.base.navmesh_collector()
+            for actor_name in self.ai.ai_behaviors:
+                actor = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
+                if actor:
+                    self.ai.ai_behaviors[actor_name].init_path_find(navmeshes["lvl_one"])
+                    self.ai.ai_behaviors[actor_name].path_find_to(actor, "addPath")
+                    self.ai.ai_behaviors[actor_name].add_dynamic_obstacle(actor)
+
+                    if not render.find("**/World").is_empty():
+                        for node in render.find("**/World").get_children():
+                            if "BS" in node.get_name():
+                                self.ai.ai_behaviors[actor_name].add_static_obstacle(node)
+
+                                # Obstacle avoidance behavior
+                                # self.ai.ai_behaviors[actor_name].obstacle_avoidance(1.0)
+                                # self.ai.ai_world.add_obstacle(node)
             return task.done
 
         return task.cont
@@ -536,6 +564,10 @@ class LevelOne:
         """taskMgr.add(self.hitbox_handling_task,
                     "hitbox_handling_task",
                     appendTask=True)"""
+
+        taskMgr.add(self.add_level_obstacles_task,
+                    "add_level_obstacles_task",
+                    appendTask=True)
 
     def save_game(self):
         pass

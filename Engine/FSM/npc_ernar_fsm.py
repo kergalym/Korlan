@@ -84,15 +84,15 @@ class NpcErnarFSM(FSM):
                         actor.loop(action)
                 actor.set_play_rate(self.base.actor_play_rate, action)
 
-    def enterAttacked(self, actor, action, task):
-        if actor and action and task:
+    def enterAttacked(self, actor, action, action_next, task):
+        if actor and action and action_next and task:
             any_action = actor.get_anim_control(action)
-            any_action_seq = actor.actor_interval(action)
 
             if isinstance(task, str):
                 if task == "play":
                     if not any_action.isPlaying():
-                        Sequence(any_action_seq).start()
+                        Sequence(actor.actor_interval(action, loop=0),
+                                 actor.actor_interval(action_next, loop=1)).start()
 
                 elif task == "loop":
                     if not any_action.isPlaying():

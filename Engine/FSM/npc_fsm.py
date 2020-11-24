@@ -48,8 +48,6 @@ class NpcFSM:
                 and ai_behaviors):
             if ai_behaviors and vect:
                 # player could be another npc actor instead
-                navmeshes = self.base.navmesh_collector()
-                ai_behaviors.init_path_find(navmeshes["lvl_one"])
                 if behavior == "seek":
                     ai_behaviors.path_find_to(player, "addPath")
                     ai_behaviors.seek(player)
