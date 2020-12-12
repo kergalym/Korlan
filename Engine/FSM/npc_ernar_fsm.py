@@ -49,6 +49,19 @@ class NpcErnarFSM(FSM):
                                                  behavior=behavior,
                                                  vect=vect)
 
+        if actor and player and not ai_behaviors and not behavior and action and task:
+            any_action = actor.get_anim_control(action)
+            self.base.debug_any_action = any_action
+
+            if isinstance(task, str):
+                if task == "play":
+                    if not any_action.isPlaying():
+                        actor.play(action)
+                elif task == "loop":
+                    if not any_action.isPlaying():
+                        actor.loop(action)
+                actor.set_play_rate(self.base.actor_play_rate, action)
+
     def enterWalkAny(self, actor, path, ai_behaviors, behavior, action, task):
         if actor and path and ai_behaviors and behavior and action and task:
             any_action = actor.get_anim_control(action)

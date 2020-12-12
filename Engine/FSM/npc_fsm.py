@@ -33,6 +33,8 @@ class NpcFSM:
                     # for every actor name like 'NPC_Ernar:BS'
                     self.npcs_xyz_vec[actor.get_name()] = tuple_xyz_vec
 
+            self.base.npcs_xyz_vec = self.npcs_xyz_vec
+
         if base.game_mode is False and base.menu_mode:
             return task.done
 

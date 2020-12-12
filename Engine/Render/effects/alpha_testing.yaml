@@ -1,0 +1,3 @@
+fragment:
+  inout: |
+    in float alpha_factor_operand;

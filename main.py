@@ -110,6 +110,7 @@ p3d.load_prc_file_data(
 
 p3d.load_prc_file_data(
     '',
+    'icon-filename icon-16.ico\n'
     'win-origin -1 -2\n'
     'window-title Korlan - Daughter of the Steppes\n'
     'show-frame-rate-meter  t\n'
@@ -138,6 +139,7 @@ class Main(ShowBase):
         self.build_info = OnscreenText(text=self.build_info_txt, pos=(1.6, -0.95),
                                        fg=(255, 255, 255, 1), scale=.025)
         self.props = WindowProperties()
+        self.props.setIconFilename("icon-16.ico")
         self.props.set_cursor_hidden(True)
         self.win.request_properties(self.props)
 

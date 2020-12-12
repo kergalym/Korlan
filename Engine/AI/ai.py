@@ -22,6 +22,7 @@ class AI:
         self.ai_behaviors = {}
         self.npcs_fsm_states = None
         self.ai_char = None
+        self.ai_chars = {}
         self.player = None
         self.dialogus = CmdDialogusUI()
         self.near_npc = {}
@@ -140,7 +141,7 @@ class AI:
                                 if "NPC" in ref_name:
                                     actor = self.base.get_actor_bullet_shape_node(asset=ref_name, type="NPC")
 
-                                if actor and self.player:
+                                if actor:
                                     speed = 6
 
                                     # Do not duplicate if name is exist
@@ -151,6 +152,7 @@ class AI:
                                     self.ai_world.add_ai_char(self.ai_char)
 
                                     child_name = actor.get_child(0).get_name()
+                                    self.ai_chars[child_name] = self.ai_char
                                     self.ai_behaviors[child_name] = self.ai_char.get_ai_behaviors()
 
                     taskMgr.add(self.npc_fsm.npc_distance_calculate_task,
@@ -327,126 +329,127 @@ class AI:
                 # print(self.base.npcs_hits)
 
                 # If NPC is far from Player/NPC, do pursue Player/NPC
-                if (self.ai_behaviors[actor_name].behavior_status("pursue") == "disabled"
-                        or self.ai_behaviors[actor_name].behavior_status("pursue") == "active"):
-                    if self.base.npcs_hits.get(actor_name):
-                        request.request("Walk", actor, enemy_npc_bs, self.ai_behaviors[actor_name],
-                                        "pursuer", "Walking", vect, "loop")
-                    if not self.base.npcs_hits.get(actor_name):
-                        request.request("Walk", actor, self.player, self.ai_behaviors[actor_name],
-                                        "pursuer", "Walking", vect, "loop")
+                if self.ai_behaviors.get(actor_name):
+                    if (self.ai_behaviors[actor_name].behavior_status("pursue") == "disabled"
+                            or self.ai_behaviors[actor_name].behavior_status("pursue") == "active"):
+                        if self.base.npcs_hits.get(actor_name):
+                            request.request("Walk", actor, enemy_npc_bs, self.ai_behaviors[actor_name],
+                                            "pursuer", "Walking", vect, "loop")
+                        if not self.base.npcs_hits.get(actor_name):
+                            request.request("Walk", actor, self.player, self.ai_behaviors[actor_name],
+                                            "pursuer", "Walking", vect, "loop")
 
-                # If NPC is close to Player/NPC, do enemy attack
-                if self.ai_behaviors[actor_name].behavior_status("pursue") == "done":
-                    if enemy_npc_ref:
-                        self.near_npc[actor_name] = True
-                        if hasattr(self.base, 'npcs_active_actions'):
-                            self.base.npcs_active_actions[enemy_npc_ref.get_name()] = None
-                            self.base.npcs_active_actions[actor_name] = "Boxing"
-                        request.request("Attack", actor, "Boxing", "loop")
-                    else:
-                        self.near_npc[actor_name] = True
-                        if hasattr(self.base, 'npcs_active_actions'):
-                            self.base.npcs_active_actions[self.base.player_ref.get_name()] = None
-                            self.base.npcs_active_actions[actor_name] = "Boxing"
-                        request.request("Attack", actor, "Boxing", "loop")
-
-                    # Player/NPC is attacked by enemy!
-                    if (actor.get_current_frame("Boxing") >= 23
-                            and actor.get_current_frame("Boxing") <= 25):
+                    # If NPC is close to Player/NPC, do enemy attack
+                    if self.ai_behaviors[actor_name].behavior_status("pursue") == "done":
                         if enemy_npc_ref:
-                            self.base.npcs_hits[enemy_npc_ref.get_name()] = True
-                            self.player_fsm.request("Attacked", enemy_npc_ref, "BigHitToHead", "play")
+                            self.near_npc[actor_name] = True
+                            if hasattr(self.base, 'npcs_active_actions'):
+                                self.base.npcs_active_actions[enemy_npc_ref.get_name()] = None
+                                self.base.npcs_active_actions[actor_name] = "Boxing"
+                            request.request("Attack", actor, "Boxing", "loop")
+                        else:
+                            self.near_npc[actor_name] = True
+                            if hasattr(self.base, 'npcs_active_actions'):
+                                self.base.npcs_active_actions[self.base.player_ref.get_name()] = None
+                                self.base.npcs_active_actions[actor_name] = "Boxing"
+                            request.request("Attack", actor, "Boxing", "loop")
 
-                    if (actor.get_current_frame("Boxing") >= 23
-                            and actor.get_current_frame("Boxing") <= 25
-                            and self.base.player_states["is_blocking"] is False):
-                        if not enemy_npc_ref:
-                            for k in self.base.npcs_hits:
-                                self.base.npcs_hits[k] = False
-                            self.player_fsm.request("Attacked", self.base.player_ref, "BigHitToHead", "play")
-
-                    # Enemy is attacked by player!
-                    if (self.base.player_states["is_hitting"]
-                            and self.base.alive_actors[actor_name]):
-                        if (self.base.player_ref.get_current_frame("Boxing") >= 23
-                                and self.base.player_ref.get_current_frame("Boxing") <= 25):
-                            # Enemy does a block
-                            request.request("Block", actor, "center_blocking", "Boxing", "play")
-
-                        # Enemy health decreased when enemy miss a hits
-                        if (actor.get_current_frame("center_blocking")
-                                and actor.get_current_frame("center_blocking") == 1):
-                            if hasattr(base, "npcs_actors_health") and base.npcs_actors_health:
-                                if base.npcs_actors_health[actor_name].getPercent() != 0:
-                                    base.npcs_actors_health[actor_name]['value'] -= 5
-                            request.request("Attacked", actor, "BigHitToHead", "Boxing", "play")
-
-                        # Temporary thing, leave it here
-                        if (hasattr(base, "npcs_actors_health")
-                                and base.npcs_actors_health):
-                            value = base.npcs_actors_health[actor_name]['value']
-                            self.dbg_text_npc_frame_hit.setText(str(value) + actor_name)
-
-                        # Enemy will die if no health or flee:
-                        if (hasattr(base, "npcs_actors_health")
-                                and base.npcs_actors_health):
-                            if base.npcs_actors_health[actor_name].getPercent() != 0:
-                                # Evade or attack the player
-                                if base.npcs_actors_health[actor_name].getPercent() == 50.0:
-                                    self.near_npc[actor_name] = False
-                                    self.ai_behaviors[actor_name].remove_ai("pursue")
-                                    request.request("Walk", actor, self.player, self.ai_behaviors[actor_name],
-                                                    "evader", "Walking", vect, "loop")
-                                pass
-                            else:
-                                request.request("Death", actor, "Dying", "play")
-                                self.base.alive_actors[actor_name] = False
-                                self.ai_behaviors[actor_name].pause_ai("pursue")
-                                self.near_npc[actor_name] = False
-
-                    # Enemy is attacked by opponent!
-                    if enemy_npc_ref and not self.base.player_states["is_hitting"]:
-                        request.request("Attack", actor, "Boxing", "play")
+                        # Player/NPC is attacked by enemy!
                         if (actor.get_current_frame("Boxing") >= 23
                                 and actor.get_current_frame("Boxing") <= 25):
                             if enemy_npc_ref:
                                 self.base.npcs_hits[enemy_npc_ref.get_name()] = True
-                                enemy_fsm_request.request("Attacked", enemy_npc_ref, "BigHitToHead", "Boxing", "play")
+                                self.player_fsm.request("Attacked", enemy_npc_ref, "BigHitToHead", "play")
 
-                            # Enemy does a block
-                            request.request("Block", actor, "center_blocking", "Boxing", "play")
+                        if (actor.get_current_frame("Boxing") >= 23
+                                and actor.get_current_frame("Boxing") <= 25
+                                and self.base.player_states["is_blocking"] is False):
+                            if not enemy_npc_ref:
+                                for k in self.base.npcs_hits:
+                                    self.base.npcs_hits[k] = False
+                                self.player_fsm.request("Attacked", self.base.player_ref, "BigHitToHead", "play")
 
-                        # Enemy health decreased when enemy miss a hits
-                        if (actor.get_current_frame("center_blocking")
-                                and actor.get_current_frame("center_blocking") == 1):
-                            if hasattr(base, "npcs_actors_health") and base.npcs_actors_health:
+                        # Enemy is attacked by player!
+                        if (self.base.player_states["is_hitting"]
+                                and self.base.alive_actors[actor_name]):
+                            if (self.base.player_ref.get_current_frame("Boxing") >= 23
+                                    and self.base.player_ref.get_current_frame("Boxing") <= 25):
+                                # Enemy does a block
+                                request.request("Block", actor, "center_blocking", "Boxing", "play")
+
+                            # Enemy health decreased when enemy miss a hits
+                            if (actor.get_current_frame("center_blocking")
+                                    and actor.get_current_frame("center_blocking") == 1):
+                                if hasattr(base, "npcs_actors_health") and base.npcs_actors_health:
+                                    if base.npcs_actors_health[actor_name].getPercent() != 0:
+                                        base.npcs_actors_health[actor_name]['value'] -= 5
+                                request.request("Attacked", actor, "BigHitToHead", "Boxing", "play")
+
+                            # Temporary thing, leave it here
+                            """if (hasattr(base, "npcs_actors_health")
+                                    and base.npcs_actors_health):
+                                value = base.npcs_actors_health[actor_name]['value']
+                                self.dbg_text_npc_frame_hit.setText(str(value) + actor_name)"""
+
+                            # Enemy will die if no health or flee:
+                            if (hasattr(base, "npcs_actors_health")
+                                    and base.npcs_actors_health):
                                 if base.npcs_actors_health[actor_name].getPercent() != 0:
-                                    base.npcs_actors_health[actor_name]['value'] -= 5
-                            request.request("Attacked", actor, "BigHitToHead", "Boxing", "play")
-
-                        # Enemy will die if no health or flee:
-                        if (hasattr(base, "npcs_actors_health")
-                                and base.npcs_actors_health):
-                            if base.npcs_actors_health[actor_name].getPercent() != 0:
-                                # Evade or attack the player
-                                if base.npcs_actors_health[actor_name].getPercent() == 50.0:
+                                    # Evade or attack the player
+                                    if base.npcs_actors_health[actor_name].getPercent() == 50.0:
+                                        self.near_npc[actor_name] = False
+                                        self.ai_behaviors[actor_name].remove_ai("pursue")
+                                        request.request("Walk", actor, self.player, self.ai_behaviors[actor_name],
+                                                        "evader", "Walking", vect, "loop")
+                                    pass
+                                else:
+                                    request.request("Death", actor, "Dying", "play")
+                                    self.base.alive_actors[actor_name] = False
+                                    self.ai_behaviors[actor_name].pause_ai("pursue")
                                     self.near_npc[actor_name] = False
-                                    self.ai_behaviors[actor_name].remove_ai("pursue")
-                                    request.request("Walk", actor, enemy_npc_bs, self.ai_behaviors[actor_name],
-                                                    "evader", "Walking", vect, "loop")
-                                pass
-                            else:
-                                request.request("Death", actor, "Dying", "play")
-                                self.base.alive_actors[actor_name] = False
-                                self.ai_behaviors[actor_name].pause_ai("pursue")
-                                self.near_npc[actor_name] = False
 
-                # Enemy returns back
-                if base.npcs_actors_health[actor_name]:
-                    if (base.npcs_actors_health[actor_name].getPercent() == 50.0
-                            and vec_x == 10.0 or vec_x == -10.0
-                            and self.ai_behaviors[actor_name].behavior_status("evade") == "paused"):
-                        self.ai_behaviors[actor_name].remove_ai("evade")
-                        # TODO: Change action to something more suitable
-                        request.request("Idle", actor, "LookingAround", "loop")
+                        # Enemy is attacked by opponent!
+                        if enemy_npc_ref and not self.base.player_states["is_hitting"]:
+                            request.request("Attack", actor, "Boxing", "play")
+                            if (actor.get_current_frame("Boxing") >= 23
+                                    and actor.get_current_frame("Boxing") <= 25):
+                                if enemy_npc_ref:
+                                    self.base.npcs_hits[enemy_npc_ref.get_name()] = True
+                                    enemy_fsm_request.request("Attacked", enemy_npc_ref, "BigHitToHead", "Boxing", "play")
+
+                                # Enemy does a block
+                                request.request("Block", actor, "center_blocking", "Boxing", "play")
+
+                            # Enemy health decreased when enemy miss a hits
+                            if (actor.get_current_frame("center_blocking")
+                                    and actor.get_current_frame("center_blocking") == 1):
+                                if hasattr(base, "npcs_actors_health") and base.npcs_actors_health:
+                                    if base.npcs_actors_health[actor_name].getPercent() != 0:
+                                        base.npcs_actors_health[actor_name]['value'] -= 5
+                                request.request("Attacked", actor, "BigHitToHead", "Boxing", "play")
+
+                            # Enemy will die if no health or flee:
+                            if (hasattr(base, "npcs_actors_health")
+                                    and base.npcs_actors_health):
+                                if base.npcs_actors_health[actor_name].getPercent() != 0:
+                                    # Evade or attack the player
+                                    if base.npcs_actors_health[actor_name].getPercent() == 50.0:
+                                        self.near_npc[actor_name] = False
+                                        self.ai_behaviors[actor_name].remove_ai("pursue")
+                                        request.request("Walk", actor, enemy_npc_bs, self.ai_behaviors[actor_name],
+                                                        "evader", "Walking", vect, "loop")
+                                    pass
+                                else:
+                                    request.request("Death", actor, "Dying", "play")
+                                    self.base.alive_actors[actor_name] = False
+                                    self.ai_behaviors[actor_name].pause_ai("pursue")
+                                    self.near_npc[actor_name] = False
+
+                    # Enemy returns back
+                    if base.npcs_actors_health[actor_name]:
+                        if (base.npcs_actors_health[actor_name].getPercent() == 50.0
+                                and vec_x == 10.0 or vec_x == -10.0
+                                and self.ai_behaviors[actor_name].behavior_status("evade") == "paused"):
+                            self.ai_behaviors[actor_name].remove_ai("evade")
+                            # TODO: Change action to something more suitable
+                            request.request("Idle", actor, "LookingAround", "loop")

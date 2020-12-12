@@ -49,6 +49,17 @@ class NpcMongol2FSM(FSM):
                                                  behavior=behavior,
                                                  vect=vect)
 
+        if actor and not player and not ai_behaviors and not behavior and action and task:
+            any_action = actor.get_anim_control(action)
+            if isinstance(task, str):
+                if task == "play":
+                    if not any_action.isPlaying():
+                        actor.play(action)
+                elif task == "loop":
+                    if not any_action.isPlaying():
+                        actor.loop(action)
+                actor.set_play_rate(self.base.actor_play_rate, action)
+
     def enterAttack(self, actor, action, task):
         if actor and action and task:
             any_action = actor.get_anim_control(action)

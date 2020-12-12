@@ -5,20 +5,20 @@
 
 enabled:
     - ao
-    - bloom
     - clouds
     - color_correction
     - env_probes
     - forward_shading
-    - motion_blur
     - pssm
     - scattering
     - skin_shading
     - sky_ao
     - smaa
     - ssr
+    # - bloom
     # - dof
     # - fxaa
+    # - motion_blur
     # - volumetrics
     # - vxgi
 
@@ -29,8 +29,8 @@ overrides:
         blur_normal_factor: 2.97
         blur_depth_factor: 0.88158
         occlusion_strength: 2.19
-        clip_length: 10
-        technique: SSAO
+        clip_length: 1
+        technique: ALCHEMY
         ssao_sample_radius: 95.29
         ssao_sequence: halton_3D_8
         ssao_bias: 0.0143
@@ -74,7 +74,7 @@ overrides:
         film_grain_strength: 0.1286
         color_lut: film_luts/default_lut.png
         use_chromatic_aberration: True
-        chromatic_aberration_strength: 0.019
+        chromatic_aberration_strength: 0.33012
         chromatic_aberration_samples: 2
         manual_camera_parameters: False
         min_exposure_value: 0.01
@@ -93,7 +93,7 @@ overrides:
         near_blur_strength: 0.4286
 
     env_probes:
-        probe_resolution: 128
+        probe_resolution: 256
         diffuse_probe_resolution: 2
         max_probes: 16
         max_probes_per_cell: 3
@@ -125,7 +125,7 @@ overrides:
         use_pcf: True
         filter_sequence: halton_2D_32
         filter_radius: 0.7
-        fixed_bias: 0.11429
+        fixed_bias: 0.11426
         slope_bias: 0.0
         normal_bias: 0.67
         use_pcss: False
@@ -136,7 +136,7 @@ overrides:
         dist_shadow_resolution: 4096
         dist_shadow_clipsize: 400.0
         dist_shadow_sundist: 300.0
-        scene_shadow_resolution: 512
+        scene_shadow_resolution: 4096
         scene_shadow_sundist: 300.0
 
     scattering:
@@ -152,10 +152,10 @@ overrides:
 
     skin_shading:
         quality: medium
-        blur_scale: 0.43
+        blur_scale: 0.65
 
     sky_ao:
-        sample_radius: 4.0
+        sample_radius: 17.17
         max_radius: 500.0
         resolution: 1024
         sample_sequence: poisson_2D_32
@@ -165,7 +165,7 @@ overrides:
         capture_height: 568.75
 
     smaa:
-        use_reprojection: False
+        use_reprojection: True
         smaa_quality: ultra
         jitter_pattern: halton8
         history_length: 8
@@ -173,7 +173,7 @@ overrides:
 
     ssr:
         effect_scale: 1.0
-        trace_steps: 64
+        trace_steps: 84
         history_length: 16
         abort_on_object_infront: True
         intial_bias: 0.1
@@ -184,12 +184,12 @@ overrides:
 
     volumetrics:
         enable_volumetric_shadows: True
-        volumetric_shadow_intensity: 6.36
-        volumetric_shadow_brightness: 3.45
-        volumetric_shadow_pow: 1.11
-        volumetric_max_distance: 97.58
-        volumetric_shadow_fadein_distance: 24.95
-        volumetric_num_steps: 105
+        volumetric_shadow_intensity: 8.31
+        volumetric_shadow_brightness: 1.66
+        volumetric_shadow_pow: 1.15999
+        volumetric_max_distance: 79.41429
+        volumetric_shadow_fadein_distance: 9.49
+        volumetric_num_steps: 128
 
     vxgi:
         grid_resolution: 256
