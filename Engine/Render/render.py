@@ -3,6 +3,7 @@ from pathlib import Path, PurePath
 from os import walk
 
 from direct.gui.DirectGui import OnscreenText
+from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import *
 from panda3d.core import FontPool, TextNode
 from Engine.Render.rpcore import PointLight, SpotLight
@@ -24,6 +25,7 @@ class RenderAttr:
         self.set_color = 0.2
         self.shadow_size = 1024
         self.render = None
+        self.flame_np = None
         self.water_np = None
         self.water_camera = None
         self.water_buffer = None
@@ -198,9 +200,29 @@ class RenderAttr:
                                                 {},
                                                 self.water_camera)"""
 
-    def set_flare(self, bool):
-        if bool:
-            pass
+    def set_flame(self, adv_render):
+        if adv_render:
+            if not render.find("**/flame").is_empty():
+                self.flame_np = render.find("**/flame")
+
+                # Set the flame effect
+                self.render_pipeline.set_effect(self.flame_np,
+                                                "{0}/Engine/Render/effects/flame.yaml".format(self.game_dir),
+                                                {})
+                taskMgr.add(self.flame_proc_shader_task,
+                            "flame_proc_shader_task",
+                            appendTask=True)
+
+    def flame_proc_shader_task(self, task):
+        if self.flame_np:
+            time = task.time
+            self.flame_np.set_shader_input("iTime", time)
+        return task.cont
+
+    def clear_flame(self):
+        if self.flame_np and not render.find("**/flame_plane").is_empty():
+            render.find("**/flame_plane").remove_node()
+            taskMgr.remove("flame_proc_shader_task")
 
     def set_daytime_clock_task(self, task):
         if (not base.game_mode

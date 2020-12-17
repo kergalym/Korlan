@@ -80,7 +80,7 @@ class SceneOne:
             # Panda3D 1.10 doesn't enable alpha blending for textures by default
             scene.set_transparency(True)
 
-            render.set_attrib(LightRampAttrib.make_hdr1())
+            # render.set_attrib(LightRampAttrib.make_hdr1())
 
             if self.game_settings['Main']['postprocessing'] == 'off':
                 # Set Lights and Shadows
@@ -97,6 +97,7 @@ class SceneOne:
                 self.base.level_of_details(obj=scene)
             else:                # Enable water
                 self.render_attr.set_water(True, water_lvl=30.0, adv_render=False)
+                self.render_attr.set_flame(adv_render=True)
 
                 # Enable grass
                 # self.render_attr.set_grass(True, adv_render=False)

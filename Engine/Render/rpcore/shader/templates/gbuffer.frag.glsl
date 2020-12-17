@@ -99,7 +99,7 @@ void main() {
             vec4 sampled_diffuse = texture(p3d_Texture0, texcoord);
             float dist_to_camera = distance(MainSceneData.camera_pos, vOutput.position);
             float alpha_factor = mix(0.99, 0.1, saturate(dist_to_camera / 1.0));
-            if (sampled_diffuse.w < alpha_factor) discard;
+            if (sampled_diffuse.a < alpha_factor) discard;
         #endif
     #else
         // In case we don't do alpha testing, we don't need the w-component, so

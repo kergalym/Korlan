@@ -107,7 +107,7 @@ class Mouse:
 
         if self.base.win.move_pointer(0, 100, 100):
             self.heading = self.heading - (x - 100) * self.mouse_sens
-            # self.pitch = self.pitch - (y - 100) * self.mouse_sens
+            self.pitch = self.pitch - (y - 100) * self.mouse_sens
 
         self.base.camera.set_hpr(self.heading, self.pitch, self.rotation)
 

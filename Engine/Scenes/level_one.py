@@ -61,6 +61,14 @@ class LevelOne:
         self.base.npcs_hits = {}
         self.assets = None
 
+    def rp_prepare_scene_task(self, task):
+        if hasattr(self.base, "loading_is_done") and self.base.loading_is_done == 1:
+            if self.render_pipeline:
+                self.render_pipeline.prepare_scene(render)
+                return task.done
+
+        return task.cont
+
     def world_sfx_task(self, task):
         if (hasattr(self.base, 'sound_sfx_nature')
                 and self.base.sound_sfx_nature):
@@ -316,6 +324,9 @@ class LevelOne:
 
             assets = self.base.assets_collector()
             self.assets = assets
+
+            # Remove all flames
+            self.render_attr.clear_flame()
 
             # Remove all lights
             if self.game_settings['Main']['postprocessing'] == 'off':
@@ -581,7 +592,7 @@ class LevelOne:
                                              axis=[0.0, 0.0, self.pos_z],
                                              rotation=[0, 0, 0],
                                              scale=[1.25, 1.25, 1.25],
-                                             culling=True))
+                                             culling=False))
 
         taskMgr.add(self.korlan.set_actor(mode="game",
                                           name="Player",
@@ -634,6 +645,10 @@ class LevelOne:
         taskMgr.add(self.ai_world.update_npc_states_task,
                     "update_npc_states_task",
                     appendTask=True)"""
+
+        taskMgr.add(self.rp_prepare_scene_task,
+                    "rp_prepare_scene_task",
+                    appendTask=True)
 
         taskMgr.add(self.world_sfx_task,
                     "world_sfx_task",

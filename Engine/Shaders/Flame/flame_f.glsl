@@ -9,6 +9,8 @@
 #define YSCALE 0.25
 #define FLAMETONE vec3(50.0, 5.0, 1.0)
 
+uniform sampler2D p3d_Texture0;
+
 float shape(in vec2 pos) // a blob shape to distort
 {
 	return clamp( sin(pos.x*3.1416) - pos.y+YOFFSET, 0.0, 1.0 );
@@ -20,13 +22,13 @@ float noise( in vec3 x ) // iq noise function
     vec3 f = fract(x);
 	f = f*f*(3.0-2.0*f);
 	vec2 uv = (p.xy+vec2(37.0,17.0)*p.z) + f.xy;
-	vec2 rg = textureLod( iChannel0, (uv+ 0.5)/256.0, 0.0 ).yx;
+	vec2 rg = textureLod(p3d_Texture0, (uv+ 0.5)/256.0, 0.0 ).yx;
 	return mix( rg.x, rg.y, f.z ) * 2.0 - 1.0;
 }
 
-void main( out vec4 fragColor, in vec2 fragCoord )
+void main( out vec4 fragColor, in vec2 fragCoord, in vec2 plainDimensions )
 {
-	vec2 uv = fragCoord.xy / iResolution.xy;
+	vec2 uv = fragCoord.xy / plainDimensions.xy;
 	float nx = 0.0;
 	float ny = 0.0;
 	for (int i=1; i<ITERATIONS+1; i++)

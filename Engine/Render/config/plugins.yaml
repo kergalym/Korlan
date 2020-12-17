@@ -30,7 +30,7 @@ overrides:
         blur_depth_factor: 0.88158
         occlusion_strength: 2.19
         clip_length: 1
-        technique: ALCHEMY
+        technique: HBAO
         ssao_sample_radius: 95.29
         ssao_sequence: halton_3D_8
         ssao_bias: 0.0143
@@ -165,7 +165,7 @@ overrides:
         capture_height: 568.75
 
     smaa:
-        use_reprojection: True
+        use_reprojection: False
         smaa_quality: ultra
         jitter_pattern: halton8
         history_length: 8
