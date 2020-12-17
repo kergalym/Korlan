@@ -111,14 +111,10 @@ class Korlan:
 
         if mode == 'game':
             self.base.game_mode = True
-            wp = WindowProperties()
-            wp.set_cursor_hidden(True)
-            self.base.win.request_properties(wp)
-
             # Disable the camera trackball controls.
             self.base.disable_mouse()
 
-            self.mouse.set_mouse_mode(WindowProperties.M_absolute)
+            self.mouse.set_mouse_mode(mode="absolute")
 
             if (isinstance(path, str)
                     and isinstance(name, str)

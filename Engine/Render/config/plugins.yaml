@@ -151,8 +151,8 @@ overrides:
         atmosphere_start: 549.61
 
     skin_shading:
-        quality: medium
-        blur_scale: 0.65
+        quality: high
+        blur_scale: 0.1
 
     sky_ao:
         sample_radius: 17.17

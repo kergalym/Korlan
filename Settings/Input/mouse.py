@@ -109,7 +109,14 @@ class Mouse:
             self.heading = self.heading - (x - 100) * self.mouse_sens
             self.pitch = self.pitch - (y - 100) * self.mouse_sens
 
-        self.base.camera.set_hpr(self.heading, self.pitch, self.rotation)
+        if self.pitch < -45:
+            self.pitch = -45
+        if self.pitch > 45:
+            self.pitch = 45
+
+        self.base.camera.set_h(self.heading)
+        self.base.camera.set_p(self.pitch)
+        self.base.camera.set_r(self.rotation)
 
         direction = self.base.camera.get_mat().getRow3(1)
         self.base.camera.set_pos(self.focus - (direction * 180))
@@ -152,10 +159,12 @@ class Mouse:
 
             Return      : None
         """
-        if mode:
-            print(mode)
+        if isinstance(mode, str):
             wp = WindowProperties()
-            wp.set_mouse_mode(mode)
+            if mode == "absolute":
+                wp.set_mouse_mode(WindowProperties.M_absolute)
+            if mode == "relative":
+                wp.set_mouse_mode(WindowProperties.M_relative)
             self.base.mouse_mode = mode
             wp.set_cursor_hidden(True)
             self.base.win.request_properties(wp)
