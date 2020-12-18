@@ -109,8 +109,6 @@ class Mouse:
             self.heading = self.heading - (x - 100) * self.mouse_sens
             self.pitch = self.pitch - (y - 100) * self.mouse_sens
 
-        if self.pitch < -45:
-            self.pitch = -45
         if self.pitch > 45:
             self.pitch = 45
 

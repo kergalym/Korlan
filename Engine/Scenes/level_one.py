@@ -63,9 +63,10 @@ class LevelOne:
 
     def rp_prepare_scene_task(self, task):
         if hasattr(self.base, "loading_is_done") and self.base.loading_is_done == 1:
-            if self.render_pipeline:
-                self.render_pipeline.prepare_scene(render)
-                return task.done
+            if self.game_settings['Main']['postprocessing'] == 'on':
+                if self.render_pipeline:
+                    self.render_pipeline.prepare_scene(render)
+                    return task.done
 
         return task.cont
 
@@ -617,34 +618,14 @@ class LevelOne:
                                               scale=[1.25, 1.25, 1.25],
                                               culling=True))
 
+        # self.base.accept("r", self.render_pipeline.reload_shaders)
+
         """ Task for Debug mode """
         taskMgr.add(self.stat_ui.show_game_stat_task,
                     "show_game_stat",
                     appendTask=True)
 
         self.physics_attr.set_physics_world(assets=level_assets_joined)
-
-        taskMgr.add(self.ai.set_ai_world,
-                    "set_ai_world",
-                    extraArgs=[level_assets_joined, self.npcs_fsm_states],
-                    appendTask=True)
-
-        taskMgr.add(self.ai.update_ai_world_task,
-                    "update_ai_world",
-                    appendTask=True)
-
-        taskMgr.add(self.ai.update_npc_states_task,
-                    "update_npc_states_task",
-                    appendTask=True)
-
-        """taskMgr.add(self.ai_world.set_ai_world,
-                    "set_ai_world_custom",
-                    extraArgs=[level_assets_joined, self.npcs_fsm_states],                    
-                    appendTask=True)
-
-        taskMgr.add(self.ai_world.update_npc_states_task,
-                    "update_npc_states_task",
-                    appendTask=True)"""
 
         taskMgr.add(self.rp_prepare_scene_task,
                     "rp_prepare_scene_task",
@@ -667,13 +648,40 @@ class LevelOne:
                     "hitbox_handling_task",
                     appendTask=True)"""
 
-        taskMgr.add(self.add_level_obstacles_task,
-                    "add_level_obstacles_task",
-                    appendTask=True)
+        if self.game_settings['Debug']['set_ai_mode'] == 'PANDA_AI':
+            # TODO: PANDA AI LOGIC
+            taskMgr.add(self.ai.set_ai_world,
+                        "set_ai_world",
+                        extraArgs=[level_assets_joined, self.npcs_fsm_states],
+                        appendTask=True)
 
-        taskMgr.add(self.add_level_obstacles_cont_task,
-                    "add_level_obstacles_cont_task",
-                    appendTask=True)
+            taskMgr.add(self.ai.update_ai_world_task,
+                        "update_ai_world",
+                        appendTask=True)
+
+            taskMgr.add(self.ai.update_npc_states_task,
+                        "update_npc_states_task",
+                        appendTask=True)
+
+            taskMgr.add(self.add_level_obstacles_task,
+                        "add_level_obstacles_task",
+                        appendTask=True)
+
+            # TODO: PANDA AI LOGIC
+            """taskMgr.add(self.add_level_obstacles_cont_task,
+                        "add_level_obstacles_cont_task",
+                        appendTask=True)"""
+
+        if self.game_settings['Debug']['set_ai_mode'] == 'RED_AI':
+            # TODO: RED AI LOGIC
+            taskMgr.add(self.ai_world.set_ai_world,
+                        "set_ai_world_custom",
+                        extraArgs=[level_assets_joined, self.npcs_fsm_states],
+                        appendTask=True)
+
+            taskMgr.add(self.ai_world.update_npc_states_task,
+                        "update_npc_states_task",
+                        appendTask=True)
 
     def save_game(self):
         pass
