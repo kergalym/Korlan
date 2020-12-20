@@ -224,6 +224,15 @@ class RenderAttr:
             render.find("**/flame_plane").remove_node()
             taskMgr.remove("flame_proc_shader_task")
 
+    def set_hardware_skinning(self, actor, bool_):
+        if actor and isinstance(bool_, bool):
+            self.render_pipeline.set_effect(actor,
+                                            "{0}/Engine/Render/effects/hardware_skinning.yaml".format(self.game_dir),
+                                            options={}, sort=25)
+            sattrib = actor.get_attrib(ShaderAttrib)
+            sattrib = sattrib.set_flag(ShaderAttrib.F_hardware_skinning, bool_)
+            actor.set_attrib(sattrib)
+
     def set_daytime_clock_task(self, task):
         if (not base.game_mode
                 and base.menu_mode):

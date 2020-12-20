@@ -9,6 +9,7 @@ from panda3d.bullet import BulletWorld, BulletDebugNode, BulletRigidBodyNode, Bu
 class PhysicsAttr:
 
     def __init__(self):
+        self.base = base
         self.world = None
         self.world_nodepath = None
         self.debug_nodepath = None
@@ -49,24 +50,26 @@ class PhysicsAttr:
 
             Return      : Task event
         """
-        if self.world:
-            # Get the time that elapsed since last frame.
-            dt = globalClock.getDt()
-            self.world.do_physics(dt, 10, 1. / 30)
+        if (hasattr(self.base, "loading_is_done")
+                and self.base.loading_is_done == 1):
+            if self.world:
+                # Get the time that elapsed since last frame.
+                dt = globalClock.getDt()
+                self.world.do_physics(dt, 10, 1. / 30)
 
-            # Disable colliding
-            self.world.set_group_collision_flag(0, 0, False)
-            # Enable colliding: player (0), static (1) and npc (2)
-            self.world.set_group_collision_flag(0, 1, True)
-            self.world.set_group_collision_flag(0, 2, True)
+                # Disable colliding
+                self.world.set_group_collision_flag(0, 0, False)
+                # Enable colliding: player (0), static (1) and npc (2)
+                self.world.set_group_collision_flag(0, 1, True)
+                self.world.set_group_collision_flag(0, 2, True)
 
-            # Do update RigidBodyNode parent node's position for every frame
-            if hasattr(base, "close_item_name"):
-                name = base.close_item_name
-                if not render.find("**/{0}".format(name)).is_empty():
-                    item = render.find("**/{0}".format(name))
-                    if 'BS' in item.get_parent().get_name():
-                        item.get_parent().node().set_transform_dirty()
+                # Do update RigidBodyNode parent node's position for every frame
+                if hasattr(base, "close_item_name"):
+                    name = base.close_item_name
+                    if not render.find("**/{0}".format(name)).is_empty():
+                        item = render.find("**/{0}".format(name))
+                        if 'BS' in item.get_parent().get_name():
+                            item.get_parent().node().set_transform_dirty()
 
         if base.game_mode is False and base.menu_mode:
             return task.done
@@ -98,26 +101,27 @@ class PhysicsAttr:
 
             Return      : Task event
         """
-        if isinstance(assets, dict):
+        if (hasattr(self.base, "loading_is_done")
+                and self.base.loading_is_done == 1):
+            if isinstance(assets, dict):
 
-            for name, type, shape in zip(assets['name'],
-                                         assets['type'],
-                                         assets['shape']):
+                for name, type, shape in zip(assets['name'],
+                                             assets['type'],
+                                             assets['shape']):
 
-                if (not render.find("**/{0}".format(name)).is_empty()
-                        and render.find("**/{0}:BS".format(name)).is_empty()):
-                    if type == 'player' or 'actor':
-                        self.set_collision(obj=render.find("**/{0}".format(name)),
-                                           type=type,
-                                           shape=shape)
+                    if (not render.find("**/{0}".format(name)).is_empty()
+                            and render.find("**/{0}:BS".format(name)).is_empty()):
+                        if type == 'player' or 'actor':
+                            self.set_collision(obj=render.find("**/{0}".format(name)),
+                                               type=type,
+                                               shape=shape)
 
-                    else:
-                        self.set_collision(obj=render.find("**/{0}".format(name)),
-                                           type=type,
-                                           shape=shape)
+                        else:
+                            self.set_collision(obj=render.find("**/{0}".format(name)),
+                                               type=type,
+                                               shape=shape)
 
-        if base.game_mode is False and base.menu_mode:
-            return task.done
+                return task.done
 
         return task.cont
 
@@ -139,6 +143,8 @@ class PhysicsAttr:
 
             Return      : None
         """
+        self.base.physics_is_active = 0
+
         if render.find("**/World").is_empty():
             # The above code creates a new node,
             # and it sets the worlds gravity to a downward vector with length 9.81.
@@ -179,6 +185,8 @@ class PhysicsAttr:
         taskMgr.add(self.update_physics_task,
                     "update_physics",
                     appendTask=True)
+
+        self.base.physics_is_active = 1
 
     def collision_info(self, player, item):
         if player and item and hasattr(base, "bullet_world"):

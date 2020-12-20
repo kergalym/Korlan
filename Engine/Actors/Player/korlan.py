@@ -27,6 +27,7 @@ class Korlan:
         self.korlan_life_perc = None
         self.base = base
         self.render = render
+        self.render_attr = RenderAttr()
         self.anims = None
 
         self.game_settings = base.game_settings
@@ -40,7 +41,6 @@ class Korlan:
         self.taskMgr = taskMgr
         self.kbd = Keyboard()
         self.mouse = Mouse()
-        self.render_attr = RenderAttr()
         self.actions = Actions()
         self.state = PlayerState()
         self.base.actor_is_dead = False

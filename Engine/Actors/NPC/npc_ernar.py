@@ -4,6 +4,7 @@ from direct.gui.OnscreenText import OnscreenText
 from direct.showbase.ShowBaseGlobal import aspect2d
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import NodePath
+from Engine.Render.render import RenderAttr
 
 
 class NpcErnar:
@@ -19,6 +20,8 @@ class NpcErnar:
         self.rot_r = 0
         self.base = base
         self.render = render
+        self.render_attr = RenderAttr()
+
         self.actor = None
         self.anims = None
         self.game_settings = base.game_settings

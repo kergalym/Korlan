@@ -120,12 +120,14 @@ p3d.load_prc_file_data(
     'model-cache-textures t\n'
     'compressed-textures 0\n'
     'bullet-filter-algorithm groups-mask\n'
-    'hardware-animated-vertices false\n'
-    'basic-shaders-only false\n'
-    'default-far 10000\n'
-    'texture-compression t\n'
-    'driver-compress-textures t\n'
+    'hardware-animated-vertices t\n'
+    'basic-shaders-only f\n'
+    'texture-compression f\n'
+    'driver-compress-textures f\n'
     'want-pstats 1\n'
+    'task-timer-verbose 1\n'
+    'pstats-tasks 1\n'
+
     'fullscreen {0}\n'.format(fscreen)
 )
 

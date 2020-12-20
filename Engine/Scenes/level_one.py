@@ -62,11 +62,34 @@ class LevelOne:
         self.assets = None
 
     def rp_prepare_scene_task(self, task):
-        if hasattr(self.base, "loading_is_done") and self.base.loading_is_done == 1:
+        if (hasattr(self.base, "loading_is_done")
+                and self.base.loading_is_done == 1):
             if self.game_settings['Main']['postprocessing'] == 'on':
                 if self.render_pipeline:
                     self.render_pipeline.prepare_scene(render)
+
+                    if self.game_settings['Main']['postprocessing'] == 'off':
+                        self.render_attr.set_hardware_skinning(self.korlan, True)
+
                     return task.done
+
+        return task.cont
+
+    def rp_set_hardware_skinning_task(self, task):
+        if (hasattr(self.base, "physics_is_active")
+                and self.base.physics_is_active == 1
+                and hasattr(base, "player_ref")
+                and base.player_ref
+                and hasattr(base, "npcs_actor_refs")
+                and base.npcs_actor_refs):
+            if self.game_settings['Main']['postprocessing'] == 'on':
+                self.render_attr.set_hardware_skinning(base.player_ref, True)
+
+                for name in base.npcs_actor_refs:
+                    actor_ref = base.npcs_actor_refs[name]
+                    self.render_attr.set_hardware_skinning(actor_ref, True)
+
+                return task.done
 
         return task.cont
 
@@ -618,7 +641,7 @@ class LevelOne:
                                               scale=[1.25, 1.25, 1.25],
                                               culling=True))
 
-        # self.base.accept("r", self.render_pipeline.reload_shaders)
+        self.base.accept("r", self.render_pipeline.reload_shaders)
 
         """ Task for Debug mode """
         taskMgr.add(self.stat_ui.show_game_stat_task,
@@ -626,6 +649,10 @@ class LevelOne:
                     appendTask=True)
 
         self.physics_attr.set_physics_world(assets=level_assets_joined)
+
+        taskMgr.add(self.rp_set_hardware_skinning_task,
+                    "rp_set_hardware_skinning_task",
+                    appendTask=True)
 
         taskMgr.add(self.rp_prepare_scene_task,
                     "rp_prepare_scene_task",
@@ -667,7 +694,7 @@ class LevelOne:
                         "add_level_obstacles_task",
                         appendTask=True)
 
-            # TODO: PANDA AI LOGIC
+            # TODO: PANDA AI LOGIC fix
             """taskMgr.add(self.add_level_obstacles_cont_task,
                         "add_level_obstacles_cont_task",
                         appendTask=True)"""

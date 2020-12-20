@@ -19,6 +19,7 @@ py_npc_fsm_classes = [
 ]
 
 # List used by loading screen
+
 level_npc_assets = {'name': ['NPC_Ernar', 'NPC_Mongol', 'NPC_Mongol2'],
                     'type': ['npc', 'npc', 'npc'],
                     'shape': ['capsule', 'capsule', 'capsule'],
@@ -30,18 +31,7 @@ level_npc_axis = {'NPC_Ernar': [-15.0, 15.0, 0],
                   'NPC_Mongol2': [-35.0, 35.0, 0]
                   }
 
-"""
-# TODO: Remove temporary objects below
-level_npc_assets = {'name': ['NPC_Ernar', 'NPC_Mongol'],
-                    'type': ['npc', 'npc'],
-                    'shape': ['capsule', 'capsule'],
-                    'class': ['friend', 'enemy']
-                    }
 
-level_npc_axis = {'NPC_Ernar': [-15.0, 15.0, 0],
-                  'NPC_Mongol': [-25.0, 15.0, 0],
-                  }
-"""
 """
 level_npc_assets = {'name': [],
                     'type': [],
