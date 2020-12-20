@@ -105,6 +105,18 @@ class AI:
                 pass
 
     def set_ai_world(self, assets, npcs_fsm_states, task):
+        """ Function    : set_ai_world
+
+            Description : Enable AI
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
+        self.base.ai_is_active = 1
+
         if (assets and isinstance(assets, dict)
                 and npcs_fsm_states
                 and isinstance(npcs_fsm_states, dict)
@@ -159,6 +171,8 @@ class AI:
                                 "npc_distance_calculate_task",
                                 extraArgs=[self.player],
                                 appendTask=True)
+
+                    self.base.ai_is_active = 1
                     return task.done
 
         return task.cont

@@ -124,9 +124,9 @@ p3d.load_prc_file_data(
     'basic-shaders-only f\n'
     'texture-compression f\n'
     'driver-compress-textures f\n'
-    'want-pstats 1\n'
+    'want-pstats 0\n'
     'task-timer-verbose 1\n'
-    'pstats-tasks 1\n'
+    'pstats-tasks 0\n'
 
     'fullscreen {0}\n'.format(fscreen)
 )

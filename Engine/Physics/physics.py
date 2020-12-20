@@ -135,7 +135,7 @@ class PhysicsAttr:
     def set_physics_world(self, assets):
         """ Function    : set_physics_world
 
-            Description : Enable Physics for render_attr
+            Description : Enable Physics
 
             Input       : None
 
