@@ -115,7 +115,7 @@ class AI:
 
             Return      : None
         """
-        self.base.ai_is_active = 1
+        self.base.ai_is_active = 0
 
         if (assets and isinstance(assets, dict)
                 and npcs_fsm_states
@@ -173,6 +173,7 @@ class AI:
                                 appendTask=True)
 
                     self.base.ai_is_active = 1
+
                     return task.done
 
         return task.cont
