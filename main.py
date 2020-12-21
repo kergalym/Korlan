@@ -73,6 +73,7 @@ game_settings['Debug'] = {'set_debug_mode': 'NO',
                           'set_ai_mode': "RED_AI",
                           'render_explore': 'NO',
                           'cache_autoclean': 'NO',
+                          'want_pstats': 'NO',
                           'player_pos_x': '0.0',
                           'player_pos_y': '8.0',
                           'player_pos_z': '-1.09',
@@ -91,13 +92,19 @@ disp_res = disp_res.split("x")
 
 fscreen = "f"
 wintype = "onscreen"
+
+want_pstats_value = "f"
+
 if game_settings['Main']['fullscreen'] == "on":
     fscreen = "t"
-    wintype = "onscreen"
 
-elif game_settings['Main']['fullscreen'] == "off":
-    fscreen = "f"
-    wintype = "onscreen"
+if game_settings['Debug']['want_pstats'] == "YES":
+    want_pstats_value = "t"
+
+p3d.load_prc_file_data(
+    '',
+    'fullscreen {0}\n'.format(fscreen)
+)
 
 p3d.load_prc_file_data(
     '',
@@ -124,11 +131,13 @@ p3d.load_prc_file_data(
     'basic-shaders-only f\n'
     'texture-compression f\n'
     'driver-compress-textures f\n'
-    'want-pstats 0\n'
     'task-timer-verbose 1\n'
     'pstats-tasks 0\n'
+)
 
-    'fullscreen {0}\n'.format(fscreen)
+p3d.load_prc_file_data(
+    '',
+    'want-pstats {0}\n'.format(want_pstats_value)
 )
 
 

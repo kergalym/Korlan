@@ -254,6 +254,7 @@ class LevelOne:
                     self.ai.ai_behaviors[actor_name].init_path_find(navmeshes["lvl_one"])
                     # self.ai.ai_behaviors[actor_name].path_find_to(actor, "addPath")
                     # self.ai.ai_behaviors[actor_name].add_dynamic_obstacle(actor)
+                    pass
 
                 if actor_name == "NPC_Ernar":
                     actor = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
