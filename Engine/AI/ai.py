@@ -466,7 +466,7 @@ class AI:
                             request.request("Idle", actor, "LookingAround", "loop")
 
     def set_ai_world(self, assets, npcs_fsm_states):
-        """ Function    : set_ai_world_task
+        """ Function    : set_ai_world
 
             Description : Enable AI
 

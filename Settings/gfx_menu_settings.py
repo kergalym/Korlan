@@ -6,6 +6,8 @@ from panda3d.core import LODNode
 
 from Engine.Render.rplibs.yaml import yaml_py3 as rp_yaml
 
+from Settings import msg_box_error, cli_msg_broken_cfg
+
 from Settings.menu_settings import MenuSettings
 
 
@@ -95,8 +97,6 @@ class Graphics(MenuSettings):
         elif loaded_settings['Main']['antialiasing'] == 'off':
             return 2
 
-    # TODO: Implement RP-related calls
-
     def load_ao_value(self):
         return {1: 'ON', 2: 'SSAO', 3: 'HBAO', 4: 'SSVO', 5: 'ALCHEMY', 6: 'UE4AO', 7: 'OFF'}
 
@@ -145,6 +145,11 @@ class Graphics(MenuSettings):
     def get_ao_value(self):
         with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
             config = rp_yaml.safe_load(f)
+
+            if not config:
+                msg_box_error()
+                exit(cli_msg_broken_cfg)
+
             if 'ao' in config['enabled'] and config['overrides']['ao']['technique'] == 'SSAO':
                 return 2
             elif 'ao' in config['enabled'] and config['overrides']['ao']['technique'] == 'HBAO':
@@ -161,6 +166,11 @@ class Graphics(MenuSettings):
     def get_bloom_value(self):
         with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
             config = rp_yaml.safe_load(f)
+
+            if not config:
+                msg_box_error()
+                exit(cli_msg_broken_cfg)
+
             if 'bloom' in config['enabled']:
                 return 1
             else:
@@ -169,6 +179,11 @@ class Graphics(MenuSettings):
     def get_clouds_value(self):
         with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
             config = rp_yaml.safe_load(f)
+
+            if not config:
+                msg_box_error()
+                exit(cli_msg_broken_cfg)
+
             if 'clouds' in config['enabled']:
                 return 1
             else:
@@ -177,6 +192,11 @@ class Graphics(MenuSettings):
     def get_cc_value(self):
         with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
             config = rp_yaml.safe_load(f)
+
+            if not config:
+                msg_box_error()
+                exit(cli_msg_broken_cfg)
+
             if 'color_correction' in config['enabled']:
                 return 1
             else:
@@ -193,6 +213,11 @@ class Graphics(MenuSettings):
     def get_sky_ao_value(self):
         with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
             config = rp_yaml.safe_load(f)
+
+            if not config:
+                msg_box_error()
+                exit(cli_msg_broken_cfg)
+
             if 'sky_ao' in config['enabled']:
                 return 1
             else:
@@ -201,6 +226,11 @@ class Graphics(MenuSettings):
     def get_ssr_value(self):
         with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
             config = rp_yaml.safe_load(f)
+
+            if not config:
+                msg_box_error()
+                exit(cli_msg_broken_cfg)
+
             if 'ssr' in config['enabled']:
                 return 1
             else:
@@ -209,6 +239,11 @@ class Graphics(MenuSettings):
     def get_forward_shading_value(self):
         with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
             config = rp_yaml.safe_load(f)
+
+            if not config:
+                msg_box_error()
+                exit(cli_msg_broken_cfg)
+
             if 'forward_shading' in config['enabled']:
                 return 1
             else:
@@ -217,6 +252,11 @@ class Graphics(MenuSettings):
     def get_skin_shading_value(self):
         with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
             config = rp_yaml.safe_load(f)
+
+            if not config:
+                msg_box_error()
+                exit(cli_msg_broken_cfg)
+
             if 'skin_shading' in config['enabled']:
                 return 1
             else:
@@ -225,6 +265,11 @@ class Graphics(MenuSettings):
     def get_pssm_value(self):
         with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
             config = rp_yaml.safe_load(f)
+
+            if not config:
+                msg_box_error()
+                exit(cli_msg_broken_cfg)
+
             if 'pssm' in config['enabled']:
                 return 1
             else:
@@ -233,6 +278,11 @@ class Graphics(MenuSettings):
     def get_dof_value(self):
         with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
             config = rp_yaml.safe_load(f)
+
+            if not config:
+                msg_box_error()
+                exit(cli_msg_broken_cfg)
+
             if 'dof' in config['enabled']:
                 return 1
             else:
@@ -241,6 +291,11 @@ class Graphics(MenuSettings):
     def get_env_probes_value(self):
         with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
             config = rp_yaml.safe_load(f)
+
+            if not config:
+                msg_box_error()
+                exit(cli_msg_broken_cfg)
+
             if 'env_probes' in config['enabled']:
                 return 1
             else:
@@ -249,6 +304,11 @@ class Graphics(MenuSettings):
     def get_motion_blur_value(self):
         with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
             config = rp_yaml.safe_load(f)
+
+            if not config:
+                msg_box_error()
+                exit(cli_msg_broken_cfg)
+
             if 'motion_blur' in config['enabled']:
                 return 1
             else:
@@ -257,6 +317,11 @@ class Graphics(MenuSettings):
     def get_volumetrics_value(self):
         with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
             config = rp_yaml.safe_load(f)
+
+            if not config:
+                msg_box_error()
+                exit(cli_msg_broken_cfg)
+
             if 'volumetrics' in config['enabled']:
                 return 1
             else:
@@ -295,15 +360,15 @@ class Graphics(MenuSettings):
             with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
                 config = rp_yaml.safe_load(f)
 
-                if not config.get('disabled'):
-                    exit("RenderPipeline plugins configuration is broken. Exiting...")
-                if config.get('disabled') and config.get('enabled'):
+                if not config:
+                    msg_box_error()
+                    exit(cli_msg_broken_cfg)
 
+                if config.get('disabled') and config.get('enabled'):
                     if data is not 'ON' and data is not 'OFF':
                         config['overrides']['ao']['technique'] = data
                     with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'w') as f:
-                        f.write(rp_yaml.safe_dump(config))
-
+                        f.write(rp_yaml.safe_dump(config, default_flow_style=False))
                     with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
                         config = rp_yaml.safe_load(f)
                         if data is 'ON':
@@ -318,17 +383,18 @@ class Graphics(MenuSettings):
                                 config['enabled'].remove('ao')
 
             with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'w') as f:
-                f.write(rp_yaml.safe_dump(config))
+                f.write(rp_yaml.safe_dump(config, default_flow_style=False))
 
     def save_bloom_value(self, data):
         if data and isinstance(data, str):
             with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
                 config = rp_yaml.safe_load(f)
 
-                if not config.get('disabled'):
-                    exit("RenderPipeline plugins configuration is broken. Exiting...")
-                if config.get('disabled') and config.get('enabled'):
+                if not config:
+                    msg_box_error()
+                    exit(cli_msg_broken_cfg)
 
+                if config.get('disabled') and config.get('enabled'):
                     if data is 'ON':
                         if 'bloom' in config.get('disabled'):
                             config['disabled'].remove('bloom')
@@ -341,17 +407,18 @@ class Graphics(MenuSettings):
                             config['enabled'].remove('bloom')
 
             with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'w') as f:
-                f.write(rp_yaml.safe_dump(config))
+                f.write(rp_yaml.safe_dump(config, default_flow_style=False))
 
     def save_clouds_value(self, data):
         if data and isinstance(data, str):
             with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
                 config = rp_yaml.safe_load(f)
 
-                if not config.get('disabled'):
-                    exit("RenderPipeline plugins configuration is broken. Exiting...")
-                if config.get('disabled') and config.get('enabled'):
+                if not config:
+                    msg_box_error()
+                    exit(cli_msg_broken_cfg)
 
+                if config.get('disabled') and config.get('enabled'):
                     if data is 'ON':
                         if 'clouds' in config['disabled']:
                             config['disabled'].remove('clouds')
@@ -364,17 +431,18 @@ class Graphics(MenuSettings):
                             config['enabled'].remove('clouds')
 
             with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'w') as f:
-                f.write(rp_yaml.safe_dump(config))
+                f.write(rp_yaml.safe_dump(config, default_flow_style=False))
 
     def save_color_correction_value(self, data):
         if data and isinstance(data, str):
             with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
                 config = rp_yaml.safe_load(f)
 
-                if not config.get('disabled'):
-                    exit("RenderPipeline plugins configuration is broken. Exiting...")
-                if config.get('disabled') and config.get('enabled'):
+                if not config:
+                    msg_box_error()
+                    exit(cli_msg_broken_cfg)
 
+                if config.get('disabled') and config.get('enabled'):
                     if data is 'ON':
                         if 'color_correction' in config['disabled']:
                             config['disabled'].remove('color_correction')
@@ -387,17 +455,18 @@ class Graphics(MenuSettings):
                             config['enabled'].remove('color_correction')
 
             with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'w') as f:
-                f.write(rp_yaml.safe_dump(config))
+                f.write(rp_yaml.safe_dump(config, default_flow_style=False))
 
     def save_dof_value(self, data):
         if data and isinstance(data, str):
             with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
                 config = rp_yaml.safe_load(f)
 
-                if not config.get('disabled'):
-                    exit("RenderPipeline plugins configuration is broken. Exiting...")
-                if config.get('disabled') and config.get('enabled'):
+                if not config:
+                    msg_box_error()
+                    exit(cli_msg_broken_cfg)
 
+                if config.get('disabled') and config.get('enabled'):
                     if data is 'ON':
                         if 'dof' in config['disabled']:
                             config['disabled'].remove('dof')
@@ -410,17 +479,18 @@ class Graphics(MenuSettings):
                             config['enabled'].remove('dof')
 
             with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'w') as f:
-                f.write(rp_yaml.safe_dump(config))
+                f.write(rp_yaml.safe_dump(config, default_flow_style=False))
 
     def save_env_probes_value(self, data):
         if data and isinstance(data, str):
             with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
                 config = rp_yaml.safe_load(f)
 
-                if not config.get('disabled'):
-                    exit("RenderPipeline plugins configuration is broken. Exiting...")
-                if config.get('disabled') and config.get('enabled'):
+                if not config:
+                    msg_box_error()
+                    exit(cli_msg_broken_cfg)
 
+                if config.get('disabled') and config.get('enabled'):
                     if data is 'ON':
                         if 'env_probes' in config['disabled']:
                             config['disabled'].remove('env_probes')
@@ -433,17 +503,18 @@ class Graphics(MenuSettings):
                             config['enabled'].remove('env_probes')
 
             with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'w') as f:
-                f.write(rp_yaml.safe_dump(config))
+                f.write(rp_yaml.safe_dump(config, default_flow_style=False))
 
     def save_forward_shading_value(self, data):
         if data and isinstance(data, str):
             with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
                 config = rp_yaml.safe_load(f)
 
-                if not config.get('disabled'):
-                    exit("RenderPipeline plugins configuration is broken. Exiting...")
-                if config.get('disabled') and config.get('enabled'):
+                if not config:
+                    msg_box_error()
+                    exit(cli_msg_broken_cfg)
 
+                if config.get('disabled') and config.get('enabled'):
                     if data is 'ON':
                         if 'forward_shading' in config['disabled']:
                             config['disabled'].remove('forward_shading')
@@ -456,17 +527,18 @@ class Graphics(MenuSettings):
                             config['enabled'].remove('forward_shading')
 
             with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'w') as f:
-                f.write(rp_yaml.safe_dump(config))
+                f.write(rp_yaml.safe_dump(config, default_flow_style=False))
 
     def save_motion_blur_value(self, data):
         if data and isinstance(data, str):
             with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
                 config = rp_yaml.safe_load(f)
 
-                if not config.get('disabled'):
-                    exit("RenderPipeline plugins configuration is broken. Exiting...")
-                if config.get('disabled') and config.get('enabled'):
+                if not config:
+                    msg_box_error()
+                    exit(cli_msg_broken_cfg)
 
+                if config.get('disabled') and config.get('enabled'):
                     if data is 'ON':
                         if 'motion_blur' in config['disabled']:
                             config['disabled'].remove('motion_blur')
@@ -479,17 +551,18 @@ class Graphics(MenuSettings):
                             config['enabled'].remove('motion_blur')
 
             with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'w') as f:
-                f.write(rp_yaml.safe_dump(config))
+                f.write(rp_yaml.safe_dump(config, default_flow_style=False))
 
     def save_pssm_value(self, data):
         if data and isinstance(data, str):
             with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
                 config = rp_yaml.safe_load(f)
 
-                if not config.get('disabled'):
-                    exit("RenderPipeline plugins configuration is broken. Exiting...")
-                if config.get('disabled') and config.get('enabled'):
+                if not config:
+                    msg_box_error()
+                    exit(cli_msg_broken_cfg)
 
+                if config.get('disabled') and config.get('enabled'):
                     if data is 'ON':
                         if 'pssm' in config['disabled']:
                             config['disabled'].remove('pssm')
@@ -502,17 +575,18 @@ class Graphics(MenuSettings):
                             config['enabled'].remove('pssm')
 
             with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'w') as f:
-                f.write(rp_yaml.safe_dump(config))
+                f.write(rp_yaml.safe_dump(config, default_flow_style=False))
 
     def save_scattering_value(self, data):
         if data and isinstance(data, str):
             with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
                 config = rp_yaml.safe_load(f)
 
-                if not config.get('disabled'):
-                    exit("RenderPipeline plugins configuration is broken. Exiting...")
-                if config.get('disabled') and config.get('enabled'):
+                if not config:
+                    msg_box_error()
+                    exit(cli_msg_broken_cfg)
 
+                if config.get('disabled') and config.get('enabled'):
                     if data is 'ON':
                         if 'scattering' in config['disabled']:
                             config['disabled'].remove('scattering')
@@ -525,17 +599,18 @@ class Graphics(MenuSettings):
                             config['enabled'].remove('scattering')
 
             with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'w') as f:
-                f.write(rp_yaml.safe_dump(config))
+                f.write(rp_yaml.safe_dump(config, default_flow_style=False))
 
     def save_skin_shading_value(self, data):
         if data and isinstance(data, str):
             with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
                 config = rp_yaml.safe_load(f)
 
-                if not config.get('disabled'):
-                    exit("RenderPipeline plugins configuration is broken. Exiting...")
-                if config.get('disabled') and config.get('enabled'):
+                if not config:
+                    msg_box_error()
+                    exit(cli_msg_broken_cfg)
 
+                if config.get('disabled') and config.get('enabled'):
                     if data is 'ON':
                         if 'skin_shading' in config['disabled']:
                             config['disabled'].remove('skin_shading')
@@ -548,17 +623,18 @@ class Graphics(MenuSettings):
                             config['enabled'].remove('skin_shading')
 
             with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'w') as f:
-                f.write(rp_yaml.safe_dump(config))
+                f.write(rp_yaml.safe_dump(config, default_flow_style=False))
 
     def save_sky_ao_value(self, data):
         if data and isinstance(data, str):
             with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
                 config = rp_yaml.safe_load(f)
 
-                if not config.get('disabled'):
-                    exit("RenderPipeline plugins configuration is broken. Exiting...")
-                if config.get('disabled') and config.get('enabled'):
+                if not config:
+                    msg_box_error()
+                    exit(cli_msg_broken_cfg)
 
+                if config.get('disabled') and config.get('enabled'):
                     if data is 'ON':
                         if 'sky_ao' in config['disabled']:
                             config['disabled'].remove('sky_ao')
@@ -571,17 +647,18 @@ class Graphics(MenuSettings):
                             config['enabled'].remove('sky_ao')
 
             with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'w') as f:
-                f.write(rp_yaml.safe_dump(config))
+                f.write(rp_yaml.safe_dump(config, default_flow_style=False))
 
     def save_smaa_value(self, data):
         if data and isinstance(data, str):
             with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
                 config = rp_yaml.safe_load(f)
 
-                if not config.get('disabled'):
-                    exit("RenderPipeline plugins configuration is broken. Exiting...")
-                if config.get('disabled') and config.get('enabled'):
+                if not config:
+                    msg_box_error()
+                    exit(cli_msg_broken_cfg)
 
+                if config.get('disabled') and config.get('enabled'):
                     if data is 'ON':
                         if 'smaa' in config['disabled']:
                             config['disabled'].remove('smaa')
@@ -594,17 +671,18 @@ class Graphics(MenuSettings):
                             config['enabled'].remove('smaa')
 
             with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'w') as f:
-                f.write(rp_yaml.safe_dump(config))
+                f.write(rp_yaml.safe_dump(config, default_flow_style=False))
 
     def save_ssr_value(self, data):
         if data and isinstance(data, str):
             with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
                 config = rp_yaml.safe_load(f)
 
-                if not config.get('disabled'):
-                    exit("RenderPipeline plugins configuration is broken. Exiting...")
-                if config.get('disabled') and config.get('enabled'):
+                if not config:
+                    msg_box_error()
+                    exit(cli_msg_broken_cfg)
 
+                if config.get('disabled') and config.get('enabled'):
                     if data is 'ON':
                         if 'ssr' in config['disabled']:
                             config['disabled'].remove('ssr')
@@ -617,17 +695,18 @@ class Graphics(MenuSettings):
                             config['enabled'].remove('ssr')
 
             with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'w') as f:
-                f.write(rp_yaml.safe_dump(config))
+                f.write(rp_yaml.safe_dump(config, default_flow_style=False))
 
     def save_volumetrics_value(self, data):
         if data and isinstance(data, str):
             with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
                 config = rp_yaml.safe_load(f)
 
-                if not config.get('disabled'):
-                    exit("RenderPipeline plugins configuration is broken. Exiting...")
-                if config.get('disabled') and config.get('enabled'):
+                if not config:
+                    msg_box_error()
+                    exit(cli_msg_broken_cfg)
 
+                if config.get('disabled') and config.get('enabled'):
                     if data is 'ON':
                         if 'volumetrics' in config['disabled']:
                             config['disabled'].remove('volumetrics')
@@ -640,4 +719,4 @@ class Graphics(MenuSettings):
                             config['enabled'].remove('volumetrics')
 
             with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'w') as f:
-                f.write(rp_yaml.safe_dump(config))
+                f.write(rp_yaml.safe_dump(config, default_flow_style=False))
