@@ -233,6 +233,18 @@ class Main(ShowBase):
 
             Return      : Boolean
         """
+        if not exists('{0}/Engine/Render/config/plugins_def.yaml'.format(self.game_dir)):
+            msg_box_error()
+            exit(cli_msg_broken_cfg)
+        else:
+            with open("{0}/Engine/Render/config/plugins_def.yaml".format(self.game_dir), 'r') as f:
+                config = f.read()
+                if not config:
+                    msg_box_error()
+                    exit(cli_msg_broken_cfg)
+                else:
+                    f.close()
+
         if not exists('{0}/Engine/Render/config/plugins.yaml'.format(self.game_dir)):
             msg_box_error()
             exit(cli_msg_broken_cfg)

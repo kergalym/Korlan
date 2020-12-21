@@ -33,11 +33,21 @@ class Graphics(MenuSettings):
             loaded_settings = self.load_settings()
             loaded_settings['Main']['dis_res'] = '1920x1080'
             loaded_settings['Main']['fullscreen'] = 'off'
-            loaded_settings['Main']['antialiasing'] = 'off'
-            loaded_settings['Main']['postprocessing'] = 'off'
-            loaded_settings['Main']['shadows'] = 'off'
+            loaded_settings['Main']['antialiasing'] = 'on'
+            loaded_settings['Main']['postprocessing'] = 'on'
+            loaded_settings['Main']['shadows'] = 'on'
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
+
+            with open("{0}/Engine/Render/config/plugins_def.yaml".format(self.game_dir), 'r') as f_default:
+                def_config = f_default.read()
+
+                if not def_config:
+                    msg_box_error()
+                    exit(cli_msg_broken_cfg)
+                else:
+                    with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'w') as f_current:
+                        f_current.write(def_config)
 
     def load_disp_res(self):
         disp = display.Display()
