@@ -37,11 +37,11 @@ from direct.task.TaskManagerGlobal import taskMgr
 from Engine.Render.rpcore.render_pipeline import RenderPipeline
 
 game_settings = configparser.ConfigParser()
-game_settings['Main'] = {'disp_res': '1024x768',
+game_settings['Main'] = {'disp_res': '1920x1080',
                          'fullscreen': 'off',
                          'antialiasing': 'on',
                          'postprocessing': 'on',
-                         'shadows': 'off',
+                         'shadows': 'on',
                          'sound': 'on',
                          'music': 'on',
                          'sfx': 'on',
