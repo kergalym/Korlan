@@ -24,6 +24,8 @@ class Actions:
         self.standing_to_crouch_action = "standing_to_crouch"
         self.render = render
         self.korlan = None
+        self.player = None
+        self.player_bs = None
         self.taskMgr = taskMgr
         self.kbd = Keyboard()
         self.mouse = Mouse()
@@ -123,6 +125,9 @@ class Actions:
         if (player
                 and anims
                 and isinstance(anims, dict)):
+            # TODO Assign local player variable to self.player
+            self.player = None
+            self.player_bs = None
             self.kbd.keymap_init()
             self.kbd.keymap_init_released()
             base.input_state = self.kbd.bullet_keymap_init()
@@ -130,6 +135,10 @@ class Actions:
             # Define a player menu here
             base.accept('tab', self.player_menu.set_ui_inventory)
             base.accept("mouse1", self.player_hit_action, extraArgs=[player, "attack", anims, "Boxing"])
+
+            # Pass the player object to FSM
+            self.fsm_player.get_player(actor=player)
+            # player.set_blend(frameBlend=True)
 
             taskMgr.add(self.player_init, "player_init",
                         extraArgs=[player, anims],
@@ -157,10 +166,6 @@ class Actions:
     """ Prepares the player for scene """
 
     def player_init(self, player, anims, task):
-        # Pass the player object to FSM
-        self.fsm_player.get_player(actor=player)
-        # player.set_blend(frameBlend=True)
-
         # TODO: change animation
         any_action = player.get_anim_control(anims['LookingAround'])
 
@@ -219,20 +224,20 @@ class Actions:
                 self.player_umai_action(player, "umai", anims, "PickingUp")
 
         # If player has the bullet shape
-        player = self.base.get_actor_bullet_shape_node(asset=player.get_name(), type="Player")
+        if not self.player_bs:
+            self.player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
 
-        if player:
-
+        if self.player_bs:
             # The camera should look in Korlan direction,
             # but it should also try to stay horizontal, so look at
             # a floater which hovers above Korlan's head.
             if self.base.is_cutscene_active is False:
-                self.mouse.mouse_control_setup(player=player)
-                self.base.camera.look_at(self.mouse.set_floater(player))
+                self.mouse.mouse_control_setup(player=self.player_bs)
+                self.base.camera.look_at(self.mouse.set_floater(self.player_bs))
 
             if self.base.is_ui_active is False:
-                self.mouse.mouse_control_setup(player=player)
-                self.base.camera.look_at(self.mouse.set_floater(player))
+                self.mouse.mouse_control_setup(player=self.player_bs)
+                self.base.camera.look_at(self.mouse.set_floater(self.player_bs))
 
         if self.base.game_mode is False and self.base.menu_mode:
             return task.done
