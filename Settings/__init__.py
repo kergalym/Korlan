@@ -26,7 +26,7 @@ def msg_box_error():
         window.geometry('540x150')
         # Positions the window in the center of the page.
         window.geometry("+{}+{}".format(pos_right, pos_down))
-        window.configure(bg='black')
+        window['background'] = '#393e46'
         window.resizable(0, 0)
 
         img = PhotoImage(file=error_img)
@@ -34,10 +34,12 @@ def msg_box_error():
         canvas = Canvas(window, width=70, height=43)
         canvas.create_image((0, 0), image=img, anchor=NW)
         canvas.place(x=30, y=30)
+        canvas['background'] = '#393e46'
 
         lbl = Label(window, text=txt_msg_broken_cfg, font=("Open Sans", 12))
         lbl.config(anchor=CENTER)
-        lbl.configure(bg='black', fg='white')
+        lbl['background'] = '#393e46'
+        lbl['foreground'] = 'white'
         lbl.place(x=120, y=30)
 
         btn = Button(window, text="OK", width=6, height=1,
