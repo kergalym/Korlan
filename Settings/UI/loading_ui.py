@@ -117,12 +117,17 @@ class LoadingUI:
                         self.loading_bar['value'] += num
 
                 if num == asset_num:
-                    self.clear_loading_bar()
                     self.base.loading_is_done = 1
 
                     if self.game_settings['Debug']['set_debug_mode'] == 'YES':
                         if self.base.loading_is_done == 1:
                             self.rp_lights_mgr_ui.set_ui_rpmgr()
+
+                    if (hasattr(base, "player_actions_init_is_activated")
+                            and self.base.player_actions_init_is_activated == 1
+                            and hasattr(base, "physics_is_active")
+                            and self.base.physics_is_active == 1):
+                        self.clear_loading_bar()
 
                     return task.done
 

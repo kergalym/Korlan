@@ -217,11 +217,15 @@ class RenderAttr:
         if self.flame_np:
             time = task.time
             self.flame_np.set_shader_input("iTime", time)
+
+        if base.game_mode is False and base.menu_mode:
+            return task.done
+
         return task.cont
 
     def clear_flame(self):
-        if self.flame_np and not render.find("**/flame_plane").is_empty():
-            render.find("**/flame_plane").remove_node()
+        if self.flame_np and not render.find("**/flame").is_empty():
+            render.find("**/flame").remove_node()
             taskMgr.remove("flame_proc_shader_task")
 
     def set_hardware_skinning(self, actor, bool_):

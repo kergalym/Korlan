@@ -183,7 +183,7 @@ class PhysicsAttr:
                     appendTask=True)
 
         taskMgr.add(self.update_physics_task,
-                    "update_physics",
+                    "update_physics_task",
                     appendTask=True)
 
         self.base.physics_is_active = 1

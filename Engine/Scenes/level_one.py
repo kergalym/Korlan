@@ -627,12 +627,12 @@ class LevelOne:
                                               scale=[1.25, 1.25, 1.25],
                                               culling=True))
 
-        self.base.accept("r", self.render_pipeline.reload_shaders)
-
         """ Task for Debug mode """
-        taskMgr.add(self.stat_ui.show_game_stat_task,
-                    "show_game_stat",
-                    appendTask=True)
+        if self.game_settings['Debug']['set_debug_mode'] == 'YES':
+            self.base.accept("r", self.render_pipeline.reload_shaders)
+            taskMgr.add(self.stat_ui.show_game_stat_task,
+                        "show_game_stat_task",
+                        appendTask=True)
 
         self.physics_attr.set_physics_world(assets=level_assets_joined)
 
@@ -659,8 +659,8 @@ class LevelOne:
 
         if self.game_settings['Debug']['set_ai_mode'] == 'PANDA_AI':
             # TODO: PANDA AI LOGIC
-            taskMgr.add(self.ai.set_ai_world,
-                        "set_ai_world",
+            taskMgr.add(self.ai.set_ai_world_task,
+                        "set_ai_world_task",
                         extraArgs=[level_assets_joined, self.npcs_fsm_states],
                         appendTask=True)
 
@@ -683,8 +683,8 @@ class LevelOne:
 
         if self.game_settings['Debug']['set_ai_mode'] == 'RED_AI':
             # TODO: RED AI LOGIC
-            taskMgr.add(self.ai_world.set_ai_world,
-                        "set_ai_world_custom",
+            taskMgr.add(self.ai_world.set_ai_world_task,
+                        "set_ai_world_task_custom",
                         extraArgs=[level_assets_joined, self.npcs_fsm_states],
                         appendTask=True)
 

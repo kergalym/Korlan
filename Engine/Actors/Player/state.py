@@ -61,7 +61,7 @@ class PlayerState:
             render.find("**/World").remove_node()
 
         # Remove all tasks except system
-        tasks = ["player_init",
+        tasks = ["player_init_task",
                  "player_state",
                  "actor_life",
                  "mouse_look"]

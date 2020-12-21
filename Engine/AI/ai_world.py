@@ -152,8 +152,8 @@ class AIWorld:
             elif weather == "night":
                 pass
 
-    def set_ai_world(self, assets, npcs_fsm_states, task):
-        """ Function    : set_ai_world
+    def set_ai_world_task(self, assets, npcs_fsm_states, task):
+        """ Function    : set_ai_world_task
 
             Description : Enable AI
 

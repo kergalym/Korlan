@@ -125,6 +125,7 @@ class Actions:
         if (player
                 and anims
                 and isinstance(anims, dict)):
+            self.base.player_actions_init_is_activated = 0
             # TODO Assign local player variable to self.player
             self.player = None
             self.player_bs = None
@@ -140,18 +141,19 @@ class Actions:
             self.fsm_player.get_player(actor=player)
             # player.set_blend(frameBlend=True)
 
-            taskMgr.add(self.player_init, "player_init",
+            taskMgr.add(self.player_init_task, "player_init_task",
                         extraArgs=[player, anims],
                         appendTask=True)
 
-            taskMgr.add(self.items.get_item_distance_task,
+            # TODO: Review and uncomment
+            """taskMgr.add(self.items.get_item_distance_task,
                         "get_item_distance_task",
                         extraArgs=[player],
-                        appendTask=True)
+                        appendTask=True)"""
 
-            taskMgr.add(self.player_menu.show_inventory_data_task,
+            """taskMgr.add(self.player_menu.show_inventory_data_task,
                         "show_inventory_data_tak",
-                        appendTask=True)
+                        appendTask=True)"""
 
             # TODO Review the first person mode implementation
             excluded_assets = ['Sky', 'Mountains', 'Grass', 'Ground', 'NPC']
@@ -163,9 +165,11 @@ class Actions:
                         extraArgs=[assets_dist_vec],
                         appendTask=True)
 
+            self.base.player_actions_init_is_activated = 1
+
     """ Prepares the player for scene """
 
-    def player_init(self, player, anims, task):
+    def player_init_task(self, player, anims, task):
         # TODO: change animation
         any_action = player.get_anim_control(anims['LookingAround'])
 

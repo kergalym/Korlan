@@ -437,7 +437,9 @@ class StatUI:
             self.set_player_action_stat_text(stat_player_action_fmt_p, set_mode='hide')
             self.set_npc_action_stat_text(stat_npc_action_fmt_p, set_mode='hide')
             self.text_toggle_col.hide()
+            return task.done
 
+        if base.game_mode is False and base.menu_mode:
             return task.done
 
         return task.cont
