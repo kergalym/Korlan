@@ -1,4 +1,6 @@
 #!/usr/bin/env python3.7
+from Settings import msg_box_error, cli_msg_broken_cfg
+
 import logging
 import re
 import json
@@ -231,6 +233,18 @@ class Main(ShowBase):
 
             Return      : Boolean
         """
+        if not exists('{0}/Engine/Render/config/plugins.yaml'.format(self.game_dir)):
+            msg_box_error()
+            exit(cli_msg_broken_cfg)
+        else:
+            with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
+                config = f.read()
+                if not config:
+                    msg_box_error()
+                    exit(cli_msg_broken_cfg)
+                else:
+                    f.close()
+
         if exists('{0}/Settings/UI/cfg_path.json'.format(self.game_dir)):
             self.cfg_path = json.dumps({'game_config_path': '{0}/{1}'.format(
                 self.game_cfg_dir,
