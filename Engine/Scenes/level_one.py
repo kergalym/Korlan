@@ -659,18 +659,7 @@ class LevelOne:
 
         if self.game_settings['Debug']['set_ai_mode'] == 'PANDA_AI':
             # TODO: PANDA AI LOGIC
-            taskMgr.add(self.ai.set_ai_world_task,
-                        "set_ai_world_task",
-                        extraArgs=[level_assets_joined, self.npcs_fsm_states],
-                        appendTask=True)
-
-            taskMgr.add(self.ai.update_ai_world_task,
-                        "update_ai_world",
-                        appendTask=True)
-
-            taskMgr.add(self.ai.update_npc_states_task,
-                        "update_npc_states_task",
-                        appendTask=True)
+            self.ai.set_ai_world(assets=level_assets_joined, npcs_fsm_states=self.npcs_fsm_states)
 
             taskMgr.add(self.add_level_obstacles_task,
                         "add_level_obstacles_task",

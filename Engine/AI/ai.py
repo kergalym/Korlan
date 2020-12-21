@@ -107,7 +107,7 @@ class AI:
     def set_ai_world_task(self, assets, npcs_fsm_states, task):
         """ Function    : set_ai_world_task
 
-            Description : Enable AI
+            Description : Enable AI Task
 
             Input       : None
 
@@ -115,8 +115,6 @@ class AI:
 
             Return      : None
         """
-        self.base.ai_is_active = 0
-
         if (assets and isinstance(assets, dict)
                 and npcs_fsm_states
                 and isinstance(npcs_fsm_states, dict)
@@ -171,8 +169,6 @@ class AI:
                                 "npc_distance_calculate_task",
                                 extraArgs=[self.player],
                                 appendTask=True)
-
-                    self.base.ai_is_active = 1
 
                     return task.done
 
@@ -468,3 +464,31 @@ class AI:
                             self.ai_behaviors[actor_name].remove_ai("evade")
                             # TODO: Change action to something more suitable
                             request.request("Idle", actor, "LookingAround", "loop")
+
+    def set_ai_world(self, assets, npcs_fsm_states):
+        """ Function    : set_ai_world_task
+
+            Description : Enable AI
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
+        self.base.ai_is_active = 0
+
+        taskMgr.add(self.set_ai_world_task,
+                    "set_ai_world_task",
+                    extraArgs=[assets, npcs_fsm_states],
+                    appendTask=True)
+
+        taskMgr.add(self.update_ai_world_task,
+                    "update_ai_world",
+                    appendTask=True)
+
+        taskMgr.add(self.update_npc_states_task,
+                    "update_npc_states_task",
+                    appendTask=True)
+
+        self.base.ai_is_active = 1
