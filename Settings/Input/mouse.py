@@ -101,16 +101,15 @@ class Mouse:
 
             Return      : None
         """
+
         mouse_direction = self.base.win.getPointer(0)
         x = mouse_direction.get_x()
         y = mouse_direction.get_y()
 
-        if self.base.win.move_pointer(0, 100, 100):
-            self.heading = self.heading - (x - 100) * self.mouse_sens
-            self.pitch = self.pitch - (y - 100) * self.mouse_sens
-
-        """if self.pitch > 45:
-            self.pitch = 45"""
+        # Recentering the cursor and do mouse look
+        if self.base.win.move_pointer(0, int(base.win.getXSize() / 2), int(base.win.getYSize() / 2)):
+            self.heading = self.heading - (x - int(base.win.getXSize() / 2)) * self.mouse_sens
+            self.pitch = self.pitch - (y - int(base.win.getYSize() / 2)) * self.mouse_sens
 
         self.base.camera.set_h(self.heading)
         self.base.camera.set_p(self.pitch)
