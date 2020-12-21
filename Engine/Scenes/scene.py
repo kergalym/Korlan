@@ -61,6 +61,9 @@ class SceneOne:
             scene.set_pos(pos_x, pos_y, pos_z)
             scene.set_hpr(scene, rot_h, 0, 0)
 
+            if self.game_settings['Main']['postprocessing'] == 'on':
+                self.render_attr.render_pipeline.prepare_scene(scene)
+
             if not render.find("**/Grass").is_empty():
                 grass = render.find("**/Grass")
                 grass.set_two_sided(True)
@@ -197,6 +200,9 @@ class SceneOne:
                             tex.setFormat(Texture.F_srgb_alpha)
                         elif tex.getNumComponents() == 3:
                             tex.setFormat(Texture.F_srgb)
+
+                if self.game_settings['Main']['postprocessing'] == 'on':
+                    self.render_attr.render_pipeline.prepare_scene(scene)
 
                 # Set two sided, since some model may be broken
                 scene.set_two_sided(culling)

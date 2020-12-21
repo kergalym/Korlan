@@ -61,20 +61,6 @@ class LevelOne:
         self.base.npcs_hits = {}
         self.assets = None
 
-    def rp_prepare_scene_task(self, task):
-        if (hasattr(self.base, "loading_is_done")
-                and self.base.loading_is_done == 1):
-            if self.game_settings['Main']['postprocessing'] == 'on':
-                if self.render_pipeline:
-                    self.render_pipeline.prepare_scene(render)
-
-                    if self.game_settings['Main']['postprocessing'] == 'off':
-                        self.render_attr.set_hardware_skinning(self.korlan, True)
-
-                    return task.done
-
-        return task.cont
-
     def rp_set_hardware_skinning_task(self, task):
         if (hasattr(self.base, "physics_is_active")
                 and self.base.physics_is_active == 1
@@ -254,7 +240,6 @@ class LevelOne:
                     self.ai.ai_behaviors[actor_name].init_path_find(navmeshes["lvl_one"])
                     # self.ai.ai_behaviors[actor_name].path_find_to(actor, "addPath")
                     # self.ai.ai_behaviors[actor_name].add_dynamic_obstacle(actor)
-                    pass
 
                 if actor_name == "NPC_Ernar":
                     actor = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
@@ -653,10 +638,6 @@ class LevelOne:
 
         taskMgr.add(self.rp_set_hardware_skinning_task,
                     "rp_set_hardware_skinning_task",
-                    appendTask=True)
-
-        taskMgr.add(self.rp_prepare_scene_task,
-                    "rp_prepare_scene_task",
                     appendTask=True)
 
         taskMgr.add(self.world_sfx_task,

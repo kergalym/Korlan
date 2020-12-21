@@ -161,6 +161,9 @@ class Korlan:
 
                 self.base.set_textures_srgb(True)
 
+                if self.game_settings['Main']['postprocessing'] == 'on':
+                    self.render_attr.render_pipeline.prepare_scene(self.korlan)
+
                 # Set lights and Shadows
                 if self.game_settings['Main']['postprocessing'] == 'off':
                     # TODO: uncomment if character has normals
