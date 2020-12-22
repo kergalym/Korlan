@@ -12,26 +12,26 @@ class NpcFSM:
         self.npcs_actor_refs = {}
         self.npcs_names = []
         self.npcs_xyz_vec = {}
+        self.npcs_bs = {}
+
+    def get_npcs(self, actors):
+        # actors is base.npcs_actor_refs
+        for k in actors:
+            actor_bs = self.base.get_actor_bullet_shape_node(asset=k, type="NPC")
+            if actor_bs:
+                self.npcs_bs[k] = actor_bs
 
     def npc_distance_calculate_task(self, player, task):
-        if (hasattr(base, 'npcs_actor_refs')
-                and isinstance(base.npcs_actor_refs, dict)
-                and self.npcs_names
-                and isinstance(self.npcs_names, list)):
-            self.npcs_xyz_vec = {}
-
-            for npc, ref in zip(self.npcs_names, base.npcs_actor_refs):
-                # Drop :BS suffix since we'll get Bullet Shape NodePath here
-                # by our special get_actor_bullet_shape_node()
-                # npc = npc.split(":")[0]
-                actor = self.base.get_actor_bullet_shape_node(asset=ref, type="NPC")
-                xyz_vec = self.base.npc_distance_calculate(player=player, actor=actor)
+        if player and self.npcs_bs and isinstance(self.npcs_bs, dict):
+            for k in self.npcs_bs:
+                actor_bs = self.npcs_bs[k]
+                xyz_vec = self.base.npc_distance_calculate(player=player, actor=actor_bs)
 
                 if xyz_vec:
                     tuple_xyz_vec = xyz_vec['vector']
                     # Here we put tuple xyz values to our class member npcs_xyz_vec
                     # for every actor name like 'NPC_Ernar:BS'
-                    self.npcs_xyz_vec[actor.get_name()] = tuple_xyz_vec
+                    self.npcs_xyz_vec[actor_bs] = tuple_xyz_vec
 
             self.base.npcs_xyz_vec = self.npcs_xyz_vec
 

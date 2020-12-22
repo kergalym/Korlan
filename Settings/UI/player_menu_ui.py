@@ -162,6 +162,12 @@ class PlayerMenuUI(Inventory):
         props.set_cursor_hidden(True)
         self.base.win.request_properties(props)
         base.is_ui_active = False
+        for item in self.items:
+            if not render2d.find("**/{0}".format(item)).is_empty():
+                render2d.find("**/{0}".format(item)).remove_node()
+        # Clean inventory objects
+        self.items = []
+        self.item = None
 
     def set_ui_inventory(self):
         if base.game_mode and base.menu_mode is False:
@@ -171,10 +177,11 @@ class PlayerMenuUI(Inventory):
                 props.set_cursor_hidden(False)
                 self.base.win.request_properties(props)
                 base.is_ui_active = True
+                self.show_inventory_data()
             else:
                 self.clear_ui_inventory()
 
-    def show_inventory_data_task(self, task):
+    def show_inventory_data(self):
         if hasattr(base, "in_use_item_name"):
             if (not base.in_use_item_name and
                     not render2d.find("**/{0}".format(self.item)).is_empty()):
@@ -235,13 +242,3 @@ class PlayerMenuUI(Inventory):
                         image.set_scale(0.1)
                         image.set_pos(pos_x+0.12, 0, pos_z+0.18)
 
-            if base.game_mode is False and base.menu_mode:
-                for item in self.items:
-                    if not render2d.find("**/{0}".format(item)).is_empty():
-                        render2d.find("**/{0}".format(item)).remove_node()
-                # Clean inventory objects
-                self.items = []
-                self.item = None
-                return task.done
-
-        return task.cont

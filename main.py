@@ -603,13 +603,10 @@ class Main(ShowBase):
                         return render.find("**/{0}:BS".format(name))
 
     def get_static_bullet_shape_node(self, asset):
-        if (asset and type
-                and isinstance(asset, str)
-                and isinstance(type, str)):
+        if asset and isinstance(asset, str):
             if "BS" not in asset:
-                name = asset
-                if not render.find("**/{0}:BS".format(name)).is_empty():
-                    return render.find("**/{0}:BS".format(name))
+                if not render.find("**/{0}:BS".format(asset)).is_empty():
+                    return render.find("**/{0}:BS".format(asset))
 
     def cfg_collector(self, path):
         """ Function    : cfg_collector
@@ -889,13 +886,13 @@ class Main(ShowBase):
                 if not actor.get_parent().is_empty():
                     # Get bullet shape node path if it's here
                     if 'BS' in actor.get_parent().get_name():
-                        vect_x = items[key][0] - actor.get_parent().get_x()
-                        vect_y = items[key][1] - actor.get_parent().get_y()
-                        vect_z = items[key][2] - actor.get_parent().get_z()
+                        vect_x = items[key].get_x() - actor.get_parent().get_x()
+                        vect_y = items[key].get_y() - actor.get_parent().get_y()
+                        vect_z = items[key].get_z() - actor.get_parent().get_z()
                     elif 'BS' not in actor.get_parent().get_name():
-                        vect_x = items[key][0] - actor.get_x()
-                        vect_y = items[key][1] - actor.get_y()
-                        vect_z = items[key][2] - actor.get_z()
+                        vect_x = items[key].get_x() - actor.get_x()
+                        vect_y = items[key].get_y() - actor.get_y()
+                        vect_z = items[key].get_z() - actor.get_z()
                     remained[key] = (round(vect_x, 1),
                                      round(vect_y, 1),
                                      round(vect_z, 1))

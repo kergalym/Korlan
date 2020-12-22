@@ -7,7 +7,8 @@ class Items:
         self.base = base
         self.assets = base.assets_collector()
         self.state = PlayerState()
-
+        self.usable_items = None
+        self.usable_items_dist_vect = None
         self.dombra = {
             'type': 'item',
             'name': 'dombra',
@@ -67,24 +68,29 @@ class Items:
                 t, assoc_key=True)
 
             if assets_children:
-
                 for key in assets_children:
                     # Get bullet shape node path if it's here
                     bs_np = self.base.get_static_bullet_shape_node(asset=key)
                     if bs_np:
-                        items[key] = (bs_np.get_pos())
+                        items[key] = bs_np
                 if items:
                     return items
 
     def get_item_distance_task(self, player, task):
-        if player and base.game_mode and base.menu_mode is False:
-            items_dist_vect = base.distance_calculate(
-                self.usable_item_pos_collector(player), player)
-            if items_dist_vect:
-                items_dist_vect_y = [items_dist_vect[k][1] for k in items_dist_vect]
+        if (player and hasattr(self.base, "ai_is_active")
+                and self.base.ai_is_active == 1):
+
+            if not self.usable_items:
+                self.usable_items = self.usable_item_pos_collector(player)
+
+            if self.usable_items:
+                self.usable_items_dist_vect = base.distance_calculate(self.usable_items, player)
+
+            if self.usable_items_dist_vect:
+                items_dist_vect_y = [self.usable_items_dist_vect[k][1] for k in self.usable_items_dist_vect]
                 items_dist_vect_y.sort()
 
-                for name, y_pos in zip(items_dist_vect, items_dist_vect_y):
+                for name, y_pos in zip(self.usable_items_dist_vect, items_dist_vect_y):
                     if (y_pos > 0.0 and y_pos < 0.7
                             and base.is_item_in_use is False):
                         base.is_item_close_to_use = True
@@ -103,6 +109,8 @@ class Items:
             base.is_item_in_use = False
             base.is_item_in_use_long = False
             base.in_use_item_name = None
+            self.usable_items = None
+            self.usable_items_dist_vect = None
             return task.done
 
         return task.cont

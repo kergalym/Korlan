@@ -15,14 +15,15 @@ enabled:
     - sky_ao
     - smaa
     - ssr
+    - volumetrics
 
 disabled:
     - bloom
     - dof
     - fxaa
     - motion_blur
-    - volumetrics
     - vxgi
+
 
 overrides:
     ao:
@@ -190,7 +191,7 @@ overrides:
         volumetric_shadow_pow: 1.15999
         volumetric_max_distance: 79.41429
         volumetric_shadow_fadein_distance: 9.49
-        volumetric_num_steps: 128
+        volumetric_num_steps: 64
 
     vxgi:
         grid_resolution: 256

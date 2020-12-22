@@ -150,10 +150,6 @@ class Actions:
                         extraArgs=[player],
                         appendTask=True)
 
-            taskMgr.add(self.player_menu.show_inventory_data_task,
-                        "show_inventory_data_tak",
-                        appendTask=True)
-
             excluded_assets = ['Sky', 'Mountains', 'Grass', 'Ground', 'NPC']
             assets_dist_vec = base.distance_calculate(
                 base.assets_pos_collector_no_player(player, excluded_assets), player)

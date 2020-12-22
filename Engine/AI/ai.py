@@ -165,6 +165,8 @@ class AI:
                                     self.ai_chars[child_name] = self.ai_char
                                     self.ai_behaviors[child_name] = self.ai_char.get_ai_behaviors()
 
+                    self.npc_fsm.get_npcs(actors=base.npcs_actor_refs)
+
                     taskMgr.add(self.npc_fsm.npc_distance_calculate_task,
                                 "npc_distance_calculate_task",
                                 extraArgs=[self.player],
