@@ -3,5 +3,5 @@
 /media/ST3/MEDIA/GAMEDEV/build/__whl_cache__/manylinux1_x86_64_cp37m/xlib-0.21-py2.py3-none-any.whl
 /media/ST3/MEDIA/GAMEDEV/build/__whl_cache__/manylinux1_x86_64_cp37m/urllib3-1.26.2-py2.py3-none-any.whl
 /media/ST3/MEDIA/GAMEDEV/build/__whl_cache__/manylinux1_x86_64_cp37m/setuptools-51.1.0-py3-none-any.whl
-/media/ST3/MEDIA/GAMEDEV/build/__whl_cache__/manylinux1_x86_64_cp37m/configparser-5.0.1-py3-none-any.whl
+/media/ST3/MEDIA/GAMEDEV/build/__whl_cache__/manylinux1_x86_64_cp37m/configparser-4.0.2-py2.py3-none-any.whl
 /media/ST3/MEDIA/GAMEDEV/build/__whl_cache__/manylinux1_x86_64_cp37m/six-1.15.0-py2.py3-none-any.whl
