@@ -1,5 +1,4 @@
 #!/usr/bin/env python3.7
-from direct.gui.DirectFrame import DirectFrame
 
 import logging
 import re
