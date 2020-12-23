@@ -1,5 +1,5 @@
 #!/usr/bin/env python3.7
-from Settings import msg_box_error, cli_msg_broken_cfg
+from direct.gui.DirectFrame import DirectFrame
 
 import logging
 import re
@@ -11,6 +11,7 @@ from os import mkdir, listdir, walk
 from os.path import isdir, isfile, exists
 
 import panda3d.core as p3d
+from direct.gui.OnscreenImage import OnscreenImage
 from direct.gui.OnscreenText import OnscreenText
 from direct.showbase.ShowBaseGlobal import render2d
 from panda3d.core import Filename, LODNode, Texture
@@ -22,6 +23,7 @@ from direct.showbase.ShowBase import NodePath
 from direct.showbase.ShowBase import AudioSound
 
 from panda3d.core import TextNode
+from panda3d.core import FontPool
 from pathlib import Path, PurePath
 
 from Engine.Actors.Player.korlan import Korlan
@@ -35,6 +37,8 @@ from direct.stdpy import threading
 from code import InteractiveConsole
 from direct.task.TaskManagerGlobal import taskMgr
 from Engine.Render.rpcore.render_pipeline import RenderPipeline
+
+build_info_txt = "Build 0.2. 12/2020"
 
 game_settings = configparser.ConfigParser()
 game_settings['Main'] = {'disp_res': '1920x1080',
@@ -84,7 +88,6 @@ game_settings['Debug'] = {'set_debug_mode': 'NO',
                           'player_rot_r': '-0.0'
                           }
 
-
 game_settings['Misc'] = {'daytime': '18:00'}
 
 game_cfg = '{0}/Korlan - Daughter of the Steppes/settings.ini'.format(str(Path.home()))
@@ -133,7 +136,7 @@ p3d.load_prc_file_data(
     'basic-shaders-only f\n'
     'texture-compression f\n'
     'driver-compress-textures f\n'
-    'task-timer-verbose 1\n'
+    'task-timer-verbose 0\n'
     'pstats-tasks 0\n'
 )
 
@@ -142,6 +145,277 @@ p3d.load_prc_file_data(
     'want-pstats {0}\n'.format(want_pstats_value)
 )
 
+game_dir = str(Path.cwd())
+cfg_is_broken = False
+cfg_name = None
+if not exists('{0}/Engine/Render/config/plugins_def.yaml'.format(game_dir)):
+    cfg_is_broken = True
+    cfg_name = "YOUR_GAME/Engine/Render/config/plugins_def.yaml"
+else:
+    with open("{0}/Engine/Render/config/plugins_def.yaml".format(game_dir), 'r') as f:
+        config = f.read()
+        if not config:
+            cfg_is_broken = True
+            cfg_name = "YOUR_GAME/Engine/Render/config/plugins_def.yaml"
+        else:
+            f.close()
+
+if not exists('{0}/Engine/Render/config/plugins.yaml'.format(game_dir)):
+    cfg_is_broken = True
+    cfg_name = "YOUR_GAME/Engine/Render/config/plugins.yaml"
+else:
+    with open("{0}/Engine/Render/config/plugins.yaml".format(game_dir), 'r') as f:
+        config = f.read()
+        if not config:
+            cfg_is_broken = True
+            cfg_name = "YOUR_GAME/Engine/Render/config/plugins.yaml"
+        else:
+            f.close()
+
+
+class Error(ShowBase):
+
+    def __init__(self):
+        ShowBase.__init__(self)
+        self.build_info = OnscreenText(text=build_info_txt, pos=(1.6, -0.95),
+                                       fg=(255, 255, 255, 1), scale=.025)
+        self.props = WindowProperties()
+        self.props.setIconFilename("icon-16.ico")
+        self.props.set_cursor_hidden(True)
+        self.win.request_properties(self.props)
+        self.game_dir = str(Path.cwd())
+        self.images = self.textures_collector(path="{0}/Settings/UI".format(self.game_dir))
+        self.fonts = self.fonts_collector()
+        # instance of the abstract class
+        self.font = FontPool
+
+        if not self.fonts and self.images:
+            exit("Time to reinstall your game")
+
+        """ Texts & Fonts"""
+        # self.menu_font = self.fonts['OpenSans-Regular']
+        self.menu_font = self.fonts['JetBrainsMono-Regular']
+
+        """ Background Image """
+        self.img_bg = OnscreenImage(image=self.images['error_bg'],
+                                    pos=(0, 0, 0), scale=(2, 1, 1))
+
+        self.title_msg = OnscreenText(text="",
+                                      pos=(-1.8, -0.7),
+                                      scale=0.06,
+                                      fg=(255, 255, 255, 0.9),
+                                      font=self.font.load_font(self.menu_font),
+                                      align=TextNode.ALeft,
+                                      mayChange=True)
+
+        self.title_sm_msg = OnscreenText(text="",
+                                         pos=(-1.8, -0.9),
+                                         scale=0.03,
+                                         fg=(255, 255, 255, 0.9),
+                                         font=self.font.load_font(self.menu_font),
+                                         align=TextNode.ALeft,
+                                         mayChange=True)
+        self.title_msg.setText("Hey, samurai. Your game is broken. Fix and come back")
+        self.title_sm_msg.setText("RenderPipeline plugins configuration is broken:\n{}".format(cfg_name))
+
+    def video_status_task(self, media, type, file, task):
+        """ Function    : video_status_task
+
+            Description : Task for video wall.
+
+            Input       : Nodepath, String, Task
+
+            Output      : None
+
+            Return      : Task event
+        """
+        if media and type and isinstance(type, str) and "REDSTUDIO_FHD" in file:
+            base.accept("escape", media.stop)
+
+        if AudioSound.status(media) == 1:
+            if type == "player_avatar":
+                media.play()
+            else:
+                media.stop()
+
+            if type != "menu_scene":
+                if not render2d.find("**/VideoWall").is_empty():
+                    render2d.find("**/VideoWall").remove_node()
+
+            if type == "main_menu":
+                # Disable the camera trackball controls.
+                self.disable_mouse()
+                props = WindowProperties()
+                props.set_cursor_hidden(False)
+                self.win.request_properties(props)
+                self.load_video(file="MENU_SCENE_VID", type="menu_scene")
+                return task.done
+
+        return task.cont
+
+    def transform_path(self, path, style):
+        if isinstance(path, str):
+            if style == 'unix':
+                transformed_path = str(PurePath(path))
+                transformed_path = Filename.from_os_specific(transformed_path)
+                return transformed_path
+            elif style == 'compat':
+                transformed_path = Filename(path).to_os_specific()
+                return transformed_path
+
+    def fonts_collector(self):
+        """ Function    : fonts_collector
+
+            Description : Collect fonts.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : Dictionary
+        """
+        font_path = self.transform_path(path="{0}/Settings/UI".format(self.game_dir),
+                                        style='compat')
+        fonts = {}
+        if exists(font_path):
+            for root, dirs, files in walk(font_path, topdown=True):
+                for file in files:
+                    if file.endswith(".ttf"):
+                        key = re.sub('.ttf$', '', file)
+                        path = str(PurePath("{0}/".format(root), file))
+                        fonts[key] = Filename.from_os_specific(path).getFullpath()
+            return fonts
+
+    def textures_collector(self, path):
+        """ Function    : textures_collector
+
+            Description : Collect textures.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : Dictionary
+        """
+        tex_path = self.transform_path(path=path, style='compat')
+        textures = {}
+        if exists(tex_path):
+            for root, dirs, files in walk(tex_path, topdown=True):
+                for file in files:
+                    if file.endswith(".png"):
+                        key = re.sub('.png$', '', file)
+                        path = str(PurePath("{0}/".format(root), file))
+                        textures[key] = Filename.from_os_specific(path).getFullpath()
+                    elif file.endswith(".jpg"):
+                        key = re.sub('.jpg$', '', file)
+                        path = str(PurePath("{0}/".format(root), file))
+                        textures[key] = Filename.from_os_specific(path).getFullpath()
+            return textures
+
+    def videos_collector(self):
+        """ Function    : videos_collector
+
+            Description : Collect game asset videos.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : Dictionary
+        """
+        sound_path = self.transform_path(path="{0}/Assets/Videos/".format(self.game_dir), style='compat')
+        videos = {}
+        if exists(sound_path):
+            for root, dirs, files in walk(sound_path, topdown=True):
+                for file in files:
+                    if file.endswith(".mkv"):
+                        key = re.sub('.mkv$', '', file)
+                        path = str(PurePath("{0}/".format(root), file))
+                        videos[key] = Filename.from_os_specific(path).getFullpath()
+            return videos
+
+    def load_video(self, file, type):
+        """ Function    : load_video
+
+            Description : Loads videofile to screen.
+
+            Input       : String
+
+            Output      : None
+
+            Return      : Dictionary
+        """
+        if (file and type
+                and isinstance(file, str) and isinstance(type, str)):
+            videos = self.videos_collector()
+
+            if videos and videos.get(file):
+                tex = MovieTexture(file)
+                success = tex.read(videos.get(file))
+                if success:
+                    # Set up a fullscreen card to set the video texture on.
+                    cm = CardMaker("VideoWall")
+                    cm.set_frame_fullscreen_quad()
+
+                    # Tell the CardMaker to create texture coordinates that take into
+                    # account the padding region of the texture.
+                    cm.set_uv_range(tex)
+
+                    # Now place the card in the scene graph and apply the texture to it.
+                    card = NodePath(cm.generate())
+
+                    if type == "loading_menu":
+                        if not render2d.find("**/LoadingScreen").is_empty():
+                            loading_screen_np = render2d.find("**/LoadingScreen")
+                            card.reparent_to(loading_screen_np)
+
+                    elif type == "main_menu":
+                        card.reparent_to(render2d)
+
+                    elif type == "player_avatar":
+                        card.reparent_to(render2d)
+
+                    card.set_texture(tex)
+
+                    if type == "loading_menu":
+                        card.set_scale(0.3)
+                        card.set_pos(0, 0, 0)
+
+                    if type == "menu_scene":
+                        card.reparent_to(render2d)
+
+                    if type == "player_avatar":
+                        card.set_scale(0.3, 0.3, 0.15)
+                        card.set_pos(0, 0, -0.85)
+
+                    media = base.loader.load_sfx(videos[file])
+
+                    if "MENU_SCENE_VID" in media.get_name():
+                        base.menu_scene_vid = media
+
+                    # Synchronize the video to the sound.
+                    tex.synchronize_to(media)
+
+                    if type == "main_menu":
+                        media.play()
+
+                        taskMgr.add(self.video_status_task,
+                                    "video_status",
+                                    extraArgs=[media, type, file],
+                                    appendTask=True)
+
+                    if type == "menu_scene":
+                        AudioSound.set_loop(media, loop=True)
+                        media.play()
+
+                    if type == "player_avatar":
+                        media.play()
+
+                        taskMgr.add(self.video_status_task,
+                                    "video_status",
+                                    extraArgs=[media, type, file],
+                                    appendTask=True)
+
 
 class Main(ShowBase):
 
@@ -149,8 +423,7 @@ class Main(ShowBase):
         self.cfg_path = None
         self.gfx = Graphics()
         ShowBase.__init__(self)
-        self.build_info_txt = "Build 0.1. 10/2020"
-        self.build_info = OnscreenText(text=self.build_info_txt, pos=(1.6, -0.95),
+        self.build_info = OnscreenText(text=build_info_txt, pos=(1.6, -0.95),
                                        fg=(255, 255, 255, 1), scale=.025)
         self.props = WindowProperties()
         self.props.setIconFilename("icon-16.ico")
@@ -233,30 +506,6 @@ class Main(ShowBase):
 
             Return      : Boolean
         """
-        if not exists('{0}/Engine/Render/config/plugins_def.yaml'.format(self.game_dir)):
-            msg_box_error()
-            exit(cli_msg_broken_cfg)
-        else:
-            with open("{0}/Engine/Render/config/plugins_def.yaml".format(self.game_dir), 'r') as f:
-                config = f.read()
-                if not config:
-                    msg_box_error()
-                    exit(cli_msg_broken_cfg)
-                else:
-                    f.close()
-
-        if not exists('{0}/Engine/Render/config/plugins.yaml'.format(self.game_dir)):
-            msg_box_error()
-            exit(cli_msg_broken_cfg)
-        else:
-            with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
-                config = f.read()
-                if not config:
-                    msg_box_error()
-                    exit(cli_msg_broken_cfg)
-                else:
-                    f.close()
-
         if exists('{0}/Settings/UI/cfg_path.json'.format(self.game_dir)):
             self.cfg_path = json.dumps({'game_config_path': '{0}/{1}'.format(
                 self.game_cfg_dir,
@@ -1127,8 +1376,14 @@ class Main(ShowBase):
         self.load_video(file="MENU_SCENE_VID", type="menu_scene")
 
 
-app = Main()
-app.load_video(file="REDSTUDIO_FHD", type="main_menu")
+if not cfg_is_broken:
+    app = Main()
+    app.load_video(file="REDSTUDIO_FHD", type="main_menu")
 
-if __name__ == '__main__':
-    app.run()
+    if __name__ == '__main__':
+        app.run()
+else:
+    app = Error()
+    # app.load_video(file="MENU_SCENE_VID", type="menu_scene")
+    if __name__ == '__main__':
+        app.run()

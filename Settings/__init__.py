@@ -2,6 +2,10 @@ from os.path import isfile
 from tkinter import *
 from pathlib import Path
 
+from direct.gui.DirectButton import DirectButton
+from direct.showbase.ShowBaseGlobal import aspect2d
+from panda3d.core import WindowProperties, NodePath
+
 window = Tk()
 
 txt_msg_broken_cfg = 'RenderPipeline plugins configuration is broken. \n' \
@@ -20,7 +24,7 @@ game_dir = str(Path.cwd())
 error_img = "{0}/Settings/UI/ui_tex/korlan_logo_tengri_sm.png".format(game_dir)
 
 
-def msg_box_error():
+"""def msg_box_error():
     if isfile(error_img):
         window.title("Korlan: Daughter of the Steppes")
         window.geometry('540x150')
@@ -46,4 +50,17 @@ def msg_box_error():
                      bg="black", fg="white", command=window.destroy)
         btn.place(x=250, y=90)
 
-        window.mainloop()
+        window.mainloop()"""
+
+
+def msg_box_error():
+    wp = WindowProperties()
+    wp.setFixedSize(True)
+    wp.setSize(540, 150)
+    win2 = base.openWindow(props=wp, aspectRatio=1.33)
+    render2d = aspect2d
+    camera2d = base.makeCamera2d(win2)
+    camera2d.reparentTo(render2d)
+    c = DirectButton(text='OK', scale=1, command=exit)
+    c.reparentTo(render2d)
+

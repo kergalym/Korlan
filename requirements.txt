@@ -1,10 +1,6 @@
-﻿panda3d
-Pmw
-PyQt5
-panda3d_gltf
-panda3d-simplepbr
+﻿Pmw
+panda3d
 xlib
 urllib3
 setuptools
 configparser
-PyQt5_sip
