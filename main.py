@@ -75,7 +75,6 @@ game_settings['Keymap'] = {'forward': 'W',
                            }
 
 game_settings['Debug'] = {'set_debug_mode': 'NO',
-                          'set_ai_mode': "RED_AI",
                           'render_explore': 'NO',
                           'cache_autoclean': 'NO',
                           'want_pstats': 'NO',
