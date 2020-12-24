@@ -182,6 +182,7 @@ class AIWorld:
 
                                     self.add_ai_char(actor=actor)
 
+                    self.npc_fsm.get_npcs(actors=base.npcs_actor_refs)
                     self.behavior_sequence(passive=False)
                     self.sequence_once(fsm_state="Bow", anim="archer_standing_draw_arrow_2")
 
@@ -189,6 +190,14 @@ class AIWorld:
                                 "npc_distance_calculate_task",
                                 extraArgs=[self.player],
                                 appendTask=True)
+
+                    taskMgr.add(self.follow_player_task,
+                                "follow_player_task",
+                                appendTask=True)
+
+                    """taskMgr.add(self.npcs_state_register_task,
+                                "hits_and_damages_task",
+                                appendTask=True)"""
 
                     self.base.ai_is_active = 1
 
@@ -211,7 +220,6 @@ class AIWorld:
                         and actor.get_current_frame("Boxing")
                         and actor.get_current_frame("Boxing") >= 23
                         and actor.get_current_frame("Boxing") <= 25):
-                    import pdb; pdb.set_trace()
                     self.npcs_behaviors_seqs[k].pause()
                     self.npcs_self_protect_seqs[k].play()
                 else:
@@ -222,3 +230,19 @@ class AIWorld:
             return task.done
 
         return task.cont
+
+    def follow_player_task(self, task):
+        # Get the time that elapsed since last frame
+        dt = globalClock.getDt()
+        if (hasattr(self.base, "npcs_xyz_vec")
+                and self.base.npcs_xyz_vec):
+            for node in self.base.npcs_xyz_vec:
+                vec_y = self.base.npcs_xyz_vec[node][1]
+                if vec_y != 1.0 or vec_y != -1.0:
+                    node.set_y(node, vec_y * (dt * 12))
+
+        if base.game_mode is False and base.menu_mode:
+            return task.done
+
+        return task.cont
+

@@ -1,4 +1,7 @@
 from direct.fsm.FSM import FSM
+from direct.interval.MetaInterval import Sequence
+from direct.task.TaskManagerGlobal import taskMgr
+from Engine.FSM.npc_fsm import NpcFSM
 
 
 class NpcErnarFSM(FSM):
@@ -6,6 +9,9 @@ class NpcErnarFSM(FSM):
         FSM.__init__(self, "NpcErnarFSM")
         self.base = base
         self.render = render
+        self.taskMgr = taskMgr
+        self.npc_fsm = NpcFSM()
+        base.fsm = self
 
     def enterIdle(self, actor, action, task):
         if actor and action and task:
@@ -21,8 +27,8 @@ class NpcErnarFSM(FSM):
                         actor.loop(action)
                 actor.set_play_rate(self.base.actor_play_rate, action)
 
-    def enterWalk(self, actor, action, task):
-        if actor and action and task:
+    def enterWalk(self, actor, player, ai_behaviors, behavior, action, vect, task):
+        if actor and player and ai_behaviors and behavior and action and task:
             any_action = actor.get_anim_control(action)
             self.base.debug_any_action = any_action
 
@@ -34,30 +40,73 @@ class NpcErnarFSM(FSM):
                     if not any_action.isPlaying():
                         actor.loop(action)
                 actor.set_play_rate(self.base.actor_play_rate, action)
+
+            # Get correct NodePath
+            actor = render.find("**/{0}".format(actor.get_name()))
+            self.npc_fsm.set_basic_npc_behaviors(actor=actor.get_parent(),
+                                                 player=player,
+                                                 ai_behaviors=ai_behaviors,
+                                                 behavior=behavior,
+                                                 vect=vect)
+
+        if actor and player and not ai_behaviors and not behavior and action and task:
+            any_action = actor.get_anim_control(action)
+            self.base.debug_any_action = any_action
+
+            if isinstance(task, str):
+                if task == "play":
+                    if not any_action.isPlaying():
+                        actor.play(action)
+                elif task == "loop":
+                    if not any_action.isPlaying():
+                        actor.loop(action)
+                actor.set_play_rate(self.base.actor_play_rate, action)
+
+    def enterWalkAny(self, actor, path, ai_behaviors, behavior, action, task):
+        if actor and path and ai_behaviors and behavior and action and task:
+            any_action = actor.get_anim_control(action)
+
+            if isinstance(task, str):
+                if task == "play":
+                    if not any_action.isPlaying():
+                        actor.play(action)
+                elif task == "loop":
+                    if not any_action.isPlaying():
+                        actor.loop(action)
+                actor.set_play_rate(self.base.actor_play_rate, action)
+
+            # Get correct NodePath
+            actor = render.find("**/{0}".format(actor.get_name()))
+            self.npc_fsm.set_pathfollow_static_behavior(actor=actor.get_parent(),
+                                                        path=path,
+                                                        ai_behaviors=ai_behaviors,
+                                                        behavior=behavior)
 
     def enterAttack(self, actor, action, task):
         if actor and action and task:
             any_action = actor.get_anim_control(action)
-            self.base.debug_any_action = any_action
+            any_action_seq = actor.actor_interval(action)
 
             if isinstance(task, str):
                 if task == "play":
                     if not any_action.isPlaying():
-                        actor.play(action)
+                        Sequence(any_action_seq).start()
+
                 elif task == "loop":
                     if not any_action.isPlaying():
                         actor.loop(action)
                 actor.set_play_rate(self.base.actor_play_rate, action)
 
-    def enterAttacked(self, actor, action, task):
-        if actor and action and task:
+    def enterAttacked(self, actor, action, action_next, task):
+        if actor and action and action_next and task:
             any_action = actor.get_anim_control(action)
-            self.base.debug_any_action = any_action
 
             if isinstance(task, str):
                 if task == "play":
                     if not any_action.isPlaying():
-                        actor.play(action)
+                        Sequence(actor.actor_interval(action, loop=0),
+                                 actor.actor_interval(action_next, loop=1)).start()
+
                 elif task == "loop":
                     if not any_action.isPlaying():
                         actor.loop(action)
@@ -71,34 +120,6 @@ class NpcErnarFSM(FSM):
 
     def enterBlock(self):
         pass
-
-    def enterBow(self, actor, action, task):
-        if actor and action and task:
-            any_action = actor.get_anim_control(action)
-            self.base.debug_any_action = any_action
-
-            if isinstance(task, str):
-                if task == "play":
-                    if not any_action.isPlaying():
-                        actor.play(action)
-                elif task == "loop":
-                    if not any_action.isPlaying():
-                        actor.loop(action)
-                actor.set_play_rate(self.base.actor_play_rate, action)
-
-    def enterSword(self, actor, action, task):
-        if actor and action and task:
-            any_action = actor.get_anim_control(action)
-            self.base.debug_any_action = any_action
-
-            if isinstance(task, str):
-                if task == "play":
-                    if not any_action.isPlaying():
-                        actor.play(action)
-                elif task == "loop":
-                    if not any_action.isPlaying():
-                        actor.loop(action)
-                actor.set_play_rate(self.base.actor_play_rate, action)
 
     def enterInteract(self):
         pass
