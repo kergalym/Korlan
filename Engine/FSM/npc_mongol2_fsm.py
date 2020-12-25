@@ -42,7 +42,6 @@ class NpcMongol2FSM(FSM):
 
             # Get correct NodePath
             actor = render.find("**/{0}".format(actor.get_name()))
-
             self.npc_fsm.set_basic_npc_behaviors(actor=actor,
                                                  player=player,
                                                  ai_behaviors=ai_behaviors,

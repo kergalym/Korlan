@@ -77,6 +77,8 @@ class NpcFSM:
                     ai_behaviors.path_follow(1)
                     ai_behaviors.add_to_path(player.get_pos())
                     ai_behaviors.start_follow()
+                elif behavior == "pathfind":
+                    ai_behaviors.path_find_to(player, "addPath")
 
                 taskMgr.add(self.keep_actor_pitch_task,
                             "keep_actor_pitch",

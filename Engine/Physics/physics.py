@@ -145,16 +145,9 @@ class PhysicsAttr:
         """
         self.base.physics_is_active = 0
 
-        if render.find("**/World").is_empty():
-            # The above code creates a new node,
-            # and it sets the worlds gravity to a downward vector with length 9.81.
-            # While Bullet is in theory independent from any particular units
-            # it is recommended to stick with SI units (kilogram, meter, second).
-            # In SI units 9.81 m/s² is the gravity on Earth’s surface.
-            self.world_nodepath = self.render.attach_new_node('World')
         # Show a visual representation of the collisions occuring
         if self.game_settings['Debug']['set_debug_mode'] == "YES":
-            self.debug_nodepath = self.world_nodepath.attach_new_node(BulletDebugNode('Debug'))
+            self.debug_nodepath = self.render.attach_new_node(BulletDebugNode('Debug'))
             self.debug_nodepath.show()
 
             base.accept("f1", self.toggle_physics_debug)
@@ -167,7 +160,7 @@ class PhysicsAttr:
                 self.world.set_debug_node(self.debug_nodepath.node())
 
         ground_shape = BulletPlaneShape(Vec3(0, 0, 1), 0)
-        ground_nodepath = self.world_nodepath.attachNewNode(BulletRigidBodyNode('Ground'))
+        ground_nodepath = self.render.attachNewNode(BulletRigidBodyNode('Ground'))
         ground_nodepath.node().addShape(ground_shape)
         ground_nodepath.set_pos(0, 0, 0.10)
         ground_nodepath.node().set_into_collide_mask(self.mask)
@@ -258,20 +251,20 @@ class PhysicsAttr:
                 if shape == 'sphere':
                     actor_bs = self.bullet_solids.set_bs_sphere()
                 if type == 'player':
-                    if self.world_nodepath:
+                    if self.render:
                         base.bullet_char_contr_node = BulletCharacterControllerNode(actor_bs,
                                                                                     0.4,
                                                                                     col_name)
-                        actor_bs_np = self.world_nodepath.attach_new_node(base.bullet_char_contr_node)
+                        actor_bs_np = self.render.attach_new_node(base.bullet_char_contr_node)
                         actor_bs_np.set_collide_mask(mask)
                         self.world.attach(base.bullet_char_contr_node)
                         actor.reparent_to(actor_bs_np)
                 elif type == 'npc':
-                    if self.world_nodepath:
+                    if self.render:
                         actor_contr_node = BulletCharacterControllerNode(actor_bs,
                                                                          0.4,
                                                                          col_name)
-                        actor_bs_np = self.world_nodepath.attach_new_node(actor_contr_node)
+                        actor_bs_np = self.render.attach_new_node(actor_contr_node)
                         actor_bs_np.set_collide_mask(mask)
                         self.world.attach(actor_contr_node)
                         actor.reparent_to(actor_bs_np)
@@ -325,8 +318,8 @@ class PhysicsAttr:
 
                     # Prevent bullet shape duplication
                     if obj_bs_name not in top_parent_name:
-                        if self.world_nodepath:
-                            obj_bs_np = self.world_nodepath.attach_new_node(BulletRigidBodyNode(obj_bs_name))
+                        if self.render:
+                            obj_bs_np = self.render.attach_new_node(BulletRigidBodyNode(obj_bs_name))
                             if type == 'static':
                                 obj_bs_np.node().set_mass(0.0)
                                 obj_bs_np.node().add_shape(bs)
@@ -343,10 +336,6 @@ class PhysicsAttr:
                             obj_bs_np.set_scale(obj.get_scale())
                             # Make item position zero because now it's a child of bullet shape
                             obj.set_pos(0, 0, 0)
-
-                            # Reparent the root node of the level to the World of Physics
-                            if not render.find("**/Collisions/lvl*coll/lvl_*").is_empty():
-                                render.find("**/Collisions/lvl*coll/lvl_*").reparent_to(render.find("**/World"))
 
                             base.shaped_objects.append(obj_bs_name)
 

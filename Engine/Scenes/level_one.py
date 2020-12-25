@@ -3,7 +3,6 @@ from panda3d.core import *
 from Engine.Actors.Player.korlan import Korlan
 from Engine.Actors.Player.state import PlayerState
 from Engine.AI.ai import AI
-from Engine.AI.ai_world import AIWorld
 from Engine.Render.render import RenderAttr
 from Engine.Scenes.scene import SceneOne
 from Engine.Physics.physics import PhysicsAttr
@@ -48,7 +47,6 @@ class LevelOne:
         self.player_state = PlayerState()
         self.physics_attr = PhysicsAttr()
         self.ai = AI()
-        self.ai_world = AIWorld()
         self.mouse = Mouse()
         self.base.npcs_actor_refs = {}
         self.base.npcs_actors_health = {}
@@ -231,15 +229,13 @@ class LevelOne:
 
     def add_level_obstacles_task(self, task):
         if self.ai and self.ai.ai_world and self.ai.ai_behaviors:
-            navmeshes = self.base.navmesh_collector()
             for actor_name in self.ai.ai_behaviors:
                 actor = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
                 self.ai.ai_chars[actor_name].set_max_force(7)
                 if actor:
                     # TODO: DEBUG OBSTACLES AND PATHFINDING
-                    self.ai.ai_behaviors[actor_name].init_path_find(navmeshes["lvl_one"])
-                    # self.ai.ai_behaviors[actor_name].path_find_to(actor, "addPath")
-                    # self.ai.ai_behaviors[actor_name].add_dynamic_obstacle(actor)
+                    self.ai.ai_behaviors[actor_name].path_find_to(actor.get_pos(), "addPath")
+                    self.ai.ai_behaviors[actor_name].add_dynamic_obstacle(actor)
 
                 if actor_name == "NPC_Ernar":
                     actor = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
@@ -273,11 +269,6 @@ class LevelOne:
                     actor = self.base.get_actor_bullet_shape_node(asset="NPC_Mongol", type="NPC")
                     if actor:
                         self.ai.ai_behaviors[actor_name].add_dynamic_obstacle(actor)
-
-                if not render.find("**/World").is_empty():
-                    for node in render.find("**/World").get_children():
-                        if "BS" in node.get_name():
-                            self.ai.ai_behaviors[actor_name].add_static_obstacle(node)
 
             return task.done
 
@@ -290,18 +281,18 @@ class LevelOne:
                 if actor_name == "NPC_Ernar":
                     actor = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
                     if actor:
-                        self.ai.ai_behaviors[actor_name].path_find_to(actor, "addPath")
-                    actor = self.base.get_actor_bullet_shape_node(asset="NPC_Mongol", type="NPC")
+                        self.ai.ai_behaviors[actor_name].path_find_to(actor.get_pos(), "addPath")
+                    """actor = self.base.get_actor_bullet_shape_node(asset="NPC_Mongol", type="NPC")
                     if actor:
                         self.ai.ai_behaviors[actor_name].path_find_to(actor.get_pos(), "addPath")
                     actor = self.base.get_actor_bullet_shape_node(asset="NPC_Mongol2", type="NPC")
                     if actor:
-                        self.ai.ai_behaviors[actor_name].path_find_to(actor.get_pos(), "addPath")
+                        self.ai.ai_behaviors[actor_name].path_find_to(actor.get_pos(), "addPath")"""
 
-                if actor_name == "NPC_Mongol":
+                """if actor_name == "NPC_Mongol":
                     actor = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
                     if actor:
-                        self.ai.ai_behaviors[actor_name].path_find_to(actor, "addPath")
+                        self.ai.ai_behaviors[actor_name].path_find_to(actor.get_pos(), "addPath")
                     actor = self.base.get_actor_bullet_shape_node(asset="NPC_Ernar", type="NPC")
                     if actor:
                         self.ai.ai_behaviors[actor_name].path_find_to(actor.get_pos(), "addPath")
@@ -318,7 +309,7 @@ class LevelOne:
                         self.ai.ai_behaviors[actor_name].path_find_to(actor.get_pos(), "addPath")
                     actor = self.base.get_actor_bullet_shape_node(asset="NPC_Mongol", type="NPC")
                     if actor:
-                        self.ai.ai_behaviors[actor_name].path_find_to(actor.get_pos(), "addPath")
+                        self.ai.ai_behaviors[actor_name].path_find_to(actor.get_pos(), "addPath")"""
 
         if self.base.game_mode is False and self.base.menu_mode:
             return task.done
@@ -329,8 +320,6 @@ class LevelOne:
         if self.base.game_mode:
             self.base.game_mode = False
             self.base.menu_mode = True
-
-            self.ai_world.remove_ai_world()
 
             assets = self.base.assets_collector()
             self.assets = assets
@@ -347,13 +336,6 @@ class LevelOne:
             elif (self.render_pipeline
                   and self.game_settings['Main']['postprocessing'] == 'on'):
                 base.render_attr.clear_lighting()
-
-            # Remove Bullet World
-            if not render.find("**/World").is_empty():
-                for i in range(render.find("**/World").get_num_nodes()):
-                    if not render.find("**/World").is_empty():
-                        render.find("**/World").remove_node()
-                        render.find("**/World").clear()
 
             # Remove Collisions
             if not render.find("**/Collisions").is_empty():
@@ -380,7 +362,7 @@ class LevelOne:
             pattern = [key for key in assets]
             # use pattern to remove nodes corresponding to asset names
             for node in pattern:
-                if not render.find("**/{0}".format(node)).is_empty():
+                if not render.find("**/{0}*".format(node)).is_empty():
                     # Player and actor cleanup
                     if self.korlan.korlan:
                         self.korlan.korlan.delete()
@@ -392,8 +374,8 @@ class LevelOne:
                                 npc_cls.actor.delete()
                                 npc_cls.actor.cleanup()
 
-                    render.find("**/{0}".format(node)).remove_node()
-                    render.find("**/{0}".format(node)).clear()
+                    render.find("**/{0}*".format(node)).remove_node()
+                    render.find("**/{0}*".format(node)).clear()
 
             for key in assets:
                 self.loader.unload_model(assets[key])
@@ -417,13 +399,6 @@ class LevelOne:
         elif (self.render_pipeline
               and self.game_settings['Main']['postprocessing'] == 'on'):
             base.render_attr.clear_lighting()
-
-        # Remove Bullet World
-        if not render.find("**/World").is_empty():
-            for i in range(render.find("**/World").get_num_nodes()):
-                if not render.find("**/World").is_empty():
-                    render.find("**/World").remove_node()
-                    render.find("**/World").clear()
 
         # Remove Collisions
         if not render.find("**/Collisions").is_empty():
@@ -450,7 +425,7 @@ class LevelOne:
         pattern = [key for key in assets]
         # use pattern to remove nodes corresponding to asset names
         for node in pattern:
-            if not render.find("**/{0}".format(node)).is_empty():
+            if not render.find("**/{0}*".format(node)).is_empty():
                 # Player and actor cleanup
                 if self.korlan.korlan:
                     self.korlan.korlan.delete()
@@ -462,8 +437,8 @@ class LevelOne:
                         npc_cls.actor.delete()
                         npc_cls.actor.cleanup()
 
-                render.find("**/{0}".format(node)).remove_node()
-                render.find("**/{0}".format(node)).clear()
+                render.find("**/{0}*".format(node)).remove_node()
+                render.find("**/{0}*".format(node)).clear()
 
         for key in assets:
             self.loader.unload_model(assets[key])
@@ -493,8 +468,7 @@ class LevelOne:
             if len(unloaded_assets) == len(self.assets):
                 is_assets_unloaded = True
 
-            if (render.find("**/World").is_empty()
-                    and render.find("**/Collisions").is_empty()
+            if (render.find("**/Collisions").is_empty()
                     and render.find("**/WaterNodePath").is_empty()
                     and render.find("**/StateInitializer").is_empty()
                     and is_assets_unloaded):
@@ -659,14 +633,14 @@ class LevelOne:
 
         if self.game_settings['Debug']['set_ai_mode'] == 'PANDA_AI':
             # TODO: PANDA AI LOGIC
-            self.ai.set_ai_world(assets=level_assets_joined, npcs_fsm_states=self.npcs_fsm_states)
+            self.ai.set_ai_world(assets=level_assets_joined, npcs_fsm_states=self.npcs_fsm_states, lvl_name="lvl_one")
 
-            taskMgr.add(self.add_level_obstacles_task,
+            """taskMgr.add(self.add_level_obstacles_task,
                         "add_level_obstacles_task",
                         appendTask=True)
 
             # TODO: PANDA AI LOGIC fix
-            """taskMgr.add(self.add_level_obstacles_cont_task,
+            taskMgr.add(self.add_level_obstacles_cont_task,
                         "add_level_obstacles_cont_task",
                         appendTask=True)"""
 

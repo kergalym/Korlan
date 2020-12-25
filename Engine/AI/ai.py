@@ -26,6 +26,7 @@ class AI:
         self.player = None
         self.dialogus = CmdDialogusUI()
         self.near_npc = {}
+        self.navmeshes = self.base.navmesh_collector()
 
         self.dbg_text_npc_frame_hit = OnscreenText(text="",
                                                    pos=(0.5, 0.0),
@@ -104,7 +105,7 @@ class AI:
             elif weather == "night":
                 pass
 
-    def set_ai_world_task(self, assets, npcs_fsm_states, task):
+    def set_ai_world_task(self, assets, npcs_fsm_states, lvl_name, task):
         """ Function    : set_ai_world_task
 
             Description : Enable AI Task
@@ -115,64 +116,72 @@ class AI:
 
             Return      : None
         """
-        if (assets and isinstance(assets, dict)
-                and npcs_fsm_states
-                and isinstance(npcs_fsm_states, dict)
-                and hasattr(base, "npcs_actor_refs")
-                and base.npcs_actor_refs):
-            self.npcs_fsm_states = npcs_fsm_states
+        if hasattr(base, "physics_is_active") and self.base.physics_is_active == 1:
+            if (assets and isinstance(assets, dict)
+                    and npcs_fsm_states
+                    and isinstance(npcs_fsm_states, dict)
+                    and hasattr(base, "npcs_actor_refs")
+                    and base.npcs_actor_refs
+                    and lvl_name and isinstance(lvl_name, str)):
+                self.npcs_fsm_states = npcs_fsm_states
 
-            for npc in npcs_fsm_states:
-                if npcs_fsm_states.get(npc):
-                    npcs_fsm_states[npc].state = "Off"
+                for npc in npcs_fsm_states:
+                    if npcs_fsm_states.get(npc):
+                        npcs_fsm_states[npc].state = "Off"
 
-            if assets.get("name") and assets.get("class"):
-                actor = None
+                if assets.get("name") and assets.get("class"):
+                    actor = None
 
-                for name, cls in zip(assets.get("name"), assets.get("class")):
-                    if cls:
-                        if "env" in cls:
-                            continue
-                        elif "hero" in cls:
-                            continue
-                        self.npc_classes[name] = cls
-
-                self.player = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
-
-                if self.player:
-                    for actor_cls in assets["class"]:
-                        if actor_cls:
-                            if "env" in actor_cls:
+                    for name, cls in zip(assets.get("name"), assets.get("class")):
+                        if cls:
+                            if "env" in cls:
                                 continue
-                            elif "hero" in actor_cls:
+                            elif "hero" in cls:
                                 continue
+                            self.npc_classes[name] = cls
 
-                            for ref_name in base.npcs_actor_refs:
-                                if "NPC" in ref_name:
-                                    actor = self.base.get_actor_bullet_shape_node(asset=ref_name, type="NPC")
+                    self.player = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
 
-                                if actor:
-                                    speed = 6
+                    if self.player:
+                        for actor_cls in assets["class"]:
+                            if actor_cls:
+                                if "env" in actor_cls:
+                                    continue
+                                elif "hero" in actor_cls:
+                                    continue
 
-                                    # Do not duplicate if name is exist
-                                    if actor.get_name() not in self.npc_fsm.npcs_names:
-                                        self.npc_fsm.npcs_names.append(actor.get_name())
+                                for ref_name in base.npcs_actor_refs:
+                                    if "NPC" in ref_name:
+                                        actor = self.base.get_actor_bullet_shape_node(asset=ref_name, type="NPC")
 
-                                    self.ai_char = AICharacter(actor_cls, actor, 100, 0.05, speed)
-                                    self.ai_world.add_ai_char(self.ai_char)
+                                    if actor:
+                                        speed = 6
 
-                                    child_name = actor.get_child(0).get_name()
-                                    self.ai_chars[child_name] = self.ai_char
-                                    self.ai_behaviors[child_name] = self.ai_char.get_ai_behaviors()
+                                        # Do not duplicate if name is exist
+                                        if actor.get_name() not in self.npc_fsm.npcs_names:
+                                            self.npc_fsm.npcs_names.append(actor.get_name())
 
-                    self.npc_fsm.get_npcs(actors=base.npcs_actor_refs)
+                                        self.ai_char = AICharacter(actor_cls, actor, 100, 0.05, speed)
+                                        self.ai_world.add_ai_char(self.ai_char)
 
-                    taskMgr.add(self.npc_fsm.npc_distance_calculate_task,
-                                "npc_distance_calculate_task",
-                                extraArgs=[self.player],
-                                appendTask=True)
+                                        child_name = actor.get_child(0).get_name()
+                                        self.ai_chars[child_name] = self.ai_char
+                                        self.ai_behaviors[child_name] = self.ai_char.get_ai_behaviors()
+                                        self.ai_behaviors[child_name].init_path_find(self.navmeshes[lvl_name])
 
-                    return task.done
+                                        if not render.find("**/World").is_empty():
+                                            for node in render.find("**/World").get_children():
+                                                if "BS" in node.get_name():
+                                                    self.ai_behaviors[child_name].add_static_obstacle(node)
+
+                        self.npc_fsm.get_npcs(actors=base.npcs_actor_refs)
+
+                        taskMgr.add(self.npc_fsm.npc_distance_calculate_task,
+                                    "npc_distance_calculate_task",
+                                    extraArgs=[self.player],
+                                    appendTask=True)
+
+                        return task.done
 
         return task.cont
 
@@ -226,7 +235,7 @@ class AI:
                             or self.ai_behaviors[actor_name].behavior_status("pursue") == "active"):
                         request.request("Walk", actor, enemy_npc_bs,
                                         self.ai_behaviors[actor_name],
-                                        "pursuer", "Walking", vect, "loop")
+                                        "pathfind", "Walking", vect, "loop")
 
                     # If NPC is close to Enemy, do enemy attack
                     if (self.ai_behaviors[actor_name].behavior_status("pursue") == "done"
@@ -279,7 +288,7 @@ class AI:
                 if (self.ai_behaviors[actor_name].behavior_status("pursue") == "disabled"
                         or self.ai_behaviors[actor_name].behavior_status("pursue") == "active"):
                     request.request("Walk", actor, self.player, self.ai_behaviors[actor_name],
-                                    "pursuer", "Walking", vect, "loop")
+                                    "pathfind", "Walking", vect, "loop")
 
                     # If NPC is close to Player, just stay
                     if self.ai_behaviors[actor_name].behavior_status("pursue") == "done":
@@ -347,10 +356,10 @@ class AI:
                             or self.ai_behaviors[actor_name].behavior_status("pursue") == "active"):
                         if self.base.npcs_hits.get(actor_name):
                             request.request("Walk", actor, enemy_npc_bs, self.ai_behaviors[actor_name],
-                                            "pursuer", "Walking", vect, "loop")
+                                            "pathfind", "Walking", vect, "loop")
                         if not self.base.npcs_hits.get(actor_name):
                             request.request("Walk", actor, self.player, self.ai_behaviors[actor_name],
-                                            "pursuer", "Walking", vect, "loop")
+                                            "pathfind", "Walking", vect, "loop")
 
                     # If NPC is close to Player/NPC, do enemy attack
                     if self.ai_behaviors[actor_name].behavior_status("pursue") == "done":
@@ -467,7 +476,7 @@ class AI:
                             # TODO: Change action to something more suitable
                             request.request("Idle", actor, "LookingAround", "loop")
 
-    def set_ai_world(self, assets, npcs_fsm_states):
+    def set_ai_world(self, assets, npcs_fsm_states, lvl_name):
         """ Function    : set_ai_world
 
             Description : Enable AI
@@ -482,7 +491,7 @@ class AI:
 
         taskMgr.add(self.set_ai_world_task,
                     "set_ai_world_task",
-                    extraArgs=[assets, npcs_fsm_states],
+                    extraArgs=[assets, npcs_fsm_states, lvl_name],
                     appendTask=True)
 
         taskMgr.add(self.update_ai_world_task,
