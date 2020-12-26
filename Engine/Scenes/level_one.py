@@ -381,9 +381,8 @@ class LevelOne:
             self.player_state.clear_state()
             self.actor_focus_index = 1
 
-            taskMgr.add(self.unload_game_scene_status_task,
-                        "unload_game_scene_status_task",
-                        appendTask=True)
+            if hasattr(self.base, "mouse_control_is_activated"):
+                self.base.mouse_control_is_activated = 0
 
     def unload_menu_scene(self):
         assets = self.base.assets_collector()
@@ -447,33 +446,6 @@ class LevelOne:
         if hasattr(base, "menu_scene_vid") and base.menu_scene_vid:
             if "MENU_SCENE_VID" in base.menu_scene_vid.get_name():
                 base.menu_scene_vid.stop()
-
-    def unload_game_scene_status_task(self, task):
-        if self.assets:
-            # make pattern list from assets dict
-            pattern = [key for key in self.assets]
-            # use pattern to remove nodes corresponding to asset names
-            unloaded_assets = []
-            is_assets_unloaded = False
-            for index, node in enumerate(pattern, start=1):
-
-                if render.find("**/{0}*".format(node)).is_empty():
-                    # Register that they are unloaded
-                    unloaded_assets.append(index)
-
-            if len(unloaded_assets) == len(self.assets):
-                is_assets_unloaded = True
-
-            if (render.find("**/Collisions").is_empty()
-                    and render.find("**/WaterNodePath").is_empty()
-                    and render.find("**/StateInitializer").is_empty()
-                    and is_assets_unloaded):
-                base.game_mode = False
-                base.menu_mode = True
-
-            return task.done
-
-        return task.cont
 
     def load_new_game(self):
         self.unload_menu_scene()

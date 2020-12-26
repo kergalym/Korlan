@@ -61,7 +61,9 @@ class UnloadingUI:
 
     def unloading_measure(self, task):
         self.base.unloading_is_done = 0
-        if base.game_mode is False and base.menu_mode:
+        if (base.game_mode is False and base.menu_mode
+                and hasattr(self.base, "mouse_control_is_activated")
+                and self.base.mouse_control_is_activated == 0):
             self.clear_unloading_screen()
             self.base.unloading_is_done = 1
             return task.done

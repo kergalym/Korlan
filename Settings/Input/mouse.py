@@ -21,6 +21,7 @@ class Mouse:
             'wheel_up': False,
             'wheel_down': False
         }
+        self.base.mouse_control_is_activated = 0
 
     def set_key(self, key, value):
         """ Function    : set_key
@@ -101,6 +102,8 @@ class Mouse:
 
             Return      : None
         """
+        if self.base.mouse_control_is_activated == 0:
+            self.base.mouse_control_is_activated = 1
 
         mouse_direction = self.base.win.getPointer(0)
         x = mouse_direction.get_x()

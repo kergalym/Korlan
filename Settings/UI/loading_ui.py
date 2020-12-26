@@ -125,6 +125,8 @@ class LoadingUI:
 
                     if (hasattr(base, "player_actions_init_is_activated")
                             and self.base.player_actions_init_is_activated == 1
+                            and hasattr(self.base, "mouse_control_is_activated")
+                            and self.base.mouse_control_is_activated == 1
                             and hasattr(base, "physics_is_active")
                             and self.base.physics_is_active == 1):
                         self.clear_loading_bar()
