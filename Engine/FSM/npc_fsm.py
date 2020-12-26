@@ -74,15 +74,13 @@ class NpcFSM:
                                         vect["plane_flag"],
                                         vect["area_of_effect"])
                 elif behavior == "pathfollow":
+                    ai_behaviors.path_find_to(player, "addPath")
                     ai_behaviors.path_follow(1)
                     ai_behaviors.add_to_path(player.get_pos())
                     ai_behaviors.start_follow()
                 elif behavior == "pathfind":
                     ai_behaviors.path_find_to(player, "addPath")
-
-                taskMgr.add(self.keep_actor_pitch_task,
-                            "keep_actor_pitch",
-                            appendTask=True)
+                    # ai_behaviors.add_dynamic_obstacle(player)
 
     def set_pathfollow_static_behavior(self, actor, path, ai_behaviors, behavior):
         if (actor and path, not actor.is_empty()
@@ -96,18 +94,6 @@ class NpcFSM:
                 ai_behaviors.path_follow(1)
                 ai_behaviors.add_to_path(path)
                 ai_behaviors.start_follow()
-
-    def keep_actor_pitch_task(self, task):
-        for name in self.npcs_names:
-            if not render.find("**/{0}".format(name)).is_empty():
-                actor = render.find("**/{0}".format(name))
-                # Prevent pitch changing
-                actor.set_p(0)
-
-        if base.game_mode is False and base.menu_mode:
-            return task.done
-
-        return task.done
 
     def set_npc_class(self, actor, npc_classes):
         if (actor and not actor.is_empty()

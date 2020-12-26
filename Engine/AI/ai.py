@@ -23,6 +23,7 @@ class AI:
         self.npcs_fsm_states = None
         self.ai_char = None
         self.ai_chars = {}
+        self.base.ai_chars_bs = {}
         self.player = None
         self.dialogus = CmdDialogusUI()
         self.near_npc = {}
@@ -41,6 +42,19 @@ class AI:
                                                    mayChange=True)
         self.integer = 0
 
+    def keep_actor_pitch_task(self, task):
+        for name in self.npc_fsm.npcs_names:
+            if not render.find("**/{0}".format(name)).is_empty():
+                actor = render.find("**/{0}".format(name))
+                # Prevent pitch changing
+                actor.get_child(0).set_p(0)
+                actor.set_p(0)
+
+        if self.base.game_mode is False and self.base.menu_mode:
+            return task.done
+
+        return task.cont
+
     def set_actor_heading(self, actor, opponent, dt):
         if actor and opponent and dt:
             vec_h = 2 * actor.get_h() - opponent.get_h()
@@ -50,6 +64,21 @@ class AI:
         if actor and degree and dt:
             if actor.get_h() - degree != actor.get_h():
                 actor.set_h(actor, degree * dt)
+
+    def add_dynamic_obstacles_task(self, task):
+        if self.base.ai_chars_bs and self.ai_world and self.ai_behaviors:
+            for actor_name in self.ai_behaviors:
+                self.ai_chars[actor_name].set_max_force(7)
+
+                for name in self.base.ai_chars_bs:
+                    # Add actors as obstacles except actor that avoids them
+                    if name != actor_name:
+                        ai_char_bs = self.base.ai_chars_bs[name]
+                        self.ai_behaviors[actor_name].path_find_to(ai_char_bs, "addPath")
+                        self.ai_behaviors[actor_name].add_dynamic_obstacle(ai_char_bs.get_child(0))
+
+        if self.base.game_mode is False and self.base.menu_mode:
+            return task.done
 
     def update_ai_world_task(self, task):
         if self.ai_world:
@@ -153,6 +182,7 @@ class AI:
                                 for ref_name in base.npcs_actor_refs:
                                     if "NPC" in ref_name:
                                         actor = self.base.get_actor_bullet_shape_node(asset=ref_name, type="NPC")
+                                        self.base.ai_chars_bs[ref_name] = actor
 
                                     if actor:
                                         speed = 6
@@ -175,6 +205,18 @@ class AI:
                                                     self.ai_behaviors[child_name].add_static_obstacle(node)
 
                         self.npc_fsm.get_npcs(actors=base.npcs_actor_refs)
+
+                        taskMgr.add(self.keep_actor_pitch_task,
+                                    "keep_actor_pitch",
+                                    appendTask=True)
+
+                        taskMgr.add(self.add_dynamic_obstacles_task,
+                                    "add_dynamic_obstacles_task",
+                                    appendTask=True)
+
+                        taskMgr.add(self.update_npc_states_task,
+                                    "update_npc_states_task",
+                                    appendTask=True)
 
                         taskMgr.add(self.npc_fsm.npc_distance_calculate_task,
                                     "npc_distance_calculate_task",
@@ -496,10 +538,6 @@ class AI:
 
         taskMgr.add(self.update_ai_world_task,
                     "update_ai_world",
-                    appendTask=True)
-
-        taskMgr.add(self.update_npc_states_task,
-                    "update_npc_states_task",
                     appendTask=True)
 
         self.base.ai_is_active = 1

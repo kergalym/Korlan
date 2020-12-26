@@ -227,95 +227,6 @@ class LevelOne:
 
         return task.cont
 
-    def add_level_obstacles_task(self, task):
-        if self.ai and self.ai.ai_world and self.ai.ai_behaviors:
-            for actor_name in self.ai.ai_behaviors:
-                actor = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
-                self.ai.ai_chars[actor_name].set_max_force(7)
-                if actor:
-                    # TODO: DEBUG OBSTACLES AND PATHFINDING
-                    self.ai.ai_behaviors[actor_name].path_find_to(actor.get_pos(), "addPath")
-                    self.ai.ai_behaviors[actor_name].add_dynamic_obstacle(actor)
-
-                if actor_name == "NPC_Ernar":
-                    actor = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
-                    if actor:
-                        self.ai.ai_behaviors[actor_name].add_dynamic_obstacle(actor)
-                    actor = self.base.get_actor_bullet_shape_node(asset="NPC_Mongol", type="NPC")
-                    if actor:
-                        self.ai.ai_behaviors[actor_name].add_dynamic_obstacle(actor)
-                    actor = self.base.get_actor_bullet_shape_node(asset="NPC_Mongol2", type="NPC")
-                    if actor:
-                        self.ai.ai_behaviors[actor_name].add_dynamic_obstacle(actor)
-
-                if actor_name == "NPC_Mongol":
-                    actor = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
-                    if actor:
-                        self.ai.ai_behaviors[actor_name].add_dynamic_obstacle(actor)
-                    actor = self.base.get_actor_bullet_shape_node(asset="NPC_Ernar", type="NPC")
-                    if actor:
-                        self.ai.ai_behaviors[actor_name].add_dynamic_obstacle(actor)
-                    actor = self.base.get_actor_bullet_shape_node(asset="NPC_Mongol2", type="NPC")
-                    if actor:
-                        self.ai.ai_behaviors[actor_name].add_dynamic_obstacle(actor)
-
-                if actor_name == "NPC_Mongol2":
-                    actor = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
-                    if actor:
-                        self.ai.ai_behaviors[actor_name].add_dynamic_obstacle(actor)
-                    actor = self.base.get_actor_bullet_shape_node(asset="NPC_Ernar", type="NPC")
-                    if actor:
-                        self.ai.ai_behaviors[actor_name].add_dynamic_obstacle(actor)
-                    actor = self.base.get_actor_bullet_shape_node(asset="NPC_Mongol", type="NPC")
-                    if actor:
-                        self.ai.ai_behaviors[actor_name].add_dynamic_obstacle(actor)
-
-            return task.done
-
-        return task.cont
-
-    def add_level_obstacles_cont_task(self, task):
-        if self.ai and self.ai.ai_world and self.ai.ai_behaviors:
-            for actor_name in self.ai.ai_behaviors:
-                self.ai.ai_chars[actor_name].set_max_force(7)
-                if actor_name == "NPC_Ernar":
-                    actor = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
-                    if actor:
-                        self.ai.ai_behaviors[actor_name].path_find_to(actor.get_pos(), "addPath")
-                    """actor = self.base.get_actor_bullet_shape_node(asset="NPC_Mongol", type="NPC")
-                    if actor:
-                        self.ai.ai_behaviors[actor_name].path_find_to(actor.get_pos(), "addPath")
-                    actor = self.base.get_actor_bullet_shape_node(asset="NPC_Mongol2", type="NPC")
-                    if actor:
-                        self.ai.ai_behaviors[actor_name].path_find_to(actor.get_pos(), "addPath")"""
-
-                """if actor_name == "NPC_Mongol":
-                    actor = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
-                    if actor:
-                        self.ai.ai_behaviors[actor_name].path_find_to(actor.get_pos(), "addPath")
-                    actor = self.base.get_actor_bullet_shape_node(asset="NPC_Ernar", type="NPC")
-                    if actor:
-                        self.ai.ai_behaviors[actor_name].path_find_to(actor.get_pos(), "addPath")
-                    actor = self.base.get_actor_bullet_shape_node(asset="NPC_Mongol2", type="NPC")
-                    if actor:
-                        self.ai.ai_behaviors[actor_name].path_find_to(actor.get_pos(), "addPath")
-
-                if actor_name == "NPC_Mongol2":
-                    actor = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
-                    if actor:
-                        self.ai.ai_behaviors[actor_name].path_find_to(actor, "addPath")
-                    actor = self.base.get_actor_bullet_shape_node(asset="NPC_Ernar", type="NPC")
-                    if actor:
-                        self.ai.ai_behaviors[actor_name].path_find_to(actor.get_pos(), "addPath")
-                    actor = self.base.get_actor_bullet_shape_node(asset="NPC_Mongol", type="NPC")
-                    if actor:
-                        self.ai.ai_behaviors[actor_name].path_find_to(actor.get_pos(), "addPath")"""
-
-        if self.base.game_mode is False and self.base.menu_mode:
-            return task.done
-
-        return task.cont
-
     def unload_game_scene(self):
         if self.base.game_mode:
             self.base.game_mode = False
@@ -600,17 +511,9 @@ class LevelOne:
                     appendTask=True)"""
 
         if self.game_settings['Debug']['set_ai_mode'] == 'PANDA_AI':
-            # TODO: PANDA AI LOGIC
-            self.ai.set_ai_world(assets=level_assets_joined, npcs_fsm_states=self.npcs_fsm_states, lvl_name="lvl_one")
-
-            """taskMgr.add(self.add_level_obstacles_task,
-                        "add_level_obstacles_task",
-                        appendTask=True)
-
-            # TODO: PANDA AI LOGIC fix
-            taskMgr.add(self.add_level_obstacles_cont_task,
-                        "add_level_obstacles_cont_task",
-                        appendTask=True)"""
+            self.ai.set_ai_world(assets=level_assets_joined,
+                                 npcs_fsm_states=self.npcs_fsm_states,
+                                 lvl_name="lvl_one")
 
     def save_game(self):
         pass
