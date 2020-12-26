@@ -358,24 +358,22 @@ class LevelOne:
                         render.find("**/StateInitializer").remove_node()
                         render.find("**/StateInitializer").clear()
 
-            # make pattern list from assets dict
-            pattern = [key for key in assets]
+            # Player and actor cleanup
+            if self.korlan.korlan:
+                self.korlan.korlan.delete()
+                self.korlan.korlan.cleanup()
+
+            for npc_cls in self.actor_classes:
+                if npc_cls.actor:
+                    npc_cls.npc_label_np.remove_node()
+                    npc_cls.actor.delete()
+                    npc_cls.actor.cleanup()
+
             # use pattern to remove nodes corresponding to asset names
-            for node in pattern:
-                if not render.find("**/{0}*".format(node)).is_empty():
-                    # Player and actor cleanup
-                    if self.korlan.korlan:
-                        self.korlan.korlan.delete()
-                        self.korlan.korlan.cleanup()
-
-                        for npc_cls in self.actor_classes:
-                            if npc_cls.actor:
-                                npc_cls.npc_label_np.remove_node()
-                                npc_cls.actor.delete()
-                                npc_cls.actor.cleanup()
-
-                    render.find("**/{0}*".format(node)).remove_node()
-                    render.find("**/{0}*".format(node)).clear()
+            for i in render.findAllMatches("**/*:BS"):
+                if not render.find("**/*:BS").is_empty():
+                    render.find("**/*:BS").remove_node()
+                    render.find("**/*:BS").clear()
 
             for key in assets:
                 self.loader.unload_model(assets[key])
@@ -421,24 +419,22 @@ class LevelOne:
                     render.find("**/StateInitializer").remove_node()
                     render.find("**/StateInitializer").clear()
 
-        # make pattern list from assets dict
-        pattern = [key for key in assets]
+        # Player and actor cleanup
+        if self.korlan.korlan:
+            self.korlan.korlan.delete()
+            self.korlan.korlan.cleanup()
+
+        for npc_cls in self.actor_classes:
+            if npc_cls.actor:
+                npc_cls.npc_label_np.remove_node()
+                npc_cls.actor.delete()
+                npc_cls.actor.cleanup()
+
         # use pattern to remove nodes corresponding to asset names
-        for node in pattern:
-            if not render.find("**/{0}*".format(node)).is_empty():
-                # Player and actor cleanup
-                if self.korlan.korlan:
-                    self.korlan.korlan.delete()
-                    self.korlan.korlan.cleanup()
-
-                for npc_cls in self.actor_classes:
-                    if npc_cls.actor:
-                        npc_cls.npc_label_np.remove_node()
-                        npc_cls.actor.delete()
-                        npc_cls.actor.cleanup()
-
-                render.find("**/{0}*".format(node)).remove_node()
-                render.find("**/{0}*".format(node)).clear()
+        for i in render.findAllMatches("**/*:BS"):
+            if not render.find("**/*:BS").is_empty():
+                render.find("**/*:BS").remove_node()
+                render.find("**/*:BS").clear()
 
         for key in assets:
             self.loader.unload_model(assets[key])
@@ -461,7 +457,7 @@ class LevelOne:
             is_assets_unloaded = False
             for index, node in enumerate(pattern, start=1):
 
-                if render.find("**/{0}".format(node)).is_empty():
+                if render.find("**/{0}*".format(node)).is_empty():
                     # Register that they are unloaded
                     unloaded_assets.append(index)
 
@@ -475,7 +471,7 @@ class LevelOne:
                 base.game_mode = False
                 base.menu_mode = True
 
-                return task.done
+            return task.done
 
         return task.cont
 
