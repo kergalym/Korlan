@@ -112,7 +112,7 @@ class Mouse:
         # Recentering the cursor and do mouse look
         if self.base.win.move_pointer(0, int(base.win.getXSize() / 2), int(base.win.getYSize() / 2)):
             self.heading = self.heading - (x - int(base.win.getXSize() / 2)) * self.mouse_sens
-            self.pitch = self.pitch - (y - int(base.win.getYSize() / 2)) * self.mouse_sens
+            # self.pitch = self.pitch - (y - int(base.win.getYSize() / 2)) * self.mouse_sens
 
         self.base.camera.set_h(self.heading)
         self.base.camera.set_p(self.pitch)

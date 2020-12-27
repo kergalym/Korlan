@@ -31,7 +31,7 @@ class NpcFSM:
                     tuple_xyz_vec = xyz_vec['vector']
                     # Here we put tuple xyz values to our class member npcs_xyz_vec
                     # for every actor name like 'NPC_Ernar:BS'
-                    self.npcs_xyz_vec[actor_bs] = tuple_xyz_vec
+                    self.npcs_xyz_vec[actor_bs.get_name()] = tuple_xyz_vec
 
             self.base.npcs_xyz_vec = self.npcs_xyz_vec
 
@@ -51,22 +51,18 @@ class NpcFSM:
             if ai_behaviors and vect:
                 # player could be another npc actor instead
                 if behavior == "seek":
-                    ai_behaviors.path_find_to(player, "addPath")
                     ai_behaviors.seek(player)
                     # if player is static object do flee
                 elif behavior == "flee":
-                    ai_behaviors.path_find_to(player, "addPath")
                     ai_behaviors.flee(player,
                                       vect['panic_dist'],
                                       vect['relax_dist'])
                     # if player is dynamic object do evade
                 elif behavior == "evader":
-                    ai_behaviors.path_find_to(player, "addPath")
                     ai_behaviors.evade(player,
                                        vect['panic_dist'],
                                        vect['relax_dist'])
                 elif behavior == "pursuer":
-                    ai_behaviors.path_find_to(player, "addPath")
                     ai_behaviors.pursue(player)
                 elif behavior == "wanderer":
                     ai_behaviors.path_find_to(player, "addPath")
@@ -74,9 +70,8 @@ class NpcFSM:
                                         vect["plane_flag"],
                                         vect["area_of_effect"])
                 elif behavior == "pathfollow":
-                    ai_behaviors.path_find_to(player, "addPath")
                     ai_behaviors.path_follow(1)
-                    ai_behaviors.add_to_path(player.get_pos())
+                    ai_behaviors.add_to_path(player())
                     ai_behaviors.start_follow()
                 elif behavior == "pathfind":
                     ai_behaviors.path_find_to(player, "addPath")

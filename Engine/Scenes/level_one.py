@@ -2,10 +2,10 @@ from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import *
 from Engine.Actors.Player.korlan import Korlan
 from Engine.Actors.Player.state import PlayerState
-from Engine.AI.ai import AI
+from Engine.AI.ai_setup import AI
 from Engine.Render.render import RenderAttr
 from Engine.Scenes.scene import SceneOne
-from Engine.Physics.physics import PhysicsAttr
+from Engine.Physics.physics_setup import PhysicsAttr
 from Settings.UI.stat_ui import StatUI
 from Settings.UI.pause_menu_ui import PauseMenuUI
 from Settings.Input.mouse import Mouse
@@ -489,6 +489,10 @@ class LevelOne:
 
         self.physics_attr.set_physics_world(assets=level_assets_joined)
 
+        self.ai.set_ai_world(assets=level_assets_joined,
+                             npcs_fsm_states=self.npcs_fsm_states,
+                             lvl_name="lvl_one")
+
         taskMgr.add(self.rp_set_hardware_skinning_task,
                     "rp_set_hardware_skinning_task",
                     appendTask=True)
@@ -509,11 +513,6 @@ class LevelOne:
         """taskMgr.add(self.hitbox_handling_task,
                     "hitbox_handling_task",
                     appendTask=True)"""
-
-        if self.game_settings['Debug']['set_ai_mode'] == 'PANDA_AI':
-            self.ai.set_ai_world(assets=level_assets_joined,
-                                 npcs_fsm_states=self.npcs_fsm_states,
-                                 lvl_name="lvl_one")
 
     def save_game(self):
         pass
