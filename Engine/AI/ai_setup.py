@@ -44,12 +44,14 @@ class AI:
         self.integer = 0
 
     def keep_actor_pitch_task(self, task):
-        for name in self.npc_fsm.npcs_names:
-            if not render.find("**/{0}".format(name)).is_empty():
-                actor = render.find("**/{0}".format(name))
-                # Prevent pitch changing
-                actor.get_child(0).set_p(0)
-                actor.set_p(0)
+        # Fix me: Dirty hack for path finding issue
+        # when actor's pitch changes for reasons unknown for me xD
+        if hasattr(self.base, "npcs_actor_refs") and base.npcs_actor_refs:
+            for actor in base.npcs_actor_refs:
+                if not base.npcs_actor_refs[actor].is_empty():
+                    # Prevent pitch changing
+                    base.npcs_actor_refs[actor].set_p(0)
+                    base.npcs_actor_refs[actor].get_parent().set_p(0)
 
         if self.base.game_mode is False and self.base.menu_mode:
             return task.done
@@ -243,7 +245,7 @@ class AI:
                                     appendTask=True)
 
                         taskMgr.add(self.keep_actor_pitch_task,
-                                    "keep_actor_pitch",
+                                    "keep_actor_pitch_task",
                                     appendTask=True)
 
                         """taskMgr.add(self.update_pathfinding_task,

@@ -41,12 +41,15 @@ class NpcMongol2FSM(FSM):
                 actor.set_play_rate(self.base.actor_play_rate, action)
 
             # Get correct NodePath
-            actor = render.find("**/{0}".format(actor.get_name()))
-            self.npc_fsm.set_basic_npc_behaviors(actor=actor,
-                                                 player=player,
-                                                 ai_behaviors=ai_behaviors,
-                                                 behavior=behavior,
-                                                 vect=vect)
+            # actor = render.find("**/{0}".format(actor.get_name()))
+            if hasattr(self.base, "ai_chars_bs") and self.base.ai_chars_bs:
+                name = actor.get_name()
+                actor = self.base.ai_chars_bs[name]
+                self.npc_fsm.set_basic_npc_behaviors(actor=actor,
+                                                     player=player,
+                                                     ai_behaviors=ai_behaviors,
+                                                     behavior=behavior,
+                                                     vect=vect)
 
     def enterAttack(self, actor, action, task):
         if actor and action and task:

@@ -22,7 +22,8 @@ class NpcsAI:
             # Add :BS suffix since we'll get Bullet Shape NodePath here
             actor_bs_name = "{0}:BS".format(actor.get_name())
             actor_name = actor.get_name()
-            actor_npc_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
+            # actor_npc_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
+            actor_npc_bs = actor.get_parent()
 
             # actor.set_blend(frameBlend=True)
 
@@ -48,7 +49,9 @@ class NpcsAI:
 
                 if enemy_npc_ref and enemy_fsm_request:
                     enemy_npc_ref_name = enemy_npc_ref.get_name()
-                    enemy_npc_bs = self.base.get_actor_bullet_shape_node(asset=enemy_npc_ref_name, type="NPC")
+                    enemy_npc_bs = None
+                    if hasattr(self.base, "ai_chars_bs") and self.base.ai_chars_bs:
+                        enemy_npc_bs = self.base.ai_chars_bs[enemy_npc_ref_name]
 
                     # If NPC is far from enemy, do pursue enemy
                     if (ai_behaviors[actor_name].behavior_status("pursue") == "disabled"
@@ -93,6 +96,7 @@ class NpcsAI:
             # Add :BS suffix since we'll get Bullet Shape NodePath here
             # actor_bs_name = "{0}:BS".format(actor.get_name())
             actor_name = actor.get_name()
+            # actor_npc_bs = actor.get_parent()
             # actor.set_blend(frameBlend=True)
 
             # Leave it here for debugging purposes
@@ -138,7 +142,9 @@ class NpcsAI:
             # Add :BS suffix since we'll get Bullet Shape NodePath here
             actor_bs_name = "{0}:BS".format(actor.get_name())
             actor_name = actor.get_name()
-            actor_npc_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
+
+            # actor_npc_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
+            # actor_npc_bs = actor.get_parent()
 
             # actor.set_blend(frameBlend=True)
 
@@ -170,7 +176,8 @@ class NpcsAI:
                 enemy_npc_bs = None
                 if enemy_npc_ref and enemy_fsm_request:
                     enemy_npc_ref_name = enemy_npc_ref.get_name()
-                    enemy_npc_bs = self.base.get_actor_bullet_shape_node(asset=enemy_npc_ref_name, type="NPC")
+                    if hasattr(self.base, "ai_chars_bs") and self.base.ai_chars_bs:
+                        enemy_npc_bs = self.base.ai_chars_bs[enemy_npc_ref_name]
 
                 # print(self.base.npcs_hits)
 

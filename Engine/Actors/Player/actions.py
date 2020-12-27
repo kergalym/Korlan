@@ -222,8 +222,8 @@ class Actions:
                 self.player_umai_action(player, "umai", anims, "PickingUp")
 
         # If player has the bullet shape
-        if not self.player_bs:
-            self.player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
+        if "Player:BS" in player.get_parent().get_name():
+            self.player_bs = player.get_parent()
 
         if self.player_bs:
             # The camera should look in Korlan direction,
