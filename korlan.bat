@@ -1,0 +1,1 @@
+C:\Users\Я\Desktop\Korlan\venv_win\Scripts\activate.bat && C:\Users\Я\Desktop\Korlan\venv_win\Scripts\python main.py && deactivate
