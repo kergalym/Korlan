@@ -251,23 +251,21 @@ class PhysicsAttr:
                 if shape == 'sphere':
                     actor_bs = self.bullet_solids.set_bs_sphere()
                 if type == 'player':
-                    if self.render:
-                        base.bullet_char_contr_node = BulletCharacterControllerNode(actor_bs,
-                                                                                    0.4,
-                                                                                    col_name)
-                        actor_bs_np = self.render.attach_new_node(base.bullet_char_contr_node)
-                        actor_bs_np.set_collide_mask(mask)
-                        self.world.attach(base.bullet_char_contr_node)
-                        actor.reparent_to(actor_bs_np)
+                    base.bullet_char_contr_node = BulletCharacterControllerNode(actor_bs,
+                                                                                0.4,
+                                                                                col_name)
+                    actor_bs_np = self.render.attach_new_node(base.bullet_char_contr_node)
+                    actor_bs_np.set_collide_mask(mask)
+                    self.world.attach(base.bullet_char_contr_node)
+                    actor.reparent_to(actor_bs_np)
                 elif type == 'npc':
-                    if self.render:
-                        actor_contr_node = BulletCharacterControllerNode(actor_bs,
-                                                                         0.4,
-                                                                         col_name)
-                        actor_bs_np = self.render.attach_new_node(actor_contr_node)
-                        actor_bs_np.set_collide_mask(mask)
-                        self.world.attach(actor_contr_node)
-                        actor.reparent_to(actor_bs_np)
+                    actor_node = BulletCharacterControllerNode(actor_bs,
+                                                               0.4,
+                                                               col_name)
+                    actor_bs_np = self.render.attach_new_node(actor_node)
+                    actor_bs_np.set_collide_mask(mask)
+                    self.world.attach(actor_node)
+                    actor.reparent_to(actor_bs_np)
                 # Set actor down to make it
                 # at the same point as bullet shape
                 actor.set_z(-1)

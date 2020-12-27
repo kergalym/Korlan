@@ -75,7 +75,7 @@ class AI:
                     if name != actor_name:
                         ai_char_bs = self.base.ai_chars_bs[name]
                         self.ai_behaviors[actor_name].path_find_to(ai_char_bs, "addPath")
-                        self.ai_behaviors[actor_name].add_dynamic_obstacle(ai_char_bs.get_child(0))
+                        self.ai_behaviors[actor_name].add_dynamic_obstacle(ai_char_bs)
 
         if self.base.game_mode is False and self.base.menu_mode:
             return task.done
@@ -198,10 +198,10 @@ class AI:
                                         self.ai_chars[child_name] = self.ai_char
                                         self.ai_behaviors[child_name] = self.ai_char.get_ai_behaviors()
                                         self.ai_behaviors[child_name].init_path_find(self.navmeshes[lvl_name])
-
-                                        if not render.find("**/World").is_empty():
-                                            for node in render.find("**/World").get_children():
-                                                if "BS" in node.get_name():
+                                        for i in render.findAllMatches("**/*:BS"):
+                                            if not render.find("**/*:BS").is_empty():
+                                                node = render.find("**/*:BS")
+                                                if "NPC" not in node.get_name():
                                                     self.ai_behaviors[child_name].add_static_obstacle(node)
 
                         self.npc_fsm.get_npcs(actors=base.npcs_actor_refs)
@@ -479,7 +479,8 @@ class AI:
                                     and actor.get_current_frame("Boxing") <= 25):
                                 if enemy_npc_ref:
                                     self.base.npcs_hits[enemy_npc_ref.get_name()] = True
-                                    enemy_fsm_request.request("Attacked", enemy_npc_ref, "BigHitToHead", "Boxing", "play")
+                                    enemy_fsm_request.request("Attacked", enemy_npc_ref, "BigHitToHead", "Boxing",
+                                                              "play")
 
                                 # Enemy does a block
                                 request.request("Block", actor, "center_blocking", "Boxing", "play")
