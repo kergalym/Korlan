@@ -268,8 +268,8 @@ class PlayerState:
                 base.is_item_close_to_use = False
                 base.is_item_far_to_use = False
 
-                import pdb;
-                pdb.set_trace()
+                """import pdb;
+                pdb.set_trace()"""
 
                 base.in_use_item_name = item.get_name()
 
