@@ -2,7 +2,7 @@ class NpcsAI:
 
     def __init__(self):
         self.base = base
-        
+
     def npc_friend_logic(self, actor, player, player_fsm, request, ai_behaviors,
                          npcs_xyz_vec, npcs_fsm_states, near_npc, passive):
         if (actor and player and player_fsm and request and npcs_xyz_vec and npcs_fsm_states
