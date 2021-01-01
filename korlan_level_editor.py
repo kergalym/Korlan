@@ -1,0 +1,1027 @@
+from __future__ import print_function
+
+import re
+from os import walk
+from os.path import exists
+
+import panda3d.core as p3d
+from direct.actor.Actor import Actor
+from direct.gui.DirectButton import DirectButton
+from direct.gui.DirectEntry import DirectEntry
+from direct.gui.DirectFrame import DirectFrame
+from direct.gui.DirectLabel import DirectLabel
+from direct.gui.DirectScrolledList import DirectScrolledList
+from direct.gui.OnscreenImage import OnscreenImage
+from direct.interval.MetaInterval import Sequence
+from direct.task.TaskManagerGlobal import taskMgr
+from panda3d.ai import AIWorld, AICharacter
+from panda3d.bullet import BulletCapsuleShape, BulletWorld, BulletPlaneShape, BulletRigidBodyNode, ZUp, \
+    BulletCharacterControllerNode
+from panda3d.core import Vec3, load_prc_file_data, Material, Texture, TransparencyAttrib, Point3, NodePath
+from direct.showbase.ShowBase import ShowBase
+from direct.stdpy import threading
+from code import InteractiveConsole
+from panda3d.core import *
+import random
+from pathlib import Path, PurePath
+from panda3d.core import RigidBodyCombiner
+
+# Setup window size and title
+from Engine.Render.rpcore import RenderPipeline, PointLight
+# Import the movement controller, this is a convenience class
+# to provide an improved camera control compared to Panda3Ds default
+# mouse controller.
+from Engine.Render.rpcore.util.movement_controller import MovementController
+
+import panda3d;
+
+print(panda3d.__version__)
+
+p3d.load_prc_file_data("", """
+win-size 1920 1080
+window-title Render Pipeline compatible Yet Another Level Editor
+""")
+
+p3d.load_prc_file_data('',
+                       'win-origin -1 -2\n'
+                       'show-frame-rate-meter  t\n'
+                       'audio-library-name p3openal_audio\n'
+                       'model-cache-dir Cache\n'
+                       'model-cache-textures t\n'
+                       'compressed-textures 0\n'
+                       'bullet-filter-algorithm groups-mask\n'
+                       'hardware-animated-vertices false\n'
+                       'basic-shaders-only false\n'
+                       'texture-compression f\n'
+                       'driver-compress-textures f\n'
+                       'want-pstats 0\n'
+                       'gl-force-mipmaps t\n'
+                       'hardware-animated-vertices t\n'
+                       'basic-shaders-only f\n'
+                       )
+
+
+class Editor(ShowBase):
+
+    def __init__(self):
+        self.render_pipeline = RenderPipeline()
+        self.render_pipeline.create(self)
+        # Set time of day
+        self.render_pipeline.daytime_mgr.time = "13:00"
+
+        ic_thread = threading.Thread(target=InteractiveConsole(globals()).interact)
+        ic_thread.start()
+
+        self.controller = MovementController(self)
+        self.controller.set_initial_position_hpr(
+            Vec3(-17.2912578583, -13.290019989, 6.88211250305),
+            Vec3(-39.7285499573, -14.6770210266, 0.0))
+        self.controller.setup()
+        self.disable_mouse()
+
+        self.game_dir = str(Path.cwd())
+
+        """ Frame Sizes """
+        # Left, right, bottom, top
+        self.frame_size = [-3, -1.3, -1, 3]
+        self.frame_size = [-2, 2.5, -1.5, -0.5]
+        self.frame_scrolled_size = [0.0, 0.7, -0.05, 0.40]
+        self.frame_scrolled_inner_size = [-0.2, 0.2, -0.00, 0.00]
+
+        """ Frame Positions """
+        self.pos_X = 0
+        self.pos_Y = 0
+        self.pos_Z = 0
+        self.pos_int_X = -0.5
+        self.pos_int_Y = 0
+        self.pos_int_Z = 0.5
+        self.w = 0
+        self.h = 0
+
+        """ Frames """
+        self.frame = None
+
+        """ Classes """
+        # instance of the abstract class
+        self.font = FontPool
+        self.text = TextNode("TextNode")
+        self.sound_gui_click = None
+        self.menu_font = None
+
+        """ Geoms"""
+        self.menu_geom = "{0}/Editor/UI/menu_level_editor.egg".format(self.game_dir)
+
+        """ Buttons & Fonts"""
+        self.menu_font = "{0}/Settings/UI/JetBrainsMono-1.0.2/ttf/JetBrainsMono-Regular.ttf".format(self.game_dir)
+
+        self.active_asset = None
+        self.near_asset = None
+        self.cur_x_dist = None
+        self.cur_y_dist = None
+
+        self.joint_from_input = None
+
+        self.asset_management_title = None
+
+        self.lbl_pos_x = None
+        self.lbl_pos_y = None
+        self.lbl_pos_z = None
+
+        self.lbl_rot_h = None
+        self.lbl_rot_p = None
+        self.lbl_rot_r = None
+
+        self.lbl_scale_x = None
+        self.lbl_scale_y = None
+        self.lbl_scale_z = None
+
+        self.inp_pos_x = None
+        self.inp_pos_y = None
+        self.inp_pos_z = None
+
+        self.inp_rot_h = None
+        self.inp_rot_p = None
+        self.inp_rot_r = None
+
+        self.inp_scale_x = None
+        self.inp_scale_y = None
+        self.inp_scale_z = None
+
+        self.asset_management_desc = None
+
+        self.scrolled_list_lbl_na = None
+        self.scrolled_list_lbl = None
+        self.scrolled_list = None
+        self.scrolled_list_actor_joints_lbl = None
+        self.scrolled_list_actor_joints = None
+        self.scrolled_list_lbl_desc = None
+        self.scrolled_list_actor_joints_lbl_desc = None
+
+        self.joint_item_management_title = None
+
+        self.lbl_joint_item_pos_x = None
+        self.lbl_joint_item_pos_y = None
+        self.lbl_joint_item_pos_z = None
+
+        self.lbl_joint_item_rot_h = None
+        self.lbl_joint_item_rot_p = None
+        self.lbl_joint_item_rot_r = None
+
+        self.lbl_joint_item_scale_x = None
+        self.lbl_joint_item_scale_y = None
+        self.lbl_joint_item_scale_z = None
+
+        self.inp_joint_item_pos_x = None
+        self.inp_joint_item_pos_y = None
+        self.inp_joint_item_pos_z = None
+
+        self.inp_joint_item_rot_h = None
+        self.inp_joint_item_rot_p = None
+        self.inp_joint_item_rot_r = None
+
+        self.inp_joint_item_scale_x = None
+        self.inp_joint_item_scale_y = None
+        self.inp_joint_item_scale_z = None
+
+        self.joint_item_management_desc = None
+
+        self.save_asset_pos = None
+        self.save_joint_attach = None
+
+        self.flame_np = None
+
+        self.anims = {}
+
+        self.ui_bg_np_side = None
+        self.ui_bg_np_down = None
+
+        self.assets = self.get_assets(path="/Assets/Menu")
+        self.asset_load(assets=self.assets)
+
+        self.traverser = CollisionTraverser('traverser')
+        self.col_handler = CollisionHandlerQueue()
+        self.picker_node = CollisionNode('mouseRay')
+        self.picker_np = self.camera.attachNewNode(self.picker_node)
+        self.picker_node.set_from_collide_mask(GeomNode.get_default_collide_mask())
+        self.picker_ray = CollisionRay()
+        self.picker_node.add_solid(self.picker_ray)
+        self.traverser.add_collider(self.picker_np, self.col_handler)
+
+        taskMgr.add(self.update_scene, "update_scene")
+
+        self.set_shader(name="flame")
+
+    def set_ui(self):
+        if not self.frame:
+            self.frame = DirectFrame(frameColor=(0, 0, 0, 0.6), pos=(0, 0, 0),
+                                     frameSize=self.frame_size, geom=self.menu_geom)
+            self.scrolled_list_lbl = DirectLabel(text="Assets Overview",
+                                                 text_fg=(255, 255, 255, 0.9),
+                                                 text_font=self.font.load_font(self.menu_font),
+                                                 frameColor=(255, 255, 255, 0),
+                                                 scale=.05, borderWidth=(self.w, self.h),
+                                                 parent=self.frame)
+
+            ui_geoms = self.ui_geom_collector()
+            if ui_geoms:
+                maps_scrolled_dbtn = base.loader.loadModel(ui_geoms['btn_t_icon'])
+                geoms_scrolled_dbtn = (maps_scrolled_dbtn.find('**/button_any'),
+                                       maps_scrolled_dbtn.find('**/button_pressed'),
+                                       maps_scrolled_dbtn.find('**/button_rollover'))
+
+                maps_scrolled_dec = base.loader.loadModel(ui_geoms['btn_t_icon_dec'])
+                geoms_scrolled_dec = (maps_scrolled_dec.find('**/button_any_dec'),
+                                      maps_scrolled_dec.find('**/button_pressed_dec'),
+                                      maps_scrolled_dec.find('**/button_rollover_dec'))
+
+                maps_scrolled_inc = base.loader.loadModel(ui_geoms['btn_t_icon_inc'])
+                geoms_scrolled_inc = (maps_scrolled_inc.find('**/button_any_inc'),
+                                      maps_scrolled_inc.find('**/button_pressed_inc'),
+                                      maps_scrolled_inc.find('**/button_rollover_inc'))
+
+                btn_list = []
+                if not self.assets:
+                    self.scrolled_list_lbl_na = DirectLabel(text="N/A",
+                                                            text_fg=(255, 255, 255, 0.9),
+                                                            text_font=self.font.load_font(self.menu_font),
+                                                            frameColor=(255, 255, 255, 0),
+                                                            scale=.04, borderWidth=(self.w, self.h),
+                                                            parent=self.frame)
+                if self.assets:
+                    for index, asset in enumerate(self.assets, 1):
+                        btn = DirectButton(text="{0}".format(asset),
+                                           text_fg=(255, 255, 255, 1), relief=2,
+                                           text_font=self.font.load_font(self.menu_font),
+                                           frameColor=(0, 0, 0, 1),
+                                           scale=.03, borderWidth=(self.w, self.h),
+                                           geom=geoms_scrolled_dbtn, geom_scale=(15.3, 0, 2),
+                                           clickSound="",
+                                           command="",
+                                           extraArgs=[asset])
+                        btn_list.append(btn)
+
+                    self.scrolled_list = DirectScrolledList(
+                        decButton_pos=(0.35, 0, 0.46),
+                        decButton_scale=(5, 1, 0.5),
+                        decButton_text="",
+                        decButton_text_scale=0.04,
+                        decButton_borderWidth=(0, 0),
+                        decButton_geom=geoms_scrolled_dec,
+                        decButton_geom_scale=0.08,
+
+                        incButton_pos=(0.35, 0, -0.65),
+                        incButton_scale=(5, 1, 0.5),
+                        incButton_text="",
+                        incButton_text_scale=0.04,
+                        incButton_borderWidth=(0, 0),
+                        incButton_geom=geoms_scrolled_inc,
+                        incButton_geom_scale=0.08,
+
+                        frameSize=self.frame_scrolled_size,
+                        frameColor=(0, 0, 0, 0),
+                        numItemsVisible=10,
+                        forceHeight=0.11,
+                        items=btn_list,
+                        itemFrame_frameSize=self.frame_scrolled_inner_size,
+                        itemFrame_pos=(0.35, 0, 0.4),
+                        parent=self.frame
+                    )
+
+                self.scrolled_list_lbl_desc = DirectLabel(text="Select asset \nfor manipulations on the scene",
+                                                          text_fg=(255, 255, 255, 0.9),
+                                                          text_font=self.font.load_font(self.menu_font),
+                                                          frameColor=(255, 255, 255, 0),
+                                                          scale=.025, borderWidth=(self.w, self.h),
+                                                          parent=self.frame)
+
+                self.asset_management_title = DirectLabel(text="Assets Management",
+                                                          text_fg=(255, 255, 255, 0.9),
+                                                          text_font=self.font.load_font(self.menu_font),
+                                                          frameColor=(255, 255, 255, 0),
+                                                          scale=.05, borderWidth=(self.w, self.h),
+                                                          parent=self.frame)
+
+                self.asset_management_desc = DirectLabel(text="Use these fields to move or rotate geometry",
+                                                         text_fg=(255, 255, 255, 0.9),
+                                                         text_font=self.font.load_font(self.menu_font),
+                                                         frameColor=(255, 255, 255, 0),
+                                                         scale=.025, borderWidth=(self.w, self.h),
+                                                         parent=self.frame)
+
+                self.lbl_pos_x = DirectLabel(text="X Axis",
+                                             text_fg=(255, 255, 255, 0.9),
+                                             text_font=self.font.load_font(self.menu_font),
+                                             frameColor=(255, 255, 255, 0),
+                                             scale=.03, borderWidth=(self.w, self.h),
+                                             parent=self.frame)
+
+                self.lbl_pos_y = DirectLabel(text="Y Axis",
+                                             text_fg=(255, 255, 255, 0.9),
+                                             text_font=self.font.load_font(self.menu_font),
+                                             frameColor=(255, 255, 255, 0),
+                                             scale=.03, borderWidth=(self.w, self.h),
+                                             parent=self.frame)
+
+                self.lbl_pos_z = DirectLabel(text="Z Axis",
+                                             text_fg=(255, 255, 255, 0.9),
+                                             text_font=self.font.load_font(self.menu_font),
+                                             frameColor=(255, 255, 255, 0),
+                                             scale=.03, borderWidth=(self.w, self.h),
+                                             parent=self.frame)
+
+                self.lbl_rot_h = DirectLabel(text="Heading",
+                                             text_fg=(255, 255, 255, 0.9),
+                                             text_font=self.font.load_font(self.menu_font),
+                                             frameColor=(255, 255, 255, 0),
+                                             scale=.03, borderWidth=(self.w, self.h),
+                                             parent=self.frame)
+
+                self.lbl_rot_p = DirectLabel(text="Pitch",
+                                             text_fg=(255, 255, 255, 0.9),
+                                             text_font=self.font.load_font(self.menu_font),
+                                             frameColor=(255, 255, 255, 0),
+                                             scale=.03, borderWidth=(self.w, self.h),
+                                             parent=self.frame)
+
+                self.lbl_rot_r = DirectLabel(text="Rotation",
+                                             text_fg=(255, 255, 255, 0.9),
+                                             text_font=self.font.load_font(self.menu_font),
+                                             frameColor=(255, 255, 255, 0),
+                                             scale=.03, borderWidth=(self.w, self.h),
+                                             parent=self.frame)
+
+                self.lbl_scale_x = DirectLabel(text="X Scale",
+                                               text_fg=(255, 255, 255, 0.9),
+                                               text_font=self.font.load_font(self.menu_font),
+                                               frameColor=(255, 255, 255, 0),
+                                               scale=.03, borderWidth=(self.w, self.h),
+                                               parent=self.frame)
+
+                self.lbl_scale_y = DirectLabel(text="Y Scale",
+                                               text_fg=(255, 255, 255, 0.9),
+                                               text_font=self.font.load_font(self.menu_font),
+                                               frameColor=(255, 255, 255, 0),
+                                               scale=.03, borderWidth=(self.w, self.h),
+                                               parent=self.frame)
+
+                self.lbl_scale_z = DirectLabel(text="Z Scale",
+                                               text_fg=(255, 255, 255, 0.9),
+                                               text_font=self.font.load_font(self.menu_font),
+                                               frameColor=(255, 255, 255, 0),
+                                               scale=.03, borderWidth=(self.w, self.h),
+                                               parent=self.frame)
+
+                self.inp_pos_x = DirectEntry(initialText="X Axis",
+                                             text_bg=(0, 0, 0, 1),
+                                             entryFont=self.font.load_font(self.menu_font),
+                                             text_align=TextNode.A_center,
+                                             scale=.03, width=7, borderWidth=(self.w, self.h),
+                                             parent=self.frame, cursorKeys=1,
+                                             command=self.set_node_pos)
+
+                self.inp_pos_y = DirectEntry(initialText="Y Axis",
+                                             text_bg=(0, 0, 0, 1),
+                                             entryFont=self.font.load_font(self.menu_font),
+                                             text_align=TextNode.A_center,
+                                             scale=.03, width=7, borderWidth=(self.w, self.h),
+                                             parent=self.frame, cursorKeys=1,
+                                             command=self.set_node_pos)
+
+                self.inp_pos_z = DirectEntry(initialText="Z Axis",
+                                             text_bg=(0, 0, 0, 1),
+                                             entryFont=self.font.load_font(self.menu_font),
+                                             text_align=TextNode.A_center,
+                                             scale=.03, width=7, borderWidth=(self.w, self.h),
+                                             parent=self.frame, cursorKeys=1,
+                                             command=self.set_node_pos)
+
+                self.inp_rot_h = DirectEntry(initialText="Heading",
+                                             text_bg=(0, 0, 0, 1),
+                                             entryFont=self.font.load_font(self.menu_font),
+                                             text_align=TextNode.A_center,
+                                             scale=.03, width=7, borderWidth=(self.w, self.h),
+                                             parent=self.frame, cursorKeys=1,
+                                             command=self.set_node_hpr)
+
+                self.inp_rot_p = DirectEntry(initialText="Pitch",
+                                             text_bg=(0, 0, 0, 1),
+                                             entryFont=self.font.load_font(self.menu_font),
+                                             text_align=TextNode.A_center,
+                                             scale=.03, width=7, borderWidth=(self.w, self.h),
+                                             parent=self.frame, cursorKeys=1,
+                                             command=self.set_node_hpr)
+
+                self.inp_rot_r = DirectEntry(initialText="Rotation",
+                                             text_bg=(0, 0, 0, 1),
+                                             entryFont=self.font.load_font(self.menu_font),
+                                             text_align=TextNode.A_center,
+                                             scale=.03, width=7, borderWidth=(self.w, self.h),
+                                             parent=self.frame, cursorKeys=1,
+                                             command=self.set_node_hpr)
+
+                self.inp_scale_x = DirectEntry(initialText="X Scale",
+                                               text_bg=(0, 0, 0, 1),
+                                               entryFont=self.font.load_font(self.menu_font),
+                                               text_align=TextNode.A_center,
+                                               scale=.03, width=7, borderWidth=(self.w, self.h),
+                                               parent=self.frame, cursorKeys=1,
+                                               command=self.set_node_hpr)
+
+                self.inp_scale_y = DirectEntry(initialText="Y Scale",
+                                               text_bg=(0, 0, 0, 1),
+                                               entryFont=self.font.load_font(self.menu_font),
+                                               text_align=TextNode.A_center,
+                                               scale=.03, width=7, borderWidth=(self.w, self.h),
+                                               parent=self.frame, cursorKeys=1,
+                                               command=self.set_node_hpr)
+
+                self.inp_scale_z = DirectEntry(initialText="Z Scale",
+                                               text_bg=(0, 0, 0, 1),
+                                               entryFont=self.font.load_font(self.menu_font),
+                                               text_align=TextNode.A_center,
+                                               scale=.03, width=7, borderWidth=(self.w, self.h),
+                                               parent=self.frame, cursorKeys=1,
+                                               command=self.set_node_hpr)
+
+                self.save_asset_pos = DirectButton(text="Save Asset Pos",
+                                                   text_fg=(255, 255, 255, 1), relief=2,
+                                                   text_font=self.font.load_font(self.menu_font),
+                                                   frameColor=(0, 0, 0, 1),
+                                                   scale=.03, borderWidth=(self.w, self.h),
+                                                   geom=geoms_scrolled_dbtn, geom_scale=(11.3, 0, 2),
+                                                   clickSound="",
+                                                   command="")
+
+                self.joint_item_management_title = DirectLabel(text="Joint Child Management",
+                                                               text_fg=(255, 255, 255, 0.9),
+                                                               text_font=self.font.load_font(self.menu_font),
+                                                               frameColor=(255, 255, 255, 0),
+                                                               scale=.05, borderWidth=(self.w, self.h),
+                                                               parent=self.frame)
+
+                self.joint_item_management_desc = DirectLabel(text="Use these fields to move or rotate child geometry",
+                                                              text_fg=(255, 255, 255, 0.9),
+                                                              text_font=self.font.load_font(self.menu_font),
+                                                              frameColor=(255, 255, 255, 0),
+                                                              scale=.025, borderWidth=(self.w, self.h),
+                                                              parent=self.frame)
+
+                self.lbl_joint_item_pos_x = DirectLabel(text="X Axis",
+                                                        text_fg=(255, 255, 255, 0.9),
+                                                        text_font=self.font.load_font(self.menu_font),
+                                                        frameColor=(255, 255, 255, 0),
+                                                        scale=.03, borderWidth=(self.w, self.h),
+                                                        parent=self.frame)
+
+                self.lbl_joint_item_pos_y = DirectLabel(text="Y Axis",
+                                                        text_fg=(255, 255, 255, 0.9),
+                                                        text_font=self.font.load_font(self.menu_font),
+                                                        frameColor=(255, 255, 255, 0),
+                                                        scale=.03, borderWidth=(self.w, self.h),
+                                                        parent=self.frame)
+
+                self.lbl_joint_item_pos_z = DirectLabel(text="Z Axis",
+                                                        text_fg=(255, 255, 255, 0.9),
+                                                        text_font=self.font.load_font(self.menu_font),
+                                                        frameColor=(255, 255, 255, 0),
+                                                        scale=.03, borderWidth=(self.w, self.h),
+                                                        parent=self.frame)
+
+                self.lbl_joint_item_rot_h = DirectLabel(text="Heading",
+                                                        text_fg=(255, 255, 255, 0.9),
+                                                        text_font=self.font.load_font(self.menu_font),
+                                                        frameColor=(255, 255, 255, 0),
+                                                        scale=.03, borderWidth=(self.w, self.h),
+                                                        parent=self.frame)
+
+                self.lbl_joint_item_rot_p = DirectLabel(text="Pitch",
+                                                        text_fg=(255, 255, 255, 0.9),
+                                                        text_font=self.font.load_font(self.menu_font),
+                                                        frameColor=(255, 255, 255, 0),
+                                                        scale=.03, borderWidth=(self.w, self.h),
+                                                        parent=self.frame)
+
+                self.lbl_joint_item_rot_r = DirectLabel(text="Rotation",
+                                                        text_fg=(255, 255, 255, 0.9),
+                                                        text_font=self.font.load_font(self.menu_font),
+                                                        frameColor=(255, 255, 255, 0),
+                                                        scale=.03, borderWidth=(self.w, self.h),
+                                                        parent=self.frame)
+
+                self.lbl_joint_item_scale_x = DirectLabel(text="X Scale",
+                                                          text_fg=(255, 255, 255, 0.9),
+                                                          text_font=self.font.load_font(self.menu_font),
+                                                          frameColor=(255, 255, 255, 0),
+                                                          scale=.03, borderWidth=(self.w, self.h),
+                                                          parent=self.frame)
+
+                self.lbl_joint_item_scale_y = DirectLabel(text="Y Scale",
+                                                          text_fg=(255, 255, 255, 0.9),
+                                                          text_font=self.font.load_font(self.menu_font),
+                                                          frameColor=(255, 255, 255, 0),
+                                                          scale=.03, borderWidth=(self.w, self.h),
+                                                          parent=self.frame)
+
+                self.lbl_joint_item_scale_z = DirectLabel(text="Z Scale",
+                                                          text_fg=(255, 255, 255, 0.9),
+                                                          text_font=self.font.load_font(self.menu_font),
+                                                          frameColor=(255, 255, 255, 0),
+                                                          scale=.03, borderWidth=(self.w, self.h),
+                                                          parent=self.frame)
+
+                self.inp_joint_item_pos_x = DirectEntry(initialText="X Axis",
+                                                        text_bg=(0, 0, 0, 1),
+                                                        entryFont=self.font.load_font(self.menu_font),
+                                                        text_align=TextNode.A_center,
+                                                        scale=.03, width=7, borderWidth=(self.w, self.h),
+                                                        parent=self.frame, cursorKeys=1,
+                                                        command=self.set_node_pos)
+
+                self.inp_joint_item_pos_y = DirectEntry(initialText="Y Axis",
+                                                        text_bg=(0, 0, 0, 1),
+                                                        entryFont=self.font.load_font(self.menu_font),
+                                                        text_align=TextNode.A_center,
+                                                        scale=.03, width=7, borderWidth=(self.w, self.h),
+                                                        parent=self.frame, cursorKeys=1,
+                                                        command=self.set_node_pos)
+
+                self.inp_joint_item_pos_z = DirectEntry(initialText="Z Axis",
+                                                        text_bg=(0, 0, 0, 1),
+                                                        entryFont=self.font.load_font(self.menu_font),
+                                                        text_align=TextNode.A_center,
+                                                        scale=.03, width=7, borderWidth=(self.w, self.h),
+                                                        parent=self.frame, cursorKeys=1,
+                                                        command=self.set_node_pos)
+
+                self.inp_joint_item_rot_h = DirectEntry(initialText="Heading",
+                                                        text_bg=(0, 0, 0, 1),
+                                                        entryFont=self.font.load_font(self.menu_font),
+                                                        text_align=TextNode.A_center,
+                                                        scale=.03, width=7, borderWidth=(self.w, self.h),
+                                                        parent=self.frame, cursorKeys=1,
+                                                        command=self.set_node_hpr)
+
+                self.inp_joint_item_rot_p = DirectEntry(initialText="Pitch",
+                                                        text_bg=(0, 0, 0, 1),
+                                                        entryFont=self.font.load_font(self.menu_font),
+                                                        text_align=TextNode.A_center,
+                                                        scale=.03, width=7, borderWidth=(self.w, self.h),
+                                                        parent=self.frame, cursorKeys=1,
+                                                        command=self.set_node_hpr)
+
+                self.inp_joint_item_rot_r = DirectEntry(initialText="Rotation",
+                                                        text_bg=(0, 0, 0, 1),
+                                                        entryFont=self.font.load_font(self.menu_font),
+                                                        text_align=TextNode.A_center,
+                                                        scale=.03, width=7, borderWidth=(self.w, self.h),
+                                                        parent=self.frame, cursorKeys=1,
+                                                        command=self.set_node_hpr)
+
+                self.inp_joint_item_scale_x = DirectEntry(initialText="X Scale",
+                                                          text_bg=(0, 0, 0, 1),
+                                                          entryFont=self.font.load_font(self.menu_font),
+                                                          text_align=TextNode.A_center,
+                                                          scale=.03, width=7, borderWidth=(self.w, self.h),
+                                                          parent=self.frame, cursorKeys=1,
+                                                          command=self.set_node_hpr)
+
+                self.inp_joint_item_scale_y = DirectEntry(initialText="Y Scale",
+                                                          text_bg=(0, 0, 0, 1),
+                                                          entryFont=self.font.load_font(self.menu_font),
+                                                          text_align=TextNode.A_center,
+                                                          scale=.03, width=7, borderWidth=(self.w, self.h),
+                                                          parent=self.frame, cursorKeys=1,
+                                                          command=self.set_node_hpr)
+
+                self.inp_joint_item_scale_z = DirectEntry(initialText="Z Scale",
+                                                          text_bg=(0, 0, 0, 1),
+                                                          entryFont=self.font.load_font(self.menu_font),
+                                                          text_align=TextNode.A_center,
+                                                          scale=.03, width=7, borderWidth=(self.w, self.h),
+                                                          parent=self.frame, cursorKeys=1,
+                                                          command=self.set_node_hpr)
+
+                self.save_joint_attach = DirectButton(text="Save Joint Attach",
+                                                      text_fg=(255, 255, 255, 1), relief=2,
+                                                      text_font=self.font.load_font(self.menu_font),
+                                                      frameColor=(0, 0, 0, 1),
+                                                      scale=.03, borderWidth=(self.w, self.h),
+                                                      geom=geoms_scrolled_dbtn, geom_scale=(11.3, 0, 2),
+                                                      clickSound="",
+                                                      command="")
+
+                self.scrolled_list_actor_joints_lbl = DirectLabel(text="Actor Joints",
+                                                                  text_fg=(255, 255, 255, 0.9),
+                                                                  text_font=self.font.load_font(self.menu_font),
+                                                                  frameColor=(255, 255, 255, 0),
+                                                                  scale=.05, borderWidth=(self.w, self.h),
+                                                                  parent=self.frame)
+
+                btn2_list = []
+                joints = self.get_actor_joints()
+                if not joints:
+                    btn = DirectButton(text="Where joints, Johnny?",
+                                       text_fg=(255, 255, 255, 1), relief=2,
+                                       text_font=self.font.load_font(self.menu_font),
+                                       frameColor=(0, 0, 0, 1),
+                                       scale=.03, borderWidth=(self.w, self.h),
+                                       geom=geoms_scrolled_dbtn, geom_scale=(15.3, 0, 2),
+                                       clickSound="",
+                                       command="")
+                    btn2_list.append(btn)
+
+                    self.scrolled_list_actor_joints = DirectScrolledList(
+                        decButton_pos=(0.35, 0, 0.46),
+                        decButton_scale=(5, 1, 0.5),
+                        decButton_text="",
+                        decButton_text_scale=0.04,
+                        decButton_borderWidth=(0, 0),
+                        decButton_geom=geoms_scrolled_dec,
+                        decButton_geom_scale=0.08,
+
+                        incButton_pos=(0.35, 0, 0.34),
+                        incButton_scale=(5, 1, 0.5),
+                        incButton_text="",
+                        incButton_text_scale=0.04,
+                        incButton_borderWidth=(0, 0),
+                        incButton_geom=geoms_scrolled_inc,
+                        incButton_geom_scale=0.08,
+
+                        frameSize=self.frame_scrolled_size,
+                        frameColor=(0, 0, 0, 0),
+                        numItemsVisible=1,
+                        forceHeight=0.11,
+                        items=btn2_list,
+                        itemFrame_frameSize=self.frame_scrolled_inner_size,
+                        itemFrame_pos=(0.35, 0, 0.4),
+                        parent=self.frame,
+                    )
+
+                    self.scrolled_list_actor_joints_lbl_desc = DirectLabel(
+                        text="No actor is selected",
+                        text_fg=(255, 255, 255, 0.9),
+                        text_font=self.font.load_font(self.menu_font),
+                        frameColor=(255, 255, 255, 0),
+                        scale=.025, borderWidth=(self.w, self.h),
+                        parent=self.frame)
+
+                if joints:
+                    for index, asset in enumerate(self.get_actor_joints(), 1):
+                        btn = DirectButton(text="Joint: {0}".format(asset),
+                                           text_fg=(255, 255, 255, 1), relief=2,
+                                           text_font=self.font.load_font(self.menu_font),
+                                           frameColor=(0, 0, 0, 1),
+                                           scale=.03, borderWidth=(self.w, self.h),
+                                           geom=geoms_scrolled_dbtn, geom_scale=(15.3, 0, 2),
+                                           clickSound="",
+                                           command=self.get_actor_joint,
+                                           extraArgs=[asset])
+                        btn2_list.append(btn)
+
+                        self.scrolled_list_actor_joints = DirectScrolledList(
+                            decButton_pos=(0.35, 0, 0.46),
+                            decButton_scale=(5, 1, 0.5),
+                            decButton_text="Dec",
+                            decButton_text_scale=0.04,
+                            decButton_borderWidth=(0, 0),
+                            decButton_geom=geoms_scrolled_dec,
+                            decButton_geom_scale=0.08,
+
+                            incButton_pos=(0.35, 0, 0.34),
+                            incButton_scale=(5, 1, 0.5),
+                            incButton_text="Inc",
+                            incButton_text_scale=0.04,
+                            incButton_borderWidth=(0, 0),
+                            incButton_geom=geoms_scrolled_inc,
+                            incButton_geom_scale=0.08,
+
+                            frameSize=self.frame_scrolled_size,
+                            frameColor=(0, 0, 0, 0),
+                            numItemsVisible=1,
+                            forceHeight=0.11,
+                            items=btn2_list,
+                            itemFrame_frameSize=self.frame_scrolled_inner_size,
+                            itemFrame_pos=(0.35, 0, 0.4),
+                            parent=self.frame,
+                        )
+
+                        self.scrolled_list_actor_joints_lbl_desc = DirectLabel(
+                            text="Select joint \nfor manipulations on the scene",
+                            text_fg=(255, 255, 255, 0.9),
+                            text_font=self.font.load_font(self.menu_font),
+                            frameColor=(255, 255, 255, 0),
+                            scale=.025, borderWidth=(self.w, self.h),
+                            parent=self.frame)
+
+        if self.scrolled_list_lbl:
+            self.scrolled_list_lbl.set_pos(-1.65, 0, 0.85)
+        if self.scrolled_list_lbl_na:
+            self.scrolled_list_lbl_na.set_pos(-1.65, 0, 0.32)
+        if self.scrolled_list:
+            self.scrolled_list.set_pos(-2.0, 0, 0.32)
+        if self.scrolled_list_lbl_desc:
+            self.scrolled_list_lbl_desc.set_pos(-1.65, 0, -0.40)
+
+        self.asset_management_title.set_pos(-1.0, 0, -0.59)
+        self.asset_management_desc.set_pos(-0.92, 0, -0.63)
+
+        self.lbl_pos_x.set_pos(-1.2, 0, -0.7)
+        self.lbl_pos_y.set_pos(-1.2, 0, -0.8)
+        self.lbl_pos_z.set_pos(-1.2, 0, -0.9)
+
+        self.inp_pos_x.set_pos(-1.0, 0, -0.7)
+        self.inp_pos_y.set_pos(-1.0, 0, -0.8)
+        self.inp_pos_z.set_pos(-1.0, 0, -0.9)
+
+        self.lbl_rot_h.set_pos(-0.75, 0, -0.7)
+        self.lbl_rot_p.set_pos(-0.75, 0, -0.8)
+        self.lbl_rot_r.set_pos(-0.75, 0, -0.9)
+
+        self.inp_rot_h.set_pos(-0.51, 0, -0.7)
+        self.inp_rot_p.set_pos(-0.51, 0, -0.8)
+        self.inp_rot_r.set_pos(-0.51, 0, -0.9)
+
+        self.lbl_scale_x.set_pos(-0.25, 0, -0.7)
+        self.lbl_scale_y.set_pos(-0.25, 0, -0.8)
+        self.lbl_scale_z.set_pos(-0.25, 0, -0.9)
+
+        self.inp_scale_x.set_pos(-0.01, 0, -0.7)
+        self.inp_scale_y.set_pos(-0.01, 0, -0.8)
+        self.inp_scale_z.set_pos(-0.01, 0, -0.9)
+
+        if self.scrolled_list_actor_joints_lbl:
+            self.scrolled_list_actor_joints_lbl.set_pos(-1.65, 0, -0.60)
+        if self.scrolled_list_actor_joints:
+            self.scrolled_list_actor_joints.set_pos(-2.0, 0, -1.12)
+        if self.scrolled_list_actor_joints_lbl_desc:
+            self.scrolled_list_actor_joints_lbl_desc.set_pos(-1.65, 0, -0.87)
+
+        self.joint_item_management_title.set_pos(0.6, 0, -0.59)
+        self.joint_item_management_desc.set_pos(0.65, 0, -0.63)
+
+        self.lbl_joint_item_pos_x.set_pos(0.35, 0, -0.7)
+        self.lbl_joint_item_pos_y.set_pos(0.35, 0, -0.8)
+        self.lbl_joint_item_pos_z.set_pos(0.35, 0, -0.9)
+
+        self.inp_joint_item_pos_x.set_pos(0.55, 0, -0.7)
+        self.inp_joint_item_pos_y.set_pos(0.55, 0, -0.8)
+        self.inp_joint_item_pos_z.set_pos(0.55, 0, -0.9)
+
+        self.lbl_joint_item_rot_h.set_pos(0.75, 0, -0.7)
+        self.lbl_joint_item_rot_p.set_pos(0.75, 0, -0.8)
+        self.lbl_joint_item_rot_r.set_pos(0.75, 0, -0.9)
+
+        self.inp_joint_item_rot_h.set_pos(0.95, 0, -0.7)
+        self.inp_joint_item_rot_p.set_pos(0.95, 0, -0.8)
+        self.inp_joint_item_rot_r.set_pos(0.95, 0, -0.9)
+
+        self.lbl_joint_item_scale_x.set_pos(1.15, 0, -0.7)
+        self.lbl_joint_item_scale_y.set_pos(1.15, 0, -0.8)
+        self.lbl_joint_item_scale_z.set_pos(1.15, 0, -0.9)
+
+        self.inp_joint_item_scale_x.set_pos(1.35, 0, -0.7)
+        self.inp_joint_item_scale_y.set_pos(1.35, 0, -0.8)
+        self.inp_joint_item_scale_z.set_pos(1.35, 0, -0.9)
+
+        self.save_asset_pos.set_pos(1.7, 0, -0.8)
+        self.save_joint_attach.set_pos(1.7, 0, -0.9)
+
+    def get_assets(self, path):
+        if path:
+            newpath = self.transform_path(path="{0}/{1}".format(self.game_dir, path),
+                                          style='compat')
+            assets = {}
+            if exists(newpath):
+                for root, dirs, files in walk(newpath, topdown=True):
+                    for file in files:
+                        if file.endswith(".egg"):
+                            key = re.sub('.egg$', '', file)
+                            newpath = str(PurePath("{0}/".format(root), file))
+                            assets[key] = Filename.from_os_specific(newpath).getFullpath()
+                        elif file.endswith(".egg.bam"):
+                            key = re.sub('.egg.bam$', '', file)
+                            newpath = str(PurePath("{0}/".format(root), file))
+                            assets[key] = Filename.from_os_specific(newpath).getFullpath()
+
+                if assets:
+                    return assets
+
+    def get_actor_joint(self, joint):
+        if joint and isinstance(joint, str):
+            if self.is_asset_actor(asset=self.near_asset):
+                exposed = self.near_asset.expose_joint(None, "modelRoot", joint)
+                if exposed:
+                    self.joint_from_input = joint
+                    return joint
+
+    def get_actor_joints(self):
+        if hasattr(self, "near_asset"):
+            if self.near_asset:
+                joints = self.near_asset.get_joints()
+                if joints:
+                    return joints
+
+    def is_asset_actor(self, asset):
+        if asset:
+            if not asset.find("**/+Character").is_empty():
+                return True
+            else:
+                return False
+
+    def is_actor_joint_busy(self, actor, joint):
+        if actor and joint and isinstance(joint, str):
+            exposed = actor.expose_joint(None, "modelRoot", joint)
+            if exposed.get_child(0).is_empty():
+                return False
+            else:
+                return True
+
+    def asset_load(self, assets):
+        if assets:
+            for index, asset in enumerate(assets, 1):
+                if "flame" in asset:
+                    # exclude it
+                    continue
+
+                if "-" in asset or "Action" in asset:
+                    self.anims[asset] = assets[asset]
+                    continue
+
+                if "flame" not in asset \
+                        or "fire" not in asset \
+                        or "water" not in asset:
+                    model = self.loader.load_model(assets[asset],
+                                                   noCache=True)
+                    if not model.find("**/+Character").is_empty():
+                        model = Actor(model)
+                        model.set_two_sided(True)
+
+                    model.set_name(asset)
+                    # automatic positioning
+                    model.set_pos(model.get_pos() + (index * 2, index * 2, 0))
+                    model.reparent_to(render)
+                    model.setPythonTag(model.get_name(), '1')
+
+                    self.render_pipeline.prepare_scene(model)
+
+            for tex in self.render.findAllTextures():
+                if tex.getNumComponents() == 4:
+                    tex.setFormat(Texture.F_srgb_alpha)
+                elif tex.getNumComponents() == 3:
+                    tex.setFormat(Texture.F_srgb)
+
+            self.set_ui()
+
+    def select_asset(self, asset):
+        if asset:
+            self.near_asset = render.find("**/{0}".format(asset))
+            self.get_actor_joints()
+
+    def attach_to_joint(self, actor, item, joint, wrt):
+        if actor and item and joint and isinstance(joint, str):
+            if self.is_asset_actor(asset=actor) and self.is_actor_joint_busy():
+                exposed = actor.expose_joint(None, "modelRoot", joint)
+                item.set_pos(exposed.get_pos())
+                if wrt:
+                    item.wrt_reparent_to(exposed)
+                else:
+                    item.reparent_to(exposed)
+
+    def mouse_click_handler(self):
+        if base.mouseWatcherNode.hasMouse():
+            mpos = base.mouseWatcherNode.getMouse()
+            self.picker_ray.setFromLens(base.camNode, mpos.getX(), mpos.getY())
+            self.traverser.traverse(render)
+            # Assume for simplicity's sake that col_handler is a CollisionHandlerQueue.
+            if self.col_handler.getNumEntries() > 0:
+                # This is so we get the closest object.
+                self.col_handler.sortEntries()
+                self.near_asset = self.col_handler.getEntry(0).getIntoNodePath()
+                if not self.near_asset.isEmpty():
+                    self.active_asset = self.near_asset
+                    self.select_asset(asset=self.active_asset)
+
+                """for i, entry in zip(range(self.col_handler.getNumEntries), self.col_handler.getEntries()):
+                    pickedObj = self.col_handler.getEntry(i).getIntoNodePath()
+                    pickedObj = pickedObj.findNetTag(entry)
+                    if not pickedObj.isEmpty():
+                        self.near_asset = pickedObj"""
+
+    def update_scene(self, task):
+        self.mouse_click_handler()
+        if self.joint_from_input and isinstance(self.joint_from_input, str):
+            joint = "{0}:{0}".format(self.near_asset.get_name(), self.joint_from_input)
+            for asset in self.assets:
+                self.get_node_pos(asset)
+                self.get_node_hpr(asset)
+                self.attach_to_joint(actor=self.near_asset, item=self.active_asset, joint=joint)
+
+        return task.cont
+
+    def get_node_pos(self, asset):
+        if asset:
+            if hasattr(asset, "pos"):
+                return "{0}, {1}, {2}".format(asset.pos[0], asset.pos[1], asset.pos[2])
+
+    def get_node_hpr(self, asset):
+        if asset:
+            if hasattr(asset, "direction"):
+                return "{0}, {1}, {2}".format(asset.direction[0], asset.direction[1], asset.direction[2])
+            else:
+                return "HPR"
+
+    def set_shader(self, name):
+        if name:
+            if not render.find("**/flame").is_empty():
+                # self.render_pipeline.reload_shaders()
+                self.flame_np = render.find("**/flame")
+                self.flame_np.set_name("flame")
+                scale = self.flame_np.get_scale()
+                self.flame_np.set_scale(2, scale[1], scale[2])
+                self.render_pipeline.set_effect(self.flame_np,
+                                                "{0}/Engine/Render/effects/{1}.yaml".format(self.game_dir, name),
+                                                {"render_gbuffer": True,
+                                                 "render_shadow": True,
+                                                 "alpha_testing": True,
+                                                 "normal_mapping": True})
+                self.flame_np.setBillboardPointEye()
+
+                taskMgr.add(self.update_flame, "update_flame")
+
+    def set_node_pos(self, pos):
+        if pos and isinstance(pos, str):
+            if self.active_asset:
+                # We convert pos strings which we get from DirectEntry to integers
+                pos_list = pos.split(",")
+                x, y, z = pos_list
+                int_x = float(x)
+                int_y = float(y)
+                int_z = float(z)
+                if hasattr(self.active_asset, "pos"):
+                    self.active_asset.pos = LVecBase3f(int_x, int_y, int_z)
+                else:
+                    if self.active_asset:
+                        self.active_asset.set_pos(LVecBase3f(int_x, int_y, int_z))
+
+    def set_node_hpr(self, hpr):
+        if hpr and isinstance(hpr, str):
+            if self.active_asset:
+                # We convert pos strings which we get from DirectEntry to integers
+                hpr_list = hpr.split(",")
+                x, y, z = hpr_list
+                int_x = float(x)
+                int_y = float(y)
+                int_z = float(z)
+                if hasattr(self.active_asset, "direction"):
+                    self.active_asset.direction = LVecBase3f(int_x, int_y, int_z)
+                else:
+                    if self.active_asset:
+                        self.active_asset.set_hpr(LVecBase3f(int_x, int_y, int_z))
+
+    def ui_geom_collector(self):
+        """ Function    : ui_geom_collector
+
+            Description : Collect textures.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : Dictionary
+        """
+        tex_path = self.transform_path(path="{0}/Editor/UI/".format(self.game_dir),
+                                       style='compat')
+        ui_geoms = {}
+        if exists(tex_path):
+            for root, dirs, files in walk(tex_path, topdown=True):
+                for file in files:
+                    if file.endswith(".egg"):
+                        key = re.sub('.egg$', '', file)
+                        path = str(PurePath("{0}/".format(root), file))
+                        ui_geoms[key] = Filename.from_os_specific(path).getFullpath()
+                    elif file.endswith(".egg.bam"):
+                        key = re.sub('.egg.bam$', '', file)
+                        path = str(PurePath("{0}/".format(root), file))
+                        ui_geoms[key] = Filename.from_os_specific(path).getFullpath()
+            return ui_geoms
+
+    def transform_path(self, path, style):
+        if isinstance(path, str):
+            if style == 'unix':
+                transformed_path = str(PurePath(path))
+                transformed_path = Filename.from_os_specific(transformed_path)
+                return transformed_path
+            elif style == 'compat':
+                transformed_path = Filename(path).to_os_specific()
+                return transformed_path
+
+    def update_flame(self, task):
+        if self.flame_np:
+            time = task.time
+            self.flame_np.set_shader_input("iTime", time)
+
+        return task.cont
+
+
+editor = Editor()
+editor.run()

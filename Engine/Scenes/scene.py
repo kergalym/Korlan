@@ -98,7 +98,8 @@ class SceneOne:
 
                 # Load the LOD
                 self.base.level_of_details(obj=scene)
-            else:                # Enable water
+            else:
+                # Enable water
                 self.render_attr.set_water(True, water_lvl=30.0, adv_render=False)
                 self.render_attr.set_flame(adv_render=True)
 

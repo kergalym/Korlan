@@ -38,7 +38,7 @@ state-cache #t
 transform-cache #t
 
 # Hide frame rate meter (we have our own)
-show-frame-rate-meter t
+show-frame-rate-meter f
 
 # Set text settings
 text-minfilter linear
@@ -51,7 +51,7 @@ text-flatten 0
 text-dynamic-merge 1
 
 # For smoother animations
-# even-animation #t
+even-animation t
 
 # Threading, really buggy!
 #threading-model App/Cull/Draw

@@ -135,7 +135,7 @@ overrides:
     scattering_method: eric_bruneton
   skin_shading:
     blur_scale: 0.1
-    quality: high
+    quality: low
   sky_ao:
     ao_bias: 0.0
     ao_multiplier: 0.83
