@@ -108,6 +108,7 @@ class Editor(ShowBase):
         self.near_asset = None
 
         self.is_asset_picked_up = False
+        self.is_item_attached_to_joint = False
 
         self.cur_x_dist = None
         self.cur_y_dist = None
@@ -374,7 +375,7 @@ class Editor(ShowBase):
                                                scale=.03, borderWidth=(self.w, self.h),
                                                parent=self.frame)
 
-                self.inp_pos_x = DirectEntry(initialText="X Axis",
+                self.inp_pos_x = DirectEntry(initialText="",
                                              text_bg=(0, 0, 0, 1),
                                              entryFont=self.font.load_font(self.menu_font),
                                              text_align=TextNode.A_center,
@@ -382,7 +383,7 @@ class Editor(ShowBase):
                                              parent=self.frame, cursorKeys=1,
                                              command=self.set_node_pos_x)
 
-                self.inp_pos_y = DirectEntry(initialText="Y Axis",
+                self.inp_pos_y = DirectEntry(initialText="",
                                              text_bg=(0, 0, 0, 1),
                                              entryFont=self.font.load_font(self.menu_font),
                                              text_align=TextNode.A_center,
@@ -390,7 +391,7 @@ class Editor(ShowBase):
                                              parent=self.frame, cursorKeys=1,
                                              command=self.set_node_pos_y)
 
-                self.inp_pos_z = DirectEntry(initialText="Z Axis",
+                self.inp_pos_z = DirectEntry(initialText="",
                                              text_bg=(0, 0, 0, 1),
                                              entryFont=self.font.load_font(self.menu_font),
                                              text_align=TextNode.A_center,
@@ -398,7 +399,7 @@ class Editor(ShowBase):
                                              parent=self.frame, cursorKeys=1,
                                              command=self.set_node_pos_z)
 
-                self.inp_rot_h = DirectEntry(initialText="Heading",
+                self.inp_rot_h = DirectEntry(initialText="",
                                              text_bg=(0, 0, 0, 1),
                                              entryFont=self.font.load_font(self.menu_font),
                                              text_align=TextNode.A_center,
@@ -406,7 +407,7 @@ class Editor(ShowBase):
                                              parent=self.frame, cursorKeys=1,
                                              command=self.set_node_h)
 
-                self.inp_rot_p = DirectEntry(initialText="Pitch",
+                self.inp_rot_p = DirectEntry(initialText="",
                                              text_bg=(0, 0, 0, 1),
                                              entryFont=self.font.load_font(self.menu_font),
                                              text_align=TextNode.A_center,
@@ -414,7 +415,7 @@ class Editor(ShowBase):
                                              parent=self.frame, cursorKeys=1,
                                              command=self.set_node_p)
 
-                self.inp_rot_r = DirectEntry(initialText="Rotation",
+                self.inp_rot_r = DirectEntry(initialText="",
                                              text_bg=(0, 0, 0, 1),
                                              entryFont=self.font.load_font(self.menu_font),
                                              text_align=TextNode.A_center,
@@ -422,7 +423,7 @@ class Editor(ShowBase):
                                              parent=self.frame, cursorKeys=1,
                                              command=self.set_node_r)
 
-                self.inp_scale_x = DirectEntry(initialText="X Scale",
+                self.inp_scale_x = DirectEntry(initialText="",
                                                text_bg=(0, 0, 0, 1),
                                                entryFont=self.font.load_font(self.menu_font),
                                                text_align=TextNode.A_center,
@@ -430,7 +431,7 @@ class Editor(ShowBase):
                                                parent=self.frame, cursorKeys=1,
                                                command=self.set_node_scale_x)
 
-                self.inp_scale_y = DirectEntry(initialText="Y Scale",
+                self.inp_scale_y = DirectEntry(initialText="",
                                                text_bg=(0, 0, 0, 1),
                                                entryFont=self.font.load_font(self.menu_font),
                                                text_align=TextNode.A_center,
@@ -438,7 +439,7 @@ class Editor(ShowBase):
                                                parent=self.frame, cursorKeys=1,
                                                command=self.set_node_scale_y)
 
-                self.inp_scale_z = DirectEntry(initialText="Z Scale",
+                self.inp_scale_z = DirectEntry(initialText="",
                                                text_bg=(0, 0, 0, 1),
                                                entryFont=self.font.load_font(self.menu_font),
                                                text_align=TextNode.A_center,
@@ -532,7 +533,7 @@ class Editor(ShowBase):
                                                           scale=.03, borderWidth=(self.w, self.h),
                                                           parent=self.frame)
 
-                self.inp_joint_item_pos_x = DirectEntry(initialText="X Axis",
+                self.inp_joint_item_pos_x = DirectEntry(initialText="",
                                                         text_bg=(0, 0, 0, 1),
                                                         entryFont=self.font.load_font(self.menu_font),
                                                         text_align=TextNode.A_center,
@@ -540,7 +541,7 @@ class Editor(ShowBase):
                                                         parent=self.frame, cursorKeys=1,
                                                         command=self.set_node_pos_x)
 
-                self.inp_joint_item_pos_y = DirectEntry(initialText="Y Axis",
+                self.inp_joint_item_pos_y = DirectEntry(initialText="",
                                                         text_bg=(0, 0, 0, 1),
                                                         entryFont=self.font.load_font(self.menu_font),
                                                         text_align=TextNode.A_center,
@@ -548,7 +549,7 @@ class Editor(ShowBase):
                                                         parent=self.frame, cursorKeys=1,
                                                         command=self.set_node_pos_y)
 
-                self.inp_joint_item_pos_z = DirectEntry(initialText="Z Axis",
+                self.inp_joint_item_pos_z = DirectEntry(initialText="",
                                                         text_bg=(0, 0, 0, 1),
                                                         entryFont=self.font.load_font(self.menu_font),
                                                         text_align=TextNode.A_center,
@@ -556,7 +557,7 @@ class Editor(ShowBase):
                                                         parent=self.frame, cursorKeys=1,
                                                         command=self.set_node_pos_z)
 
-                self.inp_joint_item_rot_h = DirectEntry(initialText="Heading",
+                self.inp_joint_item_rot_h = DirectEntry(initialText="",
                                                         text_bg=(0, 0, 0, 1),
                                                         entryFont=self.font.load_font(self.menu_font),
                                                         text_align=TextNode.A_center,
@@ -564,7 +565,7 @@ class Editor(ShowBase):
                                                         parent=self.frame, cursorKeys=1,
                                                         command=self.set_node_h)
 
-                self.inp_joint_item_rot_p = DirectEntry(initialText="Pitch",
+                self.inp_joint_item_rot_p = DirectEntry(initialText="",
                                                         text_bg=(0, 0, 0, 1),
                                                         entryFont=self.font.load_font(self.menu_font),
                                                         text_align=TextNode.A_center,
@@ -572,7 +573,7 @@ class Editor(ShowBase):
                                                         parent=self.frame, cursorKeys=1,
                                                         command=self.set_node_p)
 
-                self.inp_joint_item_rot_r = DirectEntry(initialText="Rotation",
+                self.inp_joint_item_rot_r = DirectEntry(initialText="",
                                                         text_bg=(0, 0, 0, 1),
                                                         entryFont=self.font.load_font(self.menu_font),
                                                         text_align=TextNode.A_center,
@@ -580,7 +581,7 @@ class Editor(ShowBase):
                                                         parent=self.frame, cursorKeys=1,
                                                         command=self.set_node_r)
 
-                self.inp_joint_item_scale_x = DirectEntry(initialText="X Scale",
+                self.inp_joint_item_scale_x = DirectEntry(initialText="",
                                                           text_bg=(0, 0, 0, 1),
                                                           entryFont=self.font.load_font(self.menu_font),
                                                           text_align=TextNode.A_center,
@@ -588,7 +589,7 @@ class Editor(ShowBase):
                                                           parent=self.frame, cursorKeys=1,
                                                           command=self.set_node_scale_x)
 
-                self.inp_joint_item_scale_y = DirectEntry(initialText="Y Scale",
+                self.inp_joint_item_scale_y = DirectEntry(initialText="",
                                                           text_bg=(0, 0, 0, 1),
                                                           entryFont=self.font.load_font(self.menu_font),
                                                           text_align=TextNode.A_center,
@@ -596,7 +597,7 @@ class Editor(ShowBase):
                                                           parent=self.frame, cursorKeys=1,
                                                           command=self.set_node_scale_y)
 
-                self.inp_joint_item_scale_z = DirectEntry(initialText="Z Scale",
+                self.inp_joint_item_scale_z = DirectEntry(initialText="",
                                                           text_bg=(0, 0, 0, 1),
                                                           entryFont=self.font.load_font(self.menu_font),
                                                           text_align=TextNode.A_center,
@@ -939,6 +940,67 @@ class Editor(ShowBase):
             pos_z = self.active_asset.get_z()
             self.active_asset.set_z(pos_z-0.5)
 
+    def update_fields(self):
+        if self.active_asset and self.is_asset_picked_up:
+            pos_x = self.get_node_pos_x(asset=self.active_asset)
+            pos_y = self.get_node_pos_y(asset=self.active_asset)
+            pos_z = self.get_node_pos_z(asset=self.active_asset)
+            rot_h = self.get_node_h(asset=self.active_asset)
+            rot_p = self.get_node_p(asset=self.active_asset)
+            rot_r = self.get_node_r(asset=self.active_asset)
+            scale_x = self.get_node_scale_x(asset=self.active_asset)
+            scale_y = self.get_node_scale_y(asset=self.active_asset)
+            scale_z = self.get_node_scale_z(asset=self.active_asset)
+
+            self.inp_pos_x.setText(pos_x)
+            self.inp_pos_y.setText(pos_y)
+            self.inp_pos_z.setText(pos_z)
+
+            self.inp_rot_h.setText(rot_h)
+            self.inp_rot_p.setText(rot_p)
+            self.inp_rot_r.setText(rot_r)
+
+            self.inp_scale_x.setText(scale_x)
+            self.inp_scale_y.setText(scale_y)
+            self.inp_scale_z.setText(scale_z)
+        elif not self.active_asset:
+            self.inp_pos_x.setText("Axis X")
+            self.inp_pos_y.setText("Axis Y")
+            self.inp_pos_z.setText("Axis Z")
+
+            self.inp_rot_h.setText("Heading")
+            self.inp_rot_p.setText("Pitch")
+            self.inp_rot_r.setText("Rotation")
+
+            self.inp_scale_x.setText("Scale X")
+            self.inp_scale_y.setText("Scale Y")
+            self.inp_scale_z.setText("Scale Z")
+        else:
+            self.inp_pos_x.setText("Axis X")
+            self.inp_pos_y.setText("Axis Y")
+            self.inp_pos_z.setText("Axis Z")
+
+            self.inp_rot_h.setText("Heading")
+            self.inp_rot_p.setText("Pitch")
+            self.inp_rot_r.setText("Rotation")
+
+            self.inp_scale_x.setText("Scale X")
+            self.inp_scale_y.setText("Scale Y")
+            self.inp_scale_z.setText("Scale Z")
+
+        if not self.active_asset or not self.is_item_attached_to_joint:
+            self.inp_joint_item_pos_x.setText("Axis X")
+            self.inp_joint_item_pos_y.setText("Axis Y")
+            self.inp_joint_item_pos_z.setText("Axis Z")
+
+            self.inp_joint_item_rot_h.setText("Heading")
+            self.inp_joint_item_rot_p.setText("Pitch")
+            self.inp_joint_item_rot_r.setText("Rotation")
+
+            self.inp_joint_item_scale_x.setText("Scale X")
+            self.inp_joint_item_scale_y.setText("Scale Y")
+            self.inp_joint_item_scale_z.setText("Scale Z")
+
     def update_scene(self, task):
         self.accept("mouse1", self.pick_up)
         self.accept("mouse3", self.drop_down)
@@ -952,27 +1014,75 @@ class Editor(ShowBase):
             joint = "{0}:{0}".format(self.near_asset.get_name(), self.joint_from_input)
             self.attach_to_joint(actor=self.near_asset, item=self.active_asset, joint=joint)
 
-        if self.active_asset:
+        if self.active_asset and self.is_asset_picked_up:
             name = self.active_asset.get_name()
             self.active_asset_text.setText(name)
-            self.get_node_pos(asset=self.active_asset)
-            self.get_node_hpr(asset=self.active_asset)
+        else:
+            self.active_asset_text.setText("")
+
+        self.update_fields()
 
         return task.cont
 
-    def get_node_pos(self, asset):
+    def get_node_pos_x(self, asset):
         if asset:
             if hasattr(asset, "pos"):
-                return "{0}, {1}, {2}".format(asset.pos[0], asset.pos[1], asset.pos[2])
+                return "{0}".format(asset.pos[0])
             else:
-                return "{0}, {1}, {2}".format(asset.get_x(), asset.get_y(), asset.get_z())
+                x = round(asset.get_x(), 1)
+                return "{0}".format(x)
 
-    def get_node_hpr(self, asset):
+    def get_node_pos_y(self, asset):
+        if asset:
+            if hasattr(asset, "pos"):
+                return "{0}".format(asset.pos[1])
+            else:
+                y = round(asset.get_y(), 1)
+                return "{0}".format(y)
+
+    def get_node_pos_z(self, asset):
+        if asset:
+            if hasattr(asset, "pos"):
+                return "{0}".format(asset.pos[2])
+            else:
+                z = round(asset.get_z(), 1)
+                return "{0}".format(z)
+
+    def get_node_h(self, asset):
         if asset:
             if hasattr(asset, "direction"):
-                return "{0}, {1}, {2}".format(asset.direction[0], asset.direction[1], asset.direction[2])
+                return "{0}".format(asset.direction[0])
             else:
-                return "{0}, {1}, {2}".format(asset.get_h(), asset.get_p(), asset.get_r())
+                return "{0}".format(asset.get_h())
+
+    def get_node_p(self, asset):
+        if asset:
+            if hasattr(asset, "direction"):
+                return "{0}".format(asset.direction[1])
+            else:
+                return "{0}".format(asset.get_p())
+
+    def get_node_r(self, asset):
+        if asset:
+            if hasattr(asset, "direction"):
+                return "{0}".format(asset.direction[2])
+            else:
+                return "{0}".format(asset.get_r())
+
+    def get_node_scale_x(self, asset):
+        if asset:
+            scale = asset.get_scale()
+            return "{0}".format(round(scale[0], 1))
+
+    def get_node_scale_y(self, asset):
+        if asset:
+            scale = asset.get_scale()
+            return "{0}".format(round(scale[1], 1))
+
+    def get_node_scale_z(self, asset):
+        if asset:
+            scale = asset.get_scale()
+            return "{0}".format(round(scale[2], 1))
 
     def set_node_pos_x(self, pos):
         if pos and isinstance(pos, str):
