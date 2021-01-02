@@ -11,26 +11,15 @@ from direct.gui.DirectEntry import DirectEntry
 from direct.gui.DirectFrame import DirectFrame
 from direct.gui.DirectLabel import DirectLabel
 from direct.gui.DirectScrolledList import DirectScrolledList
-from direct.gui.OnscreenImage import OnscreenImage
-from direct.interval.MetaInterval import Sequence
+from direct.gui.OnscreenText import OnscreenText
 from direct.task.TaskManagerGlobal import taskMgr
-from panda3d.ai import AIWorld, AICharacter
-from panda3d.bullet import BulletCapsuleShape, BulletWorld, BulletPlaneShape, BulletRigidBodyNode, ZUp, \
-    BulletCharacterControllerNode
-from panda3d.core import Vec3, load_prc_file_data, Material, Texture, TransparencyAttrib, Point3, NodePath
 from direct.showbase.ShowBase import ShowBase
 from direct.stdpy import threading
 from code import InteractiveConsole
 from panda3d.core import *
-import random
 from pathlib import Path, PurePath
-from panda3d.core import RigidBodyCombiner
 
-# Setup window size and title
 from Engine.Render.rpcore import RenderPipeline, PointLight
-# Import the movement controller, this is a convenience class
-# to provide an improved camera control compared to Panda3Ds default
-# mouse controller.
 from Engine.Render.rpcore.util.movement_controller import MovementController
 
 import panda3d;
@@ -100,6 +89,7 @@ class Editor(ShowBase):
 
         """ Frames """
         self.frame = None
+        self.active_asset_text = None
 
         """ Classes """
         # instance of the abstract class
@@ -116,6 +106,9 @@ class Editor(ShowBase):
 
         self.active_asset = None
         self.near_asset = None
+
+        self.is_asset_picked_up = False
+
         self.cur_x_dist = None
         self.cur_y_dist = None
 
@@ -198,6 +191,9 @@ class Editor(ShowBase):
         self.assets = self.get_assets(path="/Assets/Menu")
         self.asset_load(assets=self.assets)
 
+        self.plane = Plane(Vec3(0, 0, 1), Point3(0, 0, 0))
+        self.mpos = None
+
         self.traverser = CollisionTraverser('traverser')
         self.col_handler = CollisionHandlerQueue()
         self.picker_node = CollisionNode('mouseRay')
@@ -215,6 +211,13 @@ class Editor(ShowBase):
         if not self.frame:
             self.frame = DirectFrame(frameColor=(0, 0, 0, 0.6), pos=(0, 0, 0),
                                      frameSize=self.frame_size, geom=self.menu_geom)
+            self.active_asset_text = OnscreenText(text="",
+                                                  scale=0.05,
+                                                  fg=(255, 255, 255, 0.9),
+                                                  font=self.font.load_font(self.menu_font),
+                                                  align=TextNode.ALeft,
+                                                  mayChange=True)
+
             self.scrolled_list_lbl = DirectLabel(text="Assets Overview",
                                                  text_fg=(255, 255, 255, 0.9),
                                                  text_font=self.font.load_font(self.menu_font),
@@ -377,7 +380,7 @@ class Editor(ShowBase):
                                              text_align=TextNode.A_center,
                                              scale=.03, width=7, borderWidth=(self.w, self.h),
                                              parent=self.frame, cursorKeys=1,
-                                             command=self.set_node_pos)
+                                             command=self.set_node_pos_x)
 
                 self.inp_pos_y = DirectEntry(initialText="Y Axis",
                                              text_bg=(0, 0, 0, 1),
@@ -385,7 +388,7 @@ class Editor(ShowBase):
                                              text_align=TextNode.A_center,
                                              scale=.03, width=7, borderWidth=(self.w, self.h),
                                              parent=self.frame, cursorKeys=1,
-                                             command=self.set_node_pos)
+                                             command=self.set_node_pos_y)
 
                 self.inp_pos_z = DirectEntry(initialText="Z Axis",
                                              text_bg=(0, 0, 0, 1),
@@ -393,7 +396,7 @@ class Editor(ShowBase):
                                              text_align=TextNode.A_center,
                                              scale=.03, width=7, borderWidth=(self.w, self.h),
                                              parent=self.frame, cursorKeys=1,
-                                             command=self.set_node_pos)
+                                             command=self.set_node_pos_z)
 
                 self.inp_rot_h = DirectEntry(initialText="Heading",
                                              text_bg=(0, 0, 0, 1),
@@ -401,7 +404,7 @@ class Editor(ShowBase):
                                              text_align=TextNode.A_center,
                                              scale=.03, width=7, borderWidth=(self.w, self.h),
                                              parent=self.frame, cursorKeys=1,
-                                             command=self.set_node_hpr)
+                                             command=self.set_node_h)
 
                 self.inp_rot_p = DirectEntry(initialText="Pitch",
                                              text_bg=(0, 0, 0, 1),
@@ -409,7 +412,7 @@ class Editor(ShowBase):
                                              text_align=TextNode.A_center,
                                              scale=.03, width=7, borderWidth=(self.w, self.h),
                                              parent=self.frame, cursorKeys=1,
-                                             command=self.set_node_hpr)
+                                             command=self.set_node_p)
 
                 self.inp_rot_r = DirectEntry(initialText="Rotation",
                                              text_bg=(0, 0, 0, 1),
@@ -417,7 +420,7 @@ class Editor(ShowBase):
                                              text_align=TextNode.A_center,
                                              scale=.03, width=7, borderWidth=(self.w, self.h),
                                              parent=self.frame, cursorKeys=1,
-                                             command=self.set_node_hpr)
+                                             command=self.set_node_r)
 
                 self.inp_scale_x = DirectEntry(initialText="X Scale",
                                                text_bg=(0, 0, 0, 1),
@@ -425,7 +428,7 @@ class Editor(ShowBase):
                                                text_align=TextNode.A_center,
                                                scale=.03, width=7, borderWidth=(self.w, self.h),
                                                parent=self.frame, cursorKeys=1,
-                                               command=self.set_node_hpr)
+                                               command=self.set_node_scale_x)
 
                 self.inp_scale_y = DirectEntry(initialText="Y Scale",
                                                text_bg=(0, 0, 0, 1),
@@ -433,7 +436,7 @@ class Editor(ShowBase):
                                                text_align=TextNode.A_center,
                                                scale=.03, width=7, borderWidth=(self.w, self.h),
                                                parent=self.frame, cursorKeys=1,
-                                               command=self.set_node_hpr)
+                                               command=self.set_node_scale_y)
 
                 self.inp_scale_z = DirectEntry(initialText="Z Scale",
                                                text_bg=(0, 0, 0, 1),
@@ -441,7 +444,7 @@ class Editor(ShowBase):
                                                text_align=TextNode.A_center,
                                                scale=.03, width=7, borderWidth=(self.w, self.h),
                                                parent=self.frame, cursorKeys=1,
-                                               command=self.set_node_hpr)
+                                               command=self.set_node_scale_z)
 
                 self.save_asset_pos = DirectButton(text="Save Asset Pos",
                                                    text_fg=(255, 255, 255, 1), relief=2,
@@ -535,7 +538,7 @@ class Editor(ShowBase):
                                                         text_align=TextNode.A_center,
                                                         scale=.03, width=7, borderWidth=(self.w, self.h),
                                                         parent=self.frame, cursorKeys=1,
-                                                        command=self.set_node_pos)
+                                                        command=self.set_node_pos_x)
 
                 self.inp_joint_item_pos_y = DirectEntry(initialText="Y Axis",
                                                         text_bg=(0, 0, 0, 1),
@@ -543,7 +546,7 @@ class Editor(ShowBase):
                                                         text_align=TextNode.A_center,
                                                         scale=.03, width=7, borderWidth=(self.w, self.h),
                                                         parent=self.frame, cursorKeys=1,
-                                                        command=self.set_node_pos)
+                                                        command=self.set_node_pos_y)
 
                 self.inp_joint_item_pos_z = DirectEntry(initialText="Z Axis",
                                                         text_bg=(0, 0, 0, 1),
@@ -551,7 +554,7 @@ class Editor(ShowBase):
                                                         text_align=TextNode.A_center,
                                                         scale=.03, width=7, borderWidth=(self.w, self.h),
                                                         parent=self.frame, cursorKeys=1,
-                                                        command=self.set_node_pos)
+                                                        command=self.set_node_pos_z)
 
                 self.inp_joint_item_rot_h = DirectEntry(initialText="Heading",
                                                         text_bg=(0, 0, 0, 1),
@@ -559,7 +562,7 @@ class Editor(ShowBase):
                                                         text_align=TextNode.A_center,
                                                         scale=.03, width=7, borderWidth=(self.w, self.h),
                                                         parent=self.frame, cursorKeys=1,
-                                                        command=self.set_node_hpr)
+                                                        command=self.set_node_h)
 
                 self.inp_joint_item_rot_p = DirectEntry(initialText="Pitch",
                                                         text_bg=(0, 0, 0, 1),
@@ -567,7 +570,7 @@ class Editor(ShowBase):
                                                         text_align=TextNode.A_center,
                                                         scale=.03, width=7, borderWidth=(self.w, self.h),
                                                         parent=self.frame, cursorKeys=1,
-                                                        command=self.set_node_hpr)
+                                                        command=self.set_node_p)
 
                 self.inp_joint_item_rot_r = DirectEntry(initialText="Rotation",
                                                         text_bg=(0, 0, 0, 1),
@@ -575,7 +578,7 @@ class Editor(ShowBase):
                                                         text_align=TextNode.A_center,
                                                         scale=.03, width=7, borderWidth=(self.w, self.h),
                                                         parent=self.frame, cursorKeys=1,
-                                                        command=self.set_node_hpr)
+                                                        command=self.set_node_r)
 
                 self.inp_joint_item_scale_x = DirectEntry(initialText="X Scale",
                                                           text_bg=(0, 0, 0, 1),
@@ -583,7 +586,7 @@ class Editor(ShowBase):
                                                           text_align=TextNode.A_center,
                                                           scale=.03, width=7, borderWidth=(self.w, self.h),
                                                           parent=self.frame, cursorKeys=1,
-                                                          command=self.set_node_hpr)
+                                                          command=self.set_node_scale_x)
 
                 self.inp_joint_item_scale_y = DirectEntry(initialText="Y Scale",
                                                           text_bg=(0, 0, 0, 1),
@@ -591,7 +594,7 @@ class Editor(ShowBase):
                                                           text_align=TextNode.A_center,
                                                           scale=.03, width=7, borderWidth=(self.w, self.h),
                                                           parent=self.frame, cursorKeys=1,
-                                                          command=self.set_node_hpr)
+                                                          command=self.set_node_scale_y)
 
                 self.inp_joint_item_scale_z = DirectEntry(initialText="Z Scale",
                                                           text_bg=(0, 0, 0, 1),
@@ -599,7 +602,7 @@ class Editor(ShowBase):
                                                           text_align=TextNode.A_center,
                                                           scale=.03, width=7, borderWidth=(self.w, self.h),
                                                           parent=self.frame, cursorKeys=1,
-                                                          command=self.set_node_hpr)
+                                                          command=self.set_node_scale_x)
 
                 self.save_joint_attach = DirectButton(text="Save Joint Attach",
                                                       text_fg=(255, 255, 255, 1), relief=2,
@@ -721,6 +724,8 @@ class Editor(ShowBase):
             self.scrolled_list.set_pos(-2.0, 0, 0.32)
         if self.scrolled_list_lbl_desc:
             self.scrolled_list_lbl_desc.set_pos(-1.65, 0, -0.40)
+
+        self.active_asset_text.set_pos(1.5, 0, 0.85)
 
         self.asset_management_title.set_pos(-1.0, 0, -0.59)
         self.asset_management_desc.set_pos(-0.92, 0, -0.63)
@@ -887,34 +892,71 @@ class Editor(ShowBase):
                 else:
                     item.reparent_to(exposed)
 
+    def pick_up(self):
+        if not self.is_asset_picked_up:
+            self.is_asset_picked_up = True
+
+    def drop_down(self):
+        if self.is_asset_picked_up:
+            self.is_asset_picked_up = False
+
     def mouse_click_handler(self):
         if base.mouseWatcherNode.hasMouse():
-            mpos = base.mouseWatcherNode.getMouse()
-            self.picker_ray.setFromLens(base.camNode, mpos.getX(), mpos.getY())
+            self.mpos = base.mouseWatcherNode.getMouse()
+            self.picker_ray.setFromLens(base.camNode, self.mpos.get_x(), self.mpos.get_y())
             self.traverser.traverse(render)
             # Assume for simplicity's sake that col_handler is a CollisionHandlerQueue.
             if self.col_handler.getNumEntries() > 0:
                 # This is so we get the closest object.
                 self.col_handler.sortEntries()
                 self.near_asset = self.col_handler.getEntry(0).getIntoNodePath()
-                if not self.near_asset.isEmpty():
+                if not self.near_asset.isEmpty() and not self.is_asset_picked_up:
                     self.active_asset = self.near_asset
                     self.select_asset(asset=self.active_asset)
 
-                """for i, entry in zip(range(self.col_handler.getNumEntries), self.col_handler.getEntries()):
-                    pickedObj = self.col_handler.getEntry(i).getIntoNodePath()
-                    pickedObj = pickedObj.findNetTag(entry)
-                    if not pickedObj.isEmpty():
-                        self.near_asset = pickedObj"""
+    def move_with_cursor(self):
+        if base.mouseWatcherNode.hasMouse():
+            mpos = base.mouseWatcherNode.getMouse()
+            pos3d = Point3()
+            near_point = Point3()
+            far_point = Point3()
+            base.camLens.extrude(mpos, near_point, far_point)
+            if (self.active_asset
+                    and self.is_asset_picked_up
+                    and self.plane.intersects_line(pos3d,
+                                                   render.getRelativePoint(base.camera, near_point),
+                                                   render.getRelativePoint(base.camera, far_point))):
+                self.active_asset.set_x(render, pos3d[0])
+                self.active_asset.set_y(render, pos3d[1])
+
+    def move_with_wheel_up(self):
+        if self.active_asset:
+            pos_z = self.active_asset.get_z()
+            self.active_asset.set_z(pos_z+0.5)
+
+    def move_with_wheel_down(self):
+        if self.active_asset:
+            pos_z = self.active_asset.get_z()
+            self.active_asset.set_z(pos_z-0.5)
 
     def update_scene(self, task):
+        self.accept("mouse1", self.pick_up)
+        self.accept("mouse3", self.drop_down)
+        self.accept("wheel_up", self.move_with_wheel_up)
+        self.accept("wheel_down", self.move_with_wheel_down)
+
         self.mouse_click_handler()
+        self.move_with_cursor()
+
         if self.joint_from_input and isinstance(self.joint_from_input, str):
             joint = "{0}:{0}".format(self.near_asset.get_name(), self.joint_from_input)
-            for asset in self.assets:
-                self.get_node_pos(asset)
-                self.get_node_hpr(asset)
-                self.attach_to_joint(actor=self.near_asset, item=self.active_asset, joint=joint)
+            self.attach_to_joint(actor=self.near_asset, item=self.active_asset, joint=joint)
+
+        if self.active_asset:
+            name = self.active_asset.get_name()
+            self.active_asset_text.setText(name)
+            self.get_node_pos(asset=self.active_asset)
+            self.get_node_hpr(asset=self.active_asset)
 
         return task.cont
 
@@ -922,61 +964,105 @@ class Editor(ShowBase):
         if asset:
             if hasattr(asset, "pos"):
                 return "{0}, {1}, {2}".format(asset.pos[0], asset.pos[1], asset.pos[2])
+            else:
+                return "{0}, {1}, {2}".format(asset.get_x(), asset.get_y(), asset.get_z())
 
     def get_node_hpr(self, asset):
         if asset:
             if hasattr(asset, "direction"):
                 return "{0}, {1}, {2}".format(asset.direction[0], asset.direction[1], asset.direction[2])
             else:
-                return "HPR"
+                return "{0}, {1}, {2}".format(asset.get_h(), asset.get_p(), asset.get_r())
 
-    def set_shader(self, name):
-        if name:
-            if not render.find("**/flame").is_empty():
-                # self.render_pipeline.reload_shaders()
-                self.flame_np = render.find("**/flame")
-                self.flame_np.set_name("flame")
-                scale = self.flame_np.get_scale()
-                self.flame_np.set_scale(2, scale[1], scale[2])
-                self.render_pipeline.set_effect(self.flame_np,
-                                                "{0}/Engine/Render/effects/{1}.yaml".format(self.game_dir, name),
-                                                {"render_gbuffer": True,
-                                                 "render_shadow": True,
-                                                 "alpha_testing": True,
-                                                 "normal_mapping": True})
-                self.flame_np.setBillboardPointEye()
-
-                taskMgr.add(self.update_flame, "update_flame")
-
-    def set_node_pos(self, pos):
+    def set_node_pos_x(self, pos):
         if pos and isinstance(pos, str):
             if self.active_asset:
-                # We convert pos strings which we get from DirectEntry to integers
-                pos_list = pos.split(",")
-                x, y, z = pos_list
-                int_x = float(x)
-                int_y = float(y)
-                int_z = float(z)
-                if hasattr(self.active_asset, "pos"):
-                    self.active_asset.pos = LVecBase3f(int_x, int_y, int_z)
+                int_x = float(int(pos))
+                if hasattr(self.active_asset, "pos") and self.active_asset:
+                    self.active_asset.pos[0] = int_x
                 else:
                     if self.active_asset:
-                        self.active_asset.set_pos(LVecBase3f(int_x, int_y, int_z))
+                        self.active_asset.set_x(int_x)
 
-    def set_node_hpr(self, hpr):
-        if hpr and isinstance(hpr, str):
+    def set_node_pos_y(self, pos):
+        if pos and isinstance(pos, str):
             if self.active_asset:
-                # We convert pos strings which we get from DirectEntry to integers
-                hpr_list = hpr.split(",")
-                x, y, z = hpr_list
-                int_x = float(x)
-                int_y = float(y)
-                int_z = float(z)
-                if hasattr(self.active_asset, "direction"):
-                    self.active_asset.direction = LVecBase3f(int_x, int_y, int_z)
+                int_y = float(int(pos))
+                if hasattr(self.active_asset, "pos") and self.active_asset:
+                    self.active_asset.pos[1] = int_y
                 else:
                     if self.active_asset:
-                        self.active_asset.set_hpr(LVecBase3f(int_x, int_y, int_z))
+                        self.active_asset.set_y(int_y)
+
+    def set_node_pos_z(self, pos):
+        if pos and isinstance(pos, str):
+            if self.active_asset:
+                int_z = float(int(pos))
+                if hasattr(self.active_asset, "pos") and self.active_asset:
+                    self.active_asset.pos[2] = int_z
+                else:
+                    if self.active_asset:
+                        self.active_asset.set_z(int_z)
+
+    def set_node_h(self, h):
+        if h and isinstance(h, str):
+            if self.active_asset:
+                int_x = float(h)
+                if hasattr(self.active_asset, "direction") and self.active_asset:
+                    self.active_asset.direction[0] = int_x
+                else:
+                    if self.active_asset:
+                        self.active_asset.set_h(int_x)
+
+    def set_node_p(self, p):
+        if p and isinstance(p, str):
+            if self.active_asset:
+                int_y = float(p)
+                if hasattr(self.active_asset, "direction") and self.active_asset:
+                    self.active_asset.direction[1] = int_y
+                else:
+                    if self.active_asset:
+                        self.active_asset.set_p(int_y)
+
+    def set_node_r(self, r):
+        if r and isinstance(r, str):
+            if self.active_asset:
+                int_z = float(r)
+                if hasattr(self.active_asset, "direction") and self.active_asset:
+                    self.active_asset.direction[2] = int_z
+                else:
+                    if self.active_asset:
+                        self.active_asset.set_r(int_z)
+
+    def set_node_scale_x(self, unit):
+        if unit and isinstance(unit, str):
+            if self.active_asset:
+                int_x = float(int(unit))
+                if hasattr(self.active_asset, "pos") and self.active_asset:
+                    self.active_asset.pos[0] = int_x
+                else:
+                    if self.active_asset:
+                        self.active_asset.set_x(int_x)
+
+    def set_node_scale_y(self, unit):
+        if unit and isinstance(unit, str):
+            if self.active_asset:
+                int_y = float(int(unit))
+                if hasattr(self.active_asset, "pos") and self.active_asset:
+                    self.active_asset.pos[1] = int_y
+                else:
+                    if self.active_asset:
+                        self.active_asset.set_y(int_y)
+
+    def set_node_scale_z(self, unit):
+        if unit and isinstance(unit, str):
+            if self.active_asset:
+                int_z = float(int(unit))
+                if hasattr(self.active_asset, "pos") and self.active_asset:
+                    self.active_asset.pos[2] = int_z
+                else:
+                    if self.active_asset:
+                        self.active_asset.set_z(int_z)
 
     def ui_geom_collector(self):
         """ Function    : ui_geom_collector
@@ -1021,6 +1107,24 @@ class Editor(ShowBase):
             self.flame_np.set_shader_input("iTime", time)
 
         return task.cont
+
+    def set_shader(self, name):
+        if name:
+            if not render.find("**/flame").is_empty():
+                # self.render_pipeline.reload_shaders()
+                self.flame_np = render.find("**/flame")
+                self.flame_np.set_name("flame")
+                scale = self.flame_np.get_scale()
+                self.flame_np.set_scale(2, scale[1], scale[2])
+                self.render_pipeline.set_effect(self.flame_np,
+                                                "{0}/Engine/Render/effects/{1}.yaml".format(self.game_dir, name),
+                                                {"render_gbuffer": True,
+                                                 "render_shadow": True,
+                                                 "alpha_testing": True,
+                                                 "normal_mapping": True})
+                self.flame_np.setBillboardPointEye()
+
+                taskMgr.add(self.update_flame, "update_flame")
 
 
 editor = Editor()
