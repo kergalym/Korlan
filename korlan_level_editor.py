@@ -58,8 +58,8 @@ class Editor(ShowBase):
         # Set time of day
         self.render_pipeline.daytime_mgr.time = "13:00"
 
-        ic_thread = threading.Thread(target=InteractiveConsole(globals()).interact)
-        ic_thread.start()
+        """ic_thread = threading.Thread(target=InteractiveConsole(globals()).interact)
+        ic_thread.start()"""
 
         self.controller = MovementController(self)
         self.controller.set_initial_position_hpr(
@@ -108,6 +108,8 @@ class Editor(ShowBase):
         self.near_asset = None
 
         self.is_asset_picked_up = False
+        self.is_asset_selected = False
+
         self.is_item_attached_to_joint = False
 
         self.cur_x_dist = None
@@ -919,6 +921,18 @@ class Editor(ShowBase):
         if self.is_asset_picked_up:
             self.is_asset_picked_up = False
 
+    def select(self):
+        if not self.is_asset_picked_up:
+            self.is_asset_selected = True
+            self.is_asset_picked_up = True
+
+    def unselect(self):
+        if not self.is_asset_picked_up:
+            self.is_asset_selected = False
+            if self.active_asset_text:
+                self.active_asset_text.setText("")
+                self.active_asset = None
+
     def mouse_click_handler(self):
         if base.mouseWatcherNode.hasMouse():
             self.mpos = base.mouseWatcherNode.getMouse()
@@ -928,8 +942,11 @@ class Editor(ShowBase):
             if self.col_handler.getNumEntries() > 0:
                 # This is so we get the closest object.
                 self.col_handler.sortEntries()
-                self.near_asset = self.col_handler.getEntry(0).getIntoNodePath()
-                if not self.near_asset.isEmpty() and not self.is_asset_picked_up:
+                # Get new asset only when previous is unselected
+                if (not self.col_handler.getEntry(0).getIntoNodePath().isEmpty()
+                        and not self.is_asset_picked_up
+                        and not self.active_asset):
+                    self.near_asset = self.col_handler.getEntry(0).getIntoNodePath()
                     self.active_asset = self.near_asset
                     self.select_asset(asset=self.active_asset)
 
@@ -1011,7 +1028,8 @@ class Editor(ShowBase):
 
     def update_scene(self, task):
         self.accept("mouse1", self.pick_up)
-        self.accept("mouse3", self.drop_down)
+        self.accept("mouse1-up", self.drop_down)
+        self.accept("mouse3-up", self.unselect)
         self.accept("wheel_up", self.move_with_wheel_up)
         self.accept("wheel_down", self.move_with_wheel_down)
 
@@ -1025,8 +1043,6 @@ class Editor(ShowBase):
         if self.active_asset and self.is_asset_picked_up:
             name = self.active_asset.get_name()
             self.active_asset_text.setText(name)
-        else:
-            self.active_asset_text.setText("")
 
         self.update_fields()
 
@@ -1149,6 +1165,7 @@ class Editor(ShowBase):
     def set_node_pos_x(self, pos):
         if pos and isinstance(pos, str):
             if self.active_asset:
+                self.inp_pos_x.clearText()
                 int_x = float(pos)
                 if hasattr(self.active_asset, "pos") and self.active_asset:
                     self.active_asset.pos[0] = int_x
@@ -1159,6 +1176,7 @@ class Editor(ShowBase):
     def set_node_pos_y(self, pos):
         if pos and isinstance(pos, str):
             if self.active_asset:
+                self.inp_pos_y.clearText()
                 int_y = float(pos)
                 if hasattr(self.active_asset, "pos") and self.active_asset:
                     self.active_asset.pos[1] = int_y
@@ -1169,6 +1187,7 @@ class Editor(ShowBase):
     def set_node_pos_z(self, pos):
         if pos and isinstance(pos, str):
             if self.active_asset:
+                self.inp_pos_z.clearText()
                 int_z = float(pos)
                 if hasattr(self.active_asset, "pos") and self.active_asset:
                     self.active_asset.pos[2] = int_z
@@ -1179,6 +1198,7 @@ class Editor(ShowBase):
     def set_node_h(self, h):
         if h and isinstance(h, str):
             if self.active_asset:
+                self.inp_rot_h.clearText()
                 int_x = float(h)
                 if hasattr(self.active_asset, "direction") and self.active_asset:
                     self.active_asset.direction[0] = int_x
@@ -1189,6 +1209,7 @@ class Editor(ShowBase):
     def set_node_p(self, p):
         if p and isinstance(p, str):
             if self.active_asset:
+                self.inp_rot_p.clearText()
                 int_y = float(p)
                 if hasattr(self.active_asset, "direction") and self.active_asset:
                     self.active_asset.direction[1] = int_y
@@ -1199,6 +1220,7 @@ class Editor(ShowBase):
     def set_node_r(self, r):
         if r and isinstance(r, str):
             if self.active_asset:
+                self.inp_rot_r.clearText()
                 int_z = float(r)
                 if hasattr(self.active_asset, "direction") and self.active_asset:
                     self.active_asset.direction[2] = int_z
@@ -1209,6 +1231,7 @@ class Editor(ShowBase):
     def set_node_scale_x(self, unit):
         if unit and isinstance(unit, str):
             if self.active_asset:
+                self.inp_scale_x.clearText()
                 int_x = float(unit)
                 if hasattr(self.active_asset, "pos") and self.active_asset:
                     self.active_asset.pos[0] = int_x
@@ -1219,6 +1242,7 @@ class Editor(ShowBase):
     def set_node_scale_y(self, unit):
         if unit and isinstance(unit, str):
             if self.active_asset:
+                self.inp_scale_y.clearText()
                 int_y = float(unit)
                 if hasattr(self.active_asset, "pos") and self.active_asset:
                     self.active_asset.pos[1] = int_y
@@ -1229,6 +1253,7 @@ class Editor(ShowBase):
     def set_node_scale_z(self, unit):
         if unit and isinstance(unit, str):
             if self.active_asset:
+                self.inp_scale_z.clearText()
                 int_z = float(unit)
                 if hasattr(self.active_asset, "pos") and self.active_asset:
                     self.active_asset.pos[2] = int_z
