@@ -213,7 +213,7 @@ class Editor(ShowBase):
             self.frame = DirectFrame(frameColor=(0, 0, 0, 0.6), pos=(0, 0, 0),
                                      frameSize=self.frame_size, geom=self.menu_geom)
             self.active_asset_text = OnscreenText(text="",
-                                                  scale=0.05,
+                                                  scale=0.04,
                                                   fg=(255, 255, 255, 0.9),
                                                   font=self.font.load_font(self.menu_font),
                                                   align=TextNode.ALeft,
@@ -381,7 +381,8 @@ class Editor(ShowBase):
                                              text_align=TextNode.A_center,
                                              scale=.03, width=7, borderWidth=(self.w, self.h),
                                              parent=self.frame, cursorKeys=1,
-                                             command=self.set_node_pos_x)
+                                             command=self.set_node_pos_x,
+                                             focusInCommand=self.input_clear_pos_x)
 
                 self.inp_pos_y = DirectEntry(initialText="",
                                              text_bg=(0, 0, 0, 1),
@@ -389,7 +390,8 @@ class Editor(ShowBase):
                                              text_align=TextNode.A_center,
                                              scale=.03, width=7, borderWidth=(self.w, self.h),
                                              parent=self.frame, cursorKeys=1,
-                                             command=self.set_node_pos_y)
+                                             command=self.set_node_pos_y,
+                                             focusInCommand=self.input_clear_pos_y)
 
                 self.inp_pos_z = DirectEntry(initialText="",
                                              text_bg=(0, 0, 0, 1),
@@ -397,7 +399,8 @@ class Editor(ShowBase):
                                              text_align=TextNode.A_center,
                                              scale=.03, width=7, borderWidth=(self.w, self.h),
                                              parent=self.frame, cursorKeys=1,
-                                             command=self.set_node_pos_z)
+                                             command=self.set_node_pos_z,
+                                             focusInCommand=self.input_clear_pos_z)
 
                 self.inp_rot_h = DirectEntry(initialText="",
                                              text_bg=(0, 0, 0, 1),
@@ -405,7 +408,8 @@ class Editor(ShowBase):
                                              text_align=TextNode.A_center,
                                              scale=.03, width=7, borderWidth=(self.w, self.h),
                                              parent=self.frame, cursorKeys=1,
-                                             command=self.set_node_h)
+                                             command=self.set_node_h,
+                                             focusInCommand=self.input_clear_rot_h)
 
                 self.inp_rot_p = DirectEntry(initialText="",
                                              text_bg=(0, 0, 0, 1),
@@ -413,7 +417,8 @@ class Editor(ShowBase):
                                              text_align=TextNode.A_center,
                                              scale=.03, width=7, borderWidth=(self.w, self.h),
                                              parent=self.frame, cursorKeys=1,
-                                             command=self.set_node_p)
+                                             command=self.set_node_p,
+                                             focusInCommand=self.input_clear_rot_p)
 
                 self.inp_rot_r = DirectEntry(initialText="",
                                              text_bg=(0, 0, 0, 1),
@@ -421,7 +426,8 @@ class Editor(ShowBase):
                                              text_align=TextNode.A_center,
                                              scale=.03, width=7, borderWidth=(self.w, self.h),
                                              parent=self.frame, cursorKeys=1,
-                                             command=self.set_node_r)
+                                             command=self.set_node_r,
+                                             focusInCommand=self.input_clear_rot_r)
 
                 self.inp_scale_x = DirectEntry(initialText="",
                                                text_bg=(0, 0, 0, 1),
@@ -429,7 +435,8 @@ class Editor(ShowBase):
                                                text_align=TextNode.A_center,
                                                scale=.03, width=7, borderWidth=(self.w, self.h),
                                                parent=self.frame, cursorKeys=1,
-                                               command=self.set_node_scale_x)
+                                               command=self.set_node_scale_x,
+                                               focusInCommand=self.input_clear_scale_x)
 
                 self.inp_scale_y = DirectEntry(initialText="",
                                                text_bg=(0, 0, 0, 1),
@@ -437,7 +444,8 @@ class Editor(ShowBase):
                                                text_align=TextNode.A_center,
                                                scale=.03, width=7, borderWidth=(self.w, self.h),
                                                parent=self.frame, cursorKeys=1,
-                                               command=self.set_node_scale_y)
+                                               command=self.set_node_scale_y,
+                                               focusInCommand=self.input_clear_scale_y)
 
                 self.inp_scale_z = DirectEntry(initialText="",
                                                text_bg=(0, 0, 0, 1),
@@ -445,7 +453,8 @@ class Editor(ShowBase):
                                                text_align=TextNode.A_center,
                                                scale=.03, width=7, borderWidth=(self.w, self.h),
                                                parent=self.frame, cursorKeys=1,
-                                               command=self.set_node_scale_z)
+                                               command=self.set_node_scale_z,
+                                               focusInCommand=self.input_clear_scale_z)
 
                 self.save_asset_pos = DirectButton(text="Save Asset Pos",
                                                    text_fg=(255, 255, 255, 1), relief=2,
@@ -539,7 +548,8 @@ class Editor(ShowBase):
                                                         text_align=TextNode.A_center,
                                                         scale=.03, width=7, borderWidth=(self.w, self.h),
                                                         parent=self.frame, cursorKeys=1,
-                                                        command=self.set_node_pos_x)
+                                                        command=self.set_node_pos_x,
+                                                        focusInCommand=self.input_joint_item_clear_pos_x)
 
                 self.inp_joint_item_pos_y = DirectEntry(initialText="",
                                                         text_bg=(0, 0, 0, 1),
@@ -547,7 +557,8 @@ class Editor(ShowBase):
                                                         text_align=TextNode.A_center,
                                                         scale=.03, width=7, borderWidth=(self.w, self.h),
                                                         parent=self.frame, cursorKeys=1,
-                                                        command=self.set_node_pos_y)
+                                                        command=self.set_node_pos_y,
+                                                        focusInCommand=self.input_joint_item_clear_pos_y)
 
                 self.inp_joint_item_pos_z = DirectEntry(initialText="",
                                                         text_bg=(0, 0, 0, 1),
@@ -555,7 +566,8 @@ class Editor(ShowBase):
                                                         text_align=TextNode.A_center,
                                                         scale=.03, width=7, borderWidth=(self.w, self.h),
                                                         parent=self.frame, cursorKeys=1,
-                                                        command=self.set_node_pos_z)
+                                                        command=self.set_node_pos_z,
+                                                        focusInCommand=self.input_joint_item_clear_pos_z)
 
                 self.inp_joint_item_rot_h = DirectEntry(initialText="",
                                                         text_bg=(0, 0, 0, 1),
@@ -563,7 +575,8 @@ class Editor(ShowBase):
                                                         text_align=TextNode.A_center,
                                                         scale=.03, width=7, borderWidth=(self.w, self.h),
                                                         parent=self.frame, cursorKeys=1,
-                                                        command=self.set_node_h)
+                                                        command=self.set_node_h,
+                                                        focusInCommand=self.input_joint_item_clear_rot_h)
 
                 self.inp_joint_item_rot_p = DirectEntry(initialText="",
                                                         text_bg=(0, 0, 0, 1),
@@ -571,7 +584,8 @@ class Editor(ShowBase):
                                                         text_align=TextNode.A_center,
                                                         scale=.03, width=7, borderWidth=(self.w, self.h),
                                                         parent=self.frame, cursorKeys=1,
-                                                        command=self.set_node_p)
+                                                        command=self.set_node_p,
+                                                        focusInCommand=self.input_joint_item_clear_rot_p)
 
                 self.inp_joint_item_rot_r = DirectEntry(initialText="",
                                                         text_bg=(0, 0, 0, 1),
@@ -579,7 +593,8 @@ class Editor(ShowBase):
                                                         text_align=TextNode.A_center,
                                                         scale=.03, width=7, borderWidth=(self.w, self.h),
                                                         parent=self.frame, cursorKeys=1,
-                                                        command=self.set_node_r)
+                                                        command=self.set_node_r,
+                                                        focusInCommand=self.input_joint_item_clear_rot_r)
 
                 self.inp_joint_item_scale_x = DirectEntry(initialText="",
                                                           text_bg=(0, 0, 0, 1),
@@ -587,7 +602,8 @@ class Editor(ShowBase):
                                                           text_align=TextNode.A_center,
                                                           scale=.03, width=7, borderWidth=(self.w, self.h),
                                                           parent=self.frame, cursorKeys=1,
-                                                          command=self.set_node_scale_x)
+                                                          command=self.set_node_scale_x,
+                                                          focusInCommand=self.input_joint_item_clear_scale_x)
 
                 self.inp_joint_item_scale_y = DirectEntry(initialText="",
                                                           text_bg=(0, 0, 0, 1),
@@ -595,7 +611,8 @@ class Editor(ShowBase):
                                                           text_align=TextNode.A_center,
                                                           scale=.03, width=7, borderWidth=(self.w, self.h),
                                                           parent=self.frame, cursorKeys=1,
-                                                          command=self.set_node_scale_y)
+                                                          command=self.set_node_scale_y,
+                                                          focusInCommand=self.input_joint_item_clear_scale_y)
 
                 self.inp_joint_item_scale_z = DirectEntry(initialText="",
                                                           text_bg=(0, 0, 0, 1),
@@ -603,7 +620,8 @@ class Editor(ShowBase):
                                                           text_align=TextNode.A_center,
                                                           scale=.03, width=7, borderWidth=(self.w, self.h),
                                                           parent=self.frame, cursorKeys=1,
-                                                          command=self.set_node_scale_x)
+                                                          command=self.set_node_scale_z,
+                                                          focusInCommand=self.input_joint_item_clear_scale_z)
 
                 self.save_joint_attach = DirectButton(text="Save Joint Attach",
                                                       text_fg=(255, 255, 255, 1), relief=2,
@@ -963,7 +981,7 @@ class Editor(ShowBase):
             self.inp_scale_x.setText(scale_x)
             self.inp_scale_y.setText(scale_y)
             self.inp_scale_z.setText(scale_z)
-        elif not self.active_asset:
+        elif not self.active_asset and not self.is_asset_picked_up:
             self.inp_pos_x.setText("Axis X")
             self.inp_pos_y.setText("Axis Y")
             self.inp_pos_z.setText("Axis Z")
@@ -975,18 +993,8 @@ class Editor(ShowBase):
             self.inp_scale_x.setText("Scale X")
             self.inp_scale_y.setText("Scale Y")
             self.inp_scale_z.setText("Scale Z")
-        else:
-            self.inp_pos_x.setText("Axis X")
-            self.inp_pos_y.setText("Axis Y")
-            self.inp_pos_z.setText("Axis Z")
-
-            self.inp_rot_h.setText("Heading")
-            self.inp_rot_p.setText("Pitch")
-            self.inp_rot_r.setText("Rotation")
-
-            self.inp_scale_x.setText("Scale X")
-            self.inp_scale_y.setText("Scale Y")
-            self.inp_scale_z.setText("Scale Z")
+        elif self.active_asset and not self.is_asset_picked_up:
+            pass
 
         if not self.active_asset or not self.is_item_attached_to_joint:
             self.inp_joint_item_pos_x.setText("Axis X")
@@ -1084,10 +1092,64 @@ class Editor(ShowBase):
             scale = asset.get_scale()
             return "{0}".format(round(scale[2], 1))
 
+    def input_clear_pos_x(self):
+        self.inp_pos_x.clearText()
+
+    def input_clear_pos_y(self):
+        self.inp_pos_y.clearText()
+
+    def input_clear_pos_z(self):
+        self.inp_pos_z.clearText()
+
+    def input_clear_rot_h(self):
+        self.inp_rot_h.clearText()
+
+    def input_clear_rot_p(self):
+        self.inp_rot_p.clearText()
+
+    def input_clear_rot_r(self):
+        self.inp_rot_r.clearText()
+
+    def input_clear_scale_x(self):
+        self.inp_scale_x.clearText()
+
+    def input_clear_scale_y(self):
+        self.inp_scale_y.clearText()
+
+    def input_clear_scale_z(self):
+        self.inp_scale_z.clearText()
+
+    def input_joint_item_clear_pos_x(self):
+        self.inp_joint_item_pos_x.clearText()
+
+    def input_joint_item_clear_pos_y(self):
+        self.inp_joint_item_pos_y.clearText()
+
+    def input_joint_item_clear_pos_z(self):
+        self.inp_joint_item_pos_z.clearText()
+
+    def input_joint_item_clear_rot_h(self):
+        self.inp_joint_item_rot_h.clearText()
+
+    def input_joint_item_clear_rot_p(self):
+        self.inp_joint_item_rot_p.clearText()
+
+    def input_joint_item_clear_rot_r(self):
+        self.inp_joint_item_rot_r.clearText()
+
+    def input_joint_item_clear_scale_x(self):
+        self.inp_joint_item_scale_x.clearText()
+
+    def input_joint_item_clear_scale_y(self):
+        self.inp_joint_item_scale_y.clearText()
+
+    def input_joint_item_clear_scale_z(self):
+        self.inp_joint_item_scale_z.clearText()
+
     def set_node_pos_x(self, pos):
         if pos and isinstance(pos, str):
             if self.active_asset:
-                int_x = float(int(pos))
+                int_x = float(pos)
                 if hasattr(self.active_asset, "pos") and self.active_asset:
                     self.active_asset.pos[0] = int_x
                 else:
@@ -1097,7 +1159,7 @@ class Editor(ShowBase):
     def set_node_pos_y(self, pos):
         if pos and isinstance(pos, str):
             if self.active_asset:
-                int_y = float(int(pos))
+                int_y = float(pos)
                 if hasattr(self.active_asset, "pos") and self.active_asset:
                     self.active_asset.pos[1] = int_y
                 else:
@@ -1107,7 +1169,7 @@ class Editor(ShowBase):
     def set_node_pos_z(self, pos):
         if pos and isinstance(pos, str):
             if self.active_asset:
-                int_z = float(int(pos))
+                int_z = float(pos)
                 if hasattr(self.active_asset, "pos") and self.active_asset:
                     self.active_asset.pos[2] = int_z
                 else:
@@ -1147,7 +1209,7 @@ class Editor(ShowBase):
     def set_node_scale_x(self, unit):
         if unit and isinstance(unit, str):
             if self.active_asset:
-                int_x = float(int(unit))
+                int_x = float(unit)
                 if hasattr(self.active_asset, "pos") and self.active_asset:
                     self.active_asset.pos[0] = int_x
                 else:
@@ -1157,7 +1219,7 @@ class Editor(ShowBase):
     def set_node_scale_y(self, unit):
         if unit and isinstance(unit, str):
             if self.active_asset:
-                int_y = float(int(unit))
+                int_y = float(unit)
                 if hasattr(self.active_asset, "pos") and self.active_asset:
                     self.active_asset.pos[1] = int_y
                 else:
@@ -1167,7 +1229,7 @@ class Editor(ShowBase):
     def set_node_scale_z(self, unit):
         if unit and isinstance(unit, str):
             if self.active_asset:
-                int_z = float(int(unit))
+                int_z = float(unit)
                 if hasattr(self.active_asset, "pos") and self.active_asset:
                     self.active_asset.pos[2] = int_z
                 else:
