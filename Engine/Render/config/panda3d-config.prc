@@ -38,7 +38,7 @@ state-cache #t
 transform-cache #t
 
 # Hide frame rate meter (we have our own)
-show-frame-rate-meter f
+show-frame-rate-meter t
 
 # Set text settings
 text-minfilter linear

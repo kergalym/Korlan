@@ -22,10 +22,6 @@ from pathlib import Path, PurePath
 from Engine.Render.rpcore import RenderPipeline, PointLight
 from Engine.Render.rpcore.util.movement_controller import MovementController
 
-import panda3d;
-
-print(panda3d.__version__)
-
 p3d.load_prc_file_data("", """
 win-size 1920 1080
 window-title Render Pipeline compatible Yet Another Level Editor
@@ -105,6 +101,11 @@ class Editor(ShowBase):
         self.menu_font = "{0}/Settings/UI/JetBrainsMono-1.0.2/ttf/JetBrainsMono-Regular.ttf".format(self.game_dir)
 
         self.active_asset = None
+        self.is_joints_list_ui_active = False
+        self.active_asset_from_list = None
+        self.active_joint_from_list = None
+        self.actor_refs = {}
+
         self.near_asset = None
 
         self.is_asset_picked_up = False
@@ -194,7 +195,8 @@ class Editor(ShowBase):
         self.assets = self.get_assets(path="/Assets/Menu")
         self.asset_load(assets=self.assets)
 
-        self.plane = Plane(Vec3(0, 0, 1), Point3(0, 0, 0))
+        """ Meshes """
+        self.collider_plane = Plane(Vec3(0, 0, 1), Point3(0, 0, 0))
         self.mpos = None
 
         self.traverser = CollisionTraverser('traverser')
@@ -262,7 +264,7 @@ class Editor(ShowBase):
                                            scale=.03, borderWidth=(self.w, self.h),
                                            geom=geoms_scrolled_dbtn, geom_scale=(15.3, 0, 2),
                                            clickSound="",
-                                           command="",
+                                           command=self.select_asset_from_list,
                                            extraArgs=[asset])
                         btn_list.append(btn)
 
@@ -550,7 +552,7 @@ class Editor(ShowBase):
                                                         text_align=TextNode.A_center,
                                                         scale=.03, width=7, borderWidth=(self.w, self.h),
                                                         parent=self.frame, cursorKeys=1,
-                                                        command=self.set_node_pos_x,
+                                                        command=self.set_joint_pos_x,
                                                         focusInCommand=self.input_joint_item_clear_pos_x)
 
                 self.inp_joint_item_pos_y = DirectEntry(initialText="",
@@ -559,7 +561,7 @@ class Editor(ShowBase):
                                                         text_align=TextNode.A_center,
                                                         scale=.03, width=7, borderWidth=(self.w, self.h),
                                                         parent=self.frame, cursorKeys=1,
-                                                        command=self.set_node_pos_y,
+                                                        command=self.set_joint_pos_y,
                                                         focusInCommand=self.input_joint_item_clear_pos_y)
 
                 self.inp_joint_item_pos_z = DirectEntry(initialText="",
@@ -568,7 +570,7 @@ class Editor(ShowBase):
                                                         text_align=TextNode.A_center,
                                                         scale=.03, width=7, borderWidth=(self.w, self.h),
                                                         parent=self.frame, cursorKeys=1,
-                                                        command=self.set_node_pos_z,
+                                                        command=self.set_joint_pos_z,
                                                         focusInCommand=self.input_joint_item_clear_pos_z)
 
                 self.inp_joint_item_rot_h = DirectEntry(initialText="",
@@ -577,7 +579,7 @@ class Editor(ShowBase):
                                                         text_align=TextNode.A_center,
                                                         scale=.03, width=7, borderWidth=(self.w, self.h),
                                                         parent=self.frame, cursorKeys=1,
-                                                        command=self.set_node_h,
+                                                        command=self.set_joint_h,
                                                         focusInCommand=self.input_joint_item_clear_rot_h)
 
                 self.inp_joint_item_rot_p = DirectEntry(initialText="",
@@ -586,7 +588,7 @@ class Editor(ShowBase):
                                                         text_align=TextNode.A_center,
                                                         scale=.03, width=7, borderWidth=(self.w, self.h),
                                                         parent=self.frame, cursorKeys=1,
-                                                        command=self.set_node_p,
+                                                        command=self.set_joint_p,
                                                         focusInCommand=self.input_joint_item_clear_rot_p)
 
                 self.inp_joint_item_rot_r = DirectEntry(initialText="",
@@ -595,7 +597,7 @@ class Editor(ShowBase):
                                                         text_align=TextNode.A_center,
                                                         scale=.03, width=7, borderWidth=(self.w, self.h),
                                                         parent=self.frame, cursorKeys=1,
-                                                        command=self.set_node_r,
+                                                        command=self.set_joint_r,
                                                         focusInCommand=self.input_joint_item_clear_rot_r)
 
                 self.inp_joint_item_scale_x = DirectEntry(initialText="",
@@ -604,7 +606,7 @@ class Editor(ShowBase):
                                                           text_align=TextNode.A_center,
                                                           scale=.03, width=7, borderWidth=(self.w, self.h),
                                                           parent=self.frame, cursorKeys=1,
-                                                          command=self.set_node_scale_x,
+                                                          command=self.set_joint_scale_x,
                                                           focusInCommand=self.input_joint_item_clear_scale_x)
 
                 self.inp_joint_item_scale_y = DirectEntry(initialText="",
@@ -613,7 +615,7 @@ class Editor(ShowBase):
                                                           text_align=TextNode.A_center,
                                                           scale=.03, width=7, borderWidth=(self.w, self.h),
                                                           parent=self.frame, cursorKeys=1,
-                                                          command=self.set_node_scale_y,
+                                                          command=self.set_joint_scale_y,
                                                           focusInCommand=self.input_joint_item_clear_scale_y)
 
                 self.inp_joint_item_scale_z = DirectEntry(initialText="",
@@ -622,7 +624,7 @@ class Editor(ShowBase):
                                                           text_align=TextNode.A_center,
                                                           scale=.03, width=7, borderWidth=(self.w, self.h),
                                                           parent=self.frame, cursorKeys=1,
-                                                          command=self.set_node_scale_z,
+                                                          command=self.set_joint_scale_z,
                                                           focusInCommand=self.input_joint_item_clear_scale_z)
 
                 self.save_joint_attach = DirectButton(text="Save Joint Attach",
@@ -652,8 +654,8 @@ class Editor(ShowBase):
                                        geom=geoms_scrolled_dbtn, geom_scale=(15.3, 0, 2),
                                        clickSound="",
                                        command="")
-                    btn2_list.append(btn)
 
+                    btn2_list.append(btn)
                     self.scrolled_list_actor_joints = DirectScrolledList(
                         decButton_pos=(0.35, 0, 0.46),
                         decButton_scale=(5, 1, 0.5),
@@ -688,54 +690,6 @@ class Editor(ShowBase):
                         frameColor=(255, 255, 255, 0),
                         scale=.025, borderWidth=(self.w, self.h),
                         parent=self.frame)
-
-                if joints:
-                    for index, asset in enumerate(self.get_actor_joints(), 1):
-                        btn = DirectButton(text="Joint: {0}".format(asset),
-                                           text_fg=(255, 255, 255, 1), relief=2,
-                                           text_font=self.font.load_font(self.menu_font),
-                                           frameColor=(0, 0, 0, 1),
-                                           scale=.03, borderWidth=(self.w, self.h),
-                                           geom=geoms_scrolled_dbtn, geom_scale=(15.3, 0, 2),
-                                           clickSound="",
-                                           command=self.get_actor_joint,
-                                           extraArgs=[asset])
-                        btn2_list.append(btn)
-
-                        self.scrolled_list_actor_joints = DirectScrolledList(
-                            decButton_pos=(0.35, 0, 0.46),
-                            decButton_scale=(5, 1, 0.5),
-                            decButton_text="Dec",
-                            decButton_text_scale=0.04,
-                            decButton_borderWidth=(0, 0),
-                            decButton_geom=geoms_scrolled_dec,
-                            decButton_geom_scale=0.08,
-
-                            incButton_pos=(0.35, 0, 0.34),
-                            incButton_scale=(5, 1, 0.5),
-                            incButton_text="Inc",
-                            incButton_text_scale=0.04,
-                            incButton_borderWidth=(0, 0),
-                            incButton_geom=geoms_scrolled_inc,
-                            incButton_geom_scale=0.08,
-
-                            frameSize=self.frame_scrolled_size,
-                            frameColor=(0, 0, 0, 0),
-                            numItemsVisible=1,
-                            forceHeight=0.11,
-                            items=btn2_list,
-                            itemFrame_frameSize=self.frame_scrolled_inner_size,
-                            itemFrame_pos=(0.35, 0, 0.4),
-                            parent=self.frame,
-                        )
-
-                        self.scrolled_list_actor_joints_lbl_desc = DirectLabel(
-                            text="Select joint \nfor manipulations on the scene",
-                            text_fg=(255, 255, 255, 0.9),
-                            text_font=self.font.load_font(self.menu_font),
-                            frameColor=(255, 255, 255, 0),
-                            scale=.025, borderWidth=(self.w, self.h),
-                            parent=self.frame)
 
         if self.scrolled_list_lbl:
             self.scrolled_list_lbl.set_pos(-1.65, 0, 0.85)
@@ -812,6 +766,30 @@ class Editor(ShowBase):
         self.save_asset_pos.set_pos(1.7, 0, -0.8)
         self.save_joint_attach.set_pos(1.7, 0, -0.9)
 
+        self.inp_pos_x.setText("Axis X")
+        self.inp_pos_y.setText("Axis Y")
+        self.inp_pos_z.setText("Axis Z")
+
+        self.inp_rot_h.setText("Heading")
+        self.inp_rot_p.setText("Pitch")
+        self.inp_rot_r.setText("Rotation")
+
+        self.inp_scale_x.setText("Scale X")
+        self.inp_scale_y.setText("Scale Y")
+        self.inp_scale_z.setText("Scale Z")
+
+        self.inp_joint_item_pos_x.setText("Axis X")
+        self.inp_joint_item_pos_y.setText("Axis Y")
+        self.inp_joint_item_pos_z.setText("Axis Z")
+
+        self.inp_joint_item_rot_h.setText("Heading")
+        self.inp_joint_item_rot_p.setText("Pitch")
+        self.inp_joint_item_rot_r.setText("Rotation")
+
+        self.inp_joint_item_scale_x.setText("Scale X")
+        self.inp_joint_item_scale_y.setText("Scale Y")
+        self.inp_joint_item_scale_z.setText("Scale Z")
+
     def get_assets(self, path):
         if path:
             newpath = self.transform_path(path="{0}/{1}".format(self.game_dir, path),
@@ -841,16 +819,88 @@ class Editor(ShowBase):
                     return joint
 
     def get_actor_joints(self):
-        if hasattr(self, "near_asset"):
-            if self.near_asset:
-                joints = self.near_asset.get_joints()
-                if joints:
-                    return joints
+        if self.active_asset:
+            if self.is_asset_actor(asset=self.active_asset):
+                name = self.active_asset.get_parent().get_parent().get_name()
+                if self.actor_refs.get(name) == name:
+                    joints = self.actor_refs[name].get_joints()
+                    if joints:
+                        return joints
+
+    def set_joints_list_ui(self):
+        self.scrolled_list_actor_joints.remove_node()
+        ui_geoms = self.ui_geom_collector()
+        if ui_geoms:
+            maps_scrolled_dbtn = base.loader.loadModel(ui_geoms['btn_t_icon'])
+            geoms_scrolled_dbtn = (maps_scrolled_dbtn.find('**/button_any'),
+                                   maps_scrolled_dbtn.find('**/button_pressed'),
+                                   maps_scrolled_dbtn.find('**/button_rollover'))
+
+            maps_scrolled_dec = base.loader.loadModel(ui_geoms['btn_t_icon_dec'])
+            geoms_scrolled_dec = (maps_scrolled_dec.find('**/button_any_dec'),
+                                  maps_scrolled_dec.find('**/button_pressed_dec'),
+                                  maps_scrolled_dec.find('**/button_rollover_dec'))
+
+            maps_scrolled_inc = base.loader.loadModel(ui_geoms['btn_t_icon_inc'])
+            geoms_scrolled_inc = (maps_scrolled_inc.find('**/button_any_inc'),
+                                  maps_scrolled_inc.find('**/button_pressed_inc'),
+                                  maps_scrolled_inc.find('**/button_rollover_inc'))
+            btn2_list = []
+
+            if self.get_actor_joints():
+
+                for index, joint in enumerate(self.get_actor_joints(), 1):
+                    btn = DirectButton(text="Joint: {0}".format(joint),
+                                       text_fg=(255, 255, 255, 1), relief=2,
+                                       text_font=self.font.load_font(self.menu_font),
+                                       frameColor=(0, 0, 0, 1),
+                                       scale=.03, borderWidth=(self.w, self.h),
+                                       geom=geoms_scrolled_dbtn, geom_scale=(15.3, 0, 2),
+                                       clickSound="",
+                                       command=self.select_joint_from_list,
+                                       extraArgs=[joint])
+                    btn2_list.append(btn)
+
+                    self.scrolled_list_actor_joints = DirectScrolledList(
+                        decButton_pos=(0.35, 0, 0.46),
+                        decButton_scale=(5, 1, 0.5),
+                        decButton_text="",
+                        decButton_text_scale=0.04,
+                        decButton_borderWidth=(0, 0),
+                        decButton_geom=geoms_scrolled_dec,
+                        decButton_geom_scale=0.08,
+
+                        incButton_pos=(0.35, 0, 0.34),
+                        incButton_scale=(5, 1, 0.5),
+                        incButton_text="",
+                        incButton_text_scale=0.04,
+                        incButton_borderWidth=(0, 0),
+                        incButton_geom=geoms_scrolled_inc,
+                        incButton_geom_scale=0.08,
+
+                        frameSize=self.frame_scrolled_size,
+                        frameColor=(0, 0, 0, 0),
+                        numItemsVisible=1,
+                        forceHeight=0.11,
+                        items=btn2_list,
+                        itemFrame_frameSize=self.frame_scrolled_inner_size,
+                        itemFrame_pos=(0.35, 0, 0.4),
+                        parent=self.frame,
+                    )
+
+                    self.scrolled_list_actor_joints_lbl_desc = DirectLabel(
+                        text="Select joint \nfor manipulations on the scene",
+                        text_fg=(255, 255, 255, 0.9),
+                        text_font=self.font.load_font(self.menu_font),
+                        frameColor=(255, 255, 255, 0),
+                        scale=.025, borderWidth=(self.w, self.h),
+                        parent=self.frame)
 
     def is_asset_actor(self, asset):
         if asset:
-            if not asset.find("**/+Character").is_empty():
-                return True
+            if not render.find("**/+Character").is_empty():
+                if asset.get_name() in render.find("**/+Character").get_name():
+                    return True
             else:
                 return False
 
@@ -881,6 +931,8 @@ class Editor(ShowBase):
                     if not model.find("**/+Character").is_empty():
                         model = Actor(model)
                         model.set_two_sided(True)
+                        model.set_name(asset)
+                        self.actor_refs[asset] = model
 
                     model.set_name(asset)
                     # automatic positioning
@@ -897,11 +949,6 @@ class Editor(ShowBase):
                     tex.setFormat(Texture.F_srgb)
 
             self.set_ui()
-
-    def select_asset(self, asset):
-        if asset:
-            self.near_asset = render.find("**/{0}".format(asset))
-            self.get_actor_joints()
 
     def attach_to_joint(self, actor, item, joint, wrt):
         if actor and item and joint and isinstance(joint, str):
@@ -924,7 +971,7 @@ class Editor(ShowBase):
     def select(self):
         if not self.is_asset_picked_up:
             self.is_asset_selected = True
-            self.is_asset_picked_up = True
+            self.pick_up()
 
     def unselect(self):
         if not self.is_asset_picked_up:
@@ -948,7 +995,6 @@ class Editor(ShowBase):
                         and not self.active_asset):
                     self.near_asset = self.col_handler.getEntry(0).getIntoNodePath()
                     self.active_asset = self.near_asset
-                    self.select_asset(asset=self.active_asset)
 
     def move_with_cursor(self):
         if base.mouseWatcherNode.hasMouse():
@@ -959,21 +1005,21 @@ class Editor(ShowBase):
             base.camLens.extrude(mpos, near_point, far_point)
             if (self.active_asset
                     and self.is_asset_picked_up
-                    and self.plane.intersects_line(pos3d,
-                                                   render.getRelativePoint(base.camera, near_point),
-                                                   render.getRelativePoint(base.camera, far_point))):
+                    and self.collider_plane.intersects_line(pos3d,
+                                                            render.getRelativePoint(base.camera, near_point),
+                                                            render.getRelativePoint(base.camera, far_point))):
                 self.active_asset.set_x(render, pos3d[0])
                 self.active_asset.set_y(render, pos3d[1])
 
     def move_with_wheel_up(self):
         if self.active_asset:
             pos_z = self.active_asset.get_z()
-            self.active_asset.set_z(pos_z+0.5)
+            self.active_asset.set_z(pos_z + 0.5)
 
     def move_with_wheel_down(self):
         if self.active_asset:
             pos_z = self.active_asset.get_z()
-            self.active_asset.set_z(pos_z-0.5)
+            self.active_asset.set_z(pos_z - 0.5)
 
     def update_fields(self):
         if self.active_asset and self.is_asset_picked_up:
@@ -998,36 +1044,34 @@ class Editor(ShowBase):
             self.inp_scale_x.setText(scale_x)
             self.inp_scale_y.setText(scale_y)
             self.inp_scale_z.setText(scale_z)
-        elif not self.active_asset and not self.is_asset_picked_up:
-            self.inp_pos_x.setText("Axis X")
-            self.inp_pos_y.setText("Axis Y")
-            self.inp_pos_z.setText("Axis Z")
 
-            self.inp_rot_h.setText("Heading")
-            self.inp_rot_p.setText("Pitch")
-            self.inp_rot_r.setText("Rotation")
+        if (self.active_asset
+                and self.is_asset_picked_up
+                and self.is_item_attached_to_joint):
+            pos_x = self.get_node_pos_x(asset=self.active_asset)
+            pos_y = self.get_node_pos_y(asset=self.active_asset)
+            pos_z = self.get_node_pos_z(asset=self.active_asset)
+            rot_h = self.get_node_h(asset=self.active_asset)
+            rot_p = self.get_node_p(asset=self.active_asset)
+            rot_r = self.get_node_r(asset=self.active_asset)
+            scale_x = self.get_node_scale_x(asset=self.active_asset)
+            scale_y = self.get_node_scale_y(asset=self.active_asset)
+            scale_z = self.get_node_scale_z(asset=self.active_asset)
 
-            self.inp_scale_x.setText("Scale X")
-            self.inp_scale_y.setText("Scale Y")
-            self.inp_scale_z.setText("Scale Z")
-        elif self.active_asset and not self.is_asset_picked_up:
-            pass
+            self.inp_joint_item_pos_x.setText(pos_x)
+            self.inp_joint_item_pos_y.setText(pos_y)
+            self.inp_joint_item_pos_z.setText(pos_z)
 
-        if not self.active_asset or not self.is_item_attached_to_joint:
-            self.inp_joint_item_pos_x.setText("Axis X")
-            self.inp_joint_item_pos_y.setText("Axis Y")
-            self.inp_joint_item_pos_z.setText("Axis Z")
+            self.inp_joint_item_rot_h.setText(rot_h)
+            self.inp_joint_item_rot_p.setText(rot_p)
+            self.inp_joint_item_rot_r.setText(rot_r)
 
-            self.inp_joint_item_rot_h.setText("Heading")
-            self.inp_joint_item_rot_p.setText("Pitch")
-            self.inp_joint_item_rot_r.setText("Rotation")
-
-            self.inp_joint_item_scale_x.setText("Scale X")
-            self.inp_joint_item_scale_y.setText("Scale Y")
-            self.inp_joint_item_scale_z.setText("Scale Z")
+            self.inp_joint_item_scale_x.setText(scale_x)
+            self.inp_joint_item_scale_y.setText(scale_y)
+            self.inp_joint_item_scale_z.setText(scale_z)
 
     def update_scene(self, task):
-        self.accept("mouse1", self.pick_up)
+        self.accept("mouse1", self.select)
         self.accept("mouse1-up", self.drop_down)
         self.accept("mouse3-up", self.unselect)
         self.accept("wheel_up", self.move_with_wheel_up)
@@ -1041,8 +1085,16 @@ class Editor(ShowBase):
             self.attach_to_joint(actor=self.near_asset, item=self.active_asset, joint=joint)
 
         if self.active_asset and self.is_asset_picked_up:
-            name = self.active_asset.get_name()
+            if self.is_asset_actor(asset=self.active_asset):
+                self.is_joints_list_ui_active = True
+                name = self.active_asset.get_parent().get_parent().get_name()
+            else:
+                self.is_joints_list_ui_active = False
+                name = self.active_asset.get_name()
             self.active_asset_text.setText(name)
+
+        if self.is_joints_list_ui_active:
+            self.set_joints_list_ui()
 
         self.update_fields()
 
@@ -1260,6 +1312,80 @@ class Editor(ShowBase):
                 else:
                     if self.active_asset:
                         self.active_asset.set_z(int_z)
+
+    def set_joint_pos_x(self, pos):
+        if pos and isinstance(pos, str):
+            if self.active_asset:
+                self.inp_pos_x.clearText()
+                int_x = float(pos)
+                self.active_asset.set_x(int_x)
+
+    def set_joint_pos_y(self, pos):
+        if pos and isinstance(pos, str):
+            if self.active_asset:
+                self.inp_pos_y.clearText()
+                int_y = float(pos)
+                self.active_asset.set_y(int_y)
+
+    def set_joint_pos_z(self, pos):
+        if pos and isinstance(pos, str):
+            if self.active_asset:
+                self.inp_pos_z.clearText()
+                int_z = float(pos)
+                self.active_asset.set_z(int_z)
+
+    def set_joint_h(self, h):
+        if h and isinstance(h, str):
+            if self.active_asset:
+                self.inp_rot_h.clearText()
+                int_x = float(h)
+                self.active_asset.set_h(int_x)
+
+    def set_joint_p(self, p):
+        if p and isinstance(p, str):
+            if self.active_asset:
+                self.inp_rot_p.clearText()
+                int_y = float(p)
+                self.active_asset.set_p(int_y)
+
+    def set_joint_r(self, r):
+        if r and isinstance(r, str):
+            if self.active_asset:
+                self.inp_rot_r.clearText()
+                int_z = float(r)
+                self.active_asset.set_r(int_z)
+
+    def set_joint_scale_x(self, unit):
+        if unit and isinstance(unit, str):
+            if self.active_asset:
+                self.inp_scale_x.clearText()
+                int_x = float(unit)
+                self.active_asset.set_x(int_x)
+
+    def set_joint_scale_y(self, unit):
+        if unit and isinstance(unit, str):
+            if self.active_asset:
+                self.inp_scale_y.clearText()
+                int_y = float(unit)
+                self.active_asset.set_y(int_y)
+
+    def set_joint_scale_z(self, unit):
+        if unit and isinstance(unit, str):
+            if self.active_asset:
+                self.inp_scale_z.clearText()
+                int_z = float(unit)
+                self.active_asset.set_z(int_z)
+
+    def select_asset_from_list(self, asset):
+        if asset and isinstance(asset, str):
+            if not render.find("**/{0}".format(asset)).is_empty():
+                self.active_asset_from_list = render.find("**/{0}".format(asset))
+
+    def select_joint_from_list(self, joint):
+        if joint and isinstance(joint, str):
+            if self.active_asset:
+                if not self.active_asset.find("**/+Character").is_empty():
+                    self.active_joint_from_list = self.active_asset.expose_joint(None, "modelRoot", joint)
 
     def ui_geom_collector(self):
         """ Function    : ui_geom_collector
