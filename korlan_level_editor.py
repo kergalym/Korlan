@@ -195,6 +195,13 @@ class Editor(ShowBase):
         self.assets = self.get_assets(path="/Assets/Menu")
         self.asset_load(assets=self.assets)
 
+        """ History """
+        self.history_names = {}
+        self.history_steps = []
+        self.history_pos_steps = []
+        self.history_hpr_steps = []
+        self.history_scale_steps = []
+
         """ Meshes """
         self.collider_plane = Plane(Vec3(0, 0, 1), Point3(0, 0, 0))
         self.mpos = None
@@ -211,6 +218,8 @@ class Editor(ShowBase):
         taskMgr.add(self.update_scene, "update_scene")
 
         self.set_shader(name="flame")
+
+        # base.messenger.toggleVerbose()
 
     def set_ui(self):
         if not self.frame:
@@ -967,6 +976,72 @@ class Editor(ShowBase):
     def drop_down(self):
         if self.is_asset_picked_up:
             self.is_asset_picked_up = False
+            if self.active_asset:
+                if (len(self.history_names) < 200
+                        and len(self.history_pos_steps) < 11
+                        and len(self.history_hpr_steps) < 11
+                        and len(self.history_scale_steps) < 11):
+                    name = "{0}".format(self.active_asset.get_name())
+                    if not self.history_names:
+                        self.history_pos_steps.append(self.active_asset.get_pos())
+                        self.history_hpr_steps.append(self.active_asset.get_hpr())
+                        self.history_scale_steps.append(self.active_asset.get_scale())
+                        self.history_names[name] = self.history_steps
+                        self.history_names[name].append([])
+                        self.history_names[name].append([])
+                        self.history_names[name].append([])
+                        self.history_names[name][0].append(self.history_pos_steps)
+                        self.history_names[name][1].append(self.history_hpr_steps)
+                        self.history_names[name][2].append(self.history_scale_steps)
+
+                    elif self.history_names.get(name) and len(self.history_names[name]) == 3:
+                        self.history_names[name][0][0].append(self.active_asset.get_pos())
+                        self.history_names[name][1][0].append(self.active_asset.get_hpr())
+                        self.history_names[name][2][0].append(self.active_asset.get_scale())
+
+                    elif (self.history_names.get(name)
+                          and not self.history_names[name][0][0]
+                          and not self.history_names[name][1][0]
+                          and self.history_names[name][2][0]):
+                        self.history_names[name][0][0].append(self.active_asset.get_pos())
+                        self.history_names[name][1][0].append(self.active_asset.get_hpr())
+                        self.history_names[name][2][0].append(self.active_asset.get_scale())
+
+    def undo_positioning(self):
+        if self.active_asset:
+            name = self.active_asset.get_name()
+            if self.history_names.get(name) and self.history_names[name][0][0]:
+
+                if len(self.history_names[name][0][0]) > 1:
+                    pos = self.history_names[name][0][0][-2]
+                    self.active_asset.set_pos(pos)
+                    self.history_names[name][0][0].pop()
+                elif len(self.history_names[name][0][0]) == 1:
+                    self.history_names[name][0][0].pop()
+
+    def undo_rotation(self):
+        if self.active_asset:
+            name = self.active_asset.get_name()
+            if self.history_names.get(name) and self.history_names[name][1][0]:
+
+                if len(self.history_names[name][1][0]) > 1:
+                    rot = self.history_names[name][1][0][-2]
+                    self.active_asset.set_hpr(rot)
+                    self.history_names[name][1][0].pop()
+                elif len(self.history_names[name][1][0]) == 1:
+                    self.history_names[name][1][0].pop()
+
+    def undo_scaling(self):
+        if self.active_asset:
+            name = self.active_asset.get_name()
+            if self.history_names.get(name) and self.history_names[name][2][0]:
+
+                if len(self.history_names[name][2][0]) > 2:
+                    scale = self.history_names[name][2][0][-2]
+                    self.active_asset.set_scale(scale)
+                    self.history_names[name][2][0].pop()
+                elif len(self.history_names[name][2][0]) == 1:
+                    self.history_names[name][2][0].pop()
 
     def select(self):
         if not self.is_asset_picked_up:
@@ -1076,6 +1151,9 @@ class Editor(ShowBase):
         self.accept("mouse3-up", self.unselect)
         self.accept("wheel_up", self.move_with_wheel_up)
         self.accept("wheel_down", self.move_with_wheel_down)
+        self.accept("z", self.undo_positioning)
+        self.accept("x", self.undo_rotation)
+        self.accept("c", self.undo_scaling)
 
         self.mouse_click_handler()
         self.move_with_cursor()
