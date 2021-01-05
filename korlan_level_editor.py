@@ -54,8 +54,8 @@ class Editor(ShowBase):
         # Set time of day
         self.render_pipeline.daytime_mgr.time = "13:00"
 
-        """ic_thread = threading.Thread(target=InteractiveConsole(globals()).interact)
-        ic_thread.start()"""
+        ic_thread = threading.Thread(target=InteractiveConsole(globals()).interact)
+        ic_thread.start()
 
         self.controller = MovementController(self)
         self.controller.set_initial_position_hpr(
@@ -86,6 +86,7 @@ class Editor(ShowBase):
         """ Frames """
         self.frame = None
         self.active_asset_text = None
+        self.mouse_in_asset_text = None
 
         """ Classes """
         # instance of the abstract class
@@ -231,6 +232,13 @@ class Editor(ShowBase):
                                                   font=self.font.load_font(self.menu_font),
                                                   align=TextNode.ALeft,
                                                   mayChange=True)
+
+            self.mouse_in_asset_text = OnscreenText(text="",
+                                                    scale=0.03,
+                                                    fg=(255, 255, 255, 0.9),
+                                                    font=self.font.load_font(self.menu_font),
+                                                    align=TextNode.ALeft,
+                                                    mayChange=True)
 
             self.scrolled_list_lbl = DirectLabel(text="Assets Overview",
                                                  text_fg=(255, 255, 255, 0.9),
@@ -709,7 +717,8 @@ class Editor(ShowBase):
         if self.scrolled_list_lbl_desc:
             self.scrolled_list_lbl_desc.set_pos(-1.65, 0, -0.40)
 
-        self.active_asset_text.set_pos(1.5, 0, 0.85)
+        self.active_asset_text.set_pos(1.3, 0, 0.85)
+        self.mouse_in_asset_text.set_pos(-1.2, 0, -0.3)
 
         self.asset_management_title.set_pos(-1.0, 0, -0.59)
         self.asset_management_desc.set_pos(-0.92, 0, -0.63)
@@ -981,8 +990,11 @@ class Editor(ShowBase):
                         and len(self.history_pos_steps) < 11
                         and len(self.history_hpr_steps) < 11
                         and len(self.history_scale_steps) < 11):
+                    self.history_pos_steps = []
+                    self.history_hpr_steps = []
+                    self.history_scale_steps = []
                     name = "{0}".format(self.active_asset.get_name())
-                    if not self.history_names:
+                    if not self.history_names or not self.history_names.get(name):
                         self.history_pos_steps.append(self.active_asset.get_pos())
                         self.history_hpr_steps.append(self.active_asset.get_hpr())
                         self.history_scale_steps.append(self.active_asset.get_scale())
@@ -1002,7 +1014,20 @@ class Editor(ShowBase):
                     elif (self.history_names.get(name)
                           and not self.history_names[name][0][0]
                           and not self.history_names[name][1][0]
-                          and self.history_names[name][2][0]):
+                          and not self.history_names[name][2][0]):
+                        self.history_names[name][0][0].append(self.active_asset.get_pos())
+                        self.history_names[name][1][0].append(self.active_asset.get_hpr())
+                        self.history_names[name][2][0].append(self.active_asset.get_scale())
+
+                    elif (self.history_names.get(name)
+                          and len(self.history_names[name][0][0]) == 1
+                          and len(self.history_names[name][1][0]) == 1
+                          and len(self.history_names[name][2][0]) == 1):
+                        self.history_names[name][0][0].append(self.active_asset.get_pos())
+                        self.history_names[name][1][0].append(self.active_asset.get_hpr())
+                        self.history_names[name][2][0].append(self.active_asset.get_scale())
+
+                    else:
                         self.history_names[name][0][0].append(self.active_asset.get_pos())
                         self.history_names[name][1][0].append(self.active_asset.get_hpr())
                         self.history_names[name][2][0].append(self.active_asset.get_scale())
@@ -1016,8 +1041,6 @@ class Editor(ShowBase):
                     pos = self.history_names[name][0][0][-2]
                     self.active_asset.set_pos(pos)
                     self.history_names[name][0][0].pop()
-                elif len(self.history_names[name][0][0]) == 1:
-                    self.history_names[name][0][0].pop()
 
     def undo_rotation(self):
         if self.active_asset:
@@ -1028,8 +1051,6 @@ class Editor(ShowBase):
                     rot = self.history_names[name][1][0][-2]
                     self.active_asset.set_hpr(rot)
                     self.history_names[name][1][0].pop()
-                elif len(self.history_names[name][1][0]) == 1:
-                    self.history_names[name][1][0].pop()
 
     def undo_scaling(self):
         if self.active_asset:
@@ -1039,8 +1060,6 @@ class Editor(ShowBase):
                 if len(self.history_names[name][2][0]) > 2:
                     scale = self.history_names[name][2][0][-2]
                     self.active_asset.set_scale(scale)
-                    self.history_names[name][2][0].pop()
-                elif len(self.history_names[name][2][0]) == 1:
                     self.history_names[name][2][0].pop()
 
     def select(self):
@@ -1065,6 +1084,15 @@ class Editor(ShowBase):
                 # This is so we get the closest object.
                 self.col_handler.sortEntries()
                 # Get new asset only when previous is unselected
+
+                if not self.col_handler.getEntry(0).getIntoNodePath().isEmpty():
+                    if self.is_asset_actor(asset=not self.col_handler.getEntry(0).getIntoNodePath()):
+                        name = self.col_handler.getEntry(0).getIntoNodePath().get_parent().get_parent().get_name()
+                    else:
+                        name = self.col_handler.getEntry(0).getIntoNodePath().get_name()
+                    name = "Mouse-in asset: {0}".format(name)
+                    self.mouse_in_asset_text.setText(name)
+
                 if (not self.col_handler.getEntry(0).getIntoNodePath().isEmpty()
                         and not self.is_asset_picked_up
                         and not self.active_asset):
