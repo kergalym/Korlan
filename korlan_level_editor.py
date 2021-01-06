@@ -982,6 +982,7 @@ class Editor(ShowBase):
                 else:
                     item.reparent_to(joint)
                 item.set_pos(joint.get_pos())
+                item.set_scale(10)
 
     def pick_up(self):
         if not self.is_asset_picked_up:
