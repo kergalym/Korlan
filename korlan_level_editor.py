@@ -54,8 +54,8 @@ class Editor(ShowBase):
         # Set time of day
         self.render_pipeline.daytime_mgr.time = "13:00"
 
-        """ic_thread = threading.Thread(target=InteractiveConsole(globals()).interact)
-        ic_thread.start()"""
+        ic_thread = threading.Thread(target=InteractiveConsole(globals()).interact)
+        ic_thread.start()
 
         self.controller = MovementController(self)
         self.controller.set_initial_position_hpr(
@@ -107,8 +107,6 @@ class Editor(ShowBase):
         self.active_asset_from_list = None
         self.active_joint_from_list = None
         self.actor_refs = {}
-
-        self.near_asset = None
 
         self.is_asset_picked_up = False
         self.is_asset_selected = False
@@ -831,7 +829,7 @@ class Editor(ShowBase):
     def get_actor_joints(self):
         if self.active_asset:
             if self.is_asset_actor(asset=self.active_asset):
-                name = self.active_asset.get_parent().get_parent().get_name()
+                name = self.active_asset.get_name()
                 if name in self.actor_refs:
                     joints = self.actor_refs[name].get_joints()
                     if joints:
@@ -918,7 +916,7 @@ class Editor(ShowBase):
         if asset:
             for node in render.findAllMatches("**/+Character"):
                 if not node.is_empty():
-                    if asset.get_parent().get_parent().get_name() in node.get_parent().get_name():
+                    if asset.get_name() in node.get_parent().get_name():
                         return True
 
     def is_actor_joint_busy(self, joint):
@@ -976,7 +974,7 @@ class Editor(ShowBase):
                     print(item)
                     item.reparent_to(joint)
                 item.set_pos(joint.get_pos())
-
+                item.set_scale(10)
             elif self.is_asset_actor(asset=actor) and self.is_actor_joint_busy(joint=joint):
                 joint.get_child(0).reparent_to(render)
                 if wrt:
@@ -1092,19 +1090,21 @@ class Editor(ShowBase):
                 self.col_handler.sortEntries()
                 # Get new asset only when previous is unselected
 
-                if not self.col_handler.getEntry(0).getIntoNodePath().isEmpty():
-                    if self.is_asset_actor(asset=not self.col_handler.getEntry(0).getIntoNodePath()):
-                        name = self.col_handler.getEntry(0).getIntoNodePath().get_parent().get_parent().get_name()
+                if not self.col_handler.get_entry(0).get_into_node_path().is_empty():
+                    if self.is_asset_actor(asset=self.col_handler.get_entry(0).get_into_node_path()):
+                        name = self.col_handler.get_entry(0).get_into_node_path().get_parent().get_parent().get_name()
                     else:
-                        name = self.col_handler.getEntry(0).getIntoNodePath().get_name()
+                        name = self.col_handler.get_entry(0).get_into_node_path().get_name()
                     name = "Mouse-in asset: {0}".format(name)
                     self.mouse_in_asset_text.setText(name)
 
-                if (not self.col_handler.getEntry(0).getIntoNodePath().isEmpty()
+                if (not self.col_handler.get_entry(0).get_into_node_path().is_empty()
                         and not self.is_asset_picked_up
                         and not self.active_asset):
-                    self.near_asset = self.col_handler.getEntry(0).getIntoNodePath()
-                    self.active_asset = self.near_asset
+                    if self.is_asset_actor(asset=self.col_handler.get_entry(0).get_into_node_path()):
+                        self.active_asset = self.col_handler.get_entry(0).get_into_node_path().get_parent().get_parent()
+                    else:
+                        self.active_asset = self.col_handler.get_entry(0).get_into_node_path()
 
     def move_with_cursor(self):
         if base.mouseWatcherNode.hasMouse():
@@ -1199,7 +1199,7 @@ class Editor(ShowBase):
                     self.scrolled_list_actor_joints_empty.hide()
                     self.scrolled_list_actor_joints_lbl_desc_empty.hide()
                     self.set_joints_list_ui()
-                name = self.active_asset.get_parent().get_parent().get_name()
+                name = self.active_asset.get_name()
             else:
                 name = self.active_asset.get_name()
             self.active_asset_text.setText(name)
@@ -1502,13 +1502,13 @@ class Editor(ShowBase):
                     self.attach_to_joint(actor=self.active_asset,
                                          item=self.active_asset_from_list,
                                          joint=self.active_joint_from_list,
-                                         wrt=True)
+                                         wrt=False)
 
     def select_joint_from_list(self, joint):
         if joint and isinstance(joint, str):
             # if asset is an actor
-            if self.active_asset and self.active_asset.get_name() == "":
-                name = self.active_asset.get_parent().get_parent().get_name()
+            if self.active_asset and self.active_asset.get_name():
+                name = self.active_asset.get_name()
                 if self.actor_refs.get(name):
                     self.active_joint_from_list = self.actor_refs[name].expose_joint(None, "modelRoot", joint)
 
