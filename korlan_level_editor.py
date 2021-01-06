@@ -54,8 +54,8 @@ class Editor(ShowBase):
         # Set time of day
         self.render_pipeline.daytime_mgr.time = "13:00"
 
-        ic_thread = threading.Thread(target=InteractiveConsole(globals()).interact)
-        ic_thread.start()
+        """ic_thread = threading.Thread(target=InteractiveConsole(globals()).interact)
+        ic_thread.start()"""
 
         self.controller = MovementController(self)
         self.controller.set_initial_position_hpr(
@@ -117,8 +117,6 @@ class Editor(ShowBase):
 
         self.cur_x_dist = None
         self.cur_y_dist = None
-
-        self.joint_from_input = None
 
         self.asset_management_title = None
 
@@ -830,14 +828,6 @@ class Editor(ShowBase):
                 if assets:
                     return assets
 
-    def get_actor_joint(self, joint):
-        if joint and isinstance(joint, str):
-            if self.is_asset_actor(asset=self.near_asset):
-                exposed = self.near_asset.expose_joint(None, "modelRoot", joint)
-                if exposed:
-                    self.joint_from_input = joint
-                    return joint
-
     def get_actor_joints(self):
         if self.active_asset:
             if self.is_asset_actor(asset=self.active_asset):
@@ -879,7 +869,7 @@ class Editor(ShowBase):
                                        geom=geoms_scrolled_dbtn, geom_scale=(15.3, 0, 2),
                                        clickSound="",
                                        command=self.select_joint_from_list,
-                                       extraArgs=[joint])
+                                       extraArgs=[joint.get_name()])
                     btn2_list.append(btn)
 
                     self.scrolled_list_actor_joints = DirectScrolledList(
@@ -926,16 +916,14 @@ class Editor(ShowBase):
 
     def is_asset_actor(self, asset):
         if asset:
-            if not render.find("**/+Character").is_empty():
-                if asset.get_name() in render.find("**/+Character").get_name():
-                    return True
-            else:
-                return False
+            for node in render.findAllMatches("**/+Character"):
+                if not node.is_empty():
+                    if asset.get_parent().get_parent().get_name() in node.get_parent().get_name():
+                        return True
 
     def is_actor_joint_busy(self, actor, joint):
-        if actor and joint and isinstance(joint, str):
-            exposed = actor.expose_joint(None, "modelRoot", joint)
-            if exposed.get_child(0).is_empty():
+        if actor and joint:
+            if joint.get_child(0).is_empty():
                 return False
             else:
                 return True
@@ -979,14 +967,21 @@ class Editor(ShowBase):
             self.set_ui()
 
     def attach_to_joint(self, actor, item, joint, wrt):
-        if actor and item and joint and isinstance(joint, str):
-            if self.is_asset_actor(asset=actor) and self.is_actor_joint_busy():
-                exposed = actor.expose_joint(None, "modelRoot", joint)
-                item.set_pos(exposed.get_pos())
+        if actor and item and joint:
+            if self.is_asset_actor(asset=actor) and not self.is_actor_joint_busy(actor=actor, joint=joint):
+                item.set_pos(joint.get_pos())
                 if wrt:
-                    item.wrt_reparent_to(exposed)
+                    item.wrt_reparent_to(joint)
                 else:
-                    item.reparent_to(exposed)
+                    item.reparent_to(joint)
+
+            elif self.is_asset_actor(asset=actor) and self.is_actor_joint_busy(actor=actor, joint=joint):
+                joint.get_child(0).reparent_to(render)
+                item.set_pos(joint.get_pos())
+                if wrt:
+                    item.wrt_reparent_to(joint)
+                else:
+                    item.reparent_to(joint)
 
     def pick_up(self):
         if not self.is_asset_picked_up:
@@ -1195,10 +1190,6 @@ class Editor(ShowBase):
 
         self.mouse_click_handler()
         self.move_with_cursor()
-
-        if self.joint_from_input and isinstance(self.joint_from_input, str):
-            joint = "{0}:{0}".format(self.near_asset.get_name(), self.joint_from_input)
-            self.attach_to_joint(actor=self.near_asset, item=self.active_asset, joint=joint)
 
         if self.active_asset and self.is_asset_picked_up:
             if self.is_asset_actor(asset=self.active_asset):
@@ -1504,13 +1495,20 @@ class Editor(ShowBase):
         if asset and isinstance(asset, str):
             if not render.find("**/{0}".format(asset)).is_empty():
                 self.active_asset_from_list = render.find("**/{0}".format(asset))
+                if (self.active_joint_from_list
+                        and not self.active_joint_from_list.is_empty()):
+                    self.attach_to_joint(actor=self.active_asset,
+                                         item=self.active_asset_from_list,
+                                         joint=self.active_joint_from_list,
+                                         wrt=False)
 
     def select_joint_from_list(self, joint):
         if joint and isinstance(joint, str):
-            if self.active_asset:
-                if not self.active_asset.find("**/+Character").is_empty():
-                    # TODO: Use active_joint_from_list to attach the item to it
-                    self.active_joint_from_list = self.active_asset.expose_joint(None, "modelRoot", joint)
+            # if asset is an actor
+            if self.active_asset and self.active_asset.get_name() == "":
+                name = self.active_asset.get_parent().get_parent().get_name()
+                if self.actor_refs.get(name):
+                    self.active_joint_from_list = self.actor_refs[name].expose_joint(None, "modelRoot", joint)
 
     def ui_geom_collector(self):
         """ Function    : ui_geom_collector
