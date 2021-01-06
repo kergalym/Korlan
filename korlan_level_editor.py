@@ -923,7 +923,7 @@ class Editor(ShowBase):
 
     def is_actor_joint_busy(self, actor, joint):
         if actor and joint:
-            if joint.get_child(0).is_empty():
+            if joint.find("**/*").is_empty():
                 return False
             else:
                 return True
