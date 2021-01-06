@@ -921,8 +921,8 @@ class Editor(ShowBase):
                     if asset.get_parent().get_parent().get_name() in node.get_parent().get_name():
                         return True
 
-    def is_actor_joint_busy(self, actor, joint):
-        if actor and joint:
+    def is_actor_joint_busy(self, joint):
+        if joint:
             if joint.find("**/*").is_empty():
                 return False
             else:
@@ -968,20 +968,22 @@ class Editor(ShowBase):
 
     def attach_to_joint(self, actor, item, joint, wrt):
         if actor and item and joint:
-            if self.is_asset_actor(asset=actor) and not self.is_actor_joint_busy(actor=actor, joint=joint):
-                item.set_pos(joint.get_pos())
+            if self.is_asset_actor(asset=actor) and not self.is_actor_joint_busy(joint=joint):
                 if wrt:
                     item.wrt_reparent_to(joint)
+                    print(item)
                 else:
+                    print(item)
                     item.reparent_to(joint)
+                item.set_pos(joint.get_pos())
 
-            elif self.is_asset_actor(asset=actor) and self.is_actor_joint_busy(actor=actor, joint=joint):
+            elif self.is_asset_actor(asset=actor) and self.is_actor_joint_busy(joint=joint):
                 joint.get_child(0).reparent_to(render)
-                item.set_pos(joint.get_pos())
                 if wrt:
                     item.wrt_reparent_to(joint)
                 else:
                     item.reparent_to(joint)
+                item.set_pos(joint.get_pos())
 
     def pick_up(self):
         if not self.is_asset_picked_up:
@@ -1500,7 +1502,7 @@ class Editor(ShowBase):
                     self.attach_to_joint(actor=self.active_asset,
                                          item=self.active_asset_from_list,
                                          joint=self.active_joint_from_list,
-                                         wrt=False)
+                                         wrt=True)
 
     def select_joint_from_list(self, joint):
         if joint and isinstance(joint, str):
