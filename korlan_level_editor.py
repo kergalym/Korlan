@@ -54,8 +54,8 @@ class Editor(ShowBase):
         # Set time of day
         self.render_pipeline.daytime_mgr.time = "13:00"
 
-        ic_thread = threading.Thread(target=InteractiveConsole(globals()).interact)
-        ic_thread.start()
+        """ic_thread = threading.Thread(target=InteractiveConsole(globals()).interact)
+        ic_thread.start()"""
 
         self.controller = MovementController(self)
         self.controller.set_initial_position_hpr(
@@ -103,13 +103,13 @@ class Editor(ShowBase):
 
         self.active_asset = None
         self.active_item = None
-        self.is_joints_list_ui_active = False
         self.active_asset_from_list = None
         self.active_joint_from_list = None
         self.actor_refs = {}
 
         self.is_asset_picked_up = False
         self.is_asset_selected = False
+        self.is_joints_list_ui_active = False
 
         self.is_item_attached_to_joint = False
 
@@ -836,28 +836,25 @@ class Editor(ShowBase):
                         return joints
 
     def set_joints_list_ui(self):
-        self.is_joints_list_ui_active = True
-        ui_geoms = self.ui_geom_collector()
-        if ui_geoms:
-            maps_scrolled_dbtn = base.loader.loadModel(ui_geoms['btn_t_icon'])
-            geoms_scrolled_dbtn = (maps_scrolled_dbtn.find('**/button_any'),
-                                   maps_scrolled_dbtn.find('**/button_pressed'),
-                                   maps_scrolled_dbtn.find('**/button_rollover'))
+        if not self.scrolled_list_actor_joints_lbl_desc:
+            ui_geoms = self.ui_geom_collector()
+            if ui_geoms:
+                maps_scrolled_dbtn = base.loader.loadModel(ui_geoms['btn_t_icon'])
+                geoms_scrolled_dbtn = (maps_scrolled_dbtn.find('**/button_any'),
+                                       maps_scrolled_dbtn.find('**/button_pressed'),
+                                       maps_scrolled_dbtn.find('**/button_rollover'))
 
-            maps_scrolled_dec = base.loader.loadModel(ui_geoms['btn_t_icon_dec'])
-            geoms_scrolled_dec = (maps_scrolled_dec.find('**/button_any_dec'),
-                                  maps_scrolled_dec.find('**/button_pressed_dec'),
-                                  maps_scrolled_dec.find('**/button_rollover_dec'))
+                maps_scrolled_dec = base.loader.loadModel(ui_geoms['btn_t_icon_dec'])
+                geoms_scrolled_dec = (maps_scrolled_dec.find('**/button_any_dec'),
+                                      maps_scrolled_dec.find('**/button_pressed_dec'),
+                                      maps_scrolled_dec.find('**/button_rollover_dec'))
 
-            maps_scrolled_inc = base.loader.loadModel(ui_geoms['btn_t_icon_inc'])
-            geoms_scrolled_inc = (maps_scrolled_inc.find('**/button_any_inc'),
-                                  maps_scrolled_inc.find('**/button_pressed_inc'),
-                                  maps_scrolled_inc.find('**/button_rollover_inc'))
+                maps_scrolled_inc = base.loader.loadModel(ui_geoms['btn_t_icon_inc'])
+                geoms_scrolled_inc = (maps_scrolled_inc.find('**/button_any_inc'),
+                                      maps_scrolled_inc.find('**/button_pressed_inc'),
+                                      maps_scrolled_inc.find('**/button_rollover_inc'))
 
-            btn2_list = []
-            if (self.get_actor_joints()
-                    and not self.scrolled_list_actor_joints
-                    and not self.scrolled_list_actor_joints_lbl_desc):
+                btn2_list = []
                 for index, joint in enumerate(self.get_actor_joints(), 1):
                     btn = DirectButton(text="{0}".format(joint.get_name()),
                                        text_fg=(255, 255, 255, 1), relief=2,
@@ -870,6 +867,7 @@ class Editor(ShowBase):
                                        extraArgs=[joint.get_name()])
                     btn2_list.append(btn)
 
+                if not self.scrolled_list_actor_joints_lbl_desc:
                     self.scrolled_list_actor_joints = DirectScrolledList(
                         decButton_pos=(0.35, 0, 0.46),
                         decButton_scale=(5, 1, 0.5),
@@ -897,6 +895,7 @@ class Editor(ShowBase):
                         parent=self.frame,
                     )
 
+                if not self.scrolled_list_actor_joints_lbl_desc:
                     self.scrolled_list_actor_joints_lbl_desc = DirectLabel(
                         text="Select joint \nfor manipulations on the scene",
                         text_fg=(255, 255, 255, 0.9),
@@ -905,12 +904,12 @@ class Editor(ShowBase):
                         scale=.025, borderWidth=(self.w, self.h),
                         parent=self.frame)
 
-        if self.scrolled_list_actor_joints_lbl:
-            self.scrolled_list_actor_joints_lbl.set_pos(-1.65, 0, -0.60)
-        if self.scrolled_list_actor_joints:
-            self.scrolled_list_actor_joints.set_pos(-2.0, 0, -1.12)
-        if self.scrolled_list_actor_joints_lbl_desc:
-            self.scrolled_list_actor_joints_lbl_desc.set_pos(-1.65, 0, -0.87)
+                if self.scrolled_list_actor_joints_lbl:
+                    self.scrolled_list_actor_joints_lbl.set_pos(-1.65, 0, -0.60)
+                if self.scrolled_list_actor_joints:
+                    self.scrolled_list_actor_joints.set_pos(-2.0, 0, -1.12)
+                if self.scrolled_list_actor_joints_lbl_desc:
+                    self.scrolled_list_actor_joints_lbl_desc.set_pos(-1.65, 0, -0.87)
 
     def is_asset_actor(self, asset):
         if asset:
@@ -1194,18 +1193,21 @@ class Editor(ShowBase):
         self.mouse_click_handler()
         self.move_with_cursor()
 
-        if self.active_asset and self.is_asset_picked_up:
+        if (self.active_asset
+                and self.is_asset_picked_up
+                and not self.is_joints_list_ui_active):
             if self.is_asset_actor(asset=self.active_asset):
-                if not self.is_joints_list_ui_active:
-                    self.scrolled_list_actor_joints_empty.hide()
-                    self.scrolled_list_actor_joints_lbl_desc_empty.hide()
-                    self.set_joints_list_ui()
+                self.scrolled_list_actor_joints_empty.hide()
+                self.scrolled_list_actor_joints_lbl_desc_empty.hide()
+                self.is_joints_list_ui_active = True
+                self.messenger.send("set_joints_list_ui")
                 name = self.active_asset.get_name()
             else:
                 name = self.active_asset.get_name()
             self.active_asset_text.setText(name)
 
-        if not self.is_asset_selected:
+        if (not self.is_asset_picked_up
+                and not self.is_asset_selected):
             self.is_joints_list_ui_active = False
             self.scrolled_list_actor_joints_empty.show()
             self.scrolled_list_actor_joints_lbl_desc_empty.show()
@@ -1214,8 +1216,8 @@ class Editor(ShowBase):
                 self.scrolled_list_actor_joints.remove_node()
                 self.scrolled_list_actor_joints_lbl_desc.remove_node()
 
+        self.accept("set_joints_list_ui", self.set_joints_list_ui)
         self.update_fields()
-
         return task.cont
 
     def get_node_pos_x(self, asset):

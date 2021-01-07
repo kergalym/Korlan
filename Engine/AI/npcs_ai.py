@@ -29,7 +29,7 @@ class NpcsAI:
 
             vec_x = None
             if npcs_xyz_vec.get(actor_bs_name):
-                vec_x = npcs_xyz_vec[actor_bs_name][0]
+                vec_x = npcs_xyz_vec[actor_bs_name].length()
 
             if passive:
                 # Just stay
@@ -103,7 +103,7 @@ class NpcsAI:
             # self.get_npc_hits()
 
             # if npcs_xyz_vec.get(actor_bs_name):
-            # vec_x = npcs_xyz_vec[actor_bs_name][0]
+            # vec_x = npcs_xyz_vec[actor_bs_name].length()
 
             if passive:
                 # Just stay
@@ -153,7 +153,7 @@ class NpcsAI:
 
             vec_x = None
             if npcs_xyz_vec.get(actor_bs_name):
-                vec_x = npcs_xyz_vec[actor_bs_name][0]
+                vec_x = npcs_xyz_vec[actor_bs_name].length()
 
             # Just stay
             if passive and self.base.alive_actors[actor_name]:

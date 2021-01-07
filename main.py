@@ -13,7 +13,7 @@ import panda3d.core as p3d
 from direct.gui.OnscreenImage import OnscreenImage
 from direct.gui.OnscreenText import OnscreenText
 from direct.showbase.ShowBaseGlobal import render2d
-from panda3d.core import Filename, LODNode, Texture
+from panda3d.core import Filename, LODNode, Texture, Vec3
 from panda3d.core import WindowProperties
 from direct.showbase.ShowBase import ShowBase
 from direct.showbase.ShowBase import MovieTexture
@@ -1162,7 +1162,7 @@ class Main(ShowBase):
             vect_x = None
             vect_y = None
             vect_z = None
-            remained = {}
+            distance = {}
             # Subtract actor vector from item vector.
             if not actor.get_parent().is_empty():
                 # Get bullet shape node path if it's here
@@ -1176,10 +1176,11 @@ class Main(ShowBase):
                     vect_x = player.get_x() - actor.get_x()
                     vect_y = player.get_y() - actor.get_y()
                     vect_z = player.get_z() - actor.get_z()
-                remained["vector"] = (round(vect_x, 1),
+                """distance["vector"] = (round(vect_x, 1),
                                       round(vect_y, 1),
-                                      round(vect_z, 1))
-            return remained
+                                      round(vect_z, 1))"""
+                distance["vector"] = Vec3(vect_x, vect_y, vect_z)
+            return distance
 
     def level_of_details(self, obj):
         """ Function    : level_of_details
