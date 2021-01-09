@@ -10,6 +10,7 @@ from direct.gui.DirectButton import DirectButton
 from direct.gui.DirectEntry import DirectEntry
 from direct.gui.DirectFrame import DirectFrame
 from direct.gui.DirectLabel import DirectLabel
+from direct.gui.DirectRadioButton import DirectRadioButton
 from direct.gui.DirectScrolledList import DirectScrolledList
 from direct.gui.OnscreenText import OnscreenText
 from direct.task.TaskManagerGlobal import taskMgr
@@ -111,10 +112,25 @@ class Editor(ShowBase):
         self.is_asset_selected = False
         self.is_joints_list_ui_active = False
 
+        self.asset_manipulation_modes = {
+            "Positioning": True,
+            "Rotation": False
+        }
+
+        self.rotation_modes = {
+            "H": False,
+            "P": False,
+            "R": False,
+        }
+
         self.is_item_attached_to_joint = False
 
         self.cur_x_dist = None
         self.cur_y_dist = None
+
+        self.heading = 180
+        self.pitch = 0
+        self.rotation = 0
 
         self.asset_management_title = None
 
@@ -141,7 +157,9 @@ class Editor(ShowBase):
         self.inp_scale_x = None
         self.inp_scale_y = None
         self.inp_scale_z = None
-
+        
+        self.rad_scale = .025
+        
         self.asset_management_desc = None
 
         self.scrolled_list_lbl_na = None
@@ -204,6 +222,15 @@ class Editor(ShowBase):
         """ Meshes """
         self.collider_plane = Plane(Vec3(0, 0, 1), Point3(0, 0, 0))
         self.mpos = None
+        self.axis_arrows = self.loader.load_model("{0}/Editor/UI/axis_arrows.egg".format(self.game_dir),
+                                                  noCache=True)
+        self.axis_arrows.reparent_to(render)
+        self.axis_arrows.hide()
+
+        self.gizmo_mesh = self.loader.load_model("{0}/Editor/UI/gizmo_mesh.egg".format(self.game_dir),
+                                                 noCache=True)
+        self.gizmo_mesh.reparent_to(render)
+        self.gizmo_mesh.hide()
 
         self.traverser = CollisionTraverser('traverser')
         self.col_handler = CollisionHandlerQueue()
@@ -806,6 +833,62 @@ class Editor(ShowBase):
         self.inp_joint_item_scale_y.setText("Scale Y")
         self.inp_joint_item_scale_z.setText("Scale Z")
 
+    def set_ui_rotation(self):
+        ui_geoms = self.ui_geom_collector()
+        maps = self.loader.loadModel(ui_geoms['radbtn_t_icon'])
+        geoms = (maps.find('**/radbutton'), maps.find('**/radbutton_pressed'))
+
+        radbuttons = [
+
+            DirectRadioButton(text='', variable=[0], value=[1], pos=(-1.2, 0, 0.85),
+                              parent=self.frame, scale=self.rad_scale,
+                              clickSound=self.sound_gui_click,
+                              command=self.set_rotation_mode, color=(63.9, 63.9, 63.9, 1),
+                              boxGeom=geoms, boxPlacement='Center', frameColor=(255, 255, 255, 0)),
+
+            DirectRadioButton(text='', variable=[0], value=[2], pos=(-1.1, 0, 0.85),
+                              parent=self.frame, scale=self.rad_scale,
+                              clickSound=self.sound_gui_click,
+                              command=self.set_rotation_mode, color=(63.9, 63.9, 63.9, 1),
+                              boxGeom=geoms, boxPlacement='Center', frameColor=(255, 255, 255, 0)),
+
+            DirectRadioButton(text='', variable=[0], value=[3], pos=(-1.0, 0, 0.85),
+                              parent=self.frame, scale=self.rad_scale,
+                              clickSound=self.sound_gui_click,
+                              command=self.set_rotation_mode, color=(63.9, 63.9, 63.9, 1),
+                              boxGeom=geoms, boxPlacement='Center', frameColor=(255, 255, 255, 0))
+
+        ]
+
+        for radbutton in radbuttons:
+            radbutton.setOthers(radbuttons)
+
+    def set_ui_manipulation_modes(self):
+        ui_geoms = self.ui_geom_collector()
+        maps = self.loader.loadModel(ui_geoms['radbtn_t_icon'])
+        geoms = (maps.find('**/radbutton'), maps.find('**/radbutton_pressed'))
+
+        radbuttons = [
+
+            DirectRadioButton(text='', variable=[0], value=[1], pos=(-0.8, 0, 0.85),
+                              parent=self.frame, scale=self.rad_scale,
+                              clickSound=self.sound_gui_click,
+                              command=self.set_manipulation_mode, extraArgs=[1],
+                              color=(63.9, 63.9, 63.9, 1),
+                              boxGeom=geoms, boxPlacement='Center', frameColor=(255, 255, 255, 0)),
+
+            DirectRadioButton(text='', variable=[0], value=[2], pos=(-0.7, 0, 0.85),
+                              parent=self.frame, scale=self.rad_scale,
+                              clickSound=self.sound_gui_click,
+                              command=self.set_manipulation_mode, extraArgs=[2],
+                              color=(63.9, 63.9, 63.9, 1),
+                              boxGeom=geoms, boxPlacement='Center', frameColor=(255, 255, 255, 0)),
+
+        ]
+
+        for radbutton in radbuttons:
+            radbutton.setOthers(radbuttons)
+
     def get_assets(self, path):
         if path:
             newpath = self.transform_path(path="{0}/{1}".format(self.game_dir, path),
@@ -948,6 +1031,7 @@ class Editor(ShowBase):
                         self.actor_refs[asset] = model
 
                     model.set_name(asset)
+
                     # automatic positioning
                     model.set_pos(model.get_pos() + (index * 2, index * 2, 0))
                     model.reparent_to(render)
@@ -962,6 +1046,8 @@ class Editor(ShowBase):
                     tex.setFormat(Texture.F_srgb)
 
             self.set_ui()
+            self.set_ui_rotation()
+            self.set_ui_manipulation_modes()
 
     def attach_to_joint(self, actor, item, joint, wrt):
         if actor and item and joint:
@@ -1106,6 +1192,21 @@ class Editor(ShowBase):
                     else:
                         self.active_asset = self.col_handler.get_entry(0).get_into_node_path()
 
+        if self.active_asset and self.is_asset_selected:
+            if self.axis_arrows:
+                self.axis_arrows.set_pos(self.active_asset.get_pos())
+                self.axis_arrows.set_hpr(self.active_asset.get_hpr())
+                self.axis_arrows.show()
+            if self.gizmo_mesh:
+                self.gizmo_mesh.set_pos(self.active_asset.get_pos())
+                self.gizmo_mesh.set_hpr(self.active_asset.get_hpr())
+                self.gizmo_mesh.hide()
+        else:
+            if self.axis_arrows:
+                self.axis_arrows.hide()
+            if self.gizmo_mesh:
+                self.gizmo_mesh.hide()
+
     def move_with_cursor(self):
         if base.mouseWatcherNode.hasMouse():
             mpos = base.mouseWatcherNode.getMouse()
@@ -1121,15 +1222,39 @@ class Editor(ShowBase):
                 self.active_asset.set_x(render, pos3d[0])
                 self.active_asset.set_y(render, pos3d[1])
 
-    def move_with_wheel_up(self):
-        if self.active_asset:
-            pos_z = self.active_asset.get_z()
-            self.active_asset.set_z(pos_z + 0.5)
+    def input_wheel_up(self):
+        if self.asset_manipulation_modes["Positioning"]:
+            if self.active_asset and self.is_asset_selected:
+                pos_z = self.active_asset.get_z()
+                self.active_asset.set_z(pos_z + 0.5)
+        elif self.asset_manipulation_modes["Rotation"]:
+            if self.active_asset and self.is_asset_selected:
+                if self.rotation_modes["H"]:
+                    pos_h = self.active_asset.get_h()
+                    self.active_asset.set_h(pos_h + 0.5)
+                elif self.rotation_modes["P"]:
+                    pos_p = self.active_asset.get_p()
+                    self.active_asset.set_p(pos_p + 0.5)
+                elif self.rotation_modes["R"]:
+                    pos_r = self.active_asset.get_r()
+                    self.active_asset.set_r(pos_r + 0.5)
 
-    def move_with_wheel_down(self):
-        if self.active_asset:
-            pos_z = self.active_asset.get_z()
-            self.active_asset.set_z(pos_z - 0.5)
+    def input_wheel_down(self):
+        if self.asset_manipulation_modes["Positioning"]:
+            if self.active_asset and self.is_asset_selected:
+                pos_z = self.active_asset.get_z()
+                self.active_asset.set_z(pos_z - 0.5)
+        elif self.asset_manipulation_modes["Rotation"]:
+            if self.active_asset and self.is_asset_selected:
+                if self.rotation_modes["H"]:
+                    pos_h = self.active_asset.get_h()
+                    self.active_asset.set_h(pos_h - 0.5)
+                elif self.rotation_modes["P"]:
+                    pos_p = self.active_asset.get_p()
+                    self.active_asset.set_p(pos_p - 0.5)
+                elif self.rotation_modes["R"]:
+                    pos_r = self.active_asset.get_r()
+                    self.active_asset.set_r(pos_r - 0.5)
 
     def update_fields(self):
         if self.active_asset and self.is_asset_picked_up:
@@ -1184,8 +1309,8 @@ class Editor(ShowBase):
         self.accept("mouse1", self.select)
         self.accept("mouse1-up", self.drop_down)
         self.accept("mouse3-up", self.unselect)
-        self.accept("wheel_up", self.move_with_wheel_up)
-        self.accept("wheel_down", self.move_with_wheel_down)
+        self.accept("wheel_up", self.input_wheel_up)
+        self.accept("wheel_down", self.input_wheel_down)
         self.accept("z", self.undo_positioning)
         self.accept("x", self.undo_rotation)
         self.accept("c", self.undo_scaling)
@@ -1495,6 +1620,30 @@ class Editor(ShowBase):
                 self.inp_scale_z.clearText()
                 int_z = float(unit)
                 self.active_asset.set_z(int_z)
+
+    def set_manipulation_mode(self, mode):
+        if mode and mode == 1:
+            self.asset_manipulation_modes["Positioning"] = True
+            self.asset_manipulation_modes["Rotation"] = False
+        elif mode and mode == 2:
+            self.asset_manipulation_modes["Positioning"] = False
+            self.asset_manipulation_modes["Rotation"] = True
+
+    def set_rotation_mode(self, mode):
+        if mode and mode == 1:
+            self.rotation_modes["H"] = True
+            self.rotation_modes["P"] = False
+            self.rotation_modes["R"] = False
+
+        if mode and mode == 2:
+            self.rotation_modes["H"] = False
+            self.rotation_modes["P"] = True
+            self.rotation_modes["R"] = False
+
+        if mode and mode == 3:
+            self.rotation_modes["H"] = False
+            self.rotation_modes["P"] = False
+            self.rotation_modes["R"] = True
 
     def select_asset_from_list(self, asset):
         if asset and isinstance(asset, str):
