@@ -224,11 +224,13 @@ class Editor(ShowBase):
         self.mpos = None
         self.axis_arrows = self.loader.load_model("{0}/Editor/UI/axis_arrows.egg".format(self.game_dir),
                                                   noCache=True)
+        self.axis_arrows.set_scale(0.5)
         self.axis_arrows.reparent_to(render)
         self.axis_arrows.hide()
 
         self.gizmo_mesh = self.loader.load_model("{0}/Editor/UI/gizmo_mesh.egg".format(self.game_dir),
                                                  noCache=True)
+        self.gizmo_mesh.set_scale(0.5)
         self.gizmo_mesh.reparent_to(render)
         self.gizmo_mesh.hide()
 
@@ -843,19 +845,22 @@ class Editor(ShowBase):
             DirectRadioButton(text='', variable=[0], value=[1], pos=(-1.2, 0, 0.85),
                               parent=self.frame, scale=self.rad_scale,
                               clickSound=self.sound_gui_click,
-                              command=self.set_rotation_mode, color=(63.9, 63.9, 63.9, 1),
+                              command=self.set_rotation_mode, extraArgs=[1],
+                              color=(63.9, 63.9, 63.9, 1),
                               boxGeom=geoms, boxPlacement='Center', frameColor=(255, 255, 255, 0)),
 
             DirectRadioButton(text='', variable=[0], value=[2], pos=(-1.1, 0, 0.85),
                               parent=self.frame, scale=self.rad_scale,
                               clickSound=self.sound_gui_click,
-                              command=self.set_rotation_mode, color=(63.9, 63.9, 63.9, 1),
+                              command=self.set_rotation_mode, extraArgs=[2],
+                              color=(63.9, 63.9, 63.9, 1),
                               boxGeom=geoms, boxPlacement='Center', frameColor=(255, 255, 255, 0)),
 
             DirectRadioButton(text='', variable=[0], value=[3], pos=(-1.0, 0, 0.85),
                               parent=self.frame, scale=self.rad_scale,
                               clickSound=self.sound_gui_click,
-                              command=self.set_rotation_mode, color=(63.9, 63.9, 63.9, 1),
+                              command=self.set_rotation_mode, extraArgs=[3],
+                              color=(63.9, 63.9, 63.9, 1),
                               boxGeom=geoms, boxPlacement='Center', frameColor=(255, 255, 255, 0))
 
         ]
