@@ -110,6 +110,8 @@ class Editor(ShowBase):
 
         self.is_asset_picked_up = False
         self.is_asset_selected = False
+        self.is_asset_selected_from_list = False
+
         self.is_joints_list_ui_active = False
 
         self.asset_manipulation_modes = {
@@ -157,9 +159,9 @@ class Editor(ShowBase):
         self.inp_scale_x = None
         self.inp_scale_y = None
         self.inp_scale_z = None
-        
+
         self.rad_scale = .025
-        
+
         self.asset_management_desc = None
 
         self.scrolled_list_lbl_na = None
@@ -927,6 +929,14 @@ class Editor(ShowBase):
                     if joints:
                         return joints
 
+        if self.active_asset_from_list:
+            if self.is_asset_actor(asset=self.active_asset_from_list):
+                name = self.active_asset_from_list.get_name()
+                if name in self.actor_refs:
+                    joints = self.actor_refs[name].get_joints()
+                    if joints:
+                        return joints
+
     def set_joints_list_ui(self):
         if not self.scrolled_list_actor_joints_lbl_desc:
             ui_geoms = self.ui_geom_collector()
@@ -1063,9 +1073,7 @@ class Editor(ShowBase):
             if self.is_asset_actor(asset=actor) and not self.is_actor_joint_busy(joint=joint):
                 if wrt:
                     item.wrt_reparent_to(joint)
-                    print(item)
                 else:
-                    print(item)
                     item.reparent_to(joint)
                 item.set_pos(joint.get_pos())
                 item.set_scale(10)
@@ -1080,6 +1088,8 @@ class Editor(ShowBase):
 
     def pick_up(self):
         if not self.is_asset_picked_up:
+            self.is_asset_picked_up = True
+        elif not self.is_asset_selected_from_list:
             self.is_asset_picked_up = True
 
     def drop_down(self):
@@ -1132,6 +1142,53 @@ class Editor(ShowBase):
                         self.history_names[name][1][0].append(self.active_asset.get_hpr())
                         self.history_names[name][2][0].append(self.active_asset.get_scale())
 
+            if self.active_asset_from_list:
+                if (len(self.history_names) < 200
+                        and len(self.history_pos_steps) < 11
+                        and len(self.history_hpr_steps) < 11
+                        and len(self.history_scale_steps) < 11):
+                    self.history_pos_steps = []
+                    self.history_hpr_steps = []
+                    self.history_scale_steps = []
+                    name = "{0}".format(self.active_asset_from_list.get_name())
+                    if not self.history_names or not self.history_names.get(name):
+                        self.history_pos_steps.append(self.active_asset_from_list.get_pos())
+                        self.history_hpr_steps.append(self.active_asset_from_list.get_hpr())
+                        self.history_scale_steps.append(self.active_asset_from_list.get_scale())
+                        self.history_names[name] = self.history_steps
+                        self.history_names[name].append([])
+                        self.history_names[name].append([])
+                        self.history_names[name].append([])
+                        self.history_names[name][0].append(self.history_pos_steps)
+                        self.history_names[name][1].append(self.history_hpr_steps)
+                        self.history_names[name][2].append(self.history_scale_steps)
+
+                    elif self.history_names.get(name) and len(self.history_names[name]) == 3:
+                        self.history_names[name][0][0].append(self.active_asset_from_list.get_pos())
+                        self.history_names[name][1][0].append(self.active_asset_from_list.get_hpr())
+                        self.history_names[name][2][0].append(self.active_asset_from_list.get_scale())
+
+                    elif (self.history_names.get(name)
+                          and not self.history_names[name][0][0]
+                          and not self.history_names[name][1][0]
+                          and not self.history_names[name][2][0]):
+                        self.history_names[name][0][0].append(self.active_asset_from_list.get_pos())
+                        self.history_names[name][1][0].append(self.active_asset_from_list.get_hpr())
+                        self.history_names[name][2][0].append(self.active_asset_from_list.get_scale())
+
+                    elif (self.history_names.get(name)
+                          and len(self.history_names[name][0][0]) == 1
+                          and len(self.history_names[name][1][0]) == 1
+                          and len(self.history_names[name][2][0]) == 1):
+                        self.history_names[name][0][0].append(self.active_asset_from_list.get_pos())
+                        self.history_names[name][1][0].append(self.active_asset_from_list.get_hpr())
+                        self.history_names[name][2][0].append(self.active_asset_from_list.get_scale())
+
+                    else:
+                        self.history_names[name][0][0].append(self.active_asset_from_list.get_pos())
+                        self.history_names[name][1][0].append(self.active_asset_from_list.get_hpr())
+                        self.history_names[name][2][0].append(self.active_asset_from_list.get_scale())
+
     def undo_positioning(self):
         if self.active_asset:
             name = self.active_asset.get_name()
@@ -1173,6 +1230,14 @@ class Editor(ShowBase):
             if self.active_asset_text:
                 self.active_asset_text.setText("")
                 self.active_asset = None
+                self.active_asset_from_list = None
+
+        if self.is_asset_selected_from_list:
+            self.is_asset_selected_from_list = False
+            if self.active_asset_text:
+                self.active_asset_text.setText("")
+                self.active_asset = None
+                self.active_asset_from_list = None
 
     def mouse_click_handler(self):
         if base.mouseWatcherNode.hasMouse():
@@ -1195,7 +1260,8 @@ class Editor(ShowBase):
 
                 if (not self.col_handler.get_entry(0).get_into_node_path().is_empty()
                         and not self.is_asset_picked_up
-                        and not self.active_asset):
+                        and not self.active_asset
+                        and not self.active_asset_from_list):
                     if self.is_asset_actor(asset=self.col_handler.get_entry(0).get_into_node_path()):
                         self.active_asset = self.col_handler.get_entry(0).get_into_node_path().get_parent().get_parent()
                     else:
@@ -1216,6 +1282,22 @@ class Editor(ShowBase):
             if self.gizmo_mesh:
                 self.gizmo_mesh.hide()
 
+        if (self.active_asset_from_list
+                and self.is_asset_selected_from_list):
+            if self.axis_arrows:
+                self.axis_arrows.set_pos(self.active_asset_from_list.get_pos())
+                self.axis_arrows.set_hpr(self.active_asset_from_list.get_hpr())
+                self.axis_arrows.show()
+            if self.gizmo_mesh:
+                self.gizmo_mesh.set_pos(self.active_asset_from_list.get_pos())
+                self.gizmo_mesh.set_hpr(self.active_asset_from_list.get_hpr())
+                self.gizmo_mesh.hide()
+        else:
+            if self.axis_arrows:
+                self.axis_arrows.hide()
+            if self.gizmo_mesh:
+                self.gizmo_mesh.hide()
+
     def move_with_cursor(self):
         if base.mouseWatcherNode.hasMouse():
             mpos = base.mouseWatcherNode.getMouse()
@@ -1224,12 +1306,22 @@ class Editor(ShowBase):
             far_point = Point3()
             base.camLens.extrude(mpos, near_point, far_point)
             if (self.active_asset
+                    and not self.active_asset_from_list
                     and self.is_asset_picked_up
                     and self.collider_plane.intersects_line(pos3d,
                                                             render.getRelativePoint(base.camera, near_point),
                                                             render.getRelativePoint(base.camera, far_point))):
                 self.active_asset.set_x(render, pos3d[0])
                 self.active_asset.set_y(render, pos3d[1])
+
+            elif (self.active_asset
+                  and self.active_asset_from_list
+                  and self.is_asset_picked_up
+                  and self.collider_plane.intersects_line(pos3d,
+                                                          render.getRelativePoint(base.camera, near_point),
+                                                          render.getRelativePoint(base.camera, far_point))):
+                self.active_asset_from_list.set_x(render, pos3d[0])
+                self.active_asset_from_list.set_y(render, pos3d[1])
 
     def input_wheel_up(self):
         if self.asset_manipulation_modes["Positioning"]:
@@ -1266,7 +1358,10 @@ class Editor(ShowBase):
                     self.active_asset.set_r(pos_r - 1.5)
 
     def update_fields(self):
-        if self.active_asset and self.is_asset_picked_up:
+        if (self.active_asset
+                and self.is_asset_picked_up
+                and not self.is_item_attached_to_joint
+                and self.is_asset_selected):
             pos_x = self.get_node_pos_x(asset=self.active_asset)
             pos_y = self.get_node_pos_y(asset=self.active_asset)
             pos_z = self.get_node_pos_z(asset=self.active_asset)
@@ -1291,7 +1386,8 @@ class Editor(ShowBase):
 
         if (self.active_asset
                 and self.is_asset_picked_up
-                and self.is_item_attached_to_joint):
+                and self.is_item_attached_to_joint
+                and self.is_asset_selected):
             pos_x = self.get_node_pos_x(asset=self.active_asset)
             pos_y = self.get_node_pos_y(asset=self.active_asset)
             pos_z = self.get_node_pos_z(asset=self.active_asset)
@@ -1338,6 +1434,19 @@ class Editor(ShowBase):
                 name = self.active_asset.get_name()
             else:
                 name = self.active_asset.get_name()
+            self.active_asset_text.setText(name)
+
+        if (self.active_asset_from_list
+                and self.is_asset_picked_up
+                and not self.is_joints_list_ui_active):
+            if self.is_asset_actor(asset=self.active_asset_from_list):
+                self.scrolled_list_actor_joints_empty.hide()
+                self.scrolled_list_actor_joints_lbl_desc_empty.hide()
+                self.is_joints_list_ui_active = True
+                self.messenger.send("set_joints_list_ui")
+                name = self.active_asset_from_list.get_name()
+            else:
+                name = self.active_asset_from_list.get_name()
             self.active_asset_text.setText(name)
 
         if (not self.is_asset_picked_up
@@ -1664,6 +1773,10 @@ class Editor(ShowBase):
                                          item=self.active_asset_from_list,
                                          joint=self.active_joint_from_list,
                                          wrt=False)
+                    self.is_item_attached_to_joint = True
+                if (not self.active_joint_from_list
+                        and not self.active_joint_from_list):
+                    self.is_asset_selected_from_list = True
 
     def select_joint_from_list(self, joint):
         if joint and isinstance(joint, str):
