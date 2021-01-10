@@ -1019,6 +1019,9 @@ class Editor(ShowBase):
                 if not node.is_empty():
                     if asset.get_name() in node.get_parent().get_name():
                         return True
+                    else:
+                        self.active_item = asset
+                        return False
 
     def is_actor_joint_busy(self, joint):
         if joint:
@@ -1386,7 +1389,7 @@ class Editor(ShowBase):
 
         if (self.active_asset
                 and self.is_asset_picked_up
-                and self.is_item_attached_to_joint
+                and not self.is_item_attached_to_joint
                 and self.is_asset_selected):
             pos_x = self.get_node_pos_x(asset=self.active_asset)
             pos_y = self.get_node_pos_y(asset=self.active_asset)
@@ -1767,8 +1770,7 @@ class Editor(ShowBase):
         if asset and isinstance(asset, str):
             if not render.find("**/{0}".format(asset)).is_empty():
                 self.active_asset_from_list = render.find("**/{0}".format(asset))
-                if (self.active_joint_from_list
-                        and not self.active_joint_from_list.is_empty()):
+                if self.active_joint_from_list:
                     self.attach_to_joint(actor=self.active_asset,
                                          item=self.active_asset_from_list,
                                          joint=self.active_joint_from_list,
@@ -1777,6 +1779,19 @@ class Editor(ShowBase):
                 if (not self.active_joint_from_list
                         and not self.active_joint_from_list):
                     self.is_asset_selected_from_list = True
+
+                """self.active_asset_from_list = render.find("**/{0}".format(asset))
+                if (self.active_joint_from_list
+                        and self.active_item):
+                    import pdb; pdb.set_trace()
+                    self.attach_to_joint(actor=self.active_asset_from_list,
+                                         item=self.active_item,
+                                         joint=self.active_joint_from_list,
+                                         wrt=False)
+                    self.is_item_attached_to_joint = True
+                if (not self.active_joint_from_list
+                        and not self.active_joint_from_list):
+                    self.is_asset_selected_from_list = True"""
 
     def select_joint_from_list(self, joint):
         if joint and isinstance(joint, str):
