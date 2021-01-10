@@ -837,31 +837,34 @@ class Editor(ShowBase):
 
     def set_ui_rotation(self):
         ui_geoms = self.ui_geom_collector()
-        maps = self.loader.loadModel(ui_geoms['radbtn_t_icon'])
-        geoms = (maps.find('**/radbutton'), maps.find('**/radbutton_pressed'))
+        axis_h_maps = self.loader.loadModel(ui_geoms['axis_h_icon'])
+        axis_h_geoms = (axis_h_maps.find('**/axis_h_any'), axis_h_maps.find('**/axis_h_pressed'))
+
+        axis_p_maps = self.loader.loadModel(ui_geoms['axis_p_icon'])
+        axis_p_geoms = (axis_p_maps.find('**/axis_p_any'), axis_p_maps.find('**/axis_p_pressed'))
+
+        axis_r_maps = self.loader.loadModel(ui_geoms['axis_r_icon'])
+        axis_r_geoms = (axis_r_maps.find('**/axis_r_any'), axis_r_maps.find('**/axis_r_pressed'))
 
         radbuttons = [
 
             DirectRadioButton(text='', variable=[0], value=[1], pos=(-1.2, 0, 0.85),
                               parent=self.frame, scale=self.rad_scale,
-                              clickSound=self.sound_gui_click,
+                              clickSound='',
                               command=self.set_rotation_mode, extraArgs=[1],
-                              color=(63.9, 63.9, 63.9, 1),
-                              boxGeom=geoms, boxPlacement='Center', frameColor=(255, 255, 255, 0)),
+                              boxGeom=axis_h_geoms, boxPlacement='Center', frameColor=(255, 255, 255, 0)),
 
             DirectRadioButton(text='', variable=[0], value=[2], pos=(-1.1, 0, 0.85),
                               parent=self.frame, scale=self.rad_scale,
-                              clickSound=self.sound_gui_click,
+                              clickSound='',
                               command=self.set_rotation_mode, extraArgs=[2],
-                              color=(63.9, 63.9, 63.9, 1),
-                              boxGeom=geoms, boxPlacement='Center', frameColor=(255, 255, 255, 0)),
+                              boxGeom=axis_p_geoms, boxPlacement='Center', frameColor=(255, 255, 255, 0)),
 
             DirectRadioButton(text='', variable=[0], value=[3], pos=(-1.0, 0, 0.85),
                               parent=self.frame, scale=self.rad_scale,
-                              clickSound=self.sound_gui_click,
+                              clickSound='',
                               command=self.set_rotation_mode, extraArgs=[3],
-                              color=(63.9, 63.9, 63.9, 1),
-                              boxGeom=geoms, boxPlacement='Center', frameColor=(255, 255, 255, 0))
+                              boxGeom=axis_r_geoms, boxPlacement='Center', frameColor=(255, 255, 255, 0))
 
         ]
 
@@ -870,24 +873,25 @@ class Editor(ShowBase):
 
     def set_ui_manipulation_modes(self):
         ui_geoms = self.ui_geom_collector()
-        maps = self.loader.loadModel(ui_geoms['radbtn_t_icon'])
-        geoms = (maps.find('**/radbutton'), maps.find('**/radbutton_pressed'))
+        pos_mode_maps = self.loader.loadModel(ui_geoms['pos_mode_icon'])
+        pos_mode_geoms = (pos_mode_maps.find('**/pos_mode_any'), pos_mode_maps.find('**/pos_mode_pressed'))
+
+        rot_mode_maps = self.loader.loadModel(ui_geoms['rot_mode_icon'])
+        rot_mode_geoms = (rot_mode_maps.find('**/rot_mode_any'), rot_mode_maps.find('**/rot_mode_pressed'))
 
         radbuttons = [
 
             DirectRadioButton(text='', variable=[0], value=[1], pos=(-0.8, 0, 0.85),
                               parent=self.frame, scale=self.rad_scale,
-                              clickSound=self.sound_gui_click,
+                              clickSound='',
                               command=self.set_manipulation_mode, extraArgs=[1],
-                              color=(63.9, 63.9, 63.9, 1),
-                              boxGeom=geoms, boxPlacement='Center', frameColor=(255, 255, 255, 0)),
+                              boxGeom=pos_mode_geoms, boxPlacement='Center', frameColor=(255, 255, 255, 0)),
 
             DirectRadioButton(text='', variable=[0], value=[2], pos=(-0.7, 0, 0.85),
                               parent=self.frame, scale=self.rad_scale,
-                              clickSound=self.sound_gui_click,
+                              clickSound='',
                               command=self.set_manipulation_mode, extraArgs=[2],
-                              color=(63.9, 63.9, 63.9, 1),
-                              boxGeom=geoms, boxPlacement='Center', frameColor=(255, 255, 255, 0)),
+                              boxGeom=rot_mode_geoms, boxPlacement='Center', frameColor=(255, 255, 255, 0)),
 
         ]
 
@@ -1236,13 +1240,13 @@ class Editor(ShowBase):
             if self.active_asset and self.is_asset_selected:
                 if self.rotation_modes["H"]:
                     pos_h = self.active_asset.get_h()
-                    self.active_asset.set_h(pos_h + 0.5)
+                    self.active_asset.set_h(pos_h + 1.5)
                 elif self.rotation_modes["P"]:
                     pos_p = self.active_asset.get_p()
-                    self.active_asset.set_p(pos_p + 0.5)
+                    self.active_asset.set_p(pos_p + 1.5)
                 elif self.rotation_modes["R"]:
                     pos_r = self.active_asset.get_r()
-                    self.active_asset.set_r(pos_r + 0.5)
+                    self.active_asset.set_r(pos_r + 1.5)
 
     def input_wheel_down(self):
         if self.asset_manipulation_modes["Positioning"]:
@@ -1253,13 +1257,13 @@ class Editor(ShowBase):
             if self.active_asset and self.is_asset_selected:
                 if self.rotation_modes["H"]:
                     pos_h = self.active_asset.get_h()
-                    self.active_asset.set_h(pos_h - 0.5)
+                    self.active_asset.set_h(pos_h - 1.5)
                 elif self.rotation_modes["P"]:
                     pos_p = self.active_asset.get_p()
-                    self.active_asset.set_p(pos_p - 0.5)
+                    self.active_asset.set_p(pos_p - 1.5)
                 elif self.rotation_modes["R"]:
                     pos_r = self.active_asset.get_r()
-                    self.active_asset.set_r(pos_r - 0.5)
+                    self.active_asset.set_r(pos_r - 1.5)
 
     def update_fields(self):
         if self.active_asset and self.is_asset_picked_up:
