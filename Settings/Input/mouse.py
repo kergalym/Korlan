@@ -5,6 +5,7 @@ from panda3d.core import NodePath, PandaNode
 
 class Mouse:
     def __init__(self):
+        self.game_settings = base.game_settings
         self.base = base
         self.d_object = DirectObject.DirectObject()
         self.player = None
@@ -105,22 +106,23 @@ class Mouse:
         if self.base.mouse_control_is_activated == 0:
             self.base.mouse_control_is_activated = 1
 
-        mouse_direction = self.base.win.getPointer(0)
-        x = mouse_direction.get_x()
-        y = mouse_direction.get_y()
+        if self.game_settings['Debug']['set_editor_mode'] == 'NO':
+            mouse_direction = self.base.win.getPointer(0)
+            x = mouse_direction.get_x()
+            y = mouse_direction.get_y()
 
-        # Recentering the cursor and do mouse look
-        if self.base.win.move_pointer(0, int(base.win.getXSize() / 2), int(base.win.getYSize() / 2)):
-            self.heading = self.heading - (x - int(base.win.getXSize() / 2)) * self.mouse_sens
-            # self.pitch = self.pitch - (y - int(base.win.getYSize() / 2)) * self.mouse_sens
+            # Recentering the cursor and do mouse look
+            if self.base.win.move_pointer(0, int(base.win.getXSize() / 2), int(base.win.getYSize() / 2)):
+                self.heading = self.heading - (x - int(base.win.getXSize() / 2)) * self.mouse_sens
+                # self.pitch = self.pitch - (y - int(base.win.getYSize() / 2)) * self.mouse_sens
 
-        self.base.camera.set_h(self.heading)
-        self.base.camera.set_p(self.pitch)
-        self.base.camera.set_r(self.rotation)
+            self.base.camera.set_h(self.heading)
+            self.base.camera.set_p(self.pitch)
+            self.base.camera.set_r(self.rotation)
 
-        direction = self.base.camera.get_mat().getRow3(1)
-        self.base.camera.set_pos(self.focus - (direction * 180))
-        self.focus = self.base.camera.get_pos() + (direction * 180)
+            direction = self.base.camera.get_mat().getRow3(1)
+            self.base.camera.set_pos(self.focus - (direction * 180))
+            self.focus = self.base.camera.get_pos() + (direction * 180)
 
     def mouse_control_task(self, task):
         """ Function    : mouse_control_task

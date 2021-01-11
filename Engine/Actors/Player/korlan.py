@@ -112,9 +112,10 @@ class Korlan:
         if mode == 'game':
             self.base.game_mode = True
             # Disable the camera trackball controls.
-            self.base.disable_mouse()
 
-            self.mouse.set_mouse_mode(mode="absolute")
+            if self.game_settings['Debug']['set_editor_mode'] == 'NO':
+                self.base.disable_mouse()
+                self.mouse.set_mouse_mode(mode="absolute")
 
             if (isinstance(path, str)
                     and isinstance(name, str)

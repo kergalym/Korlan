@@ -1,4 +1,3 @@
-from __future__ import print_function
 
 import re
 from os import walk
@@ -22,6 +21,8 @@ from pathlib import Path, PurePath
 
 from Engine.Render.rpcore import RenderPipeline, PointLight
 from Engine.Render.rpcore.util.movement_controller import MovementController
+
+import json
 
 p3d.load_prc_file_data("", """
 win-size 1920 1080
@@ -202,7 +203,7 @@ class Editor(ShowBase):
         self.joint_item_management_desc = None
 
         self.save_asset_pos = None
-        self.save_joint_attach = None
+        self.save_joint_item_pos = None
 
         self.flame_np = None
 
@@ -513,7 +514,7 @@ class Editor(ShowBase):
                                                    scale=.03, borderWidth=(self.w, self.h),
                                                    geom=geoms_scrolled_dbtn, geom_scale=(11.3, 0, 2),
                                                    clickSound="",
-                                                   command="")
+                                                   command=self.save_asset_orientation)
 
                 self.joint_item_management_title = DirectLabel(text="Joint Child Management",
                                                                text_fg=(255, 255, 255, 0.9),
@@ -673,14 +674,14 @@ class Editor(ShowBase):
                                                           command=self.set_joint_scale_z,
                                                           focusInCommand=self.input_joint_item_clear_scale_z)
 
-                self.save_joint_attach = DirectButton(text="Save Joint Attach",
-                                                      text_fg=(255, 255, 255, 1), relief=2,
-                                                      text_font=self.font.load_font(self.menu_font),
-                                                      frameColor=(0, 0, 0, 1),
-                                                      scale=.03, borderWidth=(self.w, self.h),
-                                                      geom=geoms_scrolled_dbtn, geom_scale=(11.3, 0, 2),
-                                                      clickSound="",
-                                                      command="")
+                self.save_joint_item_pos = DirectButton(text="Save Item Pos",
+                                                        text_fg=(255, 255, 255, 1), relief=2,
+                                                        text_font=self.font.load_font(self.menu_font),
+                                                        frameColor=(0, 0, 0, 1),
+                                                        scale=.03, borderWidth=(self.w, self.h),
+                                                        geom=geoms_scrolled_dbtn, geom_scale=(11.3, 0, 2),
+                                                        clickSound="",
+                                                        command=self.save_joint_item_orientation)
 
                 self.scrolled_list_actor_joints_lbl = DirectLabel(text="Actor Joints",
                                                                   text_fg=(255, 255, 255, 0.9),
@@ -811,7 +812,7 @@ class Editor(ShowBase):
         self.inp_joint_item_scale_z.set_pos(1.35, 0, -0.9)
 
         self.save_asset_pos.set_pos(1.7, 0, -0.8)
-        self.save_joint_attach.set_pos(1.7, 0, -0.9)
+        self.save_joint_item_pos.set_pos(1.7, 0, -0.9)
 
         self.inp_pos_x.setText("Axis X")
         self.inp_pos_y.setText("Axis Y")
@@ -941,7 +942,7 @@ class Editor(ShowBase):
         if not self.scrolled_list_actor_joints_lbl_desc:
             ui_geoms = self.ui_geom_collector()
             if ui_geoms:
-                maps_scrolled_dbtn = base.loader.loadModel(ui_geoms['btn_t_icon'])
+                maps_scrolled_dbtn = self.loader.loadModel(ui_geoms['btn_t_icon'])
                 geoms_scrolled_dbtn = (maps_scrolled_dbtn.find('**/button_any'),
                                        maps_scrolled_dbtn.find('**/button_pressed'),
                                        maps_scrolled_dbtn.find('**/button_rollover'))
@@ -1387,9 +1388,9 @@ class Editor(ShowBase):
             self.inp_scale_y.setText(scale_y)
             self.inp_scale_z.setText(scale_z)
 
-        if (self.active_asset
+        elif (self.active_asset
                 and self.is_asset_picked_up
-                and not self.is_item_attached_to_joint
+                and self.is_item_attached_to_joint
                 and self.is_asset_selected):
             pos_x = self.get_node_pos_x(asset=self.active_asset)
             pos_y = self.get_node_pos_y(asset=self.active_asset)
@@ -1412,59 +1413,6 @@ class Editor(ShowBase):
             self.inp_joint_item_scale_x.setText(scale_x)
             self.inp_joint_item_scale_y.setText(scale_y)
             self.inp_joint_item_scale_z.setText(scale_z)
-
-    def update_scene(self, task):
-        self.accept("mouse1", self.select)
-        self.accept("mouse1-up", self.drop_down)
-        self.accept("mouse3-up", self.unselect)
-        self.accept("wheel_up", self.input_wheel_up)
-        self.accept("wheel_down", self.input_wheel_down)
-        self.accept("z", self.undo_positioning)
-        self.accept("x", self.undo_rotation)
-        self.accept("c", self.undo_scaling)
-
-        self.mouse_click_handler()
-        self.move_with_cursor()
-
-        if (self.active_asset
-                and self.is_asset_picked_up
-                and not self.is_joints_list_ui_active):
-            if self.is_asset_actor(asset=self.active_asset):
-                self.scrolled_list_actor_joints_empty.hide()
-                self.scrolled_list_actor_joints_lbl_desc_empty.hide()
-                self.is_joints_list_ui_active = True
-                self.messenger.send("set_joints_list_ui")
-                name = self.active_asset.get_name()
-            else:
-                name = self.active_asset.get_name()
-            self.active_asset_text.setText(name)
-
-        if (self.active_asset_from_list
-                and self.is_asset_picked_up
-                and not self.is_joints_list_ui_active):
-            if self.is_asset_actor(asset=self.active_asset_from_list):
-                self.scrolled_list_actor_joints_empty.hide()
-                self.scrolled_list_actor_joints_lbl_desc_empty.hide()
-                self.is_joints_list_ui_active = True
-                self.messenger.send("set_joints_list_ui")
-                name = self.active_asset_from_list.get_name()
-            else:
-                name = self.active_asset_from_list.get_name()
-            self.active_asset_text.setText(name)
-
-        if (not self.is_asset_picked_up
-                and not self.is_asset_selected):
-            self.is_joints_list_ui_active = False
-            self.scrolled_list_actor_joints_empty.show()
-            self.scrolled_list_actor_joints_lbl_desc_empty.show()
-            if (self.scrolled_list_actor_joints
-                    and self.scrolled_list_actor_joints_lbl_desc):
-                self.scrolled_list_actor_joints.remove_node()
-                self.scrolled_list_actor_joints_lbl_desc.remove_node()
-
-        self.accept("set_joints_list_ui", self.set_joints_list_ui)
-        self.update_fields()
-        return task.cont
 
     def get_node_pos_x(self, asset):
         if asset:
@@ -1766,6 +1714,40 @@ class Editor(ShowBase):
             self.rotation_modes["P"] = False
             self.rotation_modes["R"] = True
 
+    def save_asset_orientation(self):
+        if exists("{0}/Editor/Saves".format(self.game_dir)):
+            if self.assets:
+                asset_json = {}
+                for asset in self.assets:
+                    if not render.find("**/{0}".format(asset)).is_empty():
+                        name = render.find("**/{0}".format(asset)).get_name()
+                        pos = render.find("**/{0}".format(asset)).get_pos()
+                        hpr = render.find("**/{0}".format(asset)).get_hpr()
+                        scale = render.find("**/{0}".format(asset)).get_scale()
+                        asset_json[name] = [(pos[0], pos[1], pos[2]),
+                                            (hpr[0], hpr[1], hpr[2]),
+                                            (scale[0], scale[1], scale[2])]
+
+                asset_json_dump = json.dumps(asset_json, indent = 4)
+                with open('{0}/Editor/Saves/assets_pos.json'.format(self.game_dir), 'w') as f:
+                    f.write(str(asset_json_dump))
+
+    def save_joint_item_orientation(self):
+        if exists("{0}/Editor/Saves".format(self.game_dir)):
+            if self.active_item:
+                asset_json = {}
+                name = self.active_item.get_name()
+                pos = self.active_item.get_pos()
+                hpr = self.active_item.get_hpr()
+                scale = self.active_item.get_scale()
+                asset_json[name] = [(pos[0], pos[1], pos[2]),
+                                    (hpr[0], hpr[1], hpr[2]),
+                                    (scale[0], scale[1], scale[2])]
+
+                asset_json_dump = json.dumps(asset_json, indent = 4)
+                with open('{0}/Editor/Saves/item_pos.json'.format(self.game_dir), 'w') as f:
+                    f.write(str(asset_json_dump))
+
     def select_asset_from_list(self, asset):
         if asset and isinstance(asset, str):
             if not render.find("**/{0}".format(asset)).is_empty():
@@ -1862,6 +1844,59 @@ class Editor(ShowBase):
                 self.flame_np.setBillboardPointEye()
 
                 taskMgr.add(self.update_flame, "update_flame")
+
+    def update_scene(self, task):
+        self.accept("mouse1", self.select)
+        self.accept("mouse1-up", self.drop_down)
+        self.accept("mouse3-up", self.unselect)
+        self.accept("wheel_up", self.input_wheel_up)
+        self.accept("wheel_down", self.input_wheel_down)
+        self.accept("z", self.undo_positioning)
+        self.accept("x", self.undo_rotation)
+        self.accept("c", self.undo_scaling)
+
+        self.mouse_click_handler()
+        self.move_with_cursor()
+
+        if (self.active_asset
+                and self.is_asset_picked_up
+                and not self.is_joints_list_ui_active):
+            if self.is_asset_actor(asset=self.active_asset):
+                self.scrolled_list_actor_joints_empty.hide()
+                self.scrolled_list_actor_joints_lbl_desc_empty.hide()
+                self.is_joints_list_ui_active = True
+                self.messenger.send("set_joints_list_ui")
+                name = self.active_asset.get_name()
+            else:
+                name = self.active_asset.get_name()
+            self.active_asset_text.setText(name)
+
+        if (self.active_asset_from_list
+                and self.is_asset_picked_up
+                and not self.is_joints_list_ui_active):
+            if self.is_asset_actor(asset=self.active_asset_from_list):
+                self.scrolled_list_actor_joints_empty.hide()
+                self.scrolled_list_actor_joints_lbl_desc_empty.hide()
+                self.is_joints_list_ui_active = True
+                self.messenger.send("set_joints_list_ui")
+                name = self.active_asset_from_list.get_name()
+            else:
+                name = self.active_asset_from_list.get_name()
+            self.active_asset_text.setText(name)
+
+        if (not self.is_asset_picked_up
+                and not self.is_asset_selected):
+            self.is_joints_list_ui_active = False
+            self.scrolled_list_actor_joints_empty.show()
+            self.scrolled_list_actor_joints_lbl_desc_empty.show()
+            if (self.scrolled_list_actor_joints
+                    and self.scrolled_list_actor_joints_lbl_desc):
+                self.scrolled_list_actor_joints.remove_node()
+                self.scrolled_list_actor_joints_lbl_desc.remove_node()
+
+        self.accept("set_joints_list_ui", self.set_joints_list_ui)
+        self.update_fields()
+        return task.cont
 
 
 editor = Editor()

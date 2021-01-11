@@ -3,10 +3,11 @@ from direct.interval.IntervalGlobal import Parallel
 from direct.interval.IntervalGlobal import Func
 from direct.gui.DirectGui import *
 from direct.showbase.ShowBaseGlobal import aspect2d
-from panda3d.core import FontPool, TextNode, Texture
+from panda3d.core import FontPool, TextNode
 from Engine.Scenes.level_one import LevelOne
 from direct.task.TaskManagerGlobal import taskMgr
 from Settings.UI.rp_lights_manager_ui import RPLightsMgrUI
+from Editor.editor import Editor
 
 
 class LoadingUI:
@@ -14,6 +15,7 @@ class LoadingUI:
     def __init__(self):
         self.base = base
         self.level_one = LevelOne()
+        self.editor = None
         self.rp_lights_mgr_ui = RPLightsMgrUI()
         self.game_settings = base.game_settings
         self.game_dir = base.game_dir
@@ -129,6 +131,11 @@ class LoadingUI:
                             and self.base.mouse_control_is_activated == 1
                             and hasattr(base, "physics_is_active")
                             and self.base.physics_is_active == 1):
+
+                        if self.game_settings['Debug']['set_editor_mode'] == 'YES':
+                            self.editor = Editor()
+                            self.editor.set_editor()
+
                         self.clear_loading_bar()
 
                     return task.done

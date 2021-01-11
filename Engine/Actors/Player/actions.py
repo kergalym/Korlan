@@ -126,38 +126,39 @@ class Actions:
                 and anims
                 and isinstance(anims, dict)):
             self.base.player_actions_init_is_activated = 0
-            # TODO Assign local player variable to self.player
-            self.player = None
-            self.player_bs = None
-            self.kbd.keymap_init()
-            self.kbd.keymap_init_released()
-            base.input_state = self.kbd.bullet_keymap_init()
+            if self.game_settings['Debug']['set_editor_mode'] == 'NO':
+                # TODO Assign local player variable to self.player
+                self.player = None
+                self.player_bs = None
+                self.kbd.keymap_init()
+                self.kbd.keymap_init_released()
+                base.input_state = self.kbd.bullet_keymap_init()
 
-            # Define a player menu here
-            base.accept('tab', self.player_menu.set_ui_inventory)
-            base.accept("mouse1", self.player_hit_action, extraArgs=[player, "attack", anims, "Boxing"])
+                # Define a player menu here
+                base.accept('tab', self.player_menu.set_ui_inventory)
+                base.accept("mouse1", self.player_hit_action, extraArgs=[player, "attack", anims, "Boxing"])
 
-            # Pass the player object to FSM
-            self.fsm_player.get_player(actor=player)
-            # player.set_blend(frameBlend=True)
+                # Pass the player object to FSM
+                self.fsm_player.get_player(actor=player)
+                # player.set_blend(frameBlend=True)
 
-            taskMgr.add(self.player_init_task, "player_init_task",
-                        extraArgs=[player, anims],
-                        appendTask=True)
+                taskMgr.add(self.player_init_task, "player_init_task",
+                            extraArgs=[player, anims],
+                            appendTask=True)
 
-            taskMgr.add(self.items.get_item_distance_task,
-                        "get_item_distance_task",
-                        extraArgs=[player],
-                        appendTask=True)
+                taskMgr.add(self.items.get_item_distance_task,
+                            "get_item_distance_task",
+                            extraArgs=[player],
+                            appendTask=True)
 
-            excluded_assets = ['Sky', 'Mountains', 'Grass', 'Ground', 'NPC']
-            assets_dist_vec = base.distance_calculate(
-                base.assets_pos_collector_no_player(player, excluded_assets), player)
+                excluded_assets = ['Sky', 'Mountains', 'Grass', 'Ground', 'NPC']
+                assets_dist_vec = base.distance_calculate(
+                    base.assets_pos_collector_no_player(player, excluded_assets), player)
 
-            taskMgr.add(self.state.player_view_mode_task,
-                        "player_view_mode_task",
-                        extraArgs=[assets_dist_vec],
-                        appendTask=True)
+                taskMgr.add(self.state.player_view_mode_task,
+                            "player_view_mode_task",
+                            extraArgs=[assets_dist_vec],
+                            appendTask=True)
 
             self.base.player_actions_init_is_activated = 1
 

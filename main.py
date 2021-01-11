@@ -36,6 +36,7 @@ from direct.stdpy import threading
 from code import InteractiveConsole
 from direct.task.TaskManagerGlobal import taskMgr
 from Engine.Render.rpcore.render_pipeline import RenderPipeline
+from Engine.Render.rpcore.util.movement_controller import MovementController
 
 build_info_txt = "Build 0.2. 12/2020"
 
@@ -75,6 +76,7 @@ game_settings['Keymap'] = {'forward': 'W',
                            }
 
 game_settings['Debug'] = {'set_debug_mode': 'NO',
+                          'set_editor_mode': 'NO',
                           'render_explore': 'NO',
                           'cache_autoclean': 'NO',
                           'want_pstats': 'NO',
@@ -456,6 +458,13 @@ class Main(ShowBase):
 
         if self.game_settings['Debug']['render_explore'] == 'YES':
             render.explore()
+
+        if self.game_settings['Debug']['set_editor_mode'] == 'YES':
+            self.controller = MovementController(self)
+            self.controller.set_initial_position_hpr(
+                Vec3(-17.2912578583, -13.290019989, 6.88211250305),
+                Vec3(-39.7285499573, -14.6770210266, 0.0))
+            self.controller.setup()
 
         # Construct and create the pipeline
         render_bg_tex = self.textures_collector('{0}/Engine/Render'.format(self.game_dir))
