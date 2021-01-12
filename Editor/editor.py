@@ -15,6 +15,8 @@ class Editor:
         self.base = base
         self.game_dir = str(Path.cwd())
         self.editor_ui = EditorUI(self)
+        self.is_actor = False
+        self.is_actor_busy = False
         self.assets = {}
 
         """ Frame Sizes """
@@ -56,7 +58,14 @@ class Editor:
         self.active_item = None
         self.active_asset_from_list = None
         self.active_joint_from_list = None
-        self.actor_refs = {}
+
+        if hasattr(base, "player_ref") \
+                and base.player_ref \
+                and hasattr(base, "npcs_actor_refs") \
+                and base.npcs_actor_refs:
+            self.actor_refs = {base.player_ref.get_name(): base.player_ref}
+            for name in base.npcs_actor_refs:
+                self.actor_refs[name] = base.npcs_actor_refs
 
         self.is_asset_picked_up = False
         self.is_asset_selected = False
@@ -208,28 +217,23 @@ class Editor:
         if self.active_asset:
             if self.is_asset_actor(asset=self.active_asset):
                 name = self.active_asset.get_name()
-                if name in self.actor_refs:
-                    joints = self.actor_refs[name].get_joints()
-                    if joints:
-                        return joints
+                joints = self.actor_refs.get(name).get_joints()
+                if joints:
+                    return joints
 
         if self.active_asset_from_list:
             if self.is_asset_actor(asset=self.active_asset_from_list):
                 name = self.active_asset_from_list.get_name()
-                if name in self.actor_refs:
-                    joints = self.actor_refs[name].get_joints()
-                    if joints:
-                        return joints
+                joints = self.actor_refs.get(name).get_joints()
+                if joints:
+                    return joints
 
     def is_asset_actor(self, asset):
-        if asset:
-            for node in render.findAllMatches("**/+Character"):
-                if not node.is_empty():
-                    if asset.get_name() in node.get_parent().get_name():
-                        return True
-                    else:
-                        self.active_item = asset
-                        return False
+        if asset and not asset.find("**/+Character").is_empty():
+            return True
+        else:
+            self.active_item = asset
+            return False
 
     def is_actor_joint_busy(self, joint):
         if joint:
@@ -390,8 +394,7 @@ class Editor:
                     self.history_names[name][2][0].pop()
 
     def select(self):
-        if not self.is_asset_picked_up:
-            self.is_asset_selected = True
+        if self.is_asset_selected_from_list:
             self.pick_up()
 
     def unselect(self):
@@ -408,91 +411,6 @@ class Editor:
                 self.active_asset_text.setText("")
                 self.active_asset = None
                 self.active_asset_from_list = None
-
-    def mouse_click_handler(self):
-        if base.mouseWatcherNode.hasMouse():
-            self.mpos = base.mouseWatcherNode.getMouse()
-            self.picker_ray.setFromLens(base.camNode, self.mpos.get_x(), self.mpos.get_y())
-            self.traverser.traverse(render)
-            # Assume for simplicity's sake that col_handler is a CollisionHandlerQueue.
-            if self.col_handler.getNumEntries() > 0:
-                # This is so we get the closest object.
-                self.col_handler.sortEntries()
-                # Get new asset only when previous is unselected
-
-                if not self.col_handler.get_entry(0).get_into_node_path().is_empty():
-                    if self.is_asset_actor(asset=self.col_handler.get_entry(0).get_into_node_path()):
-                        name = self.col_handler.get_entry(0).get_into_node_path().get_parent().get_parent().get_name()
-                    else:
-                        name = self.col_handler.get_entry(0).get_into_node_path().get_name()
-                    name = "Mouse-in asset: {0}".format(name)
-                    if self.mouse_in_asset_text:
-                        self.mouse_in_asset_text.setText(name)
-
-                if (not self.col_handler.get_entry(0).get_into_node_path().is_empty()
-                        and not self.is_asset_picked_up
-                        and not self.active_asset
-                        and not self.active_asset_from_list):
-                    if self.is_asset_actor(asset=self.col_handler.get_entry(0).get_into_node_path()):
-                        self.active_asset = self.col_handler.get_entry(0).get_into_node_path().get_parent().get_parent()
-                    else:
-                        self.active_asset = self.col_handler.get_entry(0).get_into_node_path()
-
-        if self.active_asset and self.is_asset_selected:
-            if self.axis_arrows:
-                self.axis_arrows.set_pos(self.active_asset.get_pos())
-                self.axis_arrows.set_hpr(self.active_asset.get_hpr())
-                self.axis_arrows.show()
-            if self.gizmo_mesh:
-                self.gizmo_mesh.set_pos(self.active_asset.get_pos())
-                self.gizmo_mesh.set_hpr(self.active_asset.get_hpr())
-                self.gizmo_mesh.hide()
-        else:
-            if self.axis_arrows:
-                self.axis_arrows.hide()
-            if self.gizmo_mesh:
-                self.gizmo_mesh.hide()
-
-        if (self.active_asset_from_list
-                and self.is_asset_selected_from_list):
-            if self.axis_arrows:
-                self.axis_arrows.set_pos(self.active_asset_from_list.get_pos())
-                self.axis_arrows.set_hpr(self.active_asset_from_list.get_hpr())
-                self.axis_arrows.show()
-            if self.gizmo_mesh:
-                self.gizmo_mesh.set_pos(self.active_asset_from_list.get_pos())
-                self.gizmo_mesh.set_hpr(self.active_asset_from_list.get_hpr())
-                self.gizmo_mesh.hide()
-        else:
-            if self.axis_arrows:
-                self.axis_arrows.hide()
-            if self.gizmo_mesh:
-                self.gizmo_mesh.hide()
-
-    def move_with_cursor(self):
-        if base.mouseWatcherNode.hasMouse():
-            mpos = base.mouseWatcherNode.getMouse()
-            pos3d = Point3()
-            near_point = Point3()
-            far_point = Point3()
-            base.camLens.extrude(mpos, near_point, far_point)
-            if (self.active_asset
-                    and not self.active_asset_from_list
-                    and self.is_asset_picked_up
-                    and self.collider_plane.intersects_line(pos3d,
-                                                            render.getRelativePoint(base.camera, near_point),
-                                                            render.getRelativePoint(base.camera, far_point))):
-                self.active_asset.set_x(render, pos3d[0])
-                self.active_asset.set_y(render, pos3d[1])
-
-            elif (self.active_asset
-                  and self.active_asset_from_list
-                  and self.is_asset_picked_up
-                  and self.collider_plane.intersects_line(pos3d,
-                                                          render.getRelativePoint(base.camera, near_point),
-                                                          render.getRelativePoint(base.camera, far_point))):
-                self.active_asset_from_list.set_x(render, pos3d[0])
-                self.active_asset_from_list.set_y(render, pos3d[1])
 
     def input_wheel_up(self):
         if self.asset_manipulation_modes["Positioning"]:
@@ -929,24 +847,53 @@ class Editor:
                         and not self.active_joint_from_list):
                     self.is_asset_selected_from_list = True
 
-                """self.active_asset_from_list = render.find("**/{0}".format(asset))
-                if (self.active_joint_from_list
-                        and self.active_item):
-                    import pdb; pdb.set_trace()
-                    self.attach_to_joint(actor=self.active_asset_from_list,
-                                         item=self.active_item,
-                                         joint=self.active_joint_from_list,
-                                         wrt=False)
-                    self.is_item_attached_to_joint = True
-                if (not self.active_joint_from_list
-                        and not self.active_joint_from_list):
-                    self.is_asset_selected_from_list = True"""
+                if self.get_actor_joints():
+                    self.is_actor = True
+                else:
+                    self.is_actor = False
+
+                # Если выбран ассет и он не актер, а также есть выбранный актер,
+                # считать этот ассет айтемом для джойнта, иначе: обычным ассетом.
+                self.active_asset_from_list = render.find("**/{0}".format(asset))
+                if (self.is_actor and not self.is_asset_actor(asset=self.active_asset_from_list)
+                        and not self.is_actor_joint_busy(joint=self.active_joint_from_list)):
+                    self.active_item = self.active_asset_from_list
+                    if (self.active_joint_from_list
+                            and self.active_item):
+                        # import pdb; pdb.set_trace()
+                        self.attach_to_joint(actor=self.active_asset_from_list,
+                                             item=self.active_item,
+                                             joint=self.active_joint_from_list,
+                                             wrt=False)
+                        self.is_item_attached_to_joint = True
+                    if (not self.active_joint_from_list
+                            and not self.active_joint_from_list):
+                        self.is_asset_selected_from_list = True
+
+                elif (not self.is_actor and self.is_asset_actor(asset=self.active_asset_from_list)
+                      and not self.is_actor_joint_busy(joint=self.active_joint_from_list)):
+                    self.is_actor = True
+                    if (not self.active_joint_from_list
+                            and not self.active_joint_from_list):
+                        self.is_asset_selected_from_list = True
+
+                elif (self.is_actor and self.is_asset_actor(asset=self.active_asset_from_list)
+                      and self.is_actor_joint_busy(joint=self.active_joint_from_list)):
+                    self.is_actor_busy = True
+                    if (not self.active_joint_from_list
+                            and not self.active_joint_from_list):
+                        self.is_asset_selected_from_list = True
 
     def select_joint_from_list(self, joint):
         if joint and isinstance(joint, str):
             # if asset is an actor
             if self.active_asset and self.active_asset.get_name():
                 name = self.active_asset.get_name()
+                if self.actor_refs.get(name):
+                    self.active_joint_from_list = self.actor_refs[name].expose_joint(None, "modelRoot", joint)
+
+            if self.active_asset_from_list and self.active_asset_from_list.get_name():
+                name = self.active_asset_from_list.get_name()
                 if self.actor_refs.get(name):
                     self.active_joint_from_list = self.actor_refs[name].expose_joint(None, "modelRoot", joint)
 
@@ -986,6 +933,91 @@ class Editor:
             elif style == 'compat':
                 transformed_path = Filename(path).to_os_specific()
                 return transformed_path
+
+    def mouse_click_handler(self):
+        if base.mouseWatcherNode.hasMouse():
+            self.mpos = base.mouseWatcherNode.getMouse()
+            self.picker_ray.setFromLens(base.camNode, self.mpos.get_x(), self.mpos.get_y())
+            self.traverser.traverse(render)
+            # Assume for simplicity's sake that col_handler is a CollisionHandlerQueue.
+            if self.col_handler.getNumEntries() > 0:
+                # This is so we get the closest object.
+                self.col_handler.sortEntries()
+                # Get new asset only when previous is unselected
+
+                if not self.col_handler.get_entry(0).get_into_node_path().is_empty():
+                    if self.is_asset_actor(asset=self.col_handler.get_entry(0).get_into_node_path()):
+                        name = self.col_handler.get_entry(0).get_into_node_path().get_parent().get_parent().get_name()
+                    else:
+                        name = self.col_handler.get_entry(0).get_into_node_path().get_name()
+                    name = "Mouse-in asset: {0}".format(name)
+                    if self.mouse_in_asset_text:
+                        self.mouse_in_asset_text.setText(name)
+
+                if (not self.col_handler.get_entry(0).get_into_node_path().is_empty()
+                        and not self.is_asset_picked_up
+                        and not self.active_asset
+                        and not self.active_asset_from_list):
+                    if self.is_asset_actor(asset=self.col_handler.get_entry(0).get_into_node_path()):
+                        self.active_asset = self.col_handler.get_entry(0).get_into_node_path().get_parent().get_parent()
+                    else:
+                        self.active_asset = self.col_handler.get_entry(0).get_into_node_path()
+
+        if self.active_asset and self.is_asset_selected:
+            if self.axis_arrows:
+                self.axis_arrows.set_pos(self.active_asset.get_pos())
+                self.axis_arrows.set_hpr(self.active_asset.get_hpr())
+                self.axis_arrows.show()
+            if self.gizmo_mesh:
+                self.gizmo_mesh.set_pos(self.active_asset.get_pos())
+                self.gizmo_mesh.set_hpr(self.active_asset.get_hpr())
+                self.gizmo_mesh.hide()
+        else:
+            if self.axis_arrows:
+                self.axis_arrows.hide()
+            if self.gizmo_mesh:
+                self.gizmo_mesh.hide()
+
+        if (self.active_asset_from_list
+                and self.is_asset_selected_from_list):
+            if self.axis_arrows:
+                self.axis_arrows.set_pos(self.active_asset_from_list.get_pos())
+                self.axis_arrows.set_hpr(self.active_asset_from_list.get_hpr())
+                self.axis_arrows.show()
+            if self.gizmo_mesh:
+                self.gizmo_mesh.set_pos(self.active_asset_from_list.get_pos())
+                self.gizmo_mesh.set_hpr(self.active_asset_from_list.get_hpr())
+                self.gizmo_mesh.hide()
+        else:
+            if self.axis_arrows:
+                self.axis_arrows.hide()
+            if self.gizmo_mesh:
+                self.gizmo_mesh.hide()
+
+    def move_with_cursor(self):
+        if base.mouseWatcherNode.hasMouse():
+            mpos = base.mouseWatcherNode.getMouse()
+            pos3d = Point3()
+            near_point = Point3()
+            far_point = Point3()
+            base.camLens.extrude(mpos, near_point, far_point)
+            if (self.active_asset
+                    and not self.active_asset_from_list
+                    and self.is_asset_picked_up
+                    and self.collider_plane.intersects_line(pos3d,
+                                                            render.getRelativePoint(base.camera, near_point),
+                                                            render.getRelativePoint(base.camera, far_point))):
+                self.active_asset.set_x(render, pos3d[0])
+                self.active_asset.set_y(render, pos3d[1])
+
+            elif (self.active_asset
+                  and self.active_asset_from_list
+                  and self.is_asset_picked_up
+                  and self.collider_plane.intersects_line(pos3d,
+                                                          render.getRelativePoint(base.camera, near_point),
+                                                          render.getRelativePoint(base.camera, far_point))):
+                self.active_asset_from_list.set_x(render, pos3d[0])
+                self.active_asset_from_list.set_y(render, pos3d[1])
 
     def update_scene(self, task):
         self.base.accept("mouse1", self.select)

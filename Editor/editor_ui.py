@@ -707,7 +707,7 @@ class EditorUI:
             radbutton.setOthers(radbuttons)
 
     def set_joints_list_ui(self):
-        if not self.editor.scrolled_list_actor_joints_lbl_desc:
+        if self.editor.is_actor and not self.editor.scrolled_list_actor_joints_lbl_desc:
             ui_geoms = self.editor.ui_geom_collector()
             if ui_geoms:
                 maps_scrolled_dbtn = self.editor.base.loader.loadModel(ui_geoms['btn_t_icon'])
