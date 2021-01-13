@@ -85,12 +85,15 @@ class Editor:
 
         self.is_item_attached_to_joint = False
 
-        self.cur_x_dist = None
-        self.cur_y_dist = None
-
+        """ 3D View Camera Parameters """
+        self.is_look_around_mouse_pressed = False
+        self.focus = LVector3(0, 0, 0)
+        self.last = 0
         self.heading = 180
         self.pitch = 0
         self.rotation = 0
+        self.direction = 0
+        self.elapsed = 0
 
         self.asset_management_title = None
 
@@ -199,6 +202,7 @@ class Editor:
         self.picker_ray = CollisionRay()
         self.picker_node.add_solid(self.picker_ray)
         self.traverser.add_collider(self.picker_np, self.col_handler)
+        self.winprops = WindowProperties()
 
     def set_editor(self):
         if hasattr(base, "level_assets") and base.level_assets:
@@ -211,6 +215,7 @@ class Editor:
         self.editor_ui.set_ui_rotation()
         self.editor_ui.set_ui_manipulation_modes()
         taskMgr.add(self.update_scene, "update_scene")
+        # taskMgr.add(self.view_camera, "view_camera")
 
     def get_actor_joints(self):
         if self.active_asset_from_list:
@@ -344,6 +349,9 @@ class Editor:
             self.pick_up()
 
     def unselect(self):
+        self.is_look_around_mouse_pressed = False
+        self.winprops.set_cursor_hidden(False)
+
         if not self.is_asset_picked_up:
             self.is_asset_selected = False
             if self.active_asset_text:
@@ -355,6 +363,11 @@ class Editor:
             if self.active_asset_text:
                 self.active_asset_text.setText("")
                 self.active_asset_from_list = None
+
+    def look_around_mouse(self):
+        if not self.is_asset_selected_from_list:
+            self.is_look_around_mouse_pressed = True
+            self.winprops.set_cursor_hidden(True)
 
     def input_wheel_up(self):
         if self.asset_manipulation_modes["Positioning"]:
@@ -373,6 +386,10 @@ class Editor:
                     pos_r = self.active_asset_from_list.get_r()
                     self.active_asset_from_list.set_r(pos_r + 1.5)
 
+        if not self.is_asset_selected:
+            cam_y = base.camera.get_y()
+            base.camera.set_y(cam_y + 1.0)
+
     def input_wheel_down(self):
         if self.asset_manipulation_modes["Positioning"]:
             if self.active_asset_from_list and self.is_asset_selected:
@@ -389,6 +406,10 @@ class Editor:
                 elif self.rotation_modes["R"]:
                     pos_r = self.active_asset_from_list.get_r()
                     self.active_asset_from_list.set_r(pos_r - 1.5)
+
+        if not self.is_asset_selected:
+            cam_y = base.camera.get_y()
+            base.camera.set_y(cam_y - 1.0)
 
     def update_fields(self):
         if (self.active_asset_from_list
@@ -865,20 +886,6 @@ class Editor:
             self.mpos = base.mouseWatcherNode.getMouse()
             self.picker_ray.setFromLens(base.camNode, self.mpos.get_x(), self.mpos.get_y())
             self.traverser.traverse(render)
-            # Assume for simplicity's sake that col_handler is a CollisionHandlerQueue.
-            if self.col_handler.getNumEntries() > 0:
-                # This is so we get the closest object.
-                self.col_handler.sortEntries()
-                # Get new asset only when previous is unselected
-
-                if not self.col_handler.get_entry(0).get_into_node_path().is_empty():
-                    if self.is_asset_actor(asset=self.col_handler.get_entry(0).get_into_node_path()):
-                        name = self.col_handler.get_entry(0).get_into_node_path().get_parent().get_parent().get_name()
-                    else:
-                        name = self.col_handler.get_entry(0).get_into_node_path().get_name()
-                    name = "Mouse-in asset: {0}".format(name)
-                    if self.mouse_in_asset_text:
-                        self.mouse_in_asset_text.setText(name)
 
         if (self.active_asset_from_list
                 and self.is_asset_selected_from_list):
@@ -914,6 +921,7 @@ class Editor:
     def update_scene(self, task):
         self.base.accept("mouse1", self.select)
         self.base.accept("mouse1-up", self.drop_down)
+        self.base.accept("mouse3", self.look_around_mouse)
         self.base.accept("mouse3-up", self.unselect)
         self.base.accept("wheel_up", self.input_wheel_up)
         self.base.accept("wheel_down", self.input_wheel_down)
@@ -956,4 +964,40 @@ class Editor:
             self.frame.destroy()
             return task.done
 
+        return task.cont
+
+    def view_camera(self, task):
+        if self.is_look_around_mouse_pressed:
+            # figure out how much the mouse has moved (in pixels)
+            md = self.base.win.getPointer(0)
+            x = md.getX()
+            y = md.getY()
+            if self.base.win.movePointer(0, 100, 100):
+                self.heading = self.heading - (x - 100) * 0.2
+                self.pitch = self.pitch - (y - 100) * 0.2
+            if self.pitch < -45:
+                self.pitch = -45
+            if self.pitch > 45:
+                self.pitch = 45
+            self.base.camera.set_hpr(self.heading, self.pitch, 0)
+            self.direction = self.base.camera.getMat().getRow3(1)
+
+            self.elapsed = task.time - self.last
+            if self.last == 0:
+                self.elapsed = 0
+
+            self.base.camera.setPos(self.focus - (self.direction * 5))
+            if self.base.camera.getX() < -59.0:
+                self.base.camera.setX(-59)
+            if self.base.camera.getX() > 59.0:
+                self.base.camera.setX(59)
+            if self.base.camera.getY() < -59.0:
+                self.base.camera.setY(-59)
+            if self.base.camera.getY() > 59.0:
+                self.base.camera.setY(59)
+            if self.base.camera.getZ() < 5.0:
+                self.base.camera.setZ(5)
+            if self.base.camera.getZ() > 45.0:
+                self.base.camera.setZ(45)
+            self.focus = self.base.camera.get_pos() + (self.direction * 5)
         return task.cont
