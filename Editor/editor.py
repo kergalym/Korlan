@@ -415,52 +415,52 @@ class Editor:
 
     def input_wheel_up(self):
         if self.asset_manipulation_modes["Positioning"]:
-            if self.active_asset and self.is_asset_selected:
-                pos_z = self.active_asset.get_z()
-                self.active_asset.set_z(pos_z + 0.5)
+            if self.active_asset_from_list and self.is_asset_selected:
+                pos_z = self.active_asset_from_list.get_z()
+                self.active_asset_from_list.set_z(pos_z + 0.5)
         elif self.asset_manipulation_modes["Rotation"]:
-            if self.active_asset and self.is_asset_selected:
+            if self.active_asset_from_list and self.is_asset_selected:
                 if self.rotation_modes["H"]:
-                    pos_h = self.active_asset.get_h()
-                    self.active_asset.set_h(pos_h + 1.5)
+                    pos_h = self.active_asset_from_list.get_h()
+                    self.active_asset_from_list.set_h(pos_h + 1.5)
                 elif self.rotation_modes["P"]:
-                    pos_p = self.active_asset.get_p()
-                    self.active_asset.set_p(pos_p + 1.5)
+                    pos_p = self.active_asset_from_list.get_p()
+                    self.active_asset_from_list.set_p(pos_p + 1.5)
                 elif self.rotation_modes["R"]:
-                    pos_r = self.active_asset.get_r()
-                    self.active_asset.set_r(pos_r + 1.5)
+                    pos_r = self.active_asset_from_list.get_r()
+                    self.active_asset_from_list.set_r(pos_r + 1.5)
 
     def input_wheel_down(self):
         if self.asset_manipulation_modes["Positioning"]:
-            if self.active_asset and self.is_asset_selected:
-                pos_z = self.active_asset.get_z()
-                self.active_asset.set_z(pos_z - 0.5)
+            if self.active_asset_from_list and self.is_asset_selected:
+                pos_z = self.active_asset_from_list.get_z()
+                self.active_asset_from_list.set_z(pos_z - 0.5)
         elif self.asset_manipulation_modes["Rotation"]:
-            if self.active_asset and self.is_asset_selected:
+            if self.active_asset_from_list and self.is_asset_selected:
                 if self.rotation_modes["H"]:
-                    pos_h = self.active_asset.get_h()
-                    self.active_asset.set_h(pos_h - 1.5)
+                    pos_h = self.active_asset_from_list.get_h()
+                    self.active_asset_from_list.set_h(pos_h - 1.5)
                 elif self.rotation_modes["P"]:
-                    pos_p = self.active_asset.get_p()
-                    self.active_asset.set_p(pos_p - 1.5)
+                    pos_p = self.active_asset_from_list.get_p()
+                    self.active_asset_from_list.set_p(pos_p - 1.5)
                 elif self.rotation_modes["R"]:
-                    pos_r = self.active_asset.get_r()
-                    self.active_asset.set_r(pos_r - 1.5)
+                    pos_r = self.active_asset_from_list.get_r()
+                    self.active_asset_from_list.set_r(pos_r - 1.5)
 
     def update_fields(self):
-        if (self.active_asset
+        if (self.active_asset_from_list
                 and self.is_asset_picked_up
                 and not self.is_item_attached_to_joint
                 and self.is_asset_selected):
-            pos_x = self.get_node_pos_x(asset=self.active_asset)
-            pos_y = self.get_node_pos_y(asset=self.active_asset)
-            pos_z = self.get_node_pos_z(asset=self.active_asset)
-            rot_h = self.get_node_h(asset=self.active_asset)
-            rot_p = self.get_node_p(asset=self.active_asset)
-            rot_r = self.get_node_r(asset=self.active_asset)
-            scale_x = self.get_node_scale_x(asset=self.active_asset)
-            scale_y = self.get_node_scale_y(asset=self.active_asset)
-            scale_z = self.get_node_scale_z(asset=self.active_asset)
+            pos_x = self.get_node_pos_x(asset=self.active_asset_from_list)
+            pos_y = self.get_node_pos_y(asset=self.active_asset_from_list)
+            pos_z = self.get_node_pos_z(asset=self.active_asset_from_list)
+            rot_h = self.get_node_h(asset=self.active_asset_from_list)
+            rot_p = self.get_node_p(asset=self.active_asset_from_list)
+            rot_r = self.get_node_r(asset=self.active_asset_from_list)
+            scale_x = self.get_node_scale_x(asset=self.active_asset_from_list)
+            scale_y = self.get_node_scale_y(asset=self.active_asset_from_list)
+            scale_z = self.get_node_scale_z(asset=self.active_asset_from_list)
 
             self.inp_pos_x.setText(pos_x)
             self.inp_pos_y.setText(pos_y)
@@ -474,19 +474,19 @@ class Editor:
             self.inp_scale_y.setText(scale_y)
             self.inp_scale_z.setText(scale_z)
 
-        elif (self.active_asset
+        elif (self.active_asset_from_list
               and self.is_asset_picked_up
               and self.is_item_attached_to_joint
               and self.is_asset_selected):
-            pos_x = self.get_node_pos_x(asset=self.active_asset)
-            pos_y = self.get_node_pos_y(asset=self.active_asset)
-            pos_z = self.get_node_pos_z(asset=self.active_asset)
-            rot_h = self.get_node_h(asset=self.active_asset)
-            rot_p = self.get_node_p(asset=self.active_asset)
-            rot_r = self.get_node_r(asset=self.active_asset)
-            scale_x = self.get_node_scale_x(asset=self.active_asset)
-            scale_y = self.get_node_scale_y(asset=self.active_asset)
-            scale_z = self.get_node_scale_z(asset=self.active_asset)
+            pos_x = self.get_node_pos_x(asset=self.active_asset_from_list)
+            pos_y = self.get_node_pos_y(asset=self.active_asset_from_list)
+            pos_z = self.get_node_pos_z(asset=self.active_asset_from_list)
+            rot_h = self.get_node_h(asset=self.active_asset_from_list)
+            rot_p = self.get_node_p(asset=self.active_asset_from_list)
+            rot_r = self.get_node_r(asset=self.active_asset_from_list)
+            scale_x = self.get_node_scale_x(asset=self.active_asset_from_list)
+            scale_y = self.get_node_scale_y(asset=self.active_asset_from_list)
+            scale_z = self.get_node_scale_z(asset=self.active_asset_from_list)
 
             self.inp_joint_item_pos_x.setText(pos_x)
             self.inp_joint_item_pos_y.setText(pos_y)
@@ -861,7 +861,7 @@ class Editor:
                     self.active_item = self.active_asset_from_list
                     if (self.active_joint_from_list
                             and self.active_item):
-                        # import pdb; pdb.set_trace()
+                        import pdb; pdb.set_trace()
                         self.attach_to_joint(actor=self.active_asset_from_list,
                                              item=self.active_item,
                                              joint=self.active_joint_from_list,
