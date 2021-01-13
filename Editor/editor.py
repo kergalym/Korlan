@@ -395,6 +395,7 @@ class Editor:
 
     def select(self):
         if self.is_asset_selected_from_list:
+            self.is_asset_selected = True
             self.pick_up()
 
     def unselect(self):
