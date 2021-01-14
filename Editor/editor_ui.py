@@ -58,7 +58,7 @@ class EditorUI:
                                       maps_scrolled_inc.find('**/button_rollover_inc'))
 
                 btn_list = []
-                if not self.editor.assets:
+                if not self.editor.assets_bs:
                     self.editor.scrolled_list_lbl_na = DirectLabel(text="N/A",
                                                                    text_fg=(255, 255, 255, 0.9),
                                                                    text_font=self.editor.font.load_font(
@@ -67,8 +67,8 @@ class EditorUI:
                                                                    scale=.04,
                                                                    borderWidth=(self.editor.w, self.editor.h),
                                                                    parent=self.editor.frame)
-                if self.editor.assets:
-                    for index, asset in enumerate(self.editor.assets, 1):
+                if self.editor.assets_bs:
+                    for index, asset in enumerate(self.editor.assets_bs, 1):
                         btn = DirectButton(text="{0}".format(asset),
                                            text_fg=(255, 255, 255, 1), relief=2,
                                            text_font=self.editor.font.load_font(self.editor.menu_font),

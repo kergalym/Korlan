@@ -17,7 +17,7 @@ class Editor:
         self.editor_ui = EditorUI(self)
         self.is_actor = False
         self.is_actor_busy = False
-        self.assets = {}
+        self.assets_bs = {}
 
         """ Frame Sizes """
         # Left, right, bottom, top
@@ -58,13 +58,13 @@ class Editor:
         self.active_asset_from_list = None
         self.active_joint_from_list = None
 
-        if hasattr(base, "player_ref") \
-                and base.player_ref \
-                and hasattr(base, "npcs_actor_refs") \
-                and base.npcs_actor_refs:
+        if (hasattr(base, "player_ref")
+                and base.player_ref
+                and hasattr(base, "npcs_actor_refs")
+                and base.npcs_actor_refs):
             self.actor_refs = {base.player_ref.get_name(): base.player_ref}
             for name in base.npcs_actor_refs:
-                self.actor_refs[name] = base.npcs_actor_refs
+                self.actor_refs[name] = base.npcs_actor_refs[name]
 
         self.is_asset_picked_up = False
         self.is_asset_selected = False
@@ -204,23 +204,32 @@ class Editor:
         self.traverser.add_collider(self.picker_np, self.col_handler)
         self.winprops = WindowProperties()
 
-    def set_editor(self):
-        if hasattr(base, "level_assets") and base.level_assets:
-            self.assets = {}
-            for name in base.level_assets['name']:
-                if not render.find("**/{0}".format(name)).is_empty():
-                    self.assets[name] = render.find("**/{0}:BS".format(name))
+    def get_asset_nodes_task(self, task):
+        for node in render.findAllMatches("**/*:BS"):
+            if not node.is_empty():
+                name = node.get_name()
+                self.assets_bs[name] = node
 
-        self.editor_ui.set_ui()
-        self.editor_ui.set_ui_rotation()
-        self.editor_ui.set_ui_manipulation_modes()
-        taskMgr.add(self.update_scene, "update_scene")
-        # taskMgr.add(self.view_camera, "view_camera")
+        if self.assets_bs:
+            self.editor_ui.set_ui()
+            self.editor_ui.set_ui_rotation()
+            self.editor_ui.set_ui_manipulation_modes()
+            taskMgr.add(self.update_scene, "update_scene")
+            # taskMgr.add(self.view_camera, "view_camera")
+            return task.done
+
+        return task.cont
+
+    def set_editor(self):
+        self.assets_bs = {}
+        taskMgr.add(self.get_asset_nodes_task, "get_asset_task")
 
     def get_actor_joints(self):
-        if self.active_asset_from_list:
+        if self.active_asset_from_list and self.actor_refs:
             if self.is_asset_actor(asset=self.active_asset_from_list):
                 name = self.active_asset_from_list.get_name()
+                # Drop :BS suffix
+                name = name.split(":BS")[0]
                 joints = self.actor_refs.get(name).get_joints()
                 if joints:
                     return joints
@@ -354,15 +363,12 @@ class Editor:
 
         if not self.is_asset_picked_up:
             self.is_asset_selected = False
-            if self.active_asset_text:
-                self.active_asset_text.setText("")
-                self.active_asset_from_list = None
 
         if self.is_asset_selected_from_list:
+            self.active_asset_from_list = None
             self.is_asset_selected_from_list = False
             if self.active_asset_text:
                 self.active_asset_text.setText("")
-                self.active_asset_from_list = None
 
     def look_around_mouse(self):
         if not self.is_asset_selected_from_list:
@@ -768,9 +774,9 @@ class Editor:
 
     def save_asset_orientation(self):
         if exists("{0}/Editor/Saves".format(self.game_dir)):
-            if self.assets:
+            if self.assets_bs:
                 asset_json = {}
-                for asset in self.assets:
+                for asset in self.assets_bs:
                     if not render.find("**/{0}".format(asset)).is_empty():
                         name = render.find("**/{0}".format(asset)).get_name()
                         pos = render.find("**/{0}".format(asset)).get_pos()
@@ -803,9 +809,11 @@ class Editor:
     def select_asset_from_list(self, asset):
         if asset and isinstance(asset, str):
             if not render.find("**/{0}".format(asset)).is_empty():
-                # Если выбран ассет и он не актер, а также есть выбранный актер,
-                # считать этот ассет айтемом для джойнта, иначе: обычным ассетом.
                 self.active_asset_from_list = render.find("**/{0}".format(asset))
+                self.is_asset_selected_from_list = True
+
+                # If an asset is selected and it is not an actor, and there is also a selected actor,
+                # consider this asset an item for the joint, otherwise: a regular asset.
                 if (self.is_actor and not self.is_asset_actor(asset=self.active_asset_from_list)
                         and not self.is_actor_joint_busy(joint=self.active_joint_from_list)):
                     self.active_item = self.active_asset_from_list
@@ -818,9 +826,6 @@ class Editor:
                                              joint=self.active_joint_from_list,
                                              wrt=False)
                         self.is_item_attached_to_joint = True
-                    if (not self.active_joint_from_list
-                            and not self.active_joint_from_list):
-                        self.is_asset_selected_from_list = True
 
                 elif (not self.is_actor and self.is_asset_actor(asset=self.active_asset_from_list)
                       and not self.is_actor_joint_busy(joint=self.active_joint_from_list)):
