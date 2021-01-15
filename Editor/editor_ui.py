@@ -90,7 +90,7 @@ class EditorUI:
                         decButton_geom=geoms_scrolled_dec,
                         decButton_geom_scale=0.08,
 
-                        incButton_pos=(0.35, 0, -0.65),
+                        incButton_pos=(0.35, 0, -0.64),
                         incButton_scale=(5, 1, 0.5),
                         incButton_text="",
                         incButton_text_scale=0.04,
@@ -100,8 +100,8 @@ class EditorUI:
 
                         frameSize=self.editor.frame_scrolled_size,
                         frameColor=(0, 0, 0, 0),
-                        numItemsVisible=10,
-                        forceHeight=0.11,
+                        numItemsVisible=15,
+                        forceHeight=0.07,
                         items=btn_list,
                         itemFrame_frameSize=self.editor.frame_scrolled_inner_size,
                         itemFrame_pos=(0.35, 0, 0.4),

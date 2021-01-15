@@ -897,11 +897,11 @@ class Editor:
             if self.axis_arrows:
                 self.axis_arrows.set_pos(self.active_asset_from_list.get_pos())
                 self.axis_arrows.set_hpr(self.active_asset_from_list.get_hpr())
-                self.axis_arrows.show()
+                self.axis_arrows.hide()  # show()
             if self.gizmo_mesh:
                 self.gizmo_mesh.set_pos(self.active_asset_from_list.get_pos())
                 self.gizmo_mesh.set_hpr(self.active_asset_from_list.get_hpr())
-                self.gizmo_mesh.hide()
+                self.gizmo_mesh.hide()  # show()
         else:
             if self.axis_arrows:
                 self.axis_arrows.hide()
