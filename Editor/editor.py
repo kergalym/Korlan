@@ -15,7 +15,6 @@ class Editor:
         self.base = base
         self.game_dir = str(Path.cwd())
         self.editor_ui = EditorUI(self)
-        self.is_actor = False
         self.is_actor_busy = False
         self.assets_bs = {}
 
@@ -54,6 +53,8 @@ class Editor:
         """ Buttons & Fonts"""
         self.menu_font = "{0}/Settings/UI/JetBrainsMono-1.0.2/ttf/JetBrainsMono-Regular.ttf".format(self.game_dir)
 
+        self.active_actor = {}
+        self.weapons = {}
         self.active_item = None
         self.active_asset_from_list = None
         self.active_joint_from_list = None
@@ -210,6 +211,12 @@ class Editor:
                 name = node.get_name()
                 self.assets_bs[name] = node
 
+                if "Player" in name or "NPC" in name:
+                    self.active_actor[name] = False
+
+        for name in self.weapons:
+            self.assets_bs[name] = self.weapons[name]
+
         if self.assets_bs:
             self.editor_ui.set_ui()
             self.editor_ui.set_ui_rotation()
@@ -222,6 +229,13 @@ class Editor:
 
     def set_editor(self):
         self.assets_bs = {}
+        # load weapon model
+        kylysh = self.base.loader.load_model("{0}/Assets/Weapons/kylysh.egg".format(self.game_dir))
+        name = kylysh.get_name()
+        name = name.split(".egg")[0]
+        kylysh.set_scale(15)
+        self.weapons[name] = kylysh
+
         taskMgr.add(self.get_asset_nodes_task, "get_asset_task")
 
     def get_actor_joints(self):
@@ -811,30 +825,29 @@ class Editor:
             if not render.find("**/{0}".format(asset)).is_empty():
                 self.active_asset_from_list = render.find("**/{0}".format(asset))
                 self.is_asset_selected_from_list = True
-
                 # If an asset is selected and it is not an actor, and there is also a selected actor,
                 # consider this asset an item for the joint, otherwise: a regular asset.
-                if (self.is_actor and not self.is_asset_actor(asset=self.active_asset_from_list)
+                if (not self.is_asset_actor(asset=self.active_asset_from_list)
                         and not self.is_actor_joint_busy(joint=self.active_joint_from_list)):
                     self.active_item = self.active_asset_from_list
                     if (self.active_joint_from_list
                             and self.active_item):
-                        # import pdb
-                        # pdb.set_trace()
+                        import pdb
+                        pdb.set_trace()
                         self.attach_to_joint(actor=self.active_asset_from_list,
                                              item=self.active_item,
                                              joint=self.active_joint_from_list,
                                              wrt=False)
                         self.is_item_attached_to_joint = True
 
-                elif (not self.is_actor and self.is_asset_actor(asset=self.active_asset_from_list)
+                elif (self.is_asset_actor(asset=self.active_asset_from_list)
                       and not self.is_actor_joint_busy(joint=self.active_joint_from_list)):
-                    self.is_actor = True
+                    pass
                     if (not self.active_joint_from_list
                             and not self.active_joint_from_list):
                         self.is_asset_selected_from_list = True
 
-                elif (self.is_actor and self.is_asset_actor(asset=self.active_asset_from_list)
+                elif (self.is_asset_actor(asset=self.active_asset_from_list)
                       and self.is_actor_joint_busy(joint=self.active_joint_from_list)):
                     self.is_actor_busy = True
                     if (not self.active_joint_from_list
