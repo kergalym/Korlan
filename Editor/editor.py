@@ -271,16 +271,16 @@ class Editor:
                     item.wrt_reparent_to(joint)
                 else:
                     item.reparent_to(joint)
+                    item.set_scale(10)
                 item.set_pos(joint.get_pos())
-                item.set_scale(10)
             elif self.is_asset_actor(asset=actor) and self.is_actor_joint_busy(joint=joint):
                 joint.get_child(0).reparent_to(render)
                 if wrt:
                     item.wrt_reparent_to(joint)
                 else:
                     item.reparent_to(joint)
+                    item.set_scale(10)
                 item.set_pos(joint.get_pos())
-                item.set_scale(10)
 
     def pick_up(self):
         if not self.is_asset_picked_up:
@@ -826,42 +826,35 @@ class Editor:
         if asset and isinstance(asset, str):
             # todo tempo: check  for weapon asset
             if not render.find("**/{0}".format(asset)).is_empty():
-                self.active_asset_from_list = render.find("**/{0}".format(asset))
-                self.is_asset_selected_from_list = True
+                if not self.weapons.get(asset):
+                    self.active_asset_from_list = render.find("**/{0}".format(asset))
+                    self.is_asset_selected_from_list = True
+
+                if self.weapons.get(asset):
+                    self.active_item = render.find("**/{0}".format(asset))
+                    self.is_asset_selected_from_list = True
+
                 # If an asset is selected and it is not an actor, and there is also a selected actor,
                 # consider this asset is an item for the joint, otherwise: a regular asset.
-                if (not self.is_asset_actor(asset=self.active_asset_from_list)
-                        and not self.is_actor_joint_busy(joint=self.active_joint_from_list)):
-                    self.active_item = self.active_asset_from_list
-                    if (self.active_joint_from_list
-                            and self.active_item):
-                        import pdb
-                        pdb.set_trace()
-                        self.attach_to_joint(actor=self.active_asset_from_list,
-                                             item=self.active_item,
-                                             joint=self.active_joint_from_list,
-                                             wrt=False)
-                        self.is_item_attached_to_joint = True
-
-                elif (self.is_asset_actor(asset=self.active_asset_from_list)
-                      and not self.is_actor_joint_busy(joint=self.active_joint_from_list)):
-                    pass
-                    if (not self.active_joint_from_list
-                            and not self.active_joint_from_list):
-                        self.is_asset_selected_from_list = True
-
-                elif (self.is_asset_actor(asset=self.active_asset_from_list)
-                      and self.is_actor_joint_busy(joint=self.active_joint_from_list)):
-                    self.is_actor_busy = True
-                    if (not self.active_joint_from_list
-                            and not self.active_joint_from_list):
-                        self.is_asset_selected_from_list = True
+                if (self.weapons.get(asset)
+                        and self.is_asset_actor(asset=self.active_asset_from_list)
+                        and self.active_joint_from_list):
+                    self.active_item = self.weapons.get(asset)
+                    self.is_asset_selected_from_list = True
+                    self.attach_to_joint(actor=self.active_asset_from_list,
+                                         item=self.active_item,
+                                         joint=self.active_joint_from_list,
+                                         wrt=False)
+                    self.is_item_attached_to_joint = True
 
     def select_joint_from_list(self, joint):
         if joint and isinstance(joint, str):
             # if asset is an actor
             if self.active_asset_from_list and self.active_asset_from_list.get_name():
                 name = self.active_asset_from_list.get_name()
+                # Drop :BS suffix
+                if "BS" in name:
+                    name = name.split(":BS")[0]
                 if self.actor_refs.get(name):
                     self.active_joint_from_list = self.actor_refs[name].expose_joint(None, "modelRoot", joint)
 
