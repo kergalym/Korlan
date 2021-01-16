@@ -489,13 +489,10 @@ class LevelOne:
 
         self.physics_attr.set_physics_world(assets=level_assets_joined)
 
-        self.ai.set_ai_world(assets=level_assets_joined,
-                             npcs_fsm_states=self.npcs_fsm_states,
-                             lvl_name="lvl_one")
-
-        taskMgr.add(self.rp_set_hardware_skinning_task,
-                    "rp_set_hardware_skinning_task",
-                    appendTask=True)
+        if self.game_settings['Debug']['set_editor_mode'] == 'NO':
+            self.ai.set_ai_world(assets=level_assets_joined,
+                                 npcs_fsm_states=self.npcs_fsm_states,
+                                 lvl_name="lvl_one")
 
         taskMgr.add(self.world_sfx_task,
                     "world_sfx_task",
@@ -509,6 +506,10 @@ class LevelOne:
                     "collect_npcs_label_nodepaths_task",
                     extraArgs=[level_assets_joined],
                     appendTask=True)
+
+        """taskMgr.add(self.rp_set_hardware_skinning_task,
+                    "rp_set_hardware_skinning_task",
+                    appendTask=True)"""
 
         """taskMgr.add(self.hitbox_handling_task,
                     "hitbox_handling_task",

@@ -214,6 +214,7 @@ class Editor:
                 if "Player" in name or "NPC" in name:
                     self.active_actor[name] = False
 
+        # todo tempo: keep until game asset include weapons
         for name in self.weapons:
             self.assets_bs[name] = self.weapons[name]
 
@@ -233,7 +234,8 @@ class Editor:
         kylysh = self.base.loader.load_model("{0}/Assets/Weapons/kylysh.egg".format(self.game_dir))
         name = kylysh.get_name()
         name = name.split(".egg")[0]
-        kylysh.set_scale(15)
+        kylysh.set_name(name)
+        kylysh.reparent_to(render)
         self.weapons[name] = kylysh
 
         taskMgr.add(self.get_asset_nodes_task, "get_asset_task")
@@ -822,11 +824,12 @@ class Editor:
 
     def select_asset_from_list(self, asset):
         if asset and isinstance(asset, str):
+            # todo tempo: check  for weapon asset
             if not render.find("**/{0}".format(asset)).is_empty():
                 self.active_asset_from_list = render.find("**/{0}".format(asset))
                 self.is_asset_selected_from_list = True
                 # If an asset is selected and it is not an actor, and there is also a selected actor,
-                # consider this asset an item for the joint, otherwise: a regular asset.
+                # consider this asset is an item for the joint, otherwise: a regular asset.
                 if (not self.is_asset_actor(asset=self.active_asset_from_list)
                         and not self.is_actor_joint_busy(joint=self.active_joint_from_list)):
                     self.active_item = self.active_asset_from_list
