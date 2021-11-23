@@ -4,7 +4,7 @@ struct p3d_LightSourceParameters {
   vec4 color;
   vec3 spotDirection;
   sampler2DShadow shadowMap;
-  mat4 shadowMatrix;
+  mat4 shadowViewMatrix;
 };
 
 uniform p3d_LightSourceParameters my_light;
@@ -28,5 +28,5 @@ void main()
     //uv
     uv = p3d_MultiTexCoord0;
     //shadows
-    shadow_uv = my_light.shadowMatrix * p3d_Vertex;
+    shadow_uv = my_light.shadowViewMatrix * (p3d_ModelViewProjectionMatrix * p3d_Vertex);
     }

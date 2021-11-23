@@ -47,6 +47,12 @@ class PlayerState:
         self.render = render
         self.inventory = Inventory()
 
+        self.player_attr = {
+            "health": 100,
+            "stamina": 30,
+            "speed": 1.0
+            }
+
     def clear_state(self):
         assets = self.base.assets_collector()
 
@@ -62,7 +68,7 @@ class PlayerState:
 
         # Remove all tasks except system
         tasks = ["player_init_task",
-                 "player_state",
+                 "anim_state",
                  "actor_life",
                  "mouse_look"]
         for t in tasks:

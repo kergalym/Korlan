@@ -17,6 +17,7 @@ from Settings.UI.sound_menu_ui import SoundMenuUI
 from Settings.UI.keymap_menu_ui import KeymapMenuUI
 from Settings.UI.lang_menu_ui import LangMenuUI
 from Settings.UI.exit_menu_ui import ExitMenuUI
+from Settings.UI.hud_ui import HUD
 
 
 class PauseMenuUI(MenuSettings):
@@ -75,6 +76,7 @@ class PauseMenuUI(MenuSettings):
         self.ui_kmp = KeymapMenuUI()
         self.ui_lng = LangMenuUI()
         self.ui_exit_game = ExitMenuUI()
+        self.hud = HUD()
 
         """ Options MenuUI Objects """
         self.btn_game = None
@@ -132,6 +134,8 @@ class PauseMenuUI(MenuSettings):
             if self.base.is_dialog_active:
                 return False
 
+        self.hud.toggle_all_hud(state="hidden")
+
         if hasattr(base, "active_frame"):
             base.active_frame.destroy()
 
@@ -143,9 +147,9 @@ class PauseMenuUI(MenuSettings):
 
         base.is_ui_active = True
         self.pause_mode = 1
-        props = WindowProperties()
-        props.set_cursor_hidden(False)
-        self.base.win.request_properties(props)
+        win_props = WindowProperties()
+        win_props.set_cursor_hidden(False)
+        self.base.win.request_properties(win_props)
 
         self.logo = OnscreenImage(image=self.images['korlan_logo_tengri'],
                                   pos=self.logo_pos)
@@ -268,6 +272,8 @@ class PauseMenuUI(MenuSettings):
 
         self.base.build_info.reparent_to(aspect2d)
 
+        self.hud.toggle_all_hud(state="visible")
+
         if hasattr(base, "active_frame"):
             base.active_frame.destroy()
 
@@ -286,22 +292,22 @@ class PauseMenuUI(MenuSettings):
         self.ornament_left.destroy()
         self.ornament_right.destroy()
 
-        props = WindowProperties()
-        props.set_cursor_hidden(True)
-        self.base.win.request_properties(props)
+        win_props = WindowProperties()
+        win_props.set_cursor_hidden(True)
+        self.base.win.request_properties(win_props)
 
         if hasattr(base, "is_dev_ui_active"):
             if base.is_dev_ui_active:
-                props.set_cursor_hidden(False)
-                self.base.win.request_properties(props)
+                win_props.set_cursor_hidden(False)
+                self.base.win.request_properties(win_props)
                 base.is_ui_active = True
             else:
-                props.set_cursor_hidden(True)
-                self.base.win.request_properties(props)
+                win_props.set_cursor_hidden(True)
+                self.base.win.request_properties(win_props)
                 base.is_ui_active = False
         else:
-            props.set_cursor_hidden(True)
-            self.base.win.request_properties(props)
+            win_props.set_cursor_hidden(True)
+            self.base.win.request_properties(win_props)
             base.is_ui_active = False
 
         self.pause_mode = 0

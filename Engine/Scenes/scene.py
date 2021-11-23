@@ -75,7 +75,7 @@ class SceneOne:
 
             scene.set_texture(ts, lightmap)"""
 
-            self.base.set_textures_srgb(True)
+            # self.base.set_textures_srgb(True)
 
             # Set two sided, since some model may be broken
             scene.set_two_sided(culling)
@@ -96,8 +96,6 @@ class SceneOne:
                 # to enable shader generation for the entire game, using this call:
                 scene.set_shader_auto()
 
-                # Load the LOD
-                self.base.level_of_details(obj=scene)
             else:
                 # Enable water
                 self.render_attr.set_water(True, water_lvl=30.0, adv_render=False)
@@ -151,9 +149,10 @@ class SceneOne:
                     # Load the scene.
                     scene = self.base.loader.load_model(path, blocking=True)
                     scene.set_name(name)
-                    scene.set_bin('background', 1)
-                    scene.set_depth_write(0)
-                    scene.set_light_off()
+                    if self.game_settings['Main']['postprocessing'] == 'off':
+                        scene.set_bin('background', 1)
+                        scene.set_depth_write(0)
+                        scene.set_light_off()
                     scene.reparent_to(self.render)
                     scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
                     scene.set_pos(pos_x, pos_y, pos_z)
@@ -166,7 +165,8 @@ class SceneOne:
                     # Load the scene.
                     scene = self.base.loader.load_model(path, blocking=True)
                     scene.set_name(name)
-                    scene.reparent_to(self.render)
+                    scene.reparent_to(self.base.lod_np)
+                    self.base.lod.addSwitch(500.0, 0.0)
                     scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
                     scene.set_pos(pos_x, pos_y, pos_z)
                     scene.set_hpr(scene, rot_h, 0, 0)
@@ -180,7 +180,8 @@ class SceneOne:
                     # Load the scene.
                     scene = self.base.loader.load_model(path, blocking=True)
                     scene.set_name(name)
-                    scene.reparent_to(self.render)
+                    scene.reparent_to(self.base.lod_np)
+                    self.base.lod.addSwitch(500.0, 0.0)
                     scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
                     scene.set_pos(pos_x, pos_y, pos_z)
                     scene.set_hpr(scene, rot_h, 0, 0)
@@ -191,7 +192,8 @@ class SceneOne:
                     # Load the scene.
                     scene = self.base.loader.load_model(path, blocking=True)
                     scene.set_name(name)
-                    scene.reparent_to(self.render)
+                    scene.reparent_to(self.base.lod_np)
+                    self.base.lod.addSwitch(500.0, 0.0)
                     scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
                     scene.set_pos(pos_x, pos_y, pos_z)
                     scene.set_hpr(scene, rot_h, 0, 0)
@@ -246,9 +248,10 @@ class SceneOne:
                     # Load the scene.
                     scene = await self.base.loader.load_model(path, blocking=False)
                     scene.set_name(name)
-                    scene.set_bin('background', 1)
-                    scene.set_depth_write(0)
-                    scene.set_light_off()
+                    if self.game_settings['Main']['postprocessing'] == 'off':
+                        scene.set_bin('background', 1)
+                        scene.set_depth_write(0)
+                        scene.set_light_off()
                     scene.reparent_to(self.render)
                     scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
                     scene.set_pos(pos_x, pos_y, pos_z)
@@ -258,7 +261,8 @@ class SceneOne:
                     # Load the scene.
                     scene = await self.base.loader.load_model(path, blocking=False)
                     scene.set_name(name)
-                    scene.reparent_to(self.render)
+                    scene.reparent_to(self.base.lod_np)
+                    self.base.lod.addSwitch(500.0, 0.0)
                     scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
                     scene.set_pos(pos_x, pos_y, pos_z)
                     scene.set_hpr(scene, rot_h, 0, 0)
@@ -266,7 +270,8 @@ class SceneOne:
                     # Load the scene.
                     scene = await self.base.loader.load_model(path, blocking=False)
                     scene.set_name(name)
-                    scene.reparent_to(self.render)
+                    scene.reparent_to(self.base.lod_np)
+                    self.base.lod.addSwitch(500.0, 0.0)
                     scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
                     scene.set_pos(pos_x, pos_y, pos_z)
                     scene.set_hpr(scene, rot_h, 0, 0)
@@ -274,7 +279,8 @@ class SceneOne:
                     # Load the scene.
                     scene = await self.base.loader.load_model(path, blocking=False)
                     scene.set_name(name)
-                    scene.reparent_to(self.render)
+                    scene.reparent_to(self.base.lod_np)
+                    self.base.lod.addSwitch(500.0, 0.0)
                     scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
                     scene.set_pos(pos_x, pos_y, pos_z)
                     scene.set_hpr(scene, rot_h, 0, 0)
@@ -298,4 +304,3 @@ class SceneOne:
                 # self.render_attr.set_shadows(scene, render)
 
                 return scene
-

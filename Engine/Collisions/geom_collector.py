@@ -1,6 +1,6 @@
 class GeomCollector:
 
-    def get_num_geomnodes(self, assets_children: dict) -> dict:
+    def get_num_geomnodes(self, assets_children: dict):
         if assets_children:
             geomnode_num_dict = {}
 
@@ -26,7 +26,7 @@ class GeomCollector:
 
             return geomnode_num_dict
 
-    def get_geom_single_nodes(self, geomnode_num_dict: dict) -> dict:
+    def get_geom_single_nodes(self, geomnode_num_dict: dict):
         if geomnode_num_dict:
             # The key is node name and the value is node paths list
             geomnode_dict = {}
@@ -52,7 +52,7 @@ class GeomCollector:
 
             return geomnode_dict
 
-    def geomnodes_compose(self, geomnode_dict: dict) -> list:
+    def geomnodes_compose(self, geomnode_dict: dict):
         if geomnode_dict:
             # The key is node name and the value is node path (contains a node)
             geomnodes_all_dict = {}
@@ -90,7 +90,7 @@ class GeomCollector:
 
             return [nodes_all_dict, geomnodes_all_dict]
 
-    def geom_collector(self) -> list:
+    def geom_collector(self):
         assets = base.asset_nodes_collector()
         assets_children = base.asset_node_children_collector(
             assets, assoc_key=True)
@@ -101,7 +101,7 @@ class GeomCollector:
                 assets_children_cleaned_dict = {}
                 for k in assets_children:
                     asset = assets_children[k]
-                    asset_parent =  asset.get_parent().get_parent()
+                    asset_parent = asset.get_parent().get_parent()
                     # Clear dict from actors
                     if asset.find('**/+Character').is_empty():
                         assets_children_cleaned_dict[k] = asset

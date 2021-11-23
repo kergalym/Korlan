@@ -7,6 +7,8 @@ from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import *
 from panda3d.core import FontPool, TextNode
 from Engine.Render.rpcore import PointLight, SpotLight
+from direct.particles.ParticleEffect import ParticleEffect
+from Settings.UI.hud_ui import HUD
 
 
 class RenderAttr:
@@ -17,6 +19,7 @@ class RenderAttr:
         self.fonts = base.fonts_collector()
         # instance of the abstract class
         self.font = FontPool
+        self.hud = HUD()
         self.texture = None
         self.game_settings = base.game_settings
         if hasattr(base, "render_pipeline") and base.render_pipeline:
@@ -25,6 +28,9 @@ class RenderAttr:
         self.set_color = 0.2
         self.shadow_size = 1024
         self.render = None
+        self.particles = {}
+        self.base.particles_emis = None
+
         self.flame_np = None
         self.water_np = None
         self.water_camera = None
@@ -46,8 +52,8 @@ class RenderAttr:
                 self.render_pipeline.daytime_mgr.time = "8:45"""
 
         self.time_text_ui = OnscreenText(text="",
-                                         pos=(-1.8, -0.7),
-                                         scale=0.04,
+                                         pos=(0.0, 0.77),
+                                         scale=0.03,
                                          fg=(255, 255, 255, 0.9),
                                          font=self.font.load_font(self.menu_font),
                                          align=TextNode.ALeft,
@@ -228,14 +234,60 @@ class RenderAttr:
             render.find("**/flame").remove_node()
             taskMgr.remove("flame_proc_shader_task")
 
+    def set_flame_particles(self, name, empty_name):
+        # empty_name is a name of NodePath which we use to attach particles to it
+        # name is flame name (associated with .ptf name)
+        if (isinstance(name, str)
+                and isinstance(empty_name, str)
+                and not render.find("**/{0}".format(empty_name)).is_empty()):
+            # Collected emissive geoms
+            self.base.particles_emis = self.base.assets_collector()
+            # Collected .ptf files
+            particles_assets = self.base.particles_collector()
+
+            if not particles_assets.get(name):
+                return
+
+            if not self.base.particles_emis.get('emi'):
+                return
+
+            node_path = render.find("**/{0}".format(empty_name))
+            self.base.enable_particles()
+            particles = ParticleEffect()
+            particles.load_config(particles_assets[name])
+            # Sets particles to birth relative to the teapot, but to render at
+            # toplevel
+            particles.start(node_path)
+            particles.set_pos(node_path.get_pos())
+            # Add particles to keep them in list
+            self.particles[empty_name] = particles
+
+            # Disable shading for particles emission
+            emi = render.find("**/emi")
+            if emi:
+                self.render_pipeline.set_effect(emi,
+                                                "{0}/Engine/Render/effects/default.yaml".format(self.game_dir),
+                                                {"render_gbuffer": True,
+                                                 "render_shadow": False,
+                                                 "alpha_testing": True,
+                                                 "normal_mapping": True})
+
+    def clear_flame_particles(self):
+        if self.particles:
+            self.particles = {}
+        self.base.disable_particles()
+
     def set_hardware_skinning(self, actor, bool_):
+        # Load the shader to perform the skinning.
+        # Also tell Panda that the shader will do the skinning, so
+        # that it won't transform the vertices on the CPU.
         if actor and isinstance(bool_, bool):
             self.render_pipeline.set_effect(actor,
                                             "{0}/Engine/Render/effects/hardware_skinning.yaml".format(self.game_dir),
                                             options={}, sort=25)
-            sattrib = actor.get_attrib(ShaderAttrib)
-            sattrib = sattrib.set_flag(ShaderAttrib.F_hardware_skinning, bool_)
-            actor.set_attrib(sattrib)
+            attrib = actor.get_attrib(ShaderAttrib)
+            attrib = attrib.set_flag(ShaderAttrib.F_hardware_skinning, bool_)
+            actor.set_attrib(attrib)
 
     def set_daytime_clock_task(self, task):
         if (not base.game_mode
@@ -265,6 +317,14 @@ class RenderAttr:
                 elif self.minutes > 9:
                     self.time_text_ui.setText("{0}:{1}".format(self.hour, self.minutes))
                     self.render_pipeline.daytime_mgr.time = "{0}:{1}".format(self.hour, self.minutes)
+
+                if (not hasattr(base, "is_ui_active")
+                        or hasattr(base, "is_ui_active")
+                        and not base.is_ui_active):
+                    if 7 <= self.hour < 19:
+                        self.hud.toggle_day_hud(time="light")
+                    elif self.hour >= 19:
+                        self.hud.toggle_day_hud(time="night")
 
         return task.cont
 
@@ -331,8 +391,8 @@ class RenderAttr:
                 loaded_shaders[name] = shader
             return loaded_shaders
 
-    def set_shadows(self, obj, render):
-        if obj and render:
+    def set_shadows(self, obj, render, light, shadow_blur, ambient_color):
+        if obj and light and shadow_blur and ambient_color:
             self.render = render
             # If you don't do this, none of the features
             # listed above will have any effect. Panda will
@@ -342,9 +402,11 @@ class RenderAttr:
             # obj.set_shader_auto()
             base.shaderenable = 1
 
-            # TODO Fix me!
             ready_shaders = self.get_all_shaders(self.shader_collector())
             obj.set_shader(ready_shaders['Shadows'])
+            obj.set_shader_input('my_light', light)
+            obj.set_shader_input('shadow_blur', shadow_blur)  # 0.2
+            obj.set_shader_input('ambient_color', ambient_color)  # Vec3(1.0, 1.0, 1.0)
 
     def set_lighting(self, name, render, pos, hpr, color, task):
         if (render

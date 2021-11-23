@@ -1,22 +1,16 @@
-disabled:
-- bloom
-- dof
-- fxaa
-- motion_blur
-- vxgi
 enabled:
 - ao
-- clouds
+- bloom
 - color_correction
-- env_probes
 - forward_shading
+- motion_blur
 - pssm
 - scattering
 - skin_shading
 - sky_ao
 - smaa
 - ssr
-- volumetrics
+- env_probes
 overrides:
   ao:
     alchemy_max_distance: 5.86
@@ -25,7 +19,7 @@ overrides:
     blur_depth_factor: 0.88158
     blur_normal_factor: 2.97
     blur_quality: MEDIUM
-    clip_length: 1
+    clip_length: 4
     hbao_max_distance: 11.5
     hbao_ray_count: 4
     hbao_ray_steps: 3
@@ -39,7 +33,7 @@ overrides:
     ssvo_max_distance: 3.19
     ssvo_sequence: halton_2D_8
     ssvo_sphere_radius: 18.0
-    technique: HBAO
+    technique: SSAO
     ue4ao_max_distance: 1.47
     ue4ao_sample_radius: 50.14286
     ue4ao_sample_sequence: halton_2D_8
@@ -53,7 +47,7 @@ overrides:
   color_correction:
     brightness_adaption_rate: 3.6
     chromatic_aberration_samples: 2
-    chromatic_aberration_strength: 0.33012
+    chromatic_aberration_strength: 0.019
     color_lut: film_luts/default_lut.png
     darkness_adaption_rate: 0.7
     exponential_factor: 1.23
@@ -85,7 +79,7 @@ overrides:
     diffuse_probe_resolution: 2
     max_probes: 16
     max_probes_per_cell: 3
-    probe_resolution: 256
+    probe_resolution: 128
   forward_shading: null
   fxaa:
     edge_threshold: 0.166
@@ -107,7 +101,7 @@ overrides:
     dist_shadow_sundist: 300.0
     filter_radius: 0.7
     filter_sequence: halton_2D_32
-    fixed_bias: 0.11426
+    fixed_bias: 0.11429
     logarithmic_factor: 3.0
     max_distance: 50.0
     normal_bias: 0.67
@@ -115,7 +109,7 @@ overrides:
     pcss_penumbra_size: 2.38
     pcss_sequence: halton_2D_16
     resolution: 1024
-    scene_shadow_resolution: 4096
+    scene_shadow_resolution: 512
     scene_shadow_sundist: 300.0
     slope_bias: 0.0
     split_count: 4
@@ -134,8 +128,8 @@ overrides:
     rayleigh_height_scale: 8.0
     scattering_method: eric_bruneton
   skin_shading:
-    blur_scale: 0.1
-    quality: low
+    blur_scale: 0.43
+    quality: medium
   sky_ao:
     ao_bias: 0.0
     ao_multiplier: 0.83
@@ -150,7 +144,7 @@ overrides:
     jitter_amount: 0.16143
     jitter_pattern: halton8
     smaa_quality: ultra
-    use_reprojection: false
+    use_reprojection: true
   ssr:
     abort_on_object_infront: true
     border_fade: 0.005
@@ -160,11 +154,11 @@ overrides:
     intial_bias: 0.1
     roughness_fade: 0.72
     skip_invalid_samples: false
-    trace_steps: 84
+    trace_steps: 64
   volumetrics:
     enable_volumetric_shadows: true
     volumetric_max_distance: 79.41429
-    volumetric_num_steps: 64
+    volumetric_num_steps: 128
     volumetric_shadow_brightness: 1.66
     volumetric_shadow_fadein_distance: 9.49
     volumetric_shadow_intensity: 8.31

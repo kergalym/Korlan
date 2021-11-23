@@ -58,22 +58,27 @@ class LevelOne:
         self.npcs_fsm_states = {}
         self.base.npcs_hits = {}
         self.assets = None
+        self.envprobe = None
 
-    def rp_set_hardware_skinning_task(self, task):
+        self.base.lod = LODNode('LOD')
+        self.base.lod_np = NodePath(self.base.lod)
+        self.base.lod_np.reparentTo(render)
+        self.base.lod.addSwitch(500.0, 0.0)
+
+    def env_probe_task(self, task):
         if (hasattr(self.base, "physics_is_active")
-                and self.base.physics_is_active == 1
-                and hasattr(base, "player_ref")
-                and base.player_ref
-                and hasattr(base, "npcs_actor_refs")
-                and base.npcs_actor_refs):
-            if self.game_settings['Main']['postprocessing'] == 'on':
-                self.render_attr.set_hardware_skinning(base.player_ref, True)
-
-                for name in base.npcs_actor_refs:
-                    actor_ref = base.npcs_actor_refs[name]
-                    self.render_attr.set_hardware_skinning(actor_ref, True)
-
-                return task.done
+                and self.base.physics_is_active == 1 and
+                not render.find("**/lvl_one*").is_empty()):
+            if hasattr(self, 'self.render_pipeline'):
+                self.envprobe = self.render_pipeline.add_environment_probe()
+                scene = render.find("**/lvl_one*")
+                self.envprobe.set_pos(scene.get_pos())
+                self.envprobe.set_scale(scene.get_scale())
+                self.envprobe.set_hpr(scene.get_hpr())
+                self.envprobe.border_smoothness = 0.05
+                self.envprobe.parallax_correction = True
+                self.render_attr.set_flame_particles(name="flame", empty_name="flame_empty_1")
+            return task.done
 
         return task.cont
 
@@ -449,7 +454,6 @@ class LevelOne:
                                            scale=[1.25, 1.25, 1.25],
                                            type='skybox',
                                            culling=False))
-
         taskMgr.add(self.scene_one.set_level(path=assets['lvl_one'],
                                              name="lvl_one",
                                              axis=[0.0, 0.0, self.pos_z],
@@ -482,7 +486,8 @@ class LevelOne:
 
         """ Task for Debug mode """
         if self.game_settings['Debug']['set_debug_mode'] == 'YES':
-            self.base.accept("r", self.render_pipeline.reload_shaders)
+            if hasattr(self, "render_pipeline"):
+                self.base.accept("r", self.render_pipeline.reload_shaders)
             taskMgr.add(self.stat_ui.show_game_stat_task,
                         "show_game_stat_task",
                         appendTask=True)
@@ -493,6 +498,10 @@ class LevelOne:
             self.ai.set_ai_world(assets=level_assets_joined,
                                  npcs_fsm_states=self.npcs_fsm_states,
                                  lvl_name="lvl_one")
+
+        taskMgr.add(self.env_probe_task,
+                    "env_probe_task",
+                    appendTask=True)
 
         taskMgr.add(self.world_sfx_task,
                     "world_sfx_task",
@@ -506,10 +515,6 @@ class LevelOne:
                     "collect_npcs_label_nodepaths_task",
                     extraArgs=[level_assets_joined],
                     appendTask=True)
-
-        """taskMgr.add(self.rp_set_hardware_skinning_task,
-                    "rp_set_hardware_skinning_task",
-                    appendTask=True)"""
 
         """taskMgr.add(self.hitbox_handling_task,
                     "hitbox_handling_task",

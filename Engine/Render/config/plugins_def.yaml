@@ -5,6 +5,7 @@
 
 enabled:
     - ao
+    - bloom
     - clouds
     - color_correction
     - env_probes
@@ -15,13 +16,12 @@ enabled:
     - sky_ao
     - smaa
     - ssr
+    - volumetrics
 
 disabled:
-    - bloom
     - dof
     - fxaa
     - motion_blur
-    - volumetrics
     - vxgi
 
 overrides:

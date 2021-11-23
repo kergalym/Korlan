@@ -4,7 +4,7 @@ struct p3d_LightSourceParameters {
   vec4 color;
   vec3 spotDirection;
   sampler2DShadow shadowMap;
-  mat4 shadowMatrix;
+  mat4 shadowViewMatrix;
 };
 
 uniform p3d_LightSourceParameters my_light;
@@ -15,6 +15,7 @@ uniform float shadow_blur;
 in vec2 uv;
 in vec4 shadow_uv;
 in vec3 normal;
+in vec3 ambient_color;
 
 out vec4 color;
 
@@ -38,20 +39,17 @@ float textureProjSoft(sampler2DShadow tex, vec4 uv, float bias, float blur)
 
 void main()
     {
-    //base color
-    vec3 ambient=vec3(0.1, 0.1, 0.2);
     //texture
-    vec4 tex=texture(p3d_Texture0, uv);
+    vec4 tex = texture(p3d_Texture0, uv);
     //light ..sort of, not important
-    vec3 light=my_light.color.rgb*max(dot(normalize(normal),-my_light.spotDirection), 0.0);
+    vec3 light = my_light.color.rgb*max(dot(normalize(normal),-my_light.spotDirection), 0.0);
 
     //shadows
-    //float shadow= textureProj(my_light.shadowMap,shadow_uv); //meh :|
-    float shadow= textureProjSoft(my_light.shadowMap, shadow_uv, 0.0001, shadow_blur);//yay! :)
+    float shadow = textureProjSoft(my_light.shadowMap, shadow_uv, 0.0001, shadow_blur);
 
     //make the shadow brighter
     shadow=0.5+shadow*0.5;
 
-    color=vec4(tex.rgb*(light*shadow+ambient), tex.a);
+    color=vec4(tex.rgb*(light*shadow+ambient_color), tex.a);
 
     }

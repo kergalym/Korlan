@@ -6,6 +6,7 @@ import json
 import configparser
 from shutil import rmtree
 from sys import exit as sys_exit
+from os import name as os_name
 from os import mkdir, listdir, walk
 from os.path import isdir, isfile, exists
 
@@ -38,7 +39,7 @@ from direct.task.TaskManagerGlobal import taskMgr
 from Engine.Render.rpcore.render_pipeline import RenderPipeline
 from Engine.Render.rpcore.util.movement_controller import MovementController
 
-build_info_txt = "Build 0.2. 12/2020"
+build_info_txt = "Build 0.3. 10/2021"
 
 game_settings = configparser.ConfigParser()
 game_settings['Main'] = {'disp_res': '1920x1080',
@@ -52,7 +53,7 @@ game_settings['Main'] = {'disp_res': '1920x1080',
                          'language': 'english',
                          'player': 'Korlan',
                          'person_look_mode': 'third',
-                         'gameplay_mode': 'simple',
+                         'gameplay_mode': 'enhanced',
                          'show_blood': 'on',
                          'camera_distance': '4',
                          }
@@ -76,6 +77,7 @@ game_settings['Keymap'] = {'forward': 'W',
                            }
 
 game_settings['Debug'] = {'set_debug_mode': 'NO',
+                          'set_interactive_cli': "NO",
                           'set_editor_mode': 'NO',
                           'render_explore': 'NO',
                           'cache_autoclean': 'NO',
@@ -87,8 +89,6 @@ game_settings['Debug'] = {'set_debug_mode': 'NO',
                           'player_rot_p': '0.0',
                           'player_rot_r': '-0.0'
                           }
-
-game_settings['Misc'] = {'daytime': '18:00'}
 
 game_cfg = '{0}/Korlan - Daughter of the Steppes/settings.ini'.format(str(Path.home()))
 game_settings.read(game_cfg)
@@ -132,12 +132,12 @@ p3d.load_prc_file_data(
     'model-cache-textures t\n'
     'compressed-textures 0\n'
     'bullet-filter-algorithm groups-mask\n'
-    'hardware-animated-vertices t\n'
+    'hardware-animated-vertices f\n'
     'basic-shaders-only f\n'
     'texture-compression f\n'
     'driver-compress-textures f\n'
     'task-timer-verbose 0\n'
-    'pstats-tasks 0\n'
+    'pstats-tasks 1\n'
 )
 
 p3d.load_prc_file_data(
@@ -451,7 +451,7 @@ class Main(ShowBase):
                     and isdir("{}/Cache".format(self.game_dir))):
                 rmtree("{}/Cache/".format(self.game_dir))
 
-        if self.game_settings['Debug']['set_debug_mode'] == 'YES':
+        if self.game_settings['Debug']['set_interactive_cli'] == 'YES':
             print("Is threading supported: ", Thread.isThreadingSupported(), "\n")
             ic_thread = threading.Thread(target=InteractiveConsole(globals()).interact)
             ic_thread.start()
@@ -978,10 +978,16 @@ class Main(ShowBase):
         if exists(sound_path):
             for root, dirs, files in walk(sound_path, topdown=True):
                 for file in files:
-                    if file.endswith(".mkv"):
-                        key = re.sub('.mkv$', '', file)
-                        path = str(PurePath("{0}/".format(root), file))
-                        videos[key] = Filename.from_os_specific(path).getFullpath()
+                    if os_name == "nt":
+                        if file.endswith(".ogv"):
+                            key = re.sub('.ogv$', '', file)
+                            path = str(PurePath("{0}/".format(root), file))
+                            videos[key] = Filename.from_os_specific(path).getFullpath()
+                    elif os_name == "posix":
+                        if file.endswith(".mkv"):
+                            key = re.sub('.mkv$', '', file)
+                            path = str(PurePath("{0}/".format(root), file))
+                            videos[key] = Filename.from_os_specific(path).getFullpath()
             return videos
 
         """ Enable this when game will be ready for distribution
@@ -1100,21 +1106,50 @@ class Main(ShowBase):
 
             Return      : Dictionary
         """
-        sound_path = self.transform_path(path="{0}/Assets/NavMeshes".format(self.game_dir), style='compat')
-        sounds = {}
-        if exists(sound_path):
-            for root, dirs, files in walk(sound_path, topdown=True):
+        navmesh_path = self.transform_path(path="{0}/Assets/NavMeshes".format(self.game_dir), style='compat')
+        navmeshes = {}
+        if exists(navmesh_path):
+            for root, dirs, files in walk(navmesh_path, topdown=True):
                 for file in files:
                     if file.endswith(".csv"):
                         key = re.sub('.csv$', '', file)
                         path = str(PurePath("{0}/".format(root), file))
-                        sounds[key] = Filename.from_os_specific(path).getFullpath()
-            return sounds
+                        navmeshes[key] = Filename.from_os_specific(path).getFullpath()
+            return navmeshes
 
         """ Enable this when game will be ready for distribution
         else:
             logging.critical("\nI'm trying to load navmesh assets, but there aren't suitable navmesh assets. "
                              "\nCurrent path: {0}".format(navmesh_path))
+            sys_exit("\nSomething is getting wrong. Please, check the game log first")
+        """
+
+    def particles_collector(self):
+        """ Function    : particles_collector
+
+            Description : Collect .ptf files.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : Dictionary
+        """
+        particles_path = self.transform_path(path="{0}/Assets/Particles".format(self.game_dir), style='compat')
+        particles = {}
+        if exists(particles_path):
+            for root, dirs, files in walk(particles_path, topdown=True):
+                for file in files:
+                    if file.endswith(".ptf"):
+                        key = re.sub('.ptf$', '', file)
+                        path = str(PurePath("{0}/".format(root), file))
+                        particles[key] = Filename.from_os_specific(path).getFullpath()
+            return particles
+
+        """ Enable this when game will be ready for distribution
+        else:
+            logging.critical("\nI'm trying to load particles, but there aren't suitable .ptf asset. "
+                             "\nCurrent path: {0}".format(particles_path))
             sys_exit("\nSomething is getting wrong. Please, check the game log first")
         """
 
@@ -1190,24 +1225,6 @@ class Main(ShowBase):
                                       round(vect_z, 1))"""
                 distance["vector"] = Vec3(vect_x, vect_y, vect_z)
             return distance
-
-    def level_of_details(self, obj):
-        """ Function    : level_of_details
-
-            Description : Set the level of details for scene object.
-
-            Input       : Nodepath
-
-            Output      : None
-
-            Return      : None
-        """
-        if obj:
-            lod = LODNode('{0} LOD node'.format(obj.name))
-            scene_lod = NodePath(lod)
-            scene_lod.reparent_to(render)
-            lod.add_switch(100.0, 0.0)
-            obj.reparent_to(scene_lod)
 
     def set_textures_srgb(self, bool):
         """ Function    : set_textures_srgb

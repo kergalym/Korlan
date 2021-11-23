@@ -198,7 +198,8 @@ class RPLightsMgrUI:
             self.lbl_hpr.set_pos(0.5, 0, -1.4)
             self.inp_pos.set_pos(-0.5, 0, -1.4)
             self.inp_hpr.set_pos(1.0, 0, -1.4)
-            self.scrolled_list.set_pos(1.5, 0, -1.75)
+            if self.scrolled_list:
+                self.scrolled_list.set_pos(1.5, 0, -1.75)
 
             taskMgr.add(self.update_rp_mgr_task,
                         "update_rp_mgr_task",

@@ -12,5 +12,9 @@ fragment:
     inout: |
       in vec2 texCoord;
 
+    defines: |
+      #define DONT_FETCH_DEFAULT_TEXTURES 0
+      #define DONT_SET_MATERIAL_PROPERTIES 1
+
     material: |
       m.basecolor = vec3(1.0,0.0,0.0);

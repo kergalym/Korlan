@@ -1,4 +1,4 @@
-#version 120
+#version 130
 // https://www.shadertoy.com/view/lsSGWw
 
 #define ITERATIONS 12
@@ -10,6 +10,9 @@
 #define FLAMETONE vec3(50.0, 5.0, 1.0)
 
 uniform sampler2D p3d_Texture0;
+uniform float iTime;
+out vec4 p3d_FragColor;
+in vec2 texcoord;
 
 float shape(in vec2 pos) // a blob shape to distort
 {
@@ -26,9 +29,9 @@ float noise( in vec3 x ) // iq noise function
 	return mix( rg.x, rg.y, f.z ) * 2.0 - 1.0;
 }
 
-void main( out vec4 fragColor, in vec2 fragCoord, in vec2 plainDimensions )
+void main()
 {
-	vec2 uv = fragCoord.xy / plainDimensions.xy;
+    vec2 uv = texcoord.xy;
 	float nx = 0.0;
 	float ny = 0.0;
 	for (int i=1; i<ITERATIONS+1; i++)
@@ -48,5 +51,9 @@ void main( out vec4 fragColor, in vec2 fragCoord, in vec2 plainDimensions )
     col = pow(col, vec3(1.0/2.2));
     col = clamp(col, 0.0, 1.0);
 
-	fragColor = vec4(col, 1.0);
+    // Drop all black pixels at the first stage
+    //if (col.rgb == vec3(0.0,0.0,0.0))
+    //    discard;
+
+	p3d_FragColor = vec4(col, 1.0);
 }

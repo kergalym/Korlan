@@ -844,7 +844,7 @@ class Editor:
                     self.attach_to_joint(actor=self.active_asset_from_list,
                                          item=self.active_item,
                                          joint=self.active_joint_from_list,
-                                         wrt=False)
+                                         wrt=True)
                     self.is_item_attached_to_joint = True
 
     def select_joint_from_list(self, joint):

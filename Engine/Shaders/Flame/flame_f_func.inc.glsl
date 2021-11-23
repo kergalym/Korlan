@@ -11,7 +11,7 @@ float shape(in vec2 pos) // a blob shape to distort
 	return clamp( sin(pos.x*3.1416) - pos.y+YOFFSET, 0.0, 1.0 );
 }
 
-float noise( in vec3 x, in sampler2D p3d_Texture0 ) // iq noise function
+float iqnoise( in vec3 x, in sampler2D p3d_Texture0 ) // iq noise function
 {
 	vec3 p = floor(x);
     vec3 f = fract(x);
@@ -20,4 +20,3 @@ float noise( in vec3 x, in sampler2D p3d_Texture0 ) // iq noise function
 	vec2 rg = textureLod(p3d_Texture0, (uv+ 0.5)/256.0, 0.0 ).yx;
 	return mix( rg.x, rg.y, f.z ) * 2.0 - 1.0;
 }
-

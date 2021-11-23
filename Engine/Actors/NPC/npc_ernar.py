@@ -107,6 +107,10 @@ class NpcErnar:
             self.actor.set_p(self.actor, self.rot_p)
             self.actor.set_r(self.actor, self.rot_r)
 
+            # Hardware skinning
+            if self.game_settings['Main']['postprocessing'] == 'on':
+                self.render_attr.set_hardware_skinning(self.actor, True)
+
             # Get actor joints
             base.actor_joints = self.actor.get_joints()
 
@@ -116,9 +120,8 @@ class NpcErnar:
             # Panda3D 1.10 doesn't enable alpha blending for textures by default
             self.actor.set_transparency(True)
 
-            self.actor.reparentTo(self.render)
-
-            # self.base.level_of_details(obj=self.actor)
+            self.actor.reparent_to(self.base.lod_np)
+            self.base.lod.addSwitch(50.0, 0.0)
 
             self.base.set_textures_srgb(True)
 

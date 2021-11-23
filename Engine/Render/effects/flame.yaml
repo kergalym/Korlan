@@ -19,8 +19,8 @@ fragment:
       	float ifrac = float(i)/float(ITERATIONS);
       	float t = ifrac * iTime * SPEED;
       	float d = (1.0-ifrac) * DISPLACEMENT;
-      	nx += noise( vec3(uv.x*ii-iTime*ifrac, uv.y*YSCALE*ii-t, 0.0), p3d_Texture0) * d * 2.0;
-      	ny += noise( vec3(uv.x*ii+iTime*ifrac, uv.y*YSCALE*ii-t, iTime*ifrac/ii), p3d_Texture0) * d;
+      	nx += iqnoise( vec3(uv.x*ii-iTime*ifrac, uv.y*YSCALE*ii-t, 0.0), p3d_Texture0) * d * 2.0;
+      	ny += iqnoise( vec3(uv.x*ii+iTime*ifrac, uv.y*YSCALE*ii-t, iTime*ifrac/ii), p3d_Texture0) * d;
       }
 
       float flame = shape( vec2(uv.x+nx, uv.y+ny) );

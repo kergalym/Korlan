@@ -23,6 +23,7 @@ class Korlan:
         self.rot_p = None
         self.rot_r = None
         self.korlan = None
+        self.korlan_bs = None
         self.korlan_start_pos = None
         self.korlan_life_perc = None
         self.base = base
@@ -86,6 +87,11 @@ class Korlan:
                 self.korlan.set_h(self.korlan, self.rot_h)
                 self.korlan.set_p(self.korlan, self.rot_p)
                 self.korlan.set_r(self.korlan, self.rot_r)
+
+                # Hardware skinning
+                if self.game_settings['Main']['postprocessing'] == 'on':
+                    self.render_attr.set_hardware_skinning(self.korlan, True)
+
                 self.korlan.loop(animation)
                 self.korlan.set_play_rate(self.base.actor_play_rate, animation)
 
@@ -95,7 +101,8 @@ class Korlan:
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 self.korlan.set_transparency(True)
 
-                self.korlan.reparent_to(render)
+                self.korlan.reparent_to(self.base.lod_np)
+                self.base.lod.addSwitch(50.0, 0.0)
 
                 self.base.set_textures_srgb(True)
 
@@ -149,6 +156,10 @@ class Korlan:
                 self.korlan.set_p(self.korlan, self.rot_p)
                 self.korlan.set_r(self.korlan, self.rot_r)
 
+                # Hardware skinning
+                if self.game_settings['Main']['postprocessing'] == 'on':
+                    self.render_attr.set_hardware_skinning(self.korlan, True)
+
                 # Get actor joints
                 base.korlan_joints = self.korlan.get_joints()
 
@@ -158,7 +169,8 @@ class Korlan:
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 self.korlan.set_transparency(True)
 
-                self.korlan.reparent_to(render)
+                self.korlan.reparent_to(self.base.lod_np)
+                self.base.lod.addSwitch(50.0, 0.0)
 
                 self.base.set_textures_srgb(True)
 
@@ -177,15 +189,11 @@ class Korlan:
                     base.player = self.korlan
                     self.render.analyze()
 
-                taskMgr.add(self.mouse.mouse_control_task,
-                            "mouse_control_task",
-                            appendTask=True)
+                self.actions.player_actions_init(self.korlan, animation[0])
 
                 taskMgr.add(self.state.set_player_equip_state,
-                            "player_state",
+                            "anim_state",
                             appendTask=True)
-
-                self.actions.player_actions_init(self.korlan, animation[0])
 
                 self.korlan_life_perc = 100
 
@@ -194,5 +202,3 @@ class Korlan:
                             appendTask=True)
 
                 base.player_is_loaded = 1
-
-

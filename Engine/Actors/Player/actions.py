@@ -9,6 +9,7 @@ from Settings.Input.keyboard import Keyboard
 from Settings.Input.mouse import Mouse
 from direct.interval.IntervalGlobal import *
 from Settings.UI.player_menu_ui import PlayerMenuUI
+from Settings.UI.hud_ui import HUD
 
 
 class Actions:
@@ -26,6 +27,7 @@ class Actions:
         self.korlan = None
         self.player = None
         self.player_bs = None
+        self.floater = None
         self.taskMgr = taskMgr
         self.kbd = Keyboard()
         self.mouse = Mouse()
@@ -33,9 +35,11 @@ class Actions:
         self.items = Items()
         self.player_menu = PlayerMenuUI()
         self.state = PlayerState()
+        self.hud = HUD()
         self.base.is_ui_active = False
         self.base.is_dev_ui_active = False
         self.base.is_cutscene_active = False
+        self.is_aiming = False
 
     """ Play animation after action """
 
@@ -127,20 +131,32 @@ class Actions:
                 and isinstance(anims, dict)):
             self.base.player_actions_init_is_activated = 0
             if self.game_settings['Debug']['set_editor_mode'] == 'NO':
-                # TODO Assign local player variable to self.player
-                self.player = None
-                self.player_bs = None
+                self.player = player
                 self.kbd.keymap_init()
                 self.kbd.keymap_init_released()
                 base.input_state = self.kbd.bullet_keymap_init()
 
-                # Define a player menu here
-                base.accept('tab', self.player_menu.set_ui_inventory)
+                # Define mouse
+                taskMgr.add(self.wait_for_physics_ready_player_task,
+                            "wait_for_physics_ready_player_task")
+                taskMgr.add(self.mouse.mouse_control_task,
+                            "mouse_control_task",
+                            extraArgs=[player, self.is_aiming],
+                            appendTask=True)
+
+                # Define weapon state
+                self.hud.set_weapon_ui()
+                self.hud.set_player_bar()
+
+                # Define player menu here
+                base.accept('i', self.player_menu.set_ui_inventory)
+
+                # Define player attack here
                 base.accept("mouse1", self.player_hit_action, extraArgs=[player, "attack", anims, "Boxing"])
 
                 # Pass the player object to FSM
                 self.fsm_player.get_player(actor=player)
-                # player.set_blend(frameBlend=True)
+                player.set_blend(frameBlend=True)
 
                 taskMgr.add(self.player_init_task, "player_init_task",
                             extraArgs=[player, anims],
@@ -163,10 +179,15 @@ class Actions:
             self.base.player_actions_init_is_activated = 1
 
     """ Prepares the player for scene """
+    def wait_for_physics_ready_player_task(self, task):
+        if self.player and not self.player.is_empty():
+            self.floater = self.mouse.set_floater(self.player)
+            return task.done
+        return task.cont
 
     def player_init_task(self, player, anims, task):
         # TODO: change animation
-        any_action = player.get_anim_control(anims['LookingAround'])
+        any_action = player.get_anim_control(anims['Standing_idle_female'])
 
         if (any_action.is_playing() is False
                 and base.player_states['is_idle']
@@ -177,7 +198,7 @@ class Actions:
                 and base.player_states['is_crouch_moving'] is False
                 and base.player_states['is_crouching'] is False):
             self.fsm_player.request("Idle", player,
-                                    anims['LookingAround'],
+                                    anims['Standing_idle_female'],
                                     "play")
 
         # Here we accept keys
@@ -187,12 +208,14 @@ class Actions:
                 and not self.base.is_dev_ui_active
                 or self.base.is_dev_ui_active):
             if base.player_state_unarmed:
-                self.player_movement_action(player, anims)
-                self.player_run_action(player, anims)
+                if self.floater:
+                    self.player_movement_action(player, anims)
+                    self.player_run_action(player, anims)
 
         if (not self.base.is_ui_active
                 and not self.base.is_dev_ui_active):
             if base.player_state_unarmed:
+                self.hud.toggle_weapon_state(weapon_name="hands")
                 self.player_crouch_action(player, 'crouch', anims)
                 self.player_jump_action(player, "jump", anims, "Jumping")
                 self.player_use_action(player, "use", anims, "PickingUp")
@@ -200,8 +223,9 @@ class Actions:
                 self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
                 self.player_block_action(player, "block", anims, "center_blocking")
             if base.player_state_armed:
-                self.player_movement_action(player, anims)
-                self.player_run_action(player, anims)
+                if self.floater:
+                    self.player_movement_action(player, anims)
+                    self.player_run_action(player, anims)
                 self.player_crouch_action(player, 'crouch', anims)
                 self.player_jump_action(player, "jump", anims, "Jumping")
                 self.player_use_action(player, "use", anims, "PickingUp")
@@ -211,8 +235,9 @@ class Actions:
                 # self.player_sword_action(player, "sword", anims, "PickingUp")
                 # self.player_bow_action(player, "bow", anims, "PickingUp")
             if base.player_state_magic:
-                self.player_movement_action(player, anims)
-                self.player_run_action(player, anims)
+                if self.floater:
+                    self.player_movement_action(player, anims)
+                    self.player_run_action(player, anims)
                 self.player_crouch_action(player, 'crouch', anims)
                 self.player_jump_action(player, "jump", anims, "Jumping")
                 self.player_use_action(player, "use", anims, "PickingUp")
@@ -225,18 +250,6 @@ class Actions:
         # If player has the bullet shape
         if "Player:BS" in player.get_parent().get_name():
             self.player_bs = player.get_parent()
-
-        if self.player_bs:
-            # The camera should look in Korlan direction,
-            # but it should also try to stay horizontal, so look at
-            # a floater which hovers above Korlan's head.
-            if self.base.is_cutscene_active is False:
-                self.mouse.mouse_control_setup(player=self.player_bs)
-                self.base.camera.look_at(self.mouse.set_floater(self.player_bs))
-
-            if self.base.is_ui_active is False:
-                self.mouse.mouse_control_setup(player=self.player_bs)
-                self.base.camera.look_at(self.mouse.set_floater(self.player_bs))
 
         if self.base.game_mode is False and self.base.menu_mode:
             return task.done
@@ -254,22 +267,21 @@ class Actions:
             dt = globalClock.getDt()
 
             base.gameplay_mode = self.game_settings['Main']['gameplay_mode']
-
-            player_bs = self.base.get_actor_bullet_shape_node(asset=player.get_name(), type="Player")
+            self.player_bs = self.base.get_actor_bullet_shape_node(asset=player.get_name(), type="Player")
 
             if hasattr(base, "gameplay_mode"):
                 if base.gameplay_mode == 'enhanced':
-                    if self.kbd.keymap["left"] and player_bs:
-                        player_bs.set_h(player_bs.get_h() + 60 * dt)
-                    if self.kbd.keymap["right"] and player_bs:
-                        player_bs.set_h(player_bs.get_h() - 60 * dt)
+                    if self.kbd.keymap["left"] and self.player_bs:
+                        self.player_bs.set_h(self.player_bs.get_h() + 100 * dt)
+                    if self.kbd.keymap["right"] and self.player_bs:
+                        self.player_bs.set_h(self.player_bs.get_h() - 100 * dt)
 
             if hasattr(base, "gameplay_mode"):
-                if base.gameplay_mode == 'simple' and player:
-                    player_bs.set_h(self.base.camera.get_h())
+                if base.gameplay_mode == 'simple' and self.mouse.pivot:
+                    self.mouse.pivot.set_h(self.base.camera.get_h())
 
-                if hasattr(base, "first_person_mode") and base.first_person_mode and player_bs:
-                    player_bs.set_h(self.base.camera.get_h())
+                if hasattr(base, "first_person_mode") and base.first_person_mode and self.mouse.pivot:
+                    self.mouse.pivot.set_h(self.base.camera.get_h())
 
             if (self.kbd.keymap["forward"]
                     and self.kbd.keymap["run"] is False
@@ -366,9 +378,11 @@ class Actions:
 
     def player_run_action(self, player, anims):
         if player and isinstance(anims, dict):
+            # Get the time that elapsed since last frame
+            dt = globalClock.getDt()
             # If a move-key is pressed, move the player in the specified direction.
             speed = Vec3(0, 0, 0)
-            move_unit = 15
+            move_unit = 7
             # TODO check if base.state elements are False
             #  except forward and run
             if (self.kbd.keymap["forward"]
@@ -378,6 +392,9 @@ class Actions:
                             and base.player_states['is_idle']):
                         if base.input_state.is_set('forward'):
                             speed.setY(-move_unit)
+                            """self.floater.setY(self.floater, -move_unit * self.state.player_attr["speed"] * dt)
+                            self.player_bs.set_y(player.get_y())
+                            self.player_bs.set_x(player.get_x())"""
                         if (hasattr(base, "bullet_char_contr_node")
                                 and base.bullet_char_contr_node):
                             base.bullet_char_contr_node.set_linear_movement(speed, True)

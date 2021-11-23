@@ -8,12 +8,14 @@ from Engine.Scenes.level_one import LevelOne
 from direct.task.TaskManagerGlobal import taskMgr
 from Settings.UI.rp_lights_manager_ui import RPLightsMgrUI
 from Editor.editor import Editor
+from Settings.UI.hud_ui import HUD
 
 
 class LoadingUI:
 
     def __init__(self):
         self.base = base
+        self.hud = HUD()
         self.level_one = LevelOne()
         self.editor = None
         self.rp_lights_mgr_ui = RPLightsMgrUI()
@@ -137,6 +139,10 @@ class LoadingUI:
                             self.editor.set_editor()
 
                         self.clear_loading_bar()
+                        self.hud.set_minimap()
+                        self.hud.set_day_hud()
+                        self.hud.set_player_bar()
+                        self.hud.set_weapon_ui()
 
                     return task.done
 
@@ -145,11 +151,6 @@ class LoadingUI:
     def set_parallel_loading(self, type):
         if type and isinstance(type, str):
             if type == "new_game":
-
-                # Remove all remained nodes
-                if not render.find('**/*').is_empty():
-                    render.find('**/*').remove_node()
-
                 Sequence(Parallel(Func(self.set_loading_bar),
                                   Func(self.level_one.load_new_game))
                          ).start()

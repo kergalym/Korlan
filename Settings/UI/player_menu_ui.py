@@ -9,7 +9,7 @@ from Settings.menu_settings import MenuSettings
 from direct.gui.DirectGui import *
 from direct.gui.OnscreenImage import OnscreenImage
 from direct.gui.OnscreenImage import TransparencyAttrib
-from panda3d.core import FontPool
+from panda3d.core import FontPool, Camera, NodePath
 from panda3d.core import TextNode
 from panda3d.core import WindowProperties
 
@@ -51,7 +51,7 @@ class PlayerMenuUI(Inventory):
         self.base.frame_inv_int_canvas_size = [-2, 2, -2, 2]
         self.base.frame_inv_int_size = [-.5, .2, -1.3, .5]
 
-        self.base.frame_inv_size = [-3, 0.5, -1, 3]
+        self.base.frame_inv_size = [-3, 3, -1, 3]
 
         """ Frame Colors """
         self.frm_opacity = 1
@@ -92,12 +92,6 @@ class PlayerMenuUI(Inventory):
                                                       scrollBarWidth=0.03,
                                                       autoHideScrollBars=True)
         self.pic_body_inv = OnscreenImage(image=self.images['body_inventory'])
-        """
-        self.pic_left = OnscreenImage(image='{0}/Settings/UI/ui_tex/ornament_kz.png'.format(self.game_dir),
-                                      pos='', color=(63.9, 63.9, 63.9, 0.5))
-        self.pic_right = OnscreenImage(image='{0}/Settings/UI/ui_tex/ornament_kz.png'.format(self.game_dir),
-                                       pos='', color=(63.9, 63.9, 63.9, 0.5))
-        """
 
         ui_geoms = base.ui_geom_collector()
 
@@ -139,7 +133,7 @@ class PlayerMenuUI(Inventory):
         self.pic_body_inv.reparent_to(self.base.frame_inv)
         self.pic_body_inv.set_transparency(TransparencyAttrib.MAlpha)
         self.pic_body_inv.set_scale(1.5, 1.5, 0.9)
-        self.pic_body_inv.set_pos(-0.4, 0, 0)
+        self.pic_body_inv.set_pos(1.4, 0, 0)
 
         # self.pic_right.reparent_to(self.base.frame_inv)
         # self.pic_right.set_scale(0.33, 0.30, 0.30)
@@ -178,8 +172,35 @@ class PlayerMenuUI(Inventory):
                 self.base.win.request_properties(props)
                 base.is_ui_active = True
                 self.show_inventory_data()
+                self.set_character_display()
             else:
                 self.clear_ui_inventory()
+                self.clear_character_display()
+
+    def set_character_display(self):
+        region = base.win.makeDisplayRegion()
+        # left, right, bottom, top
+        region = base.win.makeDisplayRegion(0.5, 1, 0, 1)
+        cam_node = Camera('inventory_camera')
+        cam_np = NodePath(cam_node)
+        region.set_camera(cam_np)
+        cam_np.reparent_to(base.camera)
+
+        # View some other scene, unrelated to render
+        render2 = NodePath('render2')  # the string parameter is important
+        cam_np.reparentTo(render2)
+
+        # Add player to display
+        assets = self.base.assets_collector()
+        player = self.base.loader.load_model(assets["Korlan"])
+        cam_np.set_x(player.get_x())
+        cam_np.set_y(player.get_y())
+        cam_np.look_at(player)
+        ## self.base.frame_inv.hide()  # test
+
+    def clear_character_display(self):
+        if not render.find("**/inventory_camera").is_empty():
+            render.find("**/inventory_camera").remove_node()
 
     def show_inventory_data(self):
         if hasattr(base, "in_use_item_name"):
