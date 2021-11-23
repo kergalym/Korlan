@@ -127,13 +127,16 @@ class Mouse:
                             self.pivot.set_p(pitch)
 
                     if is_aiming:
-                        # smooth rotate player to cursor
-                        if not int(player.get_h()) - 15:
-                            player.set_h(player, 30)
-                        else:
-                            # world heading in aiming
-                            heading = self.floater.get_h() - (x - int(base.win.getXSize() / 2)) * self.mouse_sens
-                            self.floater.set_h(heading)
+                        player_bs = self.base.get_actor_bullet_shape_node(asset=player.get_name(),
+                                                                          type="Player")
+                        if player_bs:
+                            # smooth rotate player to cursor
+                            if not int(player_bs.get_h()) - 15:
+                                player_bs.set_h(player_bs, 30)
+                            else:
+                                # world heading in aiming
+                                heading = player_bs.get_h() - (x - int(base.win.getXSize() / 2)) * self.mouse_sens
+                                player_bs.set_h(heading)
                     else:
                         player.set_h(0)
 

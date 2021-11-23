@@ -152,6 +152,7 @@ class Actions:
                 base.accept('i', self.player_menu.set_ui_inventory)
 
                 # Define player attack here
+                self.state.set_player_equipment(player, "Korlan:Spine1")
                 base.accept("mouse1", self.player_hit_action, extraArgs=[player, "attack", anims, "Boxing"])
 
                 # Pass the player object to FSM
@@ -392,9 +393,6 @@ class Actions:
                             and base.player_states['is_idle']):
                         if base.input_state.is_set('forward'):
                             speed.setY(-move_unit)
-                            """self.floater.setY(self.floater, -move_unit * self.state.player_attr["speed"] * dt)
-                            self.player_bs.set_y(player.get_y())
-                            self.player_bs.set_x(player.get_x())"""
                         if (hasattr(base, "bullet_char_contr_node")
                                 and base.bullet_char_contr_node):
                             base.bullet_char_contr_node.set_linear_movement(speed, True)

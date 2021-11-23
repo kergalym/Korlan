@@ -144,6 +144,30 @@ class PlayerState:
                     base.player_states["is_idle"] = True
                     base.player_states["is_crouch_moving"] = False
 
+    def set_player_equipment(self, actor, bone):
+        if actor and isinstance(bone, str):
+            hips_joint = actor.exposeJoint(None, "modelRoot", bone)
+            sword = base.loader.loadModel(base.assets_collector()["sword"])
+            sword.set_name("sword")
+            sword.reparent_to(hips_joint)
+            bow = base.loader.loadModel(base.assets_collector()["bow_kazakh"])
+            bow.set_name("bow_kazakh")
+            bow.reparent_to(hips_joint)
+            arrow = base.loader.loadModel(base.assets_collector()["bow_arrow_kazakh"])
+            arrow.set_name("bow_arrow_kazakh")
+            arrow.reparent_to(hips_joint)
+
+            # positioning and scaling
+            sword.set_pos(10, 20, -8)
+            sword.set_hpr(325.30, 343.30, 7.13)
+            sword.set_scale(100)
+            bow.set_pos(0, 12, -12)
+            bow.set_hpr(78.69, 99.46, 108.43)
+            bow.set_scale(100)
+            arrow.set_pos(-10, 7, -12)
+            arrow.set_hpr(91.55, 0, 0)
+            arrow.set_scale(100)
+
     def set_player_equip_state(self, task):
         base.player_state_unarmed = True
 

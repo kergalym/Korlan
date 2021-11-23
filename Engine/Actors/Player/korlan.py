@@ -158,7 +158,7 @@ class Korlan:
 
                 # Hardware skinning
                 if self.game_settings['Main']['postprocessing'] == 'on':
-                    self.render_attr.set_hardware_skinning(self.korlan, True)
+                    self.render_attr.set_hardware_skinning(self.korlan, False)
 
                 # Get actor joints
                 base.korlan_joints = self.korlan.get_joints()

@@ -282,12 +282,13 @@ class RenderAttr:
         # Also tell Panda that the shader will do the skinning, so
         # that it won't transform the vertices on the CPU.
         if actor and isinstance(bool_, bool):
-            self.render_pipeline.set_effect(actor,
-                                            "{0}/Engine/Render/effects/hardware_skinning.yaml".format(self.game_dir),
-                                            options={}, sort=25)
-            attrib = actor.get_attrib(ShaderAttrib)
-            attrib = attrib.set_flag(ShaderAttrib.F_hardware_skinning, bool_)
-            actor.set_attrib(attrib)
+            if bool_:
+                self.render_pipeline.set_effect(actor,
+                                                "{0}/Engine/Render/effects/hardware_skinning.yaml".format(self.game_dir),
+                                                options={}, sort=25)
+                attrib = actor.get_attrib(ShaderAttrib)
+                attrib = attrib.set_flag(ShaderAttrib.F_hardware_skinning, bool_)
+                actor.set_attrib(attrib)
 
     def set_daytime_clock_task(self, task):
         if (not base.game_mode
