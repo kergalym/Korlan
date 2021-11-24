@@ -5,7 +5,7 @@ from direct.interval.IntervalGlobal import *
 from Settings.UI.hud_ui import HUD
 
 
-class SeqWrappers:
+class Sequences:
     def __init__(self):
         self.game_settings = base.game_settings
         self.base = base

@@ -7,7 +7,7 @@ from direct.task.TaskManagerGlobal import taskMgr
 
 from Settings.Input.keyboard import Keyboard
 from Settings.Input.mouse import Mouse
-from Engine.Actors.Player.seq_wrappers import SeqWrappers
+from Engine.Actors.Player.sequences import Sequences
 from Settings.UI.player_menu_ui import PlayerMenuUI
 
 
@@ -18,17 +18,13 @@ class Actions:
         self.base = base
         self.actor_play_rate = None
         self.walking_forward_action = "Walking"
-        self.run_forward_action = "Running"
-        self.crouch_walking_forward_action = 'crouch_walking_forward'
-        self.crouched_to_standing_action = "crouched_to_standing"
-        self.standing_to_crouch_action = "standing_to_crouch"
         self.render = render
         self.korlan = None
         self.player = None
         self.player_bs = None
         self.floater = None
         self.taskMgr = taskMgr
-        self.seq_wrappers = SeqWrappers()
+        self.seq_wrappers = Sequences()
         self.kbd = Keyboard()
         self.mouse = Mouse()
         self.fsm_player = PlayerFSM()
@@ -318,8 +314,6 @@ class Actions:
 
     def player_run_action(self, player, anims):
         if player and isinstance(anims, dict):
-            # Get the time that elapsed since last frame
-            dt = globalClock.getDt()
             # If a move-key is pressed, move the player in the specified direction.
             speed = Vec3(0, 0, 0)
             move_unit = 7
