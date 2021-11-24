@@ -218,10 +218,22 @@ class PlayerState:
             arrow.set_hpr(91.55, 0, 0)
             arrow.set_scale(100)
 
+            base.player_state_unarmed = True
+            base.player_state_armed = False
+            base.player_state_magic = False
+
     def get_weapon(self, actor, weapon_name, bone_name):
         if (actor and weapon_name and bone_name
                 and isinstance(weapon_name, str)
                 and isinstance(bone_name, str)):
+
+            if weapon_name == "sword":
+                if actor.find("bow"):
+                    self.remove_weapon(actor, "bow", bone_name)
+            elif weapon_name == "bow":
+                if actor.find("sword"):
+                    self.remove_weapon(actor, "sword", bone_name)
+
             joint = actor.exposeJoint(None, "modelRoot", bone_name)
             if render.find("**/{0}".format(weapon_name)):
                 weapon = render.find("**/{0}".format(weapon_name))
@@ -243,10 +255,22 @@ class PlayerState:
                     arrow.set_pos(0.04, 0.01, -0.01)
                     arrow.set_hpr(0, 2.86, 0)
 
+                base.player_state_unarmed = False
+                base.player_state_armed = True
+                base.player_state_magic = False
+
     def remove_weapon(self, actor, weapon_name, bone_name):
         if (actor and weapon_name and bone_name
                 and isinstance(weapon_name, str)
                 and isinstance(bone_name, str)):
+            
+            if weapon_name == "sword":
+                if actor.find("bow"):
+                    self.remove_weapon(actor, "bow", bone_name)
+            elif weapon_name == "bow":
+                if actor.find("sword"):
+                    self.remove_weapon(actor, "sword", bone_name)
+
             joint = actor.exposeJoint(None, "modelRoot", bone_name)
             if render.find("**/{0}".format(weapon_name)):
                 weapon = render.find("**/{0}".format(weapon_name))
@@ -269,15 +293,21 @@ class PlayerState:
                         arrow.set_pos(-10, 7, -12)
                         arrow.set_hpr(91.55, 0, 0)
 
-    def set_player_equip_state(self, task):
+                base.player_state_unarmed = True
+                base.player_state_armed = False
+                base.player_state_magic = False
+
+    """def set_player_equip_state(self, task):
         for key in base.player_states:
             if "has_sword" or "has_bow" in key:
                 if base.player_states[key]:
                     base.player_state_unarmed = False
                     base.player_state_armed = True
+                    base.player_state_magic = False
                 else:
                     base.player_state_unarmed = True
                     base.player_state_armed = False
+                    base.player_state_magic = False
             if "has_tengri" or "has_umai" in key:
                 if base.player_states[key]:
                     base.player_state_unarmed = False
@@ -291,7 +321,7 @@ class PlayerState:
         if base.game_mode is False and base.menu_mode:
             return task.done
 
-        return task.cont
+        return task.cont"""
 
     def actor_life(self, task):
         self.has_actor_life()
