@@ -27,6 +27,25 @@ class PlayerState:
             "is_attacked": False,
             "is_busy": False
         }
+        base.do_key_once = {
+            'forward': False,
+            'backward': False,
+            'left': False,
+            'right': False,
+            'run': False,
+            'crouch': False,
+            'jump': False,
+            'use': False,
+            'attack': False,
+            'h_attack': False,
+            'f_attack': False,
+            'block': False,
+            'sword': False,
+            'bow': False,
+            'tengri': False,
+            'umai': False
+        }
+
         base.player_state_unarmed = False
         base.player_state_armed = False
         base.player_state_magic = False
@@ -109,6 +128,21 @@ class PlayerState:
         if hasattr(base, "is_item_in_use_long"):
             base.is_item_in_use_long = False
 
+    def set_do_once_key(self, key, value):
+        """ Function    : set_do_once_key
+
+            Description : Set the state of the do once keys
+
+            Input       : String, Boolean
+
+            Output      : None
+
+            Return      : None
+        """
+        if (key and isinstance(key, str)
+                and isinstance(value, bool)):
+            base.do_key_once[key] = value
+
     def set_action_state(self, action, state):
         if (action
                 and isinstance(action, str)
@@ -118,12 +152,14 @@ class PlayerState:
                 for key in base.player_states:
                     if (state
                             and key != "is_idle"
-                            and key != action):
+                            and key != action
+                            and "has" not in key):
                         base.player_states[key] = False
 
             elif state is False:
                 for key in base.player_states:
-                    base.player_states[key] = False
+                    if "has" not in key:
+                        base.player_states[key] = False
                     base.player_states["is_idle"] = True
 
     def set_action_state_crouched(self, action, state):
@@ -197,31 +233,22 @@ class PlayerState:
         if (actor and weapon_name and bone_name
                 and isinstance(weapon_name, str)
                 and isinstance(bone_name, str)):
-            if weapon_name == "sword":
-                self.remove_weapon(actor, "bow_kazakh", bone_name)
-            elif weapon_name == "bow_kazakh":
-                self.remove_weapon(actor, "sword", bone_name)
-
             joint = actor.exposeJoint(None, "modelRoot", bone_name)
             if render.find("**/{0}".format(weapon_name)):
                 weapon = render.find("**/{0}".format(weapon_name))
                 weapon.reparent_to(joint)
-                print(joint)
                 if weapon_name == "sword":
-                    print(weapon_name)
                     # rescale weapon because it's scale 100 times smaller than we need
                     weapon.set_scale(100)
                     weapon.set_pos(10, 20, -8)
                     weapon.set_hpr(325.30, 343.30, 7.13)
                 elif weapon_name == "bow_kazakh":
-                    print(weapon_name)
                     # rescale weapon because it's scale 100 times smaller than we need
                     weapon.set_scale(100)
                     weapon.set_pos(0, 12, -12)
                     weapon.set_hpr(78.69, 99.46, 108.43)
                     arrow = render.find("**/bow_arrow_kazakh")
                     if arrow:
-                        print(arrow)
                         arrow.reparent_to(weapon)
                         # rescale weapon because it's scale 100 times smaller than we need
                         arrow.set_scale(1)
