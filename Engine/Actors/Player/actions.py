@@ -43,6 +43,18 @@ class Actions:
 
     """ Play animation after action """
 
+    def seq_turning_wrapper(self, player, anims, action, state):
+        if player and anims and isinstance(state, str):
+            turning_seq = player.get_anim_control(anims[action])
+            if state == 'loop' and turning_seq.is_playing() is False:
+                base.player_states["idle"] = False
+                player.loop(anims[action])
+                player.set_play_rate(self.base.actor_play_rate,
+                                     anims[self.walking_forward_action])
+            elif state == 'stop' and turning_seq.is_playing():
+                player.stop()
+                player.pose(anims[action], 0)
+
     def seq_move_wrapper(self, player, anims, state):
         if player and anims and isinstance(state, str):
             walking_forward_seq = player.get_anim_control(anims[self.walking_forward_action])
@@ -179,6 +191,7 @@ class Actions:
             self.base.player_actions_init_is_activated = 1
 
     """ Prepares the player for scene """
+
     def wait_for_physics_ready_player_task(self, task):
         if self.player and not self.player.is_empty():
             self.floater = self.mouse.set_floater(self.player)
@@ -194,6 +207,7 @@ class Actions:
                     and base.player_states['is_idle']
                     and base.player_states['is_attacked'] is False
                     and base.player_states['is_busy'] is False
+                    and base.player_states['is_turning'] is False
                     and base.player_states['is_moving'] is False
                     and base.player_states['is_running'] is False
                     and base.player_states['is_crouch_moving'] is False
@@ -291,6 +305,34 @@ class Actions:
                     if self.kbd.keymap["right"] and self.player_bs:
                         self.player_bs.set_h(self.player_bs.get_h() - 100 * dt)
 
+                    # Turning in place
+                    if (not self.kbd.keymap["forward"]
+                            and not self.kbd.keymap["run"]
+                            and self.kbd.keymap["left"]):
+                        Sequence(Parallel(Func(self.seq_turning_wrapper, player, anims, "left_turn", 'loop'),
+                                          Func(self.state.set_action_state, "is_turning", True)),
+                                 ).start()
+                    if (not self.kbd.keymap["forward"]
+                            and not self.kbd.keymap["run"]
+                            and self.kbd.keymap["right"]):
+                        Sequence(Parallel(Func(self.seq_turning_wrapper, player, anims, "right_turn", 'loop'),
+                                          Func(self.state.set_action_state, "is_turning", True)),
+                                 ).start()
+
+                    # Stop turning in place
+                    if (not self.kbd.keymap["forward"]
+                            and not self.kbd.keymap["run"]
+                            and not self.kbd.keymap["left"]):
+                        Sequence(Parallel(Func(self.seq_turning_wrapper, player, anims, "left_turn", 'stop'),
+                                          Func(self.state.set_action_state, "is_turning", False)),
+                                 ).start()
+                    if (not self.kbd.keymap["forward"]
+                            and not self.kbd.keymap["run"]
+                            and not self.kbd.keymap["right"]):
+                        Sequence(Parallel(Func(self.seq_turning_wrapper, player, anims, "right_turn", 'stop'),
+                                          Func(self.state.set_action_state, "is_turning", False)),
+                                 ).start()
+
             if hasattr(base, "gameplay_mode"):
                 if base.gameplay_mode == 'simple' and self.mouse.pivot:
                     self.mouse.pivot.set_h(self.base.camera.get_h())
@@ -345,9 +387,7 @@ class Actions:
             # If the player does action, loop the animation through messenger.
             if (self.kbd.keymap["forward"]
                     and self.kbd.keymap["run"] is False
-                    or self.kbd.keymap["backward"]
-                    or self.kbd.keymap["left"]
-                    or self.kbd.keymap["right"]):
+                    or self.kbd.keymap["backward"]):
                 if (base.player_states['is_moving'] is False
                         and base.player_states['is_attacked'] is False
                         and base.player_states['is_busy'] is False
@@ -930,4 +970,3 @@ class Actions:
                                       Func(self.state.set_action_state, "has_umai", True)),
                              Func(self.state.set_action_state, "has_umai", False)
                              ).start()
-

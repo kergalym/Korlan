@@ -25,7 +25,8 @@ class PlayerState:
             "has_tengri": False,
             "has_umai": False,
             "is_attacked": False,
-            "is_busy": False
+            "is_busy": False,
+            "is_turning": False
         }
         base.do_key_once = {
             'forward': False,
@@ -144,6 +145,16 @@ class PlayerState:
             base.do_key_once[key] = value
 
     def set_action_state(self, action, state):
+        if (action
+                and isinstance(action, str)
+                and isinstance(state, bool)):
+            if state:
+                base.player_states[action] = state
+            else:
+                base.player_states[action] = state
+                base.player_states["is_idle"] = True
+
+    """def set_action_state_old(self, action, state):
         # TODO: FIX ME
         if (action
                 and isinstance(action, str)
@@ -151,17 +162,19 @@ class PlayerState:
             if state:
                 base.player_states[action] = state
                 for key in base.player_states:
+                    print(key, base.player_states[key], action)
                     if (state
                             and key != "is_idle"
                             and key != action
-                            and "has" not in key):
+                            and "has" not in action):
                         base.player_states[key] = False
 
             elif state is False:
                 for key in base.player_states:
+                    # print(key, base.player_states[key])
                     if "has" not in key:
                         base.player_states[key] = False
-                    base.player_states["is_idle"] = True
+                    base.player_states["is_idle"] = True"""
 
     def set_action_state_crouched(self, action, state):
         if (action
