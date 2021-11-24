@@ -192,7 +192,7 @@ class Korlan:
                 self.actions.player_actions_init(self.korlan, animation[0])
 
                 taskMgr.add(self.state.set_player_equip_state,
-                            "anim_state",
+                            "set_player_equip_state",
                             appendTask=True)
 
                 self.korlan_life_perc = 100

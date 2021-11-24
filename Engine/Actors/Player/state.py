@@ -144,6 +144,7 @@ class PlayerState:
             base.do_key_once[key] = value
 
     def set_action_state(self, action, state):
+        # TODO: FIX ME
         if (action
                 and isinstance(action, str)
                 and isinstance(state, bool)):
@@ -256,17 +257,23 @@ class PlayerState:
                         arrow.set_hpr(91.55, 0, 0)
 
     def set_player_equip_state(self, task):
-        base.player_state_unarmed = True
-
-        if base.player_state_armed:
-            base.player_state_unarmed = False
-            base.player_state_magic = False
-        elif base.player_state_magic:
-            base.player_state_unarmed = False
-            base.player_state_armed = False
-        elif base.player_state_unarmed:
-            base.player_state_armed = False
-            base.player_state_magic = False
+        for key in base.player_states:
+            if "has_sword" or "has_bow" in key:
+                if base.player_states[key]:
+                    base.player_state_unarmed = False
+                    base.player_state_armed = True
+                else:
+                    base.player_state_unarmed = True
+                    base.player_state_armed = False
+            if "has_tengri" or "has_umai" in key:
+                if base.player_states[key]:
+                    base.player_state_unarmed = False
+                    base.player_state_armed = False
+                    base.player_state_magic = True
+                else:
+                    base.player_state_unarmed = True
+                    base.player_state_armed = False
+                    base.player_state_magic = False
 
         if base.game_mode is False and base.menu_mode:
             return task.done
