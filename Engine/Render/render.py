@@ -46,11 +46,6 @@ class RenderAttr:
         # self.menu_font = self.fonts['OpenSans-Regular']
         self.menu_font = self.fonts['JetBrainsMono-Regular']
 
-        """if self.game_settings['Main']['postprocessing'] == 'on':
-            if self.render_pipeline:
-                # TODO: Remove the time declaration after Menu Scene is constructed
-                self.render_pipeline.daytime_mgr.time = "8:45"""
-
         self.time_text_ui = OnscreenText(text="",
                                          pos=(0.0, 0.77),
                                          scale=0.03,
@@ -58,6 +53,122 @@ class RenderAttr:
                                          font=self.font.load_font(self.menu_font),
                                          align=TextNode.ALeft,
                                          mayChange=True)
+
+    def set_daytime_clock_task(self, time, task):
+        if (not base.game_mode
+                and base.menu_mode):
+            self.time_text_ui.hide()
+            return task.done
+        else:
+            if self.time_text_ui:
+                self.time_text_ui.show()
+
+        if self.game_settings['Main']['postprocessing'] == 'on':
+            if self.render_pipeline and time:
+                self.render_pipeline.daytime_mgr.time = time
+                self.elapsed_seconds = round(globalClock.getRealTime())
+
+                self.minutes = self.elapsed_seconds // 60
+
+                hour = time.split(':')
+                hour = int(hour[0])
+                self.hour = hour
+                self.hour += self.minutes // 60
+
+                if self.minutes < 10:
+                    self.time_text_ui.setText("{0}:0{1}".format(self.hour, self.minutes))
+                    self.render_pipeline.daytime_mgr.time = "{0}:0{1}".format(self.hour, self.minutes)
+                elif self.minutes > 9:
+                    self.time_text_ui.setText("{0}:{1}".format(self.hour, self.minutes))
+                    self.render_pipeline.daytime_mgr.time = "{0}:{1}".format(self.hour, self.minutes)
+
+                if (not hasattr(base, "is_ui_active")
+                        or hasattr(base, "is_ui_active")
+                        and not base.is_ui_active):
+                    if 7 <= self.hour < 19:
+                        self.hud.toggle_day_hud(time="light")
+                    elif self.hour >= 19:
+                        self.hud.toggle_day_hud(time="night")
+
+        return task.cont
+
+    def shader_collector(self):
+        """ Function    : shader_collector
+
+            Description : Collect shader set.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : Dictionary
+        """
+        shader_path = str(PurePath(self.game_dir, "Engine", "Shaders"))
+        shader_path = Filename.from_os_specific("{0}/".format(shader_path))
+        shader_dirs = []
+        shaders = {}
+
+        if exists(shader_path):
+            for root, dirs, files in walk(shader_path, topdown=True):
+                # Get last directory to make it list key
+                d = root.split("/").pop()
+                shader_dirs.append(d)
+
+            for root, dirs, files in walk(shader_path, topdown=True):
+                for d in shader_dirs:
+                    for file in files:
+                        path = str(PurePath("{0}/".format(root), file))
+                        path = Filename.from_os_specific(path).getFullpath()
+                        if d in path:
+                            if "frag.glsl" in file:
+                                key = "{0}_{1}".format(d, "frag")
+                                shaders[key] = path
+                            if "vert.glsl" in file:
+                                key = "{0}_{1}".format(d, "vert")
+                                shaders[key] = path
+            return shaders
+
+    def get_all_shaders(self, shaders):
+        """ Function    : get_all_shaders
+
+            Description : Get loaded shader set.
+
+            Input       : dict
+
+            Output      : None
+
+            Return      : Dictionary
+        """
+        if shaders and isinstance(shaders, dict):
+            loaded_shaders = {}
+            for k in shaders:
+                # Find shader for vert and frag files
+                # to construct a dict of the loaded shaders
+                name = k.split("_")[0]
+                shader = Shader.load(Shader.SL_GLSL,
+                                     vertex=shaders["{0}_vert".format(name)],
+                                     fragment=shaders["{0}_frag".format(name)])
+                # Contains shader memory addresses
+                loaded_shaders[name] = shader
+            return loaded_shaders
+
+    def set_hardware_skinning(self, actor, bool_):
+        # Perform hardware skinning on GPU.
+        if actor and isinstance(bool_, bool):
+            if self.game_settings['Main']['postprocessing'] == 'on' and bool_:
+                self.render_pipeline.set_effect(actor,
+                                                "{0}/Engine/Render/effects/hardware_skinning.yaml".format(self.game_dir),
+                                                options={}, sort=25)
+                attrib = actor.get_attrib(ShaderAttrib)
+                attrib = attrib.set_flag(ShaderAttrib.F_hardware_skinning, bool_)
+                actor.set_attrib(attrib)
+
+            elif self.game_settings['Main']['postprocessing'] == 'off' and bool_:
+                ready_shaders = self.get_all_shaders(self.shader_collector())
+                actor.set_shader(ready_shaders['HardwareSkinning'])
+                attrib = actor.get_attrib(ShaderAttrib)
+                attrib = attrib.set_flag(ShaderAttrib.F_hardware_skinning, bool_)
+                actor.set_attrib(attrib)
 
     def set_water(self, bool, water_lvl, adv_render):
         if bool:
@@ -103,11 +214,10 @@ class RenderAttr:
                     # reflect UV generated on the shader - faster(?)
                     self.water_np.set_shader_input('camera', self.water_camera)
                     self.water_np.set_shader_input("reflection", water_texture)
-                    self.water_np.set_shader(Shader.load(Shader.SLGLSL,
-                                                         vertex="{0}/Engine/Shaders/Water/water_v.glsl".format(
-                                                             self.game_dir),
-                                                         fragment="{0}/Engine/Shaders/Water/water_f.glsl".format(
-                                                             self.game_dir)))
+
+                    ready_shaders = self.get_all_shaders(self.shader_collector())
+                    self.water_np.set_shader(ready_shaders['Water'])
+
                     self.water_np.set_shader_input("water_norm",
                                                    self.base.loader.load_texture(textures["water"]))
                     self.water_np.set_shader_input("water_height",
@@ -189,11 +299,10 @@ class RenderAttr:
                 self.grass_np.setInstanceCount(256)
                 self.grass_np.node().setBounds(BoundingBox((0, 0, 0), (256, 256, 128)))
                 self.grass_np.node().setFinal(1)
-                self.grass_np.setShader(Shader.load(Shader.SLGLSL,
-                                                    vertex="{0}/Engine/Shaders/Grass/grass_v.glsl".format(
-                                                        self.game_dir),
-                                                    fragment="{0}/Engine/Shaders/Grass/grass_f.glsl".format(
-                                                        self.game_dir)))
+
+                ready_shaders = self.get_all_shaders(self.shader_collector())
+                self.grass_np.set_shader(ready_shaders['Grass'])
+
                 self.grass_np.setShaderInput('height', self.base.loader.load_texture(textures["heightmap"]))
                 self.grass_np.setShaderInput('grass', self.base.loader.load_texture(textures["grass"]))
                 self.grass_np.setShaderInput('uv_offset', uv_offset)
@@ -276,121 +385,6 @@ class RenderAttr:
         if self.particles:
             self.particles = {}
         self.base.disable_particles()
-
-    def set_hardware_skinning(self, actor, bool_):
-        # Load the shader to perform the skinning.
-        # Also tell Panda that the shader will do the skinning, so
-        # that it won't transform the vertices on the CPU.
-        if actor and isinstance(bool_, bool):
-            if bool_:
-                self.render_pipeline.set_effect(actor,
-                                                "{0}/Engine/Render/effects/hardware_skinning.yaml".format(self.game_dir),
-                                                options={}, sort=25)
-                attrib = actor.get_attrib(ShaderAttrib)
-                attrib = attrib.set_flag(ShaderAttrib.F_hardware_skinning, bool_)
-                actor.set_attrib(attrib)
-
-    def set_daytime_clock_task(self, task):
-        if (not base.game_mode
-                and base.menu_mode):
-            self.time_text_ui.hide()
-            return task.done
-        else:
-            if self.time_text_ui:
-                self.time_text_ui.show()
-
-        if self.game_settings['Main']['postprocessing'] == 'on':
-            if self.render_pipeline:
-                time = str(self.game_settings['Misc']['daytime'])
-                self.render_pipeline.daytime_mgr.time = time
-                self.elapsed_seconds = round(globalClock.getRealTime())
-
-                self.minutes = self.elapsed_seconds // 60
-
-                hour = time.split(':')
-                hour = int(hour[0])
-                self.hour = hour
-                self.hour += self.minutes // 60
-
-                if self.minutes < 10:
-                    self.time_text_ui.setText("{0}:0{1}".format(self.hour, self.minutes))
-                    self.render_pipeline.daytime_mgr.time = "{0}:0{1}".format(self.hour, self.minutes)
-                elif self.minutes > 9:
-                    self.time_text_ui.setText("{0}:{1}".format(self.hour, self.minutes))
-                    self.render_pipeline.daytime_mgr.time = "{0}:{1}".format(self.hour, self.minutes)
-
-                if (not hasattr(base, "is_ui_active")
-                        or hasattr(base, "is_ui_active")
-                        and not base.is_ui_active):
-                    if 7 <= self.hour < 19:
-                        self.hud.toggle_day_hud(time="light")
-                    elif self.hour >= 19:
-                        self.hud.toggle_day_hud(time="night")
-
-        return task.cont
-
-    def shader_collector(self):
-        """ Function    : shader_collector
-
-            Description : Collect shader set.
-
-            Input       : None
-
-            Output      : None
-
-            Return      : Dictionary
-        """
-        shader_path = str(PurePath(self.game_dir, "Engine", "Shaders"))
-        shader_path = Filename.from_os_specific("{0}/".format(shader_path))
-        shader_dirs = []
-        shaders = {}
-
-        if exists(shader_path):
-            for root, dirs, files in walk(shader_path, topdown=True):
-                # Get last directory to make it list key
-                d = root.split("/").pop()
-                shader_dirs.append(d)
-
-            for root, dirs, files in walk(shader_path, topdown=True):
-                for d in shader_dirs:
-                    for file in files:
-                        path = str(PurePath("{0}/".format(root), file))
-                        path = Filename.from_os_specific(path).getFullpath()
-                        if d in path:
-                            if "frag" in file:
-                                key = "{0}_{1}".format(d, "frag")
-                                shaders[key] = path
-                            if "vert" in file:
-                                key = "{0}_{1}".format(d, "vert")
-                                shaders[key] = path
-                            else:
-                                key = d
-                                shaders[key] = path
-            return shaders
-
-    def get_all_shaders(self, shaders):
-        """ Function    : get_all_shaders
-
-            Description : Get loaded shader set.
-
-            Input       : dict
-
-            Output      : None
-
-            Return      : Dictionary
-        """
-        if shaders and isinstance(shaders, dict):
-            loaded_shaders = {}
-            for k in shaders:
-                # Find shader for vert and frag files
-                # to construct a dict of the loaded shaders
-                name = k.split("_")[0]
-                shader = Shader.load(Shader.SL_GLSL,
-                                     vertex=shaders["{0}_vert".format(name)],
-                                     fragment=shaders["{0}_frag".format(name)])
-                # Contains shader memory addresses
-                loaded_shaders[name] = shader
-            return loaded_shaders
 
     def set_shadows(self, obj, render, light, shadow_blur, ambient_color):
         if obj and light and shadow_blur and ambient_color:

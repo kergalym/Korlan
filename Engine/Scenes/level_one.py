@@ -374,8 +374,10 @@ class LevelOne:
 
         self.base.accept("escape", self.pause_game_ui.load_pause_menu)
 
+        """ Set Time of Day """
         taskMgr.add(self.render_attr.set_daytime_clock_task,
                     "set_daytime_clock_task",
+                    extraArgs=["16:00"],
                     appendTask=True)
 
         """ Assets """

@@ -740,6 +740,9 @@ class GraphicsMenuUI(Graphics):
         self.logo.destroy()
         self.ornament_right.destroy()
 
+        self.base.render_pipeline.reload_shaders()
+        self.base.messenger.send("reload_render")
+
     """ Wrapper functions """
     """ Direct* object doesn't allow passing it's instance directly before it created.
         So, we pass it through wrapper methods

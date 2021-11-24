@@ -38,6 +38,7 @@ from code import InteractiveConsole
 from direct.task.TaskManagerGlobal import taskMgr
 from Engine.Render.rpcore.render_pipeline import RenderPipeline
 from Engine.Render.rpcore.util.movement_controller import MovementController
+import importlib
 
 build_info_txt = "Build 0.3. 10/2021"
 
@@ -473,6 +474,7 @@ class Main(ShowBase):
             self.render_pipeline.set_loading_screen_image(render_bg_tex['background'])
             self.render_pipeline.pre_showbase_init()
             self.render_pipeline.create(self)
+            self.accept("reload_render", self.reload_render)
 
         self.menu = MenuUI()
         self.scene_one = SceneOne()
@@ -501,6 +503,10 @@ class Main(ShowBase):
 
         """ Lights Storage """
         self.rp_lights = []
+
+    def reload_render(self):
+        from Engine.Render import rpcore
+        importlib.reload(rpcore.render_pipeline)
 
     def check_and_do_cfg(self):
         """ Function    : check_and_do_cfg
