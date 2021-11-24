@@ -139,7 +139,7 @@ class LoadingUI:
                             self.editor.set_editor()
 
                         self.clear_loading_bar()
-                        self.hud.set_minimap()
+                        self.hud.set_aim_cursor()
                         self.hud.set_day_hud()
                         self.hud.set_player_bar()
                         self.hud.set_weapon_ui()

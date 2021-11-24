@@ -8,8 +8,8 @@ class HUD:
     def __init__(self):
         self.game_dir = base.game_dir
         self.images = base.textures_collector(path="{0}/Settings/UI".format(self.game_dir))
-        self.minimap_ui_pos = (1.5, 0, 0.65)
-        self.minimap_ui_scale = 0.4
+        self.cursor_ui_pos = (0, 0, 0)
+        self.cursor_ui_scale = 0.04
         self.day_hud_ui_pos = (0.0, 0, 0.90)
         self.day_hud_ui_scale = (0.5, 0, 0.1)
         self.weapon_state_ui_pos = (1.8, 0, -0.90)
@@ -23,16 +23,17 @@ class HUD:
         self.player_bar_ui_stamina = None
         self.player_bar_ui_courage = None
 
-    def set_minimap(self):
-        base.minimap_ui = OnscreenImage(image=self.images['minimap_frame'])
-        base.minimap_ui.set_pos(self.minimap_ui_pos)
-        base.minimap_ui.setTransparency(TransparencyAttrib.MAlpha)
-        base.minimap_ui.set_scale(self.minimap_ui_scale)
+    def set_aim_cursor(self):
+        base.cursor_ui = OnscreenImage(image=self.images['crosshair'])
+        base.cursor_ui.set_pos(self.cursor_ui_pos)
+        base.cursor_ui.setTransparency(TransparencyAttrib.MAlpha)
+        base.cursor_ui.set_scale(self.cursor_ui_scale)
+        base.cursor_ui.hide()
 
-    def clear_minimap(self):
-        if base.minimap_ui:
-            base.minimap_ui.destroy()
-            base.minimap_ui.remove_node()
+    def clear_aim_cursor(self):
+        if base.cursor_ui:
+            base.cursor_ui.destroy()
+            base.cursor_ui.remove_node()
 
     def set_day_hud(self):
         base.day_hud_ui = OnscreenImage(image=self.images['day_hud_light_ui'])
@@ -116,16 +117,13 @@ class HUD:
     def toggle_all_hud(self, state):
         if state and isinstance(state, str):
             if (base.day_hud_ui
-                    and base.minimap_ui
                     and self.weapon_state_ui
                     and self.player_bar_ui_frame):
                 if state == "visible":
                     base.day_hud_ui.show()
-                    base.minimap_ui.show()
                     self.weapon_state_ui.show()
                     self.player_bar_ui_frame.show()
                 elif state == "hidden":
                     base.day_hud_ui.hide()
-                    base.minimap_ui.hide()
                     self.weapon_state_ui.hide()
                     self.player_bar_ui_frame.hide()

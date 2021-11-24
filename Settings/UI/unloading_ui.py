@@ -48,7 +48,7 @@ class UnloadingUI:
                                                align=TextNode.ALeft,
                                                mayChange=True)
             # remove HUD elements
-            self.hud.clear_minimap()
+            self.hud.clear_aim_cursor()
             self.hud.clear_day_hud()
             self.hud.clear_player_bar()
             self.hud.clear_weapon_ui()
