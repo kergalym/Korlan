@@ -257,8 +257,8 @@ class RenderAttr:
                     taskMgr.add(self.update_clouds_task, "update_clouds_task")
 
     def update_clouds_task(self, task):
-        self.time+=task.time*self.cloud_speed
-        self.offset+=task.time
+        self.time += task.time*self.cloud_speed
+        self.offset += task.time
         self.skybox_np.setPos(base.camera.getPos(render))
         elapsed = task.time * self.cloud_speed
         for model in self.clouds:
