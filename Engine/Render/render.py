@@ -243,21 +243,20 @@ class RenderAttr:
                         self.hud.toggle_day_hud(time="light")
                     elif self.hour >= 19:
                         self.hud.toggle_day_hud(time="night")
-        else:
+        elif self.game_settings['Main']['postprocessing'] == 'off':
             if time and duration:
                 self.time_of_day_time = time
                 self.elapsed_seconds = round(globalClock.getRealTime())
 
+                # seconds // 60 are equal to 1 minute
                 # 1800 seconds are equal to 30 minutes
-                if duration == 1800:
-                    self.minutes = self.elapsed_seconds // 60
-                elif duration < 1800:
-                    self.minutes = self.elapsed_seconds // 60
+                self.minutes = self.elapsed_seconds // 60
 
                 hour = time.split(':')
                 hour = int(hour[0])
                 self.hour = hour
 
+                # 30 minutes of duration
                 if duration == 1800:
                     if self.hour == 23:
                         self.hour = 0
@@ -265,6 +264,7 @@ class RenderAttr:
                         self.hour += self.minutes // 60
                         if self.minutes > 59:
                             self.minutes = 00
+                # Seconds of duration
                 elif duration < 1800:
                     if self.hour == 23:
                         self.hour = 0
