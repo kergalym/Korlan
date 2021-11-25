@@ -248,7 +248,7 @@ class RenderAttr:
                 self.time_of_day_time = time
                 self.elapsed_seconds = round(globalClock.getRealTime())
 
-                # seconds // 60 are equal to 1 minute
+                # seconds floor divided by 60 are equal to 1 minute
                 # 1800 seconds are equal to 30 minutes
                 self.minutes = self.elapsed_seconds // 60
 
