@@ -263,7 +263,7 @@ class PlayerState:
         if (actor and weapon_name and bone_name
                 and isinstance(weapon_name, str)
                 and isinstance(bone_name, str)):
-            
+
             if weapon_name == "sword":
                 if actor.find("bow"):
                     self.remove_weapon(actor, "bow", bone_name)
@@ -297,32 +297,6 @@ class PlayerState:
                 base.player_state_armed = False
                 base.player_state_magic = False
 
-    """def set_player_equip_state(self, task):
-        for key in base.player_states:
-            if "has_sword" or "has_bow" in key:
-                if base.player_states[key]:
-                    base.player_state_unarmed = False
-                    base.player_state_armed = True
-                    base.player_state_magic = False
-                else:
-                    base.player_state_unarmed = True
-                    base.player_state_armed = False
-                    base.player_state_magic = False
-            if "has_tengri" or "has_umai" in key:
-                if base.player_states[key]:
-                    base.player_state_unarmed = False
-                    base.player_state_armed = False
-                    base.player_state_magic = True
-                else:
-                    base.player_state_unarmed = True
-                    base.player_state_armed = False
-                    base.player_state_magic = False
-
-        if base.game_mode is False and base.menu_mode:
-            return task.done
-
-        return task.cont"""
-
     def actor_life(self, task):
         self.has_actor_life()
 
@@ -347,6 +321,7 @@ class PlayerState:
             else:
                 return False
 
+    # TODO Delete it
     def get_distance_to(self, items_dist_vect):
         assets = base.asset_nodes_assoc_collector()
         item = None

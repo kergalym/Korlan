@@ -421,10 +421,10 @@ class LevelOne:
         anims = self.base.asset_animations_collector()
 
         # List used by loading screen
-        level_assets = {'name': ['Sky', 'lvl_one', 'Player'],
-                        'type': [None, 'env', 'player'],
-                        'shape': [None, 'auto', 'capsule'],
-                        'class': [None, 'env', 'hero']
+        level_assets = {'name': ['lvl_one', 'Player'],
+                        'type': ['env', 'player'],
+                        'shape': ['auto', 'capsule'],
+                        'class': ['env', 'hero']
                         }
 
         for actor, npc_fsm_cls in zip(level_npc_assets['name'], self.actor_fsm_classes):
@@ -447,15 +447,14 @@ class LevelOne:
                     "collect_actor_refs_task",
                     appendTask=True)
 
+        self.scene_one.set_env(cloud_dimensions=[2000, 2000, 100],
+                               cloud_speed=0.3,
+                               cloud_size=20,
+                               cloud_count=20,
+                               cloud_color=(0.6, 0.6, 0.65, 1.0),
+                               culling=False)
+
         """ Async Loading """
-        taskMgr.add(self.scene_one.set_env(path=assets['Sky'],
-                                           mode="game",
-                                           name="Sky",
-                                           axis=[0.0, 10.0, self.pos_z],
-                                           rotation=[0, 0, 0],
-                                           scale=[1.25, 1.25, 1.25],
-                                           type='skybox',
-                                           culling=False))
         taskMgr.add(self.scene_one.set_level(path=assets['lvl_one'],
                                              name="lvl_one",
                                              axis=[0.0, 0.0, self.pos_z],

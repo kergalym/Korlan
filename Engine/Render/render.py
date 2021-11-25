@@ -9,6 +9,7 @@ from panda3d.core import FontPool, TextNode
 from Engine.Render.rpcore import PointLight, SpotLight
 from direct.particles.ParticleEffect import ParticleEffect
 from Settings.UI.hud_ui import HUD
+import random
 
 
 class RenderAttr:
@@ -41,6 +42,16 @@ class RenderAttr:
         self.elapsed_seconds = 0
         self.minutes = 0
         self.hour = 0
+
+        # Skybox
+        self.skybox_np = None
+        self.clouds = []
+        self.cloud_x = 0
+        self.cloud_y = 0
+        self.cloud_z = 0
+        self.cloud_speed = 0
+        self.time = 0
+        self.uv = Vec4(0, 0, 0, 0)
 
         """ Texts & Fonts"""
         # self.menu_font = self.fonts['OpenSans-Regular']
@@ -169,6 +180,95 @@ class RenderAttr:
                 attrib = actor.get_attrib(ShaderAttrib)
                 attrib = attrib.set_flag(ShaderAttrib.F_hardware_skinning, bool_)
                 actor.set_attrib(attrib)
+
+    def set_sky_and_clouds(self, cloud_dimensions, cloud_speed, cloud_size, cloud_count, cloud_color):
+        if (cloud_dimensions
+                and cloud_speed
+                and cloud_size
+                and cloud_count
+                and cloud_color
+                and isinstance(cloud_dimensions, list)
+                and isinstance(cloud_color, tuple)):
+            if not self.skybox_np:
+                self.skybox_np = render.attachNewNode('Skybox_P3D')
+            cloud_lod = FadeLODNode('CloudLOD')
+            cloud_np = NodePath(cloud_lod)
+            cloud = render.find("cloud")
+            if cloud:
+                cloud.reparentTo(cloud_np)
+            cloud_lod.addSwitch(1000, 0)
+
+            ready_shaders = self.get_all_shaders(self.shader_collector())
+
+            cloud_lod.setFadeTime(5.0)
+            sky = render.find("sky")
+            if sky:
+                sky.reparentTo(self.skybox_np)
+                sky.setBin('background', 1)
+                sky.setDepthWrite(0)
+                sky.setLightOff()
+                sky.setScale(100)
+
+                # config here!
+                self.cloud_x = cloud_dimensions[0]
+                self.cloud_y = cloud_dimensions[1]
+                self.cloud_z = cloud_dimensions[2]
+                self.cloud_speed = cloud_speed
+                self.clouds = []
+
+                for i in range(cloud_count):
+                    self.clouds.append(cloud.copyTo(self.skybox_np))
+                    self.clouds[-1].getChild(0).getChild(0).setScale(cloud_size + random.random(),
+                                                                     cloud_size + random.random(),
+                                                                     cloud_size + random.random())
+                    self.clouds[-1].setPos(render, random.randrange(-self.cloud_x / 2, self.cloud_x / 2),
+                                           random.randrange(-self.cloud_y / 2, self.cloud_y / 2),
+                                           random.randrange(self.cloud_z) + self.cloud_z)
+                    self.clouds[-1].setShaderInput("offset",
+                                                   Vec4(random.randrange(5) * 0.25, random.randrange(9) * 0.125, 0, 0))
+                    self.clouds[-1].setShader(ready_shaders['Clouds'])
+                    self.clouds[-1].setBillboardPointEye()
+                    # self.clouds[-1].setColor(cloud_color)
+                    self.clouds[-1].setDepthWrite(0)
+                    self.clouds[-1].setDepthTest(0)
+                    self.clouds[-1].setBin("fixed", 0)
+
+                self.skybox_np.setColor(cloud_color)
+                sky.setColor(1, 1, 1, 1)
+
+                self.time = 0
+                self.uv = Vec4(0, 0, 0.25, 0)
+                render.setShaderInput("time", self.time)
+                render.setShaderInput("uv", self.uv)
+                taskMgr.add(self.update_clouds_task, "updateTask")
+
+    def update_clouds_task(self, task):
+        self.skybox_np.setPos(base.camera.getPos(render))
+        elapsed = task.time*self.cloud_speed
+        for model in self.clouds:
+            model.setY(model, -task.time*10.0)
+            if model.getY(self.skybox_np) < -self.cloud_y/2:
+                model.setY(self.skybox_np, self.cloud_y/2)
+        self.time += elapsed
+        if self.time > 1.0:
+            self.cloud_speed *= -1.0
+            self.uv[0] += 0.5
+            if self.uv[0] > 1.0:
+                self.uv[0] = 0
+                self.uv[1] += 0.125
+                # if self.uv[1] > 1.0:
+                #    self.uv = Vec4(0, 0, 0, 0)
+        if self.time < 0.0:
+            self.cloud_speed *= -1.0
+            self.uv[2] += 0.5
+            if self.uv[2] > 1.0:
+                self.uv[2] = 0.25
+                self.uv[3] += 0.125
+                # if self.uv[3] > 1.0:
+                #    self.uv = Vec4(0, 0, 0, 0)
+        render.setShaderInput("time", self.time)
+        render.setShaderInput("uv", self.uv)
+        return task.again
 
     def set_water(self, bool, water_lvl, adv_render):
         if bool:

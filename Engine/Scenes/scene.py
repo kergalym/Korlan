@@ -32,6 +32,27 @@ class SceneOne:
         self.cfg_path = {"game_config_path": "{0}/{1}".format(self.game_cfg_dir,
                                                               self.game_settings_filename)}
 
+    def set_env(self, cloud_dimensions, cloud_speed, cloud_size, cloud_count, cloud_color, culling):
+        if isinstance(culling, bool):
+            self.render = render
+            # Load the skybox
+            assets = self.base.assets_collector()
+            sky = self.base.loader.load_model(assets['sky'])
+            cloud = self.base.loader.load_model(assets['cloud'])
+            sky.set_name("sky")
+            cloud.set_name("cloud")
+            if self.game_settings['Main']['postprocessing'] == 'off':
+                self.render_attr.set_sky_and_clouds(cloud_dimensions, cloud_speed, cloud_size, cloud_count, cloud_color)
+
+                # If you don't do this, none of the features
+                # listed above will have any effect. Panda will
+                # simply ignore normal maps, HDR, and so forth if
+                # shader generation is not enabled. It would be reasonable
+                # to enable shader generation for the entire game, using this call:
+                # scene.set_shader_auto()
+                # self.render_attr.set_shadows(scene, render)
+                render.set_attrib(LightRampAttrib.make_hdr1())
+
     async def set_level(self, path, name, axis, rotation, scale, culling):
         if (isinstance(path, str)
                 and isinstance(name, str)
@@ -94,7 +115,8 @@ class SceneOne:
                 # simply ignore normal maps, HDR, and so forth if
                 # shader generation is not enabled. It would be reasonable
                 # to enable shader generation for the entire game, using this call:
-                scene.set_shader_auto()
+                # scene.set_shader_auto()
+                pass
 
             else:
                 # Enable water
@@ -122,185 +144,3 @@ class SceneOne:
             coll_scene.reparent_to(coll_scene_np)
 
             coll_scene.hide()
-
-    async def set_env(self, path, mode, name, axis, rotation, scale, type, culling):
-        if isinstance(mode, str) and mode == "menu":
-            if (isinstance(path, str)
-                    and isinstance(name, str)
-                    and isinstance(axis, list)
-                    and isinstance(rotation, list)
-                    and isinstance(scale, list)
-                    and isinstance(type, str)
-                    and isinstance(culling, bool)):
-
-                self.path = "{}{}".format(self.game_dir, path)
-                self.render = render
-                self.model = name
-                pos_x = axis[0]
-                pos_y = axis[1]
-                pos_z = axis[2]
-                rot_h = rotation[0]
-                self.scale_x = scale[0]
-                self.scale_y = scale[1]
-                self.scale_z = scale[2]
-                self.type = type
-
-                if self.type == 'skybox':
-                    # Load the scene.
-                    scene = self.base.loader.load_model(path, blocking=True)
-                    scene.set_name(name)
-                    if self.game_settings['Main']['postprocessing'] == 'off':
-                        scene.set_bin('background', 1)
-                        scene.set_depth_write(0)
-                        scene.set_light_off()
-                    scene.reparent_to(self.render)
-                    scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
-                    scene.set_pos(pos_x, pos_y, pos_z)
-                    scene.set_pos(self.base.camera, 0, 0, 0)
-                    scene.set_hpr(scene, rot_h, 0, 0)
-
-                    self.base.set_textures_srgb(True)
-
-                elif self.type == 'ground':
-                    # Load the scene.
-                    scene = self.base.loader.load_model(path, blocking=True)
-                    scene.set_name(name)
-                    scene.reparent_to(self.base.lod_np)
-                    self.base.lod.addSwitch(500.0, 0.0)
-                    scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
-                    scene.set_pos(pos_x, pos_y, pos_z)
-                    scene.set_hpr(scene, rot_h, 0, 0)
-
-                    for tex in render.findAllTextures():
-                        if tex.getNumComponents() == 4:
-                            tex.setFormat(Texture.F_srgb_alpha)
-                        elif tex.getNumComponents() == 3:
-                            tex.setFormat(Texture.F_srgb)
-                elif self.type == 'mountains':
-                    # Load the scene.
-                    scene = self.base.loader.load_model(path, blocking=True)
-                    scene.set_name(name)
-                    scene.reparent_to(self.base.lod_np)
-                    self.base.lod.addSwitch(500.0, 0.0)
-                    scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
-                    scene.set_pos(pos_x, pos_y, pos_z)
-                    scene.set_hpr(scene, rot_h, 0, 0)
-
-                    self.base.set_textures_srgb(True)
-
-                else:
-                    # Load the scene.
-                    scene = self.base.loader.load_model(path, blocking=True)
-                    scene.set_name(name)
-                    scene.reparent_to(self.base.lod_np)
-                    self.base.lod.addSwitch(500.0, 0.0)
-                    scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
-                    scene.set_pos(pos_x, pos_y, pos_z)
-                    scene.set_hpr(scene, rot_h, 0, 0)
-
-                    for tex in render.findAllTextures():
-                        if tex.getNumComponents() == 4:
-                            tex.setFormat(Texture.F_srgb_alpha)
-                        elif tex.getNumComponents() == 3:
-                            tex.setFormat(Texture.F_srgb)
-
-                if self.game_settings['Main']['postprocessing'] == 'on':
-                    self.render_attr.render_pipeline.prepare_scene(scene)
-
-                # Set two sided, since some model may be broken
-                scene.set_two_sided(culling)
-
-                # Panda3D 1.10 doesn't enable alpha blending for textures by default
-                scene.set_transparency(True)
-
-                render.set_attrib(LightRampAttrib.make_hdr1())
-
-                # If you don't do this, none of the features
-                # listed above will have any effect. Panda will
-                # simply ignore normal maps, HDR, and so forth if
-                # shader generation is not enabled. It would be reasonable
-                # to enable shader generation for the entire game, using this call:
-                # scene.set_shader_auto()
-                # self.render_attr.set_shadows(scene, render)
-
-        elif isinstance(mode, str) and mode == "game":
-            if (isinstance(path, str)
-                    and isinstance(name, str)
-                    and isinstance(axis, list)
-                    and isinstance(rotation, list)
-                    and isinstance(scale, list)
-                    and isinstance(type, str)
-                    and isinstance(culling, bool)):
-                # Make them visible for other class members
-                self.path = "{0}{1}".format(self.game_dir, path)
-                self.render = render
-                self.model = name
-                pos_x = axis[0]
-                pos_y = axis[1]
-                pos_z = axis[2]
-                rot_h = rotation[0]
-                self.scale_x = scale[0]
-                self.scale_y = scale[1]
-                self.scale_z = scale[2]
-                self.type = type
-
-                if self.type == 'skybox':
-                    # Load the scene.
-                    scene = await self.base.loader.load_model(path, blocking=False)
-                    scene.set_name(name)
-                    if self.game_settings['Main']['postprocessing'] == 'off':
-                        scene.set_bin('background', 1)
-                        scene.set_depth_write(0)
-                        scene.set_light_off()
-                    scene.reparent_to(self.render)
-                    scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
-                    scene.set_pos(pos_x, pos_y, pos_z)
-                    scene.set_pos(self.base.camera, 0, 0, 0)
-                    scene.set_hpr(scene, rot_h, 0, 0)
-                elif self.type == 'ground':
-                    # Load the scene.
-                    scene = await self.base.loader.load_model(path, blocking=False)
-                    scene.set_name(name)
-                    scene.reparent_to(self.base.lod_np)
-                    self.base.lod.addSwitch(500.0, 0.0)
-                    scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
-                    scene.set_pos(pos_x, pos_y, pos_z)
-                    scene.set_hpr(scene, rot_h, 0, 0)
-                elif self.type == 'mountains':
-                    # Load the scene.
-                    scene = await self.base.loader.load_model(path, blocking=False)
-                    scene.set_name(name)
-                    scene.reparent_to(self.base.lod_np)
-                    self.base.lod.addSwitch(500.0, 0.0)
-                    scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
-                    scene.set_pos(pos_x, pos_y, pos_z)
-                    scene.set_hpr(scene, rot_h, 0, 0)
-                else:
-                    # Load the scene.
-                    scene = await self.base.loader.load_model(path, blocking=False)
-                    scene.set_name(name)
-                    scene.reparent_to(self.base.lod_np)
-                    self.base.lod.addSwitch(500.0, 0.0)
-                    scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
-                    scene.set_pos(pos_x, pos_y, pos_z)
-                    scene.set_hpr(scene, rot_h, 0, 0)
-
-                self.base.set_textures_srgb(True)
-
-                # Set two sided, since some model may be broken
-                scene.set_two_sided(culling)
-
-                # Panda3D 1.10 doesn't enable alpha blending for textures by default
-                scene.set_transparency(True)
-
-                render.set_attrib(LightRampAttrib.make_hdr1())
-
-                # If you don't do this, none of the features
-                # listed above will have any effect. Panda will
-                # simply ignore normal maps, HDR, and so forth if
-                # shader generation is not enabled. It would be reasonable
-                # to enable shader generation for the entire game, using this call:
-                # scene.set_shader_auto()
-                # self.render_attr.set_shadows(scene, render)
-
-                return scene
