@@ -3,6 +3,7 @@ from pathlib import Path, PurePath
 from os import walk
 
 from direct.gui.DirectGui import OnscreenText
+from direct.interval.MetaInterval import Sequence
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import *
 from panda3d.core import FontPool, TextNode
@@ -39,7 +40,10 @@ class RenderAttr:
         self.grass_np = None
 
         # Set time of day
+        self.time_of_day_np = None
+        self.time_of_day_light = None
         self.elapsed_seconds = 0
+        self.time_of_day_time = 0
         self.minutes = 0
         self.hour = 0
 
@@ -68,7 +72,143 @@ class RenderAttr:
                                          align=TextNode.ALeft,
                                          mayChange=True)
 
-    def set_daytime_clock_task(self, time, task):
+    def set_sky_and_clouds(self, cloud_dimensions, cloud_speed, cloud_size, cloud_count, cloud_color):
+        if (cloud_dimensions
+                and cloud_speed
+                and cloud_size
+                and cloud_count
+                and cloud_color
+                and isinstance(cloud_dimensions, list)
+                and isinstance(cloud_color, tuple)):
+            if not self.skybox_np:
+                self.skybox_np = render.attachNewNode('Skybox_P3D')
+            cloud_lod = FadeLODNode('CloudLOD')
+            cloud_np = NodePath(cloud_lod)
+            cloud = render.find("cloud")
+            if cloud:
+                cloud.reparentTo(cloud_np)
+            cloud_lod.addSwitch(1000, 0)
+
+            ready_shaders = self.get_all_shaders(self.shader_collector())
+
+            cloud_lod.setFadeTime(5.0)
+
+            self.sky = render.find("sky")
+            if self.sky:
+                self.sky.reparentTo(self.skybox_np)
+                self.sky.setBin('background', 1)
+                self.sky.setDepthWrite(0)
+                self.sky.setLightOff()
+                self.sky.setScale(100)
+
+                self.sun = render.find("sun")
+                if self.sun:
+                    self.sun.reparentTo(self.skybox_np)
+                    self.sun.setBin('background', 1)
+                    self.sun.setDepthWrite(0)
+                    self.sun.setLightOff()
+                    self.sun.setScale(100)
+                    self.sun.setP(20)
+
+                    # config here!
+                    self.cloud_x = cloud_dimensions[0]
+                    self.cloud_y = cloud_dimensions[1]
+                    self.cloud_z = cloud_dimensions[2]
+                    self.cloud_speed = cloud_speed
+                    self.clouds = []
+                    for i in range(cloud_count):
+                        self.clouds.append(cloud.copyTo(self.skybox_np))
+                        self.clouds[-1].getChild(0).setScale(cloud_size + random.random(),
+                                                             cloud_size + random.random(),
+                                                             cloud_size + random.random())
+                        self.clouds[-1].setPos(render, random.randrange(-self.cloud_x / 2, self.cloud_x / 2),
+                                               random.randrange(-self.cloud_y / 2, self.cloud_y / 2),
+                                               random.randrange(self.cloud_z) + self.cloud_z * 2)
+                        self.clouds[-1].setShaderInput("offset",
+                                                       Vec4(random.randrange(5) * 0.25, random.randrange(9) * 0.125, 0,
+                                                            0))
+                        self.clouds[-1].setShader(ready_shaders['Clouds'])
+                        self.clouds[-1].setBillboardPointEye()
+                        self.clouds[-1].setDepthWrite(0)
+                        self.clouds[-1].setDepthTest(0)
+                        # self.clouds[-1].setBin("fixed", 0)
+                        self.clouds[-1].setBin('background', 1)
+
+                    self.skybox_np.setColor(cloud_color)
+                    self.sky.setColor(1, 1, 1, 1)
+                    self.sun.setColor(1, 1, 1, 1)
+
+                    self.time = 0
+                    self.uv = Vec4(0, 0, 0.25, 0)
+                    render.setShaderInput("time", self.time)
+                    render.setShaderInput("uv", self.uv)
+                    taskMgr.add(self.update_clouds_task, "update_clouds_task")
+
+    def update_clouds_task(self, task):
+        self.time += task.time * self.cloud_speed
+        self.offset += task.time
+        self.skybox_np.setPos(base.camera.getPos(render))
+        elapsed = task.time * self.cloud_speed
+        for model in self.clouds:
+            model.setY(model, -task.time * 10.0)
+            if model.getY(self.skybox_np) < -self.cloud_y / 2:
+                model.setY(self.skybox_np, self.cloud_y / 2)
+        self.time += elapsed
+        if self.time > 1.0:
+            self.cloud_speed *= -1.0
+            self.uv[0] += 0.5
+            if self.uv[0] > 1.0:
+                self.uv[0] = 0
+                self.uv[1] += 0.125
+                # if self.uv[1] > 1.0:
+                #    self.uv = Vec4(0, 0, 0, 0)
+        if self.time < 0.0:
+            self.cloud_speed *= -1.0
+            self.uv[2] += 0.5
+            if self.uv[2] > 1.0:
+                self.uv[2] = 0.25
+                self.uv[3] += 0.125
+                # if self.uv[3] > 1.0:
+                #    self.uv = Vec4(0, 0, 0, 0)
+        render.setShaderInput("time", self.time)
+        render.setShaderInput("uv", self.uv)
+        return task.again
+
+    def set_time_of_day(self, duration):
+        # node for the sun to rotate around and look at.
+        if not self.time_of_day_np and duration:
+            self.time_of_day_np = NodePath("TimeOfday")
+        self.time_of_day_np.reparentTo(render)
+        self.time_of_day_np.setPos(0, 0, -10)
+
+        # make the center of the world spin
+        worldRotationInterval = self.time_of_day_np.hprInterval(duration, Point3(0, -180, 0),
+                                                                startHpr=Point3(0, 180, 0))
+        spinWorld = Sequence(worldRotationInterval, name="spinWorld")
+        spinWorld.loop()
+
+        # Directional Light
+        self.time_of_day_light = render.attachNewNode(Spotlight("Spot"))
+
+        if self.sun:
+            self.time_of_day_light.setPos(self.sun.get_pos())
+        else:
+            self.time_of_day_light.setPos(0, 0, 800)
+
+        self.time_of_day_light.lookAt(self.time_of_day_np)
+        render.setLight(self.time_of_day_light)
+        self.time_of_day_light.reparentTo(self.time_of_day_np)
+
+        self.time_of_day_light.node().setShadowCaster(True, 2048, 2048)
+        self.time_of_day_light.node().showFrustum()
+        self.time_of_day_light.node().getLens().setNearFar(80, 800)
+        self.time_of_day_light.node().getLens().setFilmSize(800, 800)
+
+        self.set_shadows(obj=self.render, light=self.time_of_day_light, shadow_blur=0.2,
+                         ambient_color=(1.0, 1.0, 1.0))
+        # self.render.set_shader_auto()
+
+    def set_time_of_day_clock_task(self, time, duration, task):
         if (not base.game_mode
                 and base.menu_mode):
             self.time_text_ui.hide()
@@ -102,6 +242,62 @@ class RenderAttr:
                     if 7 <= self.hour < 19:
                         self.hud.toggle_day_hud(time="light")
                     elif self.hour >= 19:
+                        self.hud.toggle_day_hud(time="night")
+        else:
+            if time and duration:
+                self.time_of_day_time = time
+                self.elapsed_seconds = round(globalClock.getRealTime())
+
+                # 1800 seconds are equal to 30 minutes
+                if duration == 1800:
+                    self.minutes = self.elapsed_seconds // 60
+                elif duration < 1800:
+                    self.minutes = self.elapsed_seconds // 60
+
+                hour = time.split(':')
+                hour = int(hour[0])
+                self.hour = hour
+
+                if duration == 1800:
+                    if self.hour == 23:
+                        self.hour = 0
+                    else:
+                        self.hour += self.minutes // 60
+                        if self.minutes > 59:
+                            self.minutes = 00
+                elif duration < 1800:
+                    if self.hour == 23:
+                        self.hour = 0
+                    else:
+                        self.hour += self.minutes
+                        if self.elapsed_seconds > 59:
+                            self.minutes = 00
+
+                if self.minutes < 10:
+                    self.time_text_ui.setText("{0}:0{1}".format(self.hour, self.minutes))
+                    self.time_of_day_time = "{0}:0{1}".format(self.hour, self.minutes)
+                elif self.minutes > 9:
+                    self.time_text_ui.setText("{0}:{1}".format(self.hour, self.minutes))
+                    self.time_of_day_time = "{0}:{1}".format(self.hour, self.minutes)
+
+                if (not hasattr(base, "is_ui_active")
+                        or hasattr(base, "is_ui_active")
+                        and not base.is_ui_active):
+                    if 7 <= self.hour < 19:
+                        if self.sky:
+                            self.sky.setColor(1, 1, 1, 1)
+                        if self.sun:
+                            self.sun.setColor(1, 1, 1, 1)
+                        if self.clouds:
+                            self.clouds[-1].setColor(0.6, 0.6, 0.65, 1.0)
+                        self.hud.toggle_day_hud(time="light")
+                    elif self.hour >= 19:
+                        if self.sky:
+                            self.sky.setColor(0, 0, 0, 0)
+                        if self.sun:
+                            self.sun.setColor(0, 0, 0, 0)
+                        if self.clouds:
+                            self.clouds[-1].setColor(0.8, 0.8, 0.85, 1.0)
                         self.hud.toggle_day_hud(time="night")
 
         return task.cont
@@ -184,107 +380,6 @@ class RenderAttr:
                 attrib = actor.get_attrib(ShaderAttrib)
                 attrib = attrib.set_flag(ShaderAttrib.F_hardware_skinning, bool_)
                 actor.set_attrib(attrib)
-
-    def set_sky_and_clouds(self, cloud_dimensions, cloud_speed, cloud_size, cloud_count, cloud_color):
-        if (cloud_dimensions
-                and cloud_speed
-                and cloud_size
-                and cloud_count
-                and cloud_color
-                and isinstance(cloud_dimensions, list)
-                and isinstance(cloud_color, tuple)):
-            if not self.skybox_np:
-                self.skybox_np = render.attachNewNode('Skybox_P3D')
-            cloud_lod = FadeLODNode('CloudLOD')
-            cloud_np = NodePath(cloud_lod)
-            cloud = render.find("cloud")
-            if cloud:
-                cloud.reparentTo(cloud_np)
-            cloud_lod.addSwitch(1000, 0)
-
-            ready_shaders = self.get_all_shaders(self.shader_collector())
-
-            cloud_lod.setFadeTime(5.0)
-
-            self.sky = render.find("sky")
-            if self.sky:
-                self.sky.reparentTo(self.skybox_np)
-                self.sky.setBin('background', 1)
-                self.sky.setDepthWrite(0)
-                self.sky.setLightOff()
-                self.sky.setScale(100)
-
-                self.sun = render.find("sun")
-                if self.sun:
-                    self.sun.reparentTo(self.skybox_np)
-                    self.sun.setBin('background', 1)
-                    self.sun.setDepthWrite(0)
-                    self.sun.setLightOff()
-                    self.sun.setScale(100)
-                    self.sun.setP(20)
-
-                    # config here!
-                    self.cloud_x = cloud_dimensions[0]
-                    self.cloud_y = cloud_dimensions[1]
-                    self.cloud_z = cloud_dimensions[2]
-                    self.cloud_speed = cloud_speed
-                    self.clouds = []
-                    for i in range(cloud_count):
-                        self.clouds.append(cloud.copyTo(self.skybox_np))
-                        self.clouds[-1].getChild(0).setScale(cloud_size + random.random(),
-                                                             cloud_size + random.random(),
-                                                             cloud_size + random.random())
-                        self.clouds[-1].setPos(render, random.randrange(-self.cloud_x / 2, self.cloud_x / 2),
-                                               random.randrange(-self.cloud_y / 2, self.cloud_y / 2),
-                                               random.randrange(self.cloud_z) + self.cloud_z * 2)
-                        self.clouds[-1].setShaderInput("offset",
-                                                       Vec4(random.randrange(5) * 0.25, random.randrange(9) * 0.125, 0, 0))
-                        self.clouds[-1].setShader(ready_shaders['Clouds'])
-                        self.clouds[-1].setBillboardPointEye()
-                        self.clouds[-1].setDepthWrite(0)
-                        self.clouds[-1].setDepthTest(0)
-                        # self.clouds[-1].setBin("fixed", 0)
-                        self.clouds[-1].setBin('background', 1)
-
-                    self.skybox_np.setColor(cloud_color)
-                    self.sky.setColor(1, 1, 1, 1)
-                    self.sun.setColor(1, 1, 1, 1)
-
-                    self.time = 0
-                    self.uv = Vec4(0, 0, 0.25, 0)
-                    render.setShaderInput("time", self.time)
-                    render.setShaderInput("uv", self.uv)
-                    taskMgr.add(self.update_clouds_task, "update_clouds_task")
-
-    def update_clouds_task(self, task):
-        self.time += task.time*self.cloud_speed
-        self.offset += task.time
-        self.skybox_np.setPos(base.camera.getPos(render))
-        elapsed = task.time * self.cloud_speed
-        for model in self.clouds:
-            model.setY(model, -task.time * 10.0)
-            if model.getY(self.skybox_np) < -self.cloud_y / 2:
-                model.setY(self.skybox_np, self.cloud_y / 2)
-        self.time += elapsed
-        if self.time > 1.0:
-            self.cloud_speed *= -1.0
-            self.uv[0] += 0.5
-            if self.uv[0] > 1.0:
-                self.uv[0] = 0
-                self.uv[1] += 0.125
-                # if self.uv[1] > 1.0:
-                #    self.uv = Vec4(0, 0, 0, 0)
-        if self.time < 0.0:
-            self.cloud_speed *= -1.0
-            self.uv[2] += 0.5
-            if self.uv[2] > 1.0:
-                self.uv[2] = 0.25
-                self.uv[3] += 0.125
-                # if self.uv[3] > 1.0:
-                #    self.uv = Vec4(0, 0, 0, 0)
-        render.setShaderInput("time", self.time)
-        render.setShaderInput("uv", self.uv)
-        return task.again
 
     def set_water(self, bool, water_lvl, adv_render):
         if bool:
@@ -502,9 +597,8 @@ class RenderAttr:
             self.particles = {}
         self.base.disable_particles()
 
-    def set_shadows(self, obj, render, light, shadow_blur, ambient_color):
+    def set_shadows(self, obj, light, shadow_blur, ambient_color):
         if obj and light and shadow_blur and ambient_color:
-            self.render = render
             # If you don't do this, none of the features
             # listed above will have any effect. Panda will
             # simply ignore normal maps, HDR, and so forth if
@@ -527,88 +621,90 @@ class RenderAttr:
                 and isinstance(hpr, list)
                 and isinstance(color, list)
                 and isinstance(task, str)):
-
             self.render = render
-
             if task == 'attach':
-                if name == "plight":
-                    if self.game_settings['Main']['postprocessing'] == 'off':
+                if self.game_settings['Main']['postprocessing'] == 'off':
+                    if name == "plight":
                         pass
+                    if name == 'slight':
+                        if self.game_settings['Main']['postprocessing'] == 'off':
+                            if render.find("**/{0}".format(name)).is_empty():
+                                light = Spotlight(name)
+                                light.set_color((color[0], color[0], color[0], 1))
+                                lens = PerspectiveLens()
+                                light.set_lens(lens)
+                                light_np = self.render.attach_new_node(light)
+                                # This light is facing backwards, towards the camera.
+                                light_np.set_hpr(hpr[0], hpr[1], hpr[2])
+                                light_np.set_pos(pos[0], pos[1], pos[2])
+                                light_np.set_scale(100)
+                                light.look_at(light_np)
+                                self.render.set_light(light_np)
+                                self.set_shadows(obj=self.render, light=light, shadow_blur=0.2,
+                                                 ambient_color=(1.0, 1.0, 1.0))
+                            else:
+                                render.clearLight()
 
-                    if self.game_settings['Main']['postprocessing'] == 'on':
-                        # RP doesn't have nodegraph-like structure to find and remove lights,
-                        # so we check self.rp_light before adding light
-                        light = PointLight()
-                        light.pos = (pos[0], pos[1], pos[2])
-                        light.color = (color[0], color[0], color[0])
-                        light.set_color_from_temperature(3000.0)
-                        light.energy = 100.0
-                        light.ies_profile = self.render_pipeline.load_ies_profile("x_arrow.ies")
-                        light.casts_shadows = True
-                        light.shadow_map_resolution = 1024
-                        light.near_plane = 0.2
-                        light.radius = 10.0
-                        base.rp_lights.append(light)
-                        self.render_pipeline.add_light(light)
+                    if name == 'dlight':
+                        if self.game_settings['Main']['postprocessing'] == 'off':
+                            if render.find("**/{0}".format(name)).is_empty():
+                                light = DirectionalLight(name)
+                                light.set_color((color[0], color[0], color[0], 1))
+                                light_np = self.render.attach_new_node(light)
+                                # This light is facing backwards, towards the camera.
+                                light_np.set_hpr(hpr[0], hpr[1], hpr[2])
+                                light_np.set_pos(pos[0], pos[1], pos[2])
+                                light_np.set_scale(100)
+                                self.render.set_light(light_np)
+                                """self.set_shadows(obj=self.render, light=light, shadow_blur=0.2,
+                                                 ambient_color=(1.0, 1.0, 1.0))"""
+                            else:
+                                render.clearLight()
 
-                if name == 'slight':
-                    if self.game_settings['Main']['postprocessing'] == 'off':
-                        if render.find("**/{0}".format(name)).is_empty():
-                            light = Spotlight(name)
-                            light.set_color((color[0], color[0], color[0], 1))
-                            lens = PerspectiveLens()
-                            light.set_lens(lens)
-                            light_np = self.render.attach_new_node(light)
-                            # This light is facing backwards, towards the camera.
-                            light_np.set_hpr(hpr[0], hpr[1], hpr[2])
-                            light_np.set_pos(pos[0], pos[1], pos[2])
-                            light_np.set_scale(100)
-                            light.look_at(light_np)
-                            self.render.set_light(light_np)
-                        else:
-                            render.clearLight()
+                    if name == 'alight':
+                        if self.game_settings['Main']['postprocessing'] == 'off':
+                            if render.find("**/{0}".format(name)).is_empty():
+                                light = AmbientLight(name)
+                                light.set_color((color[0], color[0], color[0], 1))
+                                light_np = self.render.attach_new_node(light)
+                                self.render.set_light(light_np)
+                                """self.set_shadows(obj=self.render, light=light, shadow_blur=0.2,
+                                                 ambient_color=(1.0, 1.0, 1.0))"""
+                            else:
+                                render.clearLight()
 
-                    if self.game_settings['Main']['postprocessing'] == 'on':
-                        # RP doesn't have nodegraph-like structure to find and remove lights,
-                        # so we check self.rp_light before adding light
-                        light = SpotLight()
-                        light.pos = (pos[0], pos[1], pos[2])
-                        light.color = (color[0], color[0], color[0])
-                        light.set_color_from_temperature(3000.0)
-                        light.energy = 100
-                        light.ies_profile = self.render_pipeline.load_ies_profile("x_arrow.ies")
-                        light.casts_shadows = True
-                        light.shadow_map_resolution = 512
-                        light.near_plane = 0.2
-                        light.radius = 0.5
-                        light.fov = 10
-                        light.direction = (hpr[0], hpr[1], hpr[2])
-                        base.rp_lights.append(light)
-                        self.render_pipeline.add_light(light)
+                if self.game_settings['Main']['postprocessing'] == 'on':
+                    # RP doesn't have nodegraph-like structure to find and remove lights,
+                    # so we check self.rp_light before adding light
+                    light = SpotLight()
+                    light.pos = (pos[0], pos[1], pos[2])
+                    light.color = (color[0], color[0], color[0])
+                    light.set_color_from_temperature(3000.0)
+                    light.energy = 100
+                    light.ies_profile = self.render_pipeline.load_ies_profile("x_arrow.ies")
+                    light.casts_shadows = True
+                    light.shadow_map_resolution = 512
+                    light.near_plane = 0.2
+                    light.radius = 0.5
+                    light.fov = 10
+                    light.direction = (hpr[0], hpr[1], hpr[2])
+                    base.rp_lights.append(light)
+                    self.render_pipeline.add_light(light)
 
-                if name == 'dlight':
-                    if self.game_settings['Main']['postprocessing'] == 'off':
-                        if render.find("**/{0}".format(name)).is_empty():
-                            light = DirectionalLight(name)
-                            light.set_color((color[0], color[0], color[0], 1))
-                            light_np = self.render.attach_new_node(light)
-                            # This light is facing backwards, towards the camera.
-                            light_np.set_hpr(hpr[0], hpr[1], hpr[2])
-                            light_np.set_pos(pos[0], pos[1], pos[2])
-                            light_np.set_scale(100)
-                            self.render.set_light(light_np)
-                        else:
-                            render.clearLight()
-
-                if name == 'alight':
-                    if self.game_settings['Main']['postprocessing'] == 'off':
-                        if render.find("**/{0}".format(name)).is_empty():
-                            light = AmbientLight(name)
-                            light.set_color((color[0], color[0], color[0], 1))
-                            light_np = self.render.attach_new_node(light)
-                            self.render.set_light(light_np)
-                        else:
-                            render.clearLight()
+                    # RP doesn't have nodegraph-like structure to find and remove lights,
+                    # so we check self.rp_light before adding light
+                    light = PointLight()
+                    light.pos = (pos[0], pos[1], pos[2])
+                    light.color = (color[0], color[0], color[0])
+                    light.set_color_from_temperature(3000.0)
+                    light.energy = 100.0
+                    light.ies_profile = self.render_pipeline.load_ies_profile("x_arrow.ies")
+                    light.casts_shadows = True
+                    light.shadow_map_resolution = 1024
+                    light.near_plane = 0.2
+                    light.radius = 10.0
+                    base.rp_lights.append(light)
+                    self.render_pipeline.add_light(light)
 
     def clear_lighting(self):
         if base.rp_lights and self.render_pipeline.light_mgr.num_lights > 0:

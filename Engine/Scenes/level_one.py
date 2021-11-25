@@ -375,14 +375,16 @@ class LevelOne:
         self.base.accept("escape", self.pause_game_ui.load_pause_menu)
 
         """ Set Time of Day """
-        taskMgr.add(self.render_attr.set_daytime_clock_task,
-                    "set_daytime_clock_task",
-                    extraArgs=["16:00"],
+
+        self.render_attr.set_time_of_day(duration=24)  # 1800 sec == 30 min
+        taskMgr.add(self.render_attr.set_time_of_day_clock_task,
+                    "set_time_of_day_clock_task",
+                    extraArgs=["16:00", 24],  # 1800 sec == 30 min
                     appendTask=True)
 
         """ Assets """
 
-        base.render_attr.set_lighting(name='plight',
+        """base.render_attr.set_lighting(name='plight',
                                       render=self.render,
                                       pos=[-7, 8, 8],
                                       hpr=[180, 130, 0],
@@ -393,7 +395,7 @@ class LevelOne:
                                       pos=[-12, 8, 8],
                                       hpr=[180, 130, 0],
                                       color=[0.4],
-                                      task="attach")
+                                      task="attach")"""
         """base.render_attr.set_lighting(name='slight',
                                       render=self.render,
                                       pos=[0, 3, 10],
@@ -451,8 +453,7 @@ class LevelOne:
                                cloud_speed=0.3,
                                cloud_size=20,
                                cloud_count=20,
-                               cloud_color=(0.6, 0.6, 0.65, 1.0),
-                               culling=False)
+                               cloud_color=(0.6, 0.6, 0.65, 1.0))
 
         """ Async Loading """
         taskMgr.add(self.scene_one.set_level(path=assets['lvl_one'],
