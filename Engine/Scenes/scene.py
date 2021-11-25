@@ -33,17 +33,20 @@ class SceneOne:
                                                               self.game_settings_filename)}
 
     def set_env(self, cloud_dimensions, cloud_speed, cloud_size, cloud_count, cloud_color, culling):
-        if isinstance(culling, bool):
-            if self.game_settings['Main']['postprocessing'] == 'off':
-                self.render_attr.set_sky_and_clouds(cloud_dimensions, cloud_speed, cloud_size, cloud_count, cloud_color)
+        if self.game_settings['Main']['postprocessing'] == 'off':
+            if isinstance(culling, bool):
                 # Load the skybox
                 assets = self.base.assets_collector()
                 sky = self.base.loader.load_model(assets['sky'])
+                sun = self.base.loader.load_model(assets['sun'])
                 cloud = self.base.loader.load_model(assets['cloud'])
                 sky.set_name("sky")
                 sky.reparent_to(render)
+                sun.set_name("sun")
+                sun.reparent_to(render)
                 cloud.set_name("cloud")
                 cloud.reparent_to(render)
+                self.render_attr.set_sky_and_clouds(cloud_dimensions, cloud_speed, cloud_size, cloud_count, cloud_color)
                 # If you don't do this, none of the features
                 # listed above will have any effect. Panda will
                 # simply ignore normal maps, HDR, and so forth if

@@ -45,6 +45,9 @@ class RenderAttr:
 
         # Skybox
         self.skybox_np = None
+        self.sky = None
+        self.sun = None
+        self.offset = 0.0
         self.clouds = []
         self.cloud_x = 0
         self.cloud_y = 0
@@ -168,7 +171,8 @@ class RenderAttr:
         if actor and isinstance(bool_, bool):
             if self.game_settings['Main']['postprocessing'] == 'on' and bool_:
                 self.render_pipeline.set_effect(actor,
-                                                "{0}/Engine/Render/effects/hardware_skinning.yaml".format(self.game_dir),
+                                                "{0}/Engine/Render/effects/hardware_skinning.yaml".format(
+                                                    self.game_dir),
                                                 options={}, sort=25)
                 attrib = actor.get_attrib(ShaderAttrib)
                 attrib = attrib.set_flag(ShaderAttrib.F_hardware_skinning, bool_)
@@ -201,54 +205,66 @@ class RenderAttr:
             ready_shaders = self.get_all_shaders(self.shader_collector())
 
             cloud_lod.setFadeTime(5.0)
-            sky = render.find("sky")
-            if sky:
-                sky.reparentTo(self.skybox_np)
-                sky.setBin('background', 1)
-                sky.setDepthWrite(0)
-                sky.setLightOff()
-                sky.setScale(100)
 
-                # config here!
-                self.cloud_x = cloud_dimensions[0]
-                self.cloud_y = cloud_dimensions[1]
-                self.cloud_z = cloud_dimensions[2]
-                self.cloud_speed = cloud_speed
-                self.clouds = []
+            self.sky = render.find("sky")
+            if self.sky:
+                self.sky.reparentTo(self.skybox_np)
+                self.sky.setBin('background', 1)
+                self.sky.setDepthWrite(0)
+                self.sky.setLightOff()
+                self.sky.setScale(100)
 
-                for i in range(cloud_count):
-                    self.clouds.append(cloud.copyTo(self.skybox_np))
-                    self.clouds[-1].getChild(0).getChild(0).setScale(cloud_size + random.random(),
-                                                                     cloud_size + random.random(),
-                                                                     cloud_size + random.random())
-                    self.clouds[-1].setPos(render, random.randrange(-self.cloud_x / 2, self.cloud_x / 2),
-                                           random.randrange(-self.cloud_y / 2, self.cloud_y / 2),
-                                           random.randrange(self.cloud_z) + self.cloud_z)
-                    self.clouds[-1].setShaderInput("offset",
-                                                   Vec4(random.randrange(5) * 0.25, random.randrange(9) * 0.125, 0, 0))
-                    self.clouds[-1].setShader(ready_shaders['Clouds'])
-                    self.clouds[-1].setBillboardPointEye()
-                    # self.clouds[-1].setColor(cloud_color)
-                    self.clouds[-1].setDepthWrite(0)
-                    self.clouds[-1].setDepthTest(0)
-                    self.clouds[-1].setBin("fixed", 0)
+                self.sun = render.find("sun")
+                if self.sun:
+                    self.sun.reparentTo(self.skybox_np)
+                    self.sun.setBin('background', 1)
+                    self.sun.setDepthWrite(0)
+                    self.sun.setLightOff()
+                    self.sun.setScale(100)
+                    self.sun.setP(20)
 
-                self.skybox_np.setColor(cloud_color)
-                sky.setColor(1, 1, 1, 1)
+                    # config here!
+                    self.cloud_x = cloud_dimensions[0]
+                    self.cloud_y = cloud_dimensions[1]
+                    self.cloud_z = cloud_dimensions[2]
+                    self.cloud_speed = cloud_speed
+                    self.clouds = []
+                    for i in range(cloud_count):
+                        self.clouds.append(cloud.copyTo(self.skybox_np))
+                        self.clouds[-1].getChild(0).setScale(cloud_size + random.random(),
+                                                             cloud_size + random.random(),
+                                                             cloud_size + random.random())
+                        self.clouds[-1].setPos(render, random.randrange(-self.cloud_x / 2, self.cloud_x / 2),
+                                               random.randrange(-self.cloud_y / 2, self.cloud_y / 2),
+                                               random.randrange(self.cloud_z) + self.cloud_z * 2)
+                        self.clouds[-1].setShaderInput("offset",
+                                                       Vec4(random.randrange(5) * 0.25, random.randrange(9) * 0.125, 0, 0))
+                        self.clouds[-1].setShader(ready_shaders['Clouds'])
+                        self.clouds[-1].setBillboardPointEye()
+                        self.clouds[-1].setDepthWrite(0)
+                        self.clouds[-1].setDepthTest(0)
+                        # self.clouds[-1].setBin("fixed", 0)
+                        self.clouds[-1].setBin('background', 1)
 
-                self.time = 0
-                self.uv = Vec4(0, 0, 0.25, 0)
-                render.setShaderInput("time", self.time)
-                render.setShaderInput("uv", self.uv)
-                taskMgr.add(self.update_clouds_task, "updateTask")
+                    self.skybox_np.setColor(cloud_color)
+                    self.sky.setColor(1, 1, 1, 1)
+                    self.sun.setColor(1, 1, 1, 1)
+
+                    self.time = 0
+                    self.uv = Vec4(0, 0, 0.25, 0)
+                    render.setShaderInput("time", self.time)
+                    render.setShaderInput("uv", self.uv)
+                    taskMgr.add(self.update_clouds_task, "update_clouds_task")
 
     def update_clouds_task(self, task):
+        self.time+=task.time*self.cloud_speed
+        self.offset+=task.time
         self.skybox_np.setPos(base.camera.getPos(render))
-        elapsed = task.time*self.cloud_speed
+        elapsed = task.time * self.cloud_speed
         for model in self.clouds:
-            model.setY(model, -task.time*10.0)
-            if model.getY(self.skybox_np) < -self.cloud_y/2:
-                model.setY(self.skybox_np, self.cloud_y/2)
+            model.setY(model, -task.time * 10.0)
+            if model.getY(self.skybox_np) < -self.cloud_y / 2:
+                model.setY(self.skybox_np, self.cloud_y / 2)
         self.time += elapsed
         if self.time > 1.0:
             self.cloud_speed *= -1.0
