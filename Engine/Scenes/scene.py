@@ -34,16 +34,16 @@ class SceneOne:
 
     def set_env(self, cloud_dimensions, cloud_speed, cloud_size, cloud_count, cloud_color, culling):
         if isinstance(culling, bool):
-            self.render = render
-            # Load the skybox
-            assets = self.base.assets_collector()
-            sky = self.base.loader.load_model(assets['sky'])
-            cloud = self.base.loader.load_model(assets['cloud'])
-            sky.set_name("sky")
-            cloud.set_name("cloud")
             if self.game_settings['Main']['postprocessing'] == 'off':
                 self.render_attr.set_sky_and_clouds(cloud_dimensions, cloud_speed, cloud_size, cloud_count, cloud_color)
-
+                # Load the skybox
+                assets = self.base.assets_collector()
+                sky = self.base.loader.load_model(assets['sky'])
+                cloud = self.base.loader.load_model(assets['cloud'])
+                sky.set_name("sky")
+                sky.reparent_to(render)
+                cloud.set_name("cloud")
+                cloud.reparent_to(render)
                 # If you don't do this, none of the features
                 # listed above will have any effect. Panda will
                 # simply ignore normal maps, HDR, and so forth if
@@ -115,8 +115,8 @@ class SceneOne:
                 # simply ignore normal maps, HDR, and so forth if
                 # shader generation is not enabled. It would be reasonable
                 # to enable shader generation for the entire game, using this call:
-                # scene.set_shader_auto()
-                pass
+                scene.set_shader_auto()
+                # pass
 
             else:
                 # Enable water
