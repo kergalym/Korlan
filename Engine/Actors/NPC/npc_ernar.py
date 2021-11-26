@@ -108,7 +108,7 @@ class NpcErnar:
             self.actor.set_r(self.actor, self.rot_r)
 
             # Hardware skinning
-            self.render_attr.set_hardware_skinning(self.actor, True)
+            self.render_attr.set_hardware_skinning(self.actor, False)
 
             # Get actor joints
             base.actor_joints = self.actor.get_joints()
@@ -122,15 +122,16 @@ class NpcErnar:
             self.actor.reparent_to(self.base.lod_np)
             self.base.lod.addSwitch(50.0, 0.0)
 
-            self.base.set_textures_srgb(True)
-
             if self.game_settings['Main']['postprocessing'] == 'on':
                 self.render_attr.render_pipeline.prepare_scene(self.actor)
 
-            # Set lights and Shadows
             if self.game_settings['Main']['postprocessing'] == 'off':
                 # TODO: uncomment if character has normals
-                # self.render_attr.set_shadows(self.actor, self.render)
+                # Set Lights and Shadows
+                """if render.find("SpotLight_ToD"):
+                    light = render.find("SpotLight_ToD")
+                    self.render_attr.set_spotlight_shadows(obj=self.actor, light=light, shadow_blur=0.2,
+                                                           ambient_color=(1.0, 1.0, 1.0))"""
                 # self.render_attr.set_ssao(self.actor)
                 pass
 

@@ -98,8 +98,6 @@ class SceneOne:
 
             scene.set_texture(ts, lightmap)"""
 
-            # self.base.set_textures_srgb(True)
-
             # Set two sided, since some model may be broken
             scene.set_two_sided(culling)
 
@@ -110,15 +108,18 @@ class SceneOne:
 
             if self.game_settings['Main']['postprocessing'] == 'off':
                 # Set Lights and Shadows
-                # self.render_attr.set_shadows(scene, render)
+                if render.find("SpotLight_ToD"):
+                    light = render.find("SpotLight_ToD")
+                    self.render_attr.set_spotlight_shadows(obj=scene, light=light, shadow_blur=0.2,
+                                                           ambient_color=(1.0, 1.0, 1.0))
 
                 # If you don't do this, none of the features
                 # listed above will have any effect. Panda will
                 # simply ignore normal maps, HDR, and so forth if
                 # shader generation is not enabled. It would be reasonable
                 # to enable shader generation for the entire game, using this call:
-                scene.set_shader_auto()
-                # pass
+                # scene.set_shader_auto()
+                pass
 
             else:
                 # Enable water

@@ -376,15 +376,15 @@ class LevelOne:
 
         """ Set Time of Day """
 
-        self.render_attr.set_time_of_day(duration=24)  # 1800 sec == 30 min
+        self.render_attr.set_time_of_day(duration=1800)  # 1800 sec == 30 min
         taskMgr.add(self.render_attr.set_time_of_day_clock_task,
                     "set_time_of_day_clock_task",
-                    extraArgs=["16:00", 24],  # 1800 sec == 30 min
+                    extraArgs=["16:00", 1800],  # 1800 sec == 30 min
                     appendTask=True)
 
         """ Assets """
 
-        """base.render_attr.set_lighting(name='plight',
+        base.render_attr.set_lighting(name='plight',
                                       render=self.render,
                                       pos=[-7, 8, 8],
                                       hpr=[180, 130, 0],
@@ -395,14 +395,14 @@ class LevelOne:
                                       pos=[-12, 8, 8],
                                       hpr=[180, 130, 0],
                                       color=[0.4],
-                                      task="attach")"""
+                                      task="attach")
         """base.render_attr.set_lighting(name='slight',
                                       render=self.render,
                                       pos=[0, 3, 10],
                                       hpr=[0, -20, 0],
                                       color=[0.5],
-                                      task="attach")
-        self.render_attr.set_lighting(name='dlight',
+                                      task="attach")"""
+        """self.render_attr.set_lighting(name='dlight',
                                       render=self.render,
                                       pos=[0, -40, 10],
                                       hpr=[0, -20, 0],
@@ -456,7 +456,12 @@ class LevelOne:
                                cloud_color=(0.6, 0.6, 0.65, 1.0))
 
         """ Async Loading """
-        taskMgr.add(self.scene_one.set_level(path=assets['lvl_one'],
+        suffix = ""
+        if self.game_settings['Main']['postprocessing'] == 'on':
+            suffix = "rp"
+        elif self.game_settings['Main']['postprocessing'] == 'off':
+            suffix = "p3d"
+        taskMgr.add(self.scene_one.set_level(path=assets['lvl_one_{0}'.format(suffix)],
                                              name="lvl_one",
                                              axis=[0.0, 0.0, self.pos_z],
                                              rotation=[0, 0, 0],
@@ -465,7 +470,7 @@ class LevelOne:
 
         taskMgr.add(self.korlan.set_actor(mode="game",
                                           name="Player",
-                                          path=assets['Korlan'],
+                                          path=assets['Korlan_{0}'.format(suffix)],
                                           animation=anims,
                                           axis=[0, 15.0, self.pos_z],
                                           rotation=[0, 0, 0],
@@ -479,7 +484,7 @@ class LevelOne:
                 axis = level_npc_axis[axis_actor]
                 taskMgr.add(npc_cls.set_actor(mode="game",
                                               name=actor,
-                                              path=assets[actor],
+                                              path=assets['{0}_{1}'.format(actor, suffix)],
                                               animation=anims,
                                               axis=axis,
                                               rotation=[0, 0, 0],

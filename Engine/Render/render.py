@@ -175,38 +175,40 @@ class RenderAttr:
         return task.again
 
     def set_time_of_day(self, duration):
-        # node for the sun to rotate around and look at.
-        if not self.time_of_day_np and duration:
-            self.time_of_day_np = NodePath("TimeOfday")
-        self.time_of_day_np.reparentTo(render)
-        self.time_of_day_np.setPos(0, 0, -10)
+        if self.game_settings['Main']['postprocessing'] == 'off':
+            # node for the sun to rotate around and look at.
+            if not self.time_of_day_np and duration:
+                self.time_of_day_np = NodePath("TimeOfday")
+            self.time_of_day_np.reparentTo(render)
+            self.time_of_day_np.setPos(0, 0, -10)
 
-        # make the center of the world spin
-        worldRotationInterval = self.time_of_day_np.hprInterval(duration, Point3(0, -180, 0),
-                                                                startHpr=Point3(0, 180, 0))
-        spinWorld = Sequence(worldRotationInterval, name="spinWorld")
-        spinWorld.loop()
+            # make the center of the world spin
+            worldRotationInterval = self.time_of_day_np.hprInterval(duration, Point3(0, -180, 0),
+                                                                    startHpr=Point3(0, 180, 0))
+            spinWorld = Sequence(worldRotationInterval, name="spinWorld")
+            spinWorld.loop()
 
-        # Directional Light
-        self.time_of_day_light = render.attachNewNode(Spotlight("Spot"))
+            # Directional Light
+            self.time_of_day_light = render.attachNewNode(Spotlight("SpotLight_ToD"))
 
-        if self.sun:
-            self.time_of_day_light.setPos(self.sun.get_pos())
-        else:
-            self.time_of_day_light.setPos(0, 0, 800)
+            if self.sun:
+                self.time_of_day_light.setPos(self.sun.get_pos())
+            else:
+                self.time_of_day_light.setPos(0, 0, 800)
 
-        self.time_of_day_light.lookAt(self.time_of_day_np)
-        render.setLight(self.time_of_day_light)
-        self.time_of_day_light.reparentTo(self.time_of_day_np)
+            self.time_of_day_light.lookAt(self.time_of_day_np)
+            render.setLight(self.time_of_day_light)
+            self.time_of_day_light.reparentTo(self.time_of_day_np)
 
-        self.time_of_day_light.node().setShadowCaster(True, 2048, 2048)
-        self.time_of_day_light.node().showFrustum()
-        self.time_of_day_light.node().getLens().setNearFar(80, 800)
-        self.time_of_day_light.node().getLens().setFilmSize(800, 800)
+            self.time_of_day_light.node().setShadowCaster(True, 2048, 2048)
+            self.time_of_day_light.node().showFrustum()
+            self.time_of_day_light.node().getLens().setNearFar(80, 800)
+            self.time_of_day_light.node().getLens().setFilmSize(800, 800)
 
-        self.set_shadows(obj=self.render, light=self.time_of_day_light, shadow_blur=0.2,
-                         ambient_color=(1.0, 1.0, 1.0))
-        # self.render.set_shader_auto()
+            render.set_shader_auto()
+
+            self.set_spotlight_shadows(obj=render, light=self.time_of_day_light, shadow_blur=0.2,
+                                       ambient_color=(1.0, 1.0, 1.0))
 
     def set_time_of_day_clock_task(self, time, duration, task):
         if (not base.game_mode
@@ -218,16 +220,34 @@ class RenderAttr:
                 self.time_text_ui.show()
 
         if self.game_settings['Main']['postprocessing'] == 'on':
-            if self.render_pipeline and time:
+            if self.render_pipeline and time and duration:
                 self.render_pipeline.daytime_mgr.time = time
                 self.elapsed_seconds = round(globalClock.getRealTime())
 
+                # seconds floor divided by 60 are equal to 1 minute
+                # 1800 seconds are equal to 30 minutes
                 self.minutes = self.elapsed_seconds // 60
 
                 hour = time.split(':')
                 hour = int(hour[0])
                 self.hour = hour
-                self.hour += self.minutes // 60
+
+                # 30 minutes of duration
+                if duration == 1800:
+                    if self.hour == 23:
+                        self.hour = 0
+                    else:
+                        self.hour += self.minutes // 60
+                        if self.minutes > 59:
+                            self.minutes = 00
+                # Seconds of duration
+                elif duration < 1800:
+                    if self.hour == 23:
+                        self.hour = 0
+                    else:
+                        self.hour += self.minutes
+                        if self.elapsed_seconds > 59:
+                            self.minutes = 00
 
                 if self.minutes < 10:
                     self.time_text_ui.setText("{0}:0{1}".format(self.hour, self.minutes))
@@ -243,6 +263,7 @@ class RenderAttr:
                         self.hud.toggle_day_hud(time="light")
                     elif self.hour >= 19:
                         self.hud.toggle_day_hud(time="night")
+
         elif self.game_settings['Main']['postprocessing'] == 'off':
             if time and duration:
                 self.time_of_day_time = time
@@ -597,22 +618,6 @@ class RenderAttr:
             self.particles = {}
         self.base.disable_particles()
 
-    def set_shadows(self, obj, light, shadow_blur, ambient_color):
-        if obj and light and shadow_blur and ambient_color:
-            # If you don't do this, none of the features
-            # listed above will have any effect. Panda will
-            # simply ignore normal maps, HDR, and so forth if
-            # shader generation is not enabled. It would be reasonable
-            # to enable shader generation for the entire game, using this call:
-            # obj.set_shader_auto()
-            base.shaderenable = 1
-
-            ready_shaders = self.get_all_shaders(self.shader_collector())
-            obj.set_shader(ready_shaders['Shadows'])
-            obj.set_shader_input('my_light', light)
-            obj.set_shader_input('shadow_blur', shadow_blur)  # 0.2
-            obj.set_shader_input('ambient_color', ambient_color)  # Vec3(1.0, 1.0, 1.0)
-
     def set_lighting(self, name, render, pos, hpr, color, task):
         if (render
                 and name
@@ -629,19 +634,17 @@ class RenderAttr:
                     if name == 'slight':
                         if self.game_settings['Main']['postprocessing'] == 'off':
                             if render.find("**/{0}".format(name)).is_empty():
-                                light = Spotlight(name)
-                                light.set_color((color[0], color[0], color[0], 1))
-                                lens = PerspectiveLens()
-                                light.set_lens(lens)
-                                light_np = self.render.attach_new_node(light)
-                                # This light is facing backwards, towards the camera.
-                                light_np.set_hpr(hpr[0], hpr[1], hpr[2])
-                                light_np.set_pos(pos[0], pos[1], pos[2])
-                                light_np.set_scale(100)
-                                light.look_at(light_np)
-                                self.render.set_light(light_np)
-                                self.set_shadows(obj=self.render, light=light, shadow_blur=0.2,
-                                                 ambient_color=(1.0, 1.0, 1.0))
+                                light = self.render.attach_new_node(Spotlight(name))
+                                light.node().set_shadow_caster(True, 512, 512)
+                                light.node().set_color((color[0], color[0], color[0], 1))
+                                # light.node().showFrustum()
+                                light.node().get_lens().set_fov(40)
+                                light.node().get_lens().set_near_far(0.1, 30)
+                                self.render.setLight(light)
+                                light.set_pos(pos[0], pos[1], pos[2])
+                                light.look_at(0, 0, 0)
+                                self.set_spotlight_shadows(obj=self.render, light=light, shadow_blur=0.2,
+                                                           ambient_color=(1.0, 1.0, 1.0))
                             else:
                                 render.clearLight()
 
@@ -656,7 +659,7 @@ class RenderAttr:
                                 light_np.set_pos(pos[0], pos[1], pos[2])
                                 light_np.set_scale(100)
                                 self.render.set_light(light_np)
-                                """self.set_shadows(obj=self.render, light=light, shadow_blur=0.2,
+                                """self.set_spotlight_shadows(obj=self.render, light=light, shadow_blur=0.2,
                                                  ambient_color=(1.0, 1.0, 1.0))"""
                             else:
                                 render.clearLight()
@@ -668,7 +671,7 @@ class RenderAttr:
                                 light.set_color((color[0], color[0], color[0], 1))
                                 light_np = self.render.attach_new_node(light)
                                 self.render.set_light(light_np)
-                                """self.set_shadows(obj=self.render, light=light, shadow_blur=0.2,
+                                """self.set_spotlight_shadows(obj=self.render, light=light, shadow_blur=0.2,
                                                  ambient_color=(1.0, 1.0, 1.0))"""
                             else:
                                 render.clearLight()
@@ -722,3 +725,27 @@ class RenderAttr:
 
     def transform_scene_lights(self):
         pass
+
+    def set_spotlight_shadows(self, obj, light, shadow_blur, ambient_color):
+        if obj and light and shadow_blur and ambient_color:
+            # If you don't do this, none of the features
+            # listed above will have any effect. Panda will
+            # simply ignore normal maps, HDR, and so forth if
+            # shader generation is not enabled. It would be reasonable
+            # to enable shader generation for the entire game, using this call:
+            # obj.set_shader_auto()
+            base.shaderenable = 1
+
+            ready_shaders = self.get_all_shaders(self.shader_collector())
+            obj.set_shader(ready_shaders['SpotLightShadows'])
+            obj.set_shader_input('my_light', light)
+            obj.set_shader_input('shadow_blur', shadow_blur)  # 0.2
+            obj.set_shader_input('ambient_color', ambient_color)  # Vec3(1.0, 1.0, 1.0)
+
+    def set_normal_mapping(self, obj):
+        if obj:
+            ready_shaders = self.get_all_shaders(self.shader_collector())
+            obj.set_shader(ready_shaders['Normalmapping'])
+            """obj.set_shader_input('my_light', light)
+            obj.set_shader_input('shadow_blur', shadow_blur)  # 0.2
+            obj.set_shader_input('ambient_color', ambient_color)  # Vec3(1.0, 1.0, 1.0)"""

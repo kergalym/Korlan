@@ -133,7 +133,7 @@ p3d.load_prc_file_data(
     'model-cache-textures t\n'
     'compressed-textures 0\n'
     'bullet-filter-algorithm groups-mask\n'
-    'hardware-animated-vertices f\n'
+    'hardware-animated-vertices t\n'
     'basic-shaders-only f\n'
     'texture-compression f\n'
     'driver-compress-textures f\n'

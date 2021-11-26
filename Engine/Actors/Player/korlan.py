@@ -104,8 +104,6 @@ class Korlan:
                 self.korlan.reparent_to(self.base.lod_np)
                 self.base.lod.addSwitch(50.0, 0.0)
 
-                self.base.set_textures_srgb(True)
-
                 # Set lights and Shadows
                 if self.game_settings['Main']['postprocessing'] == 'off':
                     # TODO: uncomment if character has normals
@@ -157,7 +155,7 @@ class Korlan:
                 self.korlan.set_r(self.korlan, self.rot_r)
 
                 # Hardware skinning
-                self.render_attr.set_hardware_skinning(self.korlan, True)
+                self.render_attr.set_hardware_skinning(self.korlan, False)
 
                 # Get actor joints
                 base.korlan_joints = self.korlan.get_joints()
@@ -171,15 +169,20 @@ class Korlan:
                 self.korlan.reparent_to(self.base.lod_np)
                 self.base.lod.addSwitch(50.0, 0.0)
 
-                self.base.set_textures_srgb(True)
+                # self.base.set_textures_srgb(True)
 
                 if self.game_settings['Main']['postprocessing'] == 'on':
                     self.render_attr.render_pipeline.prepare_scene(self.korlan)
 
-                # Set lights and Shadows
                 if self.game_settings['Main']['postprocessing'] == 'off':
                     # TODO: uncomment if character has normals
-                    # self.render_attr.set_shadows(self.scene, self.render)
+                    # Set Lights and Shadows
+                    """if render.find("slight"):
+                        light = render.find("slight")
+                        self.render_attr.set_spotlight_shadows(obj=self.korlan, light=light, shadow_blur=0.2,
+                                                               ambient_color=(1.0, 1.0, 1.0))"""
+                    # self.render_attr.set_normal_mapping(self.korlan)
+
                     # self.render_attr.set_ssao(self.scene)
                     pass
 

@@ -144,6 +144,9 @@ class LoadingUI:
                         self.hud.set_player_bar()
                         self.hud.set_weapon_ui()
 
+                        if self.game_settings['Debug']['set_debug_mode'] == 'YES':
+                            self.base.set_textures_srgb(True)
+
                     return task.done
 
         return task.cont
