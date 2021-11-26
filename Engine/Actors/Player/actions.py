@@ -188,7 +188,33 @@ class Actions:
                             extraArgs=[assets_dist_vec],
                             appendTask=True)
 
+                taskMgr.add(self.cursor_state_task, "cursor_state_task")
+
             self.base.player_actions_init_is_activated = 1
+
+    def cursor_state_task(self, task):
+        if (base.player_states['has_bow']
+                and self.kbd.keymap["block"]
+                and self.kbd.keymap["attack"]):
+            base.cursor_ui.show()
+            base.camera.set_x(0.5)
+            base.camera.set_y(-2)
+            self.mouse.is_aiming = True
+        if (base.player_states['has_bow']
+                and not self.kbd.keymap["block"]
+                and not self.kbd.keymap["attack"]):
+            self.mouse.is_aiming = False
+            base.cursor_ui.hide()
+            base.camera.set_x(0)
+            base.camera.set_y(self.mouse.cam_y_back_pos)
+        elif (base.player_states['has_bow']
+                and self.kbd.keymap["block"]
+                and not self.kbd.keymap["attack"]):
+            self.mouse.is_aiming = False
+            base.cursor_ui.hide()
+            base.camera.set_x(0)
+            base.camera.set_y(self.mouse.cam_y_back_pos)
+        return task.cont
 
     """ Prepares the player for scene """
 
@@ -257,6 +283,8 @@ class Actions:
                         self.player_block_action(player, "block", anims, "great_sword_blocking")
                     elif not base.player_states['has_sword'] and base.player_states['has_bow']:
                         self.player_attack_action(player, "block", anims, "archer_standing_draw_arrow")
+
+                    self.player_bow_shoot_action(player, anims, "archer_standing_draw_arrow")
 
                     self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
                     self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
@@ -969,4 +997,41 @@ class Actions:
                     Sequence(Parallel(any_action_seq,
                                       Func(self.state.set_action_state, "has_umai", True)),
                              Func(self.state.set_action_state, "has_umai", False)
+                             ).start()
+
+    def player_bow_shoot_action(self, player, anims, action):
+        if (player and isinstance(anims, dict)
+                and isinstance(action, str)):
+            if self.kbd.keymap["block"] and self.kbd.keymap["attack"]:
+                crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
+                base.player_states['is_idle'] = False
+                if (base.player_states['has_bow']
+                        and crouched_to_standing.is_playing() is False
+                        and base.player_states['is_crouching'] is True):
+                    # TODO: Use blending for smooth transition between animations
+                    # Do an animation sequence if player is crouched.
+                    crouch_to_stand_seq = player.actor_interval(anims[self.crouched_to_standing_action],
+                                                                playRate=self.base.actor_play_rate)
+                    any_action_seq = player.actor_interval(anims[action],
+                                                           playRate=self.base.actor_play_rate)
+                    Sequence(crouch_to_stand_seq,
+                             Parallel(any_action_seq,
+                                      player.pose(action, -1),
+                                      Wait(2),
+                                      Func(self.state.set_action_state, "is_hitting", True)),
+                             Func(self.state.set_action_state, "is_hitting", False),
+                             Func(base.messenger.send, "bow_shoot")
+                             ).start()
+
+                elif (base.player_states['has_bow']
+                      and crouched_to_standing.is_playing() is False
+                      and base.player_states['is_crouching'] is False):
+                    any_action_seq = player.actor_interval(anims[action],
+                                                           playRate=self.base.actor_play_rate)
+                    Sequence(Parallel(any_action_seq,
+                                      player.pose(action, -1),
+                                      Wait(2),
+                                      Func(self.state.set_action_state, "is_hitting", True)),
+                             Func(self.state.set_action_state, "is_hitting", False),
+                             Func(base.messenger.send, "bow_shoot")
                              ).start()

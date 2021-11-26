@@ -1,7 +1,10 @@
+from direct.gui.OnscreenText import OnscreenText
+from direct.interval.FunctionInterval import Wait
+
 from Engine.Collisions.collision_solids import BulletCollisionSolids
-from panda3d.bullet import BulletCharacterControllerNode
+from panda3d.bullet import BulletCharacterControllerNode, BulletBoxShape
 from direct.task.TaskManagerGlobal import taskMgr
-from panda3d.core import Vec3, BitMask32
+from panda3d.core import Vec3, BitMask32, Point3, TextNode
 from panda3d.bullet import BulletWorld, BulletDebugNode, BulletRigidBodyNode, BulletPlaneShape
 from direct.showbase.PhysicsManagerGlobal import physicsMgr
 
@@ -27,7 +30,15 @@ class PhysicsAttr:
         self.cam_bs_nodepath = None
         self.cam_collider = None
         self.bullet_solids = BulletCollisionSolids()
-
+        self.aimed_target_np = None
+        self.aimed_target_pos = None
+        self.trajectory = None
+        self.target_test_ui = OnscreenText(text="",
+                                           pos=(-1.8, 0.8),
+                                           scale=0.03,
+                                           fg=(255, 255, 255, 0.9),
+                                           align=TextNode.ALeft,
+                                           mayChange=True)
         self.korlan = None
 
         self.no_mask = BitMask32.allOff()
@@ -264,6 +275,20 @@ class PhysicsAttr:
                                                  joints=["LeftHand", "RightHand", "Hips"],
                                                  world=self.world)
 
+                bow_name = "bow"
+                bow_arrow_name = "bow_arrow"
+
+                if type == "player":
+                    bow_name = "bow_kazakh"
+                    bow_arrow_name = "bow_arrow_kazakh"
+
+                base.accept("bow_shoot", self.bow_shoot, [actor, bow_arrow_name, bow_name])
+
+                taskMgr.add(self.bow_hit_check,
+                            "{0}_bow_hit_check".format(actor.get_name()),
+                            extraArgs=[actor],
+                            appendTask=True)
+
     def set_static_object_colliders(self, obj, mask, automatic):
         if obj and mask and self.world:
             shape = None
@@ -347,3 +372,84 @@ class PhysicsAttr:
                 elif child.get_num_children() > 0:
                     self.set_dynamic_object_colliders(child, mask, automatic)
 
+    def bow_shoot(self, actor, arrow_name, bow_name):
+        if actor and arrow_name and bow_name and self.world:
+            if not actor.find(arrow_name).is_empty():
+                arrow = actor.find(arrow_name)
+                bow = actor.find(bow_name)
+                if arrow and self.aimed_target_pos and self.aimed_target_np:
+                    # Calculate initial velocity
+                    velocity = self.aimed_target_pos - actor.get_pos() + Vec3(0, 0.4, 0)
+                    # velocity = self.aimed_target_pos - self.bow.get_pos()
+                    velocity.normalize()
+                    velocity *= 100.0
+
+                    # Create bullet
+                    shape = BulletBoxShape(Vec3(0.5, 0.5, 0.5))
+                    body = BulletRigidBodyNode('Bullet')
+                    body_np = render.attachNewNode(body)
+                    body_np.node().addShape(shape)
+                    body_np.node().setMass(2.0)
+                    body_np.node().setLinearVelocity(velocity)
+                    body_np.setPos(actor.get_pos() + (0, 0.5, 0))
+                    body_np.setCollideMask(BitMask32.allOff())
+                    arrow.reparent_to(body_np)
+                    arrow.set_pos(0, 0, 0)
+                    arrow.set_hpr(velocity)
+
+                    # Enable CCD
+                    body_np.node().setCcdMotionThreshold(1e-7)
+                    body_np.node().setCcdSweptSphereRadius(0.50)
+
+                    self.world.attachRigidBody(body_np.node())
+                    Wait(1)
+                    arrow.setCollideMask(BitMask32.allOff())
+                    self.world.removeRigidBody(body.node())
+                    """self.trajectory = ProjectileInterval(arrow, duration=1, startPos=bow.get_pos(),
+                                                         endPos=self.aimed_target_pos, gravityMult=1.0)
+                    self.trajectory.start()
+                    arrow.reparent_to(render)
+                    if not self.trajectory.isPlaying():
+                        arrow.reparent_to(self.aimed_target_np)
+                        arrow.set_h(0)
+                        # arrow.setCollideMask(BitMask32.allOff())
+                        arrow.reparent_to(self.aimed_target_np)"""
+
+    def bow_hit_check(self, actor, task):
+        if not actor:
+            return task.done
+        if actor:
+            bow_name = "bow"
+            if "Player" in actor.get_name():
+                bow_name = "bow_kazakh"
+            arrow = actor.find(bow_name)
+            if arrow:
+                mouse_watch = base.mouseWatcherNode
+                if mouse_watch.has_mouse():
+                    pos_mouse = base.mouseWatcherNode.get_mouse()
+                    pos_from = Point3()
+                    pos_to = Point3()
+                    base.camLens.extrude(pos_mouse, pos_from, pos_to)
+
+                    pos_from = self.render.get_relative_point(actor, pos_from)
+                    pos_to = self.render.get_relative_point(base.camera, pos_to)
+
+                    raytest_result = self.world.rayTestClosest(pos_from, pos_to)
+
+                    # print(self.raytest_result.hasHit())
+                    if raytest_result.get_node() \
+                            and "Korlan" not in str(raytest_result.get_node()):
+                        self.aimed_target_np = raytest_result.get_node()
+                        self.aimed_target_pos = raytest_result.get_hit_pos()
+                        if self.aimed_target_pos < 2:
+                            self.target_test_ui.setText("")
+                            self.target_test_ui.setText("Target is close")
+                        elif self.aimed_target_pos > 2:
+                            self.target_test_ui.setText("")
+                            self.target_test_ui.setText("Target is far")
+                        elif not self.aimed_target_np:
+                            self.target_test_ui.setText("")
+                        else:
+                            self.target_test_ui.setText("")
+
+        return task.cont

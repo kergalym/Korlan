@@ -73,6 +73,27 @@ class PlayerState:
             "speed": 1.0
             }
 
+    def player_view_mode_task(self, assets_dist_vec, task):
+        if assets_dist_vec:
+            for k in assets_dist_vec:
+                digit = int(self.game_settings['Main']['camera_distance'])
+                if self.game_settings['Main']['person_look_mode'] == 'first':
+                    if assets_dist_vec[k][1] <= -0.0:
+                        base.cam.set_y(12)
+                        base.first_person_mode = True
+                    elif assets_dist_vec[k][1] >= -0.0:
+                        base.cam.set_y(digit)
+                        base.first_person_mode = False
+                elif self.game_settings['Main']['person_look_mode'] == 'third':
+                    base.first_person_mode = True
+                    base.first_person_mode = False
+                    return task.done
+
+        if base.game_mode is False and base.menu_mode:
+            return task.done
+
+        return task.cont
+
     def clear_state(self):
         assets = self.base.assets_collector()
 
@@ -430,23 +451,3 @@ class PlayerState:
                   and base.is_item_in_use_long is True):
                 self.drop_item(player)
 
-    def player_view_mode_task(self, assets_dist_vec, task):
-        if assets_dist_vec:
-            for k in assets_dist_vec:
-                digit = int(self.game_settings['Main']['camera_distance'])
-                if self.game_settings['Main']['person_look_mode'] == 'first':
-                    if assets_dist_vec[k][1] <= -0.0:
-                        base.cam.set_y(12)
-                        base.first_person_mode = True
-                    elif assets_dist_vec[k][1] >= -0.0:
-                        base.cam.set_y(digit)
-                        base.first_person_mode = False
-                elif self.game_settings['Main']['person_look_mode'] == 'third':
-                    base.first_person_mode = True
-                    base.first_person_mode = False
-                    return task.done
-
-        if base.game_mode is False and base.menu_mode:
-            return task.done
-
-        return task.cont
