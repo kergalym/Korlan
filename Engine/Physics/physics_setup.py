@@ -80,11 +80,12 @@ class PhysicsAttr:
             if type == "env":
                 self.set_static_object_colliders(obj=obj,
                                                  mask=self.mask1,
-                                                 automatic=True)
+                                                 automatic=False)
 
             if type == "item":
                 self.set_dynamic_object_colliders(obj=obj,
-                                                  mask=self.mask1)
+                                                  mask=self.mask1,
+                                                  automatic=False)
 
             if type == "player":
                 self.korlan = obj
@@ -283,7 +284,7 @@ class PhysicsAttr:
                                                  world=self.world)
 
     def set_static_object_colliders(self, obj, mask, automatic):
-        if obj and mask:
+        if obj and mask and self.world:
             shape = None
             for child in obj.get_children():
                 # Skip child which already has Bullet shape
@@ -332,7 +333,7 @@ class PhysicsAttr:
                     self.set_static_object_colliders(child, mask, automatic)
 
     def set_dynamic_object_colliders(self, obj, mask, automatic):
-        if obj and mask:
+        if obj and mask and self.world:
             shape = None
             for child in obj.get_children():
                 # Skip child which already has Bullet shape
