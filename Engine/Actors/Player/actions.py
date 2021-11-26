@@ -208,8 +208,8 @@ class Actions:
             base.camera.set_x(0)
             base.camera.set_y(self.mouse.cam_y_back_pos)
         elif (base.player_states['has_bow']
-                and self.kbd.keymap["block"]
-                and not self.kbd.keymap["attack"]):
+              and self.kbd.keymap["block"]
+              and not self.kbd.keymap["attack"]):
             self.mouse.is_aiming = False
             base.cursor_ui.hide()
             base.camera.set_x(0)
@@ -237,7 +237,8 @@ class Actions:
                     and base.player_states['is_moving'] is False
                     and base.player_states['is_running'] is False
                     and base.player_states['is_crouch_moving'] is False
-                    and base.player_states['is_crouching'] is False):
+                    and base.player_states['is_crouching'] is False
+                    and base.player_states['is_mounted'] is False):
                 self.fsm_player.request("Idle", player,
                                         anims['Standing_idle_female'],
                                         "play")
@@ -255,6 +256,11 @@ class Actions:
 
             if (not self.base.is_ui_active
                     and not self.base.is_dev_ui_active):
+
+                # is horse ready?
+                if base.player_states["horse_is_ready_to_be_used"]:
+                    base.accept("e", self.mount_action, [anims])
+
                 if base.player_state_unarmed:
                     self.hud.toggle_weapon_state(weapon_name="hands")
                     self.player_crouch_action(player, 'crouch', anims)
@@ -1035,3 +1041,80 @@ class Actions:
                              Func(self.state.set_action_state, "is_hitting", False),
                              Func(base.messenger.send, "bow_shoot")
                              ).start()
+
+    def mount_action(self, anims):
+        child = self.base.get_actor_bullet_shape_node(asset="Player",
+                                                      type="Player")
+        parent = render.find("Korlan_Horse")
+        bone = "spine.003"
+        if parent and child and bone and anims:
+            if base.player_states["is_mounted"]:
+                self.unmount_action(anims)
+            else:
+                heading = child.get_h()
+                # with inverted Z -0.5 stands for Up
+                # Our horse (un)mounting animations have been made with imperfect positions,
+                # so, I had to change child positions to get more satisfactory result
+                # with these animations in my game.
+                mounting_pos = Vec3(0.6, -0.15, -0.45)
+                saddle_pos = Vec3(0, -0.28, 0.08)
+                parent_pos = Vec3(parent.get_x(), parent.get_y(), -1)
+                mount_action_seq = child.actor_interval(anims["horse_mounting"],
+                                                        playRate=self.base.actor_play_rate)
+                horse_riding_action_seq = child.actor_interval(anims["horse_riding_idle"],
+                                                               playRate=self.base.actor_play_rate)
+                Sequence(Func(self.state.set_action_state, "is_using", True),
+                         Func(child.reparent_to, parent),
+                         Func(parent.set_pos, parent_pos),
+                         Func(child.set_pos, mounting_pos),
+                         Func(child.set_h, heading),
+                         Parallel(Func(parent.set_pos, parent_pos),
+                                  mount_action_seq),
+                         Func(parent.set_pos, parent_pos),
+                         Func(child.set_pos, saddle_pos),
+                         Func(self.state.set_action_state, "is_using", False),
+                         Func(self.state.set_action_state, "horse_riding", True),
+                         Func(self.state.set_action_state, "is_mounted", True),
+                         horse_riding_action_seq
+                         ).start()
+
+    def unmount_action(self, anims):
+        child = self.base.get_actor_bullet_shape_node(asset="Player",
+                                                      type="Player")
+        parent = render.find("Korlan_Horse")
+        bone = "spine.003"
+        if parent and child and bone and anims:
+            heading = -90
+            # with inverted Z -0.7 stands for Up
+            # Our horse (un)mounting animations have been made with imperfect positions,
+            # so, I had to change child positions to get more satisfactory result
+            # with these animations in my game.
+            unmounting_pos = Vec3(0.6, -0.15, -0.45)
+            saddle_pos = Vec3(0, -0.28, 0.08)
+            child_pos_for_flt = Vec3(0.5, 0.1, 1.2)
+            parent_pos = Vec3(parent.get_x(), parent.get_y(), 0)
+            # Reparent parent/child node back to its BulletCharacterControllerNode
+            parent_bs_name = "**/{0}:BS".format(parent.get_name())
+            child_bs_name = "**/{0}:BS".format(child.get_name())
+
+            unmount_action_seq = child.actor_interval(anims["horse_unmounting"],
+                                                      playRate=self.base.actor_play_rate)
+
+            if not render.find(parent_bs_name).is_empty() \
+                    and not render.find(child_bs_name).is_empty():
+                parent_bs = render.find(parent_bs_name)
+                child_bs = render.find(child_bs_name)
+                Sequence(Func(child.set_pos, saddle_pos),
+                         Func(child.set_h, heading),
+                         Func(child.set_pos, unmounting_pos),
+                         Func(self.state.set_action_state, "is_using", True),
+                         Parallel(unmount_action_seq),
+                         Func(child.reparent_to, child_bs),
+                         Func(child.set_z, -1),
+                         Func(parent.reparent_to, parent_bs),
+                         Func(parent.set_pos, parent_pos),
+                         Func(child.set_x, 0),
+                         Func(self.state.set_action_state, "is_using", False),
+                         Func(self.state.set_action_state, "is_mounted", False)
+                         ).start()
+

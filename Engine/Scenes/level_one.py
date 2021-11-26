@@ -95,6 +95,35 @@ class LevelOne:
 
         return task.cont
 
+    def update_horse_trigger_task(self, task):
+        if (hasattr(self.base, "loading_is_done")
+                and self.base.loading_is_done == 1):
+            player_bs = self.base.get_actor_bullet_shape_node(asset="Player",
+                                                              type="Player")
+            if player_bs:
+                horse = render.find("Korlan_Horse")
+                if horse:
+                    if not horse.find("**/horserig_trigger").is_empty():
+                        trigger = horse.find("**/horserig_trigger").node()
+                        trigger_np = horse.find("**/horserig_trigger")
+                        for node in trigger.getOverlappingNodes():
+                            # ignore trigger itself and ground both
+                            if node.get_name() != trigger.get_name() and node.get_name() != "Ground":
+                                name = player_bs.get_child(0).get_name()
+                                if node.get_name() == name:
+                                    # if player close to horse
+                                    if player_bs.get_distance(trigger_np) <= 2 \
+                                            and player_bs.get_distance(trigger_np) >= 1:
+                                        if not base.player_states["is_mounted"] and node.get_name() == name:
+                                            base.player_states["horse_is_ready_to_be_used"] = True
+                                        elif not base.player_states["is_mounted"] and node.get_name() == player_bs.get_name():
+                                            base.player_states["horse_is_ready_to_be_used"] = True
+
+        if self.base.game_mode is False and self.base.menu_mode:
+            return task.done
+
+        return task.cont
+
     def collect_actor_refs_task(self, task):
         if hasattr(base, "npc_is_loaded") and base.npc_is_loaded == 1:
             for npc_cls in self.actor_classes:
@@ -521,6 +550,10 @@ class LevelOne:
         taskMgr.add(self.collect_npcs_label_nodepaths_task,
                     "collect_npcs_label_nodepaths_task",
                     extraArgs=[level_assets_joined],
+                    appendTask=True)
+
+        taskMgr.add(self.update_horse_trigger_task,
+                    "update_horse_trigger_task",
                     appendTask=True)
 
         """taskMgr.add(self.hitbox_handling_task,

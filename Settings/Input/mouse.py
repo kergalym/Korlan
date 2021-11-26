@@ -77,10 +77,6 @@ class Mouse:
 
     def attach_floater(self, player):
         if player and self.floater and self.pivot:
-            # remove horse from floater
-            if not self.floater.find("**/horserig").is_empty():
-                render.find("**/horserig").reparent_to(render)
-
             player.reparent_to(self.floater)
             # restore previous player's Z position
             player.set_z(-1.5)

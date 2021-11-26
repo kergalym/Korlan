@@ -26,7 +26,10 @@ class PlayerState:
             "has_umai": False,
             "is_attacked": False,
             "is_busy": False,
-            "is_turning": False
+            "is_turning": False,
+            "is_mounted": False,
+            "horse_riding": False,
+            "horse_is_ready_to_be_used": False
         }
         base.do_key_once = {
             'forward': False,
