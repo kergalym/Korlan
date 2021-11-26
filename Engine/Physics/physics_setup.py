@@ -81,9 +81,9 @@ class PhysicsAttr:
                                                  automatic=True)
 
             # TODO: move item to and use in /Korlan/Engine/Items/items.py:
-            """if type == "item":
+            if type == "item":
                 self.set_dynamic_object_colliders(obj=obj,
-                                                  mask=self.mask1)"""
+                                                  mask=self.mask1)
 
             if type == "player":
                 self.korlan = obj
@@ -325,26 +325,26 @@ class PhysicsAttr:
                         child_bs_np.set_scale(child.get_scale())
 
                         # Make item position zero because now it's a child of bullet shape
-                        # child.set_pos(0, 0, 0)
+                        child.set_pos(0, 0, 0)
 
                 elif child.get_num_children() > 0:
                     self.set_static_object_colliders(child, mask, automatic)
 
-    def set_dynamic_object_colliders(self, obj, mask):
+    def set_dynamic_object_colliders(self, obj, mask, automatic):
         if obj and mask:
+            shape = None
             for child in obj.get_children():
                 # Skip child which already has Bullet shape
                 if "BS" in child.get_name() or "BS" in child.get_parent().get_name():
                     continue
 
+                if automatic:
+                    shape = self.bullet_solids.set_bs_auto(obj=child, type="dynamic")
+                elif not automatic:
+                    shape = self.bullet_solids.set_bs_cube()
+
                 if child.get_num_children() == 0:
-                    print(child.get_name(), " has geom: ", hasattr(child.node(), "get_geom"))
-                    if hasattr(child.node(), "get_geom"):
-                        geom = child.node().get_geom(0)
-                        mesh = BulletTriangleMesh()
-                        mesh.add_geom(geom)
-                        shape = BulletTriangleMeshShape(mesh,
-                                                        dynamic=True)
+                    if shape:
                         child_bs_name = "{0}:BS".format(child.get_name())
                         child_bs_np = obj.attach_new_node(BulletRigidBodyNode(child_bs_name))
                         child_bs_np.node().set_mass(2.0)
@@ -355,9 +355,12 @@ class PhysicsAttr:
                         child.reparent_to(child_bs_np)
 
                         child_bs_np.set_pos(child.get_pos())
+                        child_bs_np.set_hpr(child.get_hpr())
                         child_bs_np.set_scale(child.get_scale())
+
                         # Make item position zero because now it's a child of bullet shape
                         child.set_pos(0, 0, 0)
 
                 elif child.get_num_children() > 0:
-                    self.set_dynamic_object_colliders(child, mask)
+                    self.set_dynamic_object_colliders(child, mask, automatic)
+
