@@ -118,15 +118,16 @@ class BulletCollisionSolids:
             if collection:
                 for child in collection.get_children():
                     if child and obj.get_name() == child.get_name():
-                        geom = child.node().get_geom(0)
-                        mesh = BulletTriangleMesh()
-                        mesh.add_geom(geom)
+                        if hasattr(obj.node(), "get_geom"):
+                            geom = child.node().get_geom(0)
+                            mesh = BulletTriangleMesh()
+                            mesh.add_geom(geom)
 
-                        if type_ == 'dynamic':
-                            bool_ = True
-                        if type_ == 'static':
-                            bool_ = False
+                            if type_ == 'dynamic':
+                                bool_ = True
+                            if type_ == 'static':
+                                bool_ = False
 
-                        if mesh:
-                            shape = BulletTriangleMeshShape(mesh, dynamic=bool_)
-                            return shape
+                            if mesh:
+                                shape = BulletTriangleMeshShape(mesh, dynamic=bool_)
+                                return shape
