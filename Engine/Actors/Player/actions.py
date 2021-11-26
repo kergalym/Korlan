@@ -1043,9 +1043,10 @@ class Actions:
                              ).start()
 
     def mount_action(self, anims):
+        # FIXME
+        parent = render.find("Korlan_Horse")
         child = self.base.get_actor_bullet_shape_node(asset="Player",
                                                       type="Player")
-        parent = render.find("Korlan_Horse")
         bone = "spine.003"
         if parent and child and bone and anims:
             if base.player_states["is_mounted"]:
@@ -1079,9 +1080,10 @@ class Actions:
                          ).start()
 
     def unmount_action(self, anims):
+        # FIXME
+        parent = render.find("Korlan_Horse")
         child = self.base.get_actor_bullet_shape_node(asset="Player",
                                                       type="Player")
-        parent = render.find("Korlan_Horse")
         bone = "spine.003"
         if parent and child and bone and anims:
             heading = -90
@@ -1091,7 +1093,7 @@ class Actions:
             # with these animations in my game.
             unmounting_pos = Vec3(0.6, -0.15, -0.45)
             saddle_pos = Vec3(0, -0.28, 0.08)
-            child_pos_for_flt = Vec3(0.5, 0.1, 1.2)
+            # child_pos_for_flt = Vec3(0.5, 0.1, 1.2)
             parent_pos = Vec3(parent.get_x(), parent.get_y(), 0)
             # Reparent parent/child node back to its BulletCharacterControllerNode
             parent_bs_name = "**/{0}:BS".format(parent.get_name())
