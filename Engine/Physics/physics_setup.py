@@ -1,13 +1,15 @@
 from Engine.Collisions.collision_solids import BulletCollisionSolids
-from panda3d.bullet import BulletCharacterControllerNode, BulletTriangleMesh, BulletTriangleMeshShape
+from panda3d.bullet import BulletCharacterControllerNode
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import Vec3, BitMask32
 from panda3d.bullet import BulletWorld, BulletDebugNode, BulletRigidBodyNode, BulletPlaneShape
+from direct.showbase.PhysicsManagerGlobal import physicsMgr
 
 
 class PhysicsAttr:
 
     def __init__(self):
+        self.physics_mgr = physicsMgr
         self.base = base
         self.world = None
         self.world_nodepath = None
@@ -37,6 +39,7 @@ class PhysicsAttr:
         self.mask5 = BitMask32.bit(5)
         self.ghost_mask = BitMask32.bit(1)
 
+    # TODO: DELETE THIS FUNCTION
     def update_lod_nodes_parent_task(self, task):
         if (not render.find("**/Level_LOD").is_empty()
                 and render.find('**/Level_LOD').get_num_nodes() > 0):
@@ -51,7 +54,6 @@ class PhysicsAttr:
 
         return task.cont
 
-    # TODO: DELETE THIS FUNCTION
     def collision_info(self, player, item):
         if player and item and hasattr(base, "bullet_world"):
 
@@ -80,7 +82,6 @@ class PhysicsAttr:
                                                  mask=self.mask1,
                                                  automatic=True)
 
-            # TODO: move item to and use in /Korlan/Engine/Items/items.py:
             if type == "item":
                 self.set_dynamic_object_colliders(obj=obj,
                                                   mask=self.mask1)

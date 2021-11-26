@@ -1,5 +1,4 @@
-from panda3d.core import Vec3, LVector3, GeomNode, Geom, GeomTriangles, GeomVertexWriter, GeomVertexData, \
-    GeomVertexFormat, NodePath
+from panda3d.core import Vec3
 from panda3d.bullet import ZUp
 from panda3d.bullet import BulletSphereShape
 from panda3d.bullet import BulletCapsuleShape
@@ -11,13 +10,10 @@ from panda3d.bullet import BulletTriangleMesh
 from panda3d.bullet import BulletTriangleMeshShape
 from panda3d.bullet import BulletGhostNode
 
-from direct.showbase.PhysicsManagerGlobal import physicsMgr
-
 
 class BulletCollisionSolids:
 
     def __init__(self):
-        self.physics_mgr = physicsMgr
         self.base = base
         self.base.actor_hb = {}
         self.base.actor_hb_masks = {}
@@ -114,124 +110,3 @@ class BulletCollisionSolids:
                 if mesh:
                     shape = BulletTriangleMeshShape(mesh, dynamic=bool_)
                     return shape
-
-    # TODO REMOVE
-    def set_bs_auto_multi(self, objects, type):
-        if objects and isinstance(objects, list) and isinstance(type, str):
-            mesh_colliders_dict = {}
-            mesh_colliders_cleaned_dict = {}
-            objects_cleaned_dict = {}
-
-            colliders = render.find("**/Collisions/lvl*coll")
-
-            if not colliders:
-                return
-
-            if hasattr(base, "shaped_objects") and not base.shaped_objects:
-                for x, col in zip(objects[1], colliders.get_children()):
-                    # import pdb; pdb.set_trace()
-                    # Skip already added bullet shapes to prevent duplicating
-                    parent_name = ''
-                    if not render.find('{0}'.format(x)).get_parent().is_empty():
-                        parent_name = render.find('{0}'.format(x)).get_parent().get_name()
-                        render.find('{0}'.format(x)).get_parent()
-
-                    if "BS" in parent_name or "BS" in x:
-                        continue
-
-                    # Drop unused mesh
-                    if "Grass" in x:
-                        continue
-
-                    # Has it geom?
-                    if hasattr(objects[1][x].node(), "get_geom"):
-                        geom = col.node().get_geom(0)
-                        mesh = BulletTriangleMesh()
-                        mesh.add_geom(geom)
-
-                        if "Box" in x or "Box" in parent_name:
-                            type = 'dynamic'
-
-                        if type == 'dynamic':
-                            bool_ = True
-                            shape = BulletTriangleMeshShape(mesh,
-                                                            dynamic=bool_)
-                            mesh_colliders_dict[x] = shape
-                        if type == 'static':
-                            bool_ = False
-                            shape = BulletTriangleMeshShape(mesh,
-                                                            dynamic=bool_,
-                                                            compress=True,
-                                                            bvh=True)
-                            mesh_colliders_dict[x] = shape
-
-                        # Meshes used to make geom now aren't needed anymore, so remove them
-                        col.remove_node()
-
-                # Cleaning from actors by reassembling dict objects
-                for key_obj, key_mesh in zip(objects[0], mesh_colliders_dict):
-                    if key_mesh != "__Actor_modelRoot":
-                        mesh_colliders_cleaned_dict[key_mesh] = mesh_colliders_dict.get(key_mesh)
-
-                    if key_obj != "__Actor_modelRoot":
-                        objects_cleaned_dict[key_obj] = objects[0].get(key_obj)
-
-                return [objects_cleaned_dict, mesh_colliders_cleaned_dict]
-
-    # helper function to make a square given the Lower-Left-Hand and
-    # Upper-Right-Hand corners
-
-    def generate_square(self, x1, y1, z1, x2, y2, z2):
-        format_ = GeomVertexFormat.getV3n3cpt2()
-        vdata = GeomVertexData('square', format_, Geom.UHDynamic)
-
-        vertex = GeomVertexWriter(vdata, 'vertex')
-
-        # make sure we draw the sqaure in the right plane
-        if x1 != x2:
-            vertex.addData3(x1, y1, z1)
-            vertex.addData3(x2, y1, z1)
-            vertex.addData3(x2, y2, z2)
-            vertex.addData3(x1, y2, z2)
-
-        else:
-            vertex.addData3(x1, y1, z1)
-            vertex.addData3(x2, y2, z1)
-            vertex.addData3(x2, y2, z2)
-            vertex.addData3(x1, y1, z2)
-
-        # Quads aren't directly supported by the Geom interface
-        # you might be interested in the CardMaker class if you are
-        # interested in rectangle though
-        tris = GeomTriangles(Geom.UHDynamic)
-        tris.addVertices(0, 1, 3)
-        tris.addVertices(1, 2, 3)
-
-        square = Geom(vdata)
-        return square
-
-    def prepare_cube(self, name):
-        if name:
-            # Note: it isn't particularly efficient to make every face as a separate Geom.
-            # instead, it would be better to create one Geom holding all of the faces.
-            square0 = self.generate_square(-1, -1, -1, 1, -1, 1)
-            square1 = self.generate_square(-1, 1, -1, 1, 1, 1)
-            square2 = self.generate_square(-1, 1, 1, 1, -1, 1)
-            square3 = self.generate_square(-1, 1, -1, 1, -1, -1)
-            square4 = self.generate_square(-1, -1, -1, -1, 1, 1)
-            square5 = self.generate_square(1, -1, -1, 1, 1, 1)
-            cube_np = GeomNode(name)
-            cube_np.addGeom(square0)
-            cube_np.addGeom(square1)
-            cube_np.addGeom(square2)
-            cube_np.addGeom(square3)
-            cube_np.addGeom(square4)
-            cube_np.addGeom(square5)
-
-            panda_np = NodePath(name)
-            panda_np.attachNewNode(cube_np)
-            panda_np.set_name(name)
-            panda_np.reparent_to(render)
-            cube = panda_np
-
-            return cube
