@@ -1,6 +1,5 @@
-from Engine.Collisions.geom_collector import GeomCollector
 from Engine.Collisions.collision_solids import BulletCollisionSolids
-from panda3d.bullet import BulletCharacterControllerNode
+from panda3d.bullet import BulletCharacterControllerNode, BulletTriangleMesh, BulletTriangleMeshShape
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import Vec3, BitMask32
 from panda3d.bullet import BulletWorld, BulletDebugNode, BulletRigidBodyNode, BulletPlaneShape
@@ -25,7 +24,6 @@ class PhysicsAttr:
         self.cam_cs = None
         self.cam_bs_nodepath = None
         self.cam_collider = None
-        self.geom_collector = GeomCollector()
         self.bullet_solids = BulletCollisionSolids()
 
         self.korlan = None
@@ -38,37 +36,6 @@ class PhysicsAttr:
         self.mask3 = BitMask32.bit(3)
         self.mask5 = BitMask32.bit(5)
         self.ghost_mask = BitMask32.bit(1)
-
-    def update_physics_task(self, task):
-        """ Function    : update_physics_task
-
-            Description : Update Physics
-
-            Input       : Task
-
-            Output      : None
-
-            Return      : Task event
-        """
-        if (hasattr(self.base, "loading_is_done")
-                and self.base.loading_is_done == 1):
-            if self.world:
-                # Get the time that elapsed since last frame.
-                dt = globalClock.getDt()
-                self.world.do_physics(dt, 10, 1. / 30)
-
-                # Do update RigidBodyNode parent node's position for every frame
-                if hasattr(base, "close_item_name"):
-                    name = base.close_item_name
-                    if not render.find("**/{0}".format(name)).is_empty():
-                        item = render.find("**/{0}".format(name))
-                        if 'BS' in item.get_parent().get_name():
-                            item.get_parent().node().set_transform_dirty()
-
-        if base.game_mode is False and base.menu_mode:
-            return task.done
-
-        return task.cont
 
     def update_lod_nodes_parent_task(self, task):
         if (not render.find("**/Level_LOD").is_empty()
@@ -83,6 +50,121 @@ class PhysicsAttr:
             return task.done
 
         return task.cont
+
+    # TODO: DELETE THIS FUNCTION
+    def collision_info(self, player, item):
+        if player and item and hasattr(base, "bullet_world"):
+
+            query_all = base.bullet_world.ray_test_all(player.get_pos(),
+                                                       item.get_pos())
+
+            collision_info = {"hits": query_all.has_hits(),
+                              "fraction": query_all.get_closest_hit_fraction(),
+                              "num_hits": query_all.get_num_hits()}
+
+            for query in query_all.get_hits():
+                collision_info["hit_pos"] = query.get_hit_pos()
+                collision_info["hit_normal"] = query.get_hit_normal()
+                collision_info["hit_fraction"] = query.get_hit_fraction()
+                collision_info["node"] = query.get_node()
+
+            return collision_info
+
+    def set_collision(self, obj, type, shape):
+        if (obj and type and shape
+                and isinstance(type, str)
+                and isinstance(shape, str)):
+
+            if type == "env":
+                self.set_static_object_colliders(obj=obj,
+                                                 mask=self.mask1,
+                                                 automatic=True)
+
+            # TODO: move item to and use in /Korlan/Engine/Items/items.py:
+            """if type == "item":
+                self.set_dynamic_object_colliders(obj=obj,
+                                                  mask=self.mask1)"""
+
+            if type == "player":
+                self.korlan = obj
+                if hasattr(self.korlan, "set_tag"):
+                    self.korlan.set_tag(key=obj.get_name(), value='1')
+                self.set_actor_collider(actor=self.korlan,
+                                        col_name='{0}:BS'.format(self.korlan.get_name()),
+                                        shape=shape,
+                                        mask=self.mask0,
+                                        type="player")
+
+            if type == "npc":
+                if hasattr(obj, "set_tag"):
+                    obj.set_tag(key=obj.get_name(), value='1')
+                self.set_actor_collider(actor=obj,
+                                        col_name='{0}:BS'.format(obj.get_name()),
+                                        shape=shape,
+                                        mask=self.mask0,
+                                        type="npc")
+
+    def set_physics_world(self, assets):
+        """ Function    : set_physics_world
+
+            Description : Enable Physics
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
+        self.base.physics_is_active = 0
+
+        # Show a visual representation of the collisions occuring
+        self.debug_nodepath = self.render.attach_new_node(BulletDebugNode('Debug'))
+
+        base.accept("f1", self.toggle_physics_debug)
+
+        self.world = BulletWorld()
+        self.world.set_gravity(Vec3(0, 0, -9.81))
+
+        if self.game_settings['Debug']['set_debug_mode'] == "NO":
+            if hasattr(self.debug_nodepath, "node"):
+                self.world.set_debug_node(self.debug_nodepath.node())
+
+        ground_shape = BulletPlaneShape(Vec3(0, 0, 1), 0)
+        ground_nodepath = self.render.attachNewNode(BulletRigidBodyNode('Ground'))
+        ground_nodepath.node().addShape(ground_shape)
+        ground_nodepath.set_pos(0, 0, 0.10)
+        ground_nodepath.node().set_into_collide_mask(self.mask)
+        self.world.attach_rigid_body(ground_nodepath.node())
+
+        # Disable colliding
+        self.world.set_group_collision_flag(0, 0, False)
+        # Enable colliding: player (0), static (1) and npc (2)
+        self.world.set_group_collision_flag(0, 1, True)
+        self.world.set_group_collision_flag(0, 2, True)
+
+        """taskMgr.add(self.update_lod_nodes_parent_task,
+                    "update_lod_nodes_parent_task",
+                    appendTask=True)"""
+
+        taskMgr.add(self.add_asset_collision_task,
+                    "add_asset_collision_task",
+                    extraArgs=[assets],
+                    appendTask=True)
+
+        taskMgr.add(self.update_physics_task,
+                    "update_physics_task",
+                    appendTask=True)
+
+        self.base.physics_is_active = 1
+
+    def toggle_physics_debug(self):
+        if self.debug_nodepath:
+            if self.debug_nodepath.is_hidden():
+                self.debug_nodepath.show()
+                self.debug_nodepath.node().showBoundingBoxes(True)
+            else:
+                self.debug_nodepath.hide()
+                self.debug_nodepath.node().showBoundingBoxes(False)
 
     def add_asset_collision_task(self, assets, task):
         """ Function    : add_asset_collision_task
@@ -118,120 +200,36 @@ class PhysicsAttr:
 
         return task.cont
 
-    def toggle_physics_debug(self):
-        if self.debug_nodepath:
-            if self.debug_nodepath.is_hidden():
-                self.debug_nodepath.show()
-            else:
-                self.debug_nodepath.hide()
+    def update_physics_task(self, task):
+        """ Function    : update_physics_task
 
-    def set_physics_world(self, assets):
-        """ Function    : set_physics_world
+            Description : Update Physics
 
-            Description : Enable Physics
-
-            Input       : None
+            Input       : Task
 
             Output      : None
 
-            Return      : None
+            Return      : Task event
         """
-        self.base.physics_is_active = 0
+        if (hasattr(self.base, "loading_is_done")
+                and self.base.loading_is_done == 1):
+            if self.world:
+                # Get the time that elapsed since last frame.
+                dt = globalClock.getDt()
+                self.world.do_physics(dt, 10, 1. / 30)
 
-        # Show a visual representation of the collisions occuring
-        self.debug_nodepath = self.render.attach_new_node(BulletDebugNode('Debug'))
+                # Do update RigidBodyNode parent node's position for every frame
+                if hasattr(base, "close_item_name"):
+                    name = base.close_item_name
+                    if not render.find("**/{0}".format(name)).is_empty():
+                        item = render.find("**/{0}".format(name))
+                        if 'BS' in item.get_parent().get_name():
+                            item.get_parent().node().set_transform_dirty()
 
-        base.accept("f1", self.toggle_physics_debug)
+        if base.game_mode is False and base.menu_mode:
+            return task.done
 
-        self.world = BulletWorld()
-        self.world.set_gravity(Vec3(0, 0, -9.81))
-
-        if self.game_settings['Debug']['set_debug_mode'] == "NO":
-            if hasattr(self.debug_nodepath, "node"):
-                self.world.set_debug_node(self.debug_nodepath.node())
-                # self.debug_nodepath.show()
-
-        ground_shape = BulletPlaneShape(Vec3(0, 0, 1), 0)
-        ground_nodepath = self.render.attachNewNode(BulletRigidBodyNode('Ground'))
-        ground_nodepath.node().addShape(ground_shape)
-        ground_nodepath.set_pos(0, 0, 0.10)
-        ground_nodepath.node().set_into_collide_mask(self.mask)
-        self.world.attach_rigid_body(ground_nodepath.node())
-
-        # Disable colliding
-        self.world.set_group_collision_flag(0, 0, False)
-        # Enable colliding: player (0), static (1) and npc (2)
-        self.world.set_group_collision_flag(0, 1, True)
-        self.world.set_group_collision_flag(0, 2, True)
-
-        """taskMgr.add(self.update_lod_nodes_parent_task,
-                    "update_lod_nodes_parent_task",
-                    appendTask=True)"""
-
-        taskMgr.add(self.add_asset_collision_task,
-                    "add_asset_collision_task",
-                    extraArgs=[assets],
-                    appendTask=True)
-
-        taskMgr.add(self.update_physics_task,
-                    "update_physics_task",
-                    appendTask=True)
-
-        self.base.physics_is_active = 1
-
-    # TODO: DELETE THIS FUNCTION
-    def collision_info(self, player, item):
-        if player and item and hasattr(base, "bullet_world"):
-
-            query_all = base.bullet_world.ray_test_all(player.get_pos(),
-                                                       item.get_pos())
-
-            collision_info = {"hits": query_all.has_hits(),
-                              "fraction": query_all.get_closest_hit_fraction(),
-                              "num_hits": query_all.get_num_hits()}
-
-            for query in query_all.get_hits():
-                collision_info["hit_pos"] = query.get_hit_pos()
-                collision_info["hit_normal"] = query.get_hit_normal()
-                collision_info["hit_fraction"] = query.get_hit_fraction()
-                collision_info["node"] = query.get_node()
-
-            return collision_info
-
-    def set_collision(self, obj, type, shape):
-        if (obj and type and shape
-                and isinstance(type, str)
-                and isinstance(shape, str)):
-
-            if type == "env":
-                self.set_object_colliders(type='static',
-                                          shape=shape,
-                                          mask=self.mask1)
-
-            # TODO: move item to and use in /Korlan/Engine/Items/items.py:
-            if type == "item":
-                self.set_object_colliders(type='dynamic',
-                                          shape=shape,
-                                          mask=self.mask1)
-
-            if type == "player":
-                self.korlan = obj
-                if hasattr(self.korlan, "set_tag"):
-                    self.korlan.set_tag(key=obj.get_name(), value='1')
-                self.set_actor_collider(actor=self.korlan,
-                                        col_name='{0}:BS'.format(self.korlan.get_name()),
-                                        shape=shape,
-                                        mask=self.mask0,
-                                        type="player")
-
-            if type == "npc":
-                if hasattr(obj, "set_tag"):
-                    obj.set_tag(key=obj.get_name(), value='1')
-                self.set_actor_collider(actor=obj,
-                                        col_name='{0}:BS'.format(obj.get_name()),
-                                        shape=shape,
-                                        mask=self.mask0,
-                                        type="npc")
+        return task.cont
 
     def set_actor_collider(self, actor, col_name, shape, mask, type):
         if (actor
@@ -283,57 +281,83 @@ class PhysicsAttr:
                                                  joints=["LeftHand", "RightHand", "Hips"],
                                                  world=self.world)
 
-    def set_object_colliders(self, type, shape, mask):
-        if not (isinstance(type, str)
-                and shape
-                and mask
-                and isinstance(shape, str)):
-            return
+    def set_static_object_colliders(self, obj, mask, automatic):
+        if obj and mask:
+            shape = None
+            for child in obj.get_children():
+                # Skip child which already has Bullet shape
+                if "BS" in child.get_name() or "BS" in child.get_parent().get_name():
+                    continue
+                # Skip unused mesh
+                if "Ground" in child.get_name():
+                    continue
 
-        """if not (not base.menu_mode and base.game_mode):
-            return"""
+                if "ground" in child.get_name():
+                    continue
 
-        base.shaped_objects = []
-        geoms = self.geom_collector.geom_collector()
+                if "Grass" in child.get_name():
+                    continue
 
-        object_bs_multi = self.bullet_solids.set_bs_auto_multi(objects=geoms, type='static')
+                if "tree" in child.get_name():
+                    continue
 
-        if object_bs_multi:
-            for obj, object_bs in zip(object_bs_multi[0], object_bs_multi[1]):
-                bs = object_bs_multi[1][object_bs]
-                obj = object_bs_multi[0][obj]
+                if "mountain" in child.get_name():
+                    continue
 
-                if shape == 'auto':
-                    # Save parent before attaching mesh to collider
-                    # top_parent = obj.get_parent()
-                    top_parent_name = obj.get_parent().get_name()
-                    obj_bs_name = "{0}:BS".format(obj.get_name())
+                if automatic:
+                    shape = self.bullet_solids.set_bs_auto(obj=child, type="static")
+                elif not automatic:
+                    shape = self.bullet_solids.set_bs_cube()
 
-                    # TODO: Check if object usable by tag
-                    # TODO: Fix double
-                    if "Box:BS" in obj_bs_name or "Box:BS" in top_parent_name:
-                        type = 'dynamic'
+                if child.get_num_children() == 0:
+                    if shape:
+                        child_bs_name = "{0}:BS".format(child.get_name())
+                        child_bs_np = obj.attach_new_node(BulletRigidBodyNode(child_bs_name))
+                        child_bs_np.node().set_mass(0.0)
+                        child_bs_np.node().add_shape(shape)
+                        child_bs_np.node().set_into_collide_mask(self.mask1)
 
-                    # Prevent bullet shape duplication
-                    if obj_bs_name not in top_parent_name:
-                        if render:
-                            obj_bs_np = render.attach_new_node(BulletRigidBodyNode(obj_bs_name))
-                            if type == 'static':
-                                obj_bs_np.node().set_mass(0.0)
-                                obj_bs_np.node().add_shape(bs)
-                                obj_bs_np.node().set_into_collide_mask(mask)
-                            elif type == 'dynamic':
-                                obj_bs_np.node().set_mass(0.2)
-                                obj_bs_np.node().add_shape(bs)
-                                obj_bs_np.node().set_into_collide_mask(self.mask)
+                        self.world.attach(child_bs_np.node())
+                        child.reparent_to(child_bs_np)
 
-                            self.world.attach(obj_bs_np.node())
-                            obj.reparent_to(obj_bs_np)
+                        child_bs_np.set_pos(child.get_pos())
+                        child_bs_np.set_hpr(child.get_hpr())
+                        child_bs_np.set_scale(child.get_scale())
 
-                            obj_bs_np.set_pos(obj.get_pos())
-                            obj_bs_np.set_scale(obj.get_scale())
-                            # Make item position zero because now it's a child of bullet shape
-                            obj.set_pos(0, 0, 0)
+                        # Make item position zero because now it's a child of bullet shape
+                        # child.set_pos(0, 0, 0)
 
-                            base.shaped_objects.append(obj_bs_name)
+                elif child.get_num_children() > 0:
+                    self.set_static_object_colliders(child, mask, automatic)
 
+    def set_dynamic_object_colliders(self, obj, mask):
+        if obj and mask:
+            for child in obj.get_children():
+                # Skip child which already has Bullet shape
+                if "BS" in child.get_name() or "BS" in child.get_parent().get_name():
+                    continue
+
+                if child.get_num_children() == 0:
+                    print(child.get_name(), " has geom: ", hasattr(child.node(), "get_geom"))
+                    if hasattr(child.node(), "get_geom"):
+                        geom = child.node().get_geom(0)
+                        mesh = BulletTriangleMesh()
+                        mesh.add_geom(geom)
+                        shape = BulletTriangleMeshShape(mesh,
+                                                        dynamic=True)
+                        child_bs_name = "{0}:BS".format(child.get_name())
+                        child_bs_np = obj.attach_new_node(BulletRigidBodyNode(child_bs_name))
+                        child_bs_np.node().set_mass(2.0)
+                        child_bs_np.node().add_shape(shape)
+                        child_bs_np.node().set_into_collide_mask(self.mask1)
+
+                        self.world.attach(child_bs_np.node())
+                        child.reparent_to(child_bs_np)
+
+                        child_bs_np.set_pos(child.get_pos())
+                        child_bs_np.set_scale(child.get_scale())
+                        # Make item position zero because now it's a child of bullet shape
+                        child.set_pos(0, 0, 0)
+
+                elif child.get_num_children() > 0:
+                    self.set_dynamic_object_colliders(child, mask)
