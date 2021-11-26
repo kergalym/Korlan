@@ -39,21 +39,6 @@ class PhysicsAttr:
         self.mask5 = BitMask32.bit(5)
         self.ghost_mask = BitMask32.bit(1)
 
-    # TODO: DELETE THIS FUNCTION
-    def update_lod_nodes_parent_task(self, task):
-        if (not render.find("**/Level_LOD").is_empty()
-                and render.find('**/Level_LOD').get_num_nodes() > 0):
-            for node in range(render.find('**/Level_LOD').get_num_nodes()):
-                # Check if LOD node isn't in World
-                if (not render.find('**/World').is_empty()
-                        and render.find('**/World').find("**/Level_LOD").is_empty()):
-                    render.find('**/Level_LOD').reparent_to(render.find('**/World'))
-
-        if base.game_mode is False and base.menu_mode:
-            return task.done
-
-        return task.cont
-
     def collision_info(self, player, item):
         if player and item and hasattr(base, "bullet_world"):
 
@@ -143,10 +128,6 @@ class PhysicsAttr:
         # Enable colliding: player (0), static (1) and npc (2)
         self.world.set_group_collision_flag(0, 1, True)
         self.world.set_group_collision_flag(0, 2, True)
-
-        """taskMgr.add(self.update_lod_nodes_parent_task,
-                    "update_lod_nodes_parent_task",
-                    appendTask=True)"""
 
         taskMgr.add(self.add_asset_collision_task,
                     "add_asset_collision_task",
@@ -246,9 +227,9 @@ class PhysicsAttr:
                 actor_bs = None
                 actor_bs_np = None
                 if shape == 'capsule':
-                    actor_bs = self.bullet_solids.set_bs_capsule()
+                    actor_bs = self.bullet_solids.get_bs_capsule()
                 if shape == 'sphere':
-                    actor_bs = self.bullet_solids.set_bs_sphere()
+                    actor_bs = self.bullet_solids.get_bs_sphere()
                 if type == 'player':
                     base.bullet_char_contr_node = BulletCharacterControllerNode(actor_bs,
                                                                                 0.4,
@@ -279,7 +260,7 @@ class PhysicsAttr:
                 actor.set_y(0)
                 actor.set_x(0)
 
-                self.bullet_solids.set_bs_hitbox(actor=actor,
+                self.bullet_solids.get_bs_hitbox(actor=actor,
                                                  joints=["LeftHand", "RightHand", "Hips"],
                                                  world=self.world)
 
@@ -307,9 +288,9 @@ class PhysicsAttr:
                     continue
 
                 if automatic:
-                    shape = self.bullet_solids.set_bs_auto(obj=child, type="static")
+                    shape = self.bullet_solids.get_bs_auto(obj=child, type_="static")
                 elif not automatic:
-                    shape = self.bullet_solids.set_bs_cube()
+                    shape = self.bullet_solids.get_bs_predefined(obj=child, type_="static")
 
                 if child.get_num_children() == 0:
                     if shape:
@@ -341,9 +322,9 @@ class PhysicsAttr:
                     continue
 
                 if automatic:
-                    shape = self.bullet_solids.set_bs_auto(obj=child, type="dynamic")
+                    shape = self.bullet_solids.get_bs_auto(obj=child, type_="dynamic")
                 elif not automatic:
-                    shape = self.bullet_solids.set_bs_cube()
+                    shape = self.bullet_solids.get_bs_predefined(obj=child, type_="dynamic")
 
                 if child.get_num_children() == 0:
                     if shape:

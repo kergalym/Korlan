@@ -18,7 +18,7 @@ class BulletCollisionSolids:
         self.base.actor_hb = {}
         self.base.actor_hb_masks = {}
 
-    def set_bs_hitbox(self, actor, joints, world):
+    def get_bs_hitbox(self, actor, joints, world):
         if (actor and joints and world
                 and isinstance(joints, list)):
             if (hasattr(base, 'npcs_actor_refs')
@@ -59,54 +59,74 @@ class BulletCollisionSolids:
                     # self.base.actor_hb[name_hb] = ghost_np.node()
                     # self.base.actor_hb_masks[name_hb] = mask
 
-    def set_bs_sphere(self):
+    def get_bs_sphere(self):
         radius = 0.6
         sphere = BulletSphereShape(radius)
         return sphere
 
-    def set_bs_capsule(self):
+    def get_bs_capsule(self):
         height = 1.75
         width = 0.3
         radius = height - 2 * width
         capsule = BulletCapsuleShape(width, radius, ZUp)
         return capsule
 
-    def set_bs_cylinder(self):
+    def get_bs_cylinder(self):
         radius = 0.5
         height = 1.4
         cylinder = BulletCylinderShape(radius, height, ZUp)
         return cylinder
 
-    def set_bs_cone(self):
+    def get_bs_cone(self):
         radius = 0.6
         height = 1.0
         cone = BulletConeShape(radius, height, ZUp)
         return cone
 
-    def set_bs_plane(self):
+    def get_bs_plane(self):
         norm_vec = Vec3(0, 0, 1)
         distance = 0
         plane = BulletPlaneShape(norm_vec, distance)
         return plane
 
-    def set_bs_cube(self):
+    def get_bs_cube(self):
         axis = Vec3(0.5, 0.5, 0.5)
         box = BulletBoxShape(axis)
         return box
 
-    def set_bs_auto(self, obj, type):
-        if obj and isinstance(type, str):
+    def get_bs_auto(self, obj, type_):
+        if obj and isinstance(type_, str):
             bool_ = False
             if hasattr(obj.node(), "get_geom"):
                 geom = obj.node().get_geom(0)
                 mesh = BulletTriangleMesh()
                 mesh.add_geom(geom)
 
-                if type == 'dynamic':
+                if type_ == 'dynamic':
                     bool_ = True
-                if type == 'static':
+                if type_ == 'static':
                     bool_ = False
 
                 if mesh:
                     shape = BulletTriangleMeshShape(mesh, dynamic=bool_)
                     return shape
+
+    def get_bs_predefined(self, obj, type_):
+        if obj and isinstance(type_, str):
+            bool_ = False
+            collection = render.find("**/Collisions/lvl*coll")
+            if collection:
+                for child in collection.get_children():
+                    if child and obj.get_name() == child.get_name():
+                        geom = child.node().get_geom(0)
+                        mesh = BulletTriangleMesh()
+                        mesh.add_geom(geom)
+
+                        if type_ == 'dynamic':
+                            bool_ = True
+                        if type_ == 'static':
+                            bool_ = False
+
+                        if mesh:
+                            shape = BulletTriangleMeshShape(mesh, dynamic=bool_)
+                            return shape
