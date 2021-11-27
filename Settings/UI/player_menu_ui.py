@@ -1,7 +1,9 @@
 import json
+import random
 from os.path import exists
 
 from direct.showbase.ShowBaseGlobal import render2d, aspect2d
+from direct.task.TaskManagerGlobal import taskMgr
 
 from Engine.Actors.Player.inventory import Inventory
 from Settings.menu_settings import MenuSettings
@@ -9,9 +11,11 @@ from Settings.menu_settings import MenuSettings
 from direct.gui.DirectGui import *
 from direct.gui.OnscreenImage import OnscreenImage
 from direct.gui.OnscreenImage import TransparencyAttrib
-from panda3d.core import FontPool, Camera, NodePath
+from panda3d.core import FontPool, Camera, NodePath, CollisionNode, CollisionRay, GeomNode, CollisionTraverser, \
+    CollisionHandlerQueue, Point3
 from panda3d.core import TextNode
 from panda3d.core import WindowProperties
+from Settings.UI.hud_ui import HUD
 
 
 class PlayerMenuUI(Inventory):
@@ -33,6 +37,7 @@ class PlayerMenuUI(Inventory):
         self.m_settings = MenuSettings()
         self.menu_font = None
         self.cfg_path = None
+        self.hud = HUD()
 
         """ Frame """
         self.pos_X = 0
@@ -48,10 +53,9 @@ class PlayerMenuUI(Inventory):
 
         """ Frame Sizes """
         # Left, right, bottom, top
-        self.base.frame_inv_int_canvas_size = [-2, 2, -2, 2]
-        self.base.frame_inv_int_size = [-.5, .2, -1.3, .5]
-
         self.base.frame_inv_size = [-3, 3, -1, 3]
+        self.base.frame_inv_int_canvas_size = [-2, 2.3, -2, 2]
+        self.base.frame_inv_int_size = [-.5, .2, -1.3, .5]
 
         """ Frame Colors """
         self.frm_opacity = 1
@@ -82,8 +86,9 @@ class PlayerMenuUI(Inventory):
         """ Buttons & Fonts"""
         self.menu_font = self.fonts['OpenSans-Regular']
 
-        self.base.frame_inv = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
+        self.base.frame_inv = DirectFrame(frameColor=(0, 0, 0, 0.7),
                                           frameSize=self.base.frame_inv_size)
+
         self.base.build_info.reparent_to(self.base.frame_inv)
 
         self.base.frame_inv_int = DirectScrolledFrame(frameColor=(0, 0, 0, self.frm_opacity),
@@ -91,7 +96,12 @@ class PlayerMenuUI(Inventory):
                                                       canvasSize=self.base.frame_inv_int_canvas_size,
                                                       scrollBarWidth=0.03,
                                                       autoHideScrollBars=True)
-        self.pic_body_inv = OnscreenImage(image=self.images['body_inventory'])
+
+        self.base.frame_inv_int_data = DirectFrame(
+            frameColor=(0, 0, 0, self.frm_opacity),
+            frameSize=self.base.frame_inv_int_size,
+            state=DGG.NORMAL,
+            parent=pixel2d)
 
         ui_geoms = base.ui_geom_collector()
 
@@ -129,11 +139,13 @@ class PlayerMenuUI(Inventory):
         self.base.frame_inv_int.reparent_to(self.base.frame_inv)
         self.base.frame_inv_int.set_pos(-1.3, 0, 0.5)
         self.base.frame_inv.set_pos(0, 0, 0)
+        self.base.frame_inv_int_data.set_pos(-1.3, 0, 0.5)
 
+        self.pic_body_inv = OnscreenImage(image=self.images['body_inventory'])
         self.pic_body_inv.reparent_to(self.base.frame_inv)
         self.pic_body_inv.set_transparency(TransparencyAttrib.MAlpha)
         self.pic_body_inv.set_scale(1.5, 1.5, 0.9)
-        self.pic_body_inv.set_pos(1.4, 0, 0)
+        self.pic_body_inv.set_pos(1.3, 0, 0)
 
         # self.pic_right.reparent_to(self.base.frame_inv)
         # self.pic_right.set_scale(0.33, 0.30, 0.30)
@@ -149,33 +161,177 @@ class PlayerMenuUI(Inventory):
 
         self.base.frame_inv.hide()
 
+        # object click n move
+        self.current_dragged = None
+        self.last_hover_in = None
+        self.base.is_inventory_active = False
+        self.is_inventory_items_loaded = False
+
+        self.inventory_items = {
+            "head": None,
+            "body": None,
+            "feet": None,
+            "hands": None,
+            "toes": None,
+            "sword": None,
+            "bow": None,
+            "tengri": None,
+            "umai": None
+        }
+
+    def drag_and_drop_task(self, task=None):
+        """Track the mouse pos and move self.current_dragged to where the cursor is"""
+        if self.current_dragged:
+            if base.mouseWatcherNode.has_mouse():
+                mpos = base.mouseWatcherNode.get_mouse()
+                self.current_dragged.set_pos(
+                    pixel2d.get_relative_point(render2d, Point3(mpos.get_x(), 0, mpos.get_y())))
+        if task:
+            return task.again
+
+    def drag(self, widget, mouse_pos=None):
+        """Set the widget to be the currently dragged object"""
+        if self.base.is_inventory_active:
+            widget.reparent_to(self.base.frame_inv_int_data)
+            self.current_dragged = widget
+            self.drag_and_drop_task()
+
+    def drop(self, mouse_pos=None):
+        """Drop the currently dragged object on the last object the cursor hovered over"""
+        if self.base.is_inventory_active and self.current_dragged:
+            if self.last_hover_in:
+                self.current_dragged.wrt_reparent_to(self.last_hover_in)
+            self.current_dragged = None
+
+    def hover_in(self, widget, mouse_pos):
+        """Set the widget to be the target to drop objects onto"""
+        self.last_hover_in = widget
+
+    def hover_out(self, mouse_pos):
+        """Clear the target to drop objects onto"""
+        self.last_hover_in = None
+
     def clear_ui_inventory(self):
+        """ Clears inventory ui and data """
         self.base.build_info.reparent_to(aspect2d)
         self.base.frame_inv.hide()
+        self.base.frame_inv_int.hide()
+        self.base.frame_inv_int_data.hide()
+
+        # Enable HUD
+        self.hud.toggle_all_hud(state="visible")
+
         props = WindowProperties()
         props.set_cursor_hidden(True)
         self.base.win.request_properties(props)
         base.is_ui_active = False
-        for item in self.items:
+        for key in self.inventory_items:
+            item = self.inventory_items[key]
             if not render2d.find("**/{0}".format(item)).is_empty():
                 render2d.find("**/{0}".format(item)).remove_node()
         # Clean inventory objects
-        self.items = []
-        self.item = None
+        self.inventory_items = []
+        self.current_dragged = None
+        self.base.is_inventory_active = False
 
     def set_ui_inventory(self):
+        """ Sets inventory ui """
         if base.game_mode and base.menu_mode is False:
             if self.base.frame_inv.is_hidden():
+
+                # Disable HUD
+                self.hud.toggle_all_hud(state="hidden")
+
                 self.base.frame_inv.show()
+                self.base.frame_inv_int.show()
+                self.base.frame_inv_int_data.show()
                 props = WindowProperties()
                 props.set_cursor_hidden(False)
                 self.base.win.request_properties(props)
                 base.is_ui_active = True
                 self.show_inventory_data()
-                self.set_character_display()
+                self.base.is_inventory_active = True
             else:
                 self.clear_ui_inventory()
-                self.clear_character_display()
+                self.base.is_inventory_active = False
+
+    def pos_2d(self, x, y):
+        return Point3(x, 0, -y)
+
+    def rec_2d(self, width, height):
+        return width, 0, 0, -height
+
+    def show_inventory_data(self):
+        """ Sets inventory data """
+        for x in range(8):
+            for y in range(8):
+                frame = DirectFrame(frameColor=(random.uniform(0, 1), random.uniform(0, 1), random.uniform(0, 1), 1.0),
+                                    frameSize=self.rec_2d(30, 30),
+                                    state=DGG.NORMAL,
+                                    parent=self.base.frame_inv_int_data)
+                # bind the events
+                frame.bind(DGG.B1PRESS, self.drag, [frame])
+                frame.bind(DGG.B1RELEASE, self.drop)
+                frame.set_pos(self.pos_2d(x * 32, y * 32))
+
+            self.current_dragged = None
+            self.last_hover_in = None
+            # run a task tracking the mouse cursor
+            taskMgr.add(self.drag_and_drop_task, "drag_and_drop_task", sort=-50)
+
+        """geoms = self.base.inventory_geom_collector()
+        for key, index in zip(geoms, enumerate(geoms, 1)):
+            item = geoms.get(key)
+            if item:
+                item = base.loader.load_model(item)
+                item.reparent_to(self.base.frame_inv_int)
+                item.set_tag("item", str(index))
+                base.inv_item = item
+                item.set_scale(0.4)
+                if index == 1:
+                    item.set_x(-1.3)
+                    item.set_y(0.65)
+                elif index == 2:
+                    item.set_x(-1.0)
+                    item.set_y(0.65)
+                elif index == 3:
+                    item.set_x(-0.7)
+                    item.set_y(0.65)
+                elif index == 4:
+                    item.set_x(-1.3)
+                    item.set_y(0.45)
+                elif index == 5:
+                    item.set_x(-1.0)
+                    item.set_y(0.45)
+                elif index == 6:
+                    item.set_x(-0.7)
+                    item.set_y(0.45)
+                elif index == 7:
+                    item.set_x(-1.3)
+                    item.set_y(0.15)
+                elif index == 8:
+                    item.set_x(-1.0)
+                    item.set_y(0.15)
+
+                label = OnscreenText(text="",
+                                     pos=(item.get_x(), item.get_y() + -0.3),
+                                     scale=0.0,
+                                     fg=(255, 255, 255, 0.9),
+                                     font=self.font.load_font(self.menu_font),
+                                     align=TextNode.ALeft,
+                                     mayChange=True)
+
+                label.reparent_to(self.base.frame_inv_int)
+                label.setText(item.get_name())
+                label_name = "label_{0}".format(item.get_name())
+                label.set_name(label_name)
+                label.set_scale(0.4)
+                label.set_pos(item.get_x(), 0, item.get_z() + -0.3)"""
+
+    # TODO: DELETE UNUSED
+    """def clear_character_display(self):
+        if not render.find("**/inventory_camera").is_empty():
+            render.find("**/inventory_camera").remove_node()
 
     def set_character_display(self):
         region = base.win.makeDisplayRegion()
@@ -196,70 +352,4 @@ class PlayerMenuUI(Inventory):
         cam_np.set_x(player.get_x())
         cam_np.set_y(player.get_y())
         cam_np.look_at(player)
-        ## self.base.frame_inv.hide()  # test
-
-    def clear_character_display(self):
-        if not render.find("**/inventory_camera").is_empty():
-            render.find("**/inventory_camera").remove_node()
-
-    def show_inventory_data(self):
-        if hasattr(base, "in_use_item_name"):
-            if (not base.in_use_item_name and
-                    not render2d.find("**/{0}".format(self.item)).is_empty()):
-                render2d.find("**/{0}".format(self.item)).remove_node()
-
-            item = base.in_use_item_name
-            items = self.get_item(item)
-            thumbs = self.get_item_thumbs(images=self.inv_images)
-
-            if items and isinstance(items, list):
-                for i, item in enumerate(items, 1):
-                    if item and render2d.find("**/{0}".format(item)).is_empty():
-                        pos_x = 0
-                        pos_z = 0
-                        if i == 1:
-                            pos_x = -1.3
-                            pos_z = 0.65
-                        elif i == 2:
-                            pos_x = -1.0
-                            pos_z = 0.65
-                        elif i == 3:
-                            pos_x = -0.7
-                            pos_z = 0.65
-                        elif i == 4:
-                            pos_x = -1.3
-                            pos_z = 0.45
-                        elif i == 5:
-                            pos_x = -1.0
-                            pos_z = 0.45
-                        elif i == 6:
-                            pos_x = -0.7
-                            pos_z = 0.45
-                        elif i == 7:
-                            pos_x = -1.3
-                            pos_z = 0.15
-                        elif i == 8:
-                            pos_x = -1.0
-                            pos_z = 0.15
-
-                        image = OnscreenImage(image=thumbs[item])
-
-                        label = OnscreenText(text="",
-                                             pos=(pos_x, pos_z),
-                                             scale=0.0,
-                                             fg=(255, 255, 255, 0.9),
-                                             font=self.font.load_font(self.menu_font),
-                                             align=TextNode.ALeft,
-                                             mayChange=True)
-
-                        label.reparent_to(self.base.frame_inv_int)
-                        label.setText(item)
-                        label.set_name(item)
-                        label.set_scale(0.4)
-
-                        image.set_transparency(TransparencyAttrib.MAlpha)
-                        image.reparent_to(label)
-                        image.set_name(item)
-                        image.set_scale(0.1)
-                        image.set_pos(pos_x+0.12, 0, pos_z+0.18)
-
+        ## self.base.frame_inv.hide()  # test"""

@@ -1006,6 +1006,7 @@ class Actions:
                              ).start()
 
     def player_bow_shoot_action(self, player, anims, action):
+        # FIXME
         if (player and isinstance(anims, dict)
                 and isinstance(action, str)):
             if self.kbd.keymap["block"] and self.kbd.keymap["attack"]:

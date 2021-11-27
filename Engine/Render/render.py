@@ -263,6 +263,8 @@ class RenderAttr:
                         self.hud.toggle_day_hud(time="light")
                     elif self.hour >= 19:
                         self.hud.toggle_day_hud(time="night")
+                else:
+                    self.hud.toggle_day_hud(time="off")
 
         elif self.game_settings['Main']['postprocessing'] == 'off':
             if time and duration:

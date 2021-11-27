@@ -944,7 +944,7 @@ class Main(ShowBase):
     def ui_geom_collector(self):
         """ Function    : ui_geom_collector
 
-            Description : Collect textures.
+            Description : Collect geoms.
 
             Input       : None
 
@@ -967,6 +967,33 @@ class Main(ShowBase):
                         path = str(PurePath("{0}/".format(root), file))
                         ui_geoms[key] = Filename.from_os_specific(path).getFullpath()
             return ui_geoms
+
+    def inventory_geom_collector(self):
+        """ Function    : inventory_geom_collector
+
+            Description : Collect inventory geoms.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : Dictionary
+        """
+        raw_path = self.transform_path(path="{0}/Assets/Inventory/".format(self.game_dir),
+                                       style='compat')
+        inv_geoms = {}
+        if exists(raw_path):
+            for root, dirs, files in walk(raw_path, topdown=True):
+                for file in files:
+                    if file.endswith(".egg"):
+                        key = re.sub('.egg$', '', file)
+                        path = str(PurePath("{0}/".format(root), file))
+                        inv_geoms[key] = Filename.from_os_specific(path).getFullpath()
+                    elif file.endswith(".egg.bam"):
+                        key = re.sub('.egg.bam$', '', file)
+                        path = str(PurePath("{0}/".format(root), file))
+                        inv_geoms[key] = Filename.from_os_specific(path).getFullpath()
+            return inv_geoms
 
     def videos_collector(self):
         """ Function    : videos_collector

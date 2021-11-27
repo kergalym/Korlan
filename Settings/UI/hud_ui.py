@@ -17,11 +17,14 @@ class HUD:
         # Left, right, bottom, top
         self.player_bar_ui_frame_size = [-1.85, -1.55, -0.99, -0.88]
         self.player_bar_ui_scale = (0.14, 0, 0.10)
+        # HUD attributes
+        self.day_hud_ui = None
         self.weapon_state_ui = None
         self.player_bar_ui_frame = None
         self.player_bar_ui_health = None
         self.player_bar_ui_stamina = None
         self.player_bar_ui_courage = None
+        self.cursor_ui = None
 
     def set_aim_cursor(self):
         base.cursor_ui = OnscreenImage(image=self.images['crosshair'])
@@ -115,6 +118,9 @@ class HUD:
                 self.weapon_state_ui.setTransparency(TransparencyAttrib.MAlpha)
 
     def toggle_all_hud(self, state):
+        print(self.weapon_state_ui)
+        print(self.player_bar_ui_frame)
+
         if state and isinstance(state, str):
             if (base.day_hud_ui
                     and self.weapon_state_ui
@@ -123,7 +129,13 @@ class HUD:
                     base.day_hud_ui.show()
                     self.weapon_state_ui.show()
                     self.player_bar_ui_frame.show()
-                elif state == "hidden":
+                    base.player_bar_ui_health.show()
+                    base.player_bar_ui_stamina.show()
+                    base.player_bar_ui_courage.show()
+                if state == "hidden":
                     base.day_hud_ui.hide()
                     self.weapon_state_ui.hide()
                     self.player_bar_ui_frame.hide()
+                    base.player_bar_ui_health.hide()
+                    base.player_bar_ui_stamina.hide()
+                    base.player_bar_ui_courage.hide()
