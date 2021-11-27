@@ -15,7 +15,6 @@ from panda3d.core import FontPool, Camera, NodePath, CollisionNode, CollisionRay
     CollisionHandlerQueue, Point3
 from panda3d.core import TextNode
 from panda3d.core import WindowProperties
-from Settings.UI.hud_ui import HUD
 
 
 class PlayerMenuUI(Inventory):
@@ -37,7 +36,6 @@ class PlayerMenuUI(Inventory):
         self.m_settings = MenuSettings()
         self.menu_font = None
         self.cfg_path = None
-        self.hud = HUD()
 
         """ Frame """
         self.pos_X = 0
@@ -218,8 +216,8 @@ class PlayerMenuUI(Inventory):
         self.base.frame_inv_int.hide()
         self.base.frame_inv_int_data.hide()
 
-        # Enable HUD
-        self.hud.toggle_all_hud(state="visible")
+        if hasattr(base, "hud") and base.hud:
+            base.hud.toggle_all_hud(state="visible")
 
         props = WindowProperties()
         props.set_cursor_hidden(True)
@@ -239,8 +237,8 @@ class PlayerMenuUI(Inventory):
         if base.game_mode and base.menu_mode is False:
             if self.base.frame_inv.is_hidden():
 
-                # Disable HUD
-                self.hud.toggle_all_hud(state="hidden")
+                if hasattr(base, "hud") and base.hud:
+                    base.hud.toggle_all_hud(state="hidden")
 
                 self.base.frame_inv.show()
                 self.base.frame_inv_int.show()

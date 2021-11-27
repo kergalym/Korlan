@@ -17,7 +17,6 @@ from Settings.UI.sound_menu_ui import SoundMenuUI
 from Settings.UI.keymap_menu_ui import KeymapMenuUI
 from Settings.UI.lang_menu_ui import LangMenuUI
 from Settings.UI.exit_menu_ui import ExitMenuUI
-from Settings.UI.hud_ui import HUD
 
 
 class PauseMenuUI(MenuSettings):
@@ -76,7 +75,6 @@ class PauseMenuUI(MenuSettings):
         self.ui_kmp = KeymapMenuUI()
         self.ui_lng = LangMenuUI()
         self.ui_exit_game = ExitMenuUI()
-        self.hud = HUD()
 
         """ Options MenuUI Objects """
         self.btn_game = None
@@ -133,8 +131,6 @@ class PauseMenuUI(MenuSettings):
         if hasattr(self.base, 'is_dialog_active'):
             if self.base.is_dialog_active:
                 return False
-
-        self.hud.toggle_all_hud(state="hidden")
 
         if hasattr(base, "active_frame"):
             base.active_frame.destroy()
@@ -271,8 +267,6 @@ class PauseMenuUI(MenuSettings):
             return False
 
         self.base.build_info.reparent_to(aspect2d)
-
-        self.hud.toggle_all_hud(state="visible")
 
         if hasattr(base, "active_frame"):
             base.active_frame.destroy()

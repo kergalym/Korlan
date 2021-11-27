@@ -5,7 +5,6 @@ from direct.gui.DirectGui import *
 from direct.showbase.ShowBaseGlobal import aspect2d
 from panda3d.core import FontPool, TextNode
 from direct.task.TaskManagerGlobal import taskMgr
-from Settings.UI.hud_ui import HUD
 
 
 class UnloadingUI:
@@ -32,7 +31,6 @@ class UnloadingUI:
 
         self.unloading_text = None
         self.base.unloading_is_done = 0
-        self.hud = HUD()
 
     def set_unloading_screen(self):
         if (self.unloading_text
@@ -48,10 +46,11 @@ class UnloadingUI:
                                                align=TextNode.ALeft,
                                                mayChange=True)
             # remove HUD elements
-            self.hud.clear_aim_cursor()
-            self.hud.clear_day_hud()
-            self.hud.clear_player_bar()
-            self.hud.clear_weapon_ui()
+            if hasattr(base, "hud") and base.hud:
+                base.hud.clear_aim_cursor()
+                base.hud.clear_day_hud()
+                base.hud.clear_player_bar()
+                base.hud.clear_weapon_ui()
 
             # set Loading Screen
             self.unloading_screen = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),

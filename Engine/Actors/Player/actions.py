@@ -8,7 +8,6 @@ from Engine.Items.items import Items
 from Settings.Input.keyboard import Keyboard
 from Settings.Input.mouse import Mouse
 from Settings.UI.player_menu_ui import PlayerMenuUI
-from Settings.UI.hud_ui import HUD
 
 
 class Actions:
@@ -30,7 +29,6 @@ class Actions:
         self.floater = None
         self.taskMgr = taskMgr
         self.items = Items()
-        self.hud = HUD()
         self.kbd = Keyboard()
         self.mouse = Mouse()
         self.fsm_player = PlayerFSM()
@@ -157,8 +155,9 @@ class Actions:
                             appendTask=True)
 
                 # Define weapon state
-                self.hud.set_weapon_ui()
-                self.hud.set_player_bar()
+                if hasattr(base, "hud") and base.hud:
+                    base.hud.set_weapon_ui()
+                    base.hud.set_player_bar()
 
                 # Define player menu here
                 base.accept('i', self.player_menu.set_ui_inventory)
@@ -262,7 +261,8 @@ class Actions:
                     base.accept("e", self.mount_action, [anims])
 
                 if base.player_state_unarmed:
-                    self.hud.toggle_weapon_state(weapon_name="hands")
+                    if hasattr(base, "hud") and base.hud:
+                        base.hud.toggle_weapon_state(weapon_name="hands")
                     self.player_crouch_action(player, 'crouch', anims)
                     self.player_jump_action(player, "jump", anims, "Jumping")
                     self.player_use_action(player, "use", anims, "PickingUp")
@@ -806,7 +806,8 @@ class Actions:
                 if (base.player_states['has_sword'] is False
                         and crouched_to_standing.is_playing() is False
                         and base.player_states['is_crouching'] is True):
-                    self.hud.toggle_weapon_state(weapon_name="sword")
+                    if hasattr(base, "hud") and base.hud:
+                        base.hud.toggle_weapon_state(weapon_name="sword")
                     # Do an animation sequence if player is crouched.
                     crouch_to_stand_seq = player.actor_interval(anims[self.crouched_to_standing_action],
                                                                 playRate=self.base.actor_play_rate)
@@ -823,7 +824,8 @@ class Actions:
                 elif (base.player_states['has_sword'] is False
                       and crouched_to_standing.is_playing() is False
                       and base.player_states['is_crouching'] is False):
-                    self.hud.toggle_weapon_state(weapon_name="sword")
+                    if hasattr(base, "hud") and base.hud:
+                        base.hud.toggle_weapon_state(weapon_name="sword")
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
                     Sequence(Func(self.state.get_weapon, player, "sword", "Korlan:LeftHand"),
@@ -837,7 +839,8 @@ class Actions:
                 elif (base.player_states['has_sword']
                       and crouched_to_standing.is_playing() is False
                       and base.player_states['is_crouching'] is True):
-                    self.hud.toggle_weapon_state(weapon_name="hands")
+                    if hasattr(base, "hud") and base.hud:
+                        base.hud.toggle_weapon_state(weapon_name="hands")
                     # Do an animation sequence if player is crouched.
                     crouch_to_stand_seq = player.actor_interval(anims[self.crouched_to_standing_action],
                                                                 playRate=self.base.actor_play_rate)
@@ -856,7 +859,8 @@ class Actions:
                 elif (base.player_states['has_sword']
                       and crouched_to_standing.is_playing() is False
                       and base.player_states['is_crouching'] is False):
-                    self.hud.toggle_weapon_state(weapon_name="hands")
+                    if hasattr(base, "hud") and base.hud:
+                        base.hud.toggle_weapon_state(weapon_name="hands")
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=-self.base.actor_play_rate)
                     Sequence(Parallel(any_action_seq,
@@ -880,7 +884,8 @@ class Actions:
                 if (base.player_states['has_bow'] is False
                         and crouched_to_standing.is_playing() is False
                         and base.player_states['is_crouching'] is True):
-                    self.hud.toggle_weapon_state(weapon_name="bow")
+                    if hasattr(base, "hud") and base.hud:
+                        base.hud.toggle_weapon_state(weapon_name="bow")
                     # Do an animation sequence if player is crouched.
                     crouch_to_stand_seq = player.actor_interval(anims[self.crouched_to_standing_action],
                                                                 playRate=self.base.actor_play_rate)
@@ -898,7 +903,8 @@ class Actions:
                 elif (base.player_states['has_bow'] is False
                       and crouched_to_standing.is_playing() is False
                       and base.player_states['is_crouching'] is False):
-                    self.hud.toggle_weapon_state(weapon_name="bow")
+                    if hasattr(base, "hud") and base.hud:
+                        base.hud.toggle_weapon_state(weapon_name="bow")
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
                     Sequence(Func(self.state.get_weapon, player, "bow_kazakh", "Korlan:RightHand"),
@@ -912,7 +918,8 @@ class Actions:
                 if (base.player_states['has_bow']
                         and crouched_to_standing.is_playing() is False
                         and base.player_states['is_crouching'] is True):
-                    self.hud.toggle_weapon_state(weapon_name="hands")
+                    if hasattr(base, "hud") and base.hud:
+                        base.hud.toggle_weapon_state(weapon_name="hands")
                     # Do an animation sequence if player is crouched.
                     crouch_to_stand_seq = player.actor_interval(anims[self.crouched_to_standing_action],
                                                                 playRate=self.base.actor_play_rate)
@@ -930,7 +937,8 @@ class Actions:
                 elif (base.player_states['has_bow']
                       and crouched_to_standing.is_playing() is False
                       and base.player_states['is_crouching'] is False):
-                    self.hud.toggle_weapon_state(weapon_name="hands")
+                    if hasattr(base, "hud") and base.hud:
+                        base.hud.toggle_weapon_state(weapon_name="hands")
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
                     Sequence(Parallel(any_action_seq,

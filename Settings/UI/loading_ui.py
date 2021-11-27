@@ -29,6 +29,7 @@ class LoadingUI:
         self.loading_screen = None
         self.loading_frame = None
         self.loading_bar = None
+
         """ Frame Sizes """
         # Left, right, bottom, top
         self.loading_frame_size = [-2, 2, -1, 1]
@@ -143,6 +144,7 @@ class LoadingUI:
                         self.hud.set_day_hud()
                         self.hud.set_player_bar()
                         self.hud.set_weapon_ui()
+                        base.hud = self.hud
 
                         if self.game_settings['Debug']['set_debug_mode'] == 'YES':
                             self.base.set_textures_srgb(True)

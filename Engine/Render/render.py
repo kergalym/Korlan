@@ -9,7 +9,6 @@ from panda3d.core import *
 from panda3d.core import FontPool, TextNode
 from Engine.Render.rpcore import PointLight, SpotLight
 from direct.particles.ParticleEffect import ParticleEffect
-from Settings.UI.hud_ui import HUD
 import random
 
 
@@ -21,7 +20,6 @@ class RenderAttr:
         self.fonts = base.fonts_collector()
         # instance of the abstract class
         self.font = FontPool
-        self.hud = HUD()
         self.texture = None
         self.game_settings = base.game_settings
         if hasattr(base, "render_pipeline") and base.render_pipeline:
@@ -260,11 +258,14 @@ class RenderAttr:
                         or hasattr(base, "is_ui_active")
                         and not base.is_ui_active):
                     if 7 <= self.hour < 19:
-                        self.hud.toggle_day_hud(time="light")
+                        if hasattr(base, "hud") and base.hud:
+                            base.hud.toggle_day_hud(time="light")
                     elif self.hour >= 19:
-                        self.hud.toggle_day_hud(time="night")
+                        if hasattr(base, "hud") and base.hud:
+                            base.hud.toggle_day_hud(time="night")
                 else:
-                    self.hud.toggle_day_hud(time="off")
+                    if hasattr(base, "hud") and base.hud:
+                        base.hud.toggle_day_hud(time="off")
 
         elif self.game_settings['Main']['postprocessing'] == 'off':
             if time and duration:
@@ -313,7 +314,7 @@ class RenderAttr:
                             self.sun.setColor(1, 1, 1, 1)
                         if self.clouds:
                             self.clouds[-1].setColor(0.6, 0.6, 0.65, 1.0)
-                        self.hud.toggle_day_hud(time="light")
+                        base.hud.toggle_day_hud(time="light")
                     elif self.hour >= 19:
                         if self.sky:
                             self.sky.setColor(0, 0, 0, 0)
@@ -321,7 +322,7 @@ class RenderAttr:
                             self.sun.setColor(0, 0, 0, 0)
                         if self.clouds:
                             self.clouds[-1].setColor(0.8, 0.8, 0.85, 1.0)
-                        self.hud.toggle_day_hud(time="night")
+                        base.hud.toggle_day_hud(time="night")
 
         return task.cont
 
