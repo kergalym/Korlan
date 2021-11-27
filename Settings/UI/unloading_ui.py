@@ -45,12 +45,6 @@ class UnloadingUI:
                                                font=self.font.load_font(self.menu_font),
                                                align=TextNode.ALeft,
                                                mayChange=True)
-            # remove HUD elements
-            if hasattr(base, "hud") and base.hud:
-                base.hud.clear_aim_cursor()
-                base.hud.clear_day_hud()
-                base.hud.clear_player_bar()
-                base.hud.clear_weapon_ui()
 
             # set Loading Screen
             self.unloading_screen = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
@@ -71,6 +65,7 @@ class UnloadingUI:
         if (base.game_mode is False and base.menu_mode
                 and hasattr(self.base, "mouse_control_is_activated")
                 and self.base.mouse_control_is_activated == 0):
+
             self.clear_unloading_screen()
             self.base.unloading_is_done = 1
             return task.done
@@ -87,8 +82,8 @@ class UnloadingUI:
 
                 if (hasattr(base, 'unload_game_scene')
                         and self.base.unload_game_scene):
-                    Sequence(Parallel(Func(self.set_unloading_screen),
-                                      Func(self.base.unload_game_scene))
+                    Sequence(Parallel(Func(self.base.unload_game_scene),
+                                      Func(self.set_unloading_screen))
                              ).start()
                     taskMgr.add(self.unloading_measure,
                                 "unloading_measure",

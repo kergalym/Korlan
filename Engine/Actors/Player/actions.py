@@ -154,11 +154,6 @@ class Actions:
                             extraArgs=[player, self.is_aiming],
                             appendTask=True)
 
-                # Define weapon state
-                if hasattr(base, "hud") and base.hud:
-                    base.hud.set_weapon_ui()
-                    base.hud.set_player_bar()
-
                 # Define player menu here
                 base.accept('i', self.player_menu.set_ui_inventory)
 
@@ -195,7 +190,9 @@ class Actions:
         if (base.player_states['has_bow']
                 and self.kbd.keymap["block"]
                 and self.kbd.keymap["attack"]):
-            base.cursor_ui.show()
+            if (hasattr(base, "cursor_ui")
+                    and base.cursor_ui):
+                base.cursor_ui.show()
             base.camera.set_x(0.5)
             base.camera.set_y(-2)
             self.mouse.is_aiming = True
@@ -203,14 +200,18 @@ class Actions:
                 and not self.kbd.keymap["block"]
                 and not self.kbd.keymap["attack"]):
             self.mouse.is_aiming = False
-            base.cursor_ui.hide()
+            if (hasattr(base, "cursor_ui")
+                    and base.cursor_ui):
+                base.cursor_ui.hide()
             base.camera.set_x(0)
             base.camera.set_y(self.mouse.cam_y_back_pos)
         elif (base.player_states['has_bow']
               and self.kbd.keymap["block"]
               and not self.kbd.keymap["attack"]):
             self.mouse.is_aiming = False
-            base.cursor_ui.hide()
+            if (hasattr(base, "cursor_ui")
+                    and base.cursor_ui):
+                base.cursor_ui.hide()
             base.camera.set_x(0)
             base.camera.set_y(self.mouse.cam_y_back_pos)
         return task.cont

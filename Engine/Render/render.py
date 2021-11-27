@@ -314,7 +314,8 @@ class RenderAttr:
                             self.sun.setColor(1, 1, 1, 1)
                         if self.clouds:
                             self.clouds[-1].setColor(0.6, 0.6, 0.65, 1.0)
-                        base.hud.toggle_day_hud(time="light")
+                        if hasattr(base, "hud") and base.hud:
+                            base.hud.toggle_day_hud(time="light")
                     elif self.hour >= 19:
                         if self.sky:
                             self.sky.setColor(0, 0, 0, 0)
@@ -322,7 +323,8 @@ class RenderAttr:
                             self.sun.setColor(0, 0, 0, 0)
                         if self.clouds:
                             self.clouds[-1].setColor(0.8, 0.8, 0.85, 1.0)
-                        base.hud.toggle_day_hud(time="night")
+                        if hasattr(base, "hud") and base.hud:
+                            base.hud.toggle_day_hud(time="night")
 
         return task.cont
 

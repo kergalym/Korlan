@@ -32,13 +32,14 @@ class HUD:
         self.cursor_ui.setTransparency(TransparencyAttrib.MAlpha)
         self.cursor_ui.set_scale(self.cursor_ui_scale)
         self.cursor_ui.hide()
+        base.cursor_ui = self.cursor_ui
 
     def set_day_hud(self):
         self.day_hud_ui = OnscreenImage(image=self.images['day_hud_light_ui'])
         self.day_hud_ui.setTransparency(TransparencyAttrib.MAlpha)
         self.day_hud_ui.set_pos(self.day_hud_ui_pos)
         self.day_hud_ui.set_scale(self.day_hud_ui_scale)
-        # self.day_hud_ui.hide()
+        self.day_hud_ui.hide()
 
     def set_player_bar(self):
         self.player_bar_ui_frame = DirectFrame(text="", frameColor=(0.0, 0.0, 0.0, 0.7),
@@ -122,17 +123,15 @@ class HUD:
                     self.day_hud_ui.hide()
 
     def toggle_all_hud(self, state):
-        if (hasattr(base, "is_ui_active")
-                and base.is_ui_active is False):
-            if state and isinstance(state, str):
-                if (self.day_hud_ui
-                        and self.weapon_state_ui
-                        and self.player_bar_ui_frame):
-                    if state == "visible":
-                        self.day_hud_ui.show()
-                        self.weapon_state_ui.show()
-                        self.player_bar_ui_frame.show()
-                    if state == "hidden":
-                        self.day_hud_ui.hide()
-                        self.weapon_state_ui.hide()
-                        self.player_bar_ui_frame.hide()
+        if state and isinstance(state, str):
+            if (self.day_hud_ui
+                    and self.weapon_state_ui
+                    and self.player_bar_ui_frame):
+                if state == "visible":
+                    self.day_hud_ui.show()
+                    self.weapon_state_ui.show()
+                    self.player_bar_ui_frame.show()
+                if state == "hidden":
+                    self.day_hud_ui.hide()
+                    self.weapon_state_ui.hide()
+                    self.player_bar_ui_frame.hide()

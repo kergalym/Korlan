@@ -269,6 +269,13 @@ class LevelOne:
             assets = self.base.assets_collector()
             self.assets = assets
 
+            # remove HUD elements
+            if hasattr(base, "hud") and base.hud:
+                base.hud.clear_aim_cursor()
+                base.hud.clear_day_hud()
+                base.hud.clear_player_bar()
+                base.hud.clear_weapon_ui()
+
             # Remove all flames
             self.render_attr.clear_flame()
 
