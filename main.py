@@ -445,6 +445,8 @@ class Main(ShowBase):
         self.game_mode = False
         self.menu_mode = False
 
+        self.game_instance = {}
+
         self.game_settings.read("{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename))
 
         if self.game_settings['Debug']['cache_autoclean'] == 'YES':
@@ -985,12 +987,12 @@ class Main(ShowBase):
         if exists(raw_path):
             for root, dirs, files in walk(raw_path, topdown=True):
                 for file in files:
-                    if file.endswith(".egg"):
-                        key = re.sub('.egg$', '', file)
+                    if file.endswith(".png"):
+                        key = re.sub('.png$', '', file)
                         path = str(PurePath("{0}/".format(root), file))
                         inv_geoms[key] = Filename.from_os_specific(path).getFullpath()
-                    elif file.endswith(".egg.bam"):
-                        key = re.sub('.egg.bam$', '', file)
+                    elif file.endswith(".jpg"):
+                        key = re.sub('.jpg$', '', file)
                         path = str(PurePath("{0}/".format(root), file))
                         inv_geoms[key] = Filename.from_os_specific(path).getFullpath()
             return inv_geoms

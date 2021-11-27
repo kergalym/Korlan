@@ -137,7 +137,7 @@ class PlayerMenuUI(Inventory):
         self.base.frame_inv_int.reparent_to(self.base.frame_inv)
         self.base.frame_inv_int.set_pos(-1.3, 0, 0.5)
         self.base.frame_inv.set_pos(0, 0, 0)
-        self.base.frame_inv_int_data.set_pos(-1.3, 0, 0.5)
+        self.base.frame_inv_int_data.set_pos(self.pos_2d(55, 32))
 
         self.pic_body_inv = OnscreenImage(image=self.images['body_inventory'])
         self.pic_body_inv.reparent_to(self.base.frame_inv)
@@ -165,7 +165,7 @@ class PlayerMenuUI(Inventory):
         self.base.is_inventory_active = False
         self.is_inventory_items_loaded = False
 
-        self.inventory_items = {
+        """self.inventory_items = {
             "head": None,
             "body": None,
             "feet": None,
@@ -175,7 +175,8 @@ class PlayerMenuUI(Inventory):
             "bow": None,
             "tengri": None,
             "umai": None
-        }
+        }"""
+        self.inventory_items = {}
 
     def drag_and_drop_task(self, task=None):
         """Track the mouse pos and move self.current_dragged to where the cursor is"""
@@ -261,70 +262,45 @@ class PlayerMenuUI(Inventory):
 
     def show_inventory_data(self):
         """ Sets inventory data """
-        for x in range(8):
-            for y in range(8):
-                frame = DirectFrame(frameColor=(random.uniform(0, 1), random.uniform(0, 1), random.uniform(0, 1), 1.0),
-                                    frameSize=self.rec_2d(30, 30),
-                                    state=DGG.NORMAL,
-                                    parent=self.base.frame_inv_int_data)
-                # bind the events
-                frame.bind(DGG.B1PRESS, self.drag, [frame])
-                frame.bind(DGG.B1RELEASE, self.drop)
-                frame.set_pos(self.pos_2d(x * 32, y * 32))
+        geoms = self.base.inventory_geom_collector()
+        if len(self.inventory_items) < 1:
+            for x in range(len(geoms)):
+                for y in range(len(geoms)):
+                    for key in geoms:
+                        item = geoms[key]
+                        frame = DirectFrame(frameColor=(0, 0, 0, 0),
+                                            frameSize=self.rec_2d(60, 50),
+                                            state=DGG.NORMAL,
+                                            image=item,
+                                            image_scale=(30.0, 30.0, 30.0),
+                                            parent=self.base.frame_inv_int_data)
+                        # bind the events
+                        frame.bind(DGG.B1PRESS, self.drag, [frame])
+                        frame.bind(DGG.B1RELEASE, self.drop)
+                        frame.set_pos(self.pos_2d(x * 64, y * 64))
 
-            self.current_dragged = None
-            self.last_hover_in = None
-            # run a task tracking the mouse cursor
-            taskMgr.add(self.drag_and_drop_task, "drag_and_drop_task", sort=-50)
+                        # get image name without extension
+                        name = item.split("/")[-1].split(".")[0]
+                        print(name)
+                        self.inventory_items[name] = frame
 
-        """geoms = self.base.inventory_geom_collector()
-        for key, index in zip(geoms, enumerate(geoms, 1)):
-            item = geoms.get(key)
-            if item:
-                item = base.loader.load_model(item)
-                item.reparent_to(self.base.frame_inv_int)
-                item.set_tag("item", str(index))
-                base.inv_item = item
-                item.set_scale(0.4)
-                if index == 1:
-                    item.set_x(-1.3)
-                    item.set_y(0.65)
-                elif index == 2:
-                    item.set_x(-1.0)
-                    item.set_y(0.65)
-                elif index == 3:
-                    item.set_x(-0.7)
-                    item.set_y(0.65)
-                elif index == 4:
-                    item.set_x(-1.3)
-                    item.set_y(0.45)
-                elif index == 5:
-                    item.set_x(-1.0)
-                    item.set_y(0.45)
-                elif index == 6:
-                    item.set_x(-0.7)
-                    item.set_y(0.45)
-                elif index == 7:
-                    item.set_x(-1.3)
-                    item.set_y(0.15)
-                elif index == 8:
-                    item.set_x(-1.0)
-                    item.set_y(0.15)
+                        label = OnscreenText(text="",
+                                             fg=(255, 255, 255, 0.9),
+                                             font=self.font.load_font(self.menu_font),
+                                             align=TextNode.ALeft,
+                                             mayChange=True)
 
-                label = OnscreenText(text="",
-                                     pos=(item.get_x(), item.get_y() + -0.3),
-                                     scale=0.0,
-                                     fg=(255, 255, 255, 0.9),
-                                     font=self.font.load_font(self.menu_font),
-                                     align=TextNode.ALeft,
-                                     mayChange=True)
+                        label.reparent_to(self.base.frame_inv_int_data)
+                        label.setText(name)
+                        label_name = "label_{0}".format(item)
+                        label.set_name(label_name)
+                        label.set_scale(0.4)
+                        label.set_pos(frame.get_pos())
 
-                label.reparent_to(self.base.frame_inv_int)
-                label.setText(item.get_name())
-                label_name = "label_{0}".format(item.get_name())
-                label.set_name(label_name)
-                label.set_scale(0.4)
-                label.set_pos(item.get_x(), 0, item.get_z() + -0.3)"""
+                    self.current_dragged = None
+                    self.last_hover_in = None
+                    # run a task tracking the mouse cursor
+                    taskMgr.add(self.drag_and_drop_task, "drag_and_drop_task", sort=-50)
 
     # TODO: DELETE UNUSED
     """def clear_character_display(self):
