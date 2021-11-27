@@ -274,15 +274,15 @@ class PlayerMenuUI(Inventory):
                                             image=item,
                                             image_scale=(30.0, 30.0, 30.0),
                                             parent=self.base.frame_inv_int_data)
+
+                        # get image name without extension
+                        name = item.split("/")[-1].split(".")[0]
+                        self.inventory_items[name] = frame
+
                         # bind the events
                         frame.bind(DGG.B1PRESS, self.drag, [frame])
                         frame.bind(DGG.B1RELEASE, self.drop)
                         frame.set_pos(self.pos_2d(x * 64, y * 64))
-
-                        # get image name without extension
-                        name = item.split("/")[-1].split(".")[0]
-                        print(name)
-                        self.inventory_items[name] = frame
 
                         label = OnscreenText(text="",
                                              fg=(255, 255, 255, 0.9),
