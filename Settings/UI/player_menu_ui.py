@@ -12,7 +12,7 @@ from direct.gui.DirectGui import *
 from direct.gui.OnscreenImage import OnscreenImage
 from direct.gui.OnscreenImage import TransparencyAttrib
 from panda3d.core import FontPool, Camera, NodePath, CollisionNode, CollisionRay, GeomNode, CollisionTraverser, \
-    CollisionHandlerQueue, Point3
+    CollisionHandlerQueue, Point3, Vec3
 from panda3d.core import TextNode
 from panda3d.core import WindowProperties
 
@@ -164,6 +164,11 @@ class PlayerMenuUI(Inventory):
         self.last_hover_in = None
         self.base.is_inventory_active = False
         self.is_inventory_items_loaded = False
+        self.player_camera_default = {
+            "pos": Vec3(0, 0, 0),
+            "hpr": Vec3(0, 0, 0),
+            "pivot_hpr": Vec3(0, 0, 0)
+        }
 
         """self.inventory_items = {
             "head": None,
@@ -250,9 +255,11 @@ class PlayerMenuUI(Inventory):
                 base.is_ui_active = True
                 self.show_inventory_data()
                 self.base.is_inventory_active = True
+                self.prepare_character(camera=base.camera)
             else:
                 self.clear_ui_inventory()
                 self.base.is_inventory_active = False
+                self.revert_character(camera=base.camera)
 
     def pos_2d(self, x, y):
         return Point3(x, 0, -y)
@@ -262,51 +269,96 @@ class PlayerMenuUI(Inventory):
 
     def show_inventory_data(self):
         """ Sets inventory data """
-        imgs = self.base.inventory_geom_collector()
-        items = []
-        row = 0
-        for key in imgs:
-            item = imgs[key]
-            items.append(item)
-            row += 1
-            frame = DirectFrame(frameColor=(0, 0, 0, 0),
-                                frameSize=self.rec_2d(60, 50),
-                                state=DGG.NORMAL,
-                                image=item,
-                                image_scale=(30.0, 30.0, 30.0),
-                                parent=self.base.frame_inv_int_data)
+        if not self.is_inventory_items_loaded:
+            imgs = self.base.inventory_geom_collector()
+            items = []
+            row = 0
+            for key in imgs:
+                item = imgs[key]
+                name = item.split("/")[-1].split(".")[0]
+                items.append(name)
+                row += 1
+                if not self.inventory_items.get(name):
+                    frame = DirectFrame(frameColor=(0, 0, 0, 0),
+                                        frameSize=self.rec_2d(60, 50),
+                                        state=DGG.NORMAL,
+                                        image=item,
+                                        image_scale=(30.0, 30.0, 30.0),
+                                        parent=self.base.frame_inv_int_data)
+                else:
+                    frame = self.inventory_items[item]
+                # bind the events
+                frame.bind(DGG.B1PRESS, self.drag, [frame])
+                frame.bind(DGG.B1RELEASE, self.drop)
 
-            # bind the events
-            frame.bind(DGG.B1PRESS, self.drag, [frame])
-            frame.bind(DGG.B1RELEASE, self.drop)
-            pos_y = row + 1 * 64
-            pos_x = row * 64
-            if len(items) == len(items) * 2:
-                pos_y = row * 64
-                pos_x = row + 1 * 64
-            frame.set_pos(self.pos_2d(pos_x, pos_y))
+                self.inventory_items[item] = frame
 
-            # get image name without extension
-            name = item.split("/")[-1].split(".")[0]
-            self.inventory_items[name] = frame
+                pos_y = row + 1 * 64
+                pos_x = row * 64
+                if len(items) == len(items) * 2:
+                    pos_y = row * 64
+                    pos_x = row + 1 * 64
+                frame.set_pos(self.pos_2d(pos_x, pos_y))
 
-            label = OnscreenText(text="",
-                                 fg=(255, 255, 255, 0.9),
-                                 font=self.font.load_font(self.menu_font),
-                                 align=TextNode.ALeft,
-                                 mayChange=True)
+                label = OnscreenText(text="",
+                                     fg=(255, 255, 255, 0.9),
+                                     font=self.font.load_font(self.menu_font),
+                                     align=TextNode.ALeft,
+                                     mayChange=True)
 
-            label.reparent_to(self.base.frame_inv_int)
-            label.setText(name)
-            label_name = "label_{0}".format(item)
-            label.set_name(label_name)
-            label.set_scale(0.4)
-            label.set_pos(frame.get_pos())
+                # get image name without extension
+                # name = item.split("/")[-1].split(".")[0]
+                # self.inventory_items[item] = frame
 
-        self.current_dragged = None
-        self.last_hover_in = None
-        # run a task tracking the mouse cursor
-        taskMgr.add(self.drag_and_drop_task, "drag_and_drop_task", sort=-50)
+                """label.reparent_to(self.base.frame_inv_int)
+                label.setText(name)
+                label_name = "label_{0}".format(item)
+                label.set_name(label_name)
+                label.set_scale(0.4)
+                label.set_pos(frame.get_pos())"""
+
+            self.current_dragged = None
+            self.last_hover_in = None
+            # run a task tracking the mouse cursor
+            taskMgr.add(self.drag_and_drop_task, "drag_and_drop_task", sort=-50)
+            self.is_inventory_items_loaded = True
+
+    def prepare_character(self, camera):
+        if self.base.is_inventory_active and camera:
+            # keep default state of player camera
+            self.player_camera_default["pos"] = camera.get_pos()
+            self.player_camera_default["hpr"] = camera.get_hpr()
+
+            if render.find("**/pivot"):
+                self.player_camera_default["pivot_hpr"] = render.find("**/pivot").get_hpr()
+
+            player_bs = base.get_actor_bullet_shape_node(asset="Player", type="Player")
+            if player_bs:
+                # set character view
+                base.player_pos = player_bs.get_pos()
+                base.player_hpr = player_bs.get_hpr()
+                camera.set_y(base.player_pos[1] + -2)
+                camera.set_z(base.player_pos[2] + -1.3)
+                camera.set_hpr(0, 0, 0)
+                if render.find("**/pivot"):
+                    render.find("**/pivot").set_hpr(24.6, -0.999999, 0)
+                # set scene
+                if render.find("**/World"):
+                    render.find("**/World").hide()
+
+    def revert_character(self, camera):
+        if camera:
+            # revert character view
+            pos = self.player_camera_default["pos"]
+            hpr = self.player_camera_default["hpr"]
+            pivot_hpr = self.player_camera_default["pivot_hpr"]
+            camera.set_pos(pos)
+            camera.set_hpr(hpr)
+            if render.find("**/pivot"):
+                render.find("**/pivot").set_hpr(pivot_hpr)
+            # revert scene
+            if render.find("**/World"):
+                render.find("**/World").show()
 
     # TODO: DELETE UNUSED
     """def clear_character_display(self):
