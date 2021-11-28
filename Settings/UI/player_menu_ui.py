@@ -52,6 +52,7 @@ class PlayerMenuUI(Inventory):
         """ Frame Sizes """
         # Left, right, bottom, top
         self.base.frame_inv_size = [-3, 3, -1, 3]
+        self.base.frame_inv_black_bg_size = [-3, -2.3, -1, 3]
         self.base.frame_inv_int_canvas_size = [-2, 2.3, -2, 2]
         self.base.frame_inv_int_size = [-.5, 1.2, -1.3, .5]
 
@@ -86,8 +87,8 @@ class PlayerMenuUI(Inventory):
 
         self.base.frame_inv = DirectFrame(frameColor=(0, 0, 0, 0.7),
                                           frameSize=self.base.frame_inv_size)
-
-        self.base.build_info.reparent_to(self.base.frame_inv)
+        self.base.frame_inv_black = DirectFrame(frameColor=(0, 0, 0, 1.0),
+                                                frameSize=self.base.frame_inv_black_bg_size)
 
         self.base.frame_inv_int = DirectScrolledFrame(frameColor=(0, 0, 0, self.frm_opacity),
                                                       frameSize=self.base.frame_inv_int_size,
@@ -132,13 +133,20 @@ class PlayerMenuUI(Inventory):
                                              clickSound=sound_gui_click,
                                              command=self.clear_ui_inventory)
 
-        self.base.frame_inv.set_pos(self.pos_X, self.pos_Y, self.pos_Z)
-        self.base.frame_inv_int.set_pos(self.pos_int_X, self.pos_int_Y, self.pos_int_Z)
+        self.base.build_info.reparent_to(self.base.frame_inv)
+        # base transparent frame parameters
+        self.base.frame_inv.set_pos(0, 0, 0)
+
+        # base black frame parameters
+        self.base.frame_inv_black.set_pos(0, 0, 0)
+        self.base.frame_inv_black.reparent_to(self.base.frame_inv)
+
+        # inventory frame parameters
         self.base.frame_inv_int.reparent_to(self.base.frame_inv)
         self.base.frame_inv_int.set_pos(-1.3, 0, 0.5)
-        self.base.frame_inv.set_pos(0, 0, 0)
         self.base.frame_inv_int_data.set_pos(self.pos_2d(55, 32))
 
+        # base transparent frame background parameters
         self.pic_body_inv = OnscreenImage(image=self.images['body_inventory'])
         self.pic_body_inv.reparent_to(self.base.frame_inv)
         self.pic_body_inv.set_transparency(TransparencyAttrib.MAlpha)
@@ -270,7 +278,7 @@ class PlayerMenuUI(Inventory):
     def show_inventory_data(self):
         """ Sets inventory data """
         if not self.is_inventory_items_loaded:
-            imgs = self.base.inventory_geom_collector()
+            imgs = self.base.inventory_images_collector()
             items = []
             row = 0
             for key in imgs:
@@ -336,14 +344,33 @@ class PlayerMenuUI(Inventory):
             if player:
                 # set character view
                 player_pos = player.get_pos()
-                base.player_pos = player_pos
                 base.camera.set_x(player_pos[0] + -0.9)
                 base.camera.set_y(player_pos[1] + -4)
                 base.camera.set_z(player_pos[2] + 0.7)
                 base.camera.set_hpr(0, 0, 0)
                 if render.find("**/pivot"):
                     render.find("**/pivot").set_hpr(24.6, -0.999999, 0)
+
                 # set scene
+                bg_black = None
+                if not render.find("**/bg_black_char_sheet"):
+                    geoms = self.base.inventory_geoms_collector()
+                    if geoms:
+                        bg_black = base.loader.loadModel(geoms["bg_black_char_sheet"])
+                        bg_black.set_name("bg_black_char_sheet")
+                        # bg_black.reparent_to(render)
+                        player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
+                        if player_bs:
+                            bg_black.reparent_to(player_bs)
+                            bg_black.set_pos(0, 0, 0)
+                            bg_black.set_two_sided(True)
+                else:
+                    if render.find("**/bg_black_char_sheet"):
+                        bg_black = render.find("**/bg_black_char_sheet")
+                        
+                if bg_black:
+                    bg_black.show()
+
                 """if render.find("**/World"):
                     render.find("**/World").hide()"""
 
@@ -356,7 +383,11 @@ class PlayerMenuUI(Inventory):
         base.camera.set_hpr(player_hpr)
         if render.find("**/pivot"):
             render.find("**/pivot").set_hpr(pivot_hpr)
+
         # revert scene
+        if render.find("**/bg_black_char_sheet"):
+            bg_black = render.find("**/bg_black_char_sheet")
+            bg_black.hide()
         if render.find("**/World"):
             render.find("**/World").show()
 
