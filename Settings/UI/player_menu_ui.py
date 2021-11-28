@@ -46,15 +46,13 @@ class PlayerMenuUI(Inventory):
         self.pos_int_Z = 0.5
         self.w = 0
         self.h = 0
-        self.base.frame_inv_int = None
-        self.base.frame_inv = None
 
         """ Frame Sizes """
         # Left, right, bottom, top
         self.base.frame_inv_size = [-3, 3, -1, 3]
         self.base.frame_inv_black_bg_size = [-3, 0.7, -1, 3]
         self.base.frame_inv_int_canvas_size = [-2, 2, -2, 2]
-        self.base.frame_inv_int_size = [-.5, .2, -1.3, .5]
+        self.base.frame_inv_int_size = [-.5, .2, -1.3, 0]
 
         """ Frame Colors """
         self.frm_opacity = 1
@@ -90,12 +88,21 @@ class PlayerMenuUI(Inventory):
         self.base.frame_inv_black = DirectFrame(frameColor=(0, 0, 0, 1.0),
                                                 frameSize=self.base.frame_inv_black_bg_size)
 
-        self.base.frame_inv_int = DirectScrolledFrame(frameColor=(0, 0, 0, self.frm_opacity),
-                                                      frameSize=self.base.frame_inv_int_size,
-                                                      canvasSize=self.base.frame_inv_int_canvas_size,
-                                                      scrollBarWidth=0.03,
-                                                      autoHideScrollBars=True)
-
+        self.base.frame_inv_seq_one = DirectScrolledFrame(frameColor=(0, 0, 0, self.frm_opacity),
+                                                          frameSize=self.base.frame_inv_int_size,
+                                                          canvasSize=self.base.frame_inv_int_canvas_size,
+                                                          scrollBarWidth=0.03,
+                                                          autoHideScrollBars=True)
+        self.base.frame_inv_seq_two = DirectScrolledFrame(frameColor=(0, 0, 0, self.frm_opacity),
+                                                          frameSize=self.base.frame_inv_int_size,
+                                                          canvasSize=self.base.frame_inv_int_canvas_size,
+                                                          scrollBarWidth=0.03,
+                                                          autoHideScrollBars=True)
+        self.base.frame_inv_seq_three = DirectScrolledFrame(frameColor=(0, 0, 0, self.frm_opacity),
+                                                            frameSize=self.base.frame_inv_int_size,
+                                                            canvasSize=self.base.frame_inv_int_canvas_size,
+                                                            scrollBarWidth=0.03,
+                                                            autoHideScrollBars=True)
         self.base.frame_inv_int_data = DirectFrame(
             frameColor=(0, 0, 0, self.frm_opacity),
             frameSize=self.base.frame_inv_int_size,
@@ -149,8 +156,15 @@ class PlayerMenuUI(Inventory):
         self.base.frame_inv_black.set_pos(0, 0, 0)
 
         # inventory frame parameters
-        self.base.frame_inv_int.reparent_to(self.base.frame_inv)
-        self.base.frame_inv_int.set_pos(-1.3, 0, 0.5)
+        self.base.frame_inv_seq_one.reparent_to(self.base.frame_inv)
+        self.base.frame_inv_seq_one.set_pos(-1.3, 0, 0.5)
+
+        self.base.frame_inv_seq_two.reparent_to(self.base.frame_inv)
+        self.base.frame_inv_seq_two.set_pos(-0.5, 0, 0.5)
+
+        self.base.frame_inv_seq_three.reparent_to(self.base.frame_inv)
+        self.base.frame_inv_seq_three.set_pos(0.3, 0, 0.5)
+
         self.base.frame_inv_int_data.set_pos(self.pos_2d(55, 32))
 
         # self.pic_right.reparent_to(self.base.frame_inv)
@@ -227,7 +241,6 @@ class PlayerMenuUI(Inventory):
         """ Clears inventory ui and data """
         self.base.build_info.reparent_to(aspect2d)
         self.base.frame_inv.hide()
-        self.base.frame_inv_int.hide()
         self.base.frame_inv_int_data.hide()
 
         if hasattr(base, "hud") and base.hud:
@@ -255,7 +268,6 @@ class PlayerMenuUI(Inventory):
                     base.hud.toggle_all_hud(state="hidden")
 
                 self.base.frame_inv.show()
-                self.base.frame_inv_int.show()
                 self.base.frame_inv_int_data.show()
                 props = WindowProperties()
                 props.set_cursor_hidden(False)
