@@ -53,7 +53,7 @@ class PlayerMenuUI(Inventory):
         # Left, right, bottom, top
         self.base.frame_inv_size = [-3, 3, -1, 3]
         self.base.frame_inv_int_canvas_size = [-2, 2.3, -2, 2]
-        self.base.frame_inv_int_size = [-.5, .2, -1.3, .5]
+        self.base.frame_inv_int_size = [-.5, 1.2, -1.3, .5]
 
         """ Frame Colors """
         self.frm_opacity = 1
@@ -255,11 +255,11 @@ class PlayerMenuUI(Inventory):
                 base.is_ui_active = True
                 self.show_inventory_data()
                 self.base.is_inventory_active = True
-                self.prepare_character(camera=base.camera)
+                self.prepare_character()
             else:
                 self.clear_ui_inventory()
                 self.base.is_inventory_active = False
-                self.revert_character(camera=base.camera)
+                self.revert_character()
 
     def pos_2d(self, x, y):
         return Point3(x, 0, -y)
@@ -323,42 +323,42 @@ class PlayerMenuUI(Inventory):
             taskMgr.add(self.drag_and_drop_task, "drag_and_drop_task", sort=-50)
             self.is_inventory_items_loaded = True
 
-    def prepare_character(self, camera):
-        if self.base.is_inventory_active and camera:
+    def prepare_character(self):
+        if self.base.is_inventory_active:
             # keep default state of player camera
-            self.player_camera_default["pos"] = camera.get_pos()
-            self.player_camera_default["hpr"] = camera.get_hpr()
+            self.player_camera_default["pos"] = base.camera.get_pos()
+            self.player_camera_default["hpr"] = base.camera.get_hpr()
 
             if render.find("**/pivot"):
                 self.player_camera_default["pivot_hpr"] = render.find("**/pivot").get_hpr()
 
-            player_bs = base.get_actor_bullet_shape_node(asset="Player", type="Player")
-            if player_bs:
+            player = render.find("**/Player")
+            if player:
                 # set character view
-                base.player_pos = player_bs.get_pos()
-                base.player_hpr = player_bs.get_hpr()
-                camera.set_y(base.player_pos[1] + -2)
-                camera.set_z(base.player_pos[2] + -1.3)
-                camera.set_hpr(0, 0, 0)
+                player_pos = player.get_pos()
+                base.player_pos = player_pos
+                base.camera.set_x(player_pos[0] + -0.9)
+                base.camera.set_y(player_pos[1] + -4)
+                base.camera.set_z(player_pos[2] + 0.7)
+                base.camera.set_hpr(0, 0, 0)
                 if render.find("**/pivot"):
                     render.find("**/pivot").set_hpr(24.6, -0.999999, 0)
                 # set scene
-                if render.find("**/World"):
-                    render.find("**/World").hide()
+                """if render.find("**/World"):
+                    render.find("**/World").hide()"""
 
-    def revert_character(self, camera):
-        if camera:
-            # revert character view
-            pos = self.player_camera_default["pos"]
-            hpr = self.player_camera_default["hpr"]
-            pivot_hpr = self.player_camera_default["pivot_hpr"]
-            camera.set_pos(pos)
-            camera.set_hpr(hpr)
-            if render.find("**/pivot"):
-                render.find("**/pivot").set_hpr(pivot_hpr)
-            # revert scene
-            if render.find("**/World"):
-                render.find("**/World").show()
+    def revert_character(self):
+        # revert character view
+        player_pos = self.player_camera_default["pos"]
+        player_hpr = self.player_camera_default["hpr"]
+        pivot_hpr = self.player_camera_default["pivot_hpr"]
+        base.camera.set_pos(player_pos)
+        base.camera.set_hpr(player_hpr)
+        if render.find("**/pivot"):
+            render.find("**/pivot").set_hpr(pivot_hpr)
+        # revert scene
+        if render.find("**/World"):
+            render.find("**/World").show()
 
     # TODO: DELETE UNUSED
     """def clear_character_display(self):
