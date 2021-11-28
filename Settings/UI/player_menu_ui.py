@@ -52,9 +52,9 @@ class PlayerMenuUI(Inventory):
         """ Frame Sizes """
         # Left, right, bottom, top
         self.base.frame_inv_size = [-3, 3, -1, 3]
-        self.base.frame_inv_black_bg_size = [-3, -2.3, -1, 3]
-        self.base.frame_inv_int_canvas_size = [-2, 2.3, -2, 2]
-        self.base.frame_inv_int_size = [-.5, 1.2, -1.3, .5]
+        self.base.frame_inv_black_bg_size = [-3, 0.7, -1, 3]
+        self.base.frame_inv_int_canvas_size = [-2, 2, -2, 2]
+        self.base.frame_inv_int_size = [-.5, .2, -1.3, .5]
 
         """ Frame Colors """
         self.frm_opacity = 1
@@ -137,21 +137,21 @@ class PlayerMenuUI(Inventory):
         # base transparent frame parameters
         self.base.frame_inv.set_pos(0, 0, 0)
 
-        # base black frame parameters
-        self.base.frame_inv_black.set_pos(0, 0, 0)
-        self.base.frame_inv_black.reparent_to(self.base.frame_inv)
-
-        # inventory frame parameters
-        self.base.frame_inv_int.reparent_to(self.base.frame_inv)
-        self.base.frame_inv_int.set_pos(-1.3, 0, 0.5)
-        self.base.frame_inv_int_data.set_pos(self.pos_2d(55, 32))
-
         # base transparent frame background parameters
         self.pic_body_inv = OnscreenImage(image=self.images['body_inventory'])
         self.pic_body_inv.reparent_to(self.base.frame_inv)
         self.pic_body_inv.set_transparency(TransparencyAttrib.MAlpha)
         self.pic_body_inv.set_scale(1.5, 1.5, 0.9)
         self.pic_body_inv.set_pos(1.3, 0, 0)
+
+        # base black frame parameters
+        self.base.frame_inv_black.reparent_to(self.base.frame_inv)
+        self.base.frame_inv_black.set_pos(0, 0, 0)
+
+        # inventory frame parameters
+        self.base.frame_inv_int.reparent_to(self.base.frame_inv)
+        self.base.frame_inv_int.set_pos(-1.3, 0, 0.5)
+        self.base.frame_inv_int_data.set_pos(self.pos_2d(55, 32))
 
         # self.pic_right.reparent_to(self.base.frame_inv)
         # self.pic_right.set_scale(0.33, 0.30, 0.30)
@@ -367,12 +367,12 @@ class PlayerMenuUI(Inventory):
                 else:
                     if render.find("**/bg_black_char_sheet"):
                         bg_black = render.find("**/bg_black_char_sheet")
-                        
+
                 if bg_black:
                     bg_black.show()
 
-                """if render.find("**/World"):
-                    render.find("**/World").hide()"""
+                if render.find("**/World"):
+                    render.find("**/World").hide()
 
     def revert_character(self):
         # revert character view
