@@ -254,6 +254,16 @@ class Editor:
                 if joints:
                     return joints
 
+        elif self.active_asset and self.actor_refs:
+            if self.is_asset_actor(asset=self.active_asset):
+                self.active_item = self.active_asset
+                name = self.active_asset.get_name()
+                # Drop :BS suffix
+                name = name.split(":BS")[0]
+                joints = self.actor_refs.get(name).get_joints()
+                if joints:
+                    return joints
+
     def is_asset_actor(self, asset):
         if asset and "Player:BS" in asset.get_name():
             if not render.find("**/Player").find("**/+Character").is_empty():
@@ -451,6 +461,16 @@ class Editor:
 
     def select(self):
         self.is_asset_selected = True
+        if self.active_asset:
+            active_geom = self.active_asset.find("{0}".format(self.active_asset.get_name()))
+            if active_geom:
+                active_geom.setColor(0.5, 0.5, 0.7, 1.0)
+
+        if self.active_asset_from_list:
+            active_geom = self.active_asset_from_list.find("{0}".format(self.active_asset_from_list.get_name()))
+            if active_geom:
+                active_geom.setColor(0.5, 0.5, 0.7, 1.0)
+
         self.pick_up()
 
     def unselect(self):
@@ -556,6 +576,58 @@ class Editor:
             scale_x = self.get_node_scale_x(asset=self.active_asset_from_list)
             scale_y = self.get_node_scale_y(asset=self.active_asset_from_list)
             scale_z = self.get_node_scale_z(asset=self.active_asset_from_list)
+
+            self.inp_joint_item_pos_x.setText(pos_x)
+            self.inp_joint_item_pos_y.setText(pos_y)
+            self.inp_joint_item_pos_z.setText(pos_z)
+
+            self.inp_joint_item_rot_h.setText(rot_h)
+            self.inp_joint_item_rot_p.setText(rot_p)
+            self.inp_joint_item_rot_r.setText(rot_r)
+
+            self.inp_joint_item_scale_x.setText(scale_x)
+            self.inp_joint_item_scale_y.setText(scale_y)
+            self.inp_joint_item_scale_z.setText(scale_z)
+
+        if (self.active_asset
+                and self.is_asset_picked_up
+                and not self.is_item_attached_to_joint
+                and self.is_asset_selected):
+            pos_x = self.get_node_pos_x(asset=self.active_asset)
+            pos_y = self.get_node_pos_y(asset=self.active_asset)
+            pos_z = self.get_node_pos_z(asset=self.active_asset)
+            rot_h = self.get_node_h(asset=self.active_asset)
+            rot_p = self.get_node_p(asset=self.active_asset)
+            rot_r = self.get_node_r(asset=self.active_asset)
+            scale_x = self.get_node_scale_x(asset=self.active_asset)
+            scale_y = self.get_node_scale_y(asset=self.active_asset)
+            scale_z = self.get_node_scale_z(asset=self.active_asset)
+
+            self.inp_pos_x.setText(pos_x)
+            self.inp_pos_y.setText(pos_y)
+            self.inp_pos_z.setText(pos_z)
+
+            self.inp_rot_h.setText(rot_h)
+            self.inp_rot_p.setText(rot_p)
+            self.inp_rot_r.setText(rot_r)
+
+            self.inp_scale_x.setText(scale_x)
+            self.inp_scale_y.setText(scale_y)
+            self.inp_scale_z.setText(scale_z)
+
+        elif (self.active_asset
+              and self.is_asset_picked_up
+              and self.is_item_attached_to_joint
+              and self.is_asset_selected):
+            pos_x = self.get_node_pos_x(asset=self.active_asset)
+            pos_y = self.get_node_pos_y(asset=self.active_asset)
+            pos_z = self.get_node_pos_z(asset=self.active_asset)
+            rot_h = self.get_node_h(asset=self.active_asset)
+            rot_p = self.get_node_p(asset=self.active_asset)
+            rot_r = self.get_node_r(asset=self.active_asset)
+            scale_x = self.get_node_scale_x(asset=self.active_asset)
+            scale_y = self.get_node_scale_y(asset=self.active_asset)
+            scale_z = self.get_node_scale_z(asset=self.active_asset)
 
             self.inp_joint_item_pos_x.setText(pos_x)
             self.inp_joint_item_pos_y.setText(pos_y)
@@ -694,6 +766,15 @@ class Editor:
                     if self.active_asset_from_list:
                         self.active_asset_from_list.set_x(int_x)
 
+        elif self.active_asset:
+            self.inp_pos_x.clearText()
+            int_x = float(pos)
+            if hasattr(self.active_asset, "pos") and self.active_asset:
+                self.active_asset.pos[0] = int_x
+            else:
+                if self.active_asset:
+                    self.active_asset.set_x(int_x)
+
     def set_node_pos_y(self, pos):
         if pos and isinstance(pos, str):
             if self.active_asset_from_list:
@@ -704,6 +785,15 @@ class Editor:
                 else:
                     if self.active_asset_from_list:
                         self.active_asset_from_list.set_y(int_y)
+
+        elif self.active_asset:
+            self.inp_pos_y.clearText()
+            int_y = float(pos)
+            if hasattr(self.active_asset, "pos") and self.active_asset:
+                self.active_asset.pos[1] = int_y
+            else:
+                if self.active_asset:
+                    self.active_asset.set_y(int_y)
 
     def set_node_pos_z(self, pos):
         if pos and isinstance(pos, str):
@@ -716,6 +806,15 @@ class Editor:
                     if self.active_asset_from_list:
                         self.active_asset_from_list.set_z(int_z)
 
+        elif self.active_asset:
+            self.inp_pos_z.clearText()
+            int_z = float(pos)
+            if hasattr(self.active_asset, "pos") and self.active_asset:
+                self.active_asset.pos[2] = int_z
+            else:
+                if self.active_asset:
+                    self.active_asset.set_z(int_z)
+
     def set_node_h(self, h):
         if h and isinstance(h, str):
             if self.active_asset_from_list:
@@ -726,6 +825,15 @@ class Editor:
                 else:
                     if self.active_asset_from_list:
                         self.active_asset_from_list.set_h(int_x)
+
+            elif self.active_asset:
+                self.inp_rot_h.clearText()
+                int_x = float(h)
+                if hasattr(self.active_asset, "direction") and self.active_asset:
+                    self.active_asset.direction[0] = int_x
+                else:
+                    if self.active_asset:
+                        self.active_asset.set_h(int_x)
 
     def set_node_p(self, p):
         if p and isinstance(p, str):
@@ -738,6 +846,15 @@ class Editor:
                     if self.active_asset_from_list:
                         self.active_asset_from_list.set_p(int_y)
 
+            elif self.active_asset:
+                self.inp_rot_p.clearText()
+                int_y = float(p)
+                if hasattr(self.active_asset, "direction") and self.active_asset:
+                    self.active_asset.direction[1] = int_y
+                else:
+                    if self.active_asset:
+                        self.active_asset.set_p(int_y)
+
     def set_node_r(self, r):
         if r and isinstance(r, str):
             if self.active_asset_from_list:
@@ -749,6 +866,15 @@ class Editor:
                     if self.active_asset_from_list:
                         self.active_asset_from_list.set_r(int_z)
 
+        elif self.active_asset:
+            self.inp_rot_r.clearText()
+            int_z = float(r)
+            if hasattr(self.active_asset, "direction") and self.active_asset:
+                self.active_asset.direction[2] = int_z
+            else:
+                if self.active_asset:
+                    self.active_asset.set_r(int_z)
+
     def set_node_scale_x(self, unit):
         if unit and isinstance(unit, str):
             if self.active_asset_from_list:
@@ -759,6 +885,15 @@ class Editor:
                 else:
                     if self.active_asset_from_list:
                         self.active_asset_from_list.set_x(int_x)
+
+            elif self.active_asset:
+                self.inp_scale_x.clearText()
+                int_x = float(unit)
+                if hasattr(self.active_asset, "pos") and self.active_asset:
+                    self.active_asset.pos[0] = int_x
+                else:
+                    if self.active_asset:
+                        self.active_asset.set_x(int_x)
 
     def set_node_scale_y(self, unit):
         if unit and isinstance(unit, str):
@@ -772,6 +907,17 @@ class Editor:
                     if self.active_asset_from_list:
                         self.active_asset_from_list.set_y(int_y)
 
+            elif unit and isinstance(unit, str):
+                if self.active_asset:
+                    self.inp_scale_y.clearText()
+                    int_y = float(unit)
+                    if hasattr(self.active_asset, "pos") \
+                            and self.active_asset:
+                        self.active_asset.pos[1] = int_y
+                    else:
+                        if self.active_asset:
+                            self.active_asset.set_y(int_y)
+
     def set_node_scale_z(self, unit):
         if unit and isinstance(unit, str):
             if self.active_asset_from_list:
@@ -784,12 +930,27 @@ class Editor:
                     if self.active_asset_from_list:
                         self.active_asset_from_list.set_z(int_z)
 
+            elif self.active_asset:
+                self.inp_scale_z.clearText()
+                int_z = float(unit)
+                if hasattr(self.active_asset, "pos") \
+                        and self.active_asset:
+                    self.active_asset.pos[2] = int_z
+                else:
+                    if self.active_asset:
+                        self.active_asset.set_z(int_z)
+
     def set_joint_pos_x(self, pos):
         if pos and isinstance(pos, str):
             if self.active_asset_from_list:
                 self.inp_pos_x.clearText()
                 int_x = float(pos)
                 self.active_asset_from_list.set_x(int_x)
+
+            elif self.active_asset:
+                self.inp_pos_x.clearText()
+                int_x = float(pos)
+                self.active_asset.set_x(int_x)
 
     def set_joint_pos_y(self, pos):
         if pos and isinstance(pos, str):
@@ -798,12 +959,22 @@ class Editor:
                 int_y = float(pos)
                 self.active_asset_from_list.set_y(int_y)
 
+            elif self.active_asset:
+                self.inp_pos_y.clearText()
+                int_y = float(pos)
+                self.active_asset.set_y(int_y)
+
     def set_joint_pos_z(self, pos):
         if pos and isinstance(pos, str):
             if self.active_asset_from_list:
                 self.inp_pos_z.clearText()
                 int_z = float(pos)
                 self.active_asset_from_list.set_z(int_z)
+
+            elif self.active_asset:
+                self.inp_pos_z.clearText()
+                int_z = float(pos)
+                self.active_asset.set_z(int_z)
 
     def set_joint_h(self, h):
         if h and isinstance(h, str):
@@ -812,6 +983,11 @@ class Editor:
                 int_x = float(h)
                 self.active_asset_from_list.set_h(int_x)
 
+            elif self.active_asset:
+                self.inp_rot_h.clearText()
+                int_x = float(h)
+                self.active_asset.set_h(int_x)
+
     def set_joint_p(self, p):
         if p and isinstance(p, str):
             if self.active_asset_from_list:
@@ -819,12 +995,21 @@ class Editor:
                 int_y = float(p)
                 self.active_asset_from_list.set_p(int_y)
 
+            elif self.active_asset:
+                self.inp_rot_p.clearText()
+                int_y = float(p)
+                self.active_asset.set_p(int_y)
+
     def set_joint_r(self, r):
         if r and isinstance(r, str):
             if self.active_asset_from_list:
                 self.inp_rot_r.clearText()
                 int_z = float(r)
                 self.active_asset_from_list.set_r(int_z)
+            elif self.active_asset:
+                self.inp_rot_r.clearText()
+                int_z = float(r)
+                self.active_asset.set_r(int_z)
 
     def set_joint_scale_x(self, unit):
         if unit and isinstance(unit, str):
@@ -833,6 +1018,11 @@ class Editor:
                 int_x = float(unit)
                 self.active_asset_from_list.set_x(int_x)
 
+            elif self.active_asset:
+                self.inp_scale_x.clearText()
+                int_x = float(unit)
+                self.active_asset.set_x(int_x)
+
     def set_joint_scale_y(self, unit):
         if unit and isinstance(unit, str):
             if self.active_asset_from_list:
@@ -840,12 +1030,22 @@ class Editor:
                 int_y = float(unit)
                 self.active_asset_from_list.set_y(int_y)
 
+            elif self.active_asset:
+                self.inp_scale_y.clearText()
+                int_y = float(unit)
+                self.active_asset.set_y(int_y)
+
     def set_joint_scale_z(self, unit):
         if unit and isinstance(unit, str):
             if self.active_asset_from_list:
                 self.inp_scale_z.clearText()
                 int_z = float(unit)
                 self.active_asset_from_list.set_z(int_z)
+
+            elif self.active_asset:
+                self.inp_scale_z.clearText()
+                int_z = float(unit)
+                self.active_asset.set_z(int_z)
 
     def set_manipulation_mode(self, mode):
         if mode and mode == 1:
