@@ -248,8 +248,13 @@ class PhysicsAttr:
                     actor_bs_np = render.attach_new_node(base.bullet_char_contr_node)
                     actor_bs_np.set_collide_mask(mask)
                     self.world.attach(base.bullet_char_contr_node)
-                    if render.find("**/floater"):
-                        render.find("**/floater").reparent_to(actor_bs_np)
+
+                    if self.game_settings['Debug']['set_editor_mode'] == 'NO':
+                        if render.find("**/floater"):
+                            render.find("**/floater").reparent_to(actor_bs_np)
+                    elif self.game_settings['Debug']['set_editor_mode'] == 'YES':
+                        actor.reparent_to(actor_bs_np)
+
                 elif type == 'npc':
                     actor_node = BulletCharacterControllerNode(actor_bs,
                                                                0.4,

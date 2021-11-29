@@ -162,7 +162,7 @@ class Actions:
 
                 # Pass the player object to FSM
                 self.fsm_player.get_player(actor=player)
-                player.set_blend(frameBlend=True)
+                # player.set_blend(frameBlend=True)
 
                 taskMgr.add(self.player_actions_task, "player_actions_task",
                             extraArgs=[player, anims],

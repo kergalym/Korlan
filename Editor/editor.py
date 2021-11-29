@@ -217,6 +217,14 @@ class Editor:
                     for name in base.npcs_actor_refs:
                         self.actor_refs[name] = base.npcs_actor_refs[name]
 
+        # load weapon model
+        kylysh = self.base.loader.load_model("{0}/Assets/Weapons/sword.egg".format(self.game_dir))
+        name = kylysh.get_name()
+        name = name.split(".egg")[0]
+        kylysh.set_name(name)
+        kylysh.reparent_to(render)
+        self.weapons[name] = kylysh
+
         # todo tempo: keep until game asset include weapons
         for name in self.weapons:
             self.assets_bs[name] = self.weapons[name]
@@ -233,14 +241,6 @@ class Editor:
 
     def set_editor(self):
         self.assets_bs = {}
-        # load weapon model
-        kylysh = self.base.loader.load_model("{0}/Assets/Weapons/sword.egg".format(self.game_dir))
-        name = kylysh.get_name()
-        name = name.split(".egg")[0]
-        kylysh.set_name(name)
-        kylysh.reparent_to(render)
-        self.weapons[name] = kylysh
-
         taskMgr.add(self.get_asset_nodes_task, "get_asset_task")
 
     def get_actor_joints(self):
