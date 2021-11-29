@@ -921,7 +921,6 @@ class Editor:
             near_point = Point3()
             far_point = Point3()
             base.camLens.extrude(mpos, near_point, far_point)
-
             if (self.active_asset_from_list
                     and self.is_asset_picked_up
                     and self.collider_plane.intersects_line(pos3d,
