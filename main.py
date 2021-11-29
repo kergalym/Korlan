@@ -127,6 +127,7 @@ p3d.load_prc_file_data(
     'icon-filename icon-16.ico\n'
     'win-origin -1 -2\n'
     'window-title Korlan - Daughter of the Steppes\n'
+    'sync-video 1\n'
     'show-frame-rate-meter  t\n'
     'audio-library-name p3openal_audio\n'
     'model-cache-dir Cache\n'

@@ -24,6 +24,13 @@ class EditorUI:
                                                          align=TextNode.ALeft,
                                                          parent=self.editor.frame,
                                                          mayChange=True)
+            self.editor.mode_warn_text = OnscreenText(text="",
+                                                      scale=0.03,
+                                                      fg=(255, 255, 255, 0.9),
+                                                      font=self.editor.font.load_font(self.editor.menu_font),
+                                                      align=TextNode.ALeft,
+                                                      parent=self.editor.frame,
+                                                      mayChange=True)
 
             self.editor.mouse_in_asset_text = OnscreenText(text="",
                                                            scale=0.03,
@@ -555,6 +562,11 @@ class EditorUI:
             self.editor.scrolled_list_lbl_desc.set_pos(-1.65, 0, -0.40)
 
         self.editor.active_asset_text.set_pos(1.3, 0, 0.85)
+
+        self.editor.mode_warn_text.setText("Bullet Physics is enabled. \n"
+                                           "Bullet shaped objects won't pitch or rotate")
+        self.editor.mode_warn_text.set_pos(0.9, 0, -0.4)
+
         self.editor.mouse_in_asset_text.set_pos(-1.2, 0, -0.3)
 
         self.editor.asset_management_title.set_pos(-1.0, 0, -0.59)
@@ -710,6 +722,7 @@ class EditorUI:
 
     def set_joints_list_ui(self):
         if not self.editor.scrolled_list_actor_joints_lbl_desc:
+            print("set_joints_list_ui")
             ui_geoms = self.editor.ui_geom_collector()
             if ui_geoms:
                 maps_scrolled_dbtn = self.editor.base.loader.loadModel(ui_geoms['btn_t_icon'])
