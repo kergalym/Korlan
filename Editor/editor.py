@@ -400,13 +400,13 @@ class Editor:
             if self.active_asset_from_list and self.is_asset_selected:
                 if self.rotation_modes["H"]:
                     pos_h = self.active_asset_from_list.get_h()
-                    self.active_asset_from_list.set_h(pos_h + 1.5)
+                    self.active_asset_from_list.set_h(pos_h + 50.5)
                 elif self.rotation_modes["P"]:
                     pos_p = self.active_asset_from_list.get_p()
-                    self.active_asset_from_list.set_p(pos_p + 1.5)
+                    self.active_asset_from_list.set_p(pos_p + 50.5)
                 elif self.rotation_modes["R"]:
                     pos_r = self.active_asset_from_list.get_r()
-                    self.active_asset_from_list.set_r(pos_r + 1.5)
+                    self.active_asset_from_list.set_r(pos_r + 50.5)
 
         if not self.is_asset_selected:
             cam_y = base.camera.get_y()
@@ -421,13 +421,13 @@ class Editor:
             if self.active_asset_from_list and self.is_asset_selected:
                 if self.rotation_modes["H"]:
                     pos_h = self.active_asset_from_list.get_h()
-                    self.active_asset_from_list.set_h(pos_h - 1.5)
+                    self.active_asset_from_list.set_h(pos_h - 50.5)
                 elif self.rotation_modes["P"]:
                     pos_p = self.active_asset_from_list.get_p()
-                    self.active_asset_from_list.set_p(pos_p - 1.5)
+                    self.active_asset_from_list.set_p(pos_p - 50.5)
                 elif self.rotation_modes["R"]:
                     pos_r = self.active_asset_from_list.get_r()
-                    self.active_asset_from_list.set_r(pos_r - 1.5)
+                    self.active_asset_from_list.set_r(pos_r - 50.5)
 
         if not self.is_asset_selected:
             cam_y = base.camera.get_y()
