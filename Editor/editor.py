@@ -231,7 +231,7 @@ class Editor:
     def set_editor(self):
         self.assets_bs = {}
         # load weapon model
-        kylysh = self.base.loader.load_model("{0}/Assets/Weapons/kylysh.egg".format(self.game_dir))
+        kylysh = self.base.loader.load_model("{0}/Assets/Weapons/sword.egg".format(self.game_dir))
         name = kylysh.get_name()
         name = name.split(".egg")[0]
         kylysh.set_name(name)
@@ -243,18 +243,24 @@ class Editor:
     def get_actor_joints(self):
         if self.active_asset_from_list and self.actor_refs:
             if self.is_asset_actor(asset=self.active_asset_from_list):
+                self.active_item = self.active_asset_from_list
                 name = self.active_asset_from_list.get_name()
                 # Drop :BS suffix
                 name = name.split(":BS")[0]
+                # FIXME None
                 joints = self.actor_refs.get(name).get_joints()
                 if joints:
                     return joints
 
     def is_asset_actor(self, asset):
-        if asset and not asset.find("**/+Character").is_empty():
+        # FIXME Player:BS doesn't have +Character type close to find
+        if asset and "Player" in asset.get_name():
+            return True
+        elif asset and "NPC" in asset.get_name():
             return True
         else:
-            self.active_item = asset
+            if not asset.find("**/+Character").is_empty():
+                return False
             return False
 
     def is_actor_joint_busy(self, joint):

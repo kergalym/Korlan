@@ -85,6 +85,7 @@ class PlayerMenuUI(Inventory):
 
         self.base.frame_inv = DirectFrame(frameColor=(0, 0, 0, 0.7),
                                           frameSize=self.base.frame_inv_size)
+
         self.base.frame_inv_black = DirectFrame(frameColor=(0, 0, 0, 1.0),
                                                 frameSize=self.base.frame_inv_black_bg_size)
 
@@ -93,16 +94,19 @@ class PlayerMenuUI(Inventory):
                                                           canvasSize=self.base.frame_inv_int_canvas_size,
                                                           scrollBarWidth=0.03,
                                                           autoHideScrollBars=True)
+
         self.base.frame_inv_seq_two = DirectScrolledFrame(frameColor=(0, 0, 0, self.frm_opacity),
                                                           frameSize=self.base.frame_inv_int_size,
                                                           canvasSize=self.base.frame_inv_int_canvas_size,
                                                           scrollBarWidth=0.03,
                                                           autoHideScrollBars=True)
+
         self.base.frame_inv_seq_three = DirectScrolledFrame(frameColor=(0, 0, 0, self.frm_opacity),
                                                             frameSize=self.base.frame_inv_int_size,
                                                             canvasSize=self.base.frame_inv_int_canvas_size,
                                                             scrollBarWidth=0.03,
                                                             autoHideScrollBars=True)
+
         self.base.frame_inv_int_data = DirectFrame(
             frameColor=(0, 0, 0, self.frm_opacity),
             frameSize=self.base.frame_inv_int_size,
@@ -125,7 +129,7 @@ class PlayerMenuUI(Inventory):
                                               text_font=self.font.load_font(self.menu_font),
                                               frameColor=(255, 255, 255, self.frm_opacity),
                                               scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                              parent=self.base.frame_inv,
+                                              parent=self.base.frame_inv_black,
                                               geom=geoms, geom_scale=(8.1, 0, 2),
                                               clickSound=sound_gui_click,
                                               command=self.clear_ui_inventory)
@@ -135,7 +139,7 @@ class PlayerMenuUI(Inventory):
                                              text_font=self.font.load_font(self.menu_font),
                                              frameColor=(255, 255, 255, self.frm_opacity),
                                              scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                             parent=self.base.frame_inv,
+                                             parent=self.base.frame_inv_black,
                                              geom=geoms, geom_scale=(5.1, 0, 2),
                                              clickSound=sound_gui_click,
                                              command=self.clear_ui_inventory)
@@ -155,7 +159,7 @@ class PlayerMenuUI(Inventory):
         self.base.frame_inv_black.reparent_to(self.base.frame_inv)
         self.base.frame_inv_black.set_pos(0, 0, 0)
 
-        # inventory frame parameters
+        # inventory scrolled frame parameters
         self.base.frame_inv_seq_one.reparent_to(self.base.frame_inv)
         self.base.frame_inv_seq_one.set_pos(-1.3, 0, 0.5)
 
@@ -165,6 +169,7 @@ class PlayerMenuUI(Inventory):
         self.base.frame_inv_seq_three.reparent_to(self.base.frame_inv)
         self.base.frame_inv_seq_three.set_pos(0.3, 0, 0.5)
 
+        # inventory data frame parameters
         self.base.frame_inv_int_data.set_pos(self.pos_2d(55, 32))
 
         # self.pic_right.reparent_to(self.base.frame_inv)
@@ -204,6 +209,7 @@ class PlayerMenuUI(Inventory):
             "umai": None
         }"""
         self.inventory_items = {}
+        self.inventory_frames = []
 
     def drag_and_drop_task(self, task=None):
         """Track the mouse pos and move self.current_dragged to where the cursor is"""
@@ -257,6 +263,18 @@ class PlayerMenuUI(Inventory):
         # Clean inventory objects
         self.inventory_items = []
         self.current_dragged = None
+
+        # FIXME revert scene
+        player_pos = self.player_camera_default["pos"]
+        player_hpr = self.player_camera_default["hpr"]
+        base.camera.set_pos(player_pos + Vec3(0, -4.6, 0))
+        base.camera.set_hpr(player_hpr)
+        if render.find("**/bg_black_char_sheet"):
+            bg_black = render.find("**/bg_black_char_sheet")
+            bg_black.hide()
+        if render.find("**/World"):
+            render.find("**/World").show()
+
         self.base.is_inventory_active = False
 
     def set_ui_inventory(self):
@@ -278,8 +296,8 @@ class PlayerMenuUI(Inventory):
                 self.prepare_character()
             else:
                 self.clear_ui_inventory()
-                self.base.is_inventory_active = False
                 self.revert_character()
+                self.base.is_inventory_active = False
 
     def pos_2d(self, x, y):
         return Point3(x, 0, -y)
@@ -312,6 +330,7 @@ class PlayerMenuUI(Inventory):
                 frame.bind(DGG.B1RELEASE, self.drop)
 
                 self.inventory_items[item] = frame
+                self.inventory_frames.append(frame)
 
                 pos_y = row + 1 * 64
                 pos_x = row * 64

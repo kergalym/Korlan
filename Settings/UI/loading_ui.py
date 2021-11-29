@@ -3,7 +3,7 @@ from direct.interval.IntervalGlobal import Parallel
 from direct.interval.IntervalGlobal import Func
 from direct.gui.DirectGui import *
 from direct.showbase.ShowBaseGlobal import aspect2d
-from panda3d.core import FontPool, TextNode
+from panda3d.core import FontPool, TextNode, WindowProperties
 from Engine.Scenes.level_one import LevelOne
 from direct.task.TaskManagerGlobal import taskMgr
 from Settings.UI.rp_lights_manager_ui import RPLightsMgrUI
@@ -42,11 +42,13 @@ class LoadingUI:
         self.title_loading_text = None
         self.base.loading_is_done = 0
         self.base.unloading_is_done = 0
+        # self.wp = WindowProperties()
 
     def set_loading_bar(self):
         if (self.loading_bar
                 and self.title_loading_text
                 and self.loading_screen):
+            # self.wp.set_cursor_hidden(True)
             self.loading_bar.show()
             self.title_loading_text.show()
             self.loading_screen.show()
@@ -95,6 +97,8 @@ class LoadingUI:
             self.base.build_info.reparent_to(aspect2d)
         if self.title_loading_text:
             self.title_loading_text.hide()
+        """if self.wp:
+            self.wp.set_cursor_hidden(False)"""
 
     def get_loading_queue_list(self, names):
         if isinstance(names, list) and names:
@@ -135,10 +139,6 @@ class LoadingUI:
                             and hasattr(base, "physics_is_active")
                             and self.base.physics_is_active == 1):
 
-                        if self.game_settings['Debug']['set_editor_mode'] == 'YES':
-                            self.editor = Editor()
-                            self.editor.set_editor()
-
                         self.clear_loading_bar()
                         self.hud.set_aim_cursor()
                         self.hud.set_day_hud()
@@ -146,8 +146,13 @@ class LoadingUI:
                         self.hud.set_weapon_ui()
                         base.hud = self.hud
 
-                        if self.game_settings['Debug']['set_debug_mode'] == 'YES':
-                            self.base.set_textures_srgb(True)
+                    if self.game_settings['Debug']['set_editor_mode'] == 'YES':
+                        self.clear_loading_bar()
+                        self.editor = Editor()
+                        self.editor.set_editor()
+
+                    if self.game_settings['Debug']['set_debug_mode'] == 'YES':
+                        self.base.set_textures_srgb(True)
 
                     return task.done
 
