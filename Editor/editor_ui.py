@@ -726,18 +726,20 @@ class EditorUI:
                                       maps_scrolled_inc.find('**/button_rollover_inc'))
 
                 btn2_list = []
-                for index, joint in enumerate(self.editor.get_actor_joints(), 1):
-                    btn = DirectButton(text="{0}".format(joint.get_name()),
-                                       text_fg=(255, 255, 255, 1), relief=2,
-                                       text_font=self.editor.font.load_font(self.editor.menu_font),
-                                       frameColor=(0, 0, 0, 1),
-                                       parent=self.editor.frame,
-                                       scale=.03, borderWidth=(self.editor.w, self.editor.h),
-                                       geom=geoms_scrolled_dbtn, geom_scale=(15.3, 0, 2),
-                                       clickSound="",
-                                       command=self.editor.select_joint_from_list,
-                                       extraArgs=[joint.get_name()])
-                    btn2_list.append(btn)
+                # fixme
+                if self.editor.get_actor_joints():
+                    for index, joint in enumerate(self.editor.get_actor_joints(), 1):
+                        btn = DirectButton(text="{0}".format(joint.get_name()),
+                                           text_fg=(255, 255, 255, 1), relief=2,
+                                           text_font=self.editor.font.load_font(self.editor.menu_font),
+                                           frameColor=(0, 0, 0, 1),
+                                           parent=self.editor.frame,
+                                           scale=.03, borderWidth=(self.editor.w, self.editor.h),
+                                           geom=geoms_scrolled_dbtn, geom_scale=(15.3, 0, 2),
+                                           clickSound="",
+                                           command=self.editor.select_joint_from_list,
+                                           extraArgs=[joint.get_name()])
+                        btn2_list.append(btn)
 
                 if not self.editor.scrolled_list_actor_joints_lbl_desc:
                     self.editor.scrolled_list_actor_joints = DirectScrolledList(
