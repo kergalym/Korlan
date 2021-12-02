@@ -7,7 +7,7 @@ from direct.task.TaskManagerGlobal import taskMgr
 from Engine.Items.items import Items
 from Settings.Input.keyboard import Keyboard
 from Settings.Input.mouse import Mouse
-from Settings.UI.player_menu_ui import PlayerMenuUI
+from Engine.Inventory.sheet import Sheet
 
 
 class Actions:
@@ -32,7 +32,7 @@ class Actions:
         self.kbd = Keyboard()
         self.mouse = Mouse()
         self.fsm_player = PlayerFSM()
-        self.player_menu = PlayerMenuUI()
+        self.player_menu = Sheet()
         self.state = PlayerState()
         self.base.is_ui_active = False
         self.base.is_dev_ui_active = False
@@ -155,7 +155,7 @@ class Actions:
                             appendTask=True)
 
                 # Define player menu here
-                base.accept('i', self.player_menu.set_ui_inventory)
+                base.accept('i', self.player_menu.set_sheet)
 
                 # Define player attack here
                 self.state.set_player_equipment(player, "Korlan:Spine1")

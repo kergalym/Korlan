@@ -1,6 +1,6 @@
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import WindowProperties
-from Engine.Actors.Player.inventory import Inventory
+from Engine.Inventory.inventory import Inventory
 
 
 class PlayerState:
