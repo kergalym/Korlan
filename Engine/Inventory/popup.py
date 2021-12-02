@@ -20,7 +20,7 @@ class Popup:
                                       align=TextNode.ALeft,
                                       font=self.font)
         self.info_text.reparent_to(self.back)
-        self.info_text.set_scale(3.0)
+        self.info_text.set_scale(7.0)
 
         self.states = {
             "HIDDEN": False,
