@@ -80,15 +80,9 @@ class Sheet(Inventory):
         """ Frames, Buttons & Fonts"""
         self.menu_font = self.fonts['OpenSans-Regular']
 
-        self.base.frame_inv = DirectFrame(frameColor=(0, 0, 0, 0.7),
+        self.base.frame_inv = DirectFrame(frameColor=(0, 0, 0, 0),
                                           frameSize=self.base.frame_inv_size,
                                           pos=(0, 0, 0))
-
-        self.pic_body_inv = OnscreenImage(image=self.images['inv_bg'],
-                                          pos=(1.3, 0, 0),
-                                          scale=(1.5, 1.5, 0.9),
-                                          parent=self.base.frame_inv)
-        self.pic_body_inv.set_transparency(TransparencyAttrib.MAlpha)
 
         ui_geoms = base.ui_geom_collector()
 
@@ -204,44 +198,108 @@ class Sheet(Inventory):
         """ DEFINE INVENTORY """
         sheet_slot_info = [('HAND_L', (0.9, 0, -0.01), u'Hand', self.images['hand_slot']),
                            ('HAND_R', (1.7, 0, -0.01), u'Hand', self.images['hand_slot']),
-                           ('TENGRI_PWR', (1.7, 0, -0.31), u'Hand', self.images['magic_slot']),
-                           ('UMAI_PWR', (1.7, 0, -0.61), u'Hand', self.images['magic_slot']),
+                           ('TENGRI_PWR', (1.7, 0, -0.35), u'Hand', self.images['magic_slot']),
+                           ('UMAI_PWR', (1.7, 0, -0.67), u'Hand', self.images['magic_slot']),
                            ('HEAD', (0.9, 0, 0.7), u'Head', self.images['head_slot']),
                            ('BODY', (1.7, 0, 0.32), u'Body', self.images['body_slot']),
-                           ('FEET', (0.9, 0, -0.55), u'Feet', self.images['feet_slot']),
-                           ('LEGS', (0.9, 0, -0.85), u'Legs', self.images['toe_slot']),
+                           ('FEET', (0.9, 0, -0.43), u'Feet', self.images['feet_slot']),
+                           ('LEGS', (0.9, 0, -0.76), u'Legs', self.images['toe_slot']),
                            ('TRASH', (0.4, 0, -0.6), u'Trash', self.images['trash_slot'])]
 
-        sheet_items = [(('INVENTORY_1', 'TRASH', 'HAND_L', 'HAND_R'), 'weapon',
-                        self.images['slot_item_sword'], 'Sword', 1, 1, 0, 8),
-                       (('INVENTORY_1', 'TRASH', 'HAND_L', 'HAND_R'), 'weapon',
-                        self.images['slot_item_bow'], 'Bow', 1, 1, 0, 8),
-                       (('INVENTORY_3', 'TENGRI_PWR', 'UMAI_PWR'), 'weapon',
-                        self.images['slot_item_tengri'], 'Tengri Power', 1, 1, 0, 8),
-                       (('INVENTORY_3', 'TENGRI_PWR', 'UMAI_PWR'), 'weapon',
-                        self.images['slot_item_umai'], 'Umai Power', 1, 1, 0, 8),
-                       (('INVENTORY_2', 'TRASH', 'BODY'), 'armor',
-                        self.images['slot_item_armor'], 'Light armor', 1, 1, 10),
-                       (('INVENTORY_2', 'TRASH', 'HEAD'), 'armor',
-                        self.images['slot_item_helmet'], 'Helmet', 1, 1, 5),
-                       (('INVENTORY_2', 'TRASH', 'FEET'), 'armor',
-                        self.images['slot_item_feet'], 'Pants', 1, 1, 2),
-                       (('INVENTORY_2', 'TRASH', 'LEGS'), 'armor',
-                        self.images['slot_item_boots'], 'Boots', 1, 1, 2),
-                       (('INVENTORY_1', 'TRASH'), '9x19lu',
-                        self.images['slot_item_arrows'], 'Arrows', 20, 30),
-                       (('INVENTORY_1', 'TRASH'), '9x19lu',
-                        self.images['slot_item_arrows'], 'Arrows', 15, 30),
-                       (('INVENTORY_1', 'TRASH'), '9x19lu',
-                        self.images['slot_item_arrows'], 'Arrows', 6, 30)]
+        # styled frames for these sheet slots
+        sheet_slot_frame_img = self.images['sheet_default_slot']
+        sheet_slot_frame_scale = (0.21, 0, 0.21)
+        hand_l_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
+                                            pos=(0.9, 0, -0.01),
+                                            scale=sheet_slot_frame_scale,
+                                            parent=self.base.frame_inv)
+        hand_l_styled_frame.setTransparency(TransparencyAttrib.MAlpha)
 
-        # Custom slots init
+        hand_r_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
+                                            pos=(1.7, 0, -0.01),
+                                            scale=sheet_slot_frame_scale,
+                                            parent=self.base.frame_inv)
+        hand_r_styled_frame.setTransparency(TransparencyAttrib.MAlpha)
+
+        tengri_pwr_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
+                                                pos=(1.7, 0, -0.35),
+                                                scale=sheet_slot_frame_scale,
+                                                parent=self.base.frame_inv)
+        tengri_pwr_styled_frame.setTransparency(TransparencyAttrib.MAlpha)
+
+        umai_pwr_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
+                                              pos=(1.7, 0, -0.67),
+                                              scale=sheet_slot_frame_scale,
+                                              parent=self.base.frame_inv)
+        umai_pwr_styled_frame.setTransparency(TransparencyAttrib.MAlpha)
+
+        head_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
+                                          pos=(0.9, 0, 0.7),
+                                          scale=sheet_slot_frame_scale,
+                                          parent=self.base.frame_inv)
+        head_styled_frame.setTransparency(TransparencyAttrib.MAlpha)
+
+        body_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
+                                          pos=(1.7, 0, 0.32),
+                                          scale=sheet_slot_frame_scale,
+                                          parent=self.base.frame_inv)
+        body_styled_frame.setTransparency(TransparencyAttrib.MAlpha)
+
+        feet_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
+                                          pos=(0.9, 0, -0.43),
+                                          scale=sheet_slot_frame_scale,
+                                          parent=self.base.frame_inv)
+        feet_styled_frame.setTransparency(TransparencyAttrib.MAlpha)
+
+        legs_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
+                                          pos=(0.9, 0, -0.76),
+                                          scale=sheet_slot_frame_scale,
+                                          parent=self.base.frame_inv)
+        legs_styled_frame.setTransparency(TransparencyAttrib.MAlpha)
+
+        trash_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
+                                           pos=(0.4, 0, -0.6),
+                                           scale=sheet_slot_frame_scale,
+                                           parent=self.base.frame_inv)
+        trash_styled_frame.setTransparency(TransparencyAttrib.MAlpha)
+
+        """(('INVENTORY_1', 'TRASH', 'HAND_L', 'HAND_R'), 'weapon',
+            self.images['slot_item_sword'], 'Sword', 1, 1, 0, 8),
+           (('INVENTORY_1', 'TRASH', 'HAND_L', 'HAND_R'), 'weapon',
+            self.images['slot_item_bow'], 'Bow', 1, 1, 0, 8),"""
+
+        sheet_items = [
+            (('INVENTORY_2', 'TRASH', 'HAND_L', 'HAND_R'), 'weapon',
+             self.images['slot_item_sword'], 'Sword', 1, 1, 0, 8),
+            (('INVENTORY_2', 'TRASH', 'HAND_L', 'HAND_R'), 'weapon',
+             self.images['slot_item_bow'], 'Bow', 1, 1, 0, 8),
+            (('INVENTORY_2', 'TRASH', 'BODY'), 'armor',
+             self.images['slot_item_armor'], 'Light armor', 1, 1, 10),
+            (('INVENTORY_2', 'TRASH', 'HEAD'), 'armor',
+             self.images['slot_item_helmet'], 'Helmet', 1, 1, 5),
+            (('INVENTORY_2', 'TRASH', 'FEET'), 'armor',
+             self.images['slot_item_feet'], 'Pants', 1, 1, 2),
+            (('INVENTORY_2', 'TRASH', 'LEGS'), 'armor',
+             self.images['slot_item_boots'], 'Boots', 1, 1, 2),
+            (('INVENTORY_2', 'TRASH'), '9x19lu',
+             self.images['slot_item_arrows'], 'Arrows', 20, 30),
+            (('INVENTORY_2', 'TRASH'), '9x19lu',
+             self.images['slot_item_arrows'], 'Arrows', 15, 30),
+            (('INVENTORY_2', 'TRASH'), '9x19lu',
+             self.images['slot_item_arrows'], 'Arrows', 6, 30),
+            (('INVENTORY_3', 'TENGRI_PWR', 'UMAI_PWR'), 'weapon',
+             self.images['slot_item_tengri'], 'Tengri Power', 1, 1, 0, 8),
+            (('INVENTORY_3', 'TENGRI_PWR', 'UMAI_PWR'), 'weapon',
+             self.images['slot_item_umai'], 'Umai Power', 1, 1, 0, 8)
+        ]
+
+        # sheet slots init
         self.custom_inv_slots(sheet_slot_info)
 
         # Field of slots 6х6,        x, y
-        self.fill_up_inv_slots(4, 6, -1.55, 0.5, 'INVENTORY_1')
-        self.fill_up_inv_slots(3, 6, -0.8, 0.5, 'INVENTORY_2')
-        self.fill_up_inv_slots(3, 6, -0.24, 0.5, 'INVENTORY_3')
+        self.fill_up_inv_slots(3, 7, -1.55, 0.5, 'INVENTORY_1')
+        self.fill_up_inv_slots(3, 7, -1.0, 0.5, 'INVENTORY_2')
+        self.fill_up_inv_slots(3, 7, -0.45, 0.5, 'INVENTORY_3')
 
         for item in sheet_items:
             inventory_type = item[0][0]
@@ -276,7 +334,7 @@ class Sheet(Inventory):
                 base.accept('inventory-item-move', self.on_item_move)
 
                 # Add another item to inventory
-                item = (('INVENTORY_1', 'TRASH'), '9x19lu', self.images['slot_item_arrows'], 'Arrows', 15, 30)
+                item = (('INVENTORY_2', 'TRASH'), '9x19lu', self.images['slot_item_arrows'], 'Arrows', 15, 30)
                 inventory_type = item[0][0]
                 self.add_item(Item(item), inventory_type)
                 self.refresh_items()

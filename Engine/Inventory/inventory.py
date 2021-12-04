@@ -121,7 +121,6 @@ class Inventory:
         self.item_under_mouse = -1  # item id under mouse cursor
 
         self.popup_timer = 0.0  # hint popup time
-        print(self.popup_font)
         self.popup = Popup(self.popup_bg, self.popup_fg, self.popup_font)
 
         self.is_inventory_items_loaded = False
@@ -163,8 +162,24 @@ class Inventory:
         self.black_frame = DirectFrame(frameColor=(0, 0, 0, 1.0),
                                        frameSize=self.base.frame_inv_black_bg_size,
                                        pos=(0, 0, 0))
+        self.weapon_grid_cap = OnscreenImage(image=self.images['misc_grid_cap'],
+                                             pos=(-1.4, 0, 0.78),
+                                             scale=(0.3, 0.2, 0.2),
+                                             parent=self.black_frame)
+        self.misc_grid_cap = OnscreenImage(image=self.images['weapons_grid_cap'],
+                                           pos=(-0.8, 0, 0.78),
+                                           scale=(0.3, 0.2, 0.2),
+                                           parent=self.black_frame)
+        self.magic_grid_cap = OnscreenImage(image=self.images['magic_grid_cap'],
+                                            pos=(-0.2, 0, 0.78),
+                                            scale=(0.3, 0.2, 0.2),
+                                            parent=self.black_frame)
         if self.use_transparency:
             self.black_frame.setTransparency(TransparencyAttrib.MAlpha)
+            self.weapon_grid_cap.set_transparency(TransparencyAttrib.MAlpha)
+            self.misc_grid_cap.set_transparency(TransparencyAttrib.MAlpha)
+            self.magic_grid_cap.set_transparency(TransparencyAttrib.MAlpha)
+
         for id, slot in enumerate(self.slots):
             self._slots_vis.append(DirectButton(frameTexture=slot.get_icon(),
                                                 pos=slot.pos,
