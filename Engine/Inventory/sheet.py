@@ -196,10 +196,10 @@ class Sheet(Inventory):
         }
 
         """ DEFINE INVENTORY """
-        sheet_slot_info = [('HAND_L', (0.9, 0, -0.01), u'Hand', self.images['hand_slot']),
-                           ('HAND_R', (1.7, 0, -0.01), u'Hand', self.images['hand_slot']),
-                           ('TENGRI_PWR', (1.7, 0, -0.35), u'Hand', self.images['magic_slot']),
-                           ('UMAI_PWR', (1.7, 0, -0.67), u'Hand', self.images['magic_slot']),
+        sheet_slot_info = [('HAND_L', (0.9, 0, -0.01), u'Hand', self.images['hand_l_slot']),
+                           ('HAND_R', (1.7, 0, -0.01), u'Hand', self.images['hand_r_slot']),
+                           ('TENGRI_PWR', (1.7, 0, -0.35), u'Hand', self.images['magic_tengri_slot']),
+                           ('UMAI_PWR', (1.7, 0, -0.67), u'Hand', self.images['magic_umai_slot']),
                            ('HEAD', (0.9, 0, 0.7), u'Head', self.images['head_slot']),
                            ('BODY', (1.7, 0, 0.32), u'Body', self.images['body_slot']),
                            ('FEET', (0.9, 0, -0.43), u'Feet', self.images['feet_slot']),
@@ -263,10 +263,10 @@ class Sheet(Inventory):
                                            parent=self.base.frame_inv)
         trash_styled_frame.setTransparency(TransparencyAttrib.MAlpha)
 
-        """(('INVENTORY_1', 'TRASH', 'HAND_L', 'HAND_R'), 'weapon',
-            self.images['slot_item_sword'], 'Sword', 1, 1, 0, 8),
-           (('INVENTORY_1', 'TRASH', 'HAND_L', 'HAND_R'), 'weapon',
-            self.images['slot_item_bow'], 'Bow', 1, 1, 0, 8),"""
+        """(('INVENTORY_1', 'TRASH'), 'item',
+            self.images['slot_item_qymyran'], 'Qymyran', 1, 1, 0, 8),
+           (('INVENTORY_1', 'TRASH'), 'item',
+            self.images['slot_item_torsyk'], 'Torsyk', 1, 1, 0, 8),"""
 
         sheet_items = [
             (('INVENTORY_2', 'TRASH', 'HAND_L', 'HAND_R'), 'weapon',
@@ -281,11 +281,11 @@ class Sheet(Inventory):
              self.images['slot_item_feet'], 'Pants', 1, 1, 2),
             (('INVENTORY_2', 'TRASH', 'LEGS'), 'armor',
              self.images['slot_item_boots'], 'Boots', 1, 1, 2),
-            (('INVENTORY_2', 'TRASH'), '9x19lu',
+            (('INVENTORY_2', 'TRASH'), 'Arrows',
              self.images['slot_item_arrows'], 'Arrows', 20, 30),
-            (('INVENTORY_2', 'TRASH'), '9x19lu',
+            (('INVENTORY_2', 'TRASH'), 'Arrows',
              self.images['slot_item_arrows'], 'Arrows', 15, 30),
-            (('INVENTORY_2', 'TRASH'), '9x19lu',
+            (('INVENTORY_2', 'TRASH'), 'Arrows',
              self.images['slot_item_arrows'], 'Arrows', 6, 30),
             (('INVENTORY_3', 'TENGRI_PWR', 'UMAI_PWR'), 'weapon',
              self.images['slot_item_tengri'], 'Tengri Power', 1, 1, 0, 8),
@@ -334,7 +334,7 @@ class Sheet(Inventory):
                 base.accept('inventory-item-move', self.on_item_move)
 
                 # Add another item to inventory
-                item = (('INVENTORY_2', 'TRASH'), '9x19lu', self.images['slot_item_arrows'], 'Arrows', 15, 30)
+                item = (('INVENTORY_2', 'TRASH'), 'Arrows', self.images['slot_item_arrows'], 'Arrows', 15, 30)
                 inventory_type = item[0][0]
                 self.add_item(Item(item), inventory_type)
                 self.refresh_items()
