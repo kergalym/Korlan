@@ -165,8 +165,6 @@ class Korlan:
                     "boots": animation[1]
                 }
 
-                # import pdb; pdb.set_trace()
-
                 # self.korlan = await self.base.loader.load_model(path, blocking=False)
                 # self.korlan = Actor(self.korlan, animation[1])
                 self.korlan = Actor(actor_parts_dict, anims_full_dict)

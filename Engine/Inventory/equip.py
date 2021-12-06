@@ -58,19 +58,17 @@ class Equip:
                 base.player_state_armed = True
                 base.player_state_magic = False
 
-    def _remove_weapon(self, actor, weapon_name, bone_name):
-        if (actor and weapon_name and bone_name
-                and isinstance(weapon_name, str)
-                and isinstance(bone_name, str)):
+    def _remove_weapon(self, actor, weapon_name):
+        if (actor and weapon_name
+                and isinstance(weapon_name, str)):
 
             if weapon_name == "sword":
                 if actor.find("bow"):
-                    self._remove_weapon(actor, "bow", bone_name)
+                    self._remove_weapon(actor, "bow")
             elif weapon_name == "bow":
                 if actor.find("sword"):
-                    self._remove_weapon(actor, "sword", bone_name)
+                    self._remove_weapon(actor, "sword")
 
-            joint = actor.exposeJoint(None, "modelRoot", bone_name)
             if render.find("**/{0}".format(weapon_name)):
                 weapon = render.find("**/{0}".format(weapon_name))
                 weapon.reparent_to(render)
@@ -105,7 +103,8 @@ class Equip:
             player = player_bs.find("**/Player")
             if player:
                 return player"""
-        return base.player_ref
+        if hasattr(base, "player_ref"):
+            return base.player_ref
 
     def toggle_weapon(self, item, bone):
         if item and bone:
