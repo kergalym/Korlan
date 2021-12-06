@@ -308,6 +308,11 @@ class Sheet(Inventory):
         # Inventory init
         self.init()
 
+        self.on_start_assign_item_to_sheet_slot(3, 4)  # helmet
+        self.on_start_assign_item_to_sheet_slot(2, 5)  # armor
+        self.on_start_assign_item_to_sheet_slot(4, 6)  # pants
+        self.on_start_assign_item_to_sheet_slot(5, 7)  # boots
+
     def set_sheet(self):
         """ Sets inventory ui """
         if base.game_mode and base.menu_mode is False:

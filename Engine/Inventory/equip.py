@@ -114,7 +114,7 @@ class Equip:
                     if base.player_state_unarmed:
                         self._get_weapon(actor=player, weapon_name=item, bone_name=bone)
                     else:
-                        self._remove_weapon(actor=player, weapon_name=item, bone_name=bone)
+                        self._remove_weapon(actor=player, weapon_name=item)
 
 
 

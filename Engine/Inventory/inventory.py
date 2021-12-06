@@ -457,6 +457,12 @@ class Inventory:
                 slot_args = (sltype, pos, '', self.default_slot_ico)
                 self.slots.append(Slot(slot_args))
 
+    def on_start_assign_item_to_sheet_slot(self, iid, sid):
+        """ Startup assign sheet slot """
+        self.items[iid].slot_id = sid
+        self._items_vis[iid].setPos(self.slots[sid].pos)
+        self.refresh_items()
+
     def custom_inv_slots(self, slots_data):
         """ Make slots from list
         """
