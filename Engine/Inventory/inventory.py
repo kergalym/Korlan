@@ -11,6 +11,7 @@ from panda3d.core import TextNode, FontPool, TransparencyAttrib
 
 from Engine.Inventory.slot import Slot
 from Engine.Inventory.popup import Popup
+from Engine.Inventory.equip import Equip
 from Settings.menu_settings import MenuSettings
 
 
@@ -122,6 +123,7 @@ class Inventory:
 
         self.popup_timer = 0.0  # hint popup time
         self.popup = Popup(self.popup_bg, self.popup_fg, self.popup_font)
+        self.equip = Equip()
 
         self.is_inventory_items_loaded = False
 
@@ -321,12 +323,43 @@ class Inventory:
             if self.move_item_to_slot(self.drag_item, args[0]):
                 self.stop_drag()
 
+                # toggle player clothes visibility
+                if self.slots[args[0]].type == "HEAD":
+                    self.equip.toggle_cloth_visibility(item="helmet")
+                elif self.slots[args[0]].type == "BODY":
+                    self.equip.toggle_cloth_visibility(item="armor")
+                elif self.slots[args[0]].type == "FEET":
+                    self.equip.toggle_cloth_visibility(item="pants")
+                elif self.slots[args[0]].type == "LEGS":
+                    self.equip.toggle_cloth_visibility(item="boots")
+                # switch weapon
+                if self.slots[args[0]].type == "HAND_R":
+                    self.equip.toggle_weapon(item="bow_kazakh", bone="Korlan:RightHand")
+                elif self.slots[args[0]].type == "HAND_L":
+                    self.equip.toggle_weapon(item="sword", bone="Korlan:LeftHand")
+
     def on_item_click(self, *args):
         """ Item click callback. Try to capture the item or replace
         item in the slot
         """
         # Capture clicked item
         if self.drag_item < 0:
+
+            # toggle player clothes visibility
+            if self.items[args[0]].slot_id == 4:
+                self.equip.toggle_cloth_visibility(item="helmet")
+            elif self.items[args[0]].slot_id == 5:
+                self.equip.toggle_cloth_visibility(item="armor")
+            elif self.items[args[0]].slot_id == 6:
+                self.equip.toggle_cloth_visibility(item="pants")
+            elif self.items[args[0]].slot_id == 7:
+                self.equip.toggle_cloth_visibility(item="boots")
+            # switch weapon
+            if self.items[args[0]].slot_id == 8:
+                self.equip.toggle_weapon(item="bow_kazakh", bone="Korlan:RightHand")
+            elif self.items[args[0]].slot_id == 9:
+                self.equip.toggle_weapon(item="sword", bone="Korlan:LeftHand")
+
             self.drag_item = args[0]
             self._items_vis[self.drag_item].setBin('gui-popup', 9999)
         # Merge items if possible

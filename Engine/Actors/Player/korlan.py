@@ -143,8 +143,33 @@ class Korlan:
 
                 base.player_is_loaded = 0
 
-                self.korlan = await self.base.loader.load_model(path, blocking=False)
-                self.korlan = Actor(self.korlan, animation[1])
+                assets = self.base.assets_collector()
+
+                actor_parts_dict = {
+                    "modelRoot": assets["Korlan_body"],
+                    "helmet": assets["Korlan_helmet"],
+                    "armor": assets["Korlan_armor"],
+                    "pants": assets["Korlan_pants"],
+                    "boots": assets["Korlan_boots"]
+                }
+
+                anims_full_dict = {
+                    "modelRoot": animation[1],
+
+                    "helmet": animation[1],
+
+                    "armor": animation[1],
+
+                    "pants": animation[1],
+
+                    "boots": animation[1]
+                }
+
+                # import pdb; pdb.set_trace()
+
+                # self.korlan = await self.base.loader.load_model(path, blocking=False)
+                # self.korlan = Actor(self.korlan, animation[1])
+                self.korlan = Actor(actor_parts_dict, anims_full_dict)
 
                 self.korlan.set_name(name)
                 self.korlan.set_scale(self.korlan, self.scale_x, self.scale_y, self.scale_z)

@@ -7,7 +7,7 @@ from direct.gui.OnscreenImage import OnscreenImage
 from direct.gui.OnscreenImage import TransparencyAttrib
 
 from Engine.Inventory.inventory import Inventory
-from panda3d.core import FontPool, Vec3
+from panda3d.core import FontPool, Vec3, NodePath
 from Engine.Inventory.item import Item
 from panda3d.core import TextNode
 from panda3d.core import WindowProperties

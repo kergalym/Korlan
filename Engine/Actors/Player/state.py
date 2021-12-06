@@ -267,17 +267,23 @@ class PlayerState:
                     weapon.set_scale(100)
                     weapon.set_pos(-11.0, 13.0, -3.0)
                     weapon.set_hpr(212.47, 0.0, 18.43)
+                    if weapon.is_hidden():
+                        weapon.show()
                 elif weapon_name == "bow_kazakh":
                     # rescale weapon because it's scale 100 times smaller than we need
                     weapon.set_scale(100)
                     weapon.set_pos(0, 2.0, 2.0)
                     weapon.set_hpr(216.57, 293.80, 316.85)
+                    if weapon.is_hidden():
+                        weapon.show()
                     arrow = render.find("**/bow_arrow_kazakh")
                     arrow.reparent_to(weapon)
                     # rescale weapon because it's scale 100 times smaller than we need
                     arrow.set_scale(1)
                     arrow.set_pos(0.04, 0.01, -0.01)
                     arrow.set_hpr(0, 2.86, 0)
+                    if arrow.is_hidden():
+                        arrow.show()
 
                 base.player_state_unarmed = False
                 base.player_state_armed = True
