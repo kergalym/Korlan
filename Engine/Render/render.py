@@ -769,9 +769,6 @@ class RenderAttr:
                         light.ies_profile = self.render_pipeline.load_ies_profile("x_arrow.ies")
                         light.casts_shadows = True
                         light.shadow_map_resolution = 512
-                        """light.near_plane = 0.2
-                        light.radius = 0.5
-                        light.fov = 45"""
                         light.direction = (hpr[0], hpr[1], hpr[2])
                         base.rp_lights["inventory"] = light
                         self.render_pipeline.add_light(light)

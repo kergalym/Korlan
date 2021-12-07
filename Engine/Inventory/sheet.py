@@ -64,8 +64,6 @@ class Sheet(Inventory):
         """ Buttons, Label Scaling """
         self.lbl_scale = .03
         self.btn_scale = .03
-        self.btn_param_accept = None
-        self.btn_param_decline = None
 
         if exists(self.configs['cfg_path']):
             with open(self.configs['cfg_path']) as json_file:

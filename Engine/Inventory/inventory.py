@@ -226,7 +226,7 @@ class Inventory:
                 self._counters[id] = OnscreenText(text=str(item.count),
                                                   pos=(0, 0, 0),
                                                   fg=(1, 0.2, 0.2, 1),
-                                                  scale=(0.06),
+                                                  scale=0.04,
                                                   mayChange=True)
                 self._counters[id].reparentTo(self._items_vis[id])
                 self._counters[id].setPos(self.item_half_size_x * 0.5,
