@@ -117,7 +117,7 @@ class Sheet(Inventory):
                                              pos=(-1.6, 0, -0.9),
                                              parent=self.base.frame_inv)
 
-        maps_scrolled_dbtn = base.loader.loadModel(ui_geoms['btn_t_icon'])
+        """maps_scrolled_dbtn = base.loader.loadModel(ui_geoms['btn_t_icon'])
         geoms_scrolled_dbtn = (maps_scrolled_dbtn.find('**/button_any'),
                                maps_scrolled_dbtn.find('**/button_pressed'),
                                maps_scrolled_dbtn.find('**/button_rollover'))
@@ -172,19 +172,10 @@ class Sheet(Inventory):
 
             pos=(0.1, -0.9, 0.4),
             parent=self.base.frame_inv
-        )
+        )"""
 
         self.base.build_info.reparent_to(self.base.frame_inv)
         self.base.frame_inv.hide()
-
-        # self.pic_right.reparent_to(self.base.frame_inv)
-        # self.pic_right.set_scale(0.33, 0.30, 0.30)
-        # self.pic_right.set_hpr(0.0, 0.0, -90.0)
-        # self.pic_left.reparent_to(self.base.frame_inv)
-        # self.pic_left.set_scale(0.33, 0.30, 0.30)
-        # self.pic_left.set_hpr(0.0, 0.0, -90.0)
-        # self.pic_right.set_transparency(TransparencyAttrib.MAlpha)
-        # self.pic_left.set_transparency(TransparencyAttrib.MAlpha)
 
         # object click n move
         self.base.is_inventory_active = False
@@ -270,9 +261,9 @@ class Sheet(Inventory):
 
         sheet_items = [
             (('INVENTORY_2', 'TRASH', 'HAND_L', 'HAND_R'), 'weapon',
-             self.images['slot_item_sword'], 'Sword', 1, 1, 0, 8),
+             self.images['slot_item_sword'], 'Sword', 1, 1, 0, 38),
             (('INVENTORY_2', 'TRASH', 'HAND_L', 'HAND_R'), 'weapon',
-             self.images['slot_item_bow'], 'Bow', 1, 1, 0, 8),
+             self.images['slot_item_bow'], 'Bow', 1, 1, 0, 9),
             (('INVENTORY_2', 'TRASH', 'BODY'), 'armor',
              self.images['slot_item_armor'], 'Light armor', 1, 1, 10),
             (('INVENTORY_2', 'TRASH', 'HEAD'), 'armor',
@@ -308,10 +299,13 @@ class Sheet(Inventory):
         # Inventory init
         self.init()
 
+        # left is item index, right is slot index
         self.on_start_assign_item_to_sheet_slot(3, 4)  # helmet
         self.on_start_assign_item_to_sheet_slot(2, 5)  # armor
         self.on_start_assign_item_to_sheet_slot(4, 6)  # pants
         self.on_start_assign_item_to_sheet_slot(5, 7)  # boots
+        self.on_start_assign_item_to_sheet_slot(0, 0)  # sword
+        self.on_start_assign_item_to_sheet_slot(1, 1)  # bow
 
     def set_sheet(self):
         """ Sets inventory ui """
