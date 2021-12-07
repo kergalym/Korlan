@@ -505,7 +505,10 @@ class Main(ShowBase):
         self.sound.openal_mgr()
 
         """ Lights Storage """
-        self.rp_lights = []
+        self.rp_lights = {
+            "scene": [],
+            "inventory": None
+        }
 
     def reload_render(self):
         from Engine.Render import rpcore

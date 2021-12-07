@@ -415,24 +415,24 @@ class LevelOne:
         self.render_attr.set_time_of_day(duration=1800)  # 1800 sec == 30 min
         taskMgr.add(self.render_attr.set_time_of_day_clock_task,
                     "set_time_of_day_clock_task",
-                    extraArgs=["16:00", 1800],  # 1800 sec == 30 min
+                    extraArgs=["21:00", 1800],  # 1800 sec == 30 min
                     appendTask=True)
 
         """ Assets """
 
-        base.render_attr.set_lighting(name='plight',
+        self.render_attr.set_lighting(name='plight',
                                       render=self.render,
                                       pos=[-7, 8, 8],
                                       hpr=[180, 130, 0],
                                       color=[0.4],
                                       task="attach")
-        base.render_attr.set_lighting(name='plight',
+        """self.render_attr.set_lighting(name='plight',
                                       render=self.render,
                                       pos=[-12, 8, 8],
                                       hpr=[180, 130, 0],
                                       color=[0.4],
                                       task="attach")
-        """base.render_attr.set_lighting(name='slight',
+        base.render_attr.set_lighting(name='slight',
                                       render=self.render,
                                       pos=[0, 3, 10],
                                       hpr=[0, -20, 0],
@@ -538,9 +538,9 @@ class LevelOne:
         self.physics_attr.set_physics_world(assets=level_assets_joined)
 
         if self.game_settings['Debug']['set_editor_mode'] == 'NO':
-            self.ai.set_ai_world(assets=level_assets_joined,
+            """self.ai.set_ai_world(assets=level_assets_joined,
                                  npcs_fsm_states=self.npcs_fsm_states,
-                                 lvl_name="lvl_one")
+                                 lvl_name="lvl_one")"""
 
         taskMgr.add(self.env_probe_task,
                     "env_probe_task",

@@ -682,45 +682,109 @@ class RenderAttr:
                                 render.clearLight()
 
                 if self.game_settings['Main']['postprocessing'] == 'on':
-                    # RP doesn't have nodegraph-like structure to find and remove lights,
-                    # so we check self.rp_light before adding light
-                    light = SpotLight()
-                    light.pos = (pos[0], pos[1], pos[2])
-                    light.color = (color[0], color[0], color[0])
-                    light.set_color_from_temperature(3000.0)
-                    light.energy = 100
-                    light.ies_profile = self.render_pipeline.load_ies_profile("x_arrow.ies")
-                    light.casts_shadows = True
-                    light.shadow_map_resolution = 512
-                    light.near_plane = 0.2
-                    light.radius = 0.5
-                    light.fov = 10
-                    light.direction = (hpr[0], hpr[1], hpr[2])
-                    base.rp_lights.append(light)
-                    self.render_pipeline.add_light(light)
+                    if name == "slight":
+                        # RP doesn't have nodegraph-like structure to find and remove lights,
+                        # so we check self.rp_light before adding light
+                        light = SpotLight()
+                        light.pos = (pos[0], pos[1], pos[2])
+                        light.color = (color[0], color[0], color[0])
+                        light.set_color_from_temperature(3000.0)
+                        light.energy = 100
+                        light.ies_profile = self.render_pipeline.load_ies_profile("x_arrow.ies")
+                        light.casts_shadows = True
+                        light.shadow_map_resolution = 512
+                        light.near_plane = 0.2
+                        light.radius = 0.5
+                        light.fov = 10
+                        light.direction = (hpr[0], hpr[1], hpr[2])
+                        base.rp_lights["scene"].append(light)
+                        self.render_pipeline.add_light(light)
 
-                    # RP doesn't have nodegraph-like structure to find and remove lights,
-                    # so we check self.rp_light before adding light
-                    light = PointLight()
-                    light.pos = (pos[0], pos[1], pos[2])
-                    light.color = (color[0], color[0], color[0])
-                    light.set_color_from_temperature(3000.0)
-                    light.energy = 100.0
-                    light.ies_profile = self.render_pipeline.load_ies_profile("x_arrow.ies")
-                    light.casts_shadows = True
-                    light.shadow_map_resolution = 1024
-                    light.near_plane = 0.2
-                    light.radius = 10.0
-                    base.rp_lights.append(light)
-                    self.render_pipeline.add_light(light)
+                    if name == "plight":
+                        # RP doesn't have nodegraph-like structure to find and remove lights,
+                        # so we check self.rp_light before adding light
+                        light = PointLight()
+                        light.pos = (pos[0], pos[1], pos[2])
+                        light.color = (color[0], color[0], color[0])
+                        light.set_color_from_temperature(3000.0)
+                        light.energy = 100.0
+                        light.ies_profile = self.render_pipeline.load_ies_profile("x_arrow.ies")
+                        light.casts_shadows = True
+                        light.shadow_map_resolution = 128
+                        light.near_plane = 0.2
+                        light.radius = 10.0
+                        base.rp_lights["scene"].append(light)
+                        self.render_pipeline.add_light(light)
 
     def clear_lighting(self):
         if base.rp_lights and self.render_pipeline.light_mgr.num_lights > 0:
             for i in range(self.render_pipeline.light_mgr.num_lights):
-                for light in base.rp_lights:
+                for light in base.rp_lights['scene']:
                     if light:
-                        base.rp_lights.remove(light)
                         self.render_pipeline.remove_light(light)
+                        base.rp_lights['scene'].remove(light)
+
+    def set_inv_lighting(self, name, render, pos, hpr, color, task):
+        if (render
+                and name
+                and isinstance(name, str)
+                and isinstance(pos, list)
+                and isinstance(hpr, list)
+                and isinstance(color, list)
+                and isinstance(task, str)):
+            self.render = render
+            if task == 'attach':
+                if self.game_settings['Main']['postprocessing'] == 'off':
+                    if name == "plight":
+                        pass
+                    if name == 'slight':
+                        if self.game_settings['Main']['postprocessing'] == 'off':
+                            if render.find("**/{0}".format(name)).is_empty():
+                                light = self.render.attach_new_node(Spotlight(name))
+                                light.node().set_shadow_caster(True, 512, 512)
+                                light.node().set_color((color[0], color[0], color[0], 1))
+                                # light.node().showFrustum()
+                                light.node().get_lens().set_fov(40)
+                                light.node().get_lens().set_near_far(0.1, 30)
+                                self.render.setLight(light)
+                                light.set_pos(pos[0], pos[1], pos[2])
+                                light.look_at(0, 0, 0)
+                                base.rp_lights["inventory"] = light
+                                self.set_spotlight_shadows(obj=self.render, light=light, shadow_blur=0.2,
+                                                           ambient_color=(1.0, 1.0, 1.0))
+                            else:
+                                render.clearLight()
+
+                if self.game_settings['Main']['postprocessing'] == 'on':
+                    if name == "plight":
+                        # RP doesn't have nodegraph-like structure to find and remove lights,
+                        # so we check self.rp_light before adding light
+                        light = PointLight()
+                        light.pos = (pos[0], pos[1], pos[2])
+                        light.color = (color[0], color[0], color[0])
+                        light.set_color_from_temperature(3000.0)
+                        light.energy = 100.0
+                        light.ies_profile = self.render_pipeline.load_ies_profile("x_arrow.ies")
+                        light.casts_shadows = True
+                        light.shadow_map_resolution = 128
+                        light.near_plane = 0.2
+                        light.radius = 10.0
+                        base.rp_lights["inventory"] = light
+                        self.render_pipeline.add_light(light)
+
+    def clear_inv_lighting(self):
+        if self.game_settings['Main']['postprocessing'] == 'on':
+            if base.rp_lights and self.render_pipeline.light_mgr.num_lights > 0:
+                if base.rp_lights['inventory']:
+                    light = base.rp_lights['inventory']
+                    self.render_pipeline.remove_light(light)
+                    base.rp_lights.pop("inventory")
+        else:
+            if base.rp_lights:
+                if base.rp_lights['inventory']:
+                    light = base.rp_lights['inventory']
+                    render.clearLight(light)
+                    base.rp_lights.pop("inventory")
 
     def get_light_attributes(self):
         pass

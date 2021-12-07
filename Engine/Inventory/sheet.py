@@ -7,10 +7,11 @@ from direct.gui.OnscreenImage import OnscreenImage
 from direct.gui.OnscreenImage import TransparencyAttrib
 
 from Engine.Inventory.inventory import Inventory
-from panda3d.core import FontPool, Vec3, NodePath
+from panda3d.core import FontPool, Vec3
 from Engine.Inventory.item import Item
 from panda3d.core import TextNode
 from panda3d.core import WindowProperties
+from Engine.Render.render import RenderAttr
 
 
 class Sheet(Inventory):
@@ -19,6 +20,7 @@ class Sheet(Inventory):
         Inventory.__init__(self)
         self.props = WindowProperties()
         self.base = base
+        self.game_settings = base.game_settings
         self.game_dir = base.game_dir
         # self.images = base.textures_collector(path="{0}/Settings/UI".format(self.game_dir))
         # self.inv_images = base.textures_collector(path="{0}/Assets".format(self.game_dir))
@@ -29,6 +31,7 @@ class Sheet(Inventory):
         # instance of the abstract class
         self.font = FontPool
         self.text = TextNode("TextNode")
+        self.render_attr = RenderAttr()
         self.menu_font = None
         self.cfg_path = None
 
@@ -381,11 +384,19 @@ class Sheet(Inventory):
 
             player = render.find("**/Player")
             if player:
-                # set character view
-                player_pos = player.get_pos()
-                base.camera.set_x(player_pos[0] + -0.9)
-                base.camera.set_y(player_pos[1] + -4)
-                base.camera.set_z(player_pos[2] + 0.7)
+                if self.game_settings['Main']['postprocessing'] == 'on':
+                    # set character view
+                    player_pos = player.get_pos()
+                    base.camera.set_x(player_pos[0] + -0.9)
+                    base.camera.set_y(player_pos[1] + -4)
+                    base.camera.set_z(player_pos[2] + 0.7)
+                else:
+                    # set character view
+                    player_pos = player.get_pos()
+                    base.camera.set_x(player_pos[0] + -1.2)
+                    base.camera.set_y(player_pos[1] + -4)
+                    base.camera.set_z(player_pos[2] + 0.7)
+
                 base.camera.set_hpr(0, 0, 0)
                 if render.find("**/pivot"):
                     render.find("**/pivot").set_hpr(24.6, -0.999999, 0)
@@ -413,6 +424,15 @@ class Sheet(Inventory):
                 if render.find("**/World"):
                     render.find("**/World").hide()
 
+                # set light
+                light_pos = [player_pos[0], player_pos[1], player_pos[2] + 0.5]
+                self.render_attr.set_inv_lighting(name='plight',
+                                                  render=render,
+                                                  pos=light_pos,
+                                                  hpr=[180, 130, 0],
+                                                  color=[0.4],
+                                                  task="attach")
+
     def revert_character(self):
         # revert character view
         player_pos = self.player_camera_default["pos"]
@@ -429,3 +449,5 @@ class Sheet(Inventory):
             bg_black.hide()
         if render.find("**/World"):
             render.find("**/World").show()
+
+        self.render_attr.clear_inv_lighting()
