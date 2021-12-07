@@ -428,11 +428,11 @@ class Sheet(Inventory):
                 player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
                 if player_bs:
                     if self.game_settings['Main']['postprocessing'] == 'on':
-                        light_pos = [player_bs.get_x(), player_bs.get_y()-2.0, 7.0]
+                        light_pos = [player_bs.get_x(), player_bs.get_y()-4.0, 7.0]
                         self.render_attr.set_inv_lighting(name='slight',
                                                           render=render,
                                                           pos=light_pos,
-                                                          hpr=[0, 0.1, -1],
+                                                          hpr=[0, 0.4, -1],
                                                           color=[1.0],
                                                           task="attach")
                         self.render_attr.render_pipeline.prepare_scene(bg_black)
