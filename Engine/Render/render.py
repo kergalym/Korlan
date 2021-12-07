@@ -758,27 +758,33 @@ class RenderAttr:
                     if name == "slight":
                         # RP doesn't have nodegraph-like structure to find and remove lights,
                         # so we check self.rp_light before adding light
-                        light = SpotLight()
+                        if not base.rp_lights.get("inventory"):
+                            light = SpotLight()
+                        else:
+                            light = base.rp_lights["inventory"]
                         light.pos = (pos[0], pos[1], pos[2])
                         light.color = (color[0], color[0], color[0])
-                        light.set_color_from_temperature(3000.0)
+                        light.set_color_from_temperature(6000.0)
                         light.energy = 100
                         light.ies_profile = self.render_pipeline.load_ies_profile("x_arrow.ies")
                         light.casts_shadows = True
-                        light.shadow_map_resolution = 128
-                        light.near_plane = 0.2
+                        light.shadow_map_resolution = 512
+                        """light.near_plane = 0.2
                         light.radius = 0.5
-                        light.fov = 10
+                        light.fov = 45"""
                         light.direction = (hpr[0], hpr[1], hpr[2])
                         base.rp_lights["inventory"] = light
                         self.render_pipeline.add_light(light)
                     elif name == "plight":
                         # RP doesn't have nodegraph-like structure to find and remove lights,
                         # so we check self.rp_light before adding light
-                        light = PointLight()
+                        if not base.rp_lights.get("inventory"):
+                            light = PointLight()
+                        else:
+                            light = base.rp_lights["inventory"]
                         light.pos = (pos[0], pos[1], pos[2])
                         light.color = (color[0], color[0], color[0])
-                        light.set_color_from_temperature(3000.0)
+                        light.set_color_from_temperature(6000.0)
                         light.energy = 100.0
                         light.ies_profile = self.render_pipeline.load_ies_profile("x_arrow.ies")
                         light.casts_shadows = True
