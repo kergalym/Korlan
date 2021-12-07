@@ -420,13 +420,13 @@ class LevelOne:
 
         """ Assets """
 
-        self.render_attr.set_lighting(name='plight',
+        """self.render_attr.set_lighting(name='plight',
                                       render=self.render,
                                       pos=[-7, 8, 8],
                                       hpr=[180, 130, 0],
                                       color=[0.4],
                                       task="attach")
-        """self.render_attr.set_lighting(name='plight',
+        self.render_attr.set_lighting(name='plight',
                                       render=self.render,
                                       pos=[-12, 8, 8],
                                       hpr=[180, 130, 0],

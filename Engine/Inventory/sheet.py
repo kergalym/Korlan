@@ -393,7 +393,7 @@ class Sheet(Inventory):
                 else:
                     # set character view
                     player_pos = player.get_pos()
-                    base.camera.set_x(player_pos[0] + -1.2)
+                    base.camera.set_x(player_pos[0] + -1.3)
                     base.camera.set_y(player_pos[1] + -4)
                     base.camera.set_z(player_pos[2] + 0.7)
 
@@ -425,11 +425,11 @@ class Sheet(Inventory):
                     render.find("**/World").hide()
 
                 # set light
-                light_pos = [player_pos[0], player_pos[1], player_pos[2] + 0.5]
-                self.render_attr.set_inv_lighting(name='plight',
+                light_pos = [player_pos[0], player_pos[1], player_pos[2] + 0.7]
+                self.render_attr.set_inv_lighting(name='slight',
                                                   render=render,
                                                   pos=light_pos,
-                                                  hpr=[180, 130, 0],
+                                                  hpr=[0, 14, 0],
                                                   color=[0.4],
                                                   task="attach")
 
