@@ -53,6 +53,7 @@ class PlayerState:
         base.player_state_unarmed = False
         base.player_state_armed = False
         base.player_state_magic = False
+        base.player_state_equipped = False
         base.item_player_access_codes = {'NOT_USABLE': 0,
                                          'USABLE': 1,
                                          'DEFORMED': 2
@@ -74,7 +75,7 @@ class PlayerState:
             "health": 100,
             "stamina": 30,
             "speed": 1.0
-            }
+        }
 
     def player_view_mode_task(self, assets_dist_vec, task):
         if assets_dist_vec:
@@ -245,6 +246,7 @@ class PlayerState:
             base.player_state_unarmed = True
             base.player_state_armed = False
             base.player_state_magic = False
+            base.player_state_equipped = True
 
     def get_weapon(self, actor, weapon_name, bone_name):
         if (actor and weapon_name and bone_name
@@ -277,13 +279,14 @@ class PlayerState:
                     if weapon.is_hidden():
                         weapon.show()
                     arrow = render.find("**/bow_arrow_kazakh")
-                    arrow.reparent_to(weapon)
-                    # rescale weapon because it's scale 100 times smaller than we need
-                    arrow.set_scale(1)
-                    arrow.set_pos(0.04, 0.01, -0.01)
-                    arrow.set_hpr(0, 2.86, 0)
-                    if arrow.is_hidden():
-                        arrow.show()
+                    if arrow:
+                        arrow.reparent_to(weapon)
+                        # rescale weapon because it's scale 100 times smaller than we need
+                        arrow.set_scale(1)
+                        arrow.set_pos(0.04, 0.01, -0.01)
+                        arrow.set_hpr(0, 2.86, 0)
+                        if arrow.is_hidden():
+                            arrow.show()
 
                 base.player_state_unarmed = False
                 base.player_state_armed = True
@@ -459,4 +462,3 @@ class PlayerState:
                   and base.is_item_in_use is True
                   and base.is_item_in_use_long is True):
                 self.drop_item(player)
-

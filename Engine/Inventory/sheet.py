@@ -261,9 +261,9 @@ class Sheet(Inventory):
             self.images['slot_item_torsyk'], 'Torsyk', 1, 1, 0, 8),"""
 
         sheet_items = [
-            (('INVENTORY_2', 'TRASH', 'HAND_L', 'HAND_R'), 'weapon',
+            (('INVENTORY_2', 'TRASH', 'HAND_L'), 'weapon',
              self.images['slot_item_sword'], 'Sword', 1, 1, 0, 38),
-            (('INVENTORY_2', 'TRASH', 'HAND_L', 'HAND_R'), 'weapon',
+            (('INVENTORY_2', 'TRASH', 'HAND_R'), 'weapon',
              self.images['slot_item_bow'], 'Bow', 1, 1, 0, 9),
             (('INVENTORY_2', 'TRASH', 'BODY'), 'armor',
              self.images['slot_item_armor'], 'Light armor', 1, 1, 10),
@@ -279,9 +279,9 @@ class Sheet(Inventory):
              self.images['slot_item_arrows'], 'Arrows', 15, 30),
             (('INVENTORY_2', 'TRASH'), 'Arrows',
              self.images['slot_item_arrows'], 'Arrows', 6, 30),
-            (('INVENTORY_3', 'TENGRI_PWR', 'UMAI_PWR'), 'weapon',
+            (('INVENTORY_3', 'TENGRI_PWR'), 'weapon',
              self.images['slot_item_tengri'], 'Tengri Power', 1, 1, 0, 8),
-            (('INVENTORY_3', 'TENGRI_PWR', 'UMAI_PWR'), 'weapon',
+            (('INVENTORY_3', 'UMAI_PWR'), 'weapon',
              self.images['slot_item_umai'], 'Umai Power', 1, 1, 0, 8)
         ]
 

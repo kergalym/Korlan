@@ -334,9 +334,9 @@ class Inventory:
                     self.equip.toggle_cloth_visibility(item="boots")
                 # switch weapon
                 if self.slots[args[0]].type == "HAND_R":
-                    self.equip.toggle_weapon(item="bow_kazakh", bone="Korlan:RightHand")
+                    self.equip.toggle_weapon(item="bow_kazakh", bone="Korlan:Spine1")
                 elif self.slots[args[0]].type == "HAND_L":
-                    self.equip.toggle_weapon(item="sword", bone="Korlan:LeftHand")
+                    self.equip.toggle_weapon(item="sword", bone="Korlan:Spine1")
 
     def on_item_click(self, *args):
         """ Item click callback. Try to capture the item or replace
@@ -344,7 +344,6 @@ class Inventory:
         """
         # Capture clicked item
         if self.drag_item < 0:
-
             # toggle player clothes visibility
             if self.items[args[0]].slot_id == 4:
                 self.equip.toggle_cloth_visibility(item="helmet")
@@ -355,10 +354,10 @@ class Inventory:
             elif self.items[args[0]].slot_id == 7:
                 self.equip.toggle_cloth_visibility(item="boots")
             # switch weapon
-            if self.items[args[0]].slot_id == 8:
-                self.equip.toggle_weapon(item="bow_kazakh", bone="Korlan:RightHand")
-            elif self.items[args[0]].slot_id == 9:
-                self.equip.toggle_weapon(item="sword", bone="Korlan:LeftHand")
+            if self.items[args[0]].slot_id == 1:
+                self.equip.toggle_weapon(item="bow_kazakh", bone="Korlan:Spine1")
+            elif self.items[args[0]].slot_id == 0:
+                self.equip.toggle_weapon(item="sword", bone="Korlan:Spine1")
 
             self.drag_item = args[0]
             self._items_vis[self.drag_item].setBin('gui-popup', 9999)
