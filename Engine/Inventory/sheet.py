@@ -96,27 +96,17 @@ class Sheet(Inventory):
 
         self.sound_gui_click = self.base.loader.load_sfx(sounds.get('zapsplat_button_click'))
 
-        self.btn_param_decline = DirectButton(text="Cancel",
-                                              text_fg=(255, 255, 255, 0.9),
-                                              text_font=self.font.load_font(self.menu_font),
-                                              frameColor=(255, 255, 255, self.frm_opacity),
-                                              scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                              geom=geoms, geom_scale=(8.1, 0, 2),
-                                              clickSound=self.sound_gui_click,
-                                              command=self.clear_sheet,
-                                              pos=(0.1, 0, -0.9),
-                                              parent=self.base.frame_inv)
-
-        self.btn_param_accept = DirectButton(text="OK",
-                                             text_fg=(255, 255, 255, 0.9),
-                                             text_font=self.font.load_font(self.menu_font),
-                                             frameColor=(255, 255, 255, self.frm_opacity),
-                                             scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                             geom=geoms, geom_scale=(5.1, 0, 2),
-                                             clickSound=self.sound_gui_click,
-                                             command=self.clear_sheet,
-                                             pos=(-1.6, 0, -0.9),
-                                             parent=self.base.frame_inv)
+        self.btn_close = DirectButton(text="Cancel",
+                                      text_fg=(255, 255, 255, 0.9),
+                                      text_font=self.font.load_font(self.menu_font),
+                                      frameColor=(255, 255, 255, self.frm_opacity),
+                                      scale=self.btn_scale, borderWidth=(self.w, self.h),
+                                      geom=geoms, geom_scale=(8.1, 0, 2),
+                                      clickSound=self.sound_gui_click,
+                                      command=base.messenger.send,
+                                      extraArgs=["close_sheet"],
+                                      pos=(-1.8, 0, 0.9),
+                                      parent=self.base.frame_inv)
 
         """maps_scrolled_dbtn = base.loader.loadModel(ui_geoms['btn_t_icon'])
         geoms_scrolled_dbtn = (maps_scrolled_dbtn.find('**/button_any'),
@@ -288,10 +278,10 @@ class Sheet(Inventory):
         # sheet slots init
         self.custom_inv_slots(sheet_slot_info)
 
-        # Field of slots 6х6,        x, y
-        self.fill_up_inv_slots(3, 7, -1.55, 0.5, 'INVENTORY_1')
-        self.fill_up_inv_slots(3, 7, -1.0, 0.5, 'INVENTORY_2')
-        self.fill_up_inv_slots(3, 7, -0.45, 0.5, 'INVENTORY_3')
+        # Field of slots 3х8,        x, y
+        self.fill_up_inv_slots(3, 8, -1.55, 0.5, 'INVENTORY_1')
+        self.fill_up_inv_slots(3, 8, -1.0, 0.5, 'INVENTORY_2')
+        self.fill_up_inv_slots(3, 8, -0.45, 0.5, 'INVENTORY_3')
 
         for item in sheet_items:
             inventory_type = item[0][0]
@@ -340,8 +330,6 @@ class Sheet(Inventory):
                 self.refresh_items()
             else:
                 self.clear_sheet()
-                self.revert_character()
-                self.base.is_inventory_active = False
 
     def clear_sheet(self):
         self.base.build_info.reparent_to(aspect2d)
@@ -356,6 +344,8 @@ class Sheet(Inventory):
         props.set_cursor_hidden(True)
         self.base.win.request_properties(props)
         base.is_ui_active = False
+
+        self.revert_character()
 
         # FIXME revert scene
         player_pos = self.player_camera_default["pos"]
@@ -426,7 +416,7 @@ class Sheet(Inventory):
                 player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
                 if player_bs:
                     if self.game_settings['Main']['postprocessing'] == 'on':
-                        light_pos = [player_bs.get_x(), player_bs.get_y()-4.0, 7.0]
+                        light_pos = [player_bs.get_x(), player_bs.get_y() - 4.0, 7.0]
                         self.render_attr.set_inv_lighting(name='slight',
                                                           render=render,
                                                           pos=light_pos,
@@ -435,7 +425,7 @@ class Sheet(Inventory):
                                                           task="attach")
                         self.render_attr.render_pipeline.prepare_scene(bg_black)
                     else:
-                        light_pos = [player_bs.get_x(), player_bs.get_y(), player_bs.get_z()+0.7]
+                        light_pos = [player_bs.get_x(), player_bs.get_y(), player_bs.get_z() + 0.7]
                         self.render_attr.set_inv_lighting(name='slight',
                                                           render=render,
                                                           pos=light_pos,

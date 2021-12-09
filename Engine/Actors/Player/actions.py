@@ -32,7 +32,7 @@ class Actions:
         self.kbd = Keyboard()
         self.mouse = Mouse()
         self.fsm_player = PlayerFSM()
-        self.player_menu = Sheet()
+        self.sheet = Sheet()
         self.state = PlayerState()
         self.base.is_ui_active = False
         self.base.is_dev_ui_active = False
@@ -154,8 +154,9 @@ class Actions:
                             extraArgs=[player, self.is_aiming],
                             appendTask=True)
 
-                # Define player menu here
-                base.accept('i', self.player_menu.set_sheet)
+                # Define player sheet here
+                base.accept('i', self.sheet.set_sheet)
+                base.accept('close_sheet', self.sheet.set_sheet)
 
                 # Define player attack here
                 self.state.set_player_equipment(player, "Korlan:Spine1")
