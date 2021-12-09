@@ -96,7 +96,7 @@ class Sheet(Inventory):
 
         self.sound_gui_click = self.base.loader.load_sfx(sounds.get('zapsplat_button_click'))
 
-        self.btn_close = DirectButton(text="Cancel",
+        self.btn_close = DirectButton(text="X",
                                       text_fg=(255, 255, 255, 0.9),
                                       text_font=self.font.load_font(self.menu_font),
                                       frameColor=(255, 255, 255, self.frm_opacity),
@@ -108,7 +108,7 @@ class Sheet(Inventory):
                                       pos=(-1.8, 0, 0.9),
                                       parent=self.base.frame_inv)
 
-        """maps_scrolled_dbtn = base.loader.loadModel(ui_geoms['btn_t_icon'])
+        maps_scrolled_dbtn = base.loader.loadModel(ui_geoms['btn_t_icon'])
         geoms_scrolled_dbtn = (maps_scrolled_dbtn.find('**/button_any'),
                                maps_scrolled_dbtn.find('**/button_pressed'),
                                maps_scrolled_dbtn.find('**/button_rollover'))
@@ -163,7 +163,7 @@ class Sheet(Inventory):
 
             pos=(0.1, -0.9, 0.4),
             parent=self.base.frame_inv
-        )"""
+        )
 
         self.base.build_info.reparent_to(self.base.frame_inv)
         self.base.frame_inv.hide()

@@ -155,6 +155,9 @@ class Actions:
                             appendTask=True)
 
                 # Define player sheet here
+                # Open and close sheet
+                # Accept close_sheet command from close button, because
+                # I suddenly can't do it inside the sheet class
                 base.accept('i', self.sheet.set_sheet)
                 base.accept('close_sheet', self.sheet.set_sheet)
 
@@ -163,7 +166,6 @@ class Actions:
 
                 # Pass the player object to FSM
                 self.fsm_player.get_player(actor=player)
-                # player.set_blend(frameBlend=True)
 
                 taskMgr.add(self.player_actions_task, "player_actions_task",
                             extraArgs=[player, anims],
