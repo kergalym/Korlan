@@ -159,7 +159,7 @@ class Actions:
                 # Accept close_sheet command from close button, because
                 # I suddenly can't do it inside the sheet class
                 base.accept('i', self.sheet.set_sheet)
-                base.accept('close_sheet', self.sheet.set_sheet)
+                base.accept('close_sheet', self.sheet.clear_sheet)
 
                 # Define player attack here
                 self.state.set_player_equipment(player, "Korlan:Spine1")

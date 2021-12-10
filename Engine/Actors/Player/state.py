@@ -101,7 +101,7 @@ class PlayerState:
     def clear_state(self):
         assets = self.base.assets_collector()
 
-        if hasattr(base, "frame_inv"):
+        if hasattr(base, "frame_inv") and base.frame_inv:
             base.frame_inv.hide()
 
         # Remove all lights

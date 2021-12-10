@@ -85,6 +85,11 @@ class Sheet(Inventory):
                                           frameSize=self.base.frame_inv_size,
                                           pos=(0, 0, 0))
 
+        self.base.frame_journal = DirectFrame(frameColor=(0, 0, 0, 1.0),
+                                              frameSize=self.base.frame_inv_size,
+                                              pos=(0, 0, 0))
+        self.base.frame_journal.hide()
+
         ui_geoms = base.ui_geom_collector()
 
         maps = base.loader.loadModel(ui_geoms['btn_t_icon'])
@@ -96,17 +101,29 @@ class Sheet(Inventory):
 
         self.sound_gui_click = self.base.loader.load_sfx(sounds.get('zapsplat_button_click'))
 
-        self.btn_close = DirectButton(text="X",
-                                      text_fg=(255, 255, 255, 0.9),
-                                      text_font=self.font.load_font(self.menu_font),
-                                      frameColor=(255, 255, 255, self.frm_opacity),
-                                      scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                      geom=geoms, geom_scale=(8.1, 0, 2),
-                                      clickSound=self.sound_gui_click,
-                                      command=base.messenger.send,
-                                      extraArgs=["close_sheet"],
-                                      pos=(-1.8, 0, 0.9),
-                                      parent=self.base.frame_inv)
+        self.btn_close_iv = DirectButton(text="X",
+                                         text_fg=(255, 255, 255, 0.9),
+                                         text_font=self.font.load_font(self.menu_font),
+                                         frameColor=(255, 255, 255, self.frm_opacity),
+                                         scale=self.btn_scale, borderWidth=(self.w, self.h),
+                                         geom=geoms, geom_scale=(8.1, 0, 2),
+                                         clickSound=self.sound_gui_click,
+                                         command=base.messenger.send,
+                                         extraArgs=["close_sheet"],
+                                         pos=(-1.8, 0, 0.9),
+                                         parent=self.base.frame_inv)
+
+        self.btn_close_journal = DirectButton(text="X",
+                                              text_fg=(255, 255, 255, 0.9),
+                                              text_font=self.font.load_font(self.menu_font),
+                                              frameColor=(255, 255, 255, self.frm_opacity),
+                                              scale=self.btn_scale, borderWidth=(self.w, self.h),
+                                              geom=geoms, geom_scale=(8.1, 0, 2),
+                                              clickSound=self.sound_gui_click,
+                                              command=base.messenger.send,
+                                              extraArgs=["close_sheet"],
+                                              pos=(-1.8, 0, 0.9),
+                                              parent=self.base.frame_journal)
 
         maps_scrolled_dbtn = base.loader.loadModel(ui_geoms['btn_t_icon'])
         geoms_scrolled_dbtn = (maps_scrolled_dbtn.find('**/button_any'),
@@ -124,17 +141,24 @@ class Sheet(Inventory):
                               maps_scrolled_inc.find('**/button_rollover_inc'))
 
         btn_list = []
-        for i in range(3):
-            btn = DirectButton(text="Menu selector {0}".format(i),
-                               text_fg=(255, 255, 255, 1), relief=2,
-                               text_font=self.font.load_font(self.menu_font),
-                               frameColor=(0, 0, 0, 1),
-                               scale=.03, borderWidth=(self.w, self.h),
-                               geom=geoms_scrolled_dbtn, geom_scale=(15.3, 0, 2),
-                               clickSound=self.sound_gui_click,
-                               command=None,
-                               extraArgs=[])
-            btn_list.append(btn)
+        btn_select_inv = DirectButton(text="Inventory",
+                                      text_fg=(255, 255, 255, 1), relief=2,
+                                      text_font=self.font.load_font(self.menu_font),
+                                      frameColor=(0, 0, 0, 1),
+                                      scale=.03, borderWidth=(self.w, self.h),
+                                      geom=geoms_scrolled_dbtn, geom_scale=(15.3, 0, 2),
+                                      clickSound=self.sound_gui_click,
+                                      command=self.base.frame_journal.hide)
+        btn_select_journal = DirectButton(text="Journal",
+                                          text_fg=(255, 255, 255, 1), relief=2,
+                                          text_font=self.font.load_font(self.menu_font),
+                                          frameColor=(0, 0, 0, 1),
+                                          scale=.03, borderWidth=(self.w, self.h),
+                                          geom=geoms_scrolled_dbtn, geom_scale=(15.3, 0, 2),
+                                          clickSound=self.sound_gui_click,
+                                          command=self.base.frame_journal.show)
+        btn_list.append(btn_select_inv)
+        btn_list.append(btn_select_journal)
 
         self.base.menu_selector = DirectScrolledList(
             decButton_pos=(0.35, 0, 0.49),
@@ -161,12 +185,12 @@ class Sheet(Inventory):
             itemFrame_frameSize=self.base.frame_scrolled_inner_size,
             itemFrame_pos=(0.35, 0, 0.4),
 
-            pos=(0.1, -0.9, 0.4),
-            parent=self.base.frame_inv
+            pos=(0.1, -0.9, 0.4)
         )
 
         self.base.build_info.reparent_to(self.base.frame_inv)
         self.base.frame_inv.hide()
+        self.base.menu_selector.hide()
 
         # object click n move
         self.base.is_inventory_active = False
@@ -301,39 +325,44 @@ class Sheet(Inventory):
     def set_sheet(self):
         """ Sets inventory ui """
         if base.game_mode and base.menu_mode is False:
-            if self.base.frame_inv.is_hidden():
+            if self.base.frame_inv:
+                if self.base.frame_inv.is_hidden():
 
-                if hasattr(base, "hud") and base.hud:
-                    base.hud.toggle_all_hud(state="hidden")
+                    if hasattr(base, "hud") and base.hud:
+                        base.hud.toggle_all_hud(state="hidden")
 
-                self.base.frame_inv.show()
-                self.props.set_cursor_hidden(False)
-                self.base.win.request_properties(self.props)
+                    self.base.frame_inv.show()
+                    self.base.menu_selector.show()
+                    self.props.set_cursor_hidden(False)
+                    self.base.win.request_properties(self.props)
 
-                base.is_ui_active = True
-                self.base.is_inventory_active = True
-                self.prepare_character()
+                    base.is_ui_active = True
+                    self.base.is_inventory_active = True
+                    self.prepare_character()
 
-                self.toggle()
+                    self.toggle()
 
-                # Stop item dragging on right mouse
-                base.accept('mouse3-up', self.stop_drag)
+                    # Stop item dragging on right mouse
+                    base.accept('mouse3-up', self.stop_drag)
 
-                # 'on item move' event processing
-                # in this case we are delete item, which has been placed into the 'TRASH'
-                base.accept('inventory-item-move', self.on_item_move)
+                    # 'on item move' event processing
+                    # in this case we are delete item, which has been placed into the 'TRASH'
+                    base.accept('inventory-item-move', self.on_item_move)
 
-                # Add another item to inventory
-                item = (('INVENTORY_2', 'TRASH'), 'Arrows', self.images['slot_item_arrows'], 'Arrows', 15, 30)
-                inventory_type = item[0][0]
-                self.add_item(Item(item), inventory_type)
-                self.refresh_items()
-            else:
-                self.clear_sheet()
+                    # Add another item to inventory
+                    item = (('INVENTORY_2', 'TRASH'), 'Arrows', self.images['slot_item_arrows'], 'Arrows', 15, 30)
+                    inventory_type = item[0][0]
+                    self.add_item(Item(item), inventory_type)
+                    self.refresh_items()
+                else:
+                    self.clear_sheet()
 
     def clear_sheet(self):
         self.base.build_info.reparent_to(aspect2d)
         self.base.frame_inv.hide()
+        if not self.base.menu_selector.is_hidden():
+            self.base.menu_selector.hide()
+        self.base.frame_journal.hide()
 
         if hasattr(base, "hud") and base.hud:
             base.hud.toggle_all_hud(state="visible")
@@ -346,12 +375,6 @@ class Sheet(Inventory):
         base.is_ui_active = False
 
         self.revert_character()
-
-        # FIXME revert scene
-        player_pos = self.player_camera_default["pos"]
-        player_hpr = self.player_camera_default["hpr"]
-        base.camera.set_pos(player_pos + Vec3(0, -4.6, 0))
-        base.camera.set_hpr(player_hpr)
 
         if render.find("**/bg_black_char_sheet"):
             bg_black = render.find("**/bg_black_char_sheet")

@@ -141,6 +141,11 @@ class PauseMenuUI(MenuSettings):
                  maps.find('**/button_pressed'),
                  maps.find('**/button_rollover'))
 
+        # close inventory
+        if hasattr(base, "is_ui_active"):
+            if base.is_ui_active:
+                base.messenger.send("close_sheet")
+
         base.is_ui_active = True
         self.pause_mode = 1
         win_props = WindowProperties()

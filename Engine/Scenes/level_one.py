@@ -415,7 +415,7 @@ class LevelOne:
         self.render_attr.set_time_of_day(duration=1800)  # 1800 sec == 30 min
         taskMgr.add(self.render_attr.set_time_of_day_clock_task,
                     "set_time_of_day_clock_task",
-                    extraArgs=["21:00", 1800],  # 1800 sec == 30 min
+                    extraArgs=["19:00", 1800],  # 1800 sec == 30 min
                     appendTask=True)
 
         """ Assets """
