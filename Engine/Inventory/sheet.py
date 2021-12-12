@@ -1,13 +1,13 @@
 import json
 from os.path import exists
 
-from direct.showbase.ShowBaseGlobal import render2d, aspect2d
+from direct.showbase.ShowBaseGlobal import aspect2d
 from direct.gui.DirectGui import *
 from direct.gui.OnscreenImage import OnscreenImage
 from direct.gui.OnscreenImage import TransparencyAttrib
+from panda3d.core import FontPool, Vec3
 
 from Engine.Inventory.inventory import Inventory
-from panda3d.core import FontPool, Vec3
 from Engine.Inventory.item import Item
 from panda3d.core import TextNode
 from panda3d.core import WindowProperties
@@ -22,8 +22,6 @@ class Sheet(Inventory):
         self.base = base
         self.game_settings = base.game_settings
         self.game_dir = base.game_dir
-        # self.images = base.textures_collector(path="{0}/Settings/UI".format(self.game_dir))
-        # self.inv_images = base.textures_collector(path="{0}/Assets".format(self.game_dir))
         self.fonts = base.fonts_collector()
         self.configs = base.cfg_collector(path="{0}/Settings/UI".format(self.game_dir))
         self.lng_configs = base.cfg_collector(path="{0}/Configs/Language/".format(self.game_dir))
@@ -48,18 +46,12 @@ class Sheet(Inventory):
         """ Frame Sizes """
         # Left, right, bottom, top
         self.base.frame_inv_size = [-3, 3, -1, 3]
-        self.base.frame_inv_black_bg_size = [-3, 0.7, -1, 3]
-        self.base.frame_inv_int_canvas_size = [-2, 2, -2, 2]
-        self.base.frame_inv_int_size = [-.5, .2, -1.3, 0]
         self.base.frame_scrolled_size = [0.0, 0.7, -0.05, 0.40]
         self.base.frame_scrolled_inner_size = [-0.2, 0.2, -0.00, 0.00]
+        self.base.frame_journal_size = [-3, 0.7, -1, 3]
 
         """ Frame Colors """
         self.frm_opacity = 1
-
-        self.pic = None
-        self.pic_left = None
-        self.pic_right = None
 
         """ Buttons, Label Scaling """
         self.lbl_scale = .03
@@ -84,9 +76,11 @@ class Sheet(Inventory):
         self.base.frame_inv = DirectFrame(frameColor=(0, 0, 0, 0),
                                           frameSize=self.base.frame_inv_size,
                                           pos=(0, 0, 0))
+        self.base.build_info.reparent_to(self.base.frame_inv)
+        self.base.frame_inv.hide()
 
         self.base.frame_journal = DirectFrame(frameColor=(0, 0, 0, 1.0),
-                                              frameSize=self.base.frame_inv_size,
+                                              frameSize=self.base.frame_journal_size,
                                               pos=(0, 0, 0))
         self.base.frame_journal.hide()
 
@@ -187,10 +181,90 @@ class Sheet(Inventory):
 
             pos=(0.1, -0.9, 0.4)
         )
-
-        self.base.build_info.reparent_to(self.base.frame_inv)
-        self.base.frame_inv.hide()
         self.base.menu_selector.hide()
+
+        """ QUESTS """
+        quests_btn_list = []
+
+        btn_inc_pos = 0.49
+        for i in range(9):
+            btn_quest = DirectButton(text="Quest {0}".format(i),
+                                     text_fg=(255, 255, 255, 1), relief=2,
+                                     text_font=self.font.load_font(self.menu_font),
+                                     frameColor=(0, 0, 0, 1),
+                                     scale=.03, borderWidth=(self.w, self.h),
+                                     geom=geoms_scrolled_dbtn, geom_scale=(15.3, 0, 2),
+                                     clickSound=self.sound_gui_click,
+                                     command=self.base.frame_journal.show)
+            btn_inc_pos += -0.12
+            quests_btn_list.append(btn_quest)
+
+        self.quests_selector = DirectScrolledList(
+            decButton_pos=(0.35, 0, 0.49),
+            decButton_scale=(5, 1, 0.5),
+            decButton_text="Dec",
+            decButton_text_scale=0.04,
+            decButton_borderWidth=(0, 0),
+            decButton_geom=geoms_scrolled_dec,
+            decButton_geom_scale=0.08,
+
+            incButton_pos=(0.35, 0, btn_inc_pos),
+            incButton_scale=(5, 1, 0.5),
+            incButton_text="Inc",
+            incButton_text_scale=0.04,
+            incButton_borderWidth=(0, 0),
+            incButton_geom=geoms_scrolled_inc,
+            incButton_geom_scale=0.08,
+
+            frameSize=self.base.frame_scrolled_size,
+            frameColor=(0, 0, 0, 0),
+            numItemsVisible=9,
+            forceHeight=0.11,
+            items=quests_btn_list,
+            itemFrame_frameSize=self.base.frame_scrolled_inner_size,
+            itemFrame_pos=(0.35, 0, 0.4),
+
+            pos=(-1.8, 0, 0.32),
+            parent=self.base.frame_journal
+
+        )
+
+        # fixme change texture for quest description title
+        self.quest_desc_frame_title_img = OnscreenImage(image=self.images['journal_old_paper'],
+                                                        scale=(0.7, 0, 0.4),
+                                                        pos=(-0.5, 0, 0.45),
+                                                        parent=self.base.frame_journal)
+
+        # Left, right, bottom, top
+        self.quest_desc_frame = DirectScrolledFrame(frameColor=(0, 0, 0, 1.0),
+                                                    canvasSize=(-0.5, 0.5, -0.3, 0.3),
+                                                    frameSize=(-0.7, 0.7, -0.35, 0.34),
+                                                    scrollBarWidth=0.02,
+                                                    autoHideScrollBars=True,
+                                                    pos=(-0.5, 0, 0.32),
+                                                    verticalScroll_frameColor=(0, 0, 0, 1.0),
+                                                    horizontalScroll_frameColor=(0, 0, 0, 1.0),
+                                                    verticalScroll_incButton_frameColor=(0, 0, 0, 1.0),
+                                                    verticalScroll_decButton_frameColor=(0, 0, 0, 1.0),
+                                                    horizontalScroll_incButton_frameColor=(0, 0, 0, 1.0),
+                                                    horizontalScroll_decButton_frameColor=(0, 0, 0, 1.0),
+                                                    verticalScroll_thumb_frameColor=(0.4, 0.3, 0.2, 1.0),
+                                                    horizontalScroll_thumb_frameColor=(0.4, 0.3, 0.2, 1.0),
+                                                    parent=self.base.frame_journal)
+
+        # fixme change texture for quest description
+        self.quest_desc_frame_img = OnscreenImage(image=self.images['journal_old_paper'],
+                                                  scale=(0.7, 0, 0.4),
+                                                  pos=(0.2, 0, -0.1),
+                                                  parent=self.quest_desc_frame.getCanvas())
+        self.quest_desc_frame_img.setTransparency(TransparencyAttrib.MAlpha)
+
+        # fixme change texture for map
+        self.quest_frame_map_img = OnscreenImage(image=self.images['journal_old_paper'],
+                                                 scale=(0.7, 0, 0.4),
+                                                 pos=(-0.5, 0, -0.45),
+                                                 parent=self.base.frame_journal)
+        self.quest_frame_map_img.setTransparency(TransparencyAttrib.MAlpha)
 
         # object click n move
         self.base.is_inventory_active = False
@@ -419,7 +493,6 @@ class Sheet(Inventory):
                     if geoms:
                         bg_black = base.loader.loadModel(geoms["bg_black_char_sheet"])
                         bg_black.set_name("bg_black_char_sheet")
-                        # bg_black.reparent_to(render)
                         player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
                         if player_bs:
                             bg_black.reparent_to(player_bs)

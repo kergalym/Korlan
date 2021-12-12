@@ -33,38 +33,6 @@ class Inventory:
         self.menu_font = None
         self.cfg_path = None
 
-        """ Frame Positions """
-        self.pos_X = 0
-        self.pos_Y = 0
-        self.pos_Z = 0
-        self.pos_int_X = -0.5
-        self.pos_int_Y = 0
-        self.pos_int_Z = 0.5
-        self.w = 0
-        self.h = 0
-
-        """ Frame Sizes """
-        # Left, right, bottom, top
-        self.base.frame_inv_size = [-3, 3, -1, 3]
-        self.base.frame_inv_black_bg_size = [-3, 0.7, -1, 3]
-        self.base.frame_inv_int_canvas_size = [-2, 2, -2, 2]
-        self.base.frame_inv_int_size = [-.5, .2, -1.3, 0]
-        self.base.frame_scrolled_size = [0.0, 0.7, -0.05, 0.40]
-        self.base.frame_scrolled_inner_size = [-0.2, 0.2, -0.00, 0.00]
-
-        """ Frame Colors """
-        self.frm_opacity = 1
-
-        self.pic = None
-        self.pic_left = None
-        self.pic_right = None
-
-        """ Buttons, Label Scaling """
-        self.lbl_scale = .03
-        self.btn_scale = .03
-        self.btn_param_accept = None
-        self.btn_param_decline = None
-
         if exists(self.configs['cfg_path']):
             with open(self.configs['cfg_path']) as json_file:
                 self.json = json.load(json_file)
@@ -77,6 +45,10 @@ class Inventory:
                 lng_to_load = self.m_settings.input_validate(self.cfg_path, 'lng')
                 with open(self.lng_configs['lg_{0}'.format(lng_to_load)], 'r') as json_file:
                     self.language = json.load(json_file)
+
+        """ Frame Sizes """
+        # Left, right, bottom, top
+        self.base.frame_inv_black_bg_size = [-3, 0.7, -1, 3]
 
         """ Buttons & Fonts"""
         self.menu_font = self.fonts['OpenSans-Regular']
