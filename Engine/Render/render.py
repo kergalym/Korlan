@@ -226,9 +226,12 @@ class RenderAttr:
                 # 1800 seconds are equal to 30 minutes
                 self.minutes = self.elapsed_seconds // 60
 
-                hour = time.split(':')
-                hour = int(hour[0])
-                self.hour = hour
+                if base.is_ui_active:
+                    self.hour = 00
+                else:
+                    hour = time.split(':')
+                    hour = int(hour[0])
+                    self.hour = hour
 
                 # 30 minutes of duration
                 if duration == 1800:

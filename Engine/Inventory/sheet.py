@@ -101,7 +101,7 @@ class Sheet(Inventory):
                                          text_font=self.font.load_font(self.menu_font),
                                          frameColor=(255, 255, 255, self.frm_opacity),
                                          scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                         geom=geoms, geom_scale=(8.1, 0, 2),
+                                         geom=geoms, geom_scale=(3.1, 0, 2),
                                          clickSound=self.sound_gui_click,
                                          command=base.messenger.send,
                                          extraArgs=["close_sheet"],
@@ -113,7 +113,7 @@ class Sheet(Inventory):
                                               text_font=self.font.load_font(self.menu_font),
                                               frameColor=(255, 255, 255, self.frm_opacity),
                                               scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                              geom=geoms, geom_scale=(8.1, 0, 2),
+                                              geom=geoms, geom_scale=(3.1, 0, 2),
                                               clickSound=self.sound_gui_click,
                                               command=base.messenger.send,
                                               extraArgs=["close_sheet"],
@@ -397,7 +397,7 @@ class Sheet(Inventory):
         """ DEFINE PLAYER PROPERTIES """
 
         # player properties (health, stamina, etc)
-        self.frame_player_prop = DirectFrame(frameColor=(0.1, 0.1, 0.1, 1.0),
+        self.frame_player_prop = DirectFrame(frameColor=(0.0, 0.0, 0.0, 1.0),
                                              frameSize=self.base.frame_player_prop_size,
                                              pos=(-0.5, 0, -0.15),
                                              parent=self.base.frame_inv)
