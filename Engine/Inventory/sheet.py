@@ -5,7 +5,7 @@ from direct.showbase.ShowBaseGlobal import aspect2d
 from direct.gui.DirectGui import *
 from direct.gui.OnscreenImage import OnscreenImage
 from direct.gui.OnscreenImage import TransparencyAttrib
-from panda3d.core import FontPool, Vec3
+from panda3d.core import FontPool, Vec3, PGButton, MouseButton
 
 from Engine.Inventory.inventory import Inventory
 from Engine.Inventory.item import Item
@@ -49,6 +49,7 @@ class Sheet(Inventory):
         self.base.frame_scrolled_size = [0.0, 0.7, -0.05, 0.40]
         self.base.frame_scrolled_inner_size = [-0.2, 0.2, -0.00, 0.00]
         self.base.frame_journal_size = [-3, 0.7, -1, 3]
+        self.base.frame_player_prop_size = [-1.15, 0.5, -0.7, 0]
 
         """ Frame Colors """
         self.frm_opacity = 1
@@ -142,7 +143,7 @@ class Sheet(Inventory):
                                       scale=.03, borderWidth=(self.w, self.h),
                                       geom=geoms_scrolled_dbtn, geom_scale=(15.3, 0, 2),
                                       clickSound=self.sound_gui_click,
-                                      command=self.base.frame_journal.hide)
+                                      command=self.hide_journal)
         btn_select_journal = DirectButton(text="Journal",
                                           text_fg=(255, 255, 255, 1), relief=2,
                                           text_font=self.font.load_font(self.menu_font),
@@ -150,7 +151,7 @@ class Sheet(Inventory):
                                           scale=.03, borderWidth=(self.w, self.h),
                                           geom=geoms_scrolled_dbtn, geom_scale=(15.3, 0, 2),
                                           clickSound=self.sound_gui_click,
-                                          command=self.base.frame_journal.show)
+                                          command=self.show_journal)
         btn_list.append(btn_select_inv)
         btn_list.append(btn_select_journal)
 
@@ -373,10 +374,10 @@ class Sheet(Inventory):
         # sheet slots init
         self.custom_inv_slots(sheet_slot_info)
 
-        # Field of slots 3х8,        x, y
-        self.fill_up_inv_slots(3, 8, -1.55, 0.5, 'INVENTORY_1')
-        self.fill_up_inv_slots(3, 8, -1.0, 0.5, 'INVENTORY_2')
-        self.fill_up_inv_slots(3, 8, -0.45, 0.5, 'INVENTORY_3')
+        # Field of slots 3х5,        positions: x, y
+        self.fill_up_inv_slots(3, 5, -1.55, 0.68, 'INVENTORY_1')
+        self.fill_up_inv_slots(3, 5, -1.0, 0.68, 'INVENTORY_2')
+        self.fill_up_inv_slots(3, 5, -0.45, 0.68, 'INVENTORY_3')
 
         for item in sheet_items:
             inventory_type = item[0][0]
@@ -392,6 +393,98 @@ class Sheet(Inventory):
         self.on_start_assign_item_to_sheet_slot(5, 7)  # boots
         self.on_start_assign_item_to_sheet_slot(0, 0)  # sword
         self.on_start_assign_item_to_sheet_slot(1, 1)  # bow
+
+        """ DEFINE PLAYER PROPERTIES """
+
+        # player properties (health, stamina, etc)
+        self.frame_player_prop = DirectFrame(frameColor=(0.1, 0.1, 0.1, 1.0),
+                                             frameSize=self.base.frame_player_prop_size,
+                                             pos=(-0.5, 0, -0.15),
+                                             parent=self.base.frame_inv)
+
+        # todo: change frame texture
+        self.frame_player_prop_img = OnscreenImage(image=self.images['journal_old_paper'],
+                                                   pos=(-0.3, 0, -0.35),
+                                                   scale=(0.8, 0, 0.3),
+                                                   parent=self.frame_player_prop)
+
+        self.frame_player_prop_img.setTransparency(TransparencyAttrib.MAlpha)
+        # todo: move player_prop to player's state.py
+        player_props = {
+            'name:': 'Korlan',
+            'age:': 25,
+            'sex:': 'female',
+            'height:': "1.7 m",
+            'weight:': "57 kg",
+            'specialty:': 'warrior',
+            'health:': 100,
+            'stamina:': 100,
+            'courage:': 100,
+        }
+        prop_icon_pos_x = -1.0
+        key_label_pos_x = -0.85
+        value_label_pos_x = -0.6
+        pos_z = -0.55
+        for idx, key in enumerate(player_props):
+
+            if idx == 5:
+                # reset z position for second column
+                pos_z = -0.55
+            if idx >= 5:
+                # make second column
+                prop_icon_pos_x = -0.4
+                key_label_pos_x = -0.2
+                value_label_pos_x = 0.1
+
+            prop_txt = str(player_props[key])
+            pos_z += 0.07
+            prop_icon = OnscreenImage(image=self.images['prop_def_c'],
+                                      pos=(prop_icon_pos_x, 0, pos_z),
+                                      scale=.02,
+                                      parent=self.frame_player_prop)
+            prop_icon.setTransparency(TransparencyAttrib.MAlpha)
+
+            DirectLabel(text=key,
+                        text_fg=(0.1, 0.1, 0.1, 1),
+                        text_font=self.font.load_font(self.menu_font),
+                        frameColor=(255, 255, 255, 0),
+                        scale=.04, borderWidth=(self.w, self.h),
+                        pos=(key_label_pos_x, 0, pos_z),
+                        parent=self.frame_player_prop)
+            DirectLabel(text=prop_txt,
+                        text_fg=(0.1, 0.1, 0.1, 1),
+                        text_font=self.font.load_font(self.menu_font),
+                        frameColor=(255, 255, 255, 0),
+                        scale=.04, borderWidth=(self.w, self.h),
+                        pos=(value_label_pos_x, 0, pos_z),
+                        parent=self.frame_player_prop)
+
+    @staticmethod
+    def _handle_mouse_scroll(obj, direction):
+        if (isinstance(obj, DirectSlider)
+                or isinstance(obj, DirectScrollBar)
+                or isinstance(obj, DirectScrolledFrame)):
+            obj.setValue(obj.getValue() + direction * obj["pageSize"])
+
+    def show_journal(self):
+        self.base.frame_journal.show()
+        WHEEL_UP = PGButton.get_release_prefix() + MouseButton.wheel_up().get_name() + "-"
+        WHEEL_DOWN = PGButton.get_release_prefix() + MouseButton.wheel_down().get_name() + "-"
+        self.quest_desc_frame.bind(WHEEL_UP, self._handle_mouse_scroll, [self.quest_desc_frame, 1])
+        self.quest_desc_frame.bind(WHEEL_DOWN, self._handle_mouse_scroll, [self.quest_desc_frame, -1])
+        self.quest_desc_frame.horizontalScroll.thumb.bind(WHEEL_UP, self._handle_mouse_scroll,
+                                                          [self.quest_desc_frame, 1])
+        self.quest_desc_frame.horizontalScroll.thumb.bind(WHEEL_DOWN, self._handle_mouse_scroll,
+                                                          [self.quest_desc_frame, -1])
+
+    def hide_journal(self):
+        self.base.frame_journal.hide()
+        WHEEL_UP = PGButton.get_release_prefix() + MouseButton.wheel_up().get_name() + "-"
+        WHEEL_DOWN = PGButton.get_release_prefix() + MouseButton.wheel_down().get_name() + "-"
+        self.quest_desc_frame.unbind(WHEEL_UP)
+        self.quest_desc_frame.unbind(WHEEL_DOWN)
+        self.quest_desc_frame.horizontalScroll.thumb.unbind(WHEEL_UP)
+        self.quest_desc_frame.horizontalScroll.thumb.unbind(WHEEL_DOWN)
 
     def set_sheet(self):
         """ Sets inventory ui """
