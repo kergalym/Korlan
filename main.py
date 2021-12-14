@@ -479,15 +479,9 @@ class Main(ShowBase):
             self.render_pipeline.create(self)
             self.accept("reload_render", self.reload_render)
 
-        self.menu = MenuUI()
-        self.scene_one = SceneOne()
-        self.render_attr = RenderAttr()
-        self.korlan = Korlan()
-        self.sound = Sound()
-        self.text = TextNode("TextNode")
-
         """ Menu """
         if self.check_and_do_cfg():
+            self.menu = MenuUI()
             if not self.intro_mode and self.menu_mode:
                 self.menu.load_main_menu()
         elif self.check_and_do_cfg() and self.game_mode is False:
@@ -495,6 +489,12 @@ class Main(ShowBase):
                 self.menu.load_main_menu()
         else:
             sys_exit("\nNo game configuration file created. Please check your game log")
+
+        self.scene_one = SceneOne()
+        self.render_attr = RenderAttr()
+        self.korlan = Korlan()
+        self.sound = Sound()
+        self.text = TextNode("TextNode")
 
         self.render_type = "menu"
         self.rotateY = 0

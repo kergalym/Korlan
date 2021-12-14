@@ -229,10 +229,9 @@ class Sheet(Inventory):
 
         )
 
-        # fixme change texture for quest description title
-        self.quest_desc_frame_title_img = OnscreenImage(image=self.images['journal_old_paper'],
-                                                        scale=(0.7, 0, 0.4),
-                                                        pos=(-0.5, 0, 0.45),
+        self.quest_desc_frame_title_img = OnscreenImage(image=self.images['journal_title'],
+                                                        scale=(0.7, 0, 0.15),
+                                                        pos=(-0.5, 0, 0.80),
                                                         parent=self.base.frame_journal)
 
         # Left, right, bottom, top
@@ -252,15 +251,13 @@ class Sheet(Inventory):
                                                     horizontalScroll_thumb_frameColor=(0.4, 0.3, 0.2, 1.0),
                                                     parent=self.base.frame_journal)
 
-        # fixme change texture for quest description
-        self.quest_desc_frame_img = OnscreenImage(image=self.images['journal_old_paper'],
+        self.quest_desc_frame_img = OnscreenImage(image=self.images['journal_quest_desc'],
                                                   scale=(0.7, 0, 0.4),
                                                   pos=(0.2, 0, -0.1),
                                                   parent=self.quest_desc_frame.getCanvas())
         self.quest_desc_frame_img.setTransparency(TransparencyAttrib.MAlpha)
 
-        # fixme change texture for map
-        self.quest_frame_map_img = OnscreenImage(image=self.images['journal_old_paper'],
+        self.quest_frame_map_img = OnscreenImage(image=self.images['journal_ancient_map_sm'],
                                                  scale=(0.7, 0, 0.4),
                                                  pos=(-0.5, 0, -0.45),
                                                  parent=self.base.frame_journal)
