@@ -103,7 +103,6 @@ class Sheet(Inventory):
                                           extraArgs=["close_sheet"],
                                           pos=(-1.8, 0, 0.9),
                                           parent=self.base.frame_inv)
-        self.btn_close_inv.setTransparency(TransparencyAttrib.MAlpha)
         self.btn_close_journal = DirectButton(text="",
                                               text_fg=(255, 255, 255, 0.9),
                                               text_font=self.font.load_font(self.menu_font),
@@ -115,7 +114,6 @@ class Sheet(Inventory):
                                               extraArgs=["close_sheet"],
                                               pos=(-1.8, 0, 0.9),
                                               parent=self.base.frame_journal)
-        self.btn_close_journal.setTransparency(TransparencyAttrib.MAlpha)
 
         maps_scrolled_dbtn = base.loader.loadModel(ui_geoms['btn_t_icon'])
         geoms_scrolled_dbtn = (maps_scrolled_dbtn.find('**/button_any'),
@@ -372,9 +370,9 @@ class Sheet(Inventory):
         self.custom_inv_slots(sheet_slot_info)
 
         # Field of slots 3х5,        positions: x, y
-        self.fill_up_inv_slots(3, 5, -1.55, 0.68, 'INVENTORY_1')
-        self.fill_up_inv_slots(3, 5, -1.0, 0.68, 'INVENTORY_2')
-        self.fill_up_inv_slots(3, 5, -0.45, 0.68, 'INVENTORY_3')
+        self.fill_up_inv_slots(3, 5, -1.55, 0.66, 'INVENTORY_1')
+        self.fill_up_inv_slots(3, 5, -1.0, 0.66, 'INVENTORY_2')
+        self.fill_up_inv_slots(3, 5, -0.45, 0.66, 'INVENTORY_3')
 
         for item in sheet_items:
             inventory_type = item[0][0]
@@ -394,12 +392,12 @@ class Sheet(Inventory):
         """ DEFINE PLAYER PROPERTIES """
 
         # player properties (health, stamina, etc)
-        self.frame_player_prop = DirectFrame(frameColor=(0.0, 0.0, 0.0, 1.0),
+        self.frame_player_prop = DirectFrame(frameColor=(0.0, 0.0, 0.0, 0.0),
                                              frameSize=self.base.frame_player_prop_size,
                                              pos=(-0.5, 0, -0.15),
                                              parent=self.base.frame_inv)
         self.frame_player_prop_img = OnscreenImage(image=self.images['inv_frm_player_props'],
-                                                   pos=(-0.3, 0, -0.35),
+                                                   pos=(-0.3, 0, -0.34),
                                                    scale=(0.9, 0, 0.3),
                                                    parent=self.frame_player_prop)
 

@@ -227,7 +227,7 @@ class RenderAttr:
                 self.minutes = self.elapsed_seconds // 60
 
                 if base.is_ui_active:
-                    self.hour = 00
+                    self.hour = 20
                 else:
                     hour = time.split(':')
                     hour = int(hour[0])
