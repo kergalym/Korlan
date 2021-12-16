@@ -86,39 +86,36 @@ class Sheet(Inventory):
         self.base.frame_journal.hide()
 
         ui_geoms = base.ui_geom_collector()
-
-        maps = base.loader.loadModel(ui_geoms['btn_t_icon'])
-        geoms = (maps.find('**/button_any'),
-                 maps.find('**/button_pressed'),
-                 maps.find('**/button_rollover'))
-
+        maps = base.loader.loadModel(ui_geoms['x_btn'])
+        geoms = (maps.find('**/x_btn_ready'),
+                 maps.find('**/x_btn_clicked'),
+                 maps.find('**/x_btn_rollover'))
         sounds = self.base.sounds_collector()
-
         self.sound_gui_click = self.base.loader.load_sfx(sounds.get('zapsplat_button_click'))
-
-        self.btn_close_iv = DirectButton(text="X",
-                                         text_fg=(255, 255, 255, 0.9),
-                                         text_font=self.font.load_font(self.menu_font),
-                                         frameColor=(255, 255, 255, self.frm_opacity),
-                                         scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                         geom=geoms, geom_scale=(3.1, 0, 2),
-                                         clickSound=self.sound_gui_click,
-                                         command=base.messenger.send,
-                                         extraArgs=["close_sheet"],
-                                         pos=(-1.8, 0, 0.9),
-                                         parent=self.base.frame_inv)
-
-        self.btn_close_journal = DirectButton(text="X",
+        self.btn_close_inv = DirectButton(text="",
+                                          text_fg=(255, 255, 255, 0.9),
+                                          text_font=self.font.load_font(self.menu_font),
+                                          frameColor=(0, 0, 0, self.frm_opacity),
+                                          scale=self.btn_scale, borderWidth=(self.w, self.h),
+                                          geom=geoms, geom_scale=(0.13, 0, 0.16),
+                                          clickSound=self.sound_gui_click,
+                                          command=base.messenger.send,
+                                          extraArgs=["close_sheet"],
+                                          pos=(-1.8, 0, 0.9),
+                                          parent=self.base.frame_inv)
+        self.btn_close_inv.setTransparency(TransparencyAttrib.MAlpha)
+        self.btn_close_journal = DirectButton(text="",
                                               text_fg=(255, 255, 255, 0.9),
                                               text_font=self.font.load_font(self.menu_font),
-                                              frameColor=(255, 255, 255, self.frm_opacity),
+                                              frameColor=(0, 0, 0, self.frm_opacity),
                                               scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                              geom=geoms, geom_scale=(3.1, 0, 2),
+                                              geom=geoms, geom_scale=(0.13, 0, 0.15),
                                               clickSound=self.sound_gui_click,
                                               command=base.messenger.send,
                                               extraArgs=["close_sheet"],
                                               pos=(-1.8, 0, 0.9),
                                               parent=self.base.frame_journal)
+        self.btn_close_journal.setTransparency(TransparencyAttrib.MAlpha)
 
         maps_scrolled_dbtn = base.loader.loadModel(ui_geoms['btn_t_icon'])
         geoms_scrolled_dbtn = (maps_scrolled_dbtn.find('**/button_any'),
@@ -401,11 +398,9 @@ class Sheet(Inventory):
                                              frameSize=self.base.frame_player_prop_size,
                                              pos=(-0.5, 0, -0.15),
                                              parent=self.base.frame_inv)
-
-        # todo: change frame texture
-        self.frame_player_prop_img = OnscreenImage(image=self.images['journal_old_paper'],
+        self.frame_player_prop_img = OnscreenImage(image=self.images['inv_frm_player_props'],
                                                    pos=(-0.3, 0, -0.35),
-                                                   scale=(0.8, 0, 0.3),
+                                                   scale=(0.9, 0, 0.3),
                                                    parent=self.frame_player_prop)
 
         self.frame_player_prop_img.setTransparency(TransparencyAttrib.MAlpha)
@@ -421,9 +416,9 @@ class Sheet(Inventory):
             'stamina:': 100,
             'courage:': 100,
         }
-        prop_icon_pos_x = -1.0
-        key_label_pos_x = -0.85
-        value_label_pos_x = -0.6
+        prop_icon_pos_x = -0.9
+        key_label_pos_x = -0.8
+        value_label_pos_x = -0.65
         pos_z = -0.55
         for idx, key in enumerate(player_props):
 
@@ -432,9 +427,9 @@ class Sheet(Inventory):
                 pos_z = -0.55
             if idx >= 5:
                 # make second column
-                prop_icon_pos_x = -0.4
-                key_label_pos_x = -0.2
-                value_label_pos_x = 0.1
+                prop_icon_pos_x = -0.3
+                key_label_pos_x = -0.18
+                value_label_pos_x = 0.0
 
             prop_txt = str(player_props[key])
             pos_z += 0.07
