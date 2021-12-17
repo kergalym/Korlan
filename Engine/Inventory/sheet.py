@@ -86,10 +86,10 @@ class Sheet(Inventory):
         self.base.frame_journal.hide()
 
         ui_geoms = base.ui_geom_collector()
-        maps = base.loader.loadModel(ui_geoms['x_btn'])
-        geoms = (maps.find('**/x_btn_ready'),
-                 maps.find('**/x_btn_clicked'),
-                 maps.find('**/x_btn_rollover'))
+        maps = base.loader.loadModel(ui_geoms['btn_t_close_icon'])
+        geoms = (maps.find('**/button_close_ready'),
+                 maps.find('**/button_close_clicked'),
+                 maps.find('**/button_close_rollover'))
         sounds = self.base.sounds_collector()
         self.sound_gui_click = self.base.loader.load_sfx(sounds.get('zapsplat_button_click'))
         self.btn_close_inv = DirectButton(text="",
@@ -415,22 +415,22 @@ class Sheet(Inventory):
             'courage:': 100,
         }
         prop_icon_pos_x = -0.9
-        key_label_pos_x = -0.8
+        key_label_pos_x = -0.85
         value_label_pos_x = -0.65
-        pos_z = -0.55
+        pos_z = -0.15
         for idx, key in enumerate(player_props):
 
             if idx == 5:
                 # reset z position for second column
-                pos_z = -0.55
+                pos_z = -0.15
             if idx >= 5:
                 # make second column
                 prop_icon_pos_x = -0.3
-                key_label_pos_x = -0.18
+                key_label_pos_x = -0.25
                 value_label_pos_x = 0.0
 
             prop_txt = str(player_props[key])
-            pos_z += 0.07
+            pos_z += -0.07
             prop_icon = OnscreenImage(image=self.images['prop_def_c'],
                                       pos=(prop_icon_pos_x, 0, pos_z),
                                       scale=.02,
@@ -440,6 +440,7 @@ class Sheet(Inventory):
             DirectLabel(text=key,
                         text_fg=(0.1, 0.1, 0.1, 1),
                         text_font=self.font.load_font(self.menu_font),
+                        text_align=TextNode.ALeft,
                         frameColor=(255, 255, 255, 0),
                         scale=.04, borderWidth=(self.w, self.h),
                         pos=(key_label_pos_x, 0, pos_z),
@@ -447,6 +448,7 @@ class Sheet(Inventory):
             DirectLabel(text=prop_txt,
                         text_fg=(0.1, 0.1, 0.1, 1),
                         text_font=self.font.load_font(self.menu_font),
+                        text_align=TextNode.ALeft,
                         frameColor=(255, 255, 255, 0),
                         scale=.04, borderWidth=(self.w, self.h),
                         pos=(value_label_pos_x, 0, pos_z),
