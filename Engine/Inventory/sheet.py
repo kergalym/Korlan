@@ -115,71 +115,65 @@ class Sheet(Inventory):
                                               pos=(-1.8, 0, 0.9),
                                               parent=self.base.frame_journal)
 
-        maps_scrolled_dbtn = base.loader.loadModel(ui_geoms['btn_t_icon'])
-        geoms_scrolled_dbtn = (maps_scrolled_dbtn.find('**/button_any'),
-                               maps_scrolled_dbtn.find('**/button_pressed'),
-                               maps_scrolled_dbtn.find('**/button_rollover'))
+        # quest selector geoms
+        q_maps_scrolled_dbtn = base.loader.loadModel(ui_geoms['btn_t_icon'])
+        q_geoms_scrolled_dbtn = (q_maps_scrolled_dbtn.find('**/button_any'),
+                                 q_maps_scrolled_dbtn.find('**/button_pressed'),
+                                 q_maps_scrolled_dbtn.find('**/button_rollover'))
 
-        maps_scrolled_dec = base.loader.loadModel(ui_geoms['btn_t_icon_dec'])
-        geoms_scrolled_dec = (maps_scrolled_dec.find('**/button_any_dec'),
-                              maps_scrolled_dec.find('**/button_pressed_dec'),
-                              maps_scrolled_dec.find('**/button_rollover_dec'))
+        q_maps_scrolled_dec = base.loader.loadModel(ui_geoms['btn_t_icon_dec'])
+        q_geoms_scrolled_dec = (q_maps_scrolled_dec.find('**/button_any_dec'),
+                                q_maps_scrolled_dec.find('**/button_pressed_dec'),
+                                q_maps_scrolled_dec.find('**/button_rollover_dec'))
 
-        maps_scrolled_inc = base.loader.loadModel(ui_geoms['btn_t_icon_inc'])
-        geoms_scrolled_inc = (maps_scrolled_inc.find('**/button_any_inc'),
-                              maps_scrolled_inc.find('**/button_pressed_inc'),
-                              maps_scrolled_inc.find('**/button_rollover_inc'))
+        q_maps_scrolled_inc = base.loader.loadModel(ui_geoms['btn_t_icon_inc'])
+        q_geoms_scrolled_inc = (q_maps_scrolled_inc.find('**/button_any_inc'),
+                                q_maps_scrolled_inc.find('**/button_pressed_inc'),
+                                q_maps_scrolled_inc.find('**/button_rollover_inc'))
+        q_maps_scrolled_dec.set_transparency(TransparencyAttrib.MAlpha)
+        q_maps_scrolled_inc.set_transparency(TransparencyAttrib.MAlpha)
 
-        btn_list = []
-        btn_select_inv = DirectButton(text="Inventory",
-                                      text_fg=(255, 255, 255, 1), relief=2,
-                                      text_font=self.font.load_font(self.menu_font),
-                                      frameColor=(0, 0, 0, 1),
-                                      scale=.03, borderWidth=(self.w, self.h),
-                                      geom=geoms_scrolled_dbtn, geom_scale=(15.3, 0, 2),
-                                      clickSound=self.sound_gui_click,
-                                      command=self.hide_journal)
-        btn_select_journal = DirectButton(text="Journal",
-                                          text_fg=(255, 255, 255, 1), relief=2,
-                                          text_font=self.font.load_font(self.menu_font),
-                                          frameColor=(0, 0, 0, 1),
-                                          scale=.03, borderWidth=(self.w, self.h),
-                                          geom=geoms_scrolled_dbtn, geom_scale=(15.3, 0, 2),
-                                          clickSound=self.sound_gui_click,
-                                          command=self.show_journal)
-        btn_list.append(btn_select_inv)
-        btn_list.append(btn_select_journal)
+        # inventory & journal geoms
+        inv_maps_scrolled_dec = base.loader.loadModel(ui_geoms['btn_inv_icon_dec'])
+        inv_geoms_scrolled_dec = (inv_maps_scrolled_dec.find('**/button_any_dec'),
+                                  inv_maps_scrolled_dec.find('**/button_pressed_dec'),
+                                  inv_maps_scrolled_dec.find('**/button_rollover_dec'),
+                                  inv_maps_scrolled_dec.find('**/button_disabled_dec'))
 
-        self.base.menu_selector = DirectScrolledList(
-            decButton_pos=(0.35, 0, 0.49),
-            decButton_scale=(5, 1, 0.5),
-            decButton_text="Dec",
-            decButton_text_scale=0.04,
-            decButton_borderWidth=(0, 0),
-            decButton_geom=geoms_scrolled_dec,
-            decButton_geom_scale=0.08,
+        inv_maps_scrolled_inc = base.loader.loadModel(ui_geoms['btn_inv_icon_inc'])
+        inv_geoms_scrolled_inc = (inv_maps_scrolled_inc.find('**/button_any_inc'),
+                                  inv_maps_scrolled_inc.find('**/button_pressed_inc'),
+                                  inv_maps_scrolled_inc.find('**/button_rollover_inc'),
+                                  inv_maps_scrolled_inc.find('**/button_disabled_inc'))
+        inv_maps_scrolled_inc.set_transparency(TransparencyAttrib.MAlpha)
+        inv_maps_scrolled_dec.set_transparency(TransparencyAttrib.MAlpha)
 
-            incButton_pos=(0.35, 0, 0.31),
-            incButton_scale=(5, 1, 0.5),
-            incButton_text="Inc",
-            incButton_text_scale=0.04,
-            incButton_borderWidth=(0, 0),
-            incButton_geom=geoms_scrolled_inc,
-            incButton_geom_scale=0.08,
+        self.base.btn_select_inv = DirectButton(text="<|",
+                                                text_fg=(0.7, 0.7, 0.7, 1),
+                                                text_font=self.font.load_font(self.menu_font),
+                                                frameColor=(0, 0, 0, 1),
+                                                scale=.03, borderWidth=(self.w, self.h),
+                                                geom=inv_geoms_scrolled_dec, geom_scale=(15.3, 0, 2),
+                                                hpr=(0, 0, -90),
+                                                clickSound=self.sound_gui_click,
+                                                command=self.hide_journal,
+                                                pos=(-1.70, 0, 0.3))
+        self.base.btn_select_journal = DirectButton(text="|>",
+                                                    text_fg=(0.7, 0.7, 0.7, 1),
+                                                    text_font=self.font.load_font(self.menu_font),
+                                                    frameColor=(0, 0, 0, 1),
+                                                    scale=.03, borderWidth=(self.w, self.h),
+                                                    geom=inv_geoms_scrolled_inc, geom_scale=(15.3, 0, 2),
+                                                    hpr=(0, 0, -90),
+                                                    clickSound=self.sound_gui_click,
+                                                    command=self.show_journal,
+                                                    pos=(0.06, 0, 0.3))
 
-            frameSize=self.base.frame_scrolled_size,
-            frameColor=(0, 0, 0, 0),
-            numItemsVisible=1,
-            forceHeight=0.11,
-            items=btn_list,
-            itemFrame_frameSize=self.base.frame_scrolled_inner_size,
-            itemFrame_pos=(0.35, 0, 0.4),
-
-            pos=(0.1, -0.9, 0.4)
-        )
-        self.base.menu_selector.hide()
+        self.base.btn_select_inv.hide()
+        self.base.btn_select_journal.hide()
 
         """ QUESTS """
+
         quests_btn_list = []
 
         btn_inc_pos = 0.49
@@ -189,7 +183,7 @@ class Sheet(Inventory):
                                      text_font=self.font.load_font(self.menu_font),
                                      frameColor=(0, 0, 0, 1),
                                      scale=.03, borderWidth=(self.w, self.h),
-                                     geom=geoms_scrolled_dbtn, geom_scale=(15.3, 0, 2),
+                                     geom=q_geoms_scrolled_dbtn, geom_scale=(15.3, 0, 2),
                                      clickSound=self.sound_gui_click,
                                      command=self.base.frame_journal.show)
             btn_inc_pos += -0.12
@@ -201,16 +195,16 @@ class Sheet(Inventory):
             decButton_text="Dec",
             decButton_text_scale=0.04,
             decButton_borderWidth=(0, 0),
-            decButton_geom=geoms_scrolled_dec,
-            decButton_geom_scale=0.08,
+            decButton_geom=q_geoms_scrolled_dec,
+            decButton_geom_scale=0.09,
 
             incButton_pos=(0.35, 0, btn_inc_pos),
             incButton_scale=(5, 1, 0.5),
             incButton_text="Inc",
             incButton_text_scale=0.04,
             incButton_borderWidth=(0, 0),
-            incButton_geom=geoms_scrolled_inc,
-            incButton_geom_scale=0.08,
+            incButton_geom=q_geoms_scrolled_inc,
+            incButton_geom_scale=0.09,
 
             frameSize=self.base.frame_scrolled_size,
             frameColor=(0, 0, 0, 0),
@@ -220,23 +214,29 @@ class Sheet(Inventory):
             itemFrame_frameSize=self.base.frame_scrolled_inner_size,
             itemFrame_pos=(0.35, 0, 0.4),
 
-            pos=(-1.8, 0, 0.32),
+            pos=(0.0, 0, 0.32),
             parent=self.base.frame_journal
 
         )
 
-        self.quest_desc_frame_title_img = OnscreenImage(image=self.images['journal_title'],
-                                                        scale=(0.7, 0, 0.15),
-                                                        pos=(-0.5, 0, 0.80),
-                                                        parent=self.base.frame_journal)
+        self.journal_grid_frame = OnscreenImage(image=self.images['grid_frame'],
+                                                pos=(-0.82, 0, 0.37),
+                                                scale=(0.86, 0, 0.40),
+                                                parent=self.base.frame_journal)
+        self.journal_grid_cap = OnscreenImage(image=self.images['grid_cap_j'],
+                                              pos=(-0.82, 0, 0.82),
+                                              scale=(0.92, 0, 0.08),
+                                              parent=self.base.frame_journal)
+        self.journal_grid_cap.set_transparency(TransparencyAttrib.MAlpha)
+        self.journal_grid_frame.set_transparency(TransparencyAttrib.MAlpha)
 
         # Left, right, bottom, top
-        self.quest_desc_frame = DirectScrolledFrame(frameColor=(0, 0, 0, 1.0),
+        self.quest_desc_frame = DirectScrolledFrame(frameColor=(0.0, 0.0, 0.0, 1.0),
                                                     canvasSize=(-0.5, 0.5, -0.3, 0.3),
                                                     frameSize=(-0.7, 0.7, -0.35, 0.34),
                                                     scrollBarWidth=0.02,
                                                     autoHideScrollBars=True,
-                                                    pos=(-0.5, 0, 0.32),
+                                                    pos=(-0.82, 0, 0.39),
                                                     verticalScroll_frameColor=(0, 0, 0, 1.0),
                                                     horizontalScroll_frameColor=(0, 0, 0, 1.0),
                                                     verticalScroll_incButton_frameColor=(0, 0, 0, 1.0),
@@ -255,7 +255,7 @@ class Sheet(Inventory):
 
         self.quest_frame_map_img = OnscreenImage(image=self.images['journal_ancient_map_sm'],
                                                  scale=(0.7, 0, 0.4),
-                                                 pos=(-0.5, 0, -0.45),
+                                                 pos=(-0.82, 0, -0.45),
                                                  parent=self.base.frame_journal)
         self.quest_frame_map_img.setTransparency(TransparencyAttrib.MAlpha)
 
@@ -403,6 +403,17 @@ class Sheet(Inventory):
 
         self.frame_player_prop_img.setTransparency(TransparencyAttrib.MAlpha)
         # todo: move player_prop to player's state.py
+        player_props_icons = [
+            self.images['prop_name'],
+            self.images['prop_age'],
+            self.images['prop_sex'],
+            self.images['prop_height'],
+            self.images['prop_weight'],
+            self.images['prop_specialty'],
+            self.images['prop_health'],
+            self.images['prop_stamina'],
+            self.images['prop_courage']
+        ]
         player_props = {
             'name:': 'Korlan',
             'age:': 25,
@@ -431,9 +442,9 @@ class Sheet(Inventory):
 
             prop_txt = str(player_props[key])
             pos_z += -0.07
-            prop_icon = OnscreenImage(image=self.images['prop_def_c'],
-                                      pos=(prop_icon_pos_x, 0, pos_z),
-                                      scale=.02,
+            prop_icon = OnscreenImage(image=player_props_icons[idx],
+                                      pos=(prop_icon_pos_x, 0, pos_z + 0.01),
+                                      scale=.03,
                                       parent=self.frame_player_prop)
             prop_icon.setTransparency(TransparencyAttrib.MAlpha)
 
@@ -472,6 +483,12 @@ class Sheet(Inventory):
         self.quest_desc_frame.horizontalScroll.thumb.bind(WHEEL_DOWN, self._handle_mouse_scroll,
                                                           [self.quest_desc_frame, -1])
 
+        self.base.btn_select_inv.set_pos(-1.70, 0, 0.3)
+        self.base.btn_select_journal.set_pos(0.06, 0, 0.3)
+
+        self.base.btn_select_inv["state"] = DGG.NORMAL
+        self.base.btn_select_journal["state"] = DGG.DISABLED
+
     def hide_journal(self):
         self.base.frame_journal.hide()
         WHEEL_UP = PGButton.get_release_prefix() + MouseButton.wheel_up().get_name() + "-"
@@ -480,6 +497,12 @@ class Sheet(Inventory):
         self.quest_desc_frame.unbind(WHEEL_DOWN)
         self.quest_desc_frame.horizontalScroll.thumb.unbind(WHEEL_UP)
         self.quest_desc_frame.horizontalScroll.thumb.unbind(WHEEL_DOWN)
+
+        self.base.btn_select_inv.set_pos(-1.70, 0, 0.3)
+        self.base.btn_select_journal.set_pos(0.06, 0, 0.3)
+
+        self.base.btn_select_journal["state"] = DGG.NORMAL
+        self.base.btn_select_inv["state"] = DGG.DISABLED
 
     def set_sheet(self):
         """ Sets inventory ui """
@@ -491,7 +514,13 @@ class Sheet(Inventory):
                         base.hud.toggle_all_hud(state="hidden")
 
                     self.base.frame_inv.show()
-                    self.base.menu_selector.show()
+                    # self.base.menu_selector.show()
+                    self.base.btn_select_inv.show()
+                    self.base.btn_select_journal.show()
+
+                    self.base.btn_select_inv["state"] = DGG.DISABLED
+                    self.base.btn_select_journal["state"] = DGG.NORMAL
+
                     self.props.set_cursor_hidden(False)
                     self.base.win.request_properties(self.props)
 
@@ -519,8 +548,10 @@ class Sheet(Inventory):
     def clear_sheet(self):
         self.base.build_info.reparent_to(aspect2d)
         self.base.frame_inv.hide()
-        if not self.base.menu_selector.is_hidden():
-            self.base.menu_selector.hide()
+
+        self.base.btn_select_inv.hide()
+        self.base.btn_select_journal.hide()
+
         self.base.frame_journal.hide()
 
         if hasattr(base, "hud") and base.hud:

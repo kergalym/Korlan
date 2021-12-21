@@ -136,18 +136,18 @@ class Inventory:
         self.black_frame = DirectFrame(frameColor=(0, 0, 0, 1.0),
                                        frameSize=self.base.frame_inv_black_bg_size,
                                        pos=(0, 0, 0))
-        self.grid_frame = OnscreenImage(image=self.images['grid_frame'],
-                                        pos=(-0.82, 0, 0.30),
-                                        scale=(0.86, 0, 0.48),
-                                        parent=self.black_frame)
-        self.grid_cap = OnscreenImage(image=self.images['grid_cap'],
-                                      pos=(-0.82, 0, 0.82),
-                                      scale=(0.92, 0, 0.08),
-                                      parent=self.black_frame)
+        self.inv_grid_frame = OnscreenImage(image=self.images['grid_frame'],
+                                            pos=(-0.82, 0, 0.30),
+                                            scale=(0.86, 0, 0.48),
+                                            parent=self.black_frame)
+        self.inv_grid_cap = OnscreenImage(image=self.images['grid_cap_i'],
+                                          pos=(-0.82, 0, 0.82),
+                                          scale=(0.92, 0, 0.08),
+                                          parent=self.black_frame)
         if self.use_transparency:
             self.black_frame.setTransparency(TransparencyAttrib.MAlpha)
-            self.grid_cap.set_transparency(TransparencyAttrib.MAlpha)
-            self.grid_frame.set_transparency(TransparencyAttrib.MAlpha)
+            self.inv_grid_cap.set_transparency(TransparencyAttrib.MAlpha)
+            self.inv_grid_frame.set_transparency(TransparencyAttrib.MAlpha)
 
         for id, slot in enumerate(self.slots):
             self._slots_vis.append(DirectButton(frameTexture=slot.get_icon(),
