@@ -7,6 +7,7 @@ from direct.gui.OnscreenImage import OnscreenImage
 from direct.gui.OnscreenImage import TransparencyAttrib
 from panda3d.core import FontPool, Vec3, PGButton, MouseButton
 
+from Engine.Actors.Player.state import PlayerState
 from Engine.Inventory.inventory import Inventory
 from Engine.Inventory.item import Item
 from panda3d.core import TextNode
@@ -29,6 +30,7 @@ class Sheet(Inventory):
         # instance of the abstract class
         self.font = FontPool
         self.text = TextNode("TextNode")
+        self.player_state = PlayerState()
         self.render_attr = RenderAttr()
         self.menu_font = None
         self.cfg_path = None
@@ -381,6 +383,22 @@ class Sheet(Inventory):
         # Inventory init
         self.init()
 
+        self.inv_misc_grid_cap = OnscreenImage(image=self.images['misc_grid_cap'],
+                                               pos=(-1.4, 0, -0.25),
+                                               scale=(0.32, 0, 0.1),
+                                               parent=self.base.frame_inv)
+        self.inv_misc_grid_cap.setTransparency(TransparencyAttrib.MAlpha)
+        self.inv_weapons_grid_cap = OnscreenImage(image=self.images['weapons_grid_cap'],
+                                                  pos=(-0.82, 0, -0.25),
+                                                  scale=(0.32, 0, 0.1),
+                                                  parent=self.base.frame_inv)
+        self.inv_weapons_grid_cap.setTransparency(TransparencyAttrib.MAlpha)
+        self.inv_magic_grid_cap = OnscreenImage(image=self.images['magic_grid_cap'],
+                                                pos=(-0.24, 0, -0.25),
+                                                scale=(0.32, 0, 0.1),
+                                                parent=self.base.frame_inv)
+        self.inv_magic_grid_cap.setTransparency(TransparencyAttrib.MAlpha)
+
         # left is item index, right is slot index
         self.on_start_assign_item_to_sheet_slot(3, 4)  # helmet
         self.on_start_assign_item_to_sheet_slot(2, 5)  # armor
@@ -394,7 +412,7 @@ class Sheet(Inventory):
         # player properties (health, stamina, etc)
         self.frame_player_prop = DirectFrame(frameColor=(0.0, 0.0, 0.0, 0.0),
                                              frameSize=self.base.frame_player_prop_size,
-                                             pos=(-0.5, 0, -0.15),
+                                             pos=(-0.5, 0, -0.31),
                                              parent=self.base.frame_inv)
         self.frame_player_prop_img = OnscreenImage(image=self.images['inv_frm_player_props'],
                                                    pos=(-0.3, 0, -0.34),
@@ -402,7 +420,6 @@ class Sheet(Inventory):
                                                    parent=self.frame_player_prop)
 
         self.frame_player_prop_img.setTransparency(TransparencyAttrib.MAlpha)
-        # todo: move player_prop to player's state.py
         player_props_icons = [
             self.images['prop_name'],
             self.images['prop_age'],
@@ -414,22 +431,11 @@ class Sheet(Inventory):
             self.images['prop_stamina'],
             self.images['prop_courage']
         ]
-        player_props = {
-            'name:': 'Korlan',
-            'age:': 25,
-            'sex:': 'female',
-            'height:': "1.7 m",
-            'weight:': "57 kg",
-            'specialty:': 'warrior',
-            'health:': 100,
-            'stamina:': 100,
-            'courage:': 100,
-        }
         prop_icon_pos_x = -0.9
         key_label_pos_x = -0.85
         value_label_pos_x = -0.65
         pos_z = -0.15
-        for idx, key in enumerate(player_props):
+        for idx, key in enumerate(self.player_state.player_props):
 
             if idx == 5:
                 # reset z position for second column
@@ -440,7 +446,7 @@ class Sheet(Inventory):
                 key_label_pos_x = -0.25
                 value_label_pos_x = 0.0
 
-            prop_txt = str(player_props[key])
+            prop_txt = str(self.player_state.player_props[key])
             pos_z += -0.07
             prop_icon = OnscreenImage(image=player_props_icons[idx],
                                       pos=(prop_icon_pos_x, 0, pos_z + 0.01),

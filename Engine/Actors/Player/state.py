@@ -7,6 +7,17 @@ class PlayerState:
 
     def __init__(self):
         self.game_settings = base.game_settings
+        self.player_props = {
+            'name:': 'Korlan',
+            'age:': 25,
+            'sex:': 'female',
+            'height:': "1.7 m",
+            'weight:': "57 kg",
+            'specialty:': 'warrior',
+            'health:': 100,
+            'stamina:': 100,
+            'courage:': 100,
+        }
         base.player_states = {
             "is_idle": True,
             "is_moving": False,
