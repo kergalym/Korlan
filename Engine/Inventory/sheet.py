@@ -269,6 +269,7 @@ class Sheet(Inventory):
             "hpr": Vec3(0, 0, 0),
             "pivot_hpr": Vec3(0, 0, 0)
         }
+        self.player_hpr_saved = Vec3(0, 0, 0)
 
         """ DEFINE INVENTORY """
         sheet_slot_info = [('HAND_L', (0.9, 0, -0.01), u'Hand', self.images['hand_l_slot']),
@@ -619,7 +620,9 @@ class Sheet(Inventory):
                         if player_bs:
                             bg_black.reparent_to(player_bs)
                             bg_black.set_pos(0, 0, 0)
+                            bg_black.set_h(player_bs.get_h())
                             bg_black.set_two_sided(True)
+                            # bg_black.hide()
                 else:
                     if render.find("**/bg_black_char_sheet"):
                         bg_black = render.find("**/bg_black_char_sheet")
@@ -633,6 +636,13 @@ class Sheet(Inventory):
                 # set light
                 player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
                 if player_bs:
+
+                    # keep previous player hpr states
+                    self.player_hpr_saved = player_bs.get_hpr()
+
+                    # face player to light
+                    player_bs.set_h(0)
+
                     if self.game_settings['Main']['postprocessing'] == 'on':
                         light_pos = [player_bs.get_x(), player_bs.get_y() - 4.0, 7.0]
                         self.render_attr.set_inv_lighting(name='slight',
@@ -653,11 +663,15 @@ class Sheet(Inventory):
 
     def revert_character(self):
         # revert character view
-        player_pos = self.player_camera_default["pos"]
-        player_hpr = self.player_camera_default["hpr"]
+        player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
+        if player_bs:
+            player_bs.set_hpr(self.player_hpr_saved)
+
+        player_cam_pos = self.player_camera_default["pos"]
+        player_cam_hpr = self.player_camera_default["hpr"]
         pivot_hpr = self.player_camera_default["pivot_hpr"]
-        base.camera.set_pos(player_pos)
-        base.camera.set_hpr(player_hpr)
+        base.camera.set_pos(player_cam_pos)
+        base.camera.set_hpr(player_cam_hpr)
         if render.find("**/pivot"):
             render.find("**/pivot").set_hpr(pivot_hpr)
 
