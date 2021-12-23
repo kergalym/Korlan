@@ -1275,22 +1275,24 @@ class Main(ShowBase):
             distance = {}
             # Subtract actor vector from item vector.
             if not actor.get_parent().is_empty():
-                # Get bullet shape node path if it's here
-                if ('BS' in player.get_parent().get_name()
-                        and 'BS' in actor.get_parent().get_name()):
-                    vect_x = player.get_parent().get_x() - actor.get_parent().get_x()
-                    vect_y = player.get_parent().get_y() - actor.get_parent().get_y()
-                    vect_z = player.get_parent().get_z() - actor.get_parent().get_z()
-                elif ('BS' not in player.get_parent().get_name()
-                      and 'BS' not in actor.get_parent().get_name()):
-                    vect_x = player.get_x() - actor.get_x()
-                    vect_y = player.get_y() - actor.get_y()
-                    vect_z = player.get_z() - actor.get_z()
-                """distance["vector"] = (round(vect_x, 1),
-                                      round(vect_y, 1),
-                                      round(vect_z, 1))"""
-                distance["vector"] = Vec3(vect_x, vect_y, vect_z)
-            return distance
+                if player:
+                    if player.get_parent():
+                        # Get bullet shape node path if it's here
+                        if ('BS' in player.get_parent().get_name()
+                                and 'BS' in actor.get_parent().get_name()):
+                            vect_x = player.get_parent().get_x() - actor.get_parent().get_x()
+                            vect_y = player.get_parent().get_y() - actor.get_parent().get_y()
+                            vect_z = player.get_parent().get_z() - actor.get_parent().get_z()
+                        elif ('BS' not in player.get_parent().get_name()
+                              and 'BS' not in actor.get_parent().get_name()):
+                            vect_x = player.get_x() - actor.get_x()
+                            vect_y = player.get_y() - actor.get_y()
+                            vect_z = player.get_z() - actor.get_z()
+                        """distance["vector"] = (round(vect_x, 1),
+                                              round(vect_y, 1),
+                                              round(vect_z, 1))"""
+                        distance["vector"] = Vec3(vect_x, vect_y, vect_z)
+                        return distance
 
     def set_textures_srgb(self, bool):
         """ Function    : set_textures_srgb

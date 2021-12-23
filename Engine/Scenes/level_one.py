@@ -46,7 +46,7 @@ class LevelOne:
         self.pause_game_ui = PauseMenuUI()
         self.player_state = PlayerState()
         self.physics_attr = PhysicsAttr()
-        self.ai = AI()
+        self.ai = None
         self.mouse = Mouse()
         self.base.npcs_actor_refs = {}
         self.base.npcs_actors_health = {}
@@ -83,11 +83,6 @@ class LevelOne:
             if hasattr(self.base, 'loading_is_done') and self.base.loading_is_done == 1:
                 if self.base.sound_sfx_nature.status() != self.base.sound_sfx_nature.PLAYING:
                     self.base.sound_sfx_nature.play()
-
-        if self.base.game_mode is False and self.base.menu_mode:
-            self.base.sound_sfx_nature.stop()
-            return task.done
-
         return task.cont
 
     def update_horse_trigger_task(self, task):
@@ -113,9 +108,6 @@ class LevelOne:
                                             base.player_states["horse_is_ready_to_be_used"] = True
                                         elif not base.player_states["is_mounted"] and node.get_name() == player_bs.get_name():
                                             base.player_states["horse_is_ready_to_be_used"] = True
-
-        if self.base.game_mode is False and self.base.menu_mode:
-            return task.done
 
         return task.cont
 
@@ -144,12 +136,8 @@ class LevelOne:
                 if npc_cls and npc_cls.actor:
                     name = npc_cls.actor.get_name()
                     self.base.npcs_actors_health[name] = npc_cls.npc_life_label
-
                 if self.korlan.korlan:
                     base.player_health = self.korlan.korlan_life_perc
-
-        if self.base.game_mode is False and self.base.menu_mode:
-            return task.done
 
         return task.cont
 
@@ -198,10 +186,6 @@ class LevelOne:
 
     def npc_focus_switch_task(self, task):
         self.select_by_mouse_wheel(actors=self.actors_for_focus)
-
-        if self.base.game_mode is False and self.base.menu_mode:
-            return task.done
-
         return task.cont
 
     def collect_npcs_label_nodepaths_task(self, enemies, task):
@@ -241,7 +225,6 @@ class LevelOne:
                             if hit and hit.is_active():
                                 if ("Player" in hit.get_name()
                                         and "Hips" in hit.get_name()):
-                                    # import pdb; pdb.set_trace()
                                     self.base.npcs_hits[name] = True
                                 else:
                                     self.base.npcs_hits[name] = False
@@ -251,8 +234,8 @@ class LevelOne:
                                 else:
                                     self.base.npcs_hits[name] = False
 
-        if self.base.game_mode is False and self.base.menu_mode:
-            return task.done
+        #if self.base.game_mode is False and self.base.menu_mode:
+        #    return task.done
 
         return task.cont
 
@@ -264,7 +247,10 @@ class LevelOne:
             assets = self.base.assets_collector()
             self.assets = assets
 
-            # remove HUD elements
+            # Stop sounds
+            self.base.sound_sfx_nature.stop()
+
+            # Remove HUD elements
             if hasattr(base, "hud") and base.hud:
                 base.hud.clear_aim_cursor()
                 base.hud.clear_day_hud()
@@ -305,8 +291,27 @@ class LevelOne:
                         render.find("**/StateInitializer").remove_node()
                         render.find("**/StateInitializer").clear()
 
+            # Unload AI
+            if self.ai and self.ai.ai_world:
+                taskMgr.remove("keep_actor_pitch_task")
+                taskMgr.remove("npc_distance_calculate_task")
+                taskMgr.remove("update_npc_states_task")
+                taskMgr.remove("update_pathfinding_task")
+                taskMgr.remove("npc_focus_switch_task")
+                taskMgr.remove("hitbox_handling_task")
+                taskMgr.remove("collect_npcs_label_nodepaths_task")
+                taskMgr.remove("update_ai_world")
+
+                for key in level_npc_assets['class']:
+                    self.ai.ai_world.removeAiChar(key)
+
+                self.ai.ai_char = None
+                self.ai.ai_chars = {}
+
             # Player and actor cleanup
             if self.korlan.korlan:
+                taskMgr.remove("collect_actors_health_task")
+                taskMgr.remove("update_horse_trigger_task")
                 self.korlan.korlan.delete()
                 self.korlan.korlan.cleanup()
 
@@ -539,9 +544,11 @@ class LevelOne:
         self.physics_attr.set_physics_world(assets=level_assets_joined)
 
         if self.game_settings['Debug']['set_editor_mode'] == 'NO':
-            """self.ai.set_ai_world(assets=level_assets_joined,
+            if not self.ai:
+                self.ai = AI(world_np)
+            self.ai.set_ai_world(assets=level_assets_joined,
                                  npcs_fsm_states=self.npcs_fsm_states,
-                                 lvl_name="lvl_one")"""
+                                 lvl_name="lvl_one")
 
         taskMgr.add(self.env_probe_task,
                     "env_probe_task",

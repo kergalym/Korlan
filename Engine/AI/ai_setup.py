@@ -11,13 +11,11 @@ from Engine.Dialogs import dialogs_multi_lng
 
 
 class AI:
-    def __init__(self):
+    def __init__(self, world):
         self.base = base
         self.render = render
         self.taskMgr = taskMgr
-        world = render.find("**/World")
-        if world:
-            self.ai_world = AIWorld(world)
+        self.ai_world = AIWorld(world)
         self.player_fsm = PlayerFSM()
         self.npc_fsm = NpcFSM()
         self.npc_ai = NpcsAI()
@@ -48,15 +46,13 @@ class AI:
     def keep_actor_pitch_task(self, task):
         # Fix me: Dirty hack for path finding issue
         # when actor's pitch changes for reasons unknown for me xD
+
         if hasattr(self.base, "npcs_actor_refs") and base.npcs_actor_refs:
             for actor in base.npcs_actor_refs:
                 if not base.npcs_actor_refs[actor].is_empty():
                     # Prevent pitch changing
                     base.npcs_actor_refs[actor].set_p(0)
                     base.npcs_actor_refs[actor].get_parent().set_p(0)
-
-        if self.base.game_mode is False and self.base.menu_mode:
-            return task.done
 
         return task.cont
 
@@ -89,9 +85,6 @@ class AI:
 
             return task.done
 
-        if self.base.game_mode is False and self.base.menu_mode:
-            return task.done
-
     def update_ai_world_task(self, task):
         if self.ai_world:
             # Oh... Workaround for evil assertion error, again!
@@ -100,13 +93,6 @@ class AI:
             except AssertionError:
                 # self.ai_world.update()
                 pass
-
-            # Debug: delete soon
-            # self.ai_world.print_list()
-
-        if base.game_mode is False and base.menu_mode:
-            return task.done
-
         return task.cont
 
     def update_npc_states_task(self, task):
@@ -150,10 +136,6 @@ class AI:
                                                     npcs_fsm_states=self.npcs_fsm_states,
                                                     near_npc=self.near_npc,
                                                     passive=False)
-
-        if base.game_mode is False and base.menu_mode:
-            return task.done
-
         return task.cont
 
     def set_weather(self, weather):
@@ -180,7 +162,7 @@ class AI:
 
             Return      : None
         """
-        if hasattr(base, "physics_is_active") and self.base.physics_is_active == 1:
+        if hasattr(base, "physics_is_active") and self.base.physics_is_active == 1 and self.base.ai_is_active == 0:
             if (assets and isinstance(assets, dict)
                     and npcs_fsm_states
                     and isinstance(npcs_fsm_states, dict)
@@ -206,7 +188,7 @@ class AI:
 
                     self.player = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
 
-                    if self.player:
+                    if self.player and self.ai_world:
                         for actor_cls in assets["class"]:
                             if actor_cls:
                                 if "env" in actor_cls:
@@ -227,16 +209,18 @@ class AI:
                                             self.npc_fsm.npcs_names.append(actor.get_name())
 
                                         self.ai_char = AICharacter(actor_cls, actor, 100, 0.05, speed)
-                                        self.ai_world.add_ai_char(self.ai_char)
 
                                         child_name = actor.get_child(0).get_name()
                                         self.ai_chars[child_name] = self.ai_char
+
+                                        self.ai_world.add_ai_char(self.ai_char)
+
                                         self.ai_behaviors[child_name] = self.ai_char.get_ai_behaviors()
                                         self.ai_behaviors[child_name].init_path_find(self.navmeshes[lvl_name])
 
-                                        for i in render.findAllMatches("**/*:BS"):
-                                            if not render.find("**/*:BS").is_empty():
-                                                node = render.find("**/*:BS")
+                                        for i in render.findAllMatches("**/World/*:BS"):
+                                            if not render.find("**/World/*:BS").is_empty():
+                                                node = render.find("**/World/*:BS")
                                                 if "NPC" not in node.get_name():
                                                     self.ai_behaviors[child_name].add_static_obstacle(node)
 
@@ -263,6 +247,8 @@ class AI:
                                     extraArgs=[self.player],
                                     appendTask=True)
 
+                        self.base.ai_is_active = 1
+
                         return task.done
 
         return task.cont
@@ -284,5 +270,3 @@ class AI:
                     "set_ai_world_task",
                     extraArgs=[assets, npcs_fsm_states, lvl_name],
                     appendTask=True)
-
-        self.base.ai_is_active = 1
