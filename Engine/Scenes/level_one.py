@@ -544,6 +544,7 @@ class LevelOne:
         self.physics_attr.set_physics_world(assets=level_assets_joined)
 
         if self.game_settings['Debug']['set_editor_mode'] == 'NO':
+            # To avoid nullptr assertion error initialize AI World only if it has not been initialized yet
             if not self.ai:
                 self.ai = AI(world_np)
             self.ai.set_ai_world(assets=level_assets_joined,
