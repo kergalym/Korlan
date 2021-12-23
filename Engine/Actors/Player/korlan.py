@@ -189,7 +189,7 @@ class Korlan:
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 self.korlan.set_transparency(True)
 
-                self.korlan.reparent_to(self.base.lod_np)
+                self.korlan.reparent_to(render)
                 self.base.lod.addSwitch(50.0, 0.0)
 
                 # self.base.set_textures_srgb(True)

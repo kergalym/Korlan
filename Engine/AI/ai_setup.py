@@ -15,7 +15,9 @@ class AI:
         self.base = base
         self.render = render
         self.taskMgr = taskMgr
-        self.ai_world = AIWorld(render)
+        world = render.find("**/World")
+        if world:
+            self.ai_world = AIWorld(world)
         self.player_fsm = PlayerFSM()
         self.npc_fsm = NpcFSM()
         self.npc_ai = NpcsAI()

@@ -79,10 +79,12 @@ class SceneOne:
             # Load the scene.
             scene = await self.base.loader.load_model(path, blocking=False)
             scene.set_name(name)
-            scene.reparent_to(self.render)
-            scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
-            scene.set_pos(pos_x, pos_y, pos_z)
-            scene.set_hpr(scene, rot_h, 0, 0)
+            world = render.find("**/World")
+            if world:
+                scene.reparent_to(world)
+                scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
+                scene.set_pos(pos_x, pos_y, pos_z)
+                scene.set_hpr(scene, rot_h, 0, 0)
 
             if self.game_settings['Main']['postprocessing'] == 'on':
                 self.render_attr.render_pipeline.prepare_scene(scene)
@@ -142,7 +144,7 @@ class SceneOne:
             coll_scene.set_name(coll_scene_name)
 
             coll_scene_np = NodePath("Collisions")
-            coll_scene_np.reparent_to(render)
+            coll_scene_np.reparent_to(world)
 
             coll_scene.reparent_to(coll_scene_np)
 

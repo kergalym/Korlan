@@ -313,11 +313,6 @@ class Actions:
                     self.player_tengri_action(player, "tengri", anims, "PickingUp")
                     self.player_umai_action(player, "umai", anims, "PickingUp")
 
-        # If player has the bullet shape
-        if not self.player_bs:
-            if "Player:BS" in player.get_parent().get_name():
-                self.player_bs = player.get_parent()
-
         if self.base.game_mode is False and self.base.menu_mode:
             return task.done
 

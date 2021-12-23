@@ -115,41 +115,43 @@ class PhysicsAttr:
         """
         self.base.physics_is_active = 0
 
-        # Show a visual representation of the collisions occuring
-        self.debug_nodepath = self.render.attach_new_node(BulletDebugNode('Debug'))
+        world = render.find("**/World")
+        if world:
+            # Show a visual representation of the collisions occuring
+            self.debug_nodepath = world.attach_new_node(BulletDebugNode('Debug'))
 
-        base.accept("f1", self.toggle_physics_debug)
+            base.accept("f1", self.toggle_physics_debug)
 
-        self.world = BulletWorld()
-        self.world.set_gravity(Vec3(0, 0, -9.81))
+            self.world = BulletWorld()
+            self.world.set_gravity(Vec3(0, 0, -9.81))
 
-        if self.game_settings['Debug']['set_debug_mode'] == "NO":
-            if hasattr(self.debug_nodepath, "node"):
-                self.world.set_debug_node(self.debug_nodepath.node())
+            if self.game_settings['Debug']['set_debug_mode'] == "NO":
+                if hasattr(self.debug_nodepath, "node"):
+                    self.world.set_debug_node(self.debug_nodepath.node())
 
-        ground_shape = BulletPlaneShape(Vec3(0, 0, 1), 0)
-        ground_nodepath = self.render.attachNewNode(BulletRigidBodyNode('Ground'))
-        ground_nodepath.node().addShape(ground_shape)
-        ground_nodepath.set_pos(0, 0, 0.10)
-        ground_nodepath.node().set_into_collide_mask(self.mask)
-        self.world.attach_rigid_body(ground_nodepath.node())
+            ground_shape = BulletPlaneShape(Vec3(0, 0, 1), 0)
+            ground_nodepath = world.attachNewNode(BulletRigidBodyNode('Ground'))
+            ground_nodepath.node().addShape(ground_shape)
+            ground_nodepath.set_pos(0, 0, 0.10)
+            ground_nodepath.node().set_into_collide_mask(self.mask)
+            self.world.attach_rigid_body(ground_nodepath.node())
 
-        # Disable colliding
-        self.world.set_group_collision_flag(0, 0, False)
-        # Enable colliding: player (0), static (1) and npc (2)
-        self.world.set_group_collision_flag(0, 1, True)
-        self.world.set_group_collision_flag(0, 2, True)
+            # Disable colliding
+            self.world.set_group_collision_flag(0, 0, False)
+            # Enable colliding: player (0), static (1) and npc (2)
+            self.world.set_group_collision_flag(0, 1, True)
+            self.world.set_group_collision_flag(0, 2, True)
 
-        taskMgr.add(self.add_asset_collision_task,
-                    "add_asset_collision_task",
-                    extraArgs=[assets],
-                    appendTask=True)
+            taskMgr.add(self.add_asset_collision_task,
+                        "add_asset_collision_task",
+                        extraArgs=[assets],
+                        appendTask=True)
 
-        taskMgr.add(self.update_physics_task,
-                    "update_physics_task",
-                    appendTask=True)
+            taskMgr.add(self.update_physics_task,
+                        "update_physics_task",
+                        appendTask=True)
 
-        self.base.physics_is_active = 1
+            self.base.physics_is_active = 1
 
     def toggle_physics_debug(self):
         if self.debug_nodepath:
@@ -259,10 +261,12 @@ class PhysicsAttr:
                     actor_node = BulletCharacterControllerNode(actor_bs,
                                                                0.4,
                                                                col_name)
-                    actor_bs_np = render.attach_new_node(actor_node)
-                    actor_bs_np.set_collide_mask(mask)
-                    self.world.attach(actor_node)
-                    actor.reparent_to(actor_bs_np)
+                    world = render.find("**/World")
+                    if world:
+                        actor_bs_np = world.attach_new_node(actor_node)
+                        actor_bs_np.set_collide_mask(mask)
+                        self.world.attach(actor_node)
+                        actor.reparent_to(actor_bs_np)
                 # Set actor down to make it
                 # at the same point as bullet shape
                 actor.set_z(-1)

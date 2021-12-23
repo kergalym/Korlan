@@ -60,11 +60,6 @@ class LevelOne:
         self.assets = None
         self.envprobe = None
 
-        self.base.lod = LODNode('LOD')
-        self.base.lod_np = NodePath(self.base.lod)
-        self.base.lod_np.reparentTo(render)
-        self.base.lod.addSwitch(500.0, 0.0)
-
     def env_probe_task(self, task):
         if (hasattr(self.base, "physics_is_active")
                 and self.base.physics_is_active == 1 and
@@ -321,11 +316,10 @@ class LevelOne:
                     npc_cls.actor.delete()
                     npc_cls.actor.cleanup()
 
-            # use pattern to remove nodes corresponding to asset names
-            for i in render.findAllMatches("**/*:BS"):
-                if not render.find("**/*:BS").is_empty():
-                    render.find("**/*:BS").remove_node()
-                    render.find("**/*:BS").clear()
+            # Clean Level World
+            if render.find("**/World"):
+                render.find("**/World").remove_node()
+                render.find("**/World").clear()
 
             for key in assets:
                 self.loader.unload_model(assets[key])
@@ -381,11 +375,10 @@ class LevelOne:
                 npc_cls.actor.delete()
                 npc_cls.actor.cleanup()
 
-        # use pattern to remove nodes corresponding to asset names
-        for i in render.findAllMatches("**/*:BS"):
-            if not render.find("**/*:BS").is_empty():
-                render.find("**/*:BS").remove_node()
-                render.find("**/*:BS").clear()
+        # Clean Level World
+        if render.find("**/World"):
+            render.find("**/World").remove_node()
+            render.find("**/World").clear()
 
         for key in assets:
             self.loader.unload_model(assets[key])
@@ -411,6 +404,14 @@ class LevelOne:
         self.base.accept("escape", self.pause_game_ui.load_pause_menu)
 
         """ Set Time of Day """
+
+        world_np = NodePath("World")
+        world_np.reparent_to(render)
+
+        self.base.lod = LODNode('LOD')
+        self.base.lod_np = NodePath(self.base.lod)
+        self.base.lod_np.reparentTo(world_np)
+        self.base.lod.addSwitch(500.0, 0.0)
 
         self.render_attr.set_time_of_day(duration=1800)  # 1800 sec == 30 min
         taskMgr.add(self.render_attr.set_time_of_day_clock_task,
