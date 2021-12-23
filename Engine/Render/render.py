@@ -769,8 +769,8 @@ class RenderAttr:
                             light = base.rp_lights["inventory"]
                         light.pos = (pos[0], pos[1], pos[2])
                         light.color = (color[0], color[0], color[0])
-                        light.set_color_from_temperature(6000.0)
-                        light.energy = 200
+                        light.set_color_from_temperature(5000.0)
+                        light.energy = 180
                         light.ies_profile = self.render_pipeline.load_ies_profile("x_arrow.ies")
                         light.casts_shadows = True
                         light.shadow_map_resolution = 512
@@ -786,7 +786,7 @@ class RenderAttr:
                             light = base.rp_lights["inventory"]
                         light.pos = (pos[0], pos[1], pos[2])
                         light.color = (color[0], color[0], color[0])
-                        light.set_color_from_temperature(6000.0)
+                        light.set_color_from_temperature(5000.0)
                         light.energy = 100.0
                         light.ies_profile = self.render_pipeline.load_ies_profile("x_arrow.ies")
                         light.casts_shadows = True

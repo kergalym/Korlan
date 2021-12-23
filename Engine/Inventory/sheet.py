@@ -595,8 +595,8 @@ class Sheet(Inventory):
                 if self.game_settings['Main']['postprocessing'] == 'on':
                     # set character view
                     player_pos = player.get_pos()
-                    base.camera.set_x(player_pos[0] + -0.9)
-                    base.camera.set_y(player_pos[1] + -4)
+                    base.camera.set_x(player_pos[0] + -1.3)
+                    base.camera.set_y(player_pos[1] + -5.5)
                     base.camera.set_z(player_pos[2] + 0.7)
                 else:
                     # set character view
@@ -622,7 +622,6 @@ class Sheet(Inventory):
                             bg_black.set_pos(0, 0, 0)
                             bg_black.set_h(player_bs.get_h())
                             bg_black.set_two_sided(True)
-                            # bg_black.hide()
                 else:
                     if render.find("**/bg_black_char_sheet"):
                         bg_black = render.find("**/bg_black_char_sheet")
@@ -644,16 +643,16 @@ class Sheet(Inventory):
                     player_bs.set_h(0)
 
                     if self.game_settings['Main']['postprocessing'] == 'on':
-                        light_pos = [player_bs.get_x(), player_bs.get_y() - 4.0, 7.0]
+                        light_pos = [player_bs.get_x(), player_bs.get_y() - 4.0, 8.0]
                         self.render_attr.set_inv_lighting(name='slight',
                                                           render=render,
                                                           pos=light_pos,
                                                           hpr=[0, 0.4, -1],
-                                                          color=[1.0],
+                                                          color=[2.0],
                                                           task="attach")
                         self.render_attr.render_pipeline.prepare_scene(bg_black)
                     else:
-                        light_pos = [player_bs.get_x(), player_bs.get_y(), player_bs.get_z() + 0.7]
+                        light_pos = [player_bs.get_x(), player_bs.get_y() - 3.0, player_bs.get_z() + 0.8]
                         self.render_attr.set_inv_lighting(name='slight',
                                                           render=render,
                                                           pos=light_pos,
