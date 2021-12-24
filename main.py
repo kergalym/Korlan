@@ -2,7 +2,7 @@
 
 import logging
 import re
-import json
+import time
 import configparser
 from shutil import rmtree
 from sys import exit as sys_exit
@@ -546,6 +546,7 @@ class Main(ShowBase):
             try:
                 self.game_settings.read("{0}/{1}".format(self.game_cfg_dir,
                                                          self.game_settings_filename))
+                return True
             except configparser.MissingSectionHeaderError:
                 sys_exit("\nFile contains no section headers. I'm bumping file again...")
                 sys_exit("\nFile: {0}/{1}".format(self.game_cfg_dir,
@@ -554,6 +555,7 @@ class Main(ShowBase):
         else:
             try:
                 self.game_settings.read("{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename))
+                return True
             except configparser.MissingSectionHeaderError:
                 sys_exit("\nFile contains no section headers. I'm bumping file again...")
                 sys_exit("\nFile: {0}/{1}".format(self.game_cfg_dir, self.game_settings_filename))
