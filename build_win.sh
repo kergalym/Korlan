@@ -1,8 +1,8 @@
 #!/bin/bash
-cp requirements_lin.txt requirements.txt
+cp requirements_win.txt requirements.txt
 . venv3*/bin/activate
-python3 setup_lin.py build_apps # bdist_apps
-cd build/manylinux1_x86_64/
+python3 setup_win.py build_apps # bdist_apps
+cd build/win_amd64/
 multify -cv -f GameData.mf Assets Settings Engine
 deactivate
 
@@ -22,9 +22,9 @@ rm -rf Settings
 
 cd ../../
 
-cp -r build/manylinux1_x86_64 dist/Korlan
+cp -r build/win_amd64 dist/Korlan
 cd dist
-tar czf Korlan_Game_manylinux1_x86_64.tar.gz Korlan
+zip -r Korlan_Game_win_amd64.zip Korlan
 rm -rf Korlan
 
 cd ../../../
