@@ -29,8 +29,7 @@ class SceneOne:
         self.game_cfg = base.game_cfg
         self.game_cfg_dir = base.game_cfg_dir
         self.game_settings_filename = base.game_settings_filename
-        self.cfg_path = {"game_config_path": "{0}/{1}".format(self.game_cfg_dir,
-                                                              self.game_settings_filename)}
+        self.cfg_path = self.game_cfg
 
     def set_env(self, cloud_dimensions, cloud_speed, cloud_size, cloud_count, cloud_color):
         if self.game_settings['Main']['postprocessing'] == 'off':

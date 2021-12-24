@@ -60,18 +60,11 @@ class Sheet(Inventory):
         self.lbl_scale = .03
         self.btn_scale = .03
 
-        if exists(self.configs['cfg_path']):
-            with open(self.configs['cfg_path']) as json_file:
-                self.json = json.load(json_file)
-
-        self.language = None
-        if self.json["game_config_path"]:
-            self.cfg_path = self.json["game_config_path"]
-
-            if exists(self.cfg_path):
-                lng_to_load = self.m_settings.input_validate(self.cfg_path, 'lng')
-                with open(self.lng_configs['lg_{0}'.format(lng_to_load)], 'r') as json_file:
-                    self.language = json.load(json_file)
+        self.cfg_path = self.base.game_cfg
+        if exists(self.cfg_path):
+            lng_to_load = self.m_settings.input_validate(self.cfg_path, 'lng')
+            with open(self.lng_configs['lg_{0}'.format(lng_to_load)], 'r') as json_file:
+                self.language = json.load(json_file)
 
         """ Frames, Buttons & Fonts"""
         self.menu_font = self.fonts['OpenSans-Regular']

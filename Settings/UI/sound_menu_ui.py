@@ -19,9 +19,8 @@ class SoundMenuUI(Sound):
         Sound.__init__(self)
         self.base = base
         self.game_dir = base.game_dir
-        self.images = base.textures_collector(path="{0}/Settings/UI".format(self.game_dir))
+        self.images = base.textures_collector(path="Settings/UI")
         self.fonts = base.fonts_collector()
-        self.configs = base.cfg_collector(path="{0}/Settings/UI".format(self.game_dir))
         self.lng_configs = base.cfg_collector(path="{0}/Configs/Language/".format(self.game_dir))
         self.json = json
         self.pos_X = 0
@@ -92,23 +91,11 @@ class SoundMenuUI(Sound):
         self.logging = logging
         self.logging.basicConfig(filename="{0}/critical.log".format(Path.home()), level=logging.CRITICAL)
 
-        self.menu_font = None
-
-        self.cfg_path = None
-
-        if exists(self.configs['cfg_path']):
-            with open(self.configs['cfg_path']) as json_file:
-                self.json = json.load(json_file)
-
-        self.language = None
-
-        if self.json["game_config_path"]:
-            self.cfg_path = self.json["game_config_path"]
-
-            if exists(self.cfg_path):
-                lng_to_load = self.m_settings.input_validate(self.cfg_path, 'lng')
-                with open(self.lng_configs['lg_{0}'.format(lng_to_load)], 'r') as json_file:
-                    self.language = json.load(json_file)
+        self.cfg_path = self.base.game_cfg
+        if exists(self.cfg_path):
+            lng_to_load = self.m_settings.input_validate(self.cfg_path, 'lng')
+            with open(self.lng_configs['lg_{0}'.format(lng_to_load)], 'r') as json_file:
+                self.language = json.load(json_file)
 
         """ Buttons & Fonts"""
         self.menu_font = self.fonts['OpenSans-Regular']

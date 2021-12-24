@@ -10,6 +10,13 @@ from os import name as os_name
 from os import mkdir, listdir, walk
 from os.path import isdir, isfile, exists
 
+from direct.stdpy.file import exists as vfs_exists
+from direct.stdpy.file import isdir as vfs_isdir
+from direct.stdpy.file import isfile as vfs_isfile
+from direct.stdpy.file import listdir as vfs_listdir
+from direct.stdpy.file import open as vfs_open
+from direct.stdpy.file import walk as vfs_walk
+
 import panda3d.core as p3d
 from direct.gui.OnscreenImage import OnscreenImage
 from direct.gui.OnscreenText import OnscreenText
@@ -26,6 +33,10 @@ from panda3d.core import TextNode
 from panda3d.core import FontPool
 from pathlib import Path, PurePath
 
+from panda3d.core import VirtualFileSystem
+from panda3d.core import Multifile
+from panda3d.core import Filename
+
 from Engine.Actors.Player.korlan import Korlan
 from Engine.Scenes.scene import SceneOne
 from Engine.Render.render import RenderAttr
@@ -40,7 +51,17 @@ from Engine.Render.rpcore.render_pipeline import RenderPipeline
 from Engine.Render.rpcore.util.movement_controller import MovementController
 import importlib
 
-build_info_txt = "Build 0.3. 10/2021"
+cfg_is_broken = False
+mf = Multifile()
+if exists("GameData.mf"):
+    mf.openRead("GameData.mf")
+    vfs = VirtualFileSystem.getGlobalPtr()
+    if vfs.mount(mf, ".", VirtualFileSystem.MFReadOnly):
+        print('Multifile is mounted to VFS \n')
+else:
+    cfg_is_broken = True
+
+build_info_txt = "Build 0.4. 12/2021"
 
 game_settings = configparser.ConfigParser()
 game_settings['Main'] = {'disp_res': '1920x1080',
@@ -91,7 +112,9 @@ game_settings['Debug'] = {'set_debug_mode': 'NO',
                           'player_rot_r': '-0.0'
                           }
 
+game_dir = str(Path.cwd())
 game_cfg = '{0}/Korlan - Daughter of the Steppes/settings.ini'.format(str(Path.home()))
+
 game_settings.read(game_cfg)
 disp_res = game_settings['Main']['disp_res']
 disp_res = disp_res.split("x")
@@ -130,7 +153,7 @@ p3d.load_prc_file_data(
     'sync-video 1\n'
     'show-frame-rate-meter  t\n'
     'audio-library-name p3openal_audio\n'
-    'model-cache-dir Cache\n'
+    'model-cache-dir /tmp/Cache\n'
     'model-cache-textures t\n'
     'compressed-textures 0\n'
     'bullet-filter-algorithm groups-mask\n'
@@ -147,30 +170,24 @@ p3d.load_prc_file_data(
     'want-pstats {0}\n'.format(want_pstats_value)
 )
 
-game_dir = str(Path.cwd())
-cfg_is_broken = False
 cfg_name = None
-if not exists('{0}/Engine/Render/config/plugins_def.yaml'.format(game_dir)):
+if not vfs_exists('Engine/Render/config/plugins_def.yaml'):
     cfg_is_broken = True
-    cfg_name = "YOUR_GAME/Engine/Render/config/plugins_def.yaml"
 else:
-    with open("{0}/Engine/Render/config/plugins_def.yaml".format(game_dir), 'r') as f:
+    with vfs_open("Engine/Render/config/plugins_def.yaml", 'r') as f:
         config = f.read()
         if not config:
             cfg_is_broken = True
-            cfg_name = "YOUR_GAME/Engine/Render/config/plugins_def.yaml"
         else:
             f.close()
 
-if not exists('{0}/Engine/Render/config/plugins.yaml'.format(game_dir)):
+if not vfs_exists('Engine/Render/config/plugins.yaml'):
     cfg_is_broken = True
-    cfg_name = "YOUR_GAME/Engine/Render/config/plugins.yaml"
 else:
-    with open("{0}/Engine/Render/config/plugins.yaml".format(game_dir), 'r') as f:
+    with vfs_open("Engine/Render/config/plugins.yaml", 'r') as f:
         config = f.read()
         if not config:
             cfg_is_broken = True
-            cfg_name = "YOUR_GAME/Engine/Render/config/plugins.yaml"
         else:
             f.close()
 
@@ -186,7 +203,7 @@ class Error(ShowBase):
         self.props.set_cursor_hidden(True)
         self.win.request_properties(self.props)
         self.game_dir = str(Path.cwd())
-        self.images = self.textures_collector(path="{0}/Settings/UI".format(self.game_dir))
+        self.images = self.textures_collector(path="Settings/UI")
         self.fonts = self.fonts_collector()
         # instance of the abstract class
         self.font = FontPool
@@ -211,14 +228,14 @@ class Error(ShowBase):
                                       mayChange=True)
 
         self.title_sm_msg = OnscreenText(text="",
-                                         pos=(-1.8, -0.9),
-                                         scale=0.03,
+                                         pos=(-1.8, -0.8),
+                                         scale=0.04,
                                          fg=(255, 255, 255, 0.9),
                                          font=self.font.load_font(self.menu_font),
                                          align=TextNode.ALeft,
                                          mayChange=True)
         self.title_msg.setText("Hey, samurai. Your game is broken. Fix and come back")
-        self.title_sm_msg.setText("RenderPipeline plugins configuration is broken:\n{}".format(cfg_name))
+        self.title_sm_msg.setText("I unable to find and load GameData.mf :(\n")
 
     def video_status_task(self, media, type, file, task):
         """ Function    : video_status_task
@@ -276,11 +293,10 @@ class Error(ShowBase):
 
             Return      : Dictionary
         """
-        font_path = self.transform_path(path="{0}/Settings/UI".format(self.game_dir),
-                                        style='compat')
+        font_path = "Settings/UI"
         fonts = {}
-        if exists(font_path):
-            for root, dirs, files in walk(font_path, topdown=True):
+        if vfs_exists(font_path):
+            for root, dirs, files in vfs_walk(font_path, topdown=True):
                 for file in files:
                     if file.endswith(".ttf"):
                         key = re.sub('.ttf$', '', file)
@@ -299,10 +315,9 @@ class Error(ShowBase):
 
             Return      : Dictionary
         """
-        tex_path = self.transform_path(path=path, style='compat')
         textures = {}
-        if exists(tex_path):
-            for root, dirs, files in walk(tex_path, topdown=True):
+        if vfs_exists(path):
+            for root, dirs, files in vfs_walk(path, topdown=True):
                 for file in files:
                     if file.endswith(".png"):
                         key = re.sub('.png$', '', file)
@@ -325,10 +340,10 @@ class Error(ShowBase):
 
             Return      : Dictionary
         """
-        sound_path = self.transform_path(path="{0}/Assets/Videos/".format(self.game_dir), style='compat')
+        path = "Assets/Videos/"
         videos = {}
-        if exists(sound_path):
-            for root, dirs, files in walk(sound_path, topdown=True):
+        if vfs_exists(path):
+            for root, dirs, files in vfs_walk(path, topdown=True):
                 for file in files:
                     if file.endswith(".mkv"):
                         key = re.sub('.mkv$', '', file)
@@ -471,7 +486,7 @@ class Main(ShowBase):
             self.controller.setup()
 
         # Construct and create the pipeline
-        render_bg_tex = self.textures_collector('{0}/Engine/Render'.format(self.game_dir))
+        render_bg_tex = self.textures_collector('Engine/Render')
         if self.game_settings['Main']['postprocessing'] == 'on':
             self.render_pipeline = RenderPipeline()
             self.render_pipeline.set_loading_screen_image(render_bg_tex['background'])
@@ -525,45 +540,31 @@ class Main(ShowBase):
 
             Return      : Boolean
         """
-        if exists('{0}/Settings/UI/cfg_path.json'.format(self.game_dir)):
-            self.cfg_path = json.dumps({'game_config_path': '{0}/{1}'.format(
-                self.game_cfg_dir,
-                self.game_settings_filename),
-                'game_dir': '{0}'.format(self.game_dir)})
-            with open('{0}/Settings/UI/cfg_path.json'.format(self.game_dir), 'w') as f:
-                f.write(str(self.cfg_path))
-            if not exists("{0}/{1}".format(self.game_cfg_dir,
-                                           self.game_settings_filename)):
-                self.do_cfg()
-                if (isfile('{0}/Settings/UI/cfg_path.json'.format(self.game_dir)) and
-                        isfile("{0}/{1}".format(self.game_cfg_dir,
-                                                self.game_settings_filename))):
-                    with open('{0}/Settings/UI/cfg_path.json'.format(self.game_dir), 'w') as f:
-                        f.write(str(self.cfg_path))
-                    try:
-                        self.game_settings.read("{0}/{1}".format(self.game_cfg_dir,
-                                                                 self.game_settings_filename))
-                    except configparser.MissingSectionHeaderError:
-                        sys_exit("\nFile contains no section headers. I'm bumping file again...")
-                        sys_exit("\nFile: {0}/{1}".format(self.game_cfg_dir,
-                                                          self.game_settings_filename))
-                        self.force_do_cfg()
-            else:
-                try:
-                    self.game_settings.read("{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename))
-                except configparser.MissingSectionHeaderError:
-                    sys_exit("\nFile contains no section headers. I'm bumping file again...")
-                    sys_exit("\nFile: {0}/{1}".format(self.game_cfg_dir, self.game_settings_filename))
-                    self.force_do_cfg()
-            if isdir(self.game_dir) is False:
-                mkdir(self.game_dir)
-                self.do_cfg()
-                return True
-            else:
-                self.do_cfg()
-                return True
+        if not exists("{0}/{1}".format(self.game_cfg_dir,
+                                       self.game_settings_filename)):
+            self.do_cfg()
+            try:
+                self.game_settings.read("{0}/{1}".format(self.game_cfg_dir,
+                                                         self.game_settings_filename))
+            except configparser.MissingSectionHeaderError:
+                sys_exit("\nFile contains no section headers. I'm bumping file again...")
+                sys_exit("\nFile: {0}/{1}".format(self.game_cfg_dir,
+                                                  self.game_settings_filename))
+                self.force_do_cfg()
         else:
-            sys_exit("\nGame data is broken. Please, reinstall it")
+            try:
+                self.game_settings.read("{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename))
+            except configparser.MissingSectionHeaderError:
+                sys_exit("\nFile contains no section headers. I'm bumping file again...")
+                sys_exit("\nFile: {0}/{1}".format(self.game_cfg_dir, self.game_settings_filename))
+                self.force_do_cfg()
+            if isdir(self.game_cfg_dir) is False:
+                mkdir(self.game_cfg_dir)
+                self.do_cfg()
+                return True
+            else:
+                self.do_cfg()
+                return True
 
     def do_cfg(self):
         """ Function    : do_cfg
@@ -627,17 +628,16 @@ class Main(ShowBase):
 
             Return      : Dictionary
         """
-        asset_path = self.transform_path(path="{0}/Assets".format(self.game_dir),
-                                         style='compat')
+        asset_path = "Assets"
         assets = {}
         exclude_anims = 'Animations'
         exclude_tex = 'tex'
-        if not exists(asset_path):
+        if not vfs_exists(asset_path):
             logging.critical("\nI'm trying to load assets, but there aren't suitable assets. "
                              "\nCurrent path: {0}".format(asset_path))
             sys_exit("\nSomething is getting wrong. Please, check the game log first")
 
-        for root, dirs, files in walk(asset_path, topdown=True):
+        for root, dirs, files in vfs_walk(asset_path, topdown=True):
             if exclude_anims in dirs:
                 dirs.remove(exclude_anims)
             if exclude_tex in dirs:
@@ -667,12 +667,12 @@ class Main(ShowBase):
 
             Return      : List
         """
-        anims_path = self.transform_path(path="{0}/Assets/Animations".format(self.game_dir), style='compat')
-        collected = listdir(anims_path)
+        anims_path = "Assets/Animations"
+        collected = vfs_listdir(anims_path)
         path = {}
         anims = {}
 
-        if not exists(anims_path):
+        if not vfs_exists(anims_path):
             logging.critical("\nI'm trying to load assets, but there aren't suitable assets. "
                              "\nCurrent path: {0}".format(anims_path))
             sys_exit("\nSomething is getting wrong. Please, check the game log first")
@@ -705,17 +705,16 @@ class Main(ShowBase):
 
             Return      : Dictionary
         """
-        asset_coll_path = self.transform_path(path="{0}/Assets/Colliders".format(self.game_dir),
-                                              style='compat')
+        asset_coll_path = "Assets/Colliders"
         asset_colls = {}
         exclude_anims = 'Animations'
         exclude_tex = 'tex'
-        if not exists(asset_coll_path):
+        if not vfs_exists(asset_coll_path):
             logging.critical("\nI'm trying to load assets, but there aren't suitable assets. "
                              "\nCurrent path: {0}".format(asset_coll_path))
             sys_exit("\nSomething is getting wrong. Please, check the game log first")
 
-        for root, dirs, files in walk(asset_coll_path, topdown=True):
+        for root, dirs, files in vfs_walk(asset_coll_path, topdown=True):
             if exclude_anims in dirs:
                 dirs.remove(exclude_anims)
             if exclude_tex in dirs:
@@ -909,11 +908,10 @@ class Main(ShowBase):
 
             Return      : Dictionary
         """
-        font_path = self.transform_path(path="{0}/Settings/UI".format(self.game_dir),
-                                        style='compat')
+        font_path = "Settings/UI"
         fonts = {}
-        if exists(font_path):
-            for root, dirs, files in walk(font_path, topdown=True):
+        if vfs_exists(font_path):
+            for root, dirs, files in vfs_walk(font_path, topdown=True):
                 for file in files:
                     if file.endswith(".ttf"):
                         key = re.sub('.ttf$', '', file)
@@ -932,10 +930,9 @@ class Main(ShowBase):
 
             Return      : Dictionary
         """
-        tex_path = self.transform_path(path=path, style='compat')
         textures = {}
-        if exists(tex_path):
-            for root, dirs, files in walk(tex_path, topdown=True):
+        if vfs_exists(path):
+            for root, dirs, files in vfs_walk(path, topdown=True):
                 for file in files:
                     if file.endswith(".png"):
                         key = re.sub('.png$', '', file)
@@ -958,11 +955,10 @@ class Main(ShowBase):
 
             Return      : Dictionary
         """
-        tex_path = self.transform_path(path="{0}/Settings/UI/ui_tex/menu/".format(self.game_dir),
-                                       style='compat')
+        tex_path = "Settings/UI/ui_tex/menu/"
         ui_geoms = {}
-        if exists(tex_path):
-            for root, dirs, files in walk(tex_path, topdown=True):
+        if vfs_exists(tex_path):
+            for root, dirs, files in vfs_walk(tex_path, topdown=True):
                 for file in files:
                     if file.endswith(".egg"):
                         key = re.sub('.egg$', '', file)
@@ -985,11 +981,10 @@ class Main(ShowBase):
 
             Return      : Dictionary
         """
-        raw_path = self.transform_path(path="{0}/Assets/Inventory/".format(self.game_dir),
-                                       style='compat')
+        raw_path = "Assets/Inventory/"
         inv_geoms = {}
-        if exists(raw_path):
-            for root, dirs, files in walk(raw_path, topdown=True):
+        if vfs_exists(raw_path):
+            for root, dirs, files in vfs_walk(raw_path, topdown=True):
                 for file in files:
                     if file.endswith(".png"):
                         key = re.sub('.png$', '', file)
@@ -1012,11 +1007,10 @@ class Main(ShowBase):
 
             Return      : Dictionary
         """
-        raw_path = self.transform_path(path="{0}/Assets/Inventory/".format(self.game_dir),
-                                       style='compat')
+        raw_path = "Assets/Inventory/"
         inv_geoms = {}
-        if exists(raw_path):
-            for root, dirs, files in walk(raw_path, topdown=True):
+        if vfs_exists(raw_path):
+            for root, dirs, files in vfs_walk(raw_path, topdown=True):
                 for file in files:
                     if file.endswith(".egg"):
                         key = re.sub('.egg$', '', file)
@@ -1039,10 +1033,10 @@ class Main(ShowBase):
 
             Return      : Dictionary
         """
-        sound_path = self.transform_path(path="{0}/Assets/Videos/".format(self.game_dir), style='compat')
+        path = "Assets/Videos/"
         videos = {}
-        if exists(sound_path):
-            for root, dirs, files in walk(sound_path, topdown=True):
+        if vfs_exists(path):
+            for root, dirs, files in vfs_walk(path, topdown=True):
                 for file in files:
                     if os_name == "nt":
                         if file.endswith(".ogv"):
@@ -1056,13 +1050,6 @@ class Main(ShowBase):
                             videos[key] = Filename.from_os_specific(path).getFullpath()
             return videos
 
-        """ Enable this when game will be ready for distribution
-        else:
-            logging.critical("\nI'm trying to load video assets, but there aren't suitable video assets. "
-                             "\nCurrent path: {0}".format(sound_path))
-            sys_exit("\nSomething is getting wrong. Please, check the game log first")
-        """
-
     def sounds_collector(self):
         """ Function    : sounds_collector
 
@@ -1074,25 +1061,16 @@ class Main(ShowBase):
 
             Return      : Dictionary
         """
-        sound_path = self.transform_path(path="{0}/Assets/Sounds".format(self.game_dir), style='compat')
+        sound_path = "Assets/Sounds"
         sounds = {}
-        if exists(sound_path):
-            for root, dirs, files in walk(sound_path, topdown=True):
+        if vfs_exists(sound_path):
+            for root, dirs, files in vfs_walk(sound_path, topdown=True):
                 for file in files:
                     if file.endswith(".ogg"):
                         key = re.sub('.ogg$', '', file)
                         path = str(PurePath("{0}/".format(root), file))
                         sounds[key] = Filename.from_os_specific(path).getFullpath()
             return sounds
-
-        """ Enable this when game will be ready for distribution
-        else:
-            logging.critical("\nI'm trying to load sound assets, but there aren't suitable sound assets. "
-                             "\nCurrent path: {0}".format(sound_path))
-            sys_exit("\nSomething is getting wrong. Please, check the game log first")
-        """
-
-    """ Get all assets position including their children """
 
     def asset_pos_collector(self):
         """ Function    : asset_pos_collector
@@ -1105,6 +1083,7 @@ class Main(ShowBase):
 
             Return      : Dictionary
         """
+        # Get all assets position including their children
         assets = self.asset_nodes_collector()
         items = {}
         assets_children = self.asset_node_children_collector(
@@ -1172,23 +1151,16 @@ class Main(ShowBase):
 
             Return      : Dictionary
         """
-        navmesh_path = self.transform_path(path="{0}/Assets/NavMeshes".format(self.game_dir), style='compat')
+        navmesh_path = "Assets/NavMeshes"
         navmeshes = {}
-        if exists(navmesh_path):
-            for root, dirs, files in walk(navmesh_path, topdown=True):
+        if vfs_exists(navmesh_path):
+            for root, dirs, files in vfs_walk(navmesh_path, topdown=True):
                 for file in files:
                     if file.endswith(".csv"):
                         key = re.sub('.csv$', '', file)
                         path = str(PurePath("{0}/".format(root), file))
                         navmeshes[key] = Filename.from_os_specific(path).getFullpath()
             return navmeshes
-
-        """ Enable this when game will be ready for distribution
-        else:
-            logging.critical("\nI'm trying to load navmesh assets, but there aren't suitable navmesh assets. "
-                             "\nCurrent path: {0}".format(navmesh_path))
-            sys_exit("\nSomething is getting wrong. Please, check the game log first")
-        """
 
     def particles_collector(self):
         """ Function    : particles_collector
@@ -1201,10 +1173,10 @@ class Main(ShowBase):
 
             Return      : Dictionary
         """
-        particles_path = self.transform_path(path="{0}/Assets/Particles".format(self.game_dir), style='compat')
+        particles_path = "Assets/Particles"
         particles = {}
-        if exists(particles_path):
-            for root, dirs, files in walk(particles_path, topdown=True):
+        if vfs_exists(particles_path):
+            for root, dirs, files in vfs_walk(particles_path, topdown=True):
                 for file in files:
                     if file.endswith(".ptf"):
                         key = re.sub('.ptf$', '', file)
@@ -1212,12 +1184,40 @@ class Main(ShowBase):
                         particles[key] = Filename.from_os_specific(path).getFullpath()
             return particles
 
-        """ Enable this when game will be ready for distribution
-        else:
-            logging.critical("\nI'm trying to load particles, but there aren't suitable .ptf asset. "
-                             "\nCurrent path: {0}".format(particles_path))
-            sys_exit("\nSomething is getting wrong. Please, check the game log first")
+    def shader_collector(self):
+        """ Function    : shader_collector
+
+            Description : Collect shader set.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : Dictionary
         """
+        shader_path = str(PurePath("Engine", "Shaders"))
+        shader_dirs = []
+        shaders = {}
+
+        if vfs_exists(shader_path):
+            for root, dirs, files in vfs_walk(shader_path, topdown=True):
+                # Get last directory to make it list key
+                d = root.split("/").pop()
+                shader_dirs.append(d)
+
+            for root, dirs, files in vfs_walk(shader_path, topdown=True):
+                for d in shader_dirs:
+                    for file in files:
+                        path = str(PurePath("{0}/".format(root), file))
+                        path = Filename.from_os_specific(path).getFullpath()
+                        if d in path:
+                            if "frag.glsl" in file:
+                                key = "{0}_{1}".format(d, "frag")
+                                shaders[key] = path
+                            if "vert.glsl" in file:
+                                key = "{0}_{1}".format(d, "vert")
+                                shaders[key] = path
+            return shaders
 
     def distance_calculate(self, items, actor):
         """ Function    : distance_calculate
@@ -1477,6 +1477,5 @@ if not cfg_is_broken:
         app.run()
 else:
     app = Error()
-    # app.load_video(file="MENU_SCENE_VID", type="menu_scene")
     if __name__ == '__main__':
         app.run()

@@ -9,7 +9,7 @@ class Keyboard:
         self.game_cfg = base.game_cfg
         self.game_cfg_dir = base.game_cfg_dir
         self.game_settings_filename = base.game_settings_filename
-        self.cfg_path = {"game_config_path": "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
+        self.cfg_path = self.game_cfg
 
         self.k_forward_lo = self.game_settings['Keymap']['forward'].lower()
         self.k_backward_lo = self.game_settings['Keymap']['backward'].lower()

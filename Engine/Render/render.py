@@ -87,7 +87,7 @@ class RenderAttr:
                 cloud.reparentTo(cloud_np)
             cloud_lod.addSwitch(1000, 0)
 
-            ready_shaders = self.get_all_shaders(self.shader_collector())
+            ready_shaders = self.get_all_shaders(self.base.shader_collector())
 
             cloud_lod.setFadeTime(5.0)
 
@@ -331,42 +331,6 @@ class RenderAttr:
 
         return task.cont
 
-    def shader_collector(self):
-        """ Function    : shader_collector
-
-            Description : Collect shader set.
-
-            Input       : None
-
-            Output      : None
-
-            Return      : Dictionary
-        """
-        shader_path = str(PurePath(self.game_dir, "Engine", "Shaders"))
-        shader_path = Filename.from_os_specific("{0}/".format(shader_path))
-        shader_dirs = []
-        shaders = {}
-
-        if exists(shader_path):
-            for root, dirs, files in walk(shader_path, topdown=True):
-                # Get last directory to make it list key
-                d = root.split("/").pop()
-                shader_dirs.append(d)
-
-            for root, dirs, files in walk(shader_path, topdown=True):
-                for d in shader_dirs:
-                    for file in files:
-                        path = str(PurePath("{0}/".format(root), file))
-                        path = Filename.from_os_specific(path).getFullpath()
-                        if d in path:
-                            if "frag.glsl" in file:
-                                key = "{0}_{1}".format(d, "frag")
-                                shaders[key] = path
-                            if "vert.glsl" in file:
-                                key = "{0}_{1}".format(d, "vert")
-                                shaders[key] = path
-            return shaders
-
     def get_all_shaders(self, shaders):
         """ Function    : get_all_shaders
 
@@ -404,7 +368,7 @@ class RenderAttr:
                 actor.set_attrib(attrib)
 
             elif self.game_settings['Main']['postprocessing'] == 'off' and bool_:
-                ready_shaders = self.get_all_shaders(self.shader_collector())
+                ready_shaders = self.get_all_shaders(self.base.shader_collector())
                 actor.set_shader(ready_shaders['HardwareSkinning'])
                 attrib = actor.get_attrib(ShaderAttrib)
                 attrib = attrib.set_flag(ShaderAttrib.F_hardware_skinning, bool_)
@@ -457,7 +421,7 @@ class RenderAttr:
                         self.water_np.set_shader_input('camera', self.water_camera)
                         self.water_np.set_shader_input("reflection", water_texture)
 
-                        ready_shaders = self.get_all_shaders(self.shader_collector())
+                        ready_shaders = self.get_all_shaders(self.base.shader_collector())
                         self.water_np.set_shader(ready_shaders['Water'])
 
                         self.water_np.set_shader_input("water_norm",
@@ -542,7 +506,7 @@ class RenderAttr:
                 self.grass_np.node().setBounds(BoundingBox((0, 0, 0), (256, 256, 128)))
                 self.grass_np.node().setFinal(1)
 
-                ready_shaders = self.get_all_shaders(self.shader_collector())
+                ready_shaders = self.get_all_shaders(self.base.shader_collector())
                 self.grass_np.set_shader(ready_shaders['Grass'])
 
                 self.grass_np.setShaderInput('height', self.base.loader.load_texture(textures["heightmap"]))
@@ -829,7 +793,7 @@ class RenderAttr:
             # obj.set_shader_auto()
             base.shaderenable = 1
 
-            ready_shaders = self.get_all_shaders(self.shader_collector())
+            ready_shaders = self.get_all_shaders(self.base.shader_collector())
             obj.set_shader(ready_shaders['SpotLightShadows'])
             obj.set_shader_input('my_light', light)
             obj.set_shader_input('shadow_blur', shadow_blur)  # 0.2
@@ -837,7 +801,7 @@ class RenderAttr:
 
     def set_normal_mapping(self, obj):
         if obj:
-            ready_shaders = self.get_all_shaders(self.shader_collector())
+            ready_shaders = self.get_all_shaders(self.base.shader_collector())
             obj.set_shader(ready_shaders['Normalmapping'])
             """obj.set_shader_input('my_light', light)
             obj.set_shader_input('shadow_blur', shadow_blur)  # 0.2

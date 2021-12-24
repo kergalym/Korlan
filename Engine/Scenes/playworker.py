@@ -10,7 +10,7 @@ class PlayWorker:
         self.game_cfg = base.game_cfg
         self.game_cfg_dir = base.game_cfg_dir
         self.game_settings_filename = base.game_settings_filename
-        self.cfg_path = {"game_config_path": "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
+        self.cfg_path = self.game_cfg
 
     def load_game(self):
         if (self.game_mode is False

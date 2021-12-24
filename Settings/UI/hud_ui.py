@@ -7,7 +7,7 @@ from direct.gui.DirectGui import DirectFrame
 class HUD:
     def __init__(self):
         self.game_dir = base.game_dir
-        self.images = base.textures_collector(path="{0}/Settings/UI".format(self.game_dir))
+        self.images = base.textures_collector(path="Settings/UI")
         self.cursor_ui_pos = (0, 0, 0)
         self.cursor_ui_scale = 0.04
         self.day_hud_ui_pos = (0.0, 0, 0.90)
