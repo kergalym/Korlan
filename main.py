@@ -2,13 +2,12 @@
 
 import logging
 import re
-import time
 import configparser
 from shutil import rmtree
 from sys import exit as sys_exit
 from os import name as os_name
-from os import mkdir, listdir, walk
-from os.path import isdir, isfile, exists
+from os import mkdir, walk
+from os.path import isdir, exists
 
 from direct.stdpy.file import exists as vfs_exists
 from direct.stdpy.file import isdir as vfs_isdir
