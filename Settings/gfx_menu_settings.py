@@ -1,11 +1,7 @@
 from pathlib import Path
-
-from Xlib import display
-from Xlib.ext import randr
 from panda3d.core import LODNode
 
 from Engine.Render.rplibs.yaml import yaml_py3 as rp_yaml
-
 from Settings.menu_settings import MenuSettings
 
 
@@ -38,14 +34,10 @@ class Graphics(MenuSettings):
                 loaded_settings.write(cfg_file)
 
     def load_disp_res(self):
-        disp = display.Display()
-        scrn = disp.screen()
-        window = scrn.root.create_window(0, 0, 1, 1, 1, scrn.root_depth)
-        res = randr.get_screen_resources(window)
+        di = base.pipe.getDisplayInformation()
         res_dict = {}
-        res.modes.reverse()
-        for index, mode in enumerate(res.modes, 1):
-            res_dict[index] = "{}x{}".format(mode.width, mode.height)
+        for index in range(di.getTotalDisplayModes()):
+            res_dict[index] = "{}x{}".format(di.getDisplayModeWidth(index), di.getDisplayModeHeight(index))
         return res_dict
 
     def load_disp_res_value(self):

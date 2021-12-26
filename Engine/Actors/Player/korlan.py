@@ -89,7 +89,7 @@ class Korlan:
 
                 # Hardware skinning
                 if self.game_settings['Main']['postprocessing'] == 'on':
-                    self.render_attr.set_hardware_skinning(self.korlan, True)
+                    self.render_attr.set_hardware_skinning(self.korlan, False)
 
                 self.korlan.loop(animation)
                 self.korlan.set_play_rate(self.base.actor_play_rate, animation)
