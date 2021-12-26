@@ -77,12 +77,12 @@ class PhysicsAttr:
                                                  mask=self.mask1,
                                                  automatic=False)
 
-            if type == "item":
+            elif type == "item":
                 self.set_dynamic_object_colliders(obj=obj,
                                                   mask=self.mask1,
                                                   automatic=False)
 
-            if type == "player":
+            elif type == "player":
                 self.korlan = obj
                 if hasattr(self.korlan, "set_tag"):
                     self.korlan.set_tag(key=obj.get_name(), value='1')
@@ -92,14 +92,14 @@ class PhysicsAttr:
                                         mask=self.mask0,
                                         type="player")
 
-            if type == "npc":
+            else:
                 if hasattr(obj, "set_tag"):
                     obj.set_tag(key=obj.get_name(), value='1')
                 self.set_actor_collider(actor=obj,
                                         col_name='{0}:BS'.format(obj.get_name()),
                                         shape=shape,
                                         mask=self.mask0,
-                                        type="npc")
+                                        type=type)
 
     def set_physics_world(self, assets):
         """ Function    : set_physics_world
@@ -266,6 +266,18 @@ class PhysicsAttr:
                         actor_bs_np.set_collide_mask(mask)
                         self.world.attach(actor_node)
                         actor.reparent_to(actor_bs_np)
+
+                elif type == 'npc_animal':
+                    actor_node = BulletCharacterControllerNode(actor_bs,
+                                                               0.4,
+                                                               col_name)
+                    world = render.find("**/World")
+                    if world:
+                        actor_bs_np = world.attach_new_node(actor_node)
+                        actor_bs_np.set_collide_mask(mask)
+                        self.world.attach(actor_node)
+                        actor.reparent_to(actor_bs_np)
+
                 # Set actor down to make it
                 # at the same point as bullet shape
                 actor.set_z(-1)
@@ -279,23 +291,33 @@ class PhysicsAttr:
                 actor.set_y(0)
                 actor.set_x(0)
 
-                self.bullet_solids.get_bs_hitbox(actor=actor,
-                                                 joints=["LeftHand", "RightHand", "Hips"],
-                                                 world=self.world)
+                # attach hitboxes
+                if type == "npc":
+                    self.bullet_solids.get_bs_hitbox(actor=actor,
+                                                     joints=["LeftHand", "RightHand", "Hips"],
+                                                     world=self.world)
 
-                bow_name = "bow"
-                bow_arrow_name = "bow_arrow"
+                    bow_name = "bow"
+                    bow_arrow_name = "bow_arrow"
+                    base.accept("bow_shoot", self.bow_shoot, [actor, bow_arrow_name, bow_name])
 
-                if type == "player":
+                    taskMgr.add(self.bow_hit_check,
+                                "{0}_bow_hit_check".format(actor.get_name()),
+                                extraArgs=[actor],
+                                appendTask=True)
+
+                elif type == "player":
+                    self.bullet_solids.get_bs_hitbox(actor=actor,
+                                                     joints=["LeftHand", "RightHand", "Hips"],
+                                                     world=self.world)
                     bow_name = "bow_kazakh"
                     bow_arrow_name = "bow_arrow_kazakh"
+                    base.accept("bow_shoot", self.bow_shoot, [actor, bow_arrow_name, bow_name])
 
-                base.accept("bow_shoot", self.bow_shoot, [actor, bow_arrow_name, bow_name])
-
-                taskMgr.add(self.bow_hit_check,
-                            "{0}_bow_hit_check".format(actor.get_name()),
-                            extraArgs=[actor],
-                            appendTask=True)
+                    taskMgr.add(self.bow_hit_check,
+                                "{0}_bow_hit_check".format(actor.get_name()),
+                                extraArgs=[actor],
+                                appendTask=True)
 
     def set_static_object_colliders(self, obj, mask, automatic):
         if obj and mask and self.world:

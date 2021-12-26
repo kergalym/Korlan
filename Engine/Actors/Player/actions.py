@@ -171,10 +171,10 @@ class Actions:
                             extraArgs=[player, anims],
                             appendTask=True)
 
-                taskMgr.add(self.items.get_item_distance_task,
+                """taskMgr.add(self.items.get_item_distance_task,
                             "get_item_distance_task",
                             extraArgs=[player],
-                            appendTask=True)
+                            appendTask=True)"""
 
                 excluded_assets = ['Sky', 'Mountains', 'Grass', 'Ground', 'NPC']
                 assets_dist_vec = base.distance_calculate(

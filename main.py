@@ -121,7 +121,7 @@ disp_res = disp_res.split("x")
 fscreen = "f"
 wintype = "onscreen"
 
-want_pstats_value = "f"
+want_pstats_value = "t"
 
 if game_settings['Main']['fullscreen'] == "on":
     fscreen = "t"

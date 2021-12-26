@@ -7,9 +7,9 @@ from panda3d.core import Point3
 from Engine.FSM.npc_fsm import NpcFSM
 
 
-class NpcMongolFSM(FSM):
+class NpcHorseFSM(FSM):
     def __init__(self):
-        FSM.__init__(self, "NpcMongolFSM")
+        FSM.__init__(self, "NpcHorseFSM")
         self.base = base
         self.render = render
         self.taskMgr = taskMgr

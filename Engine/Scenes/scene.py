@@ -1,5 +1,4 @@
 from panda3d.core import *
-from Engine.Actors.Player.korlan import Korlan
 from Engine.Render.render import RenderAttr
 
 
@@ -18,9 +17,7 @@ class SceneOne:
         self.scale_y = None
         self.scale_z = None
         self.type = None
-        self.task_mgr = None
         self.node_path = NodePath()
-        self.korlan = Korlan()
         self.render_attr = RenderAttr()
         self.base = base
         self.render = render

@@ -115,7 +115,7 @@ class NpcHorse:
             self.actor.set_r(self.actor, self.rot_r)
 
             # Hardware skinning
-            self.render_attr.set_hardware_skinning(self.actor, False)
+            self.render_attr.set_hardware_skinning(self.actor, True)
 
             # Get actor joints
             base.actor_joints = self.actor.get_joints()

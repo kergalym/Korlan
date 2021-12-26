@@ -26,6 +26,9 @@
 
 #version 430
 
+#extension GL_ARB_shading_language_420pack : enable
+// This file includes defines and functions used for the scattering
+
 #define USE_TIME_OF_DAY 1
 #pragma include "render_pipeline_base.inc.glsl"
 #pragma include "includes/gbuffer.inc.glsl"

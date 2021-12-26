@@ -1,22 +1,22 @@
 disabled:
 - dof
-- fxaa
 - motion_blur
+- fxaa
+- skin_shading
+- sky_ao
+- env_probes
+- bloom
 - vxgi
-- volumetrics
 enabled:
 - ao
-- bloom
 - color_correction
-- env_probes
 - forward_shading
 - pssm
 - scattering
-- skin_shading
-- sky_ao
 - smaa
 - ssr
 - clouds
+- volumetrics
 overrides:
   ao:
     alchemy_max_distance: 5.86
@@ -106,14 +106,14 @@ overrides:
     dist_shadow_resolution: 4096
     dist_shadow_sundist: 300.0
     filter_radius: 0.7
-    filter_sequence: halton_2D_32
+    filter_sequence: poisson_2D_8
     fixed_bias: 0.11426
     logarithmic_factor: 3.0
     max_distance: 50.0
     normal_bias: 0.67
     pcss_min_penumbra_size: 7.0
     pcss_penumbra_size: 2.38
-    pcss_sequence: halton_2D_16
+    pcss_sequence: poisson_2D_8
     resolution: 1024
     scene_shadow_resolution: 4096
     scene_shadow_sundist: 300.0

@@ -10,10 +10,52 @@ from Settings.UI.stat_ui import StatUI
 from Settings.UI.pause_menu_ui import PauseMenuUI
 from Settings.Input.mouse import Mouse
 
-from Engine.Scenes import py_npc_actor_classes
-from Engine.Scenes import py_npc_fsm_classes
-from Engine.Scenes import level_npc_assets
-from Engine.Scenes import level_npc_axis
+from Engine.Actors.NPC.npc_ernar import NpcErnar
+from Engine.Actors.NPC.npc_mongol import NpcMongol
+from Engine.Actors.NPC.npc_mongol2 import NpcMongol2
+from Engine.Actors.NPC.npc_horse import NpcHorse
+
+from Engine.FSM.npc_ernar_fsm import NpcErnarFSM
+from Engine.FSM.npc_mongol_fsm import NpcMongolFSM
+from Engine.FSM.npc_mongol2_fsm import NpcMongol2FSM
+from Engine.FSM.npc_horse import NpcHorseFSM
+
+py_npc_actor_classes = [
+    NpcErnar,
+    NpcMongol,
+    NpcMongol2,
+    NpcHorse
+]
+
+py_npc_fsm_classes = [
+    NpcErnarFSM,
+    NpcMongolFSM,
+    NpcMongol2FSM,
+    NpcHorseFSM
+]
+
+# List used by loading screen
+
+level_npc_assets = {'name': ['NPC_Ernar', 'NPC_Mongol', 'NPC_Mongol2', 'NPC_Horse'],
+                    'type': ['npc', 'npc', 'npc', 'npc_animal'],
+                    'shape': ['capsule', 'capsule', 'capsule', 'capsule'],
+                    'class': ['friend', 'enemy', 'enemy', 'friend']
+                    }
+
+level_npc_axis = {'NPC_Ernar': [-15.0, 15.0, 0],
+                  'NPC_Mongol': [-25.0, 25.0, 0],
+                  'NPC_Mongol2': [-35.0, 35.0, 0],
+                  'NPC_Horse': [-5.0, 5.0, 0]
+                  }
+
+"""
+level_npc_assets = {'name': [],
+                    'type': [],
+                    'shape': [],
+                    'class': []
+                    }
+level_npc_axis = {}
+"""
 
 
 class LevelOne:
@@ -503,6 +545,7 @@ class LevelOne:
             suffix = "rp"
         elif self.game_settings['Main']['postprocessing'] == 'off':
             suffix = "p3d"
+
         taskMgr.add(self.scene_one.set_level(path=assets['lvl_one_{0}'.format(suffix)],
                                              name="lvl_one",
                                              axis=[0.0, 0.0, self.pos_z],
@@ -545,36 +588,42 @@ class LevelOne:
 
         if self.game_settings['Debug']['set_editor_mode'] == 'NO':
             # To avoid nullptr assertion error initialize AI World only if it has not been initialized yet
+
             if not self.ai:
                 self.ai = AI(world_np)
             self.ai.set_ai_world(assets=level_assets_joined,
                                  npcs_fsm_states=self.npcs_fsm_states,
                                  lvl_name="lvl_one")
 
+            taskMgr.add(self.collect_actors_health_task,
+                        "collect_actors_health_task",
+                        appendTask=True)
+
+            taskMgr.add(self.collect_npcs_label_nodepaths_task,
+                        "collect_npcs_label_nodepaths_task",
+                        extraArgs=[level_assets_joined],
+                        appendTask=True)
+
+            taskMgr.add(self.update_horse_trigger_task,
+                        "update_horse_trigger_task",
+                        appendTask=True)
+
+
+            """
+            taskMgr.add(self.hitbox_handling_task,
+                        "hitbox_handling_task",
+                        appendTask=True)
+            """
+
+        """
         taskMgr.add(self.env_probe_task,
                     "env_probe_task",
                     appendTask=True)
+        """
 
         taskMgr.add(self.world_sfx_task,
                     "world_sfx_task",
                     appendTask=True)
-
-        taskMgr.add(self.collect_actors_health_task,
-                    "collect_actors_health_task",
-                    appendTask=True)
-
-        taskMgr.add(self.collect_npcs_label_nodepaths_task,
-                    "collect_npcs_label_nodepaths_task",
-                    extraArgs=[level_assets_joined],
-                    appendTask=True)
-
-        taskMgr.add(self.update_horse_trigger_task,
-                    "update_horse_trigger_task",
-                    appendTask=True)
-
-        """taskMgr.add(self.hitbox_handling_task,
-                    "hitbox_handling_task",
-                    appendTask=True)"""
 
     def save_game(self):
         pass

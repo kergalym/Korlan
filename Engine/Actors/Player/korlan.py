@@ -77,7 +77,7 @@ class Korlan:
                 anim_name = animation[0]
                 anim_path = animation[1]
 
-                self.korlan = self.base.loader.load_model(path, blocking=True)
+                self.korlan = self.base.loader.load_model(path, blocking=False)
                 self.korlan = Actor(self.korlan, {anim_name: anim_path})
 
                 self.korlan.set_name(name)
@@ -144,28 +144,38 @@ class Korlan:
 
                 assets = self.base.assets_collector()
 
-                actor_parts_dict = {
+                actor_parts_dict = {}
+
+                """actor_parts_dict = {
                     "modelRoot": assets["Korlan_body"],
                     "helmet": assets["Korlan_helmet"],
                     "armor": assets["Korlan_armor"],
                     "pants": assets["Korlan_pants"],
                     "boots": assets["Korlan_boots"]
-                }
+                }"""
 
                 anims_full_dict = {
                     "modelRoot": animation[1],
-
                     "helmet": animation[1],
-
                     "armor": animation[1],
-
                     "pants": animation[1],
-
                     "boots": animation[1]
                 }
 
-                # self.korlan = await self.base.loader.load_model(path, blocking=False)
-                # self.korlan = Actor(self.korlan, animation[1])
+                # load player parts separately
+                body = await self.base.loader.load_model(assets["Korlan_body"], blocking=False)
+                helmet = await self.base.loader.load_model(assets["Korlan_helmet"], blocking=False)
+                armor = await self.base.loader.load_model(assets["Korlan_armor"], blocking=False)
+                pants = await self.base.loader.load_model(assets["Korlan_pants"], blocking=False)
+                boots = await self.base.loader.load_model(assets["Korlan_boots"], blocking=False)
+
+                actor_parts_dict['modelRoot'] = body
+                actor_parts_dict['helmet'] = helmet
+                actor_parts_dict['armor'] = armor
+                actor_parts_dict['pants'] = pants
+                actor_parts_dict['boots'] = boots
+
+                # and compose them into one
                 self.korlan = Actor(actor_parts_dict, anims_full_dict)
 
                 self.korlan.set_name(name)
@@ -177,7 +187,7 @@ class Korlan:
                 self.korlan.set_r(self.korlan, self.rot_r)
 
                 # Hardware skinning
-                self.render_attr.set_hardware_skinning(self.korlan, False)
+                self.render_attr.set_hardware_skinning(self.korlan, True)
 
                 # Get actor joints
                 base.korlan_joints = self.korlan.get_joints()

@@ -1,10 +1,5 @@
 #pragma once
 
-#extension GL_ARB_shading_language_420pack : enable
-
-// This file includes defines and functions used for the scattering
-
-
 // Don't use fast precision, leads to compilation issues for compute shaders
 #define NO_FAST_PRECISION
 // #define SCATTERING_USE_32_BIT 1
