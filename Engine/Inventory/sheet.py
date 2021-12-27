@@ -588,15 +588,15 @@ class Sheet(Inventory):
                 if self.game_settings['Main']['postprocessing'] == 'on':
                     # set character view
                     player_pos = player.get_pos()
-                    base.camera.set_x(player_pos[0] + -1.3)
-                    base.camera.set_y(player_pos[1] + -5.5)
-                    base.camera.set_z(player_pos[2] + 0.7)
+                    base.camera.set_x(player_pos[0] + -1.05)
+                    base.camera.set_y(player_pos[1] + -4.5)
+                    base.camera.set_z(player_pos[2] + 0.25)
                 else:
                     # set character view
                     player_pos = player.get_pos()
                     base.camera.set_x(player_pos[0] + -1.3)
                     base.camera.set_y(player_pos[1] + -4)
-                    base.camera.set_z(player_pos[2] + 0.7)
+                    base.camera.set_z(player_pos[2] + 0.3)
 
                 base.camera.set_hpr(0, 0, 0)
                 if render.find("**/pivot"):

@@ -49,6 +49,7 @@ from direct.task.TaskManagerGlobal import taskMgr
 from Engine.Render.rpcore.render_pipeline import RenderPipeline
 from Engine.Render.rpcore.util.movement_controller import MovementController
 import importlib
+import psutil
 
 cfg_is_broken = False
 mf = Multifile()
@@ -56,7 +57,7 @@ if exists("GameData.mf"):
     mf.openRead("GameData.mf")
     vfs = VirtualFileSystem.getGlobalPtr()
     if vfs.mount(mf, ".", VirtualFileSystem.MFReadOnly):
-        print('Multifile is mounted to VFS \n')
+        print('GameData.mf is mounted to VFS \n')
 else:
     cfg_is_broken = True
 
@@ -121,7 +122,7 @@ disp_res = disp_res.split("x")
 fscreen = "f"
 wintype = "onscreen"
 
-want_pstats_value = "t"
+want_pstats_value = "f"
 
 if game_settings['Main']['fullscreen'] == "on":
     fscreen = "t"
@@ -144,24 +145,26 @@ p3d.load_prc_file_data(
     'window-type {0}\n'.format(wintype)
 )
 
+cpu_threads_num = psutil.cpu_count(logical=True)
 p3d.load_prc_file_data(
     '',
     'icon-filename icon-16.ico\n'
     'win-origin -1 -2\n'
     'window-title Korlan - Daughter of the Steppes\n'
-    'sync-video 1\n'
     'show-frame-rate-meter  t\n'
     'audio-library-name p3openal_audio\n'
     'model-cache-dir /tmp/Cache\n'
     'model-cache-textures t\n'
     'compressed-textures 0\n'
     'bullet-filter-algorithm groups-mask\n'
-    'hardware-animated-vertices t\n'
+    'hardware-animated-vertices f\n'
     'basic-shaders-only f\n'
-    'texture-compression f\n'
-    'driver-compress-textures f\n'
+    'texture-compression t\n'
+    'driver-compress-textures t\n'
     'task-timer-verbose 0\n'
-    'pstats-tasks 1\n'
+    'pstats-tasks 0\n'
+    'loader-thread-priority normal\n'
+    'loader-num-threads {0}\n'.format(cpu_threads_num)
 )
 
 p3d.load_prc_file_data(
@@ -436,9 +439,9 @@ class Error(ShowBase):
 class Main(ShowBase):
 
     def __init__(self):
+        ShowBase.__init__(self)
         self.cfg_path = None
         self.gfx = Graphics()
-        ShowBase.__init__(self)
         self.build_info = OnscreenText(text=build_info_txt, pos=(1.6, -0.95),
                                        fg=(255, 255, 255, 1), scale=.025)
         self.props = WindowProperties()

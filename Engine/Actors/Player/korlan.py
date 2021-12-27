@@ -89,7 +89,7 @@ class Korlan:
 
                 # Hardware skinning
                 if self.game_settings['Main']['postprocessing'] == 'on':
-                    self.render_attr.set_hardware_skinning(self.korlan, False)
+                    self.render_attr.set_hardware_skinning(self.korlan, True)
 
                 self.korlan.loop(animation)
                 self.korlan.set_play_rate(self.base.actor_play_rate, animation)
@@ -178,6 +178,10 @@ class Korlan:
                 # and compose them into one
                 self.korlan = Actor(actor_parts_dict, anims_full_dict)
 
+                base.player_is_loaded = 1
+
+                self.korlan.reparent_to(render)
+
                 self.korlan.set_name(name)
                 self.korlan.set_scale(self.korlan, self.scale_x, self.scale_y, self.scale_z)
                 self.korlan_start_pos = LPoint3f(self.pos_x, self.pos_y, 0.0)
@@ -185,9 +189,6 @@ class Korlan:
                 self.korlan.set_h(self.korlan, self.rot_h)
                 self.korlan.set_p(self.korlan, self.rot_p)
                 self.korlan.set_r(self.korlan, self.rot_r)
-
-                # Hardware skinning
-                self.render_attr.set_hardware_skinning(self.korlan, True)
 
                 # Get actor joints
                 base.korlan_joints = self.korlan.get_joints()
@@ -198,12 +199,11 @@ class Korlan:
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 self.korlan.set_transparency(True)
 
-                self.korlan.reparent_to(render)
-                self.base.lod.addSwitch(50.0, 0.0)
-
                 # self.base.set_textures_srgb(True)
 
                 if self.game_settings['Main']['postprocessing'] == 'on':
+                    # Hardware skinning
+                    self.render_attr.set_hardware_skinning(self.korlan, True)
                     self.render_attr.render_pipeline.prepare_scene(self.korlan)
 
                 if self.game_settings['Main']['postprocessing'] == 'off':
@@ -231,4 +231,3 @@ class Korlan:
                             "actor_life",
                             appendTask=True)
 
-                base.player_is_loaded = 1

@@ -55,8 +55,8 @@ class LoadingUI:
         else:
             assets = base.assets_collector()
             self.title_loading_text = OnscreenText(text="",
-                                                   pos=(-1.8, 0.9),
-                                                   scale=0.03,
+                                                   pos=(-0.8, -0.8),
+                                                   scale=0.04,
                                                    fg=(255, 255, 255, 0.9),
                                                    font=self.font.load_font(self.menu_font),
                                                    align=TextNode.ALeft,
@@ -65,7 +65,8 @@ class LoadingUI:
             self.loading_bar = DirectWaitBar(text="",
                                              value=0,
                                              range=100,
-                                             barColor=(255, 0, 0, 1),
+                                             frameColor=(0, 0.1, 0.1, self.frm_opacity),
+                                             barColor=(0.6, 0, 0, 1),
                                              pos=(0, 0.4, -0.95))
 
             self.loading_screen = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
@@ -124,8 +125,11 @@ class LoadingUI:
                 if num < asset_num:
                     if self.loading_bar:
                         self.loading_bar['value'] += num
+                        txt = "Loading asset: {0}\n Loaded: {1}\n Total: {2}".format(assets['name'][num], num,
+                                                                                     len(assets['name']))
+                        self.title_loading_text.setText(txt)
 
-                if num == asset_num:
+                elif num == asset_num:
                     self.base.loading_is_done = 1
 
                     if self.game_settings['Debug']['set_debug_mode'] == 'YES':
@@ -161,9 +165,9 @@ class LoadingUI:
     def set_parallel_loading(self, type):
         if type and isinstance(type, str):
             if type == "new_game":
-                Sequence(Parallel(Func(self.set_loading_bar),
-                                  Func(self.level_one.load_new_game))
-                         ).start()
+                self.set_loading_bar()
+                self.level_one.load_new_game()
+
                 taskMgr.add(self.loading_measure,
                             "loading_measure",
                             appendTask=True)

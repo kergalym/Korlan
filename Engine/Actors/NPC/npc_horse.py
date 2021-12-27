@@ -126,8 +126,7 @@ class NpcHorse:
             # Panda3D 1.10 doesn't enable alpha blending for textures by default
             self.actor.set_transparency(True)
 
-            self.actor.reparent_to(self.base.lod_np)
-            self.base.lod.addSwitch(50.0, 0.0)
+            self.actor.reparent_to(render)
 
             if self.game_settings['Main']['postprocessing'] == 'on':
                 self.render_attr.render_pipeline.prepare_scene(self.actor)

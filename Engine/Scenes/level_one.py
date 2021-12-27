@@ -550,7 +550,7 @@ class LevelOne:
                                              name="lvl_one",
                                              axis=[0.0, 0.0, self.pos_z],
                                              rotation=[0, 0, 0],
-                                             scale=[1.25, 1.25, 1.25],
+                                             scale=[1.0, 1.0, 1.0],
                                              culling=False))
 
         taskMgr.add(self.korlan.set_actor(mode="game",
@@ -559,7 +559,7 @@ class LevelOne:
                                           animation=anims,
                                           axis=[0, 15.0, self.pos_z],
                                           rotation=[0, 0, 0],
-                                          scale=[1.25, 1.25, 1.25],
+                                          scale=[1.0, 1.0, 1.0],
                                           culling=True))
 
         for actor, npc_cls, axis_actor in zip(level_npc_assets['name'],
@@ -573,7 +573,7 @@ class LevelOne:
                                               animation=anims,
                                               axis=axis,
                                               rotation=[0, 0, 0],
-                                              scale=[1.25, 1.25, 1.25],
+                                              scale=[1.0, 1.0, 1.0],
                                               culling=True))
 
         """ Task for Debug mode """
@@ -607,7 +607,6 @@ class LevelOne:
             taskMgr.add(self.update_horse_trigger_task,
                         "update_horse_trigger_task",
                         appendTask=True)
-
 
             """
             taskMgr.add(self.hitbox_handling_task,

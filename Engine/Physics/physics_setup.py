@@ -291,7 +291,7 @@ class PhysicsAttr:
                 actor.set_y(0)
                 actor.set_x(0)
 
-                # attach hitboxes
+                # attach hitboxes and weapons
                 if type == "npc":
                     self.bullet_solids.get_bs_hitbox(actor=actor,
                                                      joints=["LeftHand", "RightHand", "Hips"],
@@ -318,6 +318,11 @@ class PhysicsAttr:
                                 "{0}_bow_hit_check".format(actor.get_name()),
                                 extraArgs=[actor],
                                 appendTask=True)
+
+                # reparent bullet-shaped actor to LOD node
+                if type != "player":
+                    actor_bs_np.reparent_to(self.base.lod_np)
+                    self.base.lod.addSwitch(50.0, 0.0)
 
     def set_static_object_colliders(self, obj, mask, automatic):
         if obj and mask and self.world:

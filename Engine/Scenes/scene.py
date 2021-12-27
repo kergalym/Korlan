@@ -74,10 +74,15 @@ class SceneOne:
 
             # Load the scene.
             scene = await self.base.loader.load_model(path, blocking=False)
-            scene.set_name(name)
             world = render.find("**/World")
             if world:
-                scene.reparent_to(world)
+                scene.reparent_to(self.base.lod_np)
+                # scene.flatten_strong()
+                # scene.hide()
+                # self.base.lod.addSwitch(100.0, 0.0)
+                base.accept("f2", self.scene_toggle, [scene])
+
+                scene.set_name(name)
                 scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
                 scene.set_pos(pos_x, pos_y, pos_z)
                 scene.set_hpr(scene, rot_h, 0, 0)
@@ -145,3 +150,9 @@ class SceneOne:
             coll_scene.reparent_to(coll_scene_np)
 
             coll_scene.hide()
+
+    def scene_toggle(self, scene):
+        if scene.is_hidden():
+            scene.show()
+        else:
+            scene.hide()
