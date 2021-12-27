@@ -458,7 +458,6 @@ class LevelOne:
         self.base.lod = LODNode('LOD')
         self.base.lod_np = NodePath(self.base.lod)
         self.base.lod_np.reparentTo(world_np)
-        self.base.lod.addSwitch(500.0, 0.0)
 
         self.render_attr.set_time_of_day(duration=1800)  # 1800 sec == 30 min
         taskMgr.add(self.render_attr.set_time_of_day_clock_task,

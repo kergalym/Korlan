@@ -76,6 +76,10 @@ class SceneOne:
             scene = await self.base.loader.load_model(path, blocking=False)
             world = render.find("**/World")
             if world:
+                for tex in scene.findAllTextures():
+                    # CM_dxt5
+                    tex.setCompression(8)
+
                 scene.reparent_to(self.base.lod_np)
                 # scene.flatten_strong()
                 # scene.hide()

@@ -180,6 +180,9 @@ class Korlan:
 
                 base.player_is_loaded = 1
 
+                for tex in self.korlan.findAllTextures():
+                    tex.setCompression(8)
+
                 self.korlan.reparent_to(render)
 
                 self.korlan.set_name(name)
