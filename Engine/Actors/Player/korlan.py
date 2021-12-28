@@ -178,8 +178,6 @@ class Korlan:
                 # and compose them into one
                 self.korlan = Actor(actor_parts_dict, anims_full_dict)
 
-                base.player_is_loaded = 1
-
                 # toggle texture compression for textures to compress them
                 # before load into VRAM
                 self.base.toggle_texture_compression(self.korlan)
@@ -203,11 +201,13 @@ class Korlan:
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 self.korlan.set_transparency(True)
 
+                # Hardware skinning
+                self.render_attr.set_hardware_skinning(self.korlan, True)
+
                 # self.base.set_textures_srgb(True)
 
                 if self.game_settings['Main']['postprocessing'] == 'on':
-                    # Hardware skinning
-                    self.render_attr.set_hardware_skinning(self.korlan, True)
+
                     self.render_attr.render_pipeline.prepare_scene(self.korlan)
 
                 if self.game_settings['Main']['postprocessing'] == 'off':
@@ -234,4 +234,7 @@ class Korlan:
                 taskMgr.add(self.state.actor_life,
                             "actor_life",
                             appendTask=True)
+
+                base.player_is_loaded = 1
+
 

@@ -270,7 +270,7 @@ class MenuUI(MenuSettings):
             self.game_mode = True
             self.menu_mode = False
 
-            self.loading_ui.set_parallel_loading(type="new_game")
+            self.loading_ui.start_loading(type="new_game")
 
     def load_game_wrapper(self):
         """ Function    : load_game_wrapper
