@@ -180,8 +180,9 @@ class Korlan:
 
                 base.player_is_loaded = 1
 
-                for tex in self.korlan.findAllTextures():
-                    tex.setCompression(8)
+                # toggle texture compression for textures to compress them
+                # before load into VRAM
+                self.base.toggle_texture_compression(self.korlan)
 
                 self.korlan.reparent_to(render)
 

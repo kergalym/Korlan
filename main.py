@@ -442,10 +442,13 @@ class Main(ShowBase):
 
     def __init__(self):
         ShowBase.__init__(self)
+        self.game_instance = {}
+
         self.cfg_path = None
         self.gfx = Graphics()
         self.build_info = OnscreenText(text=build_info_txt, pos=(1.6, -0.95),
                                        fg=(255, 255, 255, 1), scale=.025)
+
         self.props = WindowProperties()
         self.props.setIconFilename("icon-16.ico")
         self.props.set_cursor_hidden(True)
@@ -464,10 +467,6 @@ class Main(ShowBase):
         self.intro_mode = True
         self.game_mode = False
         self.menu_mode = False
-
-        self.game_instance = {
-            "tex_cm": game_settings['Main']['texture_compression']
-        }
 
         self.game_settings.read("{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename))
 
@@ -951,6 +950,31 @@ class Main(ShowBase):
                         path = str(PurePath("{0}/".format(root), file))
                         textures[key] = Filename.from_os_specific(path).getFullpath()
             return textures
+
+    def toggle_texture_compression(self, obj):
+        """ Function    : toggle_texture_compression
+
+            Description : Toggles texture compression for textures to compress them
+            before load into VRAM.
+
+            Input       : Nodepath
+
+            Output      : None
+
+            Return      : None
+        """
+        if obj:
+            for tex in obj.findAllTextures():
+                # DXT5 compression mode
+                cm = str(game_settings['Main']['texture_compression'])
+                num = 0
+                if cm == 'default':
+                    num = 0
+                if cm == 'inactive':
+                    num = 1
+                if cm == 'active':
+                    num = 2
+                tex.setCompression(num)
 
     def ui_geom_collector(self):
         """ Function    : ui_geom_collector

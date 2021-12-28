@@ -76,17 +76,10 @@ class SceneOne:
             scene = await self.base.loader.load_model(path, blocking=False)
             world = render.find("**/World")
             if world:
-                for tex in scene.findAllTextures():
-                    # DXT5 compression mode
-                    cm = str(self.base.game_instance['tex_cm'])
-                    num = 0
-                    if cm == 'default':
-                        num = 0
-                    if cm == 'inactive':
-                        num = 1
-                    if cm == 'active':
-                        num = 2
-                    tex.setCompression(num)
+
+                # toggle texture compression for textures to compress them
+                # before load into VRAM
+                self.base.toggle_texture_compression(scene)
 
                 scene.reparent_to(self.base.lod_np)
                 # scene.flatten_strong()

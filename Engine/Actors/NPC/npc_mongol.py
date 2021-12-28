@@ -117,17 +117,9 @@ class NpcMongol:
             # Panda3D 1.10 doesn't enable alpha blending for textures by default
             self.actor.set_transparency(True)
 
-            for tex in self.actor.findAllTextures():
-                # DXT5 compression mode
-                cm = str(self.base.game_instance['tex_cm'])
-                num = 0
-                if cm == 'default':
-                    num = 0
-                if cm == 'inactive':
-                    num = 1
-                if cm == 'active':
-                    num = 2
-                tex.setCompression(num)
+            # toggle texture compression for textures to compress them
+            # before load into VRAM
+            self.base.toggle_texture_compression(self.actor)
 
             self.actor.reparent_to(render)
 
