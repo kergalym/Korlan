@@ -147,8 +147,8 @@ class Actions:
                 base.input_state = self.kbd.bullet_keymap_init()
 
                 # Define mouse
-                taskMgr.add(self.wait_for_physics_ready_player_task,
-                            "wait_for_physics_ready_player_task")
+                taskMgr.add(self.wait_for_floater_task,
+                            "wait_for_floater_task")
                 taskMgr.add(self.mouse.mouse_control_task,
                             "mouse_control_task",
                             extraArgs=[player, self.is_aiming],
@@ -220,8 +220,7 @@ class Actions:
         return task.cont
 
     """ Prepares the player for scene """
-
-    def wait_for_physics_ready_player_task(self, task):
+    def wait_for_floater_task(self, task):
         if self.player and not self.player.is_empty():
             self.floater = self.mouse.set_floater(self.player)
             return task.done

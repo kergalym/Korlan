@@ -442,7 +442,22 @@ class Main(ShowBase):
 
     def __init__(self):
         ShowBase.__init__(self)
-        self.game_instance = {}
+        self.game_instance = {
+            "menu_mode": False,
+            "ui_mode": False,
+            "pause_mode": False,
+            "scene_is_loaded": False,
+            "player_is_loaded": False,
+            "npc_is_loaded": False,
+            "hw_skinning": False,
+            "player_state": {},
+            "player_props": {},
+            "do_key_once": {},
+            "item_state": {},
+            "usable_items": {},
+            "item_player_access_codes": {},
+            "level_assets": {},
+        }
 
         self.cfg_path = None
         self.gfx = Graphics()

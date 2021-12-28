@@ -358,6 +358,8 @@ class RenderAttr:
     def set_hardware_skinning(self, actor, bool_):
         # Perform hardware skinning on GPU.
         if actor and isinstance(bool_, bool):
+            self.base.game_instance['hw_skinning'] = False
+
             if self.game_settings['Main']['postprocessing'] == 'on' and bool_:
                 self.render_pipeline.set_effect(actor,
                                                 "{0}/Engine/Render/effects/hardware_skinning.yaml".format(
@@ -366,6 +368,7 @@ class RenderAttr:
                 attrib = actor.get_attrib(ShaderAttrib)
                 attrib = attrib.set_flag(ShaderAttrib.F_hardware_skinning, bool_)
                 actor.set_attrib(attrib)
+                self.base.game_instance['hw_skinning'] = True
 
             elif self.game_settings['Main']['postprocessing'] == 'off' and bool_:
                 ready_shaders = self.get_all_shaders(self.base.shader_collector())
@@ -373,6 +376,7 @@ class RenderAttr:
                 attrib = actor.get_attrib(ShaderAttrib)
                 attrib = attrib.set_flag(ShaderAttrib.F_hardware_skinning, bool_)
                 actor.set_attrib(attrib)
+                self.base.game_instance['hw_skinning'] = True
 
     def set_water(self, bool, water_lvl, adv_render):
         if bool:
