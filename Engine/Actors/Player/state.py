@@ -232,27 +232,29 @@ class PlayerState:
 
     def set_player_equipment(self, actor, bone_name):
         if actor and isinstance(bone_name, str):
-            hips_joint = actor.exposeJoint(None, "modelRoot", bone_name)
-            sword = base.loader.loadModel(base.assets_collector()["sword"])
-            sword.set_name("sword")
-            sword.reparent_to(hips_joint)
-            bow = base.loader.loadModel(base.assets_collector()["bow_kazakh"])
-            bow.set_name("bow_kazakh")
-            bow.reparent_to(hips_joint)
-            arrow = base.loader.loadModel(base.assets_collector()["bow_arrow_kazakh"])
-            arrow.set_name("bow_arrow_kazakh")
-            arrow.reparent_to(hips_joint)
+            joint = actor.exposeJoint(None, "modelRoot", bone_name)
 
-            # positioning and scaling
-            sword.set_pos(10, 20, -8)
-            sword.set_hpr(325.30, 343.30, 7.13)
-            sword.set_scale(100)
-            bow.set_pos(0, 12, -12)
-            bow.set_hpr(78.69, 99.46, 108.43)
-            bow.set_scale(100)
-            arrow.set_pos(-10, 7, -12)
-            arrow.set_hpr(91.55, 0, 0)
-            arrow.set_scale(100)
+            weapons = self.base.game_instance["weapons"]
+            if weapons:
+                for name in weapons:
+                    weapon = base.loader.loadModel(base.assets_collector()[name])
+                    weapon.set_name(name)
+                    weapon.reparent_to(joint)
+                    if "bow_kazakh" not in name:
+                        weapon.set_pos(10, 20, -8)
+                        weapon.set_hpr(325.30, 343.30, 7.13)
+                        weapon.set_scale(100)
+                    if "bow_kazakh" in name:
+                        weapon.set_pos(0, 12, -12)
+                        weapon.set_hpr(78.69, 99.46, 108.43)
+                        weapon.set_scale(100)
+                        arrow = base.loader.loadModel(base.assets_collector()["bow_arrow_kazakh"])
+                        if arrow:
+                            arrow.reparent_to(joint)
+                            arrow.set_name("bow_arrow_kazakh")
+                            arrow.set_pos(-10, 7, -12)
+                            arrow.set_hpr(91.55, 0, 0)
+                            arrow.set_scale(100)
 
             base.player_state_unarmed = True
             base.player_state_armed = False
@@ -263,26 +265,24 @@ class PlayerState:
         if (actor and weapon_name and bone_name
                 and isinstance(weapon_name, str)
                 and isinstance(bone_name, str)):
-
-            if weapon_name == "sword":
-                if actor.find("bow"):
-                    self.remove_weapon(actor, "bow", bone_name)
-            elif weapon_name == "bow":
-                if actor.find("sword"):
-                    self.remove_weapon(actor, "sword", bone_name)
+            weapons = self.base.game_instance["weapons"]
+            if weapons:
+                for weapon in weapons:
+                    if weapon != weapon_name:
+                        self.remove_weapon(actor, weapon, "Korlan:Spine1")
 
             joint = actor.exposeJoint(None, "modelRoot", bone_name)
             if render.find("**/{0}".format(weapon_name)):
                 weapon = render.find("**/{0}".format(weapon_name))
                 weapon.reparent_to(joint)
-                if weapon_name == "sword":
+                if "bow_kazakh" not in weapon_name:
                     # rescale weapon because it's scale 100 times smaller than we need
                     weapon.set_scale(100)
                     weapon.set_pos(-11.0, 13.0, -3.0)
                     weapon.set_hpr(212.47, 0.0, 18.43)
                     if weapon.is_hidden():
                         weapon.show()
-                elif weapon_name == "bow_kazakh":
+                elif "bow_kazakh" in weapon_name:
                     # rescale weapon because it's scale 100 times smaller than we need
                     weapon.set_scale(100)
                     weapon.set_pos(0, 2.0, 2.0)
@@ -307,24 +307,16 @@ class PlayerState:
         if (actor and weapon_name and bone_name
                 and isinstance(weapon_name, str)
                 and isinstance(bone_name, str)):
-
-            if weapon_name == "sword":
-                if actor.find("bow"):
-                    self.remove_weapon(actor, "bow", bone_name)
-            elif weapon_name == "bow":
-                if actor.find("sword"):
-                    self.remove_weapon(actor, "sword", bone_name)
-
             joint = actor.exposeJoint(None, "modelRoot", bone_name)
             if render.find("**/{0}".format(weapon_name)):
                 weapon = render.find("**/{0}".format(weapon_name))
                 weapon.reparent_to(joint)
-                if weapon_name == "sword":
+                if "bow_kazakh" not in weapon_name:
                     # rescale weapon because it's scale 100 times smaller than we need
                     weapon.set_scale(100)
                     weapon.set_pos(10, 20, -8)
                     weapon.set_hpr(325.30, 343.30, 7.13)
-                elif weapon_name == "bow_kazakh":
+                elif "bow_kazakh" in weapon_name:
                     # rescale weapon because it's scale 100 times smaller than we need
                     weapon.set_scale(100)
                     weapon.set_pos(0, 12, -12)
@@ -333,7 +325,7 @@ class PlayerState:
                     if arrow:
                         arrow.reparent_to(weapon)
                         # rescale weapon because it's scale 100 times smaller than we need
-                        arrow.set_scale(1)
+                        arrow.set_scale(100)
                         arrow.set_pos(-10, 7, -12)
                         arrow.set_hpr(91.55, 0, 0)
 

@@ -184,6 +184,8 @@ class Korlan:
 
                 self.korlan.reparent_to(render)
 
+                base.player_is_loaded = 1
+
                 self.korlan.set_name(name)
                 self.korlan.set_scale(self.korlan, self.scale_x, self.scale_y, self.scale_z)
                 self.korlan_start_pos = LPoint3f(self.pos_x, self.pos_y, 0.0)
@@ -227,6 +229,11 @@ class Korlan:
                     base.player = self.korlan
                     self.render.analyze()
 
+                self.base.game_instance["weapons"] = [
+                    "sword",
+                    "bow_kazakh",
+                ]
+
                 self.actions.player_actions_init(self.korlan, animation[0])
 
                 self.korlan_life_perc = 100
@@ -235,6 +242,5 @@ class Korlan:
                             "actor_life",
                             appendTask=True)
 
-                base.player_is_loaded = 1
 
 

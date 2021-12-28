@@ -61,7 +61,7 @@ if exists("GameData.mf"):
 else:
     cfg_is_broken = True
 
-build_info_txt = "Build 0.4. 12/2021"
+build_info_txt = "Build 0.5. 12/2021"
 
 game_settings = configparser.ConfigParser()
 game_settings['Main'] = {'disp_res': '1920x1080',
@@ -455,6 +455,7 @@ class Main(ShowBase):
             "do_key_once": {},
             "item_state": {},
             "usable_items": {},
+            "weapons": [],
             "item_player_access_codes": {},
             "level_assets": {},
         }

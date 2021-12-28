@@ -22,19 +22,18 @@ class Equip:
         if (actor and weapon_name and bone_name
                 and isinstance(weapon_name, str)
                 and isinstance(bone_name, str)):
-
             joint = actor.exposeJoint(None, "modelRoot", bone_name)
             if render.find("**/{0}".format(weapon_name)):
                 weapon = render.find("**/{0}".format(weapon_name))
                 weapon.reparent_to(joint)
-                if weapon_name == "sword":
+                if "bow_kazakh" not in weapon_name:
                     # rescale weapon because it's scale 100 times smaller than we need
                     weapon.set_scale(100)
                     weapon.set_pos(10, 20, -8)
                     weapon.set_hpr(325.30, 343.30, 7.13)
                     if weapon.is_hidden():
                         weapon.show()
-                elif weapon_name == "bow_kazakh":
+                elif "bow_kazakh" in weapon_name:
                     # rescale weapon because it's scale 100 times smaller than we need
                     weapon.set_scale(100)
                     weapon.set_pos(0, 12, -12)
@@ -56,17 +55,16 @@ class Equip:
     def _remove_weapon(self, actor, weapon_name):
         if (actor and weapon_name
                 and isinstance(weapon_name, str)):
-
             if render.find("**/{0}".format(weapon_name)):
                 weapon = render.find("**/{0}".format(weapon_name))
                 weapon.reparent_to(render)
-                if weapon_name == "sword":
+                if "bow_kazakh" not in weapon_name:
                     # rescale weapon because it's scale 100 times smaller than we need
                     weapon.set_scale(100)
                     weapon.set_pos(10, 20, -8)
                     weapon.set_hpr(325.30, 343.30, 7.13)
                     weapon.hide()
-                elif weapon_name == "bow_kazakh":
+                elif "bow_kazakh" in weapon_name:
                     # rescale weapon because it's scale 100 times smaller than we need
                     weapon.set_scale(100)
                     weapon.set_pos(0, 12, -12)
