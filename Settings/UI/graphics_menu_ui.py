@@ -93,6 +93,7 @@ class GraphicsMenuUI(Graphics):
 
         self.lbl_perc_disp_res = None
         self.lbl_perc_details = None
+        self.lbl_perc_texcomp = None
         self.lbl_perc_shadows = None
         self.lbl_perc_postpro = None
         self.lbl_perc_antial = None
@@ -118,6 +119,7 @@ class GraphicsMenuUI(Graphics):
 
         self.slider_disp_res = None
         self.slider_details = None
+        self.slider_texcomp = None
         self.slider_shadows = None
         self.slider_postpro = None
         self.slider_antial = None
@@ -201,6 +203,13 @@ class GraphicsMenuUI(Graphics):
                                         parent=self.base.frame_int_gfx)
 
         self.lbl_details = DirectLabel(text=self.language['details'],
+                                       text_fg=(255, 255, 255, 1),
+                                       text_font=self.font.load_font(self.menu_font),
+                                       frameColor=(255, 255, 255, 0),
+                                       scale=self.lbl_scale, borderWidth=(self.w, self.h),
+                                       parent=self.base.frame_int_gfx)
+
+        self.lbl_texcomp = DirectLabel(text=self.language['texcomp'],
                                        text_fg=(255, 255, 255, 1),
                                        text_font=self.font.load_font(self.menu_font),
                                        frameColor=(255, 255, 255, 0),
@@ -335,11 +344,20 @@ class GraphicsMenuUI(Graphics):
                                             command=self.set_slider_disp_res_wrapper)
 
         self.slider_details = DirectSlider(frameColor=self.rgba_gray_color,
-                                           range=(1, 100), value=50,
+                                           range=(1, 3),
+                                           value=self.get_details_value(),
                                            scale=.2, borderWidth=(self.w, self.h),
                                            parent=self.base.frame_int_gfx,
                                            orientation=DGG.HORIZONTAL,
                                            command=self.set_slider_details_wrapper)
+
+        self.slider_texcomp = DirectSlider(frameColor=self.rgba_gray_color,
+                                           range=(1, 3),
+                                           value=self.get_texcomp_value(),
+                                           scale=.2, borderWidth=(self.w, self.h),
+                                           parent=self.base.frame_int_gfx,
+                                           orientation=DGG.HORIZONTAL,
+                                           command=self.set_slider_texcomp_wrapper)
 
         self.slider_shadows = DirectSlider(frameColor=self.rgba_gray_color,
                                            range=(1, 2),
@@ -474,6 +492,11 @@ class GraphicsMenuUI(Graphics):
                                              scale=self.lbl_scale,
                                              parent=self.base.frame_int_gfx, mayChange=True)
 
+        self.lbl_perc_texcomp = OnscreenText(bg=(0, 0, 0, 0), fg=(255, 255, 255, 1),
+                                             font=self.font.load_font(self.menu_font),
+                                             scale=self.lbl_scale,
+                                             parent=self.base.frame_int_gfx, mayChange=True)
+
         self.lbl_perc_shadows = OnscreenText(bg=(0, 0, 0, 0), fg=(255, 255, 255, 1),
                                              font=self.font.load_font(self.menu_font),
                                              scale=self.lbl_scale,
@@ -595,28 +618,32 @@ class GraphicsMenuUI(Graphics):
 
         self.lbl_disp_res.set_pos(-0.5, 0, 0.3)
         self.lbl_details.set_pos(-0.5, 0, 0.2)
-        self.lbl_shadows.set_pos(-0.5, 0, 0.1)
-        self.lbl_postprocessing.set_pos(-0.5, 0, 0)
-        self.lbl_antialiasing.set_pos(-0.5, 0, -0.1)
-        self.lbl_ao.set_pos(-0.5, 0, -0.2)
-        self.lbl_bloom.set_pos(-0.5, 0, -0.3)
-        self.lbl_clouds.set_pos(-0.5, 0, -0.4)
-        self.lbl_cc.set_pos(-0.5, 0, -0.5)
+        self.lbl_texcomp.set_pos(-0.5, 0, 0.1)
+        self.lbl_shadows.set_pos(-0.5, 0, 0.0)
+        self.lbl_postprocessing.set_pos(-0.5, 0, -0.1)
+        self.lbl_antialiasing.set_pos(-0.5, 0, -0.2)
+        self.lbl_ao.set_pos(-0.5, 0, -0.3)
+        self.lbl_bloom.set_pos(-0.5, 0, -0.4)
+        self.lbl_clouds.set_pos(-0.5, 0, -0.5)
+        self.lbl_cc.set_pos(-0.5, 0, -0.6)
 
         self.slider_disp_res.set_pos(-0.0, 0, 0.3)
         self.slider_details.set_pos(-0.0, 0, 0.2)
-        self.slider_shadows.set_pos(-0.0, 0, 0.1)
-        self.slider_postpro.set_pos(-0.0, 0, 0)
-        self.slider_antial.set_pos(-0.0, 0, -0.1)
-        self.slider_ao.set_pos(-0.0, 0, -0.2)
-        self.slider_bloom.set_pos(-0.0, 0, -0.3)
-        self.slider_clouds.set_pos(-0.0, 0, -0.4)
-        self.slider_cc.set_pos(-0.0, 0, -0.5)
+        self.slider_texcomp.set_pos(-0.0, 0, 0.1)
+        self.slider_shadows.set_pos(-0.0, 0, 0)
+        self.slider_postpro.set_pos(-0.0, 0, -0.1)
+        self.slider_antial.set_pos(-0.0, 0, -0.2)
+        self.slider_ao.set_pos(-0.0, 0, -0.3)
+        self.slider_bloom.set_pos(-0.0, 0, -0.4)
+        self.slider_clouds.set_pos(-0.0, 0, -0.5)
+        self.slider_cc.set_pos(-0.0, 0, -0.6)
 
         OnscreenImage(image=self.images['ui_slider_button'],
                       scale=(.07, .07, .08)).reparent_to(self.slider_disp_res.thumb)
         OnscreenImage(image=self.images['ui_slider_button'],
                       scale=(.07, .07, .08)).reparent_to(self.slider_details.thumb)
+        OnscreenImage(image=self.images['ui_slider_button'],
+                      scale=(.07, .07, .08)).reparent_to(self.slider_texcomp.thumb)
         OnscreenImage(image=self.images['ui_slider_button'],
                       scale=(.07, .07, .08)).reparent_to(self.slider_shadows.thumb)
         OnscreenImage(image=self.images['ui_slider_button'],
@@ -634,13 +661,14 @@ class GraphicsMenuUI(Graphics):
 
         self.lbl_perc_disp_res.set_pos(0.4, 0, 0.3)
         self.lbl_perc_details.set_pos(0.4, 0, 0.2)
-        self.lbl_perc_shadows.set_pos(0.4, 0, 0.1)
-        self.lbl_perc_postpro.set_pos(0.4, 0, 0)
-        self.lbl_perc_antial.set_pos(0.4, 0, -0.1)
-        self.lbl_perc_ao.set_pos(0.4, 0, -0.2)
-        self.lbl_perc_bloom.set_pos(0.4, 0, -0.3)
-        self.lbl_perc_clouds.set_pos(0.4, 0, -0.4)
-        self.lbl_perc_cc.set_pos(0.4, 0, -0.5)
+        self.lbl_perc_texcomp.set_pos(0.4, 0, 0.1)
+        self.lbl_perc_shadows.set_pos(0.4, 0, 0)
+        self.lbl_perc_postpro.set_pos(0.4, 0, -0.1)
+        self.lbl_perc_antial.set_pos(0.4, 0, -0.2)
+        self.lbl_perc_ao.set_pos(0.4, 0, -0.3)
+        self.lbl_perc_bloom.set_pos(0.4, 0, -0.4)
+        self.lbl_perc_clouds.set_pos(0.4, 0, -0.5)
+        self.lbl_perc_cc.set_pos(0.4, 0, -0.6)
 
         self.lbl_scattering.set_pos(0.8, 0, 0.3)
         self.lbl_sky_ao.set_pos(0.8, 0, 0.2)
@@ -763,8 +791,28 @@ class GraphicsMenuUI(Graphics):
         """
         # Make it int and then str
         i = int(self.slider_details['value'])
-        self.lbl_perc_details.setText(str(i))
-        # self.save_details_value(i)
+        details_dict = self.load_details_value()
+        string = details_dict[i]
+        self.lbl_perc_details.setText(string)
+        self.save_details_value(string)
+
+    def set_slider_texcomp_wrapper(self):
+        """ Function    : set_slider_texcomp_wrapper
+
+            Description : Wrapper function.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
+        # Make it int and then str
+        i = int(self.slider_texcomp['value'])
+        texcomp_dict = self.load_texcomp_value()
+        string = texcomp_dict[i]
+        self.lbl_perc_texcomp.setText(string)
+        self.save_texcomp_value(string)
 
     def set_slider_shadows_wrapper(self):
         """ Function    : set_slider_shadows_wrapper

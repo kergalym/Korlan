@@ -22,6 +22,7 @@
   "camera_distance": "Дальность камеры",
   "disp_res": "Разрешение экрана",
   "details": "Детализация",
+  "texcomp": "Сжатие текстур",
   "shadows": "Тени",
   "postprocessing": "Advanced Render",
   "antialiasing": "Сглаживание (SMAA)",

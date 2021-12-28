@@ -68,6 +68,8 @@ game_settings['Main'] = {'disp_res': '1920x1080',
                          'fullscreen': 'off',
                          'antialiasing': 'on',
                          'postprocessing': 'on',
+                         'details': 'high',
+                         'texture_compression': 'active',
                          'shadows': 'on',
                          'sound': 'on',
                          'music': 'on',
@@ -159,8 +161,8 @@ p3d.load_prc_file_data(
     'bullet-filter-algorithm groups-mask\n'
     'hardware-animated-vertices f\n'
     'basic-shaders-only f\n'
-    'texture-compression t\n'
-    'driver-compress-textures t\n'
+    'texture-compression f\n'
+    'driver-compress-textures f\n'
     'task-timer-verbose 0\n'
     'pstats-tasks 0\n'
     'loader-thread-priority normal\n'
@@ -463,7 +465,9 @@ class Main(ShowBase):
         self.game_mode = False
         self.menu_mode = False
 
-        self.game_instance = {}
+        self.game_instance = {
+            "tex_cm": game_settings['Main']['texture_compression']
+        }
 
         self.game_settings.read("{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename))
 

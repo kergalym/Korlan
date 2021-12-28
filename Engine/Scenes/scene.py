@@ -77,8 +77,16 @@ class SceneOne:
             world = render.find("**/World")
             if world:
                 for tex in scene.findAllTextures():
-                    # CM_dxt5
-                    tex.setCompression(8)
+                    # DXT5 compression mode
+                    cm = str(self.base.game_instance['tex_cm'])
+                    num = 0
+                    if cm == 'default':
+                        num = 0
+                    if cm == 'inactive':
+                        num = 1
+                    if cm == 'active':
+                        num = 2
+                    tex.setCompression(num)
 
                 scene.reparent_to(self.base.lod_np)
                 # scene.flatten_strong()

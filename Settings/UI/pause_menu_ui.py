@@ -97,6 +97,8 @@ class PauseMenuUI(MenuSettings):
             with open(self.lng_configs['lg_{0}'.format(lng_to_load)], 'r') as json_file:
                 self.language = json.load(json_file)
 
+        self.base.esc_menu_is_active = 0
+
         """ Buttons & Fonts"""
         self.menu_font = self.fonts['OpenSans-Regular']
 
@@ -135,6 +137,7 @@ class PauseMenuUI(MenuSettings):
 
         base.is_ui_active = True
         self.pause_mode = 1
+        self.base.esc_menu_is_active = 1
         win_props = WindowProperties()
         win_props.set_cursor_hidden(False)
         self.base.win.request_properties(win_props)
@@ -297,3 +300,4 @@ class PauseMenuUI(MenuSettings):
             base.is_ui_active = False
 
         self.pause_mode = 0
+        self.base.esc_menu_is_active = 0

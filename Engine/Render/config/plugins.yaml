@@ -2,10 +2,8 @@ disabled:
 - dof
 - motion_blur
 - fxaa
-- skin_shading
-- sky_ao
-- env_probes
 - bloom
+- volumetrics
 - vxgi
 enabled:
 - ao
@@ -15,8 +13,10 @@ enabled:
 - scattering
 - smaa
 - ssr
+- skin_shading
+- sky_ao
+- env_probes
 - clouds
-- volumetrics
 overrides:
   ao:
     alchemy_max_distance: 5.86

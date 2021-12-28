@@ -506,7 +506,9 @@ class Sheet(Inventory):
 
     def set_sheet(self):
         """ Sets inventory ui """
-        if base.game_mode and base.menu_mode is False:
+        if (base.game_mode and base.menu_mode is False
+                and hasattr(base, "esc_menu_is_active")
+                and base.esc_menu_is_active == 0):
             if self.base.frame_inv:
                 if self.base.frame_inv.is_hidden():
 

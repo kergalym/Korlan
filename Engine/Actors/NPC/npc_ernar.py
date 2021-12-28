@@ -120,7 +120,16 @@ class NpcErnar:
             self.actor.set_transparency(True)
 
             for tex in self.actor.findAllTextures():
-                tex.setCompression(8)
+                # DXT5 compression mode
+                cm = str(self.base.game_instance['tex_cm'])
+                num = 0
+                if cm == 'default':
+                    num = 0
+                if cm == 'inactive':
+                    num = 1
+                if cm == 'active':
+                    num = 2
+                tex.setCompression(num)
 
             self.actor.reparent_to(render)
 
