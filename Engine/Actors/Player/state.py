@@ -186,8 +186,21 @@ class PlayerState:
                 and isinstance(state, bool)):
             if state:
                 base.player_states[action] = state
+                # use this if action is related to weapon state
+                # since we allow only one equipped weapon
+                if "has" in action:
+                    for key in base.player_states:
+                        if key != action:
+                            base.player_states[key] = False
+
             else:
                 base.player_states[action] = state
+                # use this if action is related to weapon state
+                # we don't have any weapon equipped
+                if "has" in action:
+                    for key in base.player_states:
+                        if key != action or "idle" not in action:
+                            base.player_states[key] = False
                 base.player_states["is_idle"] = True
 
     """def set_action_state_old(self, action, state):

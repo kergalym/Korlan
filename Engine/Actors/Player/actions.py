@@ -814,7 +814,7 @@ class Actions:
                     Sequence(crouch_to_stand_seq,
                              Func(self.state.get_weapon, player, "sword", "Korlan:LeftHand"),
                              Func(self.state.set_action_state, "has_sword", True),
-                             Parallel(any_action_seq, Func(self.state.set_action_state, "is_using", True), Wait(0.5)),
+                             Parallel(any_action_seq, Func(self.state.set_action_state, "is_using", True)),
                              Func(self.state.set_action_state, "is_using", False),
                              Func(self.state.set_do_once_key, "sword", False),
                              ).start()
@@ -831,7 +831,6 @@ class Actions:
                              Parallel(any_action_seq, Func(self.state.set_action_state, "is_using", True)),
                              Func(self.state.set_action_state, "is_using", False),
                              Func(self.state.set_do_once_key, "sword", False),
-                             Wait(0.5)
                              ).start()
 
                 elif (base.player_states['has_sword']
@@ -851,7 +850,6 @@ class Actions:
                              Func(self.state.remove_weapon, player, "sword", "Korlan:Spine1"),
                              Func(self.state.set_action_state, "has_sword", False),
                              Func(self.state.set_do_once_key, "sword", False),
-                             Wait(0.5)
                              ).start()
 
                 elif (base.player_states['has_sword']
@@ -862,7 +860,7 @@ class Actions:
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=-self.base.actor_play_rate)
                     Sequence(Parallel(any_action_seq,
-                                      Func(self.state.set_action_state, "is_using", True), Wait(0.5)),
+                                      Func(self.state.set_action_state, "is_using", True)),
                              Func(self.state.set_action_state, "is_using", False),
                              Func(self.state.remove_weapon, player, "sword", "Korlan:Spine1"),
                              Func(self.state.set_action_state, "has_sword", False),
