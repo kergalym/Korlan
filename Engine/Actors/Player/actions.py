@@ -607,6 +607,7 @@ class Actions:
                 self.state.set_do_once_key(key, True)
                 crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
                 base.player_states['is_idle'] = False
+                
                 self.player_in_crouched_to_stand_with_any_action(player, key, anims, action, "is_jumping")
 
                 if (base.player_states['is_jumping'] is False
