@@ -167,6 +167,7 @@ class Actions:
                 # Pass the player object to FSM
                 self.fsm_player.get_player(actor=player)
 
+                # Start actions
                 taskMgr.add(self.player_actions_task, "player_actions_task",
                             extraArgs=[player, anims],
                             appendTask=True)
@@ -286,15 +287,9 @@ class Actions:
 
                     if base.player_states['has_sword'] and not base.player_states['has_bow']:
                         self.player_attack_action(player, "attack", anims, "great_sword_slash")
-                    elif not base.player_states['has_sword'] and base.player_states['has_bow']:
-                        self.player_attack_action(player, "block", anims, "archer_standing_draw_arrow")
-
-                    if base.player_states['has_sword'] and not base.player_states['has_bow']:
                         self.player_block_action(player, "block", anims, "great_sword_blocking")
                     elif not base.player_states['has_sword'] and base.player_states['has_bow']:
-                        self.player_attack_action(player, "block", anims, "archer_standing_draw_arrow")
-
-                    self.player_bow_shoot_action(player, anims, "archer_standing_draw_arrow")
+                        self.player_bow_shoot_action(player, anims, "archer_standing_draw_arrow")
 
                     self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
                     self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
@@ -607,7 +602,7 @@ class Actions:
                 self.state.set_do_once_key(key, True)
                 crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
                 base.player_states['is_idle'] = False
-                
+
                 self.player_in_crouched_to_stand_with_any_action(player, key, anims, action, "is_jumping")
 
                 if (base.player_states['is_jumping'] is False
@@ -994,8 +989,8 @@ class Actions:
                 self.player_in_crouched_to_stand_with_magic_weapon_action(player, key, anims, action, "has_umai")
 
                 if (base.player_states['has_umai'] is False
-                      and crouched_to_standing.is_playing() is False
-                      and base.player_states['is_crouching'] is False):
+                        and crouched_to_standing.is_playing() is False
+                        and base.player_states['is_crouching'] is False):
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
                     Sequence(Func(self.state.set_action_state, "has_umai", True),
@@ -1008,10 +1003,11 @@ class Actions:
         # FIXME
         if (player and isinstance(anims, dict)
                 and isinstance(action, str)):
-            if self.kbd.keymap["block"] and self.kbd.keymap["attack"] and not base.do_key_once["block"]:
+            if self.kbd.keymap["block"] and not self.kbd.keymap["attack"] and not base.do_key_once["block"]:
                 self.state.set_do_once_key("block", True)
                 crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
                 base.player_states['is_idle'] = False
+
                 if (base.player_states['has_bow']
                         and crouched_to_standing.is_playing() is False
                         and base.player_states['is_crouching'] is True):
@@ -1024,10 +1020,6 @@ class Actions:
                     Sequence(crouch_to_stand_seq,
                              any_action_seq,
                              player.pose(action, -1),
-                             Wait(2),
-                             Func(self.state.set_action_state, "is_hitting", True),
-                             Func(self.state.set_action_state, "is_hitting", False),
-                             Func(base.messenger.send, "bow_shoot"),
                              Func(self.state.set_do_once_key, 'block', False),
                              ).start()
 
@@ -1037,13 +1029,32 @@ class Actions:
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
                     Sequence(any_action_seq,
-                             player.pose(action, -1),
-                             Wait(2),
-                             Func(self.state.set_action_state, "is_hitting", True),
-                             Func(self.state.set_action_state, "is_hitting", False),
+                             # player.pose(action, 2),
                              Func(base.messenger.send, "bow_shoot"),
                              Func(self.state.set_do_once_key, 'block', False),
                              ).start()
+
+            elif self.kbd.keymap["block"] and self.kbd.keymap["attack"] and not base.do_key_once["block"]:
+                self.state.set_do_once_key("block", True)
+                crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
+                base.player_states['is_idle'] = False
+                if (base.player_states['has_bow']
+                        and crouched_to_standing.is_playing() is False
+                        and base.player_states['is_crouching'] is True):
+                    """Sequence(Func(base.messenger.send, "bow_shoot"),
+                             Func(self.state.set_do_once_key, 'block', False),
+                             ).start()"""
+                    base.messenger.send("bow_shoot")
+                    self.state.set_do_once_key('block', False)
+
+                elif (base.player_states['has_bow']
+                      and crouched_to_standing.is_playing() is False
+                      and base.player_states['is_crouching'] is False):
+                    base.messenger.send("bow_shoot")
+                    self.state.set_do_once_key('block', False)
+                    """Sequence(Func(base.messenger.send, "bow_shoot"),
+                             Func(self.state.set_do_once_key, 'block', False),
+                             ).start()"""
 
     def mount_action(self, anims):
         # FIXME
