@@ -37,8 +37,6 @@ class OptionsMenuUI(MenuSettings):
         self.node_frame_item = None
 
         self.rgba_gray_color = (.3, .3, .3, 1.)
-        self.game_mode = base.game_mode
-        self.menu_mode = base.menu_mode
 
         """ Frames """
         self.base.frame_int = None
@@ -108,8 +106,8 @@ class OptionsMenuUI(MenuSettings):
             Return      : None
         """
 
-        if hasattr(base, "active_frame"):
-            base.active_frame.destroy()
+        if self.base.game_instance['current_active_frame']:
+            self.base.game_instance['current_active_frame'].destroy()
 
         ui_geoms = base.ui_geom_collector()
 
@@ -207,7 +205,7 @@ class OptionsMenuUI(MenuSettings):
         self.ornament_left.set_hpr(0.0, 0.0, -90.0)
         self.ornament_right.set_transparency(TransparencyAttrib.MAlpha)
         self.ornament_left.set_transparency(TransparencyAttrib.MAlpha)
-        self.menu_mode = True
+        self.base.game_instance['menu_mode'] = True
 
     def unload_options_menu(self):
         """ Function    : unload_options_menu
@@ -223,13 +221,12 @@ class OptionsMenuUI(MenuSettings):
         if not self.base.frame_int:
             return
 
-        if hasattr(base, "active_frame"):
-            base.active_frame.destroy()
+        if self.base.game_instance['current_active_frame']:
+            self.base.game_instance['current_active_frame'].destroy()
 
         self.base.build_info.reparent_to(aspect2d)
 
-        if self.game_mode:
-            self.base.frame_int.destroy()
+        self.base.frame_int.destroy()
         self.base.frame_int.destroy()
         self.logo.destroy()
         self.ornament_left.destroy()

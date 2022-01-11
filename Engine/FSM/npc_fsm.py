@@ -15,7 +15,7 @@ class NpcFSM:
         self.npcs_bs = {}
 
     def get_npcs(self, actors):
-        # actors is base.npcs_actor_refs
+        # actors taken from self.base.game_instance['actors_ref']
         for k in actors:
             actor_bs = self.base.get_actor_bullet_shape_node(asset=k, type="NPC")
             if actor_bs:
@@ -34,9 +34,6 @@ class NpcFSM:
                     self.npcs_xyz_vec[actor_bs.get_name()] = tuple_xyz_vec
 
             self.base.npcs_xyz_vec = self.npcs_xyz_vec
-
-        if base.game_mode is False and base.menu_mode:
-            return task.done
 
         return task.cont
 

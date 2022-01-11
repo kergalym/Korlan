@@ -337,29 +337,24 @@ class Sheet(Inventory):
            (('INVENTORY_1', 'TRASH'), 'item',
             self.images['slot_item_torsyk'], 'Torsyk', 1, 1, 0, 8),"""
 
-        sheet_items = [
-            (('INVENTORY_2', 'TRASH', 'HAND_L'), 'weapon',
-             self.images['slot_item_sword'], 'Sword', 1, 1, 0, 38),
-            (('INVENTORY_2', 'TRASH', 'HAND_R'), 'weapon',
-             self.images['slot_item_bow'], 'Bow', 1, 1, 0, 9),
-            (('INVENTORY_2', 'TRASH', 'BODY'), 'armor',
-             self.images['slot_item_armor'], 'Light armor', 1, 1, 10),
-            (('INVENTORY_2', 'TRASH', 'HEAD'), 'armor',
-             self.images['slot_item_helmet'], 'Helmet', 1, 1, 5),
-            (('INVENTORY_2', 'TRASH', 'FEET'), 'armor',
-             self.images['slot_item_feet'], 'Pants', 1, 1, 2),
-            (('INVENTORY_2', 'TRASH', 'LEGS'), 'armor',
-             self.images['slot_item_boots'], 'Boots', 1, 1, 2),
-            (('INVENTORY_2', 'TRASH'), 'Arrows',
-             self.images['slot_item_arrows'], 'Arrows', 20, 30),
-            (('INVENTORY_2', 'TRASH'), 'Arrows',
-             self.images['slot_item_arrows'], 'Arrows', 15, 30),
-            (('INVENTORY_2', 'TRASH'), 'Arrows',
-             self.images['slot_item_arrows'], 'Arrows', 6, 30),
-            (('INVENTORY_3', 'TENGRI_PWR'), 'weapon',
-             self.images['slot_item_tengri'], 'Tengri Power', 1, 1, 0, 8),
-            (('INVENTORY_3', 'UMAI_PWR'), 'weapon',
-             self.images['slot_item_umai'], 'Umai Power', 1, 1, 0, 8)
+        # Inventory row, slots, inventory_type, icon, txt_pieces, int_pieces, 0, damage
+        self.sheet_items = [
+            [['INVENTORY_2', 'TRASH', 'HAND_L'], 'weapon',
+             self.images['slot_item_sword'], 'Sword', 1, 1, 0, 38],
+            [['INVENTORY_2', 'TRASH', 'HAND_R'], 'weapon',
+             self.images['slot_item_bow'], 'Bow', 1, 1, 0, 9],
+            [['INVENTORY_2', 'TRASH', 'BODY'], 'armor',
+             self.images['slot_item_armor'], 'Light armor', 1, 1, 10],
+            [['INVENTORY_2', 'TRASH', 'HEAD'], 'armor',
+             self.images['slot_item_helmet'], 'Helmet', 1, 1, 5],
+            [['INVENTORY_2', 'TRASH', 'FEET'], 'armor',
+             self.images['slot_item_feet'], 'Pants', 1, 1, 2],
+            [['INVENTORY_2', 'TRASH', 'LEGS'], 'armor',
+             self.images['slot_item_boots'], 'Boots', 1, 1, 2],
+            [['INVENTORY_3', 'TENGRI_PWR'], 'weapon',
+             self.images['slot_item_tengri'], 'Tengri Power', 1, 1, 0, 8],
+            [['INVENTORY_3', 'UMAI_PWR'], 'weapon',
+             self.images['slot_item_umai'], 'Umai Power', 1, 1, 0, 8]
         ]
 
         # sheet slots init
@@ -370,7 +365,7 @@ class Sheet(Inventory):
         self.fill_up_inv_slots(3, 5, -1.0, 0.66, 'INVENTORY_2')
         self.fill_up_inv_slots(3, 5, -0.45, 0.66, 'INVENTORY_3')
 
-        for item in sheet_items:
+        for item in self.sheet_items:
             inventory_type = item[0][0]
             self.add_item(Item(item), inventory_type)
 
@@ -465,6 +460,40 @@ class Sheet(Inventory):
                         pos=(value_label_pos_x, 0, pos_z),
                         parent=self.frame_player_prop)
 
+    def add_item_to_inventory(self, item, count, inventory, inventory_type):
+        if (item and isinstance(item, str)
+                and inventory and isinstance(inventory, str)
+                and inventory_type and isinstance(inventory_type, str)
+                and count and isinstance(count, int)):
+            item_is_matched = 0
+            matched_item = None
+            for sheet_item in self.sheet_items:
+                if item == sheet_item[3]:
+                    item_is_matched = 1
+                    matched_item = sheet_item
+
+            if item_is_matched == 0:
+                item_row = [[inventory, 'TRASH'], inventory_type,
+                            self.images['slot_item_{0}'.format(item.lower())],
+                            item, count, count, 0, 5
+                            ]
+                inventory_type = item_row[0][0]
+                self.sheet_items.append(item_row)
+                self.add_item(Item(item_row), inventory_type)
+                self.refresh_items()
+                self.base.game_instance['arrow_count'] = count
+            elif item_is_matched == 1:
+                new_count = matched_item[4] + count
+                item_row = [[inventory, 'TRASH'], inventory_type,
+                            self.images['slot_item_{0}'.format(item.lower())],
+                            item, new_count, new_count, 0, 5
+                            ]
+                inventory_type = item_row[0][0]
+                self.sheet_items.append(item_row)
+                self.add_item(Item(item_row), inventory_type)
+                self.refresh_items()
+                self.base.game_instance['arrow_count'] = new_count
+
     @staticmethod
     def _handle_mouse_scroll(obj, direction):
         if (isinstance(obj, DirectSlider)
@@ -506,14 +535,13 @@ class Sheet(Inventory):
 
     def set_sheet(self):
         """ Sets inventory ui """
-        if (base.game_mode and base.menu_mode is False
-                and hasattr(base, "esc_menu_is_active")
-                and base.esc_menu_is_active == 0):
+        if (not self.base.game_instance['menu_mode']
+                and not self.base.game_instance['esc_mode']):
             if self.base.frame_inv:
                 if self.base.frame_inv.is_hidden():
 
-                    if hasattr(base, "hud") and base.hud:
-                        base.hud.toggle_all_hud(state="hidden")
+                    if self.base.game_instance['hud_np']:
+                        self.base.game_instance['hud_np'].toggle_all_hud(state="hidden")
 
                     self.base.frame_inv.show()
                     # self.base.menu_selector.show()
@@ -526,7 +554,7 @@ class Sheet(Inventory):
                     self.props.set_cursor_hidden(False)
                     self.base.win.request_properties(self.props)
 
-                    base.is_ui_active = True
+                    self.base.game_instance['ui_mode'] = True
                     self.base.is_inventory_active = True
                     self.prepare_character()
 
@@ -538,12 +566,8 @@ class Sheet(Inventory):
                     # 'on item move' event processing
                     # in this case we are delete item, which has been placed into the 'TRASH'
                     base.accept('inventory-item-move', self.on_item_move)
-
-                    # Add another item to inventory
-                    item = (('INVENTORY_2', 'TRASH'), 'Arrows', self.images['slot_item_arrows'], 'Arrows', 15, 30)
-                    inventory_type = item[0][0]
-                    self.add_item(Item(item), inventory_type)
                     self.refresh_items()
+                    self.update_counters()
                 else:
                     self.clear_sheet()
 
@@ -556,15 +580,15 @@ class Sheet(Inventory):
 
         self.base.frame_journal.hide()
 
-        if hasattr(base, "hud") and base.hud:
-            base.hud.toggle_all_hud(state="visible")
+        if self.base.game_instance['hud_np']:
+            self.base.game_instance['hud_np'].toggle_all_hud(state="visible")
 
         self.toggle()
 
         props = WindowProperties()
         props.set_cursor_hidden(True)
         self.base.win.request_properties(props)
-        base.is_ui_active = False
+        self.base.game_instance['ui_mode'] = False
 
         self.revert_character()
 

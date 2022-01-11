@@ -61,7 +61,7 @@ if exists("GameData.mf"):
 else:
     cfg_is_broken = True
 
-build_info_txt = "Build 0.5. 12/2021"
+build_info_txt = "Build 0.5. 01/2022"
 
 game_settings = configparser.ConfigParser()
 game_settings['Main'] = {'disp_res': '1920x1080',
@@ -241,51 +241,6 @@ class Error(ShowBase):
         self.title_msg.setText("Hey, samurai. Your game is broken. Fix and come back")
         self.title_sm_msg.setText("I unable to find and load GameData.mf :(\n")
 
-    def video_status_task(self, media, type, file, task):
-        """ Function    : video_status_task
-
-            Description : Task for video wall.
-
-            Input       : Nodepath, String, Task
-
-            Output      : None
-
-            Return      : Task event
-        """
-        if media and type and isinstance(type, str) and "REDSTUDIO_FHD" in file:
-            base.accept("escape", media.stop)
-
-        if AudioSound.status(media) == 1:
-            if type == "player_avatar":
-                media.play()
-            else:
-                media.stop()
-
-            if type != "menu_scene":
-                if not render2d.find("**/VideoWall").is_empty():
-                    render2d.find("**/VideoWall").remove_node()
-
-            if type == "main_menu":
-                # Disable the camera trackball controls.
-                self.disable_mouse()
-                props = WindowProperties()
-                props.set_cursor_hidden(False)
-                self.win.request_properties(props)
-                self.load_video(file="MENU_SCENE_VID", type="menu_scene")
-                return task.done
-
-        return task.cont
-
-    def transform_path(self, path, style):
-        if isinstance(path, str):
-            if style == 'unix':
-                transformed_path = str(PurePath(path))
-                transformed_path = Filename.from_os_specific(transformed_path)
-                return transformed_path
-            elif style == 'compat':
-                transformed_path = Filename(path).to_os_specific()
-                return transformed_path
-
     def fonts_collector(self):
         """ Function    : fonts_collector
 
@@ -333,122 +288,51 @@ class Error(ShowBase):
                         textures[key] = Filename.from_os_specific(path).getFullpath()
             return textures
 
-    def videos_collector(self):
-        """ Function    : videos_collector
-
-            Description : Collect game asset videos.
-
-            Input       : None
-
-            Output      : None
-
-            Return      : Dictionary
-        """
-        path = "Assets/Videos/"
-        videos = {}
-        if vfs_exists(path):
-            for root, dirs, files in vfs_walk(path, topdown=True):
-                for file in files:
-                    if file.endswith(".mkv"):
-                        key = re.sub('.mkv$', '', file)
-                        path = str(PurePath("{0}/".format(root), file))
-                        videos[key] = Filename.from_os_specific(path).getFullpath()
-            return videos
-
-    def load_video(self, file, type):
-        """ Function    : load_video
-
-            Description : Loads videofile to screen.
-
-            Input       : String
-
-            Output      : None
-
-            Return      : Dictionary
-        """
-        if (file and type
-                and isinstance(file, str) and isinstance(type, str)):
-            videos = self.videos_collector()
-
-            if videos and videos.get(file):
-                tex = MovieTexture(file)
-                success = tex.read(videos.get(file))
-                if success:
-                    # Set up a fullscreen card to set the video texture on.
-                    cm = CardMaker("VideoWall")
-                    cm.set_frame_fullscreen_quad()
-
-                    # Tell the CardMaker to create texture coordinates that take into
-                    # account the padding region of the texture.
-                    cm.set_uv_range(tex)
-
-                    # Now place the card in the scene graph and apply the texture to it.
-                    card = NodePath(cm.generate())
-
-                    if type == "loading_menu":
-                        if not render2d.find("**/LoadingScreen").is_empty():
-                            loading_screen_np = render2d.find("**/LoadingScreen")
-                            card.reparent_to(loading_screen_np)
-
-                    elif type == "main_menu":
-                        card.reparent_to(render2d)
-
-                    elif type == "player_avatar":
-                        card.reparent_to(render2d)
-
-                    card.set_texture(tex)
-
-                    if type == "loading_menu":
-                        card.set_scale(0.3)
-                        card.set_pos(0, 0, 0)
-
-                    if type == "menu_scene":
-                        card.reparent_to(render2d)
-
-                    if type == "player_avatar":
-                        card.set_scale(0.3, 0.3, 0.15)
-                        card.set_pos(0, 0, -0.85)
-
-                    media = base.loader.load_sfx(videos[file])
-
-                    if "MENU_SCENE_VID" in media.get_name():
-                        base.menu_scene_vid = media
-
-                    # Synchronize the video to the sound.
-                    tex.synchronize_to(media)
-
-                    if type == "main_menu":
-                        media.play()
-
-                        taskMgr.add(self.video_status_task,
-                                    "video_status",
-                                    extraArgs=[media, type, file],
-                                    appendTask=True)
-
-                    if type == "menu_scene":
-                        AudioSound.set_loop(media, loop=True)
-                        media.play()
-
-                    if type == "player_avatar":
-                        media.play()
-
-                        taskMgr.add(self.video_status_task,
-                                    "video_status",
-                                    extraArgs=[media, type, file],
-                                    appendTask=True)
-
 
 class Main(ShowBase):
 
     def __init__(self):
         ShowBase.__init__(self)
+        rp_lights = {
+            "scene": [],
+            "inventory": None
+        }
         self.game_instance = {
             "menu_mode": False,
             "ui_mode": False,
-            "pause_mode": False,
+            "dev_ui_mode": False,
+            "esc_mode": False,
+            "gameplay_mode": '',
+            "is_aiming": False,
+            "first_person_mode": False,
+            "menu_scene_video": None,
+            "cutscene_is_active": False,
+            "current_active_frame": None,
+            "hud_np": None,
+            "lod_np": None,
+            "rp_lights": rp_lights,
+            "scene_np": None,
+            "player_controller_np": None,
+            "actor_controllers_np": [],
+            "player_ref": None,
+            "actors_ref": {},
+            "actors_np": {},
             "scene_is_loaded": False,
             "player_is_loaded": False,
-            "npc_is_loaded": False,
+            "actors_are_loaded": False,
+            "loading_is_done": 0,
+            "unloading_is_done": 0,
+            "player_actions_init_is_activated": 0,
+            "mouse_control_is_activated": 0,
+            "mouse_mode": None,
+            "cursor_ui": None,
+            "keymap": None,
+            "pause_mode": False,
+            "physics_world_np": None,
+            "ai_world_np": None,
+            "physics_is_activated": 0,
+            "ai_is_activated": 0,
+            "is_dialog_active": False,
             "hw_skinning": False,
             "player_state": {},
             "player_props": {},
@@ -456,9 +340,12 @@ class Main(ShowBase):
             "item_state": {},
             "usable_items": {},
             "weapons": [],
+            "bow_np": None,
+            "arrow_count": 0,
             "item_player_access_codes": {},
-            "level_assets": {},
+            "level_assets_np": {},
         }
+        self.shared_functions = {}
 
         self.cfg_path = None
         self.gfx = Graphics()
@@ -481,8 +368,7 @@ class Main(ShowBase):
         self.game_settings_filename = 'settings.ini'
         self.cfg_path = {"game_config_path": "{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename)}
         self.intro_mode = True
-        self.game_mode = False
-        self.menu_mode = False
+        self.game_instance['menu_mode'] = True
 
         self.game_settings.read("{0}/{1}".format(self.game_cfg_dir, self.game_settings_filename))
 
@@ -518,10 +404,10 @@ class Main(ShowBase):
         """ Menu """
         if self.check_and_do_cfg():
             self.menu = MenuUI()
-            if not self.intro_mode and self.menu_mode:
+            if not self.intro_mode and self.game_instance['menu_mode']:
                 self.menu.load_main_menu()
-        elif self.check_and_do_cfg() and self.game_mode is False:
-            if not self.intro_mode and self.menu_mode:
+        elif self.check_and_do_cfg() and self.game_instance['menu_mode']:
+            if not self.intro_mode:
                 self.menu.load_main_menu()
         else:
             sys_exit("\nNo game configuration file created. Please check your game log")
@@ -539,12 +425,6 @@ class Main(ShowBase):
 
         """ Sounds """
         self.sound.openal_mgr()
-
-        """ Lights Storage """
-        self.rp_lights = {
-            "scene": [],
-            "inventory": None
-        }
 
     def reload_render(self):
         from Engine.Render import rpcore
@@ -1386,7 +1266,7 @@ class Main(ShowBase):
 
             if type == "main_menu":
                 self.intro_mode = False
-                self.menu_mode = True
+                self.game_instance['menu_mode'] = True
                 self.menu.load_main_menu()
                 # Disable the camera trackball controls.
                 self.disable_mouse()
@@ -1409,7 +1289,7 @@ class Main(ShowBase):
 
             Return      : Task event
         """
-        if base.menu_mode is False and base.game_mode:
+        if not self.game_instance['menu_mode']:
             if not render2d.find("**/VideoWall").is_empty():
                 render2d.find("**/VideoWall").remove_node()
             return task.done
@@ -1473,7 +1353,7 @@ class Main(ShowBase):
                     media = base.loader.load_sfx(videos[file])
 
                     if "MENU_SCENE_VID" in media.get_name():
-                        base.menu_scene_vid = media
+                        self.game_instance['menu_scene_video'] = media
 
                     # Synchronize the video to the sound.
                     tex.synchronize_to(media)
@@ -1508,11 +1388,11 @@ class Main(ShowBase):
                 else:
                     if type == "main_menu":
                         self.intro_mode = False
-                        self.menu_mode = True
+                        self.game_instance['menu_mode'] = True
                         self.menu.load_main_menu()
 
     def load_menu_scene(self):
-        self.menu_mode = True
+        self.game_instance['menu_mode'] = True
         self.menu.load_main_menu()
         self.load_video(file="MENU_SCENE_VID", type="menu_scene")
 

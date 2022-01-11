@@ -58,12 +58,12 @@ class CmdDialogusUI:
         self.menu_font = self.fonts['OpenSans-Regular']
 
     def set_ui_dialog(self, dialog, txt_interval, behaviors, behavior_name):
-        if base.game_mode and base.menu_mode is False:
+        if not self.base.game_instance['menu_mode']:
             props = WindowProperties()
             props.set_cursor_hidden(False)
             self.base.win.request_properties(props)
-            base.is_ui_active = True
-            self.base.is_dialog_active = False
+            self.base.game_instance['ui_mode'] = True
+            self.base.game_instance['is_dialog_active'] = False
             if not self.base.frame_dlg:
                 self.base.frame_dlg = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
                                                   frameSize=self.base.frame_dlg_size)
@@ -101,18 +101,18 @@ class CmdDialogusUI:
                     self.base.camera.set_hpr(-90, 0, 0)
                     self.base.cam.set_y(5.5)
 
-        self.base.is_dialog_active = True
+        self.base.game_instance['is_dialog_active'] = True
 
     def clear_ui_dialog(self):
         self.base.build_info.reparent_to(aspect2d)
         props = WindowProperties()
         props.set_cursor_hidden(True)
         self.base.win.request_properties(props)
-        base.is_ui_active = False
+        base.game_instance['ui_mode'] = False
 
         if self.base.frame_dlg:
             self.base.frame_dlg.hide()
-            self.base.is_dialog_active = False
+            self.base.game_instance['is_dialog_active'] = False
             self.base.cam.set_y(0)
 
     def btn_cmd_wrapper(self, index, behaviors, behavior_name):

@@ -33,8 +33,6 @@ class LangMenuUI(Language):
         self.node_frame_item = None
 
         self.rgba_gray_color = (.3, .3, .3, 1.)
-        self.game_mode = base.game_mode
-        self.menu_mode = base.menu_mode
 
         """ Frames """
         self.base.frame_int_lang = None
@@ -107,8 +105,8 @@ class LangMenuUI(Language):
             Return      : None
         """
 
-        if hasattr(base, "active_frame"):
-            base.active_frame.destroy()
+        if self.base.game_instance['current_active_frame']:
+            self.base.game_instance['current_active_frame'].destroy()
 
         ui_geoms = base.ui_geom_collector()
 
@@ -230,8 +228,8 @@ class LangMenuUI(Language):
         self.btn_param_defaults.set_pos(1.5, 0, -0.9)
         self.btn_param_back.set_pos(-0.6, 0, -0.9)
 
-        self.menu_mode = True
-        base.active_frame = self.base.frame_int_lang
+        self.base.game_instance['menu_mode'] = True
+        self.base.game_instance['current_active_frame'] = self.base.frame_int_lang
 
     def unload_language_menu(self):
         """ Function    : unload_language_menu
@@ -247,13 +245,11 @@ class LangMenuUI(Language):
         if not self.base.frame_int_lang:
             return
 
-        if hasattr(base, "active_frame"):
-            base.active_frame.destroy()
+        if self.base.game_instance['current_active_frame']:
+            self.base.game_instance['current_active_frame'].destroy()
 
         self.base.build_info.reparent_to(aspect2d)
 
-        if self.game_mode:
-            self.base.frame_int_lang.destroy()
         self.base.frame_int_lang.destroy()
         self.logo.destroy()
         self.ornament_right.destroy()

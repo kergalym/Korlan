@@ -70,7 +70,7 @@ class SceneOne:
             self.scale_y = scale[1]
             self.scale_z = scale[2]
 
-            base.level_is_loaded = 0
+            self.base.game_instance['scene_is_loaded'] = False
 
             # Load the scene.
             scene = await self.base.loader.load_model(path, blocking=False)
@@ -81,16 +81,20 @@ class SceneOne:
                 # before load into VRAM
                 self.base.toggle_texture_compression(scene)
 
-                scene.reparent_to(self.base.lod_np)
+                scene.reparent_to(self.base.game_instance['lod_np'])
+                self.base.game_instance['lod_np'].node().add_switch(1000.0, 0.0)
+                # scene.reparent_to(world)
                 # scene.flatten_strong()
                 # scene.hide()
-                # self.base.lod.addSwitch(100.0, 0.0)
                 base.accept("f2", self.scene_toggle, [scene])
 
                 scene.set_name(name)
                 scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
                 scene.set_pos(pos_x, pos_y, pos_z)
                 scene.set_hpr(scene, rot_h, 0, 0)
+
+                # Make scene global
+                self.base.game_instance['scene_np'] = scene
 
             if self.game_settings['Main']['postprocessing'] == 'on':
                 self.render_attr.render_pipeline.prepare_scene(scene)
@@ -132,7 +136,7 @@ class SceneOne:
             else:
                 # Enable water
                 self.render_attr.set_water(True, water_lvl=30.0, adv_render=False)
-                self.render_attr.set_flame(adv_render=True)
+                # self.render_attr.set_flame(adv_render=True)
 
                 # Enable grass
                 # self.render_attr.set_grass(True, adv_render=False)
@@ -140,7 +144,10 @@ class SceneOne:
                 # Enable flare
                 # self.render_attr.set_flare(True, adv_render=False)
 
-            base.level_is_loaded = 1
+            self.base.game_instance['scene_is_loaded'] = True
+
+            # Add Bullet colliders for this scene
+            self.base.messenger.send("add_bullet_collider")
 
             # Load collisions for a level
             colliders_dict = base.assets_collider_collector()
@@ -155,6 +162,7 @@ class SceneOne:
             coll_scene.reparent_to(coll_scene_np)
 
             coll_scene.hide()
+
 
     def scene_toggle(self, scene):
         if scene.is_hidden():

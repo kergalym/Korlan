@@ -6,6 +6,7 @@ from direct.gui.DirectGui import DirectFrame
 
 class HUD:
     def __init__(self):
+        self.base = base
         self.game_dir = base.game_dir
         self.images = base.textures_collector(path="Settings/UI")
         self.cursor_ui_pos = (0, 0, 0)
@@ -32,7 +33,7 @@ class HUD:
         self.cursor_ui.setTransparency(TransparencyAttrib.MAlpha)
         self.cursor_ui.set_scale(self.cursor_ui_scale)
         self.cursor_ui.hide()
-        base.cursor_ui = self.cursor_ui
+        self.base.game_instance['cursor_ui'] = self.cursor_ui
 
     def set_day_hud(self):
         self.day_hud_ui = OnscreenImage(image=self.images['day_hud_light_ui'])
@@ -92,8 +93,7 @@ class HUD:
             self.weapon_state_ui.remove_node()
 
     def toggle_weapon_state(self, weapon_name):
-        if (hasattr(base, "is_ui_active")
-                and base.is_ui_active is False):
+        if not self.base.game_instance['ui_mode']:
             if (weapon_name and isinstance(weapon_name, str)
                     and self.weapon_state_ui):
                 if weapon_name == "hands":
@@ -107,8 +107,7 @@ class HUD:
                     self.weapon_state_ui.setTransparency(TransparencyAttrib.MAlpha)
 
     def toggle_day_hud(self, time):
-        if (hasattr(base, "is_ui_active")
-                and base.is_ui_active is False):
+        if not self.base.game_instance['ui_mode']:
             if (time and isinstance(time, str)
                     and self.day_hud_ui):
                 if time == "light":

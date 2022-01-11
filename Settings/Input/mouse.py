@@ -24,7 +24,7 @@ class Mouse:
             'wheel_up': False,
             'wheel_down': False
         }
-        self.base.mouse_control_is_activated = 0
+        self.base.game_instance['mouse_control_is_activated'] = 0
 
     def set_key(self, key, value):
         """ Function    : set_key
@@ -86,7 +86,7 @@ class Mouse:
             base.camera.reparent_to(self.pivot)
             base.camera.set_pos(0, self.cam_y_back_pos, 0)
 
-    def mouse_control(self, player, is_aiming):
+    def mouse_control(self):
         """ Function    : mouse_control
 
             Description : Mouse-rotation business for 3rd person view.
@@ -97,13 +97,12 @@ class Mouse:
 
             Return      : None
         """
-        if self.base.mouse_control_is_activated == 0:
-            self.base.mouse_control_is_activated = 1
+        if self.base.game_instance['mouse_control_is_activated'] == 0:
+            self.base.game_instance['mouse_control_is_activated'] = 1
 
         if self.game_settings['Debug']['set_editor_mode'] == 'NO':
             # TPS Logic
             if self.pivot:
-                dt = globalClock.getDt()
                 mouse_direction = base.win.getPointer(0)
                 x = mouse_direction.get_x()
                 y = mouse_direction.get_y()
@@ -111,32 +110,29 @@ class Mouse:
                 pitch = 0
                 # Recentering the cursor and do mouse look
                 if base.win.move_pointer(0, int(base.win.getXSize() / 2), int(base.win.getYSize() / 2)):
-                    # actual calculations
-                    heading = self.pivot.get_h() - (x - int(base.win.getXSize() / 2)) * self.mouse_sens
-                    pitch = self.pivot.get_p() - (y - int(base.win.getYSize() / 2)) * self.mouse_sens
-                    self.pivot.set_r(0)
-
-                    # apply them to heading and pitch
-                    if not is_aiming:
+                    if not self.base.game_instance['is_aiming']:
+                        # reset heading and pitch for floater
+                        if (self.floater.get_h() != 0
+                                and self.floater.get_p() != 0):
+                            self.floater.set_h(0)
+                            self.floater.set_p(0)
+                        # apply heading and pitch
+                        heading = self.pivot.get_h() - (x - int(base.win.getXSize() / 2)) * self.mouse_sens
+                        pitch = self.pivot.get_p() - (y - int(base.win.getYSize() / 2)) * self.mouse_sens
                         self.pivot.set_h(heading)
                         if not pitch > 10.0 and not pitch < -50.0:
                             self.pivot.set_p(pitch)
 
-                    if is_aiming:
-                        player_bs = self.base.get_actor_bullet_shape_node(asset=player.get_name(),
-                                                                          type="Player")
-                        if player_bs:
-                            # smooth rotate player to cursor
-                            if not int(player_bs.get_h()) - 15:
-                                player_bs.set_h(player_bs, 30)
-                            else:
-                                # world heading in aiming
-                                heading = player_bs.get_h() - (x - int(base.win.getXSize() / 2)) * self.mouse_sens
-                                player_bs.set_h(heading)
-                    else:
-                        player.set_h(0)
+                    elif self.base.game_instance['is_aiming']:
+                        # world heading in aiming
+                        heading = self.floater.get_h() - (x - int(base.win.getXSize() / 2)) * self.mouse_sens
+                        pitch = self.floater.get_p() - (y - int(base.win.getYSize() / 2)) * self.mouse_sens
+                        self.floater.set_h(heading)
+                        self.pivot.set_h(-160)
+                        if not pitch > 10.0 and not pitch < -50.0:
+                            self.floater.set_p(pitch)
 
-    def mouse_control_task(self, player, is_aiming, task):
+    def mouse_control_task(self, task):
         """ Function    : mouse_control_task
 
             Description : Mouse-looking camera for 3rd person view.
@@ -148,17 +144,10 @@ class Mouse:
             Return      : Task event
         """
         # Figure out how much the mouse has moved (in pixels)
-        if (hasattr(base, "is_ui_active") is False
-                and self.base.game_mode):
-            self.mouse_control(player, is_aiming)
-
-        elif (hasattr(base, "is_ui_active")
-              and base.is_ui_active is False
-              and self.base.game_mode):
-            self.mouse_control(player, is_aiming)
-
-        if base.game_mode is False and base.menu_mode:
-            return task.done
+        # print(self.base.game_instance['ui_mode'], self.base.game_instance['menu_mode'])
+        if (not self.base.game_instance['ui_mode']
+                and not self.base.game_instance['menu_mode']):
+            self.mouse_control()
 
         return task.cont
 
@@ -179,6 +168,6 @@ class Mouse:
                 wp.set_mouse_mode(WindowProperties.M_absolute)
             if mode == "relative":
                 wp.set_mouse_mode(WindowProperties.M_relative)
-            self.base.mouse_mode = mode
+            self.base.game_instance['mouse_mode'] = mode
             wp.set_cursor_hidden(True)
             self.base.win.request_properties(wp)

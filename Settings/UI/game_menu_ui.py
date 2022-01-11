@@ -5,7 +5,6 @@ from os.path import exists
 from pathlib import Path
 
 from direct.gui.DirectGui import *
-from direct.gui.DirectGuiGlobals import GROOVE
 from direct.gui.OnscreenImage import OnscreenImage
 from direct.gui.OnscreenImage import TransparencyAttrib
 from direct.showbase.ShowBaseGlobal import aspect2d
@@ -35,8 +34,6 @@ class GameMenuUI(Game):
         self.node_frame_item = None
 
         self.rgba_gray_color = (.3, .3, .3, 1.)
-        self.game_mode = base.game_mode
-        self.menu_mode = base.menu_mode
 
         """ Frames """
         self.base.frame_int_game = None
@@ -115,8 +112,8 @@ class GameMenuUI(Game):
 
             Return      : None
         """
-        if hasattr(base, "active_frame"):
-            base.active_frame.destroy()
+        if self.base.game_instance['current_active_frame']:
+            self.base.game_instance['current_active_frame'].destroy()
 
         ui_geoms = base.ui_geom_collector()
 
@@ -274,8 +271,8 @@ class GameMenuUI(Game):
 
         self.btn_param_defaults.set_pos(1.5, 0, -0.9)
         self.btn_param_accept.set_pos(-0.6, 0, -0.9)
-        self.menu_mode = True
-        base.active_frame = self.base.frame_int_game
+        self.base.game_instance['menu_mode'] = True
+        self.base.game_instance['current_active_frame'] = self.base.frame_int_game
 
     def unload_game_menu(self):
         """ Function    : unload_game_menu
@@ -291,13 +288,11 @@ class GameMenuUI(Game):
         if not self.base.frame_int_game:
             return
 
-        if hasattr(base, "active_frame"):
-            base.active_frame.destroy()
+        if self.base.game_instance['current_active_frame']:
+            self.base.game_instance['current_active_frame'].destroy()
 
         self.base.build_info.reparent_to(aspect2d)
 
-        if self.game_mode:
-            self.base.frame_int_game.destroy()
         self.base.frame_int_game.destroy()
         self.logo.destroy()
         self.ornament_right.destroy()

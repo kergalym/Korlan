@@ -100,8 +100,10 @@ class Korlan:
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 self.korlan.set_transparency(True)
 
-                self.korlan.reparent_to(self.base.lod_np)
-                self.base.lod.addSwitch(50.0, 0.0)
+                self.korlan.reparent_to(render)
+
+                # Make actor global
+                self.base.game_instance['actors_ref']['player'] = self.korlan
 
                 # Set lights and Shadows
                 if self.game_settings['Main']['postprocessing'] == 'off':
@@ -114,7 +116,6 @@ class Korlan:
                     self.render.analyze()
 
         if mode == 'game':
-            self.base.game_mode = True
             # Disable the camera trackball controls.
 
             if self.game_settings['Debug']['set_editor_mode'] == 'NO':
@@ -140,7 +141,7 @@ class Korlan:
                 self.scale_y = scale[1]
                 self.scale_z = scale[2]
 
-                base.player_is_loaded = 0
+                self.base.game_instance['player_is_loaded'] = False
 
                 assets = self.base.assets_collector()
 
@@ -184,7 +185,7 @@ class Korlan:
 
                 self.korlan.reparent_to(render)
 
-                base.player_is_loaded = 1
+                self.base.game_instance['player_is_loaded'] = True
 
                 self.korlan.set_name(name)
                 self.korlan.set_scale(self.korlan, self.scale_x, self.scale_y, self.scale_z)
@@ -208,6 +209,9 @@ class Korlan:
 
                 # self.base.set_textures_srgb(True)
 
+                # Make actor global
+                self.base.game_instance['player_ref'] = self.korlan
+
                 if self.game_settings['Main']['postprocessing'] == 'on':
 
                     self.render_attr.render_pipeline.prepare_scene(self.korlan)
@@ -225,8 +229,6 @@ class Korlan:
                     pass
 
                 if self.game_settings['Debug']['set_debug_mode'] == "YES":
-                    # Make actor global
-                    base.player = self.korlan
                     self.render.analyze()
 
                 self.base.game_instance["weapons"] = [

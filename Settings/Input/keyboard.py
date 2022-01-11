@@ -46,6 +46,7 @@ class Keyboard:
             'tengri': False,
             'umai': False
         }
+        self.base.game_instance['keymap'] = self.keymap
 
     def set_key(self, key, value):
         """ Function    : set_key

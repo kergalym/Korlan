@@ -33,8 +33,6 @@ class KeymapMenuUI(Keymap):
         self.node_frame_item = None
 
         self.rgba_gray_color = (.3, .3, .3, 1.)
-        self.game_mode = base.game_mode
-        self.menu_mode = base.menu_mode
 
         """ Frames """
         self.base.frame_int_keymap = None
@@ -132,8 +130,8 @@ class KeymapMenuUI(Keymap):
 
             Return      : None
         """
-        if hasattr(base, "active_frame"):
-            base.active_frame.destroy()
+        if self.base.game_instance['current_active_frame']:
+            self.base.game_instance['current_active_frame'].destroy()
 
         ui_geoms = base.ui_geom_collector()
 
@@ -459,8 +457,8 @@ class KeymapMenuUI(Keymap):
 
         self.btn_param_defaults.set_pos(1.5, 0, -0.8)
         self.btn_param_decline.set_pos(-0.6, 0, -0.8)
-        self.menu_mode = True
-        base.active_frame = self.base.frame_int_keymap
+        self.base.game_instance['menu_mode'] = True
+        self.base.game_instance['current_active_frame'] = self.base.frame_int_keymap
 
     def unload_keymap_menu(self):
         """ Function    : unload_keymap_menu
@@ -476,14 +474,13 @@ class KeymapMenuUI(Keymap):
         if not self.base.frame_int_keymap:
             return
 
-        if hasattr(base, "active_frame"):
-            base.active_frame.destroy()
+        if self.base.game_instance['current_active_frame']:
+            self.base.game_instance['current_active_frame'].destroy()
 
         self.base.build_info.reparent_to(aspect2d)
 
-        if self.game_mode:
-            self.base.frame_int_keymap.destroy()
         self.base.frame_int_keymap.destroy()
         self.logo.destroy()
         self.ornament_right.destroy()
+
 

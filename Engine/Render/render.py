@@ -209,14 +209,6 @@ class RenderAttr:
                                        ambient_color=(1.0, 1.0, 1.0))
 
     def set_time_of_day_clock_task(self, time, duration, task):
-        if (not base.game_mode
-                and base.menu_mode):
-            self.time_text_ui.hide()
-            return task.done
-        else:
-            if self.time_text_ui:
-                self.time_text_ui.show()
-
         if self.game_settings['Main']['postprocessing'] == 'on':
             if self.render_pipeline and time and duration:
                 self.render_pipeline.daytime_mgr.time = time
@@ -226,7 +218,7 @@ class RenderAttr:
                 # 1800 seconds are equal to 30 minutes
                 self.minutes = self.elapsed_seconds // 60
 
-                if base.is_ui_active:
+                if self.base.game_instance['ui_mode']:
                     self.hour = 00
                 else:
                     hour = time.split(':')
@@ -257,18 +249,16 @@ class RenderAttr:
                     self.time_text_ui.setText("{0}:{1}".format(self.hour, self.minutes))
                     self.render_pipeline.daytime_mgr.time = "{0}:{1}".format(self.hour, self.minutes)
 
-                if (not hasattr(base, "is_ui_active")
-                        or hasattr(base, "is_ui_active")
-                        and not base.is_ui_active):
+                if not self.base.game_instance['ui_mode']:
                     if 7 <= self.hour < 19:
-                        if hasattr(base, "hud") and base.hud:
-                            base.hud.toggle_day_hud(time="light")
+                        if self.base.game_instance['hud_np']:
+                            self.base.game_instance['hud_np'].toggle_day_hud(time="light")
                     elif self.hour >= 19:
-                        if hasattr(base, "hud") and base.hud:
-                            base.hud.toggle_day_hud(time="night")
+                        if self.base.game_instance['hud_np']:
+                            self.base.game_instance['hud_np'].toggle_day_hud(time="night")
                 else:
-                    if hasattr(base, "hud") and base.hud:
-                        base.hud.toggle_day_hud(time="off")
+                    if self.base.game_instance['hud_np']:
+                        self.base.game_instance['hud_np'].toggle_day_hud(time="off")
 
         elif self.game_settings['Main']['postprocessing'] == 'off':
             if time and duration:
@@ -307,9 +297,7 @@ class RenderAttr:
                     self.time_text_ui.setText("{0}:{1}".format(self.hour, self.minutes))
                     self.time_of_day_time = "{0}:{1}".format(self.hour, self.minutes)
 
-                if (not hasattr(base, "is_ui_active")
-                        or hasattr(base, "is_ui_active")
-                        and not base.is_ui_active):
+                if not self.base.game_instance['ui_mode']:
                     if 7 <= self.hour < 19:
                         if self.sky:
                             self.sky.setColor(1, 1, 1, 1)
@@ -317,8 +305,8 @@ class RenderAttr:
                             self.sun.setColor(1, 1, 1, 1)
                         if self.clouds:
                             self.clouds[-1].setColor(0.6, 0.6, 0.65, 1.0)
-                        if hasattr(base, "hud") and base.hud:
-                            base.hud.toggle_day_hud(time="light")
+                        if self.base.game_instance['hud_np']:
+                            self.base.game_instance['hud_np'].toggle_day_hud(time="light")
                     elif self.hour >= 19:
                         if self.sky:
                             self.sky.setColor(0, 0, 0, 0)
@@ -326,8 +314,8 @@ class RenderAttr:
                             self.sun.setColor(0, 0, 0, 0)
                         if self.clouds:
                             self.clouds[-1].setColor(0.8, 0.8, 0.85, 1.0)
-                        if hasattr(base, "hud") and base.hud:
-                            base.hud.toggle_day_hud(time="night")
+                        if self.base.game_instance['hud_np']:
+                            self.base.game_instance['hud_np'].toggle_day_hud(time="night")
 
         return task.cont
 
@@ -543,7 +531,7 @@ class RenderAttr:
             time = task.time
             self.flame_np.set_shader_input("iTime", time)
 
-        if base.game_mode is False and base.menu_mode:
+        if self.base.game_instance['menu_mode']:
             return task.done
 
         return task.cont
@@ -614,7 +602,7 @@ class RenderAttr:
                         self.render.setLight(light)
                         light.set_pos(pos[0], pos[1], pos[2])
                         light.attenuation = (1, 0, 1)
-                        base.rp_lights["scene"].append(light)
+                        self.base.game_instance['rp_lights']["scene"].append(light)
                     elif name == 'slight':
                         light = self.render.attach_new_node(Spotlight(name))
                         light.node().set_shadow_caster(True, 512, 512)
@@ -625,7 +613,7 @@ class RenderAttr:
                         self.render.setLight(light)
                         light.set_pos(pos[0], pos[1], pos[2])
                         light.set_hpr(hpr[0], hpr[1], hpr[2])
-                        base.rp_lights["scene"].append(light)
+                        self.base.game_instance['rp_lights']["scene"].append(light)
                         self.set_spotlight_shadows(obj=self.render, light=light, shadow_blur=0.2,
                                                    ambient_color=(1.0, 1.0, 1.0))
 
@@ -639,7 +627,7 @@ class RenderAttr:
                             light_np.set_pos(pos[0], pos[1], pos[2])
                             light_np.set_scale(100)
                             self.render.set_light(light_np)
-                            base.rp_lights["scene"].append(light)
+                            self.base.game_instance['rp_lights']["scene"].append(light)
                             """self.set_spotlight_shadows(obj=self.render, light=light, shadow_blur=0.2,
                                                  ambient_color=(1.0, 1.0, 1.0))"""
                     elif name == 'alight':
@@ -648,7 +636,7 @@ class RenderAttr:
                             light.set_color((color[0], color[0], color[0], 1))
                             light_np = self.render.attach_new_node(light)
                             self.render.set_light(light_np)
-                            base.rp_lights["scene"].append(light)
+                            self.base.game_instance['rp_lights']["scene"].append(light)
                             """self.set_spotlight_shadows(obj=self.render, light=light, shadow_blur=0.2,
                                                  ambient_color=(1.0, 1.0, 1.0))"""
 
@@ -668,7 +656,7 @@ class RenderAttr:
                         light.radius = 0.5
                         light.fov = 10
                         light.direction = (hpr[0], hpr[1], hpr[2])
-                        base.rp_lights["scene"].append(light)
+                        self.base.game_instance['rp_lights']["scene"].append(light)
                         self.render_pipeline.add_light(light)
                     elif name == "plight":
                         # RP doesn't have nodegraph-like structure to find and remove lights,
@@ -683,16 +671,16 @@ class RenderAttr:
                         light.shadow_map_resolution = 128
                         light.near_plane = 0.2
                         light.radius = 10.0
-                        base.rp_lights["scene"].append(light)
+                        self.base.game_instance['rp_lights']["scene"].append(light)
                         self.render_pipeline.add_light(light)
 
     def clear_lighting(self):
-        if base.rp_lights and self.render_pipeline.light_mgr.num_lights > 0:
+        if self.base.game_instance['rp_lights'] and self.render_pipeline.light_mgr.num_lights > 0:
             for i in range(self.render_pipeline.light_mgr.num_lights):
-                for light in base.rp_lights['scene']:
+                for light in self.base.game_instance['rp_lights']['scene']:
                     if light:
                         self.render_pipeline.remove_light(light)
-                        base.rp_lights['scene'].remove(light)
+                        self.base.game_instance['rp_lights']['scene'].remove(light)
 
     def set_inv_lighting(self, name, render, pos, hpr, color, task):
         if (render
@@ -712,7 +700,7 @@ class RenderAttr:
                         self.render.setLight(light)
                         light.set_pos(pos[0], pos[1], pos[2])
                         light.attenuation = (1, 0, 1)
-                        base.rp_lights["inventory"] = light
+                        self.base.game_instance['rp_lights']["inventory"] = light
                     elif name == 'slight':
                         light = self.render.attach_new_node(Spotlight(name))
                         light.node().set_shadow_caster(True, 512, 512)
@@ -723,7 +711,7 @@ class RenderAttr:
                         self.render.setLight(light)
                         light.set_pos(pos[0], pos[1], pos[2])
                         light.set_hpr(hpr[0], hpr[1], hpr[2])
-                        base.rp_lights["inventory"] = light
+                        self.base.game_instance['rp_lights']["inventory"] = light
                         self.set_spotlight_shadows(obj=self.render, light=light, shadow_blur=0.2,
                                                    ambient_color=(1.0, 1.0, 1.0))
 
@@ -731,10 +719,10 @@ class RenderAttr:
                     if name == "slight":
                         # RP doesn't have nodegraph-like structure to find and remove lights,
                         # so we check self.rp_light before adding light
-                        if not base.rp_lights.get("inventory"):
+                        if not self.base.game_instance['rp_lights'].get("inventory"):
                             light = SpotLight()
                         else:
-                            light = base.rp_lights["inventory"]
+                            light = self.base.game_instance['rp_lights']["inventory"]
                         light.pos = (pos[0], pos[1], pos[2])
                         light.color = (color[0], color[0], color[0])
                         light.set_color_from_temperature(5000.0)
@@ -743,15 +731,15 @@ class RenderAttr:
                         light.casts_shadows = True
                         light.shadow_map_resolution = 512
                         light.direction = (hpr[0], hpr[1], hpr[2])
-                        base.rp_lights["inventory"] = light
+                        self.base.game_instance['rp_lights']["inventory"] = light
                         self.render_pipeline.add_light(light)
                     elif name == "plight":
                         # RP doesn't have nodegraph-like structure to find and remove lights,
                         # so we check self.rp_light before adding light
-                        if not base.rp_lights.get("inventory"):
+                        if not self.base.game_instance['rp_lights'].get("inventory"):
                             light = PointLight()
                         else:
-                            light = base.rp_lights["inventory"]
+                            light = self.base.game_instance['rp_lights']["inventory"]
                         light.pos = (pos[0], pos[1], pos[2])
                         light.color = (color[0], color[0], color[0])
                         light.set_color_from_temperature(5000.0)
@@ -761,22 +749,22 @@ class RenderAttr:
                         light.shadow_map_resolution = 128
                         light.near_plane = 0.2
                         light.radius = 10.0
-                        base.rp_lights["inventory"] = light
+                        self.base.game_instance['rp_lights']["inventory"] = light
                         self.render_pipeline.add_light(light)
 
     def clear_inv_lighting(self):
         if self.game_settings['Main']['postprocessing'] == 'on':
-            if base.rp_lights and self.render_pipeline.light_mgr.num_lights > 0:
-                if base.rp_lights['inventory']:
-                    light = base.rp_lights['inventory']
+            if self.base.game_instance['rp_lights'] and self.render_pipeline.light_mgr.num_lights > 0:
+                if self.base.game_instance['rp_lights']['inventory']:
+                    light = self.base.game_instance['rp_lights']['inventory']
                     self.render_pipeline.remove_light(light)
-                    base.rp_lights.pop("inventory")
+                    self.base.game_instance['rp_lights'].pop("inventory")
         else:
-            if base.rp_lights:
-                if base.rp_lights.get('inventory'):
-                    light = base.rp_lights['inventory']
+            if self.base.game_instance['rp_lights']:
+                if self.base.game_instance['rp_lights'].get('inventory'):
+                    light = self.base.game_instance['rp_lights']['inventory']
                     render.clearLight(light)
-                    base.rp_lights.pop("inventory")
+                    self.base.game_instance['rp_lights'].pop("inventory")
 
     def get_light_attributes(self):
         pass

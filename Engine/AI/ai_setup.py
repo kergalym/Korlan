@@ -16,6 +16,7 @@ class AI:
         self.render = render
         self.taskMgr = taskMgr
         self.ai_world = AIWorld(world)
+        self.base.game_instance['ai_world_np'] = self.ai_world
         self.player_fsm = PlayerFSM()
         self.npc_fsm = NpcFSM()
         self.npc_ai = NpcsAI()
@@ -47,12 +48,12 @@ class AI:
         # Fix me: Dirty hack for path finding issue
         # when actor's pitch changes for reasons unknown for me xD
 
-        if hasattr(self.base, "npcs_actor_refs") and base.npcs_actor_refs:
-            for actor in base.npcs_actor_refs:
-                if not base.npcs_actor_refs[actor].is_empty():
+        if self.base.game_instance['actors_ref']:
+            for actor in self.base.game_instance['actors_ref']:
+                if not self.base.game_instance['actors_ref'][actor].is_empty():
                     # Prevent pitch changing
-                    base.npcs_actor_refs[actor].set_p(0)
-                    base.npcs_actor_refs[actor].get_parent().set_p(0)
+                    self.base.game_instance['actors_ref'][actor].set_p(0)
+                    self.base.game_instance['actors_ref'][actor].get_parent().set_p(0)
 
         return task.cont
 
@@ -97,10 +98,9 @@ class AI:
 
     def update_npc_states_task(self, task):
         if (self.player
-                and hasattr(base, 'npcs_actor_refs')
-                and base.npcs_actor_refs):
-            for actor_name, fsm_name in zip(base.npcs_actor_refs, self.npcs_fsm_states):
-                actor = base.npcs_actor_refs[actor_name]
+                and self.base.game_instance['actors_ref']):
+            for actor_name, fsm_name in zip(self.base.game_instance['actors_ref'], self.npcs_fsm_states):
+                actor = self.base.game_instance['actors_ref'][actor_name]
                 request = self.npcs_fsm_states[fsm_name]
                 npc_class = self.npc_fsm.set_npc_class(actor=actor,
                                                        npc_classes=self.npc_classes)
@@ -162,12 +162,12 @@ class AI:
 
             Return      : None
         """
-        if hasattr(base, "physics_is_active") and self.base.physics_is_active == 1 and self.base.ai_is_active == 0:
+        if (self.base.game_instance['physics_is_activated'] == 1
+                and self.base.game_instance['ai_is_activated'] == 0):
             if (assets and isinstance(assets, dict)
                     and npcs_fsm_states
                     and isinstance(npcs_fsm_states, dict)
-                    and hasattr(base, "npcs_actor_refs")
-                    and base.npcs_actor_refs
+                    and self.base.game_instance['actors_ref']
                     and lvl_name and isinstance(lvl_name, str)):
                 self.npcs_fsm_states = npcs_fsm_states
 
@@ -196,7 +196,7 @@ class AI:
                                 elif "hero" in actor_cls:
                                     continue
 
-                                for ref_name in base.npcs_actor_refs:
+                                for ref_name in self.base.game_instance['actors_ref']:
                                     if "NPC" in ref_name:
                                         actor = self.base.get_actor_bullet_shape_node(asset=ref_name, type="NPC")
                                         self.base.ai_chars_bs[ref_name] = actor
@@ -224,7 +224,7 @@ class AI:
                                                 if "NPC" not in node.get_name():
                                                     self.ai_behaviors[child_name].add_static_obstacle(node)
 
-                        self.npc_fsm.get_npcs(actors=base.npcs_actor_refs)
+                        self.npc_fsm.get_npcs(actors=self.base.game_instance['actors_ref'])
 
                         taskMgr.add(self.update_ai_world_task,
                                     "update_ai_world",
@@ -247,7 +247,7 @@ class AI:
                                     extraArgs=[self.player],
                                     appendTask=True)
 
-                        self.base.ai_is_active = 1
+                        self.base.game_instance['ai_is_activated'] = 1
 
                         return task.done
 
@@ -264,7 +264,7 @@ class AI:
 
             Return      : None
         """
-        self.base.ai_is_active = 0
+        self.base.game_instance['ai_is_activated'] = 0
 
         taskMgr.add(self.set_ai_world_task,
                     "set_ai_world_task",

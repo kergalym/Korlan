@@ -1,11 +1,7 @@
-from direct.gui.OnscreenText import OnscreenText
-from direct.interval.FunctionInterval import Wait
-from direct.interval.ProjectileInterval import ProjectileInterval
-
 from Engine.Collisions.collision_solids import BulletCollisionSolids
 from panda3d.bullet import BulletCharacterControllerNode, BulletBoxShape
 from direct.task.TaskManagerGlobal import taskMgr
-from panda3d.core import Vec3, BitMask32, Point3, TextNode, NodePath
+from panda3d.core import Vec3, BitMask32
 from panda3d.bullet import BulletWorld, BulletDebugNode, BulletRigidBodyNode, BulletPlaneShape
 from direct.showbase.PhysicsManagerGlobal import physicsMgr
 
@@ -30,16 +26,7 @@ class PhysicsAttr:
         self.cam_bs_nodepath = None
         self.cam_collider = None
         self.bullet_solids = BulletCollisionSolids()
-        self.aimed_target_np = None
-        self.aimed_target_pos = None
-        self.archery_target_list = {"player": None}
-        self.archery_arrows_list = {"player": None}
-        self.target_test_ui = OnscreenText(text="",
-                                           pos=(-1.8, 0.8),
-                                           scale=0.03,
-                                           fg=(255, 255, 255, 0.9),
-                                           align=TextNode.ALeft,
-                                           mayChange=True)
+
         self.korlan = None
 
         self.no_mask = BitMask32.allOff()
@@ -51,11 +38,8 @@ class PhysicsAttr:
         self.mask5 = BitMask32.bit(5)
         self.ghost_mask = BitMask32.bit(1)
 
-        base.accept("bow_shoot", self.bow_shoot, ["Player", "bow_arrow_kazakh", "bow_kazakh"])
-        # base.accept("bow_shoot", self.bow_shoot, [actor, "bow_arrow", "bow"])
-
     def collision_info(self, player, item):
-        if player and item and hasattr(base, "bullet_world"):
+        if player and item and self.world:
 
             query_all = base.bullet_world.ray_test_all(player.get_pos(),
                                                        item.get_pos())
@@ -106,7 +90,7 @@ class PhysicsAttr:
                                         mask=self.mask0,
                                         type=type)
 
-    def set_physics_world(self, assets):
+    def set_physics_world(self):
         """ Function    : set_physics_world
 
             Description : Enable Physics
@@ -117,8 +101,6 @@ class PhysicsAttr:
 
             Return      : None
         """
-        self.base.physics_is_active = 0
-
         world = render.find("**/World")
         if world:
             # Show a visual representation of the collisions occuring
@@ -128,6 +110,7 @@ class PhysicsAttr:
 
             self.world = BulletWorld()
             self.world.set_gravity(Vec3(0, 0, -9.81))
+            self.base.game_instance['physics_world_np'] = self.world
 
             if self.game_settings['Debug']['set_debug_mode'] == "NO":
                 if hasattr(self.debug_nodepath, "node"):
@@ -160,16 +143,11 @@ class PhysicsAttr:
             self.world.set_group_collision_flag(0, 1, True)
             self.world.set_group_collision_flag(0, 2, True)
 
-            taskMgr.add(self.add_asset_collision_task,
-                        "add_asset_collision_task",
-                        extraArgs=[assets],
-                        appendTask=True)
-
             taskMgr.add(self.update_physics_task,
                         "update_physics_task",
                         appendTask=True)
 
-            self.base.physics_is_active = 1
+            self.base.game_instance['physics_is_activated'] = 1
 
     def toggle_physics_debug(self):
         if self.debug_nodepath:
@@ -180,39 +158,37 @@ class PhysicsAttr:
                 self.debug_nodepath.hide()
                 self.debug_nodepath.node().showBoundingBoxes(False)
 
-    def add_asset_collision_task(self, assets, task):
-        """ Function    : add_asset_collision_task
+    def add_bullet_collider(self, assets):
+        """ Function    : add_bullet_collider
 
-            Description : Add asset collision
+            Description : Adds bullet collider
 
             Input       : Task
 
             Output      : None
 
-            Return      : Task event
+            Return      : None
         """
-        if (hasattr(self.base, "loading_is_done")
-                and self.base.loading_is_done == 1):
-            if isinstance(assets, dict):
+        if assets and isinstance(assets, dict):
+            for name, type, shape in zip(assets['name'],
+                                         assets['type'],
+                                         assets['shape']):
+                np = render.find("**/{0}".format(name))
+                np_bs = render.find("**/{0}:BS".format(name))
+                if np and not np_bs:
+                    if type == 'player':
+                        self.set_collision(obj=np,
+                                           type=type,
+                                           shape=shape)
 
-                for name, type, shape in zip(assets['name'],
-                                             assets['type'],
-                                             assets['shape']):
-
-                    if (not render.find("**/{0}".format(name)).is_empty()
-                            and render.find("**/{0}:BS".format(name)).is_empty()):
-                        if type == 'player' or 'actor':
-                            self.set_collision(obj=render.find("**/{0}".format(name)),
-                                               type=type,
-                                               shape=shape)
-                        else:
-                            self.set_collision(obj=render.find("**/{0}".format(name)),
-                                               type=type,
-                                               shape=shape)
-
-                return task.done
-
-        return task.cont
+                    elif type == 'actor':
+                        self.set_collision(obj=np,
+                                           type=type,
+                                           shape=shape)
+                    else:
+                        self.set_collision(obj=np,
+                                           type=type,
+                                           shape=shape)
 
     def update_physics_task(self, task):
         """ Function    : update_physics_task
@@ -225,8 +201,7 @@ class PhysicsAttr:
 
             Return      : Task event
         """
-        if (hasattr(self.base, "loading_is_done")
-                and self.base.loading_is_done == 1):
+        if self.base.game_instance["physics_is_activated"] == 1:
             if self.world:
                 # Get the time that elapsed since last frame.
                 dt = globalClock.getDt()
@@ -239,10 +214,6 @@ class PhysicsAttr:
                         item = render.find("**/{0}".format(name))
                         if 'BS' in item.get_parent().get_name():
                             item.get_parent().node().set_transform_dirty()
-
-        if base.game_mode is False and base.menu_mode:
-            return task.done
-
         return task.cont
 
     def set_actor_collider(self, actor, col_name, shape, mask, type):
@@ -254,7 +225,8 @@ class PhysicsAttr:
                 and isinstance(col_name, str)
                 and isinstance(shape, str)
                 and isinstance(type, str)):
-            if not base.menu_mode and base.game_mode:
+
+            if not self.base.game_instance['menu_mode']:
                 actor_bs = None
                 actor_bs_np = None
                 if shape == 'capsule':
@@ -262,12 +234,12 @@ class PhysicsAttr:
                 if shape == 'sphere':
                     actor_bs = self.bullet_solids.get_bs_sphere()
                 if type == 'player':
-                    base.bullet_char_contr_node = BulletCharacterControllerNode(actor_bs,
-                                                                                0.4,
-                                                                                col_name)
-                    actor_bs_np = render.attach_new_node(base.bullet_char_contr_node)
+                    self.base.game_instance['player_controller_np'] = BulletCharacterControllerNode(actor_bs,
+                                                                                                    0.4,
+                                                                                                    col_name)
+                    actor_bs_np = render.attach_new_node(self.base.game_instance['player_controller_np'])
                     actor_bs_np.set_collide_mask(mask)
-                    self.world.attach(base.bullet_char_contr_node)
+                    self.world.attach_character(actor_bs_np.node())
 
                     if self.game_settings['Debug']['set_editor_mode'] == 'NO':
                         if render.find("**/floater"):
@@ -283,8 +255,10 @@ class PhysicsAttr:
                     if world:
                         actor_bs_np = world.attach_new_node(actor_node)
                         actor_bs_np.set_collide_mask(mask)
-                        self.world.attach(actor_node)
+                        self.world.attach_character(actor_bs_np.node())
                         actor.reparent_to(actor_bs_np)
+
+                    self.base.game_instance['actor_controllers_np'].append(actor_node)
 
                 elif type == 'npc_animal':
                     actor_node = BulletCharacterControllerNode(actor_bs,
@@ -294,8 +268,10 @@ class PhysicsAttr:
                     if world:
                         actor_bs_np = world.attach_new_node(actor_node)
                         actor_bs_np.set_collide_mask(mask)
-                        self.world.attach(actor_node)
+                        self.world.attach_character(actor_bs_np.node())
                         actor.reparent_to(actor_bs_np)
+
+                    self.base.game_instance['actor_controllers_np'].append(actor_node)
 
                 # Set actor down to make it
                 # at the same point as bullet shape
@@ -316,32 +292,23 @@ class PhysicsAttr:
                                                      joints=["LeftHand", "RightHand", "Hips"],
                                                      world=self.world)
 
-                    taskMgr.add(self.calculate_arrow_trajectory_task,
-                                "{0}_bow_hit_check".format(actor.get_name()),
-                                extraArgs=[actor],
-                                appendTask=True)
-
-                elif type == "player":
+                if type == "player":
                     self.bullet_solids.get_bs_hitbox(actor=actor,
                                                      joints=["LeftHand", "RightHand", "Hips"],
                                                      world=self.world)
 
-                    taskMgr.add(self.calculate_arrow_trajectory_task,
-                                "{0}_bow_hit_check".format(actor.get_name()),
-                                extraArgs=[actor],
-                                appendTask=True)
-
                 # reparent bullet-shaped actor to LOD node
                 if type != "player":
-                    actor_bs_np.reparent_to(self.base.lod_np)
-                    self.base.lod.addSwitch(50.0, 0.0)
+                    actor_bs_np.reparent_to(self.base.game_instance['lod_np'])
+                    self.base.game_instance['lod_np'].node().add_switch(50.0, 0.0)
 
     def set_static_object_colliders(self, obj, mask, automatic):
         if obj and mask and self.world:
             shape = None
             for child in obj.get_children():
                 # Skip child which already has Bullet shape
-                if "BS" in child.get_name() or "BS" in child.get_parent().get_name():
+                if ("BS" in child.get_name()
+                        or "BS" in child.get_parent().get_name()):
                     continue
                 # Skip unused mesh
                 if "Ground" in child.get_name():
@@ -418,122 +385,3 @@ class PhysicsAttr:
 
                 elif child.get_num_children() > 0:
                     self.set_dynamic_object_colliders(child, mask, automatic)
-
-    def bow_shoot(self, actor_name, arrow_name, bow_name):
-        """ Function    : bow_shoot
-
-            Description : Performs enhanced bow shooting.
-
-            Input       : Strings, Nodepath
-
-            Output      : None
-
-            Return      : None
-        """
-        if actor_name and arrow_name and bow_name and self.world:
-            # Find actor which should do bow shoot
-            if render.find("**/{0}".format(actor_name)):
-                actor = render.find("**/{0}".format(actor_name))
-
-                # Find arrow from that actor
-                if actor.find("**/{0}".format(arrow_name)):
-                    arrow = actor.find("**/{0}".format(arrow_name))
-
-                    # Construct arrow and start its trajectory
-                    if arrow and self.aimed_target_pos and self.aimed_target_np:
-
-                        # Calculate initial velocity
-                        velocity = self.aimed_target_pos - arrow.get_pos() + Vec3(0, 0.4, 0)
-                        # velocity = self.aimed_target_pos - self.bow.get_pos()
-                        velocity.normalize()
-                        velocity *= 100.0
-
-                        # Create Bullet collider for an arrow
-                        shape = BulletBoxShape(Vec3(0.5, 0.5, 0.5))
-                        body = BulletRigidBodyNode('Arrow_BRB')
-                        body_np = render.attachNewNode(body)
-                        body_np.node().addShape(shape)
-                        body_np.node().setMass(2.0)
-                        body_np.node().setLinearVelocity(velocity)
-                        body_np.setPos(actor.get_pos())
-                        body_np.setCollideMask(BitMask32.allOn())
-                        arrow.reparent_to(body_np)
-                        arrow.set_pos(0, 0, 0)
-                        # arrow.set_hpr(velocity)
-
-                        # Enable Bullet Continuous Collision Detection
-                        body_np.node().setCcdMotionThreshold(1e-7)
-                        body_np.node().setCcdSweptSphereRadius(0.50)
-
-                        # Add collider to physics world
-                        self.world.attachRigidBody(body_np.node())
-                        arrow.setCollideMask(BitMask32.allOff())
-
-                        name = self.aimed_target_np.get_name()
-                        self.archery_arrows_list[actor_name] = body_np
-                        self.archery_target_list[actor_name] = render.find("**/{0}".format(name))
-
-                        if self.archery_target_list[actor_name]:
-                            # self.world.removeRigidBody(body_np.node())
-                            pass
-
-    def calculate_arrow_trajectory_task(self, actor, task):
-        """ Function    : calculate_arrow_trajectory_task
-
-            Description : Task calculating arrow trajectory.
-
-            Input       : Strings, Nodepath
-
-            Output      : None
-
-            Return      : Task status
-        """
-        if not actor:
-            return task.done
-        elif actor:
-            arrow_name = "bow_arrow"
-            bow_name = "bow"
-            if "Player" in actor.get_name():
-                arrow_name = "bow_arrow_kazakh"
-                bow_name = "bow_kazakh"
-            bow = actor.find("**/{0}".format(bow_name))
-            arrow = actor.find("**/{0}".format(arrow_name))
-            if bow and arrow:
-                mouse_watch = base.mouseWatcherNode
-                if mouse_watch.has_mouse():
-                    pos_mouse = base.mouseWatcherNode.get_mouse()
-                    pos_from = Point3()
-                    pos_to = Point3()
-                    base.camLens.extrude(pos_mouse, pos_from, pos_to)
-
-                    pos_from = self.render.get_relative_point(actor, pos_from)
-                    pos_to = self.render.get_relative_point(base.camera, pos_to)
-
-                    raytest_result = self.world.rayTestClosest(pos_from, pos_to)
-
-                    # print(raytest_result.hasHit())
-                    if (raytest_result.get_node()
-                            and "Ground" not in str(raytest_result.get_node())):
-                        self.aimed_target_np = raytest_result.get_node()
-                        self.aimed_target_pos = raytest_result.get_hit_pos()
-                        actor_name = actor.get_name()
-
-                        if self.archery_arrows_list[actor_name]:
-                            self.world.contactTest(self.aimed_target_np)
-                            if self.world.contactTest(self.aimed_target_np).getNumContacts() > 0:
-                                self.archery_arrows_list[actor_name].setLinearVelocity(0)
-                                arrow.reparent_to(base.target_np)
-                                arrow.set_scale(2)
-                                self.archery_arrows_list[actor_name].setCollideMask(BitMask32.allOff())
-
-                        # Leave this here for testing purposes
-                        if self.aimed_target_pos:
-                            self.target_test_ui.setText("")
-                            name = self.aimed_target_np.get_name()
-                            self.target_test_ui.setText("Target hit: {0}".format(name))
-                        elif not self.aimed_target_np:
-                            self.target_test_ui.setText("")
-                        else:
-                            self.target_test_ui.setText("")
-
-        return task.cont

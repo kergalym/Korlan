@@ -186,11 +186,11 @@ class DevMode(MenuSettings):
                 and exists(self.cfg_path_default)
                 and isfile(self.cfg_path_default)):
             for x in self.check_game_assets_devmode():
-                if x is 'Korlan':
+                if x == 'Korlan':
                     status = 'player'
                 else:
                     status = 'env'
-            if status is 'player':
+            if status == 'player':
                 self.cfg_parser = ConfigParser()
                 self.cfg_parser.read(self.cfg_path)
                 self.cfg_parser['Debug']['player_pos_x'] = str(render.find("**/{}".format(x)).getX())
@@ -201,7 +201,7 @@ class DevMode(MenuSettings):
                 self.cfg_parser['Debug']['player_rot_r'] = str(render.find("**/{}".format(x)).getR())
                 with open(self.cfg_path, 'w') as cfg_file:
                     self.cfg_parser.write(cfg_file)
-            if status is 'env':
+            if status == 'env':
                 self.cfg_parser = ConfigParser()
                 self.cfg_parser.read(self.cfg_path_default)
                 self.cfg_parser[x] = {'pos_x': str(render.find("**/{}".format(x)).getX()),
@@ -231,7 +231,7 @@ class DevMode(MenuSettings):
                 and isfile(self.cfg_path)
                 and node_name):
             for x in self.check_game_assets_devmode():
-                if x is node_name and 'Korlan':
+                if x == node_name and 'Korlan':
                     self.cfg_parser = ConfigParser()
                     self.cfg_parser.read(self.cfg_path)
                     render.find("**/{}".format(x)).setX(float(self.cfg_parser['Debug']['player_pos_x']))

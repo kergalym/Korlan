@@ -77,8 +77,7 @@ class Items:
                     return items
 
     def get_item_distance_task(self, player, task):
-        if (player and hasattr(self.base, "ai_is_active")
-                and self.base.ai_is_active == 1):
+        if player and self.base.game_instance['ai_is_activated'] == 1:
 
             if not self.usable_items:
                 self.usable_items = self.usable_item_pos_collector(player)
@@ -103,7 +102,7 @@ class Items:
                         base.is_item_close_to_use = False
                         base.is_item_far_to_use = False
 
-        if base.game_mode is False and base.menu_mode:
+        if self.base.game_instance['menu_mode']:
             base.is_item_close_to_use = False
             base.is_item_far_to_use = False
             base.is_item_in_use = False

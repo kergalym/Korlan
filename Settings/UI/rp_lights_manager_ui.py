@@ -70,20 +70,20 @@ class RPLightsMgrUI:
         self.menu_font = self.fonts['OpenSans-Regular']
 
     def update_rp_mgr_task(self, task):
-        if base.game_mode is False and base.menu_mode:
+        if base.game_instance['menu_mode']:
             self.clear_ui_rpmgr()
             return task.done
 
         return task.cont
 
     def set_ui_rpmgr(self):
-        if base.game_mode and base.menu_mode is False:
+        if not base.game_instance['menu_mode']:
             props = WindowProperties()
             props.set_cursor_hidden(False)
             self.base.win.request_properties(props)
             self.base.enable_mouse()
-            base.is_ui_active = True
-            base.is_dev_ui_active = True
+            base.game_instance['ui_mode'] = True
+            base.game_instance['dev_ui_mode'] = True
 
             if not self.base.frame_rpmgr:
                 self.base.frame_rpmgr = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
@@ -124,8 +124,8 @@ class RPLightsMgrUI:
                                            command=self.set_node_hpr)
 
                 ui_geoms = base.ui_geom_collector()
-                if hasattr(base, 'rp_lights') and base.rp_lights and ui_geoms:
-                    lights_num = len(base.rp_lights)
+                if base.game_instance['rp_lights'] and ui_geoms:
+                    lights_num = len(base.game_instance['rp_lights'])
 
                     maps_scrolled_dbtn = base.loader.loadModel(ui_geoms['btn_t_icon'])
                     geoms_scrolled_dbtn = (maps_scrolled_dbtn.find('**/button_any'),
@@ -204,8 +204,8 @@ class RPLightsMgrUI:
         self.base.disable_mouse()
         self.base.win.request_properties(props)
 
-        base.is_ui_active = False
-        base.is_dev_ui_active = False
+        base.game_instance['ui_mode'] = False
+        base.game_instance['dev_ui_mode'] = False
 
         if self.base.frame_rpmgr:
             self.base.frame_rpmgr.hide()

@@ -265,8 +265,7 @@ class StatUI:
                 and isinstance(records_p, str)
                 and isinstance(set_mode, str)):
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
-                if (base.game_mode
-                        and base.menu_mode is False
+                if (not base.game_instance['menu_mode']
                         and set_mode == 'show'):
 
                     self.title_dbg_mode_obj_pos.setText("DEBUG MODE: Objects Position")
@@ -283,8 +282,7 @@ class StatUI:
                     self.text_stat_h.show()
                     self.text_stat_p.show()
                     self.text_toggle_col.show()
-                elif (base.game_mode is False
-                      and base.menu_mode is True
+                elif (base.game_instance['menu_mode']
                       and set_mode == 'hide'):
                     self.title_dbg_mode_obj_pos.hide()
                     self.title_item_name.hide()
@@ -309,8 +307,7 @@ class StatUI:
                 and isinstance(records_p, str)
                 and isinstance(set_mode, str)):
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
-                if (base.game_mode
-                        and base.menu_mode is False
+                if (not base.game_instance['menu_mode']
                         and set_mode == 'show'):
                     self.title_dbg_mode_obj_state.setText("DEBUG MODE: Character State")
                     self.title_inuse_item_name.setText("IN-USE ITEM NAME")
@@ -324,8 +321,7 @@ class StatUI:
                     self.text_obj_stat_h.show()
                     self.text_obj_stat_p.show()
 
-                elif (base.game_mode is False
-                      and base.menu_mode is True
+                elif (base.game_instance['menu_mode']
                       and set_mode == 'hide'):
                     self.title_dbg_mode_obj_state.hide()
                     self.title_inuse_item_name.hide()
@@ -348,16 +344,14 @@ class StatUI:
                 and isinstance(records_p, str)
                 and isinstance(set_mode, str)):
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
-                if (base.game_mode
-                        and base.menu_mode is False
+                if (not base.game_instance['menu_mode']
                         and set_mode == 'show'):
                     self.title_dbg_mode_player_state.setText("DEBUG MODE: Character Actions")
                     self.text_player_action_stat_p.setText(records_p)
                     self.title_dbg_mode_player_state.show()
                     self.text_player_action_stat_p.show()
 
-                elif (base.game_mode is False
-                      and base.menu_mode is True
+                elif (base.game_instance['menu_mode']
                       and set_mode == 'hide'):
                     self.title_dbg_mode_player_state.hide()
                     self.text_player_action_stat_p.hide()
@@ -377,16 +371,14 @@ class StatUI:
                 and isinstance(records_p, str)
                 and isinstance(set_mode, str)):
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
-                if (base.game_mode
-                        and base.menu_mode is False
+                if (not base.game_instance['menu_mode']
                         and set_mode == 'show'):
                     self.title_dbg_mode_npc_state.setText("DEBUG MODE: NPC States")
                     self.text_npc_action_stat_p.setText(records_p)
                     self.title_dbg_mode_npc_state.show()
                     self.text_npc_action_stat_p.show()
 
-                elif (base.game_mode is False
-                      and base.menu_mode is True
+                elif (base.game_instance['menu_mode']
                       and set_mode == 'hide'):
                     self.title_dbg_mode_npc_state.hide()
                     self.text_npc_action_stat_p.hide()
@@ -402,12 +394,12 @@ class StatUI:
 
             Return      : Task event
         """
-        if hasattr(base, "player"):
+        if base.game_instance['actors_ref']['player']:
             exclude = ['Sky', 'Mountains', 'Grass', 'Ground', 'NPC']
+            player = base.game_instance['actors_ref']['player']
             dist_vec = base.distance_calculate(
-                base.assets_pos_collector_no_player(base.player, exclude), base.player)
-            if (dist_vec and base.game_mode is True
-                    and base.menu_mode is False):
+                base.assets_pos_collector_no_player(player, exclude), player)
+            if dist_vec and not base.game_instance['menu_mode']:
                 dist_vec_fmt_h = self.gen_stat_text_h(dist_vec)
                 dist_vec_fmt_p = self.gen_stat_text_p(dist_vec)
                 stat_obj_fmt_h = self.gen_stat_obj_text_h()
@@ -420,12 +412,11 @@ class StatUI:
                 self.set_npc_action_stat_text(stat_npc_action_fmt_p, set_mode='show')
                 self.text_toggle_col.show()
 
-        if (hasattr(base, "player")
-                and base.game_mode is False
-                and base.menu_mode):
+        if base.game_instance['actors_ref']['player'] and base.game_instance['menu_mode']:
             exclude = ['Sky', 'Mountains', 'Grass', 'Ground', 'NPC']
+            player = base.game_instance['actors_ref']['player']
             dist_vec = base.distance_calculate(
-                base.assets_pos_collector_no_player(base.player, exclude), base.player)
+                base.assets_pos_collector_no_player(player, exclude), player)
             dist_vec_fmt_h = self.gen_stat_text_h(dist_vec)
             dist_vec_fmt_p = self.gen_stat_text_p(dist_vec)
             stat_obj_fmt_h = self.gen_stat_obj_text_h()
@@ -439,7 +430,7 @@ class StatUI:
             self.text_toggle_col.hide()
             return task.done
 
-        if base.game_mode is False and base.menu_mode:
+        if base.game_instance['menu_mode']:
             return task.done
 
         return task.cont

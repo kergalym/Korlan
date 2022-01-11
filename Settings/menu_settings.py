@@ -35,7 +35,7 @@ class MenuSettings:
         if cfg_path and isinstance(op_type, str):
             self.cfg_parser.read(cfg_path)
             data = self.cfg_parser
-            if op_type is 'lng':
+            if op_type == 'lng':
                 try:
                     if data['Main']['language'] == 'russian':
                         return data['Main']['language']
@@ -46,7 +46,7 @@ class MenuSettings:
                 except KeyError or ValueError:
                     sys_exit("\nConfiguration file '{0}' is damaged. "
                              "Please delete it and re-run the game again.\n".format(self.cfg_path))
-            elif op_type is 'gfx':
+            elif op_type == 'gfx':
                 gfx_dict = {}
                 gfx_dict_keys = {}
                 for x in data['Main']:
@@ -57,7 +57,7 @@ class MenuSettings:
                                  "Please delete it and re-run the game again.\n".format(self.cfg_path))
                 gfx_dict['Keymap'] = gfx_dict_keys
                 return gfx_dict
-            elif op_type is 'snd':
+            elif op_type == 'snd':
                 snd_dict = {}
                 snd_dict_keys = {}
                 for x in data['Main']:
@@ -68,7 +68,7 @@ class MenuSettings:
                                  "Please delete it and re-run the game again.\n".format(self.cfg_path))
                 snd_dict['Main'] = snd_dict_keys
                 return snd_dict
-            elif op_type is 'kmp':
+            elif op_type == 'kmp':
                 kmp_dict = {}
                 kmp_dict_keys = {}
                 for x in data['Keymap']:
@@ -79,7 +79,7 @@ class MenuSettings:
                                  "Please delete it and re-run the game again.\n".format(self.cfg_path))
                 kmp_dict['Keymap'] = kmp_dict_keys
                 return kmp_dict
-            elif op_type is 'dev':
+            elif op_type == 'dev':
                 dev_dict = {}
                 dev_dict_keys = {}
                 for x in data['Debug']:

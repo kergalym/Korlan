@@ -33,8 +33,6 @@ class ExitMenuUI(ExitGame):
         self.node_frame_item = None
 
         self.rgba_gray_color = (.3, .3, .3, 1.)
-        self.game_mode = base.game_mode
-        self.menu_mode = base.menu_mode
 
         """ Frames """
         self.base.frame_int_exit = None
@@ -99,8 +97,8 @@ class ExitMenuUI(ExitGame):
 
             Return      : None
         """
-        if hasattr(base, "active_frame"):
-            base.active_frame.destroy()
+        if self.base.game_instance['current_active_frame']:
+            self.base.game_instance['current_active_frame'].destroy()
 
         self.unload_exit_menu()
 
@@ -165,7 +163,7 @@ class ExitMenuUI(ExitGame):
         self.btn_param_accept.set_pos(0.4, 0, -0.2)
         self.btn_param_decline.set_pos(0.22, 0, -0.2)
 
-        base.active_frame = self.base.frame_int_exit
+        self.base.game_instance['current_active_frame'] = self.base.frame_int_exit
 
     def unload_exit_menu(self):
         """ Function    : unload_exit_menu
@@ -181,13 +179,11 @@ class ExitMenuUI(ExitGame):
         if not self.base.frame_int_exit:
             return
 
-        if hasattr(base, "active_frame"):
-            base.active_frame.destroy()
+        if self.base.game_instance['current_active_frame']:
+            self.base.game_instance['current_active_frame'].destroy()
 
         self.base.build_info.reparent_to(aspect2d)
 
-        if self.game_mode:
-            self.base.frame_int_exit.destroy()
         self.base.frame_int_exit.destroy()
         self.logo.destroy()
         self.ornament_right.destroy()

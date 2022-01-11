@@ -34,14 +34,14 @@ class NpcsAI:
             if passive:
                 # Just stay
                 if "Horse" not in actor.get_name():
-                    request.request("Idle", actor, "LookingAround", "loop")
+                    request.request("Idle", actor, "Standing_idle_male", "loop")
 
             if passive is False:
                 # Get required data about enemy to deal with it
                 enemy_npc_ref = None
-                for k in base.npcs_actor_refs:
+                for k in self.base.game_instance['actors_ref']:
                     if actor.get_name() not in k:
-                        enemy_npc_ref = base.npcs_actor_refs[k]
+                        enemy_npc_ref = self.base.game_instance['actors_ref'][k]
 
                 enemy_fsm_request = None
                 for fsm_name in npcs_fsm_states:
@@ -52,6 +52,7 @@ class NpcsAI:
                     enemy_npc_ref_name = enemy_npc_ref.get_name()
                     enemy_npc_bs = None
                     if hasattr(self.base, "ai_chars_bs") and self.base.ai_chars_bs:
+                        # fixme, Mongol
                         enemy_npc_bs = self.base.ai_chars_bs[enemy_npc_ref_name]
 
                     # If NPC is far from enemy, do pursue enemy
@@ -66,10 +67,10 @@ class NpcsAI:
                     if (ai_behaviors[actor_name].behavior_status("pursue") == "done"
                             or ai_behaviors[actor_name].behavior_status("pursue") == "paused"):
                         if "Horse" not in actor.get_name():
-                            request.request("Idle", actor, "LookingAround", "loop")
+                            request.request("Idle", actor, "Standing_idle_male", "loop")
 
                         # Friendly NPC starts attacking the opponent when player first starts attacking it
-                        if self.base.player_ref.get_current_frame("Boxing"):
+                        if self.base.game_instance['player_ref'].get_current_frame("Boxing"):
                             if "Horse" not in actor.get_name():
                                 request.request("Attack", actor, "Boxing", "play")
                                 if (actor.get_current_frame("Boxing") >= 23
@@ -112,7 +113,7 @@ class NpcsAI:
 
             if passive:
                 # Just stay
-                request.request("Idle", actor, "LookingAround", "loop")
+                request.request("Idle", actor, "Standing_idle_male", "loop")
 
             elif passive is False:
                 # If NPC is far from Player, do pursue Player
@@ -124,16 +125,14 @@ class NpcsAI:
                     # If NPC is close to Player, just stay
                     if ai_behaviors[actor_name].behavior_status("pursue") == "done":
                         # TODO: Change action to something more suitable
-                        request.request("Idle", actor, "LookingAround", "loop")
+                        request.request("Idle", actor, "Standing_idle_male", "loop")
 
     def npc_enemy_logic(self, actor, player, player_fsm, request, ai_behaviors,
                         npcs_xyz_vec, npcs_fsm_states, near_npc, passive):
         if (actor and player and player_fsm and request and npcs_xyz_vec and npcs_fsm_states
                 and isinstance(passive, bool)
                 and isinstance(near_npc, dict)
-                and isinstance(npcs_xyz_vec, dict)
-                and hasattr(self.base, "alive_actors")
-                and self.base.alive_actors):
+                and isinstance(npcs_xyz_vec, dict)):
 
             # Get the time that elapsed since last frame
             dt = globalClock.getDt()
@@ -161,16 +160,16 @@ class NpcsAI:
                 vec_x = npcs_xyz_vec[actor_bs_name].length()
 
             # Just stay
-            if passive and self.base.alive_actors[actor_name]:
-                request.request("Idle", actor, "LookingAround", "loop")
+            if passive:
+                request.request("Idle", actor, "Standing_idle_male", "loop")
 
-            elif passive is False and self.base.alive_actors[actor_name]:
+            elif passive is False:
                 # Get required data about enemy to deal with it
                 enemy_npc_ref = None
-                for k in base.npcs_actor_refs:
+                for k in self.base.game_instance['actors_ref']:
                     if actor.get_name() not in k:
                         if self.base.npcs_hits.get(k):
-                            enemy_npc_ref = base.npcs_actor_refs[k]
+                            enemy_npc_ref = self.base.game_instance['actors_ref'][k]
 
                 enemy_fsm_request = None
                 for fsm_name in npcs_fsm_states:
@@ -216,7 +215,7 @@ class NpcsAI:
                             request.request("Attack", actor, "Boxing", "loop")
                         else:
                             if hasattr(self.base, 'npcs_active_actions'):
-                                self.base.npcs_active_actions[self.base.player_ref.get_name()] = None
+                                self.base.npcs_active_actions[self.base.game_instance['player_ref'].get_name()] = None
                                 self.base.npcs_active_actions[actor_name] = "Boxing"
                             request.request("Attack", actor, "Boxing", "loop")
 
@@ -236,10 +235,9 @@ class NpcsAI:
                                 player_fsm.request("Attacked", self.base.player_ref, "BigHitToHead", "play")
 
                         # Enemy is attacked by player!
-                        if (self.base.player_states["is_hitting"]
-                                and self.base.alive_actors[actor_name]):
-                            if (self.base.player_ref.get_current_frame("Boxing") >= 23
-                                    and self.base.player_ref.get_current_frame("Boxing") <= 25):
+                        if (self.base.player_states["is_hitting"]):
+                            if (self.base.game_instance['player_ref'].get_current_frame("Boxing") >= 23
+                                    and self.base.game_instance['player_ref'].get_current_frame("Boxing") <= 25):
                                 # Enemy does a block
                                 request.request("Block", actor, "center_blocking", "Boxing", "play")
 
@@ -270,7 +268,6 @@ class NpcsAI:
                                     pass
                                 else:
                                     request.request("Death", actor, "Dying", "play")
-                                    self.base.alive_actors[actor_name] = False
                                     ai_behaviors[actor_name].pause_ai("pursue")
                                     near_npc[actor_name] = False
 
@@ -308,7 +305,6 @@ class NpcsAI:
                                     pass
                                 else:
                                     request.request("Death", actor, "Dying", "play")
-                                    self.base.alive_actors[actor_name] = False
                                     ai_behaviors[actor_name].pause_ai("pursue")
                                     near_npc[actor_name] = False
 
@@ -319,4 +315,4 @@ class NpcsAI:
                                 and ai_behaviors[actor_name].behavior_status("evade") == "paused"):
                             ai_behaviors[actor_name].remove_ai("evade")
                             # TODO: Change action to something more suitable
-                            request.request("Idle", actor, "LookingAround", "loop")
+                            request.request("Idle", actor, "Standing_idle_male", "loop")

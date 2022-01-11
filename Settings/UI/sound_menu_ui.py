@@ -33,8 +33,6 @@ class SoundMenuUI(Sound):
         self.node_frame_item = None
 
         self.rgba_gray_color = (.3, .3, .3, 1.)
-        self.game_mode = base.game_mode
-        self.menu_mode = base.menu_mode
 
         """ Frames """
         self.base.frame_int_snd = None
@@ -111,8 +109,8 @@ class SoundMenuUI(Sound):
 
             Return      : None
         """
-        if hasattr(base, "active_frame"):
-            base.active_frame.destroy()
+        if self.base.game_instance['current_active_frame']:
+            self.base.game_instance['current_active_frame'].destroy()
 
         ui_geoms = base.ui_geom_collector()
 
@@ -246,8 +244,8 @@ class SoundMenuUI(Sound):
 
         self.btn_param_defaults.set_pos(1.5, 0, -0.9)
         self.btn_param_accept.set_pos(-0.6, 0, -0.9)
-        self.menu_mode = True
-        base.active_frame = self.base.frame_int_snd
+        self.base.game_instance['menu_mode'] = True
+        self.base.game_instance['current_active_frame'] = self.base.frame_int_snd
 
     def unload_sound_menu(self):
         """ Function    : unload_sound_menu
@@ -263,13 +261,11 @@ class SoundMenuUI(Sound):
         if not self.base.frame_int_snd:
             return
 
-        if hasattr(base, "active_frame"):
-            base.active_frame.destroy()
+        if self.base.game_instance['current_active_frame']:
+            self.base.game_instance['current_active_frame'].destroy()
 
         self.base.build_info.reparent_to(aspect2d)
 
-        if self.game_mode:
-            self.base.frame_int_snd.destroy()
         self.base.frame_int_snd.destroy()
         self.logo.destroy()
         self.ornament_right.destroy()

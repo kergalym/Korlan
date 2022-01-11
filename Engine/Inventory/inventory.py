@@ -193,6 +193,10 @@ class Inventory:
         for id, item in enumerate(self.items):
             if item.get_max_count() > 1:
                 self._counters[id]['text'] = str(item.count)
+                # update arrow count
+                if id == 8 and self.base.game_instance['arrow_count'] > 1:
+                    count = self.base.game_instance['arrow_count']
+                    self._counters[id]['text'] = str(count)
 
     def refresh_items(self):
         """ Remove old items vis. and create new
@@ -210,11 +214,22 @@ class Inventory:
         """ Add new item data. To make it visible needs to call refresh_items
         """
         id = self.find_first_empty_slot(target)
-        if id >= 0:
-            item.slot_id = id
-            self.items.append(item)
+        old_id = item.slot_id
+
+        # merge item if equal
+        if (self.items and self.items[old_id].get_type() == item.get_type()
+                and self.items[old_id].get_max_count() > 1
+                and item.get_max_count() > 1):
+            self.items[old_id].count = item.count
+            self.update_counters()
             self.current_target = target
             return True
+        else:
+            if id >= 0:
+                item.slot_id = id
+                self.items.append(item)
+                self.current_target = target
+                return True
         return False
 
     def drop_item_to(self, iid, target):
@@ -243,7 +258,7 @@ class Inventory:
     def remove_item(self, id):
         """ Fully remove item
         """
-        if self._counters.has_key(id):
+        if self._counters.get(id):
             self._counters[id].destroy()
             del self._counters[id]
         if self.item_under_mouse == id:
@@ -319,9 +334,9 @@ class Inventory:
             self.drag_item = args[0]
             self._items_vis[self.drag_item].setBin('gui-popup', 9999)
         # Merge items if possible
-        elif self.items[args[0]].get_type() == self.items[self.drag_item].get_type() and \
-                self.items[args[0]].get_max_count() > 1 and \
-                self.items[self.drag_item].get_max_count() > 1:
+        elif (self.items[args[0]].get_type() == self.items[self.drag_item].get_type()
+              and self.items[args[0]].get_max_count() > 1
+              and self.items[self.drag_item].get_max_count() > 1):
             diff = self.items[args[0]].get_max_count() - self.items[args[0]].count
             if diff < self.items[self.drag_item].count:
                 self.items[args[0]].count += diff

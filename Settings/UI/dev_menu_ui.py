@@ -10,7 +10,6 @@ from direct.showbase.ShowBaseGlobal import aspect2d
 from panda3d.core import FontPool
 from panda3d.core import TextNode
 
-# from Settings.UI.menu import MenuUI
 from Settings.menu_settings import MenuSettings
 from Settings.dev_menu_settings import DevMode
 
@@ -34,8 +33,6 @@ class DevMenuUI(DevMode):
         self.node_frame_item = None
 
         self.rgba_gray_color = (.3, .3, .3, 1.)
-        self.game_mode = base.game_mode
-        self.menu_mode = base.menu_mode
 
         """ Frames """
         self.base.frame_int_dev = None
@@ -376,11 +373,11 @@ class DevMenuUI(DevMode):
         self.logo.set_scale(self.logo_scale)
 
         for x in self.check_game_assets_devmode(exclude='Animations'):
-            l = DirectLabel(text=x, text_scale=0.2, pos=(1.1, 1.0, -0.7),
-                            parent=self.node_frame, scale=.5, )
-            self.node_frame.addItem(l)
+            lbl = DirectLabel(text=x, text_scale=0.2, pos=(1.1, 1.0, -0.7),
+                              parent=self.node_frame, scale=.5, )
+            self.node_frame.addItem(lbl)
 
-        self.menu_mode = True
+        self.base.game_instance['menu_mode'] = True
 
     def unload_dev_mode_menu(self):
         """ Function    : unload_dev_mode_menu
@@ -394,8 +391,7 @@ class DevMenuUI(DevMode):
             Return      : None
         """
         self.base.build_info.reparent_to(aspect2d)
-        if self.game_mode:
-            self.base.frame_int_dev.destroy()
+
         self.base.frame_int_dev.destroy()
         self.logo.destroy()
         self.ornament_left.destroy()

@@ -38,8 +38,6 @@ class PauseMenuUI(MenuSettings):
         self.node_frame_item = None
 
         self.rgba_gray_color = (.3, .3, .3, 1.)
-        self.game_mode = base.game_mode
-        self.menu_mode = base.menu_mode
         self.pause_mode = 0
 
         """ Frames """
@@ -97,7 +95,7 @@ class PauseMenuUI(MenuSettings):
             with open(self.lng_configs['lg_{0}'.format(lng_to_load)], 'r') as json_file:
                 self.language = json.load(json_file)
 
-        self.base.esc_menu_is_active = 0
+        self.base.game_instance['esc_mode'] = False
 
         """ Buttons & Fonts"""
         self.menu_font = self.fonts['OpenSans-Regular']
@@ -117,12 +115,11 @@ class PauseMenuUI(MenuSettings):
         if self.pause_mode == 1:
             return False
 
-        if hasattr(self.base, 'is_dialog_active'):
-            if self.base.is_dialog_active:
-                return False
+        if self.base.game_instance['is_dialog_active']:
+            return False
 
-        if hasattr(base, "active_frame"):
-            base.active_frame.destroy()
+        if self.base.game_instance['current_active_frame']:
+            self.base.game_instance['current_active_frame'].destroy()
 
         ui_geoms = base.ui_geom_collector()
         maps = base.loader.loadModel(ui_geoms['btn_t_icon'])
@@ -131,13 +128,12 @@ class PauseMenuUI(MenuSettings):
                  maps.find('**/button_rollover'))
 
         # close inventory
-        if hasattr(base, "is_ui_active"):
-            if base.is_ui_active:
-                base.messenger.send("close_sheet")
+        if self.base.game_instance['ui_mode']:
+            base.messenger.send("close_sheet")
 
-        base.is_ui_active = True
+        self.base.game_instance['ui_mode'] = True
         self.pause_mode = 1
-        self.base.esc_menu_is_active = 1
+        self.base.game_instance['esc_mode'] = True
         win_props = WindowProperties()
         win_props.set_cursor_hidden(False)
         self.base.win.request_properties(win_props)
@@ -245,7 +241,7 @@ class PauseMenuUI(MenuSettings):
 
         # We make unload_pause_menu() method accessible
         # to unload via ExitGame.do_accepted_event()
-        self.base.unload_pause_menu = self.unload_pause_menu
+        self.base.shared_functions['unload_pause_menu'] = self.unload_pause_menu
 
     def unload_pause_menu(self):
         """ Function    : unload_pause_menu
@@ -263,19 +259,14 @@ class PauseMenuUI(MenuSettings):
 
         self.base.build_info.reparent_to(aspect2d)
 
-        if hasattr(base, "active_frame"):
-            base.active_frame.destroy()
+        if self.base.game_instance['current_active_frame']:
+            self.base.game_instance['current_active_frame'].destroy()
 
-            if hasattr(base, "is_dev_ui_active"):
-                if base.is_dev_ui_active:
-                    base.is_ui_active = True
-                else:
-                    base.is_ui_active = False
+            if self.base.game_instance['dev_ui_mode']:
+                self.base.game_instance['ui_mode'] = True
             else:
-                base.is_ui_active = False
+                self.base.game_instance['ui_mode'] = False
 
-        if self.game_mode:
-            self.base.frame_int_pause.destroy()
         self.base.frame_int_pause.destroy()
         self.logo.destroy()
         self.ornament_left.destroy()
@@ -285,19 +276,16 @@ class PauseMenuUI(MenuSettings):
         win_props.set_cursor_hidden(True)
         self.base.win.request_properties(win_props)
 
-        if hasattr(base, "is_dev_ui_active"):
-            if base.is_dev_ui_active:
-                win_props.set_cursor_hidden(False)
-                self.base.win.request_properties(win_props)
-                base.is_ui_active = True
-            else:
-                win_props.set_cursor_hidden(True)
-                self.base.win.request_properties(win_props)
-                base.is_ui_active = False
+        if self.base.game_instance['dev_ui_mode']:
+            win_props.set_cursor_hidden(False)
+            self.base.win.request_properties(win_props)
+            self.base.game_instance['ui_mode'] = True
         else:
             win_props.set_cursor_hidden(True)
             self.base.win.request_properties(win_props)
-            base.is_ui_active = False
+            self.base.game_instance['ui_mode'] = False
 
         self.pause_mode = 0
-        self.base.esc_menu_is_active = 0
+        self.base.game_instance['esc_mode'] = False
+        self.base.game_instance['ui_mode'] = False
+        self.base.game_instance['menu_mode'] = False

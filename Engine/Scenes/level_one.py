@@ -1,3 +1,5 @@
+from os.path import exists
+
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import *
 from Engine.Actors.Player.korlan import Korlan
@@ -62,7 +64,7 @@ class LevelOne:
 
     def __init__(self):
         self.game_settings = base.game_settings
-        self.game_mode = base.game_mode
+        self.game_dir = base.game_dir
         self.base = base
         self.render = render
         if hasattr(base, "render_pipeline") and base.render_pipeline:
@@ -90,10 +92,8 @@ class LevelOne:
         self.physics_attr = PhysicsAttr()
         self.ai = None
         self.mouse = Mouse()
-        self.base.npcs_actor_refs = {}
         self.base.npcs_actors_health = {}
         self.base.npcs_lbl_np = {}
-        self.base.alive_actors = {}
         self.base.focused_actor = None
         self.actors_for_focus = None
         self.actor_focus_index = 1
@@ -102,11 +102,26 @@ class LevelOne:
         self.assets = None
         self.envprobe = None
 
+    def game_instance_diagnostic_task(self, task):
+        if self.base.game_instance['hud_np'] and self.base.game_instance['ai_is_activated'] == 1:
+            text = ''
+            for key in self.base.game_instance:
+                text += "{0}:  {1}\n".format(key, self.base.game_instance[key])
+
+            if not exists("{0}/game_state_report_first_new_game.log".format(self.game_dir)):
+                with open("{0}/game_state_report_first_new_game.log".format(self.game_dir), "w") as f:
+                    f.write(text)
+            else:
+                with open("{0}/game_state_report_new_game.log".format(self.game_dir), "w") as f:
+                    f.write(text)
+
+            return task.done
+        return task.cont
+
     def env_probe_task(self, task):
-        if (hasattr(self.base, "physics_is_active")
-                and self.base.physics_is_active == 1 and
+        if (self.base.game_instance['physics_is_activated'] == 1 and
                 not render.find("**/lvl_one*").is_empty()):
-            if hasattr(self, 'self.render_pipeline'):
+            if hasattr(self, 'render_pipeline'):
                 self.envprobe = self.render_pipeline.add_environment_probe()
                 scene = render.find("**/lvl_one*")
                 self.envprobe.set_pos(scene.get_pos())
@@ -122,14 +137,13 @@ class LevelOne:
     def world_sfx_task(self, task):
         if (hasattr(self.base, 'sound_sfx_nature')
                 and self.base.sound_sfx_nature):
-            if hasattr(self.base, 'loading_is_done') and self.base.loading_is_done == 1:
+            if self.base.game_instance['loading_is_done'] == 1:
                 if self.base.sound_sfx_nature.status() != self.base.sound_sfx_nature.PLAYING:
                     self.base.sound_sfx_nature.play()
         return task.cont
 
     def update_horse_trigger_task(self, task):
-        if (hasattr(self.base, "loading_is_done")
-                and self.base.loading_is_done == 1):
+        if self.base.game_instance['loading_is_done'] == 1:
             player_bs = self.base.get_actor_bullet_shape_node(asset="Player",
                                                               type="Player")
             if player_bs:
@@ -153,27 +167,8 @@ class LevelOne:
 
         return task.cont
 
-    def collect_actor_refs_task(self, task):
-        if hasattr(base, "npc_is_loaded") and base.npc_is_loaded == 1:
-            for npc_cls in self.actor_classes:
-                if npc_cls and npc_cls.actor:
-                    # Get only Actor, not a child of NodePath
-                    name = npc_cls.actor.get_name()
-
-                    base.npcs_actor_refs[name] = npc_cls.actor
-
-                    self.base.alive_actors[name] = True
-
-                if self.korlan.korlan:
-                    base.player_ref = self.korlan.korlan
-
-        if hasattr(base, "loading_is_done") and base.loading_is_done == 1:
-            return task.done
-
-        return task.cont
-
     def collect_actors_health_task(self, task):
-        if hasattr(base, "npc_is_loaded") and base.npc_is_loaded == 1:
+        if self.base.game_instance['ai_is_activated'] == 1:
             for npc_cls in self.actor_classes:
                 if npc_cls and npc_cls.actor:
                     name = npc_cls.actor.get_name()
@@ -188,8 +183,7 @@ class LevelOne:
             enemy_npc_bs = self.base.get_actor_bullet_shape_node(asset=name, type="NPC")
             if enemy_npc_bs and not enemy_npc_bs.is_empty():  # is enemy here?
                 if self.ai and self.ai.near_npc.get(name):
-                    if (self.base.npcs_lbl_np.get(name)
-                            and self.base.alive_actors[name]):
+                    if self.base.npcs_lbl_np.get(name):
 
                         for i in self.base.npcs_lbl_np:
                             if name != i:
@@ -276,28 +270,30 @@ class LevelOne:
                                 else:
                                     self.base.npcs_hits[name] = False
 
-        #if self.base.game_mode is False and self.base.menu_mode:
-        #    return task.done
-
         return task.cont
 
     def unload_game_scene(self):
-        if self.base.game_mode:
-            self.base.game_mode = False
-            self.base.menu_mode = True
+        if not self.base.game_instance['menu_mode']:
+            self.base.game_instance['menu_mode'] = True
 
             assets = self.base.assets_collector()
             self.assets = assets
 
             # Stop sounds
             self.base.sound_sfx_nature.stop()
+            taskMgr.remove("world_sfx_task")
 
             # Remove HUD elements
-            if hasattr(base, "hud") and base.hud:
-                base.hud.clear_aim_cursor()
-                base.hud.clear_day_hud()
-                base.hud.clear_player_bar()
-                base.hud.clear_weapon_ui()
+            if self.base.game_instance['hud_np']:
+                self.base.game_instance['hud_np'].clear_aim_cursor()
+                self.base.game_instance['hud_np'].clear_day_hud()
+                self.base.game_instance['hud_np'].clear_player_bar()
+                self.base.game_instance['hud_np'].clear_weapon_ui()
+            taskMgr.remove("cursor_state_task")
+
+            # Remove day time task
+            self.render_attr.time_text_ui.hide()
+            taskMgr.remove("set_time_of_day_clock_task")
 
             # Remove all flames
             self.render_attr.clear_flame()
@@ -333,6 +329,10 @@ class LevelOne:
                         render.find("**/StateInitializer").remove_node()
                         render.find("**/StateInitializer").clear()
 
+            # Unload Physics
+            if self.physics_attr and self.physics_attr.world:
+                taskMgr.remove("update_physics_task")
+
             # Unload AI
             if self.ai and self.ai.ai_world:
                 taskMgr.remove("keep_actor_pitch_task")
@@ -350,8 +350,19 @@ class LevelOne:
                 self.ai.ai_char = None
                 self.ai.ai_chars = {}
 
-            # Player and actor cleanup
+            # Player and actors cleanup
             if self.korlan.korlan:
+                # Remove all remained nodes
+                if not render.find('**/Player:BS').is_empty():
+                    render.find('**/Player:BS').remove_node()
+
+                taskMgr.remove("calculate_arrow_trajectory_task")
+                taskMgr.remove("arrow_hit_check_task")
+                taskMgr.remove("charge_arrow_task")
+                taskMgr.remove("arrow_fly_task")
+
+                taskMgr.remove("player_actions_task")
+                taskMgr.remove("mouse_control_task")
                 taskMgr.remove("collect_actors_health_task")
                 taskMgr.remove("update_horse_trigger_task")
                 self.korlan.korlan.delete()
@@ -367,6 +378,10 @@ class LevelOne:
             if render.find("**/World"):
                 render.find("**/World").remove_node()
                 render.find("**/World").clear()
+                self.base.game_instance['scene_np'].remove_node()
+                self.base.game_instance['scene_np'].clear()
+                self.base.game_instance['player_ref'].remove_node()
+                self.base.game_instance['player_ref'].clear()
 
             for key in assets:
                 self.loader.unload_model(assets[key])
@@ -374,8 +389,16 @@ class LevelOne:
             self.player_state.clear_state()
             self.actor_focus_index = 1
 
-            if hasattr(self.base, "mouse_control_is_activated"):
-                self.base.mouse_control_is_activated = 0
+            self.base.game_instance['mouse_control_is_activated'] = 0
+            self.base.game_instance['physics_is_activated'] = 0
+            self.base.game_instance['ai_is_activated'] = 0
+
+            self.base.game_instance['scene_is_loaded'] = False
+            self.base.game_instance['player_is_loaded'] = False
+            self.base.game_instance['actors_are_loaded'] = False
+            self.base.game_instance['is_ready_for_game'] = False
+
+            # taskMgr.remove("game_instance_diagnostic_task")
 
     def unload_menu_scene(self):
         assets = self.base.assets_collector()
@@ -432,21 +455,20 @@ class LevelOne:
 
         self.actor_focus_index = 1
 
-        base.game_mode = True
-        base.menu_mode = False
+        self.base.game_instance['menu_mode'] = False
 
-        if hasattr(base, "menu_scene_vid") and base.menu_scene_vid:
-            if "MENU_SCENE_VID" in base.menu_scene_vid.get_name():
-                base.menu_scene_vid.stop()
+        if self.base.game_instance['menu_scene_video']:
+            if "MENU_SCENE_VID" in self.base.game_instance['menu_scene_video'].get_name():
+                self.base.game_instance['menu_scene_video'].stop()
 
     def load_new_game(self):
         self.unload_menu_scene()
 
         self.mouse.mouse_wheel_init()
 
-        # We make any unload_game_scene() method accessible
-        # to unload via UnloadingUI.set_parallel_unloading()
-        self.base.unload_game_scene = self.unload_game_scene
+        # We make any unload_game_scene() method accessible global
+        # in UnloadingUI.start_unloading()
+        self.base.shared_functions['unload_game_scene'] = self.unload_game_scene
 
         self.base.accept("escape", self.pause_game_ui.load_pause_menu)
 
@@ -455,11 +477,12 @@ class LevelOne:
         world_np = NodePath("World")
         world_np.reparent_to(render)
 
-        self.base.lod = LODNode('LOD')
-        self.base.lod_np = NodePath(self.base.lod)
-        self.base.lod_np.reparentTo(world_np)
+        lod = LODNode('LOD')
+        self.base.game_instance['lod_np'] = NodePath(lod)
+        self.base.game_instance['lod_np'].reparentTo(world_np)
 
         self.render_attr.set_time_of_day(duration=1800)  # 1800 sec == 30 min
+        self.render_attr.time_text_ui.show()
         taskMgr.add(self.render_attr.set_time_of_day_clock_task,
                     "set_time_of_day_clock_task",
                     extraArgs=["19:00", 1800],  # 1800 sec == 30 min
@@ -522,21 +545,22 @@ class LevelOne:
             if a_key == b_key:
                 level_assets_joined[a_key] = level_assets[a_key] + level_npc_assets[a_key]
 
-        base.level_assets = level_assets_joined
+        self.base.game_instance['level_assets_np'] = level_assets_joined
 
         self.actors_for_focus = {}
         for index, actor in enumerate(level_npc_assets['name'], 1):
             self.actors_for_focus[index] = actor
-
-        taskMgr.add(self.collect_actor_refs_task,
-                    "collect_actor_refs_task",
-                    appendTask=True)
 
         self.scene_one.set_env(cloud_dimensions=[2000, 2000, 100],
                                cloud_speed=0.3,
                                cloud_size=20,
                                cloud_count=20,
                                cloud_color=(0.6, 0.6, 0.65, 1.0))
+
+        """ Setup Physics """
+        self.physics_attr.set_physics_world()
+
+        self.base.accept("add_bullet_collider", self.physics_attr.add_bullet_collider, [level_assets_joined])
 
         """ Async Loading """
         suffix = ""
@@ -574,6 +598,7 @@ class LevelOne:
                                               rotation=[0, 0, 0],
                                               scale=[1.0, 1.0, 1.0],
                                               culling=True))
+                self.base.game_instance['actors_are_loaded'] = True
 
         """ Task for Debug mode """
         if self.game_settings['Debug']['set_debug_mode'] == 'YES':
@@ -583,8 +608,7 @@ class LevelOne:
                         "show_game_stat_task",
                         appendTask=True)
 
-        self.physics_attr.set_physics_world(assets=level_assets_joined)
-
+        """ Setup AI """
         if self.game_settings['Debug']['set_editor_mode'] == 'NO':
             # To avoid nullptr assertion error initialize AI World only if it has not been initialized yet
 
@@ -622,6 +646,9 @@ class LevelOne:
         taskMgr.add(self.world_sfx_task,
                     "world_sfx_task",
                     appendTask=True)
+
+        """taskMgr.add(self.game_instance_diagnostic_task,
+                    "game_instance_diagnostic_task")"""
 
     def save_game(self):
         pass

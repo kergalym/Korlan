@@ -93,12 +93,8 @@ class NpcErnar:
             self.scale_y = scale[1]
             self.scale_z = scale[2]
 
-            base.npc_is_loaded = 0
-
             self.actor = await self.base.loader.load_model(path, blocking=False)
             self.actor = Actor(self.actor, animation[1])
-
-            base.npc_is_loaded = 1
 
             self.actor.set_name(name)
             self.actor.set_scale(self.actor, self.scale_x, self.scale_y, self.scale_z)
@@ -125,6 +121,9 @@ class NpcErnar:
 
             self.actor.reparent_to(render)
 
+            # Make actor global
+            self.base.game_instance['actors_ref'][name] = self.actor
+
             if self.game_settings['Main']['postprocessing'] == 'on':
                 self.render_attr.render_pipeline.prepare_scene(self.actor)
 
@@ -137,6 +136,9 @@ class NpcErnar:
                                                            ambient_color=(1.0, 1.0, 1.0))"""
                 # self.render_attr.set_ssao(self.actor)
                 pass
+
+            # Add Bullet collider for this actor
+            self.base.messenger.send("add_bullet_collider")
 
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
                 self.render.analyze()

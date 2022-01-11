@@ -977,7 +977,7 @@ class Editor:
         self.base.accept("set_joints_list_ui", self.editor_ui.set_joints_list_ui)
         self.update_fields()
 
-        if self.base.game_mode is False and self.base.menu_mode:
+        if self.base.game_instance['menu_mode']:
             self.frame.destroy()
             return task.done
 

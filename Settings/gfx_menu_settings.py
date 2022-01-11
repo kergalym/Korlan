@@ -1,5 +1,4 @@
 from pathlib import Path
-from panda3d.core import LODNode
 
 from Engine.Render.rplibs.yaml import yaml_py3 as rp_yaml
 from Settings.menu_settings import MenuSettings
@@ -7,7 +6,6 @@ from Settings.menu_settings import MenuSettings
 
 class Graphics(MenuSettings):
     def __init__(self):
-        self.lod = LODNode('LOD')
         self.state_renderpipeline = 'OFF'
         self.game_dir = str(Path.cwd())
         MenuSettings.__init__(self)

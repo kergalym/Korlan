@@ -47,8 +47,6 @@ class MenuUI(MenuSettings):
         self.node_frame_item = None
 
         self.rgba_gray_color = (.3, .3, .3, 1.)
-        self.game_mode = base.game_mode
-        self.menu_mode = base.menu_mode
 
         """ Frames """
         self.base.frame = None
@@ -233,7 +231,7 @@ class MenuUI(MenuSettings):
         self.btn_dev_mode.set_pos(-1.4, 0, -0.5)
         self.btn_exit.set_pos(-1.4, 0, -0.6)
 
-        self.menu_mode = True
+        self.base.game_instance['menu_mode'] = True
 
     def unload_main_menu(self):
         """ Function    : unload_main_menu
@@ -265,12 +263,9 @@ class MenuUI(MenuSettings):
 
             Return      : None
         """
-        if isinstance(self.game_mode, bool):
-            self.unload_main_menu()
-            self.game_mode = True
-            self.menu_mode = False
-
-            self.loading_ui.start_loading(type="new_game")
+        self.unload_main_menu()
+        self.base.game_instance['menu_mode'] = False
+        self.loading_ui.start_loading(type="new_game")
 
     def load_game_wrapper(self):
         """ Function    : load_game_wrapper
@@ -283,8 +278,7 @@ class MenuUI(MenuSettings):
 
             Return      : None
         """
-        if isinstance(self.game_mode, bool):
-            self.playworker.load_game()
+        self.playworker.load_game()
 
     def save_game_wrapper(self):
         """ Function    : save_game_wrapper
@@ -297,8 +291,7 @@ class MenuUI(MenuSettings):
 
             Return      : None
         """
-        if isinstance(self.game_mode, bool):
-            self.playworker.save_game()
+        self.playworker.save_game()
 
     def delete_game_wrapper(self):
         """ Function    : delete_game_wrapper
@@ -311,6 +304,5 @@ class MenuUI(MenuSettings):
 
             Return      : None
         """
-        if isinstance(self.game_mode, bool):
-            self.playworker.delete_game()
+        self.playworker.delete_game()
 

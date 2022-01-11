@@ -33,8 +33,6 @@ class GraphicsMenuUI(Graphics):
         self.node_frame_item = None
 
         self.rgba_gray_color = (.3, .3, .3, 1.)
-        self.game_mode = base.game_mode
-        self.menu_mode = base.menu_mode
 
         """ Frames """
         self.base.frame_int_gfx = None
@@ -73,6 +71,7 @@ class GraphicsMenuUI(Graphics):
 
         self.lbl_disp_res = None
         self.lbl_details = None
+        self.lbl_texcomp = None
         self.lbl_shadows = None
         self.lbl_postprocessing = None
         self.lbl_antialiasing = None
@@ -165,8 +164,8 @@ class GraphicsMenuUI(Graphics):
 
             Return      : None
         """
-        if hasattr(base, "active_frame"):
-            base.active_frame.destroy()
+        if self.base.game_instance['current_active_frame']:
+            self.base.game_instance['current_active_frame'].destroy()
 
         ui_geoms = base.ui_geom_collector()
 
@@ -727,8 +726,8 @@ class GraphicsMenuUI(Graphics):
         self.btn_param_defaults.set_pos(1.5, 0, -0.9)
         self.btn_param_accept.set_pos(-0.6, 0, -0.9)
 
-        self.menu_mode = True
-        base.active_frame = self.base.frame_int_gfx
+        self.base.game_instance['menu_mode'] = True
+        self.base.game_instance['current_active_frame'] = self.base.frame_int_gfx
 
     def unload_graphics_menu(self):
         """ Function    : unload_graphics_menu
@@ -744,13 +743,11 @@ class GraphicsMenuUI(Graphics):
         if not self.base.frame_int_gfx:
             return
 
-        if hasattr(base, "active_frame"):
-            base.active_frame.destroy()
+        if self.base.game_instance['current_active_frame']:
+            self.base.game_instance['current_active_frame'].destroy()
 
         self.base.build_info.reparent_to(aspect2d)
 
-        if self.game_mode:
-            self.base.frame_int_gfx.destroy()
         self.base.frame_int_gfx.destroy()
         self.logo.destroy()
         self.ornament_right.destroy()

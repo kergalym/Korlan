@@ -41,68 +41,59 @@ class LoadingUI:
         self.menu_font = self.fonts['OpenSans-Regular']
 
         self.title_loading_text = None
-        self.base.loading_is_done = 0
-        self.base.unloading_is_done = 0
+        self.base.game_instance['loading_is_done'] = 0
+        self.base.game_instance['unloading_is_done'] = 0
         # self.wp = WindowProperties()
 
     def set_loading_bar(self):
-        if (self.loading_bar
-                and self.title_loading_text
-                and self.loading_screen):
-            # self.wp.set_cursor_hidden(True)
-            self.loading_bar.show()
-            self.title_loading_text.show()
-            self.loading_screen.show()
-        else:
-            assets = base.assets_collector()
-            self.title_loading_text = OnscreenText(text="",
-                                                   pos=(-0.8, -0.8),
-                                                   scale=0.04,
-                                                   fg=(255, 255, 255, 0.9),
-                                                   font=self.font.load_font(self.menu_font),
-                                                   align=TextNode.ALeft,
-                                                   mayChange=True)
+        assets = base.assets_collector()
+        self.title_loading_text = OnscreenText(text="",
+                                               pos=(-0.8, -0.8),
+                                               scale=0.04,
+                                               fg=(255, 255, 255, 0.9),
+                                               font=self.font.load_font(self.menu_font),
+                                               align=TextNode.ALeft,
+                                               mayChange=True)
 
-            self.loading_bar = DirectWaitBar(text="",
-                                             value=0,
-                                             range=100,
-                                             frameColor=(0, 0.1, 0.1, self.frm_opacity),
-                                             barColor=(0.6, 0, 0, 1),
-                                             pos=(0, 0.4, -0.95))
+        self.loading_bar = DirectWaitBar(text="",
+                                         value=0,
+                                         range=100,
+                                         frameColor=(0, 0.1, 0.1, self.frm_opacity),
+                                         barColor=(0.6, 0, 0, 1),
+                                         pos=(0, 0.4, -0.95))
 
-            self.loading_screen = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
-                                              frameSize=self.loading_frame_size)
-            self.loading_screen.set_name("LoadingScreen")
+        self.loading_screen = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
+                                          frameSize=self.loading_frame_size)
+        self.loading_screen.set_name("LoadingScreen")
 
-            if self.loading_screen:
-                self.media = base.load_video(file="circle", type="loading_menu")
-                if self.media:
-                    self.media.set_loop_count(0)
-                    self.media.play()
-                    self.media.set_play_rate(0.5)
+        if self.loading_screen:
+            self.media = base.load_video(file="circle", type="loading_menu")
+            if self.media:
+                self.media.set_loop_count(0)
+                self.media.play()
+                self.media.set_play_rate(0.5)
 
-            self.loading_bar.set_scale(0.9, 0, 0.1)
-            self.loading_bar.reparent_to(self.loading_screen)
-            self.title_loading_text.reparent_to(self.loading_screen)
-            self.base.build_info.reparent_to(self.loading_screen)
+        self.loading_bar.set_scale(0.9, 0, 0.1)
+        self.loading_bar.reparent_to(self.loading_screen)
+        self.title_loading_text.reparent_to(self.loading_screen)
+        self.base.build_info.reparent_to(self.loading_screen)
 
-            if assets:
-                self.loading_bar['range'] = len(assets)
+        if assets:
+            self.loading_bar['range'] = len(assets)
 
     def clear_loading_bar(self):
         if self.loading_bar:
             self.loading_bar.hide()
-            self.loading_bar['value'] = 0
+            self.loading_bar.destroy()
         if self.loading_screen:
             self.loading_screen.hide()
+            self.loading_screen.destroy()
             self.base.build_info.reparent_to(aspect2d)
         if self.title_loading_text:
             self.title_loading_text.hide()
+            self.title_loading_text.destroy()
         if self.media:
             self.media.stop()
-
-        """if self.wp:
-            self.wp.set_cursor_hidden(False)"""
 
     def prepare_to_game(self):
         self.clear_loading_bar()
@@ -111,7 +102,7 @@ class LoadingUI:
         self.hud.set_day_hud()
         self.hud.set_player_bar()
         self.hud.set_weapon_ui()
-        base.hud = self.hud
+        self.base.game_instance['hud_np'] = self.hud
 
     def get_loading_queue_list(self, names):
         if isinstance(names, list) and names:
@@ -125,37 +116,34 @@ class LoadingUI:
             return [queue, num]
 
     def loading_measure(self, task):
-        self.base.loading_is_done = 0
-        if hasattr(base, "level_assets"):
-            assets = base.level_assets
+        self.base.game_instance['loading_is_done'] = 0
+        if self.base.game_instance['level_assets_np']:
+            assets = self.base.game_instance['level_assets_np']
             matched = self.get_loading_queue_list(assets['name'])
 
             if matched:
                 num = matched[1]
                 asset_num = len(assets['name'])
-                self.loading_bar['range'] = asset_num-1
+                self.loading_bar['range'] = asset_num - 1
 
                 if num < asset_num:
                     if self.loading_bar:
-                        self.loading_bar['value'] += num
+                        self.loading_bar['value'] = num
                         txt = "Loading asset: {0}\n Loaded: {1}\n Total: {2}".format(assets['name'][num], num,
                                                                                      len(assets['name']))
                         self.title_loading_text.setText(txt)
 
                 elif num == asset_num:
-                    self.base.loading_is_done = 1
+                    self.base.game_instance['loading_is_done'] = 1
 
                     if self.game_settings['Debug']['set_debug_mode'] == 'YES':
-                        if self.base.loading_is_done == 1:
-                            self.rp_lights_mgr_ui.set_ui_rpmgr()
+                        self.rp_lights_mgr_ui.set_ui_rpmgr()
+                        return task.done
 
-                    if (hasattr(base, "player_actions_init_is_activated")
-                            and self.base.player_actions_init_is_activated == 1
-                            and hasattr(self.base, "mouse_control_is_activated")
-                            and self.base.mouse_control_is_activated == 1
-                            and hasattr(base, "physics_is_active")
-                            and self.base.physics_is_active == 1):
-                        last_np = assets['name'][asset_num-1]
+                    if (self.base.game_instance['player_actions_init_is_activated'] == 1
+                            and self.base.game_instance['mouse_control_is_activated'] == 1
+                            and self.base.game_instance['physics_is_activated'] == 1):
+                        last_np = assets['name'][asset_num - 1]
                         if render.find("**/{0}".format(last_np)):
                             self.loading_bar.hide()
                             txt = "Press Enter to continue..."

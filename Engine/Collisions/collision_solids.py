@@ -21,10 +21,8 @@ class BulletCollisionSolids:
     def get_bs_hitbox(self, actor, joints, world):
         if (actor and joints and world
                 and isinstance(joints, list)):
-            if (hasattr(base, 'npcs_actor_refs')
-                    and base.npcs_actor_refs
-                    and hasattr(base, "player_ref")
-                    and base.player_ref):
+            if (self.base.game_instance['actors_ref']
+                    and self.base.game_instance['player_ref']):
                 for joint in joints:
                     shape = BulletBoxShape(Vec3(1, 1, 1))
                     name_hb = "{0}_{1}:HB".format(actor.get_name(), joint)
@@ -46,13 +44,13 @@ class BulletCollisionSolids:
 
                     exposed_joint = None
                     if name == "Player":
-                        char_joint = base.player_ref.get_part_bundle('modelRoot').get_name()
+                        char_joint = self.base.game_instance['player_ref'].get_part_bundle('modelRoot').get_name()
                         joint = "{0}:{1}".format(char_joint, joint)
-                        exposed_joint = base.player_ref.expose_joint(None, "modelRoot", joint)
+                        exposed_joint = self.base.game_instance['player_ref'].expose_joint(None, "modelRoot", joint)
                     elif name != "Player":
-                        char_joint = base.npcs_actor_refs[name].get_part_bundle('modelRoot').get_name()
+                        char_joint = self.base.game_instance['actors_ref'][name].get_part_bundle('modelRoot').get_name()
                         joint = "{0}:{1}".format(char_joint, joint)
-                        exposed_joint = base.npcs_actor_refs[name].expose_joint(None, "modelRoot", joint)
+                        exposed_joint = self.base.game_instance['actors_ref'][name].expose_joint(None, "modelRoot", joint)
 
                     ghost_np.reparent_to(exposed_joint)
                     world.attach_ghost(ghost)

@@ -1,6 +1,5 @@
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import WindowProperties
-from Engine.Inventory.inventory import Inventory
 
 
 class PlayerState:
@@ -80,7 +79,6 @@ class PlayerState:
         self.loader = base.loader
 
         self.render = render
-        self.inventory = Inventory()
 
         self.player_attr = {
             "health": 100,
@@ -104,7 +102,7 @@ class PlayerState:
                     base.first_person_mode = False
                     return task.done
 
-        if base.game_mode is False and base.menu_mode:
+        if self.base.game_instance['menu_mode']:
             return task.done
 
         return task.cont
@@ -238,7 +236,7 @@ class PlayerState:
                     elif action == "is_idle":
                         base.player_states[key] = False
                         base.player_states["is_idle"] = True
-            elif state is False:
+            elif not state:
                 if action == "is_crouch_moving":
                     base.player_states["is_idle"] = True
                     base.player_states["is_crouch_moving"] = False
@@ -261,13 +259,6 @@ class PlayerState:
                         weapon.set_pos(0, 12, -12)
                         weapon.set_hpr(78.69, 99.46, 108.43)
                         weapon.set_scale(100)
-                        arrow = base.loader.loadModel(base.assets_collector()["bow_arrow_kazakh"])
-                        if arrow:
-                            arrow.reparent_to(joint)
-                            arrow.set_name("bow_arrow_kazakh")
-                            arrow.set_pos(-10, 7, -12)
-                            arrow.set_hpr(91.55, 0, 0)
-                            arrow.set_scale(100)
 
             base.player_state_unarmed = True
             base.player_state_armed = False
@@ -302,15 +293,6 @@ class PlayerState:
                     weapon.set_hpr(216.57, 293.80, 316.85)
                     if weapon.is_hidden():
                         weapon.show()
-                    arrow = render.find("**/bow_arrow_kazakh")
-                    if arrow:
-                        arrow.reparent_to(weapon)
-                        # rescale weapon because it's scale 100 times smaller than we need
-                        arrow.set_scale(1)
-                        arrow.set_pos(0.04, 0.01, -0.01)
-                        arrow.set_hpr(0, 2.86, 0)
-                        if arrow.is_hidden():
-                            arrow.show()
 
                 base.player_state_unarmed = False
                 base.player_state_armed = True
@@ -334,13 +316,6 @@ class PlayerState:
                     weapon.set_scale(100)
                     weapon.set_pos(0, 12, -12)
                     weapon.set_hpr(78.69, 99.46, 108.43)
-                    arrow = render.find("**/bow_arrow_kazakh")
-                    if arrow:
-                        arrow.reparent_to(weapon)
-                        # rescale weapon because it's scale 100 times smaller than we need
-                        arrow.set_scale(100)
-                        arrow.set_pos(-10, 7, -12)
-                        arrow.set_hpr(91.55, 0, 0)
 
                 base.player_state_unarmed = True
                 base.player_state_armed = False
@@ -349,7 +324,7 @@ class PlayerState:
     def actor_life(self, task):
         self.has_actor_life()
 
-        if base.game_mode is False and base.menu_mode:
+        if self.base.game_instance['menu_mode']:
             return task.done
 
         return task.cont
@@ -461,8 +436,14 @@ class PlayerState:
 
                 """import pdb;
                 pdb.set_trace()"""
-
                 base.in_use_item_name = item.get_name()
+
+                add_item_to_inventory = self.base.shared_functions['add_item_to_inventory']
+                if add_item_to_inventory:
+                    add_item_to_inventory(item=base.in_use_item_name,
+                                          count=1,
+                                          inventory="INVENTORY_1",
+                                          inventory_type="misc")
 
     def take_item(self, player, joint, items_dist_vect):
         if (player
