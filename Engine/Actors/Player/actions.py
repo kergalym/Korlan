@@ -516,54 +516,103 @@ class Actions:
                 if base.player_states["horse_is_ready_to_be_used"]:
                     base.accept("e", self.mount_action, [anims])
 
-                if base.player_state_unarmed:
-                    if self.base.game_instance['hud_np']:
-                        self.base.game_instance['hud_np'].toggle_weapon_state(weapon_name="hands")
-                    self.player_crouch_action(player, 'crouch', anims)
-                    self.player_jump_action(player, "jump", anims, "Jumping")
-                    self.player_use_action(player, "use", anims, "PickingUp")
-                    self.player_attack_action(player, "attack", anims, "Boxing")
-                    self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
-                    self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
-                    self.player_block_action(player, "block", anims, "center_blocking")
-                    self.player_sword_action(player, "sword", anims, "sword_disarm_over_shoulder")
-                    self.player_bow_action(player, "bow", anims, "archer_standing_disarm_bow")
-                if base.player_state_armed:
-                    if self.floater:
-                        self.player_movement_action(player, anims)
-                        self.player_run_action(player, anims)
-                    elif base.player_states['is_mounted']:
-                        self.horse_riding_movement_action(anims)
-                        self.horse_riding_run_action(anims)
-                    self.player_crouch_action(player, 'crouch', anims)
-                    self.player_jump_action(player, "jump", anims, "Jumping")
-                    self.player_use_action(player, "use", anims, "PickingUp")
+                if not base.player_states['is_mounted']:
+                    if base.player_state_unarmed:
+                        if self.base.game_instance['hud_np']:
+                            self.base.game_instance['hud_np'].toggle_weapon_state(weapon_name="hands")
+                        self.player_crouch_action(player, 'crouch', anims)
+                        self.player_jump_action(player, "jump", anims, "Jumping")
+                        self.player_use_action(player, "use", anims, "PickingUp")
+                        self.player_attack_action(player, "attack", anims, "Boxing")
+                        self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
+                        self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
+                        self.player_block_action(player, "block", anims, "center_blocking")
+                        self.player_sword_action(player, "sword", anims, "sword_disarm_over_shoulder")
+                        self.player_bow_action(player, "bow", anims, "archer_standing_disarm_bow")
+                    if base.player_state_armed:
+                        if self.floater:
+                            self.player_movement_action(player, anims)
+                            self.player_run_action(player, anims)
 
-                    if base.player_states['has_sword'] and not base.player_states['has_bow']:
-                        self.player_attack_action(player, "attack", anims, "great_sword_slash")
-                        self.player_block_action(player, "block", anims, "great_sword_blocking")
-                    elif not base.player_states['has_sword'] and base.player_states['has_bow']:
-                        self.player_bow_shoot_action(player, anims, "archer_standing_draw_arrow")
+                            self.player_crouch_action(player, 'crouch', anims)
+                            self.player_jump_action(player, "jump", anims, "Jumping")
+                            self.player_use_action(player, "use", anims, "PickingUp")
+                        elif base.player_states['is_mounted']:
+                            self.horse_riding_movement_action(anims)
+                            self.horse_riding_run_action(anims)
 
-                    self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
-                    self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
-                    self.player_sword_action(player, "sword", anims, "sword_disarm_over_shoulder")
-                    self.player_bow_action(player, "bow", anims, "archer_standing_disarm_bow")
-                if base.player_state_magic:
-                    if self.floater and not base.player_states['is_mounted']:
-                        self.player_movement_action(player, anims)
-                        self.player_run_action(player, anims)
-                    elif base.player_states['is_mounted']:
-                        self.horse_riding_movement_action(anims)
-                        self.horse_riding_run_action(anims)
-                    self.player_crouch_action(player, 'crouch', anims)
-                    self.player_jump_action(player, "jump", anims, "Jumping")
-                    self.player_use_action(player, "use", anims, "PickingUp")
-                    self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
-                    self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
-                    self.player_block_action(player, "block", anims, "center_blocking")
-                    self.player_tengri_action(player, "tengri", anims, "PickingUp")
-                    self.player_umai_action(player, "umai", anims, "PickingUp")
+                        if base.player_states['has_sword'] and not base.player_states['has_bow']:
+                            self.player_attack_action(player, "attack", anims, "great_sword_slash")
+                            self.player_block_action(player, "block", anims, "great_sword_blocking")
+                        elif not base.player_states['has_sword'] and base.player_states['has_bow']:
+                            self.player_bow_shoot_action(player, anims, "archer_standing_draw_arrow")
+
+                        self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
+                        self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
+                        self.player_sword_action(player, "sword", anims, "sword_disarm_over_shoulder")
+                        self.player_bow_action(player, "bow", anims, "archer_standing_disarm_bow")
+                    if base.player_state_magic:
+                        if self.floater:
+                            self.player_movement_action(player, anims)
+                            self.player_run_action(player, anims)
+
+                            self.player_crouch_action(player, 'crouch', anims)
+                            self.player_jump_action(player, "jump", anims, "Jumping")
+                            self.player_use_action(player, "use", anims, "PickingUp")
+                            self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
+                            self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
+                            self.player_block_action(player, "block", anims, "center_blocking")
+                            self.player_tengri_action(player, "tengri", anims, "PickingUp")
+                            self.player_umai_action(player, "umai", anims, "PickingUp")
+
+                elif base.player_states['is_mounted']:
+                    if base.player_state_unarmed:
+                        if self.floater:
+                            self.horse_riding_movement_action(anims)
+                            self.horse_riding_run_action(anims)
+                        if self.base.game_instance['hud_np']:
+                            self.base.game_instance['hud_np'].toggle_weapon_state(weapon_name="hands")
+                        self.player_crouch_action(player, 'crouch', anims)
+                        self.player_jump_action(player, "jump", anims, "Jumping")
+                        self.player_use_action(player, "use", anims, "PickingUp")
+                        self.player_attack_action(player, "attack", anims, "Boxing")
+                        self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
+                        self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
+                        self.player_block_action(player, "block", anims, "center_blocking")
+                        self.player_sword_action(player, "sword", anims, "sword_disarm_over_shoulder")
+                        self.player_bow_action(player, "bow", anims, "archer_standing_disarm_bow")
+                    if base.player_state_armed:
+                        if self.floater:
+                            self.horse_riding_movement_action(anims)
+                            self.horse_riding_run_action(anims)
+
+                            self.player_crouch_action(player, 'crouch', anims)
+                            self.player_jump_action(player, "jump", anims, "Jumping")
+                            self.player_use_action(player, "use", anims, "PickingUp")
+
+                        if base.player_states['has_sword'] and not base.player_states['has_bow']:
+                            self.player_attack_action(player, "attack", anims, "great_sword_slash")
+                            self.player_block_action(player, "block", anims, "great_sword_blocking")
+                        elif not base.player_states['has_sword'] and base.player_states['has_bow']:
+                            self.player_bow_shoot_action(player, anims, "archer_standing_draw_arrow")
+
+                        self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
+                        self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
+                        self.player_sword_action(player, "sword", anims, "sword_disarm_over_shoulder")
+                        self.player_bow_action(player, "bow", anims, "archer_standing_disarm_bow")
+                    if base.player_state_magic:
+                        if self.floater:
+                            self.horse_riding_movement_action(anims)
+                            self.horse_riding_run_action(anims)
+
+                            self.player_crouch_action(player, 'crouch', anims)
+                            self.player_jump_action(player, "jump", anims, "Jumping")
+                            self.player_use_action(player, "use", anims, "PickingUp")
+                            self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
+                            self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
+                            self.player_block_action(player, "block", anims, "center_blocking")
+                            self.player_tengri_action(player, "tengri", anims, "PickingUp")
+                            self.player_umai_action(player, "umai", anims, "PickingUp")
 
         return task.cont
 
@@ -1565,7 +1614,6 @@ class Actions:
                                                          playRate=self.base.actor_play_rate)
                 horse_riding_action_seq = player.actor_interval(anims["horse_riding_idle"],
                                                                 playRate=self.base.actor_play_rate)
-                player.set_python_tag("saved_pos", child.get_pos())
                 Sequence(Func(self.state.set_action_state, "is_using", True),
                          Func(child.reparent_to, parent),
                          Func(child.set_x, mounting_pos[0]),
@@ -1589,6 +1637,7 @@ class Actions:
     def unmount_action(self, anims):
         horse_name = base.game_instance['player_using_horse']
         parent = render.find("**/{0}".format(horse_name))
+        parent_bs = render.find("**/{0}:BS".format(horse_name))
         child = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
         player = self.base.game_instance['player_ref']
         bone = "spine.003"
@@ -1601,16 +1650,17 @@ class Actions:
             # Reparent parent/child node back to its BulletCharacterControllerNode
             unmount_action_seq = player.actor_interval(anims["horse_unmounting"],
                                                        playRate=self.base.actor_play_rate)
-            saved_pos = player.get_python_tag("saved_pos")
+            horse_near_pos = Vec3(parent_bs.get_x(), parent_bs.get_y(), child.get_z()) + Vec3(1, 0, 0)
             Sequence(Func(self.state.set_action_state, "is_using", True),
                      Func(child.set_x, unmounting_pos[0]),
                      Func(child.set_y, unmounting_pos[1]),
                      Func(player.set_z, unmounting_pos[2]),
                      unmount_action_seq,
                      # revert player geom height
-                     Func(player.set_z, -1),
                      Func(child.reparent_to, render),
-                     Func(child.set_pos, saved_pos),
+                     Func(child.set_x, horse_near_pos[0]),
+                     Func(child.set_y, horse_near_pos[1]),
+                     Func(player.set_z, -1),
                      Func(self.base.game_instance['player_ref'].set_python_tag, "is_on_horse", False),
                      Func(self.state.set_action_state, "is_using", False),
                      Func(self.state.set_action_state, "is_mounted", False),

@@ -146,7 +146,6 @@ class NpcGeneric:
             self.actor.set_python_tag("health", 100)
             self.actor.set_python_tag("stamina", 100)
             self.actor.set_python_tag("courage", 100)
-            self.actor.set_python_tag("saved_pos", self.actor.get_pos())
 
             if "Horse" in name:
                 self.actor.set_python_tag("is_mounted", False)
