@@ -143,7 +143,7 @@ class RPLightsMgrUI:
                                           maps_scrolled_inc.find('**/button_rollover_inc'))
 
                     btn_list = []
-                    for index, light in enumerate(base.rp_lights, 1):
+                    for index, light in enumerate(self.base.game_instance['rp_lights'], 1):
                         btn = DirectButton(text="Light {0}".format(index),
                                            text_fg=(255, 255, 255, 1), relief=2,
                                            text_font=self.font.load_font(self.menu_font),

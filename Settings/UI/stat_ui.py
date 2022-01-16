@@ -394,9 +394,9 @@ class StatUI:
 
             Return      : Task event
         """
-        if base.game_instance['actors_ref']['player']:
+        if base.game_instance['player_ref']:
             exclude = ['Sky', 'Mountains', 'Grass', 'Ground', 'NPC']
-            player = base.game_instance['actors_ref']['player']
+            player = base.game_instance['player_ref']
             dist_vec = base.distance_calculate(
                 base.assets_pos_collector_no_player(player, exclude), player)
             if dist_vec and not base.game_instance['menu_mode']:
@@ -412,9 +412,9 @@ class StatUI:
                 self.set_npc_action_stat_text(stat_npc_action_fmt_p, set_mode='show')
                 self.text_toggle_col.show()
 
-        if base.game_instance['actors_ref']['player'] and base.game_instance['menu_mode']:
+        if base.game_instance['player_ref'] and base.game_instance['menu_mode']:
             exclude = ['Sky', 'Mountains', 'Grass', 'Ground', 'NPC']
-            player = base.game_instance['actors_ref']['player']
+            player = base.game_instance['player_ref']
             dist_vec = base.distance_calculate(
                 base.assets_pos_collector_no_player(player, exclude), player)
             dist_vec_fmt_h = self.gen_stat_text_h(dist_vec)

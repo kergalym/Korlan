@@ -105,7 +105,7 @@ class AI:
                 npc_class = self.npc_fsm.set_npc_class(actor=actor,
                                                        npc_classes=self.npc_classes)
 
-                if npc_class and self.npc_fsm.npcs_xyz_vec:
+                if npc_class and self.npc_fsm.npcs_xyz_vec and "Horse" not in actor_name:
                     if npc_class == "friend":
                         self.npc_ai.npc_friend_logic(actor=actor,
                                                      player=self.player,

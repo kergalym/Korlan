@@ -7,7 +7,7 @@ from panda3d.core import NodePath
 from Engine.Render.render import RenderAttr
 
 
-class NpcErnar:
+class NpcGeneric:
     def __init__(self):
         self.scale_x = 1.25
         self.scale_y = 1.25
@@ -142,6 +142,17 @@ class NpcErnar:
 
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
                 self.render.analyze()
+
+            self.actor.set_python_tag("health", 100)
+            self.actor.set_python_tag("stamina", 100)
+            self.actor.set_python_tag("courage", 100)
+            self.actor.set_python_tag("saved_pos", self.actor.get_pos())
+
+            if "Horse" in name:
+                self.actor.set_python_tag("is_mounted", False)
+                self.actor.set_python_tag("is_ready_to_be_used", False)
+            else:
+                self.actor.set_python_tag("is_on_horse", False)
 
             taskMgr.add(self.actor_life,
                         "actor_life")

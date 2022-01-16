@@ -26,6 +26,7 @@ class HUD:
         self.player_bar_ui_stamina = None
         self.player_bar_ui_courage = None
         self.cursor_ui = None
+        self.charge_arrow_bar_ui = None
 
     def set_aim_cursor(self):
         self.cursor_ui = OnscreenImage(image=self.images['crosshair'])
@@ -45,18 +46,27 @@ class HUD:
     def set_player_bar(self):
         self.player_bar_ui_frame = DirectFrame(text="", frameColor=(0.0, 0.0, 0.0, 0.7),
                                                frameSize=self.player_bar_ui_frame_size)
-        self.player_bar_ui_health = DirectWaitBar(text="", value=100,
-                                                  barTexture=self.images["health_bar"], range=100)
+
+        health = self.base.game_instance['player_props']['health']
+        self.player_bar_ui_health = DirectWaitBar(text="", value=health, range=100,
+                                                  frameColor=(0, 0.1, 0.1, 0),
+                                                  barTexture=self.images["health_bar"])
         self.player_bar_ui_health.set_pos(-1.7, 0, -0.91)
         self.player_bar_ui_health.set_scale(self.player_bar_ui_scale)
 
-        self.player_bar_ui_stamina = DirectWaitBar(text="", value=100,
-                                                   barTexture=self.images["stamina_bar"], range=100)
+        stamina = self.base.game_instance['player_props']['stamina']
+
+        self.player_bar_ui_stamina = DirectWaitBar(text="", value=stamina, range=100,
+                                                   frameColor=(0, 0.1, 0.1, 0),
+                                                   barTexture=self.images["stamina_bar"])
         self.player_bar_ui_stamina.set_pos(-1.7, 0, -0.93)
         self.player_bar_ui_stamina.set_scale(self.player_bar_ui_scale)
 
-        self.player_bar_ui_courage = DirectWaitBar(text="", value=100,
-                                                   barTexture=self.images["courage_bar"], range=100)
+        courage = self.base.game_instance['player_props']['courage']
+
+        self.player_bar_ui_courage = DirectWaitBar(text="", value=courage, range=100,
+                                                   frameColor=(0, 0.1, 0.1, 0),
+                                                   barTexture=self.images["courage_bar"])
         self.player_bar_ui_courage.set_pos(-1.7, 0, -0.95)
         self.player_bar_ui_courage.set_scale(self.player_bar_ui_scale)
 
@@ -71,6 +81,21 @@ class HUD:
         self.weapon_state_ui.set_pos(self.weapon_state_ui_pos)
         self.weapon_state_ui.setTransparency(TransparencyAttrib.MAlpha)
         self.weapon_state_ui.set_scale(self.weapon_state_ui_scale)
+
+    def set_arrow_charge_ui(self):
+        self.charge_arrow_bar_ui = DirectWaitBar(text="",
+                                                 value=0,
+                                                 range=1000,
+                                                 frameColor=(0, 0.1, 0.1, 0),
+                                                 barColor=(0.6, 0, 0, 1),
+                                                 pos=(-1.43, 0, -0.93),
+                                                 scale=(0.1, 0, 0.69))
+
+    def clear_arrow_charge_ui(self):
+        if self.charge_arrow_bar_ui:
+            self.charge_arrow_bar_ui.hide()
+            self.charge_arrow_bar_ui.destroy()
+            self.charge_arrow_bar_ui.remove_node()
 
     def clear_aim_cursor(self):
         if self.cursor_ui:

@@ -12,43 +12,29 @@ from Settings.UI.stat_ui import StatUI
 from Settings.UI.pause_menu_ui import PauseMenuUI
 from Settings.Input.mouse import Mouse
 
-from Engine.Actors.NPC.npc_ernar import NpcErnar
-from Engine.Actors.NPC.npc_mongol import NpcMongol
-from Engine.Actors.NPC.npc_mongol2 import NpcMongol2
-from Engine.Actors.NPC.npc_horse import NpcHorse
+from Engine.Actors.NPC.npc_generic import NpcGeneric
+from Engine.FSM.npc_generic_fsm import NpcGenericFSM
 
-from Engine.FSM.npc_ernar_fsm import NpcErnarFSM
-from Engine.FSM.npc_mongol_fsm import NpcMongolFSM
-from Engine.FSM.npc_mongol2_fsm import NpcMongol2FSM
-from Engine.FSM.npc_horse import NpcHorseFSM
-
-py_npc_actor_classes = [
-    NpcErnar,
-    NpcMongol,
-    NpcMongol2,
-    NpcHorse
-]
-
-py_npc_fsm_classes = [
-    NpcErnarFSM,
-    NpcMongolFSM,
-    NpcMongol2FSM,
-    NpcHorseFSM
-]
+py_npc_actor_classes = []
+py_npc_fsm_classes = []
 
 # List used by loading screen
-
-level_npc_assets = {'name': ['NPC_Ernar', 'NPC_Mongol', 'NPC_Mongol2', 'NPC_Horse'],
-                    'type': ['npc', 'npc', 'npc', 'npc_animal'],
-                    'shape': ['capsule', 'capsule', 'capsule', 'capsule'],
-                    'class': ['friend', 'enemy', 'enemy', 'friend']
+level_npc_assets = {'name': ['NPC_Ernar', 'NPC_Mongol', 'NPC_Mongol2', 'NPC_Korlan_Horse', 'NPC_Horse'],
+                    'type': ['npc', 'npc', 'npc', 'npc_animal', 'npc_animal'],
+                    'shape': ['capsule', 'capsule', 'capsule', 'capsule', 'capsule'],
+                    'class': ['friend', 'enemy', 'enemy', 'friend', 'enemy']
                     }
 
 level_npc_axis = {'NPC_Ernar': [-15.0, 15.0, 0],
                   'NPC_Mongol': [-25.0, 25.0, 0],
                   'NPC_Mongol2': [-35.0, 35.0, 0],
-                  'NPC_Horse': [-5.0, 5.0, 0]
+                  'NPC_Korlan_Horse': [-9.0, 5.0, 0],
+                  'NPC_Horse': [9.0, 5.0, 0]
                   }
+
+for i in range(len(level_npc_assets['name'])):
+    py_npc_actor_classes.append(NpcGeneric)
+    py_npc_fsm_classes.append(NpcGenericFSM)
 
 """
 level_npc_assets = {'name': [],

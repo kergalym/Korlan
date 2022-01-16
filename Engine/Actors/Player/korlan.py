@@ -207,8 +207,6 @@ class Korlan:
                 # Hardware skinning
                 self.render_attr.set_hardware_skinning(self.korlan, True)
 
-                # self.base.set_textures_srgb(True)
-
                 # Make actor global
                 self.base.game_instance['player_ref'] = self.korlan
 
@@ -238,7 +236,11 @@ class Korlan:
 
                 self.actions.player_actions_init(self.korlan, animation[0])
 
-                self.korlan_life_perc = 100
+                self.korlan.set_python_tag("health", 100)
+                self.korlan.set_python_tag("stamina", 100)
+                self.korlan.set_python_tag("courage", 100)
+                self.korlan.set_python_tag("is_on_horse", False)
+                self.korlan.set_python_tag("saved_pos", self.korlan.get_pos())
 
                 taskMgr.add(self.state.actor_life,
                             "actor_life",

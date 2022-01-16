@@ -7,15 +7,15 @@ class PlayerState:
     def __init__(self):
         self.game_settings = base.game_settings
         self.player_props = {
-            'name:': 'Korlan',
-            'age:': 25,
-            'sex:': 'female',
-            'height:': "1.7 m",
-            'weight:': "57 kg",
-            'specialty:': 'warrior',
-            'health:': 100,
-            'stamina:': 100,
-            'courage:': 100,
+            'name': 'Korlan',
+            'age': 25,
+            'sex': 'female',
+            'height': "1.7 m",
+            'weight': "57 kg",
+            'specialty': 'warrior',
+            'health': 100,
+            'stamina': 100,
+            'courage': 100,
         }
         base.player_states = {
             "is_idle": True,
@@ -80,11 +80,7 @@ class PlayerState:
 
         self.render = render
 
-        self.player_attr = {
-            "health": 100,
-            "stamina": 30,
-            "speed": 1.0
-        }
+        self.base.game_instance['player_props'] = self.player_props
 
     def player_view_mode_task(self, assets_dist_vec, task):
         if assets_dist_vec:

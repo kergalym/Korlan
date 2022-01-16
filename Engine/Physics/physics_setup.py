@@ -1,5 +1,5 @@
 from Engine.Collisions.collision_solids import BulletCollisionSolids
-from panda3d.bullet import BulletCharacterControllerNode, BulletBoxShape
+from panda3d.bullet import BulletCharacterControllerNode, BulletBoxShape, BulletSphereShape, BulletGhostNode
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import Vec3, BitMask32
 from panda3d.bullet import BulletWorld, BulletDebugNode, BulletRigidBodyNode, BulletPlaneShape
@@ -117,8 +117,8 @@ class PhysicsAttr:
                     self.world.set_debug_node(self.debug_nodepath.node())
 
             ground_shape = BulletPlaneShape(Vec3(0, 0, 1), 0)
-            ground_nodepath = world.attachNewNode(BulletRigidBodyNode('Ground'))
-            ground_nodepath.node().addShape(ground_shape)
+            ground_nodepath = world.attach_new_node(BulletRigidBodyNode('Ground'))
+            ground_nodepath.node().add_shape(ground_shape)
             ground_nodepath.set_pos(0, 0, 0.10)
             ground_nodepath.node().set_into_collide_mask(self.mask)
             self.world.attach_rigid_body(ground_nodepath.node())
@@ -126,16 +126,16 @@ class PhysicsAttr:
             # Box
             shape = BulletBoxShape(Vec3(1, 1, 1))
             node = BulletRigidBodyNode('Box')
-            node.setMass(50.0)
-            node.addShape(shape)
-            np = render.attachNewNode(node)
+            node.set_mass(50.0)
+            node.add_shape(shape)
+            np = render.attach_new_node(node)
             np.setPos(4, 2, 0)
-            self.world.attachRigidBody(node)
-            model = base.loader.loadModel('/home/galym/Korlan/tmp/box.egg')
-            model.reparentTo(np)
-            model.setName('box')
-            model.setPos(0, 0, 0)
-            model.setHpr(np.getHpr())
+            self.world.attach_rigid_body(node)
+            model = base.loader.load_model('/home/galym/Korlan/tmp/box.egg')
+            model.reparent_to(np)
+            model.set_name('box')
+            model.set_pos(0, 0, 0)
+            model.set_hpr(np.get_hpr())
 
             # Disable colliding
             self.world.set_group_collision_flag(0, 0, False)
@@ -225,8 +225,8 @@ class PhysicsAttr:
                 and isinstance(col_name, str)
                 and isinstance(shape, str)
                 and isinstance(type, str)):
-
-            if not self.base.game_instance['menu_mode']:
+            world_np = render.find("**/World")
+            if not self.base.game_instance['menu_mode'] and world_np:
                 actor_bs = None
                 actor_bs_np = None
                 if shape == 'capsule':
@@ -251,27 +251,23 @@ class PhysicsAttr:
                     actor_node = BulletCharacterControllerNode(actor_bs,
                                                                0.4,
                                                                col_name)
-                    world = render.find("**/World")
-                    if world:
-                        actor_bs_np = world.attach_new_node(actor_node)
-                        actor_bs_np.set_collide_mask(mask)
-                        self.world.attach_character(actor_bs_np.node())
-                        actor.reparent_to(actor_bs_np)
+                    actor_bs_np = world_np.attach_new_node(actor_node)
+                    actor_bs_np.set_collide_mask(mask)
+                    self.world.attach_character(actor_bs_np.node())
+                    actor.reparent_to(actor_bs_np)
 
-                    self.base.game_instance['actor_controllers_np'].append(actor_node)
+                    self.base.game_instance['actor_controllers_np'][col_name] = actor_node
 
                 elif type == 'npc_animal':
                     actor_node = BulletCharacterControllerNode(actor_bs,
                                                                0.4,
                                                                col_name)
-                    world = render.find("**/World")
-                    if world:
-                        actor_bs_np = world.attach_new_node(actor_node)
-                        actor_bs_np.set_collide_mask(mask)
-                        self.world.attach_character(actor_bs_np.node())
-                        actor.reparent_to(actor_bs_np)
+                    actor_bs_np = world_np.attach_new_node(actor_node)
+                    actor_bs_np.set_collide_mask(mask)
+                    self.world.attach_character(actor_bs_np.node())
+                    actor.reparent_to(actor_bs_np)
 
-                    self.base.game_instance['actor_controllers_np'].append(actor_node)
+                    self.base.game_instance['actor_controllers_np'][col_name] = actor_node
 
                 # Set actor down to make it
                 # at the same point as bullet shape
@@ -301,6 +297,12 @@ class PhysicsAttr:
                 if type != "player":
                     actor_bs_np.reparent_to(self.base.game_instance['lod_np'])
                     self.base.game_instance['lod_np'].node().add_switch(50.0, 0.0)
+
+                if type == "npc_animal":
+                    self.set_ghost_trigger(actor)
+                    taskMgr.add(self.update_horse_area_trigger_task,
+                                "update_{0}_area_trigger_task".format(col_name.lower()),
+                                extraArgs=[actor], appendTask=True)
 
     def set_static_object_colliders(self, obj, mask, automatic):
         if obj and mask and self.world:
@@ -385,3 +387,51 @@ class PhysicsAttr:
 
                 elif child.get_num_children() > 0:
                     self.set_dynamic_object_colliders(child, mask, automatic)
+
+    def set_ghost_trigger(self, actor):
+        if actor:
+            radius = 1.75 - 2 * 0.3
+            sphere = BulletSphereShape(radius)
+            trigger_bg = BulletGhostNode('{0}_trigger'.format(actor.get_name()))
+            trigger_bg.add_shape(sphere)
+            trigger_np = self.render.attach_new_node(trigger_bg)
+            trigger_np.set_collide_mask(BitMask32(0x0f))
+            self.world.attach_ghost(trigger_bg)
+            trigger_np.reparent_to(actor)
+            trigger_np.set_pos(0, 0, 1)
+
+    def update_horse_area_trigger_task(self, animal_actor, task):
+        if animal_actor:
+            if animal_actor.find("**/{0}_trigger".format(animal_actor.get_name())):
+                trigger = animal_actor.find("**/{0}_trigger".format(animal_actor.get_name())).node()
+                trigger_np = animal_actor.find("**/{0}_trigger".format(animal_actor.get_name()))
+                player = self.base.game_instance['player_ref']
+                player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
+
+                for node in trigger.getOverlappingNodes():
+                    # ignore trigger itself and ground both
+                    if "NPC" in node.get_name() or "Player" in node.get_name():
+                        # if player close to horse
+                        if self.base.game_instance['player_ref'] and player_bs:
+                            if player.get_distance(trigger_np) <= 2 \
+                                    and player.get_distance(trigger_np) >= 1:
+                                if (not animal_actor.get_python_tag("is_mounted")
+                                        and not player.get_python_tag("is_on_horse")
+                                        and node.get_name() == player_bs.get_name()):
+                                    # keep horse name if detected actor is the player
+                                    # and player is not on horse and horse is free
+                                    animal_actor.set_python_tag("is_ready_to_be_used", True)
+                                    if hasattr(base, "player_states"):
+                                        base.player_states["horse_is_ready_to_be_used"] = True
+                                        base.game_instance['player_using_horse'] = animal_actor.get_name()
+                                elif (not animal_actor.get_python_tag("is_mounted")
+                                        and not player.get_python_tag("is_on_horse")
+                                        and node.get_name() != player_bs.get_name()):
+                                    # clear horse name if player is on horse, horse is not free
+                                    # and detected actor is not player
+                                    animal_actor.set_python_tag("is_ready_to_be_used", False)
+                                    if hasattr(base, "player_states"):
+                                        base.player_states["horse_is_ready_to_be_used"] = False
+                                        # base.game_instance['player_using_horse'] = ''
+
+            return task.cont

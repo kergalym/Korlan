@@ -44,6 +44,7 @@ class Actions:
         self.arrow_ref = None
         self.arrow_brb_in_use = None
         self.arrow_is_prepared = False
+        self.arrow_charge_units = 1000
         self.draw_bow_is_done = 0
         self.raytest_result = None
         self.hit_target = None
@@ -55,8 +56,6 @@ class Actions:
                                            fg=(255, 255, 255, 0.9),
                                            align=TextNode.ALeft,
                                            mayChange=True)
-
-        self.charge_arrow_bar_ui = None
 
     """ Play animation after action """
 
@@ -274,7 +273,7 @@ class Actions:
         dt = globalClock.getDt()
         if self.arrow_brb_in_use:
             power = self.arrow_ref.get_python_tag("power")
-            if power and self.arrow_ref.get_python_tag("shot") == 1:
+            if power > self.arrow_charge_units and self.arrow_ref.get_python_tag("ready") == 1:
                 self.arrow_brb_in_use.set_x(self.arrow_brb_in_use, -power * dt)
 
         return task.cont
@@ -361,13 +360,7 @@ class Actions:
         taskMgr.add(self.arrow_fly_task, "arrow_fly_task")
         taskMgr.add(self.cursor_state_task, "cursor_state_task")
 
-        self.charge_arrow_bar_ui = DirectWaitBar(text="",
-                                                 value=0,
-                                                 range=1000,
-                                                 frameColor=(0, 0.1, 0.1, 0),
-                                                 barColor=(0.6, 0, 0, 1),
-                                                 pos=(-1.43, 0, -0.93),
-                                                 scale=(0.1, 0, 0.69))
+        self.base.game_instance['hud_np'].set_arrow_charge_ui()
 
     def stop_archery_helper_tasks(self):
         taskMgr.remove("calculate_arrow_trajectory_task")
@@ -375,7 +368,7 @@ class Actions:
         taskMgr.remove("arrow_fly_task")
         taskMgr.remove("cursor_state_task")
 
-        self.charge_arrow_bar_ui.destroy()
+        self.base.game_instance['hud_np'].clear_arrow_charge_ui()
 
     """ Prepares actions for scene"""
 
@@ -489,6 +482,7 @@ class Actions:
                     and base.player_states['is_idle']
                     and base.player_states['is_attacked'] is False
                     and base.player_states['is_busy'] is False
+                    and base.player_states['is_using'] is False
                     and base.player_states['is_turning'] is False
                     and base.player_states['is_moving'] is False
                     and base.player_states['is_running'] is False
@@ -498,15 +492,22 @@ class Actions:
                 self.fsm_player.request("Idle", player,
                                         anims['Standing_idle_female'],
                                         "play")
+                if self.base.game_instance['player_props']['stamina'] < 100:
+                    self.base.game_instance['player_props']['stamina'] += 5
+                    stamina = self.base.game_instance['player_props']['stamina']
+                    self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] = stamina
 
             # Here we accept keys
             if (not self.base.game_instance['ui_mode']
                     and not self.base.game_instance['dev_ui_mode']
                     or self.base.game_instance['dev_ui_mode']):
                 if base.player_state_unarmed:
-                    if self.floater:
+                    if self.floater and not base.player_states['is_mounted']:
                         self.player_movement_action(player, anims)
                         self.player_run_action(player, anims)
+                    elif base.player_states['is_mounted']:
+                        self.horse_riding_movement_action(anims)
+                        self.horse_riding_run_action(anims)
 
             if (not self.base.game_instance['ui_mode']
                     and not self.base.game_instance['dev_ui_mode']):
@@ -531,6 +532,9 @@ class Actions:
                     if self.floater:
                         self.player_movement_action(player, anims)
                         self.player_run_action(player, anims)
+                    elif base.player_states['is_mounted']:
+                        self.horse_riding_movement_action(anims)
+                        self.horse_riding_run_action(anims)
                     self.player_crouch_action(player, 'crouch', anims)
                     self.player_jump_action(player, "jump", anims, "Jumping")
                     self.player_use_action(player, "use", anims, "PickingUp")
@@ -546,9 +550,12 @@ class Actions:
                     self.player_sword_action(player, "sword", anims, "sword_disarm_over_shoulder")
                     self.player_bow_action(player, "bow", anims, "archer_standing_disarm_bow")
                 if base.player_state_magic:
-                    if self.floater:
+                    if self.floater and not base.player_states['is_mounted']:
                         self.player_movement_action(player, anims)
                         self.player_run_action(player, anims)
+                    elif base.player_states['is_mounted']:
+                        self.horse_riding_movement_action(anims)
+                        self.horse_riding_run_action(anims)
                     self.player_crouch_action(player, 'crouch', anims)
                     self.player_jump_action(player, "jump", anims, "Jumping")
                     self.player_use_action(player, "use", anims, "PickingUp")
@@ -562,7 +569,9 @@ class Actions:
 
     def player_movement_action(self, player, anims):
         if (player and isinstance(anims, dict)
-                and not self.base.game_instance['is_aiming']):
+                and not self.base.game_instance['is_aiming']
+                and not base.player_states['is_using']
+                and not base.player_states['is_mounted']):
             # If a move-key is pressed, move the player in the specified direction.
             speed = Vec3(0, 0, 0)
             omega = 0.0
@@ -706,21 +715,24 @@ class Actions:
                                      anims[self.walking_forward_action])
 
     def player_run_action(self, player, anims):
-        if player and isinstance(anims, dict) and not self.base.game_instance['is_aiming']:
+        if (player and isinstance(anims, dict)
+                and not self.base.game_instance['is_aiming']
+                and not base.player_states['is_using']
+                and not base.player_states['is_mounted']):
             # If a move-key is pressed, move the player in the specified direction.
             speed = Vec3(0, 0, 0)
             move_unit = 7
-            # TODO check if base.state elements are False
-            #  except forward and run
             if (self.kbd.keymap["forward"]
                     and self.kbd.keymap["run"]):
-                for key in base.player_states:
-                    if (not base.player_states[key]
-                            and base.player_states['is_idle']):
-                        if base.input_state.is_set('forward'):
-                            speed.setY(-move_unit)
-                        if self.base.game_instance['player_controller_np']:
-                            self.base.game_instance['player_controller_np'].set_linear_movement(speed, True)
+                if base.input_state.is_set('forward'):
+                    if self.base.game_instance['player_props']['stamina'] > 1:
+                        self.base.game_instance['player_props']['stamina'] -= 5
+                        stamina = self.base.game_instance['player_props']['stamina']
+                        self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] = stamina
+                        speed.setY(-move_unit)
+
+                    if self.base.game_instance['player_controller_np']:
+                        self.base.game_instance['player_controller_np'].set_linear_movement(speed, True)
 
             # If the player does action, loop the animation.
             # If it is standing still, stop the animation.
@@ -761,6 +773,188 @@ class Actions:
                         and base.player_states["is_crouch_moving"] is False
                         and base.player_states['is_running']):
                     Sequence(Func(self.seq_run_wrapper, player, anims, 'stop')).start()
+
+    def horse_riding_movement_action(self, anims):
+        if (isinstance(anims, dict)
+                and not self.base.game_instance['is_aiming']
+                and not base.player_states['is_using']
+                and base.player_states['is_mounted']):
+
+            # If a move-key is pressed, move the player in the specified direction.
+            horse_name = base.game_instance['player_using_horse']
+            player = self.base.game_instance['actors_ref'][horse_name]
+            horse_controller = self.base.game_instance['actor_controllers_np']["{0}:BS".format(horse_name)]
+            speed = Vec3(0, 0, 0)
+            omega = 0.0
+            move_unit = 2
+
+            # Get the time that elapsed since last frame
+            dt = globalClock.getDt()
+
+            self.base.game_instance['gameplay_mode'] = self.game_settings['Main']['gameplay_mode']
+            self.player_bs = self.base.get_actor_bullet_shape_node(asset=player.get_name(), type="Player")
+
+            if self.base.game_instance['gameplay_mode']:
+                if self.base.game_instance['gameplay_mode'] == 'enhanced':
+                    if self.kbd.keymap["left"] and self.player_bs:
+                        self.player_bs.set_h(self.player_bs.get_h() + 100 * dt)
+                    if self.kbd.keymap["right"] and self.player_bs:
+                        self.player_bs.set_h(self.player_bs.get_h() - 100 * dt)
+
+                    # Turning in place
+                    if (not self.kbd.keymap["forward"]
+                            and not self.kbd.keymap["run"]
+                            and self.kbd.keymap["left"]):
+                        """Sequence(Parallel(Func(self.seq_turning_wrapper, player, anims, "left_turn", 'loop'),
+                                          Func(self.state.set_action_state, "is_turning", True)),
+                                 ).start()"""
+                    if (not self.kbd.keymap["forward"]
+                            and not self.kbd.keymap["run"]
+                            and self.kbd.keymap["right"]):
+                        """Sequence(Parallel(Func(self.seq_turning_wrapper, player, anims, "right_turn", 'loop'),
+                                          Func(self.state.set_action_state, "is_turning", True)),
+                                 ).start()"""
+
+                    # Stop turning in place
+                    if (not self.kbd.keymap["forward"]
+                            and not self.kbd.keymap["run"]
+                            and not self.kbd.keymap["left"]):
+                        """Sequence(Parallel(Func(self.seq_turning_wrapper, player, anims, "left_turn", 'stop'),
+                                          Func(self.state.set_action_state, "is_turning", False)),
+                                 ).start()"""
+                    if (not self.kbd.keymap["forward"]
+                            and not self.kbd.keymap["run"]
+                            and not self.kbd.keymap["right"]):
+                        """Sequence(Parallel(Func(self.seq_turning_wrapper, player, anims, "right_turn", 'stop'),
+                                          Func(self.state.set_action_state, "is_turning", False)),
+                                 ).start()"""
+
+            if self.base.game_instance['gameplay_mode']:
+                if self.base.game_instance['gameplay_mode'] == 'simple' and self.mouse.pivot:
+                    self.mouse.pivot.set_h(self.base.camera.get_h())
+
+                if self.base.game_instance['first_person_mode'] and self.mouse.pivot:
+                    self.mouse.pivot.set_h(self.base.camera.get_h())
+
+            if (self.kbd.keymap["forward"]
+                    and self.kbd.keymap["run"] is False):
+                if base.input_state.is_set('forward'):
+                    speed.setY(-move_unit)
+            if (self.kbd.keymap["backward"]
+                    and self.kbd.keymap["run"] is False):
+                if base.input_state.is_set('reverse'):
+                    speed.setY(move_unit)
+
+            horse_controller.set_linear_movement(speed, True)
+            horse_controller.set_angular_movement(omega)
+
+            # If the player does action, loop the animation through messenger.
+            if (self.kbd.keymap["forward"]
+                    and self.kbd.keymap["run"] is False
+                    or self.kbd.keymap["backward"]):
+                if (base.player_states['is_moving'] is False
+                        and base.player_states['is_attacked'] is False
+                        and base.player_states['is_busy'] is False
+                        and base.player_states['is_crouch_moving'] is False
+                        and base.player_states["is_running"] is False
+                        and base.player_states['is_idle']):
+                    """Sequence(Parallel(Func(self.seq_move_wrapper, player, anims, 'loop'),
+                                      Func(self.state.set_action_state, "is_moving", True)),
+                             ).start()"""
+                if (base.player_states['is_moving'] is False
+                        and base.player_states['is_attacked'] is False
+                        and base.player_states['is_busy'] is False
+                        and base.player_states["is_running"] is False
+                        and base.player_states['is_crouch_moving']
+                        and base.player_states['is_idle']):
+                    """Sequence(Func(self.seq_crouch_move_wrapper, player, anims, 'loop')
+                             ).start()"""
+            else:
+                if (base.player_states['is_moving']
+                        and base.player_states['is_attacked'] is False
+                        and base.player_states['is_busy'] is False
+                        and base.player_states["is_running"] is False
+                        and base.player_states['is_crouch_moving'] is False):
+                    """Sequence(Func(self.seq_move_wrapper, player, anims, 'stop'),
+                             Func(self.state.set_action_state, "is_moving", False)
+                             ).start()"""
+                if (base.player_states['is_moving'] is False
+                        and base.player_states['is_attacked'] is False
+                        and base.player_states['is_busy'] is False
+                        and base.player_states["is_running"] is False
+                        and base.player_states['is_crouch_moving']):
+                    """Sequence(Func(self.seq_crouch_move_wrapper, player, anims, 'stop')).start()"""
+
+            # Actor backward movement
+            if (self.kbd.keymap["backward"]
+                    and base.player_states['is_attacked'] is False
+                    and base.player_states['is_busy'] is False
+                    and self.kbd.keymap["run"] is False
+                    and base.player_states["is_running"] is False):
+                player.set_play_rate(-1.0,
+                                     anims[self.walking_forward_action])
+
+    def horse_riding_run_action(self, anims):
+        if (isinstance(anims, dict)
+                and not self.base.game_instance['is_aiming']
+                and not base.player_states['is_using']
+                and base.player_states['is_mounted']):
+            # If a move-key is pressed, move the player in the specified direction.
+            horse_name = base.game_instance['player_using_horse']
+            player = self.base.game_instance['actors_ref'][horse_name]
+            horse_controller = self.base.game_instance['actor_controllers_np']["{0}:BS".format(horse_name)]
+            speed = Vec3(0, 0, 0)
+            move_unit = 7
+            if (self.kbd.keymap["forward"]
+                    and self.kbd.keymap["run"]):
+                if base.input_state.is_set('forward'):
+                    if self.base.game_instance['player_props']['stamina'] > 1:
+                        self.base.game_instance['player_props']['stamina'] -= 5
+                        stamina = self.base.game_instance['player_props']['stamina']
+                        self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] = stamina
+
+                        speed.setY(-move_unit)
+                        horse_controller.set_linear_movement(speed, True)
+
+            # If the player does action, loop the animation.
+            # If it is standing still, stop the animation.
+            if (self.kbd.keymap["forward"]
+                    and self.kbd.keymap["run"]
+                    or self.kbd.keymap["left"]
+                    or self.kbd.keymap["right"]):
+                if (base.player_states['is_moving'] is False
+                        and base.player_states['is_attacked'] is False
+                        and base.player_states['is_busy'] is False
+                        and base.player_states['is_crouch_moving'] is False
+                        and base.player_states["is_running"] is False
+                        and base.player_states['is_idle']):
+                    """Sequence(Parallel(Func(self.seq_run_wrapper, player, anims, 'loop'),
+                                      Func(self.state.set_action_state, "is_running", True)),
+                             ).start()"""
+                if (base.player_states['is_moving'] is False
+                        and base.player_states['is_attacked'] is False
+                        and base.player_states['is_busy'] is False
+                        and base.player_states["is_crouch_moving"] is False
+                        and base.player_states['is_running']
+                        and base.player_states['is_idle'] is False):
+                    """Sequence(Func(self.seq_run_wrapper, player, anims, 'loop')
+                             ).start()"""
+
+            else:
+                if (base.player_states['is_running']
+                        and base.player_states['is_attacked'] is False
+                        and base.player_states['is_busy'] is False
+                        and base.player_states["is_moving"] is False
+                        and base.player_states['is_crouch_moving'] is False):
+                    """Sequence(Func(self.seq_run_wrapper, player, anims, 'stop'),
+                             Func(self.state.set_action_state, "is_running", False)
+                             ).start()"""
+                if (base.player_states['is_moving'] is False
+                        and base.player_states['is_attacked'] is False
+                        and base.player_states['is_busy'] is False
+                        and base.player_states["is_crouch_moving"] is False
+                        and base.player_states['is_running']):
+                    """Sequence(Func(self.seq_run_wrapper, player, anims, 'stop')).start()"""
 
     def player_in_crouched_to_stand_with_any_action(self, player, key, anims, action, is_in_action):
         if player and key and anims and action and is_in_action and isinstance(is_in_action, str):
@@ -1304,8 +1498,8 @@ class Actions:
                 if self.target_test_ui:
                     self.target_test_ui.show()
                 power = self.arrow_ref.get_python_tag("power")
-                if self.charge_arrow_bar_ui:
-                    self.charge_arrow_bar_ui['value'] = power
+                if self.base.game_instance['hud_np'].charge_arrow_bar_ui:
+                    self.base.game_instance['hud_np'].charge_arrow_bar_ui['value'] = power
                 power += 10
                 self.arrow_ref.set_python_tag("power", power)
 
@@ -1321,11 +1515,11 @@ class Actions:
                     and self.kbd.keymap["block"]
                     and self.arrow_ref.get_python_tag("ready") == 0
                     and self.arrow_ref.get_python_tag("shot") == 0
-                    and self.arrow_ref.get_python_tag("power") > 1000):
+                    and self.arrow_ref.get_python_tag("power") > self.arrow_charge_units):
                 self.arrow_ref.set_python_tag("ready", 1)
                 self.bow_shoot()
-                if self.charge_arrow_bar_ui:
-                    self.charge_arrow_bar_ui['value'] = 0
+                if self.base.game_instance['hud_np'].charge_arrow_bar_ui:
+                    self.base.game_instance['hud_np'].charge_arrow_bar_ui['value'] = 0
 
             if (not self.kbd.keymap["attack"]
                     and not self.kbd.keymap["block"]
@@ -1334,8 +1528,8 @@ class Actions:
                     self.target_test_ui.hide()
                 self.state.set_do_once_key('block', False),
                 self.state.set_action_state("is_busy", False)
-                if self.charge_arrow_bar_ui:
-                    self.charge_arrow_bar_ui['value'] = 0
+                if self.base.game_instance['hud_np'].charge_arrow_bar_ui:
+                    self.base.game_instance['hud_np'].charge_arrow_bar_ui['value'] = 0
                 if self.arrow_ref.get_python_tag("power") > 0:
                     self.arrow_ref.set_python_tag("power", 0)
 
@@ -1344,86 +1538,80 @@ class Actions:
                     and not base.do_key_once["block"]):
                 if self.target_test_ui:
                     self.target_test_ui.hide()
-                if self.charge_arrow_bar_ui:
-                    self.charge_arrow_bar_ui['value'] = 0
+                if self.base.game_instance['hud_np'].charge_arrow_bar_ui:
+                    self.base.game_instance['hud_np'].charge_arrow_bar_ui['value'] = 0
                 self.state.set_action_state("is_busy", False)
                 if self.arrow_ref.get_python_tag("power") > 0:
                     self.arrow_ref.set_python_tag("power", 0)
 
     def mount_action(self, anims):
-        # FIXME
-        parent = render.find("Korlan_Horse")
-        child = self.base.get_actor_bullet_shape_node(asset="Player",
-                                                      type="Player")
+        horse_name = base.game_instance['player_using_horse']
+        parent = render.find("**/{0}".format(horse_name))
+        child = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
+        player = self.base.game_instance['player_ref']
         bone = "spine.003"
         if parent and child and bone and anims and not self.base.game_instance['is_aiming']:
-            if base.player_states["is_mounted"]:
+            if (self.base.game_instance['player_ref'].get_python_tag("is_on_horse")
+                    and parent.get_python_tag("is_mounted")):
                 self.unmount_action(anims)
             else:
-                heading = child.get_h()
                 # with inverted Z -0.5 stands for Up
                 # Our horse (un)mounting animations have been made with imperfect positions,
                 # so, I had to change child positions to get more satisfactory result
                 # with these animations in my game.
                 mounting_pos = Vec3(0.6, -0.15, -0.45)
-                saddle_pos = Vec3(0, -0.28, 0.08)
-                parent_pos = Vec3(parent.get_x(), parent.get_y(), -1)
-                mount_action_seq = child.actor_interval(anims["horse_mounting"],
-                                                        playRate=self.base.actor_play_rate)
-                horse_riding_action_seq = child.actor_interval(anims["horse_riding_idle"],
-                                                               playRate=self.base.actor_play_rate)
+                saddle_pos = Vec3(0, -0.32, 0.16)
+                mount_action_seq = player.actor_interval(anims["horse_mounting"],
+                                                         playRate=self.base.actor_play_rate)
+                horse_riding_action_seq = player.actor_interval(anims["horse_riding_idle"],
+                                                                playRate=self.base.actor_play_rate)
+                player.set_python_tag("saved_pos", child.get_pos())
                 Sequence(Func(self.state.set_action_state, "is_using", True),
                          Func(child.reparent_to, parent),
-                         Func(parent.set_pos, parent_pos),
-                         Func(child.set_pos, mounting_pos),
-                         Func(child.set_h, heading),
-                         Parallel(Func(parent.set_pos, parent_pos),
-                                  mount_action_seq),
-                         Func(parent.set_pos, parent_pos),
-                         Func(child.set_pos, saddle_pos),
+                         Func(child.set_x, mounting_pos[0]),
+                         Func(child.set_y, mounting_pos[1]),
+                         Func(player.set_z, mounting_pos[2]),
+                         Func(child.set_h, 0),
+                         mount_action_seq,
+                         Func(child.set_x, saddle_pos[0]),
+                         Func(child.set_y, saddle_pos[1]),
+                         # bullet shape has impact of gravity
+                         # so make player geom stay higher instead
+                         Func(player.set_z, saddle_pos[2]),
                          Func(self.state.set_action_state, "is_using", False),
                          Func(self.state.set_action_state, "horse_riding", True),
                          Func(self.state.set_action_state, "is_mounted", True),
-                         horse_riding_action_seq
+                         horse_riding_action_seq,
+                         Func(self.base.game_instance['player_ref'].set_python_tag, "is_on_horse", True),
+                         Func(parent.set_python_tag, "is_mounted", True)
                          ).start()
 
     def unmount_action(self, anims):
-        # FIXME
-        parent = render.find("Korlan_Horse")
-        child = self.base.get_actor_bullet_shape_node(asset="Player",
-                                                      type="Player")
+        horse_name = base.game_instance['player_using_horse']
+        parent = render.find("**/{0}".format(horse_name))
+        child = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
+        player = self.base.game_instance['player_ref']
         bone = "spine.003"
         if parent and child and bone and anims and not self.base.game_instance['is_aiming']:
-            heading = -90
             # with inverted Z -0.7 stands for Up
             # Our horse (un)mounting animations have been made with imperfect positions,
             # so, I had to change child positions to get more satisfactory result
             # with these animations in my game.
             unmounting_pos = Vec3(0.6, -0.15, -0.45)
-            saddle_pos = Vec3(0, -0.28, 0.08)
-            # child_pos_for_flt = Vec3(0.5, 0.1, 1.2)
-            parent_pos = Vec3(parent.get_x(), parent.get_y(), 0)
             # Reparent parent/child node back to its BulletCharacterControllerNode
-            parent_bs_name = "**/{0}:BS".format(parent.get_name())
-            child_bs_name = "**/{0}:BS".format(child.get_name())
-
-            unmount_action_seq = child.actor_interval(anims["horse_unmounting"],
-                                                      playRate=self.base.actor_play_rate)
-
-            if (not render.find(parent_bs_name).is_empty()
-                    and not render.find(child_bs_name).is_empty()):
-                parent_bs = render.find(parent_bs_name)
-                child_bs = render.find(child_bs_name)
-                Sequence(Func(child.set_pos, saddle_pos),
-                         Func(child.set_h, heading),
-                         Func(child.set_pos, unmounting_pos),
-                         Func(self.state.set_action_state, "is_using", True),
-                         Parallel(unmount_action_seq),
-                         Func(child.reparent_to, child_bs),
-                         Func(child.set_z, -1),
-                         Func(parent.reparent_to, parent_bs),
-                         Func(parent.set_pos, parent_pos),
-                         Func(child.set_x, 0),
-                         Func(self.state.set_action_state, "is_using", False),
-                         Func(self.state.set_action_state, "is_mounted", False)
-                         ).start()
+            unmount_action_seq = player.actor_interval(anims["horse_unmounting"],
+                                                       playRate=self.base.actor_play_rate)
+            saved_pos = player.get_python_tag("saved_pos")
+            Sequence(Func(self.state.set_action_state, "is_using", True),
+                     Func(child.set_x, unmounting_pos[0]),
+                     Func(child.set_y, unmounting_pos[1]),
+                     Func(player.set_z, unmounting_pos[2]),
+                     unmount_action_seq,
+                     # revert player geom height
+                     Func(player.set_z, -1),
+                     Func(child.reparent_to, render),
+                     Func(child.set_pos, saved_pos),
+                     Func(self.base.game_instance['player_ref'].set_python_tag, "is_on_horse", False),
+                     Func(self.state.set_action_state, "is_using", False),
+                     Func(self.state.set_action_state, "is_mounted", False),
+                     ).start()

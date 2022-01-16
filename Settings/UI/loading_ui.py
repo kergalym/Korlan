@@ -135,10 +135,7 @@ class LoadingUI:
 
                 elif num == asset_num:
                     self.base.game_instance['loading_is_done'] = 1
-
-                    if self.game_settings['Debug']['set_debug_mode'] == 'YES':
-                        self.rp_lights_mgr_ui.set_ui_rpmgr()
-                        return task.done
+                    self.base.set_textures_srgb(True)
 
                     if (self.base.game_instance['player_actions_init_is_activated'] == 1
                             and self.base.game_instance['mouse_control_is_activated'] == 1
@@ -150,10 +147,11 @@ class LoadingUI:
                             self.title_loading_text.setText(txt)
                             self.title_loading_text['align'] = TextNode.ACenter
                             self.title_loading_text['pos'] = (0.0, -0.8)
+
                             self.base.accept('enter', self.prepare_to_game)
 
-                            if self.game_settings['Debug']['set_debug_mode'] == 'YES':
-                                self.base.set_textures_srgb(True)
+                            if self.game_settings['Debug']['set_light_editor_mode'] == 'YES':
+                                self.rp_lights_mgr_ui.set_ui_rpmgr()
 
                             return task.done
 

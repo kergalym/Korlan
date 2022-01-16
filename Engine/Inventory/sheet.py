@@ -424,7 +424,7 @@ class Sheet(Inventory):
         key_label_pos_x = -0.85
         value_label_pos_x = -0.65
         pos_z = -0.15
-        for idx, key in enumerate(self.player_state.player_props):
+        for idx, key in enumerate(self.base.game_instance['player_props']):
 
             if idx == 5:
                 # reset z position for second column
@@ -435,7 +435,7 @@ class Sheet(Inventory):
                 key_label_pos_x = -0.25
                 value_label_pos_x = 0.0
 
-            prop_txt = str(self.player_state.player_props[key])
+            prop_txt = str(self.base.game_instance['player_props'][key])
             pos_z += -0.07
             prop_icon = OnscreenImage(image=player_props_icons[idx],
                                       pos=(prop_icon_pos_x, 0, pos_z + 0.01),
@@ -443,7 +443,7 @@ class Sheet(Inventory):
                                       parent=self.frame_player_prop)
             prop_icon.setTransparency(TransparencyAttrib.MAlpha)
 
-            DirectLabel(text=key,
+            DirectLabel(text="{0}:".format(key),
                         text_fg=(0.1, 0.1, 0.1, 1),
                         text_font=self.font.load_font(self.menu_font),
                         text_align=TextNode.ALeft,
@@ -459,6 +459,72 @@ class Sheet(Inventory):
                         scale=.04, borderWidth=(self.w, self.h),
                         pos=(value_label_pos_x, 0, pos_z),
                         parent=self.frame_player_prop)
+
+    def refresh_player_properties(self):
+        if self.frame_player_prop:
+            self.frame_player_prop.destroy()
+
+            # player properties (health, stamina, etc)
+            self.frame_player_prop = DirectFrame(frameColor=(0.0, 0.0, 0.0, 0.0),
+                                                 frameSize=self.base.frame_player_prop_size,
+                                                 pos=(-0.5, 0, -0.31),
+                                                 parent=self.base.frame_inv)
+            self.frame_player_prop_img = OnscreenImage(image=self.images['inv_frm_player_props'],
+                                                       pos=(-0.3, 0, -0.34),
+                                                       scale=(0.9, 0, 0.3),
+                                                       parent=self.frame_player_prop)
+
+            self.frame_player_prop_img.setTransparency(TransparencyAttrib.MAlpha)
+            player_props_icons = [
+                self.images['prop_name'],
+                self.images['prop_age'],
+                self.images['prop_sex'],
+                self.images['prop_height'],
+                self.images['prop_weight'],
+                self.images['prop_specialty'],
+                self.images['prop_health'],
+                self.images['prop_stamina'],
+                self.images['prop_courage']
+            ]
+            prop_icon_pos_x = -0.9
+            key_label_pos_x = -0.85
+            value_label_pos_x = -0.65
+            pos_z = -0.15
+            for idx, key in enumerate(self.base.game_instance['player_props']):
+
+                if idx == 5:
+                    # reset z position for second column
+                    pos_z = -0.15
+                if idx >= 5:
+                    # make second column
+                    prop_icon_pos_x = -0.3
+                    key_label_pos_x = -0.25
+                    value_label_pos_x = 0.0
+
+                prop_txt = str(self.base.game_instance['player_props'][key])
+                pos_z += -0.07
+                prop_icon = OnscreenImage(image=player_props_icons[idx],
+                                          pos=(prop_icon_pos_x, 0, pos_z + 0.01),
+                                          scale=.03,
+                                          parent=self.frame_player_prop)
+                prop_icon.setTransparency(TransparencyAttrib.MAlpha)
+
+                DirectLabel(text="{0}:".format(key),
+                            text_fg=(0.1, 0.1, 0.1, 1),
+                            text_font=self.font.load_font(self.menu_font),
+                            text_align=TextNode.ALeft,
+                            frameColor=(255, 255, 255, 0),
+                            scale=.04, borderWidth=(self.w, self.h),
+                            pos=(key_label_pos_x, 0, pos_z),
+                            parent=self.frame_player_prop)
+                DirectLabel(text=prop_txt,
+                            text_fg=(0.1, 0.1, 0.1, 1),
+                            text_font=self.font.load_font(self.menu_font),
+                            text_align=TextNode.ALeft,
+                            frameColor=(255, 255, 255, 0),
+                            scale=.04, borderWidth=(self.w, self.h),
+                            pos=(value_label_pos_x, 0, pos_z),
+                            parent=self.frame_player_prop)
 
     def add_item_to_inventory(self, item, count, inventory, inventory_type):
         if (item and isinstance(item, str)
@@ -568,6 +634,7 @@ class Sheet(Inventory):
                     base.accept('inventory-item-move', self.on_item_move)
                     self.refresh_items()
                     self.update_counters()
+                    self.refresh_player_properties()
                 else:
                     self.clear_sheet()
 

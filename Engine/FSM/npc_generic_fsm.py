@@ -1,15 +1,12 @@
 from direct.fsm.FSM import FSM
-from direct.interval.FunctionInterval import Func
 from direct.interval.MetaInterval import Sequence
 from direct.task.TaskManagerGlobal import taskMgr
-from panda3d.core import Point3
-
 from Engine.FSM.npc_fsm import NpcFSM
 
 
-class NpcMongolFSM(FSM):
+class NpcGenericFSM(FSM):
     def __init__(self):
-        FSM.__init__(self, "NpcMongolFSM")
+        FSM.__init__(self, "NpcGenericFSM")
         self.base = base
         self.render = render
         self.taskMgr = taskMgr
@@ -19,6 +16,7 @@ class NpcMongolFSM(FSM):
     def enterIdle(self, actor, action, task):
         if actor and action and task:
             any_action = actor.get_anim_control(action)
+            self.base.debug_any_action = any_action
 
             if isinstance(task, str):
                 if task == "play":
@@ -32,6 +30,7 @@ class NpcMongolFSM(FSM):
     def enterWalk(self, actor, player, ai_behaviors, behavior, action, vect, task):
         if actor and player and ai_behaviors and behavior and action and task:
             any_action = actor.get_anim_control(action)
+            self.base.debug_any_action = any_action
 
             if isinstance(task, str):
                 if task == "play":
@@ -53,10 +52,31 @@ class NpcMongolFSM(FSM):
                                                      behavior=behavior,
                                                      vect=vect)
 
+    def enterWalkAny(self, actor, path, ai_behaviors, behavior, action, task):
+        if actor and path and ai_behaviors and behavior and action and task:
+            any_action = actor.get_anim_control(action)
+
+            if isinstance(task, str):
+                if task == "play":
+                    if not any_action.isPlaying():
+                        actor.play(action)
+                elif task == "loop":
+                    if not any_action.isPlaying():
+                        actor.loop(action)
+                actor.set_play_rate(self.base.actor_play_rate, action)
+
+            # Get correct NodePath
+            actor = render.find("**/{0}".format(actor.get_name()))
+            self.npc_fsm.set_pathfollow_static_behavior(actor=actor.get_parent(),
+                                                        path=path,
+                                                        ai_behaviors=ai_behaviors,
+                                                        behavior=behavior)
+
     def enterAttack(self, actor, action, task):
         if actor and action and task:
             any_action = actor.get_anim_control(action)
             any_action_seq = actor.actor_interval(action)
+
             if isinstance(task, str):
                 if task == "play":
                     if not any_action.isPlaying():
@@ -150,6 +170,12 @@ class NpcMongolFSM(FSM):
 
     def filterWalk(self, request, args):
         if request not in ['Walk']:
+            return (request,) + args
+        else:
+            return None
+
+    def filterWalkAny(self, request, args):
+        if request not in ['WalkAny']:
             return (request,) + args
         else:
             return None
