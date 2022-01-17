@@ -458,7 +458,7 @@ class PhysicsAttr:
 
                 for node in trigger.getOverlappingNodes():
                     # ignore trigger itself and ground both
-                    if "Player" in node.get_name():
+                    if "NPC" in node.get_name() or "Player" in node.get_name():
                         # if player close to horse
                         if self.base.game_instance['player_ref']:
                             if player_bs.get_distance(trigger_np) <= 2 \
