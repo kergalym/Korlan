@@ -338,6 +338,9 @@ class LevelOne:
             self.player_state.clear_state()
             self.actor_focus_index = 1
 
+            if self.base.game_instance['hud_np']:
+                self.base.game_instance['hud_np'].clear_npc_hud()
+
             self.base.game_instance['mouse_control_is_activated'] = 0
             self.base.game_instance['physics_is_activated'] = 0
             self.base.game_instance['ai_is_activated'] = 0

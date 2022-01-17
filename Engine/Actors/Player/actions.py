@@ -786,6 +786,7 @@ class Actions:
                         self.base.game_instance['player_props']['stamina'] -= 5
                         stamina = self.base.game_instance['player_props']['stamina']
                         self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] = stamina
+                        player.set_python_tag('stamina', stamina)
                         speed.setY(-move_unit)
 
                     if self.base.game_instance['player_controller_np']:
@@ -802,7 +803,10 @@ class Actions:
                         and base.player_states['is_busy'] is False
                         and base.player_states['is_crouch_moving'] is False
                         and base.player_states["is_running"] is False
-                        and base.player_states['is_idle']):
+                        and base.player_states['is_idle']
+                        and player.get_python_tag('stamina') > 1
+                        and not player.get_python_tag('stamina') < 3):
+                    print(player.get_python_tag('stamina'))
                     Sequence(Parallel(Func(self.seq_run_wrapper, player, anims, 'loop'),
                                       Func(self.state.set_action_state, "is_running", True)),
                              ).start()
@@ -811,7 +815,10 @@ class Actions:
                         and base.player_states['is_busy'] is False
                         and base.player_states["is_crouch_moving"] is False
                         and base.player_states['is_running']
-                        and base.player_states['is_idle'] is False):
+                        and base.player_states['is_idle'] is False
+                        and player.get_python_tag('stamina') > 1
+                        and not player.get_python_tag('stamina') < 3):
+                    print(player.get_python_tag('stamina'))
                     Sequence(Func(self.seq_run_wrapper, player, anims, 'loop')
                              ).start()
 
