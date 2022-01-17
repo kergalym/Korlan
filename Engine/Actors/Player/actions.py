@@ -322,11 +322,14 @@ class Actions:
             self.hit_target = self.raytest_result.get_node()
             self.target_pos = self.raytest_result.get_hit_pos()
 
-            if self.hit_target:
-                self.target_test_ui.clearText()
-                self.target_test_ui.setText(self.hit_target.get_name())
+            if self.hit_target and "NPC" in self.hit_target.get_name():
+                if self.base.game_instance['hud_np']:
+                    hit_target_name = self.hit_target.get_name()
+                    hit_target_name = hit_target_name.split("_trigger")[0]
+                    self.base.game_instance['hud_np'].set_npc_hud(npc_name=hit_target_name)
             else:
-                self.target_test_ui.clearText()
+                if self.base.game_instance['hud_np']:
+                    self.base.game_instance['hud_np'].clear_npc_hud()
 
             if self.base.game_instance['physics_world_np'] and self.arrow_brb_in_use:
                 self.base.game_instance['physics_world_np'].contactTest(self.hit_target)

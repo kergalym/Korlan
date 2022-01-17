@@ -440,7 +440,7 @@ class PhysicsAttr:
                                 if self.base.game_instance['hud_np']:
                                     self.base.game_instance['hud_np'].set_npc_hud(npc_name=animal_actor.get_name())
                             elif (player_bs.get_distance(trigger_np) >= 2
-                                  and player_bs.get_distance(trigger_np) <= 7):
+                                  and player_bs.get_distance(trigger_np) <= 5):
                                 if self.base.game_instance['hud_np']:
                                     self.base.game_instance['hud_np'].clear_npc_hud()
 
@@ -466,7 +466,7 @@ class PhysicsAttr:
                                 if self.base.game_instance['hud_np']:
                                     self.base.game_instance['hud_np'].set_npc_hud(npc_name=actor.get_name())
                             elif (player_bs.get_distance(trigger_np) >= 2
-                                  and player_bs.get_distance(trigger_np) <= 7):
+                                  and player_bs.get_distance(trigger_np) <= 5):
                                 if self.base.game_instance['hud_np']:
                                     self.base.game_instance['hud_np'].clear_npc_hud()
 
