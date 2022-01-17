@@ -287,6 +287,10 @@ class PhysicsAttr:
                     self.bullet_solids.get_bs_hitbox(actor=actor,
                                                      joints=["LeftHand", "RightHand", "Hips"],
                                                      world=self.world)
+                    self.set_ghost_trigger(actor)
+                    taskMgr.add(self.update_actor_area_trigger_task,
+                                "update_{0}_area_trigger_task".format(col_name.lower()),
+                                extraArgs=[actor], appendTask=True)
 
                 if type == "player":
                     self.bullet_solids.get_bs_hitbox(actor=actor,
@@ -413,8 +417,8 @@ class PhysicsAttr:
                     if "NPC" in node.get_name() or "Player" in node.get_name():
                         # if player close to horse
                         if self.base.game_instance['player_ref'] and player_bs:
-                            if player.get_distance(trigger_np) <= 2 \
-                                    and player.get_distance(trigger_np) >= 1:
+                            if player_bs.get_distance(trigger_np) <= 2 \
+                                    and player_bs.get_distance(trigger_np) >= 1:
                                 if (not animal_actor.get_python_tag("is_mounted")
                                         and not player.get_python_tag("is_on_horse")
                                         and node.get_name() == player_bs.get_name()):
@@ -435,8 +439,34 @@ class PhysicsAttr:
 
                                 if self.base.game_instance['hud_np']:
                                     self.base.game_instance['hud_np'].set_npc_hud(npc_name=animal_actor.get_name())
-                            elif (player.get_distance(trigger_np) >= 2
-                                  and player.get_distance(trigger_np) <= 7):
+                            elif (player_bs.get_distance(trigger_np) >= 2
+                                  and player_bs.get_distance(trigger_np) <= 7):
+                                if self.base.game_instance['hud_np']:
+                                    self.base.game_instance['hud_np'].clear_npc_hud()
+
+        if self.base.game_instance['menu_mode']:
+            return task.done
+
+        return task.cont
+
+    def update_actor_area_trigger_task(self, actor, task):
+        if actor:
+            if actor.find("**/{0}_trigger".format(actor.get_name())):
+                trigger = actor.find("**/{0}_trigger".format(actor.get_name())).node()
+                trigger_np = actor.find("**/{0}_trigger".format(actor.get_name()))
+                player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
+
+                for node in trigger.getOverlappingNodes():
+                    # ignore trigger itself and ground both
+                    if "Player" in node.get_name():
+                        # if player close to horse
+                        if self.base.game_instance['player_ref']:
+                            if player_bs.get_distance(trigger_np) <= 2 \
+                                    and player_bs.get_distance(trigger_np) >= 1:
+                                if self.base.game_instance['hud_np']:
+                                    self.base.game_instance['hud_np'].set_npc_hud(npc_name=actor.get_name())
+                            elif (player_bs.get_distance(trigger_np) >= 2
+                                  and player_bs.get_distance(trigger_np) <= 7):
                                 if self.base.game_instance['hud_np']:
                                     self.base.game_instance['hud_np'].clear_npc_hud()
 
