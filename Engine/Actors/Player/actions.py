@@ -831,117 +831,118 @@ class Actions:
 
             # If a move-key is pressed, move the player in the specified direction.
             horse_name = base.game_instance['player_using_horse']
-            player = self.base.game_instance['actors_ref'][horse_name]
-            horse_controller = self.base.game_instance['actor_controllers_np']["{0}:BS".format(horse_name)]
-            speed = Vec3(0, 0, 0)
-            omega = 0.0
-            move_unit = 2
+            if self.base.game_instance['actors_ref'].get(horse_name):
+                player = self.base.game_instance['actors_ref'][horse_name]
+                horse_controller = self.base.game_instance['actor_controllers_np']["{0}:BS".format(horse_name)]
+                speed = Vec3(0, 0, 0)
+                omega = 0.0
+                move_unit = 2
 
-            # Get the time that elapsed since last frame
-            dt = globalClock.getDt()
+                # Get the time that elapsed since last frame
+                dt = globalClock.getDt()
 
-            self.base.game_instance['gameplay_mode'] = self.game_settings['Main']['gameplay_mode']
-            self.player_bs = self.base.get_actor_bullet_shape_node(asset=player.get_name(), type="Player")
+                self.base.game_instance['gameplay_mode'] = self.game_settings['Main']['gameplay_mode']
+                self.player_bs = self.base.get_actor_bullet_shape_node(asset=player.get_name(), type="Player")
 
-            if self.base.game_instance['gameplay_mode']:
-                if self.base.game_instance['gameplay_mode'] == 'enhanced':
-                    if self.kbd.keymap["left"] and self.player_bs:
-                        self.player_bs.set_h(self.player_bs.get_h() + 100 * dt)
-                    if self.kbd.keymap["right"] and self.player_bs:
-                        self.player_bs.set_h(self.player_bs.get_h() - 100 * dt)
+                if self.base.game_instance['gameplay_mode']:
+                    if self.base.game_instance['gameplay_mode'] == 'enhanced':
+                        if self.kbd.keymap["left"] and self.player_bs:
+                            self.player_bs.set_h(self.player_bs.get_h() + 100 * dt)
+                        if self.kbd.keymap["right"] and self.player_bs:
+                            self.player_bs.set_h(self.player_bs.get_h() - 100 * dt)
 
-                    # Turning in place
-                    if (not self.kbd.keymap["forward"]
-                            and not self.kbd.keymap["run"]
-                            and self.kbd.keymap["left"]):
-                        """Sequence(Parallel(Func(self.seq_turning_wrapper, player, anims, "left_turn", 'loop'),
-                                          Func(self.state.set_action_state, "is_turning", True)),
+                        # Turning in place
+                        if (not self.kbd.keymap["forward"]
+                                and not self.kbd.keymap["run"]
+                                and self.kbd.keymap["left"]):
+                            """Sequence(Parallel(Func(self.seq_turning_wrapper, player, anims, "left_turn", 'loop'),
+                                              Func(self.state.set_action_state, "is_turning", True)),
+                                     ).start()"""
+                        if (not self.kbd.keymap["forward"]
+                                and not self.kbd.keymap["run"]
+                                and self.kbd.keymap["right"]):
+                            """Sequence(Parallel(Func(self.seq_turning_wrapper, player, anims, "right_turn", 'loop'),
+                                              Func(self.state.set_action_state, "is_turning", True)),
+                                     ).start()"""
+
+                        # Stop turning in place
+                        if (not self.kbd.keymap["forward"]
+                                and not self.kbd.keymap["run"]
+                                and not self.kbd.keymap["left"]):
+                            """Sequence(Parallel(Func(self.seq_turning_wrapper, player, anims, "left_turn", 'stop'),
+                                              Func(self.state.set_action_state, "is_turning", False)),
+                                     ).start()"""
+                        if (not self.kbd.keymap["forward"]
+                                and not self.kbd.keymap["run"]
+                                and not self.kbd.keymap["right"]):
+                            """Sequence(Parallel(Func(self.seq_turning_wrapper, player, anims, "right_turn", 'stop'),
+                                              Func(self.state.set_action_state, "is_turning", False)),
+                                     ).start()"""
+
+                if self.base.game_instance['gameplay_mode']:
+                    if self.base.game_instance['gameplay_mode'] == 'simple' and self.mouse.pivot:
+                        self.mouse.pivot.set_h(self.base.camera.get_h())
+
+                    if self.base.game_instance['first_person_mode'] and self.mouse.pivot:
+                        self.mouse.pivot.set_h(self.base.camera.get_h())
+
+                if (self.kbd.keymap["forward"]
+                        and self.kbd.keymap["run"] is False):
+                    if base.input_state.is_set('forward'):
+                        speed.setY(-move_unit)
+                if (self.kbd.keymap["backward"]
+                        and self.kbd.keymap["run"] is False):
+                    if base.input_state.is_set('reverse'):
+                        speed.setY(move_unit)
+
+                horse_controller.set_linear_movement(speed, True)
+                horse_controller.set_angular_movement(omega)
+
+                # If the player does action, loop the animation through messenger.
+                if (self.kbd.keymap["forward"]
+                        and self.kbd.keymap["run"] is False
+                        or self.kbd.keymap["backward"]):
+                    if (base.player_states['is_moving'] is False
+                            and base.player_states['is_attacked'] is False
+                            and base.player_states['is_busy'] is False
+                            and base.player_states['is_crouch_moving'] is False
+                            and base.player_states["is_running"] is False
+                            and base.player_states['is_idle']):
+                        """Sequence(Parallel(Func(self.seq_move_wrapper, player, anims, 'loop'),
+                                          Func(self.state.set_action_state, "is_moving", True)),
                                  ).start()"""
-                    if (not self.kbd.keymap["forward"]
-                            and not self.kbd.keymap["run"]
-                            and self.kbd.keymap["right"]):
-                        """Sequence(Parallel(Func(self.seq_turning_wrapper, player, anims, "right_turn", 'loop'),
-                                          Func(self.state.set_action_state, "is_turning", True)),
+                    if (base.player_states['is_moving'] is False
+                            and base.player_states['is_attacked'] is False
+                            and base.player_states['is_busy'] is False
+                            and base.player_states["is_running"] is False
+                            and base.player_states['is_crouch_moving']
+                            and base.player_states['is_idle']):
+                        """Sequence(Func(self.seq_crouch_move_wrapper, player, anims, 'loop')
                                  ).start()"""
-
-                    # Stop turning in place
-                    if (not self.kbd.keymap["forward"]
-                            and not self.kbd.keymap["run"]
-                            and not self.kbd.keymap["left"]):
-                        """Sequence(Parallel(Func(self.seq_turning_wrapper, player, anims, "left_turn", 'stop'),
-                                          Func(self.state.set_action_state, "is_turning", False)),
+                else:
+                    if (base.player_states['is_moving']
+                            and base.player_states['is_attacked'] is False
+                            and base.player_states['is_busy'] is False
+                            and base.player_states["is_running"] is False
+                            and base.player_states['is_crouch_moving'] is False):
+                        """Sequence(Func(self.seq_move_wrapper, player, anims, 'stop'),
+                                 Func(self.state.set_action_state, "is_moving", False)
                                  ).start()"""
-                    if (not self.kbd.keymap["forward"]
-                            and not self.kbd.keymap["run"]
-                            and not self.kbd.keymap["right"]):
-                        """Sequence(Parallel(Func(self.seq_turning_wrapper, player, anims, "right_turn", 'stop'),
-                                          Func(self.state.set_action_state, "is_turning", False)),
-                                 ).start()"""
+                    if (base.player_states['is_moving'] is False
+                            and base.player_states['is_attacked'] is False
+                            and base.player_states['is_busy'] is False
+                            and base.player_states["is_running"] is False
+                            and base.player_states['is_crouch_moving']):
+                        """Sequence(Func(self.seq_crouch_move_wrapper, player, anims, 'stop')).start()"""
 
-            if self.base.game_instance['gameplay_mode']:
-                if self.base.game_instance['gameplay_mode'] == 'simple' and self.mouse.pivot:
-                    self.mouse.pivot.set_h(self.base.camera.get_h())
-
-                if self.base.game_instance['first_person_mode'] and self.mouse.pivot:
-                    self.mouse.pivot.set_h(self.base.camera.get_h())
-
-            if (self.kbd.keymap["forward"]
-                    and self.kbd.keymap["run"] is False):
-                if base.input_state.is_set('forward'):
-                    speed.setY(-move_unit)
-            if (self.kbd.keymap["backward"]
-                    and self.kbd.keymap["run"] is False):
-                if base.input_state.is_set('reverse'):
-                    speed.setY(move_unit)
-
-            horse_controller.set_linear_movement(speed, True)
-            horse_controller.set_angular_movement(omega)
-
-            # If the player does action, loop the animation through messenger.
-            if (self.kbd.keymap["forward"]
-                    and self.kbd.keymap["run"] is False
-                    or self.kbd.keymap["backward"]):
-                if (base.player_states['is_moving'] is False
+                # Actor backward movement
+                if (self.kbd.keymap["backward"]
                         and base.player_states['is_attacked'] is False
                         and base.player_states['is_busy'] is False
-                        and base.player_states['is_crouch_moving'] is False
-                        and base.player_states["is_running"] is False
-                        and base.player_states['is_idle']):
-                    """Sequence(Parallel(Func(self.seq_move_wrapper, player, anims, 'loop'),
-                                      Func(self.state.set_action_state, "is_moving", True)),
-                             ).start()"""
-                if (base.player_states['is_moving'] is False
-                        and base.player_states['is_attacked'] is False
-                        and base.player_states['is_busy'] is False
-                        and base.player_states["is_running"] is False
-                        and base.player_states['is_crouch_moving']
-                        and base.player_states['is_idle']):
-                    """Sequence(Func(self.seq_crouch_move_wrapper, player, anims, 'loop')
-                             ).start()"""
-            else:
-                if (base.player_states['is_moving']
-                        and base.player_states['is_attacked'] is False
-                        and base.player_states['is_busy'] is False
-                        and base.player_states["is_running"] is False
-                        and base.player_states['is_crouch_moving'] is False):
-                    """Sequence(Func(self.seq_move_wrapper, player, anims, 'stop'),
-                             Func(self.state.set_action_state, "is_moving", False)
-                             ).start()"""
-                if (base.player_states['is_moving'] is False
-                        and base.player_states['is_attacked'] is False
-                        and base.player_states['is_busy'] is False
-                        and base.player_states["is_running"] is False
-                        and base.player_states['is_crouch_moving']):
-                    """Sequence(Func(self.seq_crouch_move_wrapper, player, anims, 'stop')).start()"""
-
-            # Actor backward movement
-            if (self.kbd.keymap["backward"]
-                    and base.player_states['is_attacked'] is False
-                    and base.player_states['is_busy'] is False
-                    and self.kbd.keymap["run"] is False
-                    and base.player_states["is_running"] is False):
-                player.set_play_rate(-1.0,
-                                     anims[self.walking_forward_action])
+                        and self.kbd.keymap["run"] is False
+                        and base.player_states["is_running"] is False):
+                    player.set_play_rate(-1.0,
+                                         anims[self.walking_forward_action])
 
     def horse_riding_run_action(self, anims):
         if (isinstance(anims, dict)
@@ -950,60 +951,60 @@ class Actions:
                 and base.player_states['is_mounted']):
             # If a move-key is pressed, move the player in the specified direction.
             horse_name = base.game_instance['player_using_horse']
-            player = self.base.game_instance['actors_ref'][horse_name]
-            horse_controller = self.base.game_instance['actor_controllers_np']["{0}:BS".format(horse_name)]
-            speed = Vec3(0, 0, 0)
-            move_unit = 7
-            if (self.kbd.keymap["forward"]
-                    and self.kbd.keymap["run"]):
-                if base.input_state.is_set('forward'):
-                    if self.base.game_instance['player_props']['stamina'] > 1:
-                        self.base.game_instance['player_props']['stamina'] -= 5
-                        stamina = self.base.game_instance['player_props']['stamina']
-                        self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] = stamina
+            if self.base.game_instance['actors_ref'].get(horse_name):
+                horse_controller = self.base.game_instance['actor_controllers_np']["{0}:BS".format(horse_name)]
+                speed = Vec3(0, 0, 0)
+                move_unit = 7
+                if (self.kbd.keymap["forward"]
+                        and self.kbd.keymap["run"]):
+                    if base.input_state.is_set('forward'):
+                        if self.base.game_instance['player_props']['stamina'] > 1:
+                            self.base.game_instance['player_props']['stamina'] -= 5
+                            stamina = self.base.game_instance['player_props']['stamina']
+                            self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] = stamina
 
-                        speed.setY(-move_unit)
-                        horse_controller.set_linear_movement(speed, True)
+                            speed.setY(-move_unit)
+                            horse_controller.set_linear_movement(speed, True)
 
-            # If the player does action, loop the animation.
-            # If it is standing still, stop the animation.
-            if (self.kbd.keymap["forward"]
-                    and self.kbd.keymap["run"]
-                    or self.kbd.keymap["left"]
-                    or self.kbd.keymap["right"]):
-                if (base.player_states['is_moving'] is False
-                        and base.player_states['is_attacked'] is False
-                        and base.player_states['is_busy'] is False
-                        and base.player_states['is_crouch_moving'] is False
-                        and base.player_states["is_running"] is False
-                        and base.player_states['is_idle']):
-                    """Sequence(Parallel(Func(self.seq_run_wrapper, player, anims, 'loop'),
-                                      Func(self.state.set_action_state, "is_running", True)),
-                             ).start()"""
-                if (base.player_states['is_moving'] is False
-                        and base.player_states['is_attacked'] is False
-                        and base.player_states['is_busy'] is False
-                        and base.player_states["is_crouch_moving"] is False
-                        and base.player_states['is_running']
-                        and base.player_states['is_idle'] is False):
-                    """Sequence(Func(self.seq_run_wrapper, player, anims, 'loop')
-                             ).start()"""
+                # If the player does action, loop the animation.
+                # If it is standing still, stop the animation.
+                if (self.kbd.keymap["forward"]
+                        and self.kbd.keymap["run"]
+                        or self.kbd.keymap["left"]
+                        or self.kbd.keymap["right"]):
+                    if (base.player_states['is_moving'] is False
+                            and base.player_states['is_attacked'] is False
+                            and base.player_states['is_busy'] is False
+                            and base.player_states['is_crouch_moving'] is False
+                            and base.player_states["is_running"] is False
+                            and base.player_states['is_idle']):
+                        """Sequence(Parallel(Func(self.seq_run_wrapper, player, anims, 'loop'),
+                                          Func(self.state.set_action_state, "is_running", True)),
+                                 ).start()"""
+                    if (base.player_states['is_moving'] is False
+                            and base.player_states['is_attacked'] is False
+                            and base.player_states['is_busy'] is False
+                            and base.player_states["is_crouch_moving"] is False
+                            and base.player_states['is_running']
+                            and base.player_states['is_idle'] is False):
+                        """Sequence(Func(self.seq_run_wrapper, player, anims, 'loop')
+                                 ).start()"""
 
-            else:
-                if (base.player_states['is_running']
-                        and base.player_states['is_attacked'] is False
-                        and base.player_states['is_busy'] is False
-                        and base.player_states["is_moving"] is False
-                        and base.player_states['is_crouch_moving'] is False):
-                    """Sequence(Func(self.seq_run_wrapper, player, anims, 'stop'),
-                             Func(self.state.set_action_state, "is_running", False)
-                             ).start()"""
-                if (base.player_states['is_moving'] is False
-                        and base.player_states['is_attacked'] is False
-                        and base.player_states['is_busy'] is False
-                        and base.player_states["is_crouch_moving"] is False
-                        and base.player_states['is_running']):
-                    """Sequence(Func(self.seq_run_wrapper, player, anims, 'stop')).start()"""
+                else:
+                    if (base.player_states['is_running']
+                            and base.player_states['is_attacked'] is False
+                            and base.player_states['is_busy'] is False
+                            and base.player_states["is_moving"] is False
+                            and base.player_states['is_crouch_moving'] is False):
+                        """Sequence(Func(self.seq_run_wrapper, player, anims, 'stop'),
+                                 Func(self.state.set_action_state, "is_running", False)
+                                 ).start()"""
+                    if (base.player_states['is_moving'] is False
+                            and base.player_states['is_attacked'] is False
+                            and base.player_states['is_busy'] is False
+                            and base.player_states["is_crouch_moving"] is False
+                            and base.player_states['is_running']):
+                        """Sequence(Func(self.seq_run_wrapper, player, anims, 'stop')).start()"""
 
     def player_in_crouched_to_stand_with_any_action(self, player, key, anims, action, is_in_action):
         if player and key and anims and action and is_in_action and isinstance(is_in_action, str):
@@ -1651,6 +1652,7 @@ class Actions:
             unmount_action_seq = player.actor_interval(anims["horse_unmounting"],
                                                        playRate=self.base.actor_play_rate)
             horse_near_pos = Vec3(parent_bs.get_x(), parent_bs.get_y(), child.get_z()) + Vec3(1, 0, 0)
+            base.game_instance['player_using_horse'] = ''
             Sequence(Func(self.state.set_action_state, "is_using", True),
                      Func(child.set_x, unmounting_pos[0]),
                      Func(child.set_y, unmounting_pos[1]),

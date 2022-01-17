@@ -432,6 +432,5 @@ class PhysicsAttr:
                                     animal_actor.set_python_tag("is_ready_to_be_used", False)
                                     if hasattr(base, "player_states"):
                                         base.player_states["horse_is_ready_to_be_used"] = False
-                                        # base.game_instance['player_using_horse'] = ''
 
             return task.cont
