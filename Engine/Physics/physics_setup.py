@@ -300,7 +300,7 @@ class PhysicsAttr:
 
                 if type == "npc_animal":
                     self.set_ghost_trigger(actor)
-                    taskMgr.add(self.update_horse_area_trigger_task,
+                    taskMgr.add(self.update_mountable_animal_area_trigger_task,
                                 "update_{0}_area_trigger_task".format(col_name.lower()),
                                 extraArgs=[actor], appendTask=True)
 
@@ -400,7 +400,7 @@ class PhysicsAttr:
             trigger_np.reparent_to(actor)
             trigger_np.set_pos(0, 0, 1)
 
-    def update_horse_area_trigger_task(self, animal_actor, task):
+    def update_mountable_animal_area_trigger_task(self, animal_actor, task):
         if animal_actor:
             if animal_actor.find("**/{0}_trigger".format(animal_actor.get_name())):
                 trigger = animal_actor.find("**/{0}_trigger".format(animal_actor.get_name())).node()
@@ -433,4 +433,14 @@ class PhysicsAttr:
                                     if hasattr(base, "player_states"):
                                         base.player_states["horse_is_ready_to_be_used"] = False
 
-            return task.cont
+                                if self.base.game_instance['hud_np']:
+                                    self.base.game_instance['hud_np'].set_npc_hud(npc_name=animal_actor.get_name())
+                            elif (player.get_distance(trigger_np) >= 2
+                                  and player.get_distance(trigger_np) <= 7):
+                                if self.base.game_instance['hud_np']:
+                                    self.base.game_instance['hud_np'].clear_npc_hud()
+
+        if self.base.game_instance['menu_mode']:
+            return task.done
+
+        return task.cont

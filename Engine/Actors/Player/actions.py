@@ -494,8 +494,13 @@ class Actions:
                                         "play")
                 if self.base.game_instance['player_props']['stamina'] < 100:
                     self.base.game_instance['player_props']['stamina'] += 5
-                    stamina = self.base.game_instance['player_props']['stamina']
-                    self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] = stamina
+
+                if (self.base.game_instance['hud_np']
+                        and self.base.game_instance['hud_np'].player_bar_ui_stamina):
+                    if self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] < 100:
+                        self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] += 5
+                        stamina = self.base.game_instance['hud_np'].player_bar_ui_stamina['value']
+                        player.set_python_tag("health", stamina)
 
             # Here we accept keys
             if (not self.base.game_instance['ui_mode']
@@ -952,19 +957,24 @@ class Actions:
             # If a move-key is pressed, move the player in the specified direction.
             horse_name = base.game_instance['player_using_horse']
             if self.base.game_instance['actors_ref'].get(horse_name):
+                player = self.base.game_instance['actors_ref'][horse_name]
                 horse_controller = self.base.game_instance['actor_controllers_np']["{0}:BS".format(horse_name)]
                 speed = Vec3(0, 0, 0)
                 move_unit = 7
                 if (self.kbd.keymap["forward"]
                         and self.kbd.keymap["run"]):
                     if base.input_state.is_set('forward'):
+                        if player.get_python_tag('stamina') > 1:
+                            stamina = player.get_python_tag('stamina')
+                            stamina -= 5
+                            player.set_python_tag("stamina", stamina)
                         if self.base.game_instance['player_props']['stamina'] > 1:
                             self.base.game_instance['player_props']['stamina'] -= 5
-                            stamina = self.base.game_instance['player_props']['stamina']
-                            self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] = stamina
+                        if self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] > 1:
+                            self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] -= 5
 
-                            speed.setY(-move_unit)
-                            horse_controller.set_linear_movement(speed, True)
+                        speed.setY(-move_unit)
+                        horse_controller.set_linear_movement(speed, True)
 
                 # If the player does action, loop the animation.
                 # If it is standing still, stop the animation.

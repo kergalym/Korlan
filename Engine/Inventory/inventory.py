@@ -135,7 +135,7 @@ class Inventory:
                                           scale=(0.92, 0, 0.08),
                                           parent=self.black_frame)
         if self.use_transparency:
-            self.black_frame.setTransparency(TransparencyAttrib.MAlpha)
+            self.black_frame.set_transparency(TransparencyAttrib.MAlpha)
             self.inv_grid_cap.set_transparency(TransparencyAttrib.MAlpha)
             self.inv_grid_frame.set_transparency(TransparencyAttrib.MAlpha)
 
