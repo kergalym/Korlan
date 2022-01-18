@@ -112,7 +112,7 @@ class PhysicsAttr:
             self.world.set_gravity(Vec3(0, 0, -9.81))
             self.base.game_instance['physics_world_np'] = self.world
 
-            if self.game_settings['Debug']['set_debug_mode'] == "NO":
+            if self.game_settings['Debug']['set_debug_mode'] == "YES":
                 if hasattr(self.debug_nodepath, "node"):
                     self.world.set_debug_node(self.debug_nodepath.node())
 
@@ -129,7 +129,7 @@ class PhysicsAttr:
             node.set_mass(50.0)
             node.add_shape(shape)
             np = render.attach_new_node(node)
-            np.setPos(4, 2, 0)
+            np.set_pos(4, 2, 0)
             self.world.attach_rigid_body(node)
             model = base.loader.load_model('/home/galym/Korlan/tmp/box.egg')
             model.reparent_to(np)

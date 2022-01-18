@@ -44,14 +44,14 @@ class HUD:
     def set_aim_cursor(self):
         self.cursor_ui = OnscreenImage(image=self.images['crosshair'])
         self.cursor_ui.set_pos(self.cursor_ui_pos)
-        self.cursor_ui.setTransparency(TransparencyAttrib.MAlpha)
+        self.cursor_ui.set_transparency(TransparencyAttrib.MAlpha)
         self.cursor_ui.set_scale(self.cursor_ui_scale)
         self.cursor_ui.hide()
         self.base.game_instance['cursor_ui'] = self.cursor_ui
 
     def set_day_hud(self):
         self.day_hud_ui = OnscreenImage(image=self.images['day_hud_light_ui'])
-        self.day_hud_ui.setTransparency(TransparencyAttrib.MAlpha)
+        self.day_hud_ui.set_transparency(TransparencyAttrib.MAlpha)
         self.day_hud_ui.set_pos(self.day_hud_ui_pos)
         self.day_hud_ui.set_scale(self.day_hud_ui_scale)
         self.day_hud_ui.hide()
@@ -92,7 +92,7 @@ class HUD:
     def set_weapon_ui(self):
         self.weapon_state_ui = OnscreenImage(image=self.images['hands_ui'])
         self.weapon_state_ui.set_pos(self.weapon_state_ui_pos)
-        self.weapon_state_ui.setTransparency(TransparencyAttrib.MAlpha)
+        self.weapon_state_ui.set_transparency(TransparencyAttrib.MAlpha)
         self.weapon_state_ui.set_scale(self.weapon_state_ui_scale)
 
     def set_arrow_charge_ui(self):
@@ -178,15 +178,8 @@ class HUD:
         if not self.base.game_instance['ui_mode']:
             if (weapon_name and isinstance(weapon_name, str)
                     and self.weapon_state_ui):
-                if weapon_name == "hands":
-                    self.weapon_state_ui.setImage(self.images['hands_ui'])
-                    self.weapon_state_ui.setTransparency(TransparencyAttrib.MAlpha)
-                if weapon_name == "sword":
-                    self.weapon_state_ui.setImage(self.images['sword_ui'])
-                    self.weapon_state_ui.setTransparency(TransparencyAttrib.MAlpha)
-                if weapon_name == "bow":
-                    self.weapon_state_ui.setImage(self.images['bow_ui'])
-                    self.weapon_state_ui.setTransparency(TransparencyAttrib.MAlpha)
+                self.weapon_state_ui.setImage(self.images['{0}_ui'.format(weapon_name)])
+                self.weapon_state_ui.set_transparency(TransparencyAttrib.MAlpha)
 
     def toggle_day_hud(self, time):
         if not self.base.game_instance['ui_mode']:
@@ -195,11 +188,11 @@ class HUD:
                 if time == "light":
                     self.day_hud_ui.show()
                     self.day_hud_ui.setImage(self.images['day_hud_light_ui'])
-                    self.day_hud_ui.setTransparency(TransparencyAttrib.MAlpha)
+                    self.day_hud_ui.set_transparency(TransparencyAttrib.MAlpha)
                 if time == "night":
                     self.day_hud_ui.show()
                     self.day_hud_ui.setImage(self.images['day_hud_night_ui'])
-                    self.day_hud_ui.setTransparency(TransparencyAttrib.MAlpha)
+                    self.day_hud_ui.set_transparency(TransparencyAttrib.MAlpha)
                 if time == "off":
                     self.day_hud_ui.hide()
 

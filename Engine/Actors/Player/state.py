@@ -193,31 +193,12 @@ class PlayerState:
                 # we don't have any weapon equipped
                 if "has" in action:
                     for key in base.player_states:
-                        if key != action or "idle" not in action:
+                        if key != action:
                             base.player_states[key] = False
+                        if "idle" not in action:
+                            base.player_states[key] = False
+
                 base.player_states["is_idle"] = True
-
-    """def set_action_state_old(self, action, state):
-        # TODO: FIX ME
-        if (action
-                and isinstance(action, str)
-                and isinstance(state, bool)):
-            if state:
-                base.player_states[action] = state
-                for key in base.player_states:
-                    print(key, base.player_states[key], action)
-                    if (state
-                            and key != "is_idle"
-                            and key != action
-                            and "has" not in action):
-                        base.player_states[key] = False
-
-            elif state is False:
-                for key in base.player_states:
-                    # print(key, base.player_states[key])
-                    if "has" not in key:
-                        base.player_states[key] = False
-                    base.player_states["is_idle"] = True"""
 
     def set_action_state_crouched(self, action, state):
         if (action
@@ -225,7 +206,8 @@ class PlayerState:
                 and isinstance(state, bool)):
             if state:
                 for key in base.player_states:
-                    if action == "is_crouch_moving":
+                    if (action == "is_crouch_moving"
+                            and "has" not in key):
                         base.player_states[key] = False
                         base.player_states["is_idle"] = False
                         base.player_states["is_crouch_moving"] = True
