@@ -163,7 +163,6 @@ class SceneOne:
 
             coll_scene.hide()
 
-
     def scene_toggle(self, scene):
         if scene.is_hidden():
             scene.show()

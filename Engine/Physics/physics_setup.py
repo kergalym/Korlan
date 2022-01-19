@@ -87,7 +87,7 @@ class PhysicsAttr:
                 self.set_actor_collider(actor=obj,
                                         col_name='{0}:BS'.format(obj.get_name()),
                                         shape=shape,
-                                        mask=self.mask0,
+                                        mask=self.mask,
                                         type=type)
 
     def set_physics_world(self):
@@ -247,66 +247,109 @@ class PhysicsAttr:
                     elif self.game_settings['Debug']['set_editor_mode'] == 'YES':
                         actor.reparent_to(actor_bs_np)
 
-                elif type == 'npc':
-                    actor_node = BulletCharacterControllerNode(actor_bs,
-                                                               0.4,
-                                                               col_name)
-                    actor_bs_np = world_np.attach_new_node(actor_node)
-                    actor_bs_np.set_collide_mask(mask)
-                    self.world.attach_character(actor_bs_np.node())
-                    actor.reparent_to(actor_bs_np)
-
-                    self.base.game_instance['actor_controllers_np'][col_name] = actor_node
-
-                elif type == 'npc_animal':
-                    actor_node = BulletCharacterControllerNode(actor_bs,
-                                                               0.4,
-                                                               col_name)
-                    actor_bs_np = world_np.attach_new_node(actor_node)
-                    actor_bs_np.set_collide_mask(mask)
-                    self.world.attach_character(actor_bs_np.node())
-                    actor.reparent_to(actor_bs_np)
-
-                    self.base.game_instance['actor_controllers_np'][col_name] = actor_node
-
-                # Set actor down to make it
-                # at the same point as bullet shape
-                actor.set_z(-1)
-                # Set the bullet shape position same as actor position
-                if actor_bs_np:
+                    # Set actor down to make it
+                    # at the same point as bullet shape
+                    actor.set_z(-1)
+                    # Set the bullet shape position same as actor position
                     actor_bs_np.set_x(actor.get_x())
                     actor_bs_np.set_y(actor.get_y())
-                # Set actor position to zero
-                # after actor becomes a child of bullet shape.
-                # It should not get own position values.
-                actor.set_y(0)
-                actor.set_x(0)
+                    # actor_bs_np.set_z(actor.get_z())
+                    # Set actor position to zero
+                    # after actor becomes a child of bullet shape.
+                    # It should not get own position values.
+                    actor.set_y(0)
+                    actor.set_x(0)
 
-                # attach hitboxes and weapons
-                if type == "npc":
+                    # attach hitboxes and weapons
                     self.bullet_solids.get_bs_hitbox(actor=actor,
                                                      joints=["LeftHand", "RightHand", "Hips"],
                                                      world=self.world)
+
+                elif type == 'npc':
+                    actor_node = BulletRigidBodyNode(col_name)
+                    actor_node.set_mass(1.0)
+                    actor_node.add_shape(actor_bs)
+                    actor_bs_np = world_np.attach_new_node(actor_node)
+                    actor_bs_np.set_collide_mask(mask)
+                    self.world.attach_rigid_body(actor_bs_np.node())
+
+                    actor.reparent_to(actor_bs_np)
+                    self.base.game_instance['actors_np'][col_name] = actor_bs_np
+
+                    self.base.game_instance['actor_controllers_np'][col_name] = actor_node
+
+                    # Set actor down to make it
+                    # at the same point as bullet shape
+                    actor.set_z(-1)
+                    # Set the bullet shape position same as actor position
+                    actor_bs_np.set_x(actor.get_x())
+                    actor_bs_np.set_y(actor.get_y())
+                    # Set actor position to zero
+                    # after actor becomes a child of bullet shape.
+                    # It should not get own position values.
+                    actor.set_y(0)
+                    actor.set_x(0)
+
+                    # attach hitboxes and weapons
+                    self.bullet_solids.get_bs_hitbox(actor=actor,
+                                                     joints=["LeftHand", "RightHand", "Hips"],
+                                                     world=self.world)
+
+                    actor_bs_np.node().set_kinematic(True)
+
+                    # reparent bullet-shaped actor to LOD node
+                    actor_bs_np.reparent_to(self.base.game_instance['lod_np'])
+                    self.base.game_instance['lod_np'].node().add_switch(50.0, 0.0)
+
+                    # attach trigger sphere
                     self.set_ghost_trigger(actor)
                     taskMgr.add(self.update_actor_area_trigger_task,
                                 "update_{0}_area_trigger_task".format(col_name.lower()),
                                 extraArgs=[actor], appendTask=True)
 
-                if type == "player":
-                    self.bullet_solids.get_bs_hitbox(actor=actor,
-                                                     joints=["LeftHand", "RightHand", "Hips"],
-                                                     world=self.world)
+                elif type == 'npc_animal':
+                    actor_bs_box = BulletBoxShape(Vec3(1, 1, 1))
+                    actor_node = BulletRigidBodyNode(col_name)
+                    actor_node.set_mass(1.0)
+                    actor_node.add_shape(actor_bs_box)
+                    actor_bs_np = world_np.attach_new_node(actor_node)
+                    actor_bs_np.set_collide_mask(mask)
+                    self.world.attach_rigid_body(actor_bs_np.node())
 
-                # reparent bullet-shaped actor to LOD node
-                if type != "player":
+                    actor.reparent_to(actor_bs_np)
+
+                    self.base.game_instance['actors_np'][col_name] = actor_bs_np
+                    self.base.game_instance['actor_controllers_np'][col_name] = actor_node
+
+                    # Set actor down to make it
+                    # at the same point as bullet shape
+                    actor.set_z(-1)
+                    # Set the bullet shape position same as actor position
+                    actor_bs_np.set_x(actor.get_x())
+                    actor_bs_np.set_y(actor.get_y())
+                    # Set actor position to zero
+                    # after actor becomes a child of bullet shape.
+                    # It should not get own position values.
+                    actor.set_y(0)
+                    actor.set_x(0)
+
+                    actor_bs_np.node().set_kinematic(True)
+
+                    # reparent bullet-shaped actor to LOD node
                     actor_bs_np.reparent_to(self.base.game_instance['lod_np'])
                     self.base.game_instance['lod_np'].node().add_switch(50.0, 0.0)
 
-                if type == "npc_animal":
-                    self.set_ghost_trigger(actor)
-                    taskMgr.add(self.update_mountable_animal_area_trigger_task,
-                                "update_{0}_area_trigger_task".format(col_name.lower()),
-                                extraArgs=[actor], appendTask=True)
+                    # attach trigger sphere
+                    if "Horse" in col_name:
+                        self.set_ghost_trigger(actor)
+                        taskMgr.add(self.update_mountable_animal_area_trigger_task,
+                                    "update_{0}_area_trigger_task".format(col_name.lower()),
+                                    extraArgs=[actor], appendTask=True)
+                    else:
+                        self.set_ghost_trigger(actor)
+                        taskMgr.add(self.update_actor_area_trigger_task,
+                                    "update_{0}_area_trigger_task".format(col_name.lower()),
+                                    extraArgs=[actor], appendTask=True)
 
     def set_static_object_colliders(self, obj, mask, automatic):
         if obj and mask and self.world:
@@ -411,6 +454,7 @@ class PhysicsAttr:
                 trigger_np = animal_actor.find("**/{0}_trigger".format(animal_actor.get_name()))
                 player = self.base.game_instance['player_ref']
                 player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
+                actor_bs_np = self.base.game_instance['actors_np']["{0}:BS".format(animal_actor.get_name())]
 
                 for node in trigger.getOverlappingNodes():
                     # ignore trigger itself and ground both
@@ -444,6 +488,11 @@ class PhysicsAttr:
                                 if self.base.game_instance['hud_np']:
                                     self.base.game_instance['hud_np'].clear_npc_hud()
 
+                # keep actor_bs_np height while kinematic is active
+                # because in kinematic it has no gravity impact and gets unwanted drop down
+                if actor_bs_np and actor_bs_np.node().is_kinematic:
+                    actor_bs_np.set_z(0.96)
+
         if self.base.game_instance['menu_mode']:
             return task.done
 
@@ -455,6 +504,7 @@ class PhysicsAttr:
                 trigger = actor.find("**/{0}_trigger".format(actor.get_name())).node()
                 trigger_np = actor.find("**/{0}_trigger".format(actor.get_name()))
                 player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
+                actor_bs_np = self.base.game_instance['actors_np']["{0}:BS".format(actor.get_name())]
 
                 for node in trigger.getOverlappingNodes():
                     # ignore trigger itself and ground both
@@ -469,6 +519,11 @@ class PhysicsAttr:
                                   and player_bs.get_distance(trigger_np) <= 5):
                                 if self.base.game_instance['hud_np']:
                                     self.base.game_instance['hud_np'].clear_npc_hud()
+
+                # keep actor_bs_np height while kinematic is active
+                # because in kinematic it has no gravity impact and gets unwanted drop down
+                if actor_bs_np and actor_bs_np.node().is_kinematic:
+                    actor_bs_np.set_z(0.96)
 
         if self.base.game_instance['menu_mode']:
             return task.done

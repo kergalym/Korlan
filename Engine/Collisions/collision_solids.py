@@ -21,41 +21,38 @@ class BulletCollisionSolids:
     def get_bs_hitbox(self, actor, joints, world):
         if (actor and joints and world
                 and isinstance(joints, list)):
-            if (self.base.game_instance['actors_ref']
-                    and self.base.game_instance['player_ref']):
-                for joint in joints:
-                    shape = BulletBoxShape(Vec3(1, 1, 1))
-                    name_hb = "{0}_{1}:HB".format(actor.get_name(), joint)
-                    name = actor.get_name()
-                    ghost = BulletGhostNode(name_hb)
-                    ghost.add_shape(shape)
-                    ghost_np = render.attachNewNode(ghost)
 
-                    if joint == "Hips":
-                        ghost_np.set_pos(0, 0, 0)
-                        ghost_np.set_scale(15, 15, 15)
-                    elif joint == "LeftHand" or joint == "RightHand":
-                        ghost_np.set_pos(0, 8.0, 5.2)
-                        ghost_np.set_scale(6, 6, 6)
+            for joint in joints:
+                shape = BulletBoxShape(Vec3(1, 1, 1))
+                name_hb = "{0}_{1}:HB".format(actor.get_name(), joint)
+                name = actor.get_name()
+                ghost = BulletGhostNode(name_hb)
+                ghost.add_shape(shape)
+                ghost_np = render.attachNewNode(ghost)
 
-                    mask = actor.get_collide_mask()
-                    ghost_np.node().set_into_collide_mask(mask)
-                    ghost_np.set_tag(key=name_hb, value=joint)
+                if joint == "Hips":
+                    ghost_np.set_pos(0, 0, 0)
+                    ghost_np.set_scale(15, 15, 15)
+                elif joint == "LeftHand" or joint == "RightHand":
+                    ghost_np.set_pos(0, 8.0, 5.2)
+                    ghost_np.set_scale(6, 6, 6)
 
-                    exposed_joint = None
-                    if name == "Player":
-                        char_joint = self.base.game_instance['player_ref'].get_part_bundle('modelRoot').get_name()
-                        joint = "{0}:{1}".format(char_joint, joint)
-                        exposed_joint = self.base.game_instance['player_ref'].expose_joint(None, "modelRoot", joint)
-                    elif name != "Player":
-                        char_joint = self.base.game_instance['actors_ref'][name].get_part_bundle('modelRoot').get_name()
-                        joint = "{0}:{1}".format(char_joint, joint)
-                        exposed_joint = self.base.game_instance['actors_ref'][name].expose_joint(None, "modelRoot", joint)
+                mask = actor.get_collide_mask()
+                ghost_np.node().set_into_collide_mask(mask)
+                ghost_np.set_tag(key=name_hb, value=joint)
 
-                    ghost_np.reparent_to(exposed_joint)
+                if "Player" in name and self.base.game_instance['player_ref']:
+                    char_joint = self.base.game_instance['player_ref'].get_part_bundle('modelRoot').get_name()
+                    joint = "{0}:{1}".format(char_joint, joint)
+                    exp_joint = self.base.game_instance['player_ref'].expose_joint(None, "modelRoot", joint)
+                    ghost_np.reparent_to(exp_joint)
                     world.attach_ghost(ghost)
-                    # self.base.actor_hb[name_hb] = ghost_np.node()
-                    # self.base.actor_hb_masks[name_hb] = mask
+                elif "NPC" in name and self.base.game_instance['actors_ref']:
+                    char_joint = self.base.game_instance['actors_ref'][name].get_part_bundle('modelRoot').get_name()
+                    joint = "{0}:{1}".format(char_joint, joint)
+                    exp_joint = self.base.game_instance['actors_ref'][name].expose_joint(None, "modelRoot", joint)
+                    ghost_np.reparent_to(exp_joint)
+                    world.attach_ghost(ghost)
 
     def get_bs_sphere(self):
         radius = 0.6
