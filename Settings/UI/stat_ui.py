@@ -430,7 +430,4 @@ class StatUI:
             self.text_toggle_col.hide()
             return task.done
 
-        if base.game_instance['menu_mode']:
-            return task.done
-
         return task.cont

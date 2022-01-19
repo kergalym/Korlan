@@ -308,7 +308,7 @@ class PhysicsAttr:
                                 extraArgs=[actor], appendTask=True)
 
                 elif type == 'npc_animal':
-                    actor_bs_box = BulletBoxShape(Vec3(1, 1, 1))
+                    actor_bs_box = BulletBoxShape(Vec3(0.3, 1.5, 1))
                     actor_node = BulletRigidBodyNode(col_name)
                     actor_node.set_mass(1.0)
                     actor_node.add_shape(actor_bs_box)
@@ -483,6 +483,7 @@ class PhysicsAttr:
 
                                 if self.base.game_instance['hud_np']:
                                     self.base.game_instance['hud_np'].set_npc_hud(npc_name=animal_actor.get_name())
+
                             elif (player_bs.get_distance(trigger_np) >= 2
                                   and player_bs.get_distance(trigger_np) <= 5):
                                 if self.base.game_instance['hud_np']:
