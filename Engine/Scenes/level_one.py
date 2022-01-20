@@ -350,7 +350,8 @@ class LevelOne:
             self.base.game_instance['actors_are_loaded'] = False
             self.base.game_instance['is_ready_for_game'] = False
 
-            # taskMgr.remove("game_instance_diagnostic_task")
+            if self.game_settings['Debug']['set_debug_mode'] == 'YES':
+                taskMgr.remove("game_instance_diagnostic_task")
 
     def unload_menu_scene(self):
         assets = self.base.assets_collector()
@@ -590,8 +591,9 @@ class LevelOne:
                     "world_sfx_task",
                     appendTask=True)
 
-        """taskMgr.add(self.game_instance_diagnostic_task,
-                    "game_instance_diagnostic_task")"""
+        if self.game_settings['Debug']['set_debug_mode'] == 'YES':
+            taskMgr.add(self.game_instance_diagnostic_task,
+                        "game_instance_diagnostic_task")
 
     def save_game(self):
         pass

@@ -1681,6 +1681,7 @@ class Actions:
                             appendTask=True)
 
                 Sequence(Func(horse_np.set_collide_mask, BitMask32.bit(0)),
+                         Func(child.set_collide_mask, BitMask32.allOff()),
                          Func(self.state.set_action_state, "is_using", True),
                          Parallel(mount_action_seq,
                                   Func(child.reparent_to, parent),
@@ -1693,12 +1694,13 @@ class Actions:
                          # bullet shape has impact of gravity
                          # so make player geom stay higher instead
                          Func(player.set_z, saddle_pos[2]),
+                         Func(child.set_collide_mask, BitMask32.bit(0)),
+                         Func(self.base.game_instance['player_ref'].set_python_tag, "is_on_horse", True),
                          Func(self.state.set_action_state, "is_using", False),
                          Func(self.state.set_action_state, "horse_riding", True),
                          Func(self.state.set_action_state, "is_mounted", True),
-                         horse_riding_action_seq,
-                         Func(self.base.game_instance['player_ref'].set_python_tag, "is_on_horse", True),
-                         Func(parent.set_python_tag, "is_mounted", True)
+                         Func(parent.set_python_tag, "is_mounted", True),
+                         horse_riding_action_seq
                          ).start()
 
     def unmount_action(self, anims):
@@ -1723,6 +1725,7 @@ class Actions:
 
             Sequence(Func(self.base.game_instance['player_ref'].set_python_tag, "is_on_horse", False),
                      Func(self.state.set_action_state, "is_using", True),
+                     Func(child.set_collide_mask, BitMask32.allOff()),
                      Parallel(unmount_action_seq,
                               Func(child.set_x, unmounting_pos[0]),
                               Func(child.set_y, unmounting_pos[1]),
@@ -1736,6 +1739,7 @@ class Actions:
                      Func(self.state.set_action_state, "is_mounted", False),
                      Func(parent.set_python_tag, "is_mounted", False),
                      Func(taskMgr.remove, "player_mount_helper_task"),
-                     Func(horse_np.set_collide_mask, BitMask32.allOn())
+                     Func(horse_np.set_collide_mask, BitMask32.allOn()),
+                     Func(child.set_collide_mask, BitMask32.bit(0))
                      ).start()
 
