@@ -573,7 +573,7 @@ class Main(ShowBase):
             Return      : List
         """
         anims_path = "Assets/Animations"
-        collected = vfs_listdir(anims_path)
+        exclude_dir = 'exp'
         path = {}
         anims = {}
 
@@ -582,21 +582,29 @@ class Main(ShowBase):
                              "\nCurrent path: {0}".format(anims_path))
             sys_exit("\nSomething is getting wrong. Please, check the game log first")
 
-        for a in collected:
-            key = re.sub('Korlan-', '', a)
-            # include one of them
-            if (key.endswith(".egg")
-                    and not key.endswith(".egg.bam")):
-                key = re.sub('.egg$', '', key)
-                anims[key] = key
-                anim_path = str(PurePath("{0}/".format(anims_path), a))
-                path[key] = Filename.from_os_specific(anim_path).getFullpath()
-            elif (key.endswith(".egg.bam")
-                  and not key.endswith(".egg")):
-                key = re.sub('.egg.bam$', '', key)
-                anims[key] = key
-                anim_path = str(PurePath("{0}/".format(anims_path), a))
-                path[key] = Filename.from_os_specific(anim_path).getFullpath()
+        sub_name = ""
+        for root, dirs, files in vfs_walk(anims_path, topdown=True):
+            if exclude_dir in dirs:
+                dirs.remove(exclude_dir)
+            for file in files:
+                if "Korlan-" in file:
+                    sub_name = "Korlan-"
+                elif "horse-" in file:
+                    sub_name = "horse-"
+                key = re.sub(sub_name, '', file)
+                # include one of them
+                if (key.endswith(".egg")
+                        and not key.endswith(".egg.bam")):
+                    key = re.sub('.egg$', '', key)
+                    anims[key] = key
+                    anim_path = str(PurePath("{0}/".format(root), file))
+                    path[key] = Filename.from_os_specific(anim_path).getFullpath()
+                elif (key.endswith(".egg.bam")
+                      and not key.endswith(".egg")):
+                    key = re.sub('.egg.bam$', '', key)
+                    anims[key] = key
+                    anim_path = str(PurePath("{0}/".format(root), file))
+                    path[key] = Filename.from_os_specific(anim_path).getFullpath()
         return [anims, path]
 
     def assets_collider_collector(self):
