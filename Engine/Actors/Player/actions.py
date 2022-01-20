@@ -1680,6 +1680,8 @@ class Actions:
                             extraArgs=[child, player, saddle_pos],
                             appendTask=True)
 
+                self.base.camera.set_z(0.2)
+
                 Sequence(Func(horse_np.set_collide_mask, BitMask32.bit(0)),
                          Func(child.set_collide_mask, BitMask32.allOff()),
                          Func(self.state.set_action_state, "is_using", True),
@@ -1722,6 +1724,8 @@ class Actions:
             horse_near_pos = Vec3(parent_bs.get_x(), parent_bs.get_y(), child.get_z()) + Vec3(1, 0, 0)
             base.game_instance['player_using_horse'] = ''
             horse_np = self.base.game_instance['actors_np']["{0}:BS".format(horse_name)]
+
+            self.base.camera.set_z(0)
 
             Sequence(Func(self.base.game_instance['player_ref'].set_python_tag, "is_on_horse", False),
                      Func(self.state.set_action_state, "is_using", True),
