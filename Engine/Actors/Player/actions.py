@@ -787,9 +787,7 @@ class Actions:
             # If the player does action, loop the animation.
             # If it is standing still, stop the animation.
             if (self.kbd.keymap["forward"]
-                    and self.kbd.keymap["run"]
-                    or self.kbd.keymap["left"]
-                    or self.kbd.keymap["right"]):
+                    and self.kbd.keymap["run"]):
                 if (base.player_states['is_moving'] is False
                         and base.player_states['is_attacked'] is False
                         and base.player_states['is_busy'] is False
@@ -992,9 +990,7 @@ class Actions:
                 # If the player does action, loop the animation.
                 # If it is standing still, stop the animation.
                 if (self.kbd.keymap["forward"]
-                        and self.kbd.keymap["run"]
-                        or self.kbd.keymap["left"]
-                        or self.kbd.keymap["right"]):
+                        and self.kbd.keymap["run"]):
                     if (base.player_states['is_moving'] is False
                             and base.player_states['is_attacked'] is False
                             and base.player_states['is_busy'] is False
