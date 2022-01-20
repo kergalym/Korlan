@@ -27,6 +27,7 @@ class Actions:
         self.crouched_to_standing_action = "crouched_to_standing"
         self.standing_to_crouch_action = "standing_to_crouch"
 
+        self.horse_idle_action = "horse_idle"
         self.horse_walking_forward_action = "horse_walking"
         self.horse_run_forward_action = "horse_running"
         self.horse_crouch_walking_forward_action = ""
@@ -116,23 +117,27 @@ class Actions:
         if player and anims and isinstance(state, str):
             walking_forward_seq = player.get_anim_control(anims[self.horse_walking_forward_action])
             if state == 'loop' and walking_forward_seq.is_playing() is False:
+                player.stop(self.horse_idle_action)
                 player.loop(anims[self.horse_walking_forward_action])
                 player.set_play_rate(self.base.actor_play_rate,
                                      anims[self.horse_walking_forward_action])
             elif state == 'stop' and walking_forward_seq.is_playing():
-                player.stop()
-                player.pose(anims[self.walking_forward_action], 0)
+                player.stop(self.horse_walking_forward_action)
+                player.pose(anims[self.horse_walking_forward_action], 0)
+                player.loop(self.horse_idle_action)
 
     def seq_horse_run_wrapper(self, player, anims, state):
         if player and anims and isinstance(state, str):
             run_forward_seq = player.get_anim_control(anims[self.horse_run_forward_action])
             if state == 'loop' and run_forward_seq.is_playing() is False:
+                player.stop(self.horse_idle_action)
                 player.loop(anims[self.horse_run_forward_action])
                 player.set_play_rate(2.2,
                                      anims[self.horse_run_forward_action])
             elif state == 'stop' and run_forward_seq.is_playing():
-                player.stop()
+                player.stop(self.horse_run_forward_action)
                 player.pose(anims[self.horse_run_forward_action], 0)
+                player.loop(self.horse_idle_action)
 
     def seq_crouch_move_wrapper(self, player, anims, state):
         if player and anims and isinstance(state, str):
@@ -153,6 +158,7 @@ class Actions:
         if player and anims and isinstance(state, str):
             crouch_walking_forward_seq = player.get_anim_control(anims[self.horse_crouch_walking_forward_action])
             if state == 'loop' and crouch_walking_forward_seq.is_playing() is False:
+                player.stop(self.horse_idle_action)
                 player.loop(anims[self.horse_crouch_walking_forward_action])
                 if self.kbd.keymap['backward']:
                     player.set_play_rate(-self.base.actor_play_rate,
@@ -163,6 +169,7 @@ class Actions:
             elif state == 'stop' and crouch_walking_forward_seq.is_playing():
                 player.stop()
                 player.pose(anims[self.horse_crouch_walking_forward_action], 0)
+                player.loop(self.horse_idle_action)
 
     """ Sets current item after action """
 
@@ -632,37 +639,42 @@ class Actions:
                         if self.floater:
                             self.horse_riding_movement_action(anims)
                             self.horse_riding_run_action(anims)
-                        # todo: improve crouch and jump actions for horse riding
-                        # todo: change to suitable animations for sword and bow actions for horse riding
-                        self.player_crouch_action(player, 'crouch', anims)
-                        self.player_jump_action(player, "jump", anims, "Jumping")
-                        self.player_sword_action(player, "sword", anims, "sword_disarm_over_shoulder")
-                        self.player_bow_action(player, "bow", anims, "archer_standing_disarm_bow")
+                        # todo: add getting sword and bow anims
+                        """self.player_crouch_action(player, 'crouch', anims)
+                        self.player_jump_action(player, "jump", anims, "Jumping")"""
+                        # todo: add getting sword and bow anims
+                        """self.player_sword_action(player, "sword", anims, "sword_disarm_over_shoulder")
+                        self.player_bow_action(player, "bow", anims, "archer_standing_disarm_bow")"""
                     if base.player_state_armed:
                         if self.floater:
                             self.horse_riding_movement_action(anims)
                             self.horse_riding_run_action(anims)
 
-                        self.player_crouch_action(player, 'crouch', anims)
-                        self.player_jump_action(player, "jump", anims, "Jumping")
+                        # todo: add getting sword and bow anims
+                        """self.player_crouch_action(player, 'crouch', anims)
+                        self.player_jump_action(player, "jump", anims, "Jumping")"""
 
+                        # todo: replace horse_riding_great_sword_slash and horse_riding_draw_arrow anims with fixed ones
                         if base.player_states['has_sword'] and not base.player_states['has_bow']:
-                            self.player_attack_action(player, "attack", anims, "great_sword_slash")
+                            self.player_attack_action(player, "attack", anims, "horse_riding_great_sword_slash")
                         elif not base.player_states['has_sword'] and base.player_states['has_bow']:
-                            self.player_bow_shoot_action(player, anims, "archer_standing_draw_arrow")
+                            self.player_bow_shoot_action(player, anims, "horse_riding_draw_arrow")
 
-                        self.player_sword_action(player, "sword", anims, "sword_disarm_over_shoulder")
-                        self.player_bow_action(player, "bow", anims, "archer_standing_disarm_bow")
+                        # todo: add getting sword and bow anims
+                        """self.player_sword_action(player, "sword", anims, "sword_disarm_over_shoulder")
+                        self.player_bow_action(player, "bow", anims, "archer_standing_disarm_bow")"""
                     if base.player_state_magic:
                         if self.floater:
                             self.horse_riding_movement_action(anims)
                             self.horse_riding_run_action(anims)
 
-                        self.player_crouch_action(player, 'crouch', anims)
-                        self.player_jump_action(player, "jump", anims, "Jumping")
+                        # todo: add crouch and jump anims
+                        """self.player_crouch_action(player, 'crouch', anims)
+                        self.player_jump_action(player, "jump", anims, "Jumping")"""
 
-                        self.player_tengri_action(player, "tengri", anims, "PickingUp")
-                        self.player_umai_action(player, "umai", anims, "PickingUp")
+                        # fixme
+                        """self.player_tengri_action(player, "tengri", anims, "PickingUp")
+                        self.player_umai_action(player, "umai", anims, "PickingUp")"""
 
         return task.cont
 
@@ -875,13 +887,6 @@ class Actions:
                     Sequence(Func(self.seq_run_wrapper, player, anims, 'stop'),
                              Func(self.state.set_action_state, "is_running", False)
                              ).start()
-                if (base.player_states['is_moving'] is False
-                        and base.player_states['is_attacked'] is False
-                        and base.player_states['is_busy'] is False
-                        and base.player_states["is_crouch_moving"] is False
-                        and base.player_states['is_running']):
-                    Sequence(Func(self.seq_run_wrapper, player, anims, 'stop'),
-                             Func(self.state.set_action_state, "is_running", False)).start()
 
     def horse_riding_movement_action(self, anims):
         if (isinstance(anims, dict)
@@ -895,10 +900,7 @@ class Actions:
             horse_name = base.game_instance['player_using_horse']
             if self.base.game_instance['actors_ref'].get(horse_name):
                 player = self.base.game_instance['actors_ref'][horse_name]
-                # horse_controller = self.base.game_instance['actor_controllers_np']["{0}:BS".format(horse_name)]
                 horse_bs = render.find("**/{0}:BS".format(horse_name))
-                speed = Vec3(0, 0, 0)
-                omega = 0.0
                 move_unit = 2
 
                 # Get the time that elapsed since last frame
@@ -916,12 +918,14 @@ class Actions:
                         if (not self.kbd.keymap["forward"]
                                 and not self.kbd.keymap["run"]
                                 and self.kbd.keymap["left"]):
+                            # todo: add anim and uncomment
                             """Sequence(Parallel(Func(self.seq_horse_turning_wrapper, player, anims, "left_turn", 'loop'),
                                               Func(self.state.set_action_state, "is_turning", True)),
                                      ).start()"""
                         if (not self.kbd.keymap["forward"]
                                 and not self.kbd.keymap["run"]
                                 and self.kbd.keymap["right"]):
+                            # todo: add anim and uncomment
                             """Sequence(Parallel(Func(self.seq_horse_turning_wrapper, player, anims, "right_turn", 'loop'),
                                               Func(self.state.set_action_state, "is_turning", True)),
                                      ).start()"""
@@ -930,12 +934,14 @@ class Actions:
                         if (not self.kbd.keymap["forward"]
                                 and not self.kbd.keymap["run"]
                                 and not self.kbd.keymap["left"]):
+                            # todo: add anim and uncomment
                             """Sequence(Parallel(Func(self.seq_horse_turning_wrapper, player, anims, "left_turn", 'stop'),
                                               Func(self.state.set_action_state, "is_turning", False)),
                                      ).start()"""
                         if (not self.kbd.keymap["forward"]
                                 and not self.kbd.keymap["run"]
                                 and not self.kbd.keymap["right"]):
+                            # todo: add anim and uncomment
                             """Sequence(Parallel(Func(self.seq_horse_turning_wrapper, player, anims, "right_turn", 'stop'),
                                               Func(self.state.set_action_state, "is_turning", False)),
                                      ).start()"""
@@ -956,9 +962,6 @@ class Actions:
                     if base.input_state.is_set('reverse'):
                         horse_bs.set_y(horse_bs, move_unit*dt)
 
-                # horse_controller.set_linear_movement(speed, True)
-                # horse_controller.set_angular_movement(omega)
-
                 # If the player does action, loop the animation through messenger.
                 if (self.kbd.keymap["forward"]
                         and self.kbd.keymap["run"] is False
@@ -978,6 +981,7 @@ class Actions:
                             and base.player_states["is_running"] is False
                             and base.player_states['is_crouch_moving']
                             and base.player_states['is_idle']):
+                        # todo: add anim and uncomment
                         """Sequence(Func(self.seq_crouch_horse_move_wrapper, player, anims, 'loop')
                                  ).start()"""
                 else:
@@ -986,14 +990,15 @@ class Actions:
                             and base.player_states['is_busy'] is False
                             and base.player_states["is_running"] is False
                             and base.player_states['is_crouch_moving'] is False):
-                        """Sequence(Func(self.seq_horse_move_wrapper, player, anims, 'stop'),
-                                 Func(self.state.set_action_state, "is_moving", False)
-                                 ).start()"""
+                        self.seq_horse_move_wrapper(player, anims, 'stop')
+                        self.state.set_action_state("is_moving", False)
+
                     if (base.player_states['is_moving'] is False
                             and base.player_states['is_attacked'] is False
                             and base.player_states['is_busy'] is False
                             and base.player_states["is_running"] is False
                             and base.player_states['is_crouch_moving']):
+                        # todo: add anim and uncomment
                         """Sequence(Func(self.seq_horse_crouch_move_wrapper, player, anims, 'stop')).start()"""
 
                 # Actor backward movement
@@ -1017,9 +1022,7 @@ class Actions:
             horse_name = base.game_instance['player_using_horse']
             if self.base.game_instance['actors_ref'].get(horse_name):
                 player = self.base.game_instance['actors_ref'][horse_name]
-                # horse_controller = self.base.game_instance['actor_controllers_np']["{0}:BS".format(horse_name)]
                 horse_bs = render.find("**/{0}:BS".format(horse_name))
-                speed = Vec3(0, 0, 0)
                 move_unit = 7
 
                 # Get the time that elapsed since last frame
@@ -1037,8 +1040,6 @@ class Actions:
                         if self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] > 1:
                             self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] -= 5
 
-                        # speed.set_y(-move_unit)
-                        # horse_controller.set_linear_movement(speed, True)
                         horse_bs.set_y(horse_bs, -move_unit*dt)
 
                 # If the player does action, loop the animation.
@@ -1060,8 +1061,7 @@ class Actions:
                             and base.player_states["is_crouch_moving"] is False
                             and base.player_states['is_running']
                             and base.player_states['is_idle'] is False):
-                        Sequence(Func(self.seq_horse_run_wrapper, player, anims, 'loop')
-                                 ).start()
+                        self.seq_horse_run_wrapper(player, anims, 'loop')
 
                 else:
                     if (base.player_states['is_running']
@@ -1069,16 +1069,8 @@ class Actions:
                             and base.player_states['is_busy'] is False
                             and base.player_states["is_moving"] is False
                             and base.player_states['is_crouch_moving'] is False):
-                        """Sequence(Func(self.seq_horse_run_wrapper, player, anims, 'stop'),
-                                 Func(self.state.set_action_state, "is_running", False)
-                                 ).start()"""
-                    if (base.player_states['is_moving'] is False
-                            and base.player_states['is_attacked'] is False
-                            and base.player_states['is_busy'] is False
-                            and base.player_states["is_crouch_moving"] is False
-                            and base.player_states['is_running']):
-                        # Sequence(Func(self.seq_horse_run_wrapper, player, anims, 'stop')).start()
-                        pass
+                        self.seq_horse_run_wrapper(player, anims, 'stop'),
+                        self.state.set_action_state("is_running", False)
 
     def player_in_crouched_to_stand_with_any_action(self, player, key, anims, action, is_in_action):
         if player and key and anims and action and is_in_action and isinstance(is_in_action, str):
