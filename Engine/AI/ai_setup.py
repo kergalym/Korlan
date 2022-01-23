@@ -238,9 +238,9 @@ class AI:
                                     "update_pathfinding_task",
                                     appendTask=True)"""
 
-                        taskMgr.add(self.update_npc_states_task,
+                        """taskMgr.add(self.update_npc_states_task,
                                     "update_npc_states_task",
-                                    appendTask=True)
+                                    appendTask=True)"""
 
                         taskMgr.add(self.npc_fsm.npc_distance_calculate_task,
                                     "npc_distance_calculate_task",

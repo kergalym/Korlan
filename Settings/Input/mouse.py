@@ -112,25 +112,29 @@ class Mouse:
                 if base.win.move_pointer(0, int(base.win.getXSize() / 2), int(base.win.getYSize() / 2)):
                     if not self.base.game_instance['is_aiming']:
                         # reset heading and pitch for floater
-                        if (self.floater.get_h() != 0
-                                and self.floater.get_p() != 0):
-                            self.floater.set_h(0)
-                            self.floater.set_p(0)
+                        self.floater.set_h(0)
+                        self.floater.set_p(0)
                         # apply heading and pitch
                         heading = self.pivot.get_h() - (x - int(base.win.getXSize() / 2)) * self.mouse_sens
                         pitch = self.pivot.get_p() - (y - int(base.win.getYSize() / 2)) * self.mouse_sens
                         self.pivot.set_h(heading)
+
                         if not pitch > 10.0 and not pitch < -50.0:
                             self.pivot.set_p(pitch)
 
                     elif self.base.game_instance['is_aiming']:
                         # world heading in aiming
                         heading = self.floater.get_h() - (x - int(base.win.getXSize() / 2)) * self.mouse_sens
-                        pitch = self.floater.get_p() - (y - int(base.win.getYSize() / 2)) * self.mouse_sens
+                        # pitch = self.floater.get_p() - (y - int(base.win.getYSize() / 2)) * self.mouse_sens
                         self.floater.set_h(heading)
-                        self.pivot.set_h(-160)
-                        if not pitch > 10.0 and not pitch < -50.0:
-                            self.floater.set_p(pitch)
+
+                        if self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
+                            self.pivot.set_h(-160)
+                        else:
+                            self.pivot.set_h(100)
+
+                        """if not pitch > 10.0 and not pitch < -50.0:
+                            self.floater.set_p(pitch)"""
 
     def mouse_control_task(self, task):
         """ Function    : mouse_control_task
