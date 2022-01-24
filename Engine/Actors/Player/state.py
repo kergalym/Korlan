@@ -200,6 +200,16 @@ class PlayerState:
 
                 base.player_states["is_idle"] = True
 
+    def set_horse_riding_weapon_state(self, action, state):
+        if (action
+                and isinstance(action, str)
+                and isinstance(state, bool)):
+            for key in base.player_states:
+                if "has" in key:
+                   base.player_states[key] = False
+
+            base.player_states[action] = state
+
     def set_action_state_crouched(self, action, state):
         if (action
                 and isinstance(action, str)

@@ -512,7 +512,10 @@ class Actions:
                     and self.kbd.keymap["attack"]):
                 if self.base.game_instance['cursor_ui']:
                     self.base.game_instance['cursor_ui'].show()
-                if self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
+                if not self.base.game_instance['is_aiming']:
+                    self.base.game_instance['is_aiming'] = True
+                if (self.base.game_instance['player_ref'].get_python_tag("is_on_horse")
+                        and self.base.game_instance['is_aiming']):
                     pos_y = -4.2
                     pos_z = 0.25
                 else:
@@ -521,13 +524,14 @@ class Actions:
                 base.camera.set_x(0.5)
                 base.camera.set_y(pos_y)
                 base.camera.set_z(pos_z)
-                if not self.base.game_instance['is_aiming']:
-                    self.base.game_instance['is_aiming'] = True
             elif (self.kbd.keymap["block"]
                   and not self.kbd.keymap["attack"]):
                 if self.base.game_instance['cursor_ui']:
                     self.base.game_instance['cursor_ui'].show()
-                if self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
+                if not self.base.game_instance['is_aiming']:
+                    self.base.game_instance['is_aiming'] = True
+                if (self.base.game_instance['player_ref'].get_python_tag("is_on_horse")
+                        and self.base.game_instance['is_aiming']):
                     pos_y = -4.2
                     pos_z = 0.25
                 else:
@@ -536,15 +540,13 @@ class Actions:
                 base.camera.set_x(0.5)
                 base.camera.set_y(pos_y)
                 base.camera.set_z(pos_z)
-                if not self.base.game_instance['is_aiming']:
-                    self.base.game_instance['is_aiming'] = True
             elif (not self.kbd.keymap["block"]
                   and not self.kbd.keymap["attack"]):
                 if self.base.game_instance['cursor_ui']:
                     self.base.game_instance['cursor_ui'].hide()
                 base.camera.set_x(0)
                 base.camera.set_y(self.mouse.cam_y_back_pos)
-                base.camera.set_z(0)
+                base.camera.set_z(0.5)
                 if self.base.game_instance['is_aiming']:
                     self.base.game_instance['is_aiming'] = False
 
@@ -608,8 +610,8 @@ class Actions:
                         self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
                         self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
                         self.player_block_action(player, "block", anims, "center_blocking")
-                        self.player_sword_action(player, "sword", anims, "sword_disarm_over_shoulder")
-                        self.player_bow_action(player, "bow", anims, "archer_standing_disarm_bow")
+                        self.player_get_sword_action(player, "sword", anims, "sword_disarm_over_shoulder")
+                        self.player_get_bow_action(player, "bow", anims, "archer_standing_disarm_bow")
                     if base.player_state_armed:
                         if self.floater:
                             self.player_movement_action(player, anims)
@@ -630,8 +632,8 @@ class Actions:
 
                         self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
                         self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
-                        self.player_sword_action(player, "sword", anims, "sword_disarm_over_shoulder")
-                        self.player_bow_action(player, "bow", anims, "archer_standing_disarm_bow")
+                        self.player_get_sword_action(player, "sword", anims, "sword_disarm_over_shoulder")
+                        self.player_get_bow_action(player, "bow", anims, "archer_standing_disarm_bow")
                     if base.player_state_magic:
                         if self.floater:
                             self.player_movement_action(player, anims)
@@ -654,9 +656,8 @@ class Actions:
                         # todo: add getting sword and bow anims
                         """self.player_crouch_action(player, 'crouch', anims)
                         self.player_jump_action(player, "jump", anims, "Jumping")"""
-                        # todo: add getting sword and bow anims
-                        """self.player_sword_action(player, "sword", anims, "sword_disarm_over_shoulder")
-                        self.player_bow_action(player, "bow", anims, "archer_standing_disarm_bow")"""
+                        self.player_horse_riding_get_sword_action(player, "sword", anims, "horse_riding_arm_sword")
+                        self.player_horse_riding_get_bow_action(player, "bow", anims, "horse_riding_arm_bow")
                     if base.player_state_armed:
                         if self.floater:
                             self.horse_riding_movement_action(anims)
@@ -666,7 +667,6 @@ class Actions:
                         """self.player_crouch_action(player, 'crouch', anims)
                         self.player_jump_action(player, "jump", anims, "Jumping")"""
 
-                        # todo: replace horse_riding_great_sword_slash and horse_riding_draw_arrow anims with fixed ones
                         if base.player_states['has_sword'] and not base.player_states['has_bow']:
                             self.player_horse_riding_swing_action(player, "attack", anims,
                                                                   "horse_riding_swing")
@@ -674,9 +674,8 @@ class Actions:
                             self.player_horse_riding_bow_shoot_action(player, anims,
                                                                       "horse_riding_draw_arrow")
 
-                        # todo: add getting sword and bow anims
-                        """self.player_sword_action(player, "sword", anims, "sword_disarm_over_shoulder")
-                        self.player_bow_action(player, "bow", anims, "archer_standing_disarm_bow")"""
+                        self.player_horse_riding_get_sword_action(player, "sword", anims, "horse_riding_disarm_sword")
+                        self.player_horse_riding_get_bow_action(player, "bow", anims, "horse_riding_disarm_bow")
                     if base.player_state_magic:
                         if self.floater:
                             self.horse_riding_movement_action(anims)
@@ -1427,7 +1426,7 @@ class Actions:
                              Func(self.state.set_do_once_key, key, False),
                              ).start()
 
-    def player_sword_action(self, player, key, anims, action):
+    def player_get_sword_action(self, player, key, anims, action):
         if (player and isinstance(anims, dict)
                 and isinstance(action, str)
                 and isinstance(key, str)
@@ -1504,7 +1503,7 @@ class Actions:
                              Func(self.state.set_do_once_key, key, False),
                              ).start()
 
-    def player_bow_action(self, player, key, anims, action):
+    def player_get_bow_action(self, player, key, anims, action):
         if (player and isinstance(anims, dict)
                 and isinstance(action, str)
                 and isinstance(key, str)):
@@ -1586,6 +1585,90 @@ class Actions:
                              Func(self.state.remove_weapon, player, "bow_kazakh", "Korlan:Spine1"),
                              Func(self.return_arrow_back, "Korlan:Spine1"),
                              Func(self.state.set_action_state, "has_bow", False),
+                             Func(self.state.set_do_once_key, "bow", False),
+                             Func(self.stop_archery_helper_tasks),
+                             ).start()
+
+    def player_horse_riding_get_sword_action(self, player, key, anims, action):
+        if (player and isinstance(anims, dict)
+                and isinstance(action, str)
+                and isinstance(key, str)
+                and not self.base.game_instance['is_aiming']):
+            if self.kbd.keymap[key] and not base.do_key_once[key]:
+                crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
+                self.state.set_do_once_key(key, True)
+                base.player_states['is_idle'] = False
+                if (base.player_states['has_sword'] is False
+                        and crouched_to_standing.is_playing() is False
+                        and base.player_states['is_crouch_moving'] is False):
+                    if self.base.game_instance['hud_np']:
+                        self.base.game_instance['hud_np'].toggle_weapon_state(weapon_name="sword")
+                    any_action_seq = player.actor_interval(anims[action],
+                                                           playRate=self.base.actor_play_rate)
+                    Sequence(Func(self.state.get_weapon, player, "sword", "Korlan:LeftHand"),
+                             Func(self.state.set_horse_riding_weapon_state, "has_sword", True),
+                             Func(self.state.set_action_state, "is_using", True),
+                             any_action_seq,
+                             Func(self.state.set_action_state, "is_using", False),
+                             Func(self.state.set_do_once_key, key, False),
+                             ).start()
+
+                elif (base.player_states['has_sword']
+                      and crouched_to_standing.is_playing() is False
+                      and base.player_states['is_crouch_moving'] is False):
+                    if self.base.game_instance['hud_np']:
+                        self.base.game_instance['hud_np'].toggle_weapon_state(weapon_name="hands")
+                    any_action_seq = player.actor_interval(anims[action],
+                                                           playRate=-self.base.actor_play_rate)
+                    Sequence(
+                             Func(self.state.set_action_state, "is_using", True),
+                             any_action_seq,
+                             Func(self.state.set_action_state, "is_using", False),
+                             Func(self.state.remove_weapon, player, "sword", "Korlan:Spine1"),
+                             Func(self.state.set_horse_riding_weapon_state, "has_sword", False),
+                             Func(self.state.set_do_once_key, key, False),
+                             ).start()
+
+    def player_horse_riding_get_bow_action(self, player, key, anims, action):
+        if (player and isinstance(anims, dict)
+                and isinstance(action, str)
+                and isinstance(key, str)):
+            if self.kbd.keymap[key] and not base.do_key_once[key]:
+                self.state.set_do_once_key(key, True)
+                crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
+                base.player_states['is_idle'] = False
+                # TODO: Use blending for smooth transition between animations
+
+                if (base.player_states['has_bow'] is False
+                        and crouched_to_standing.is_playing() is False
+                        and base.player_states['is_crouch_moving'] is False):
+                    if self.base.game_instance['hud_np']:
+                        self.base.game_instance['hud_np'].toggle_weapon_state(weapon_name="bow")
+                    any_action_seq = player.actor_interval(anims[action],
+                                                           playRate=self.base.actor_play_rate)
+                    Sequence(Func(self.state.get_weapon, player, "bow_kazakh", "Korlan:LeftHand"),
+                             Func(self.prepare_arrow_for_shoot, "bow_kazakh"),
+                             Func(self.state.set_horse_riding_weapon_state, "has_bow", True),
+                             Func(self.state.set_action_state, "is_using", True),
+                             any_action_seq,
+                             Func(self.state.set_action_state, "is_using", False),
+                             Func(self.state.set_do_once_key, "bow", False),
+                             Func(self.start_archery_helper_tasks),
+                             ).start()
+
+                elif (base.player_states['has_bow']
+                      and crouched_to_standing.is_playing() is False
+                      and base.player_states['is_crouch_moving'] is False):
+                    if self.base.game_instance['hud_np']:
+                        self.base.game_instance['hud_np'].toggle_weapon_state(weapon_name="hands")
+                    any_action_seq = player.actor_interval(anims[action],
+                                                           playRate=self.base.actor_play_rate)
+                    Sequence(Func(self.state.set_action_state, "is_using", True),
+                             any_action_seq,
+                             Func(self.state.set_action_state, "is_using", False),
+                             Func(self.state.remove_weapon, player, "bow_kazakh", "Korlan:Spine1"),
+                             Func(self.return_arrow_back, "Korlan:Spine1"),
+                             Func(self.state.set_horse_riding_weapon_state, "has_bow", False),
                              Func(self.state.set_do_once_key, "bow", False),
                              Func(self.stop_archery_helper_tasks),
                              ).start()
@@ -1836,12 +1919,7 @@ class Actions:
                             extraArgs=[child, player, saddle_pos],
                             appendTask=True)
 
-                if base.player_states['has_sword'] or base.player_states['has_bow']:
-                    self.base.camera.set_z(0.4)
-                    self.base.camera.set_y(-7.5)
-                elif not base.player_states['has_sword'] or not base.player_states['has_bow']:
-                    self.base.camera.set_z(0.4)
-                    self.base.camera.set_y(-5.3)
+                self.base.camera.set_z(0.5)
 
                 Sequence(Func(horse_np.set_collide_mask, BitMask32.bit(0)),
                          Func(child.set_collide_mask, BitMask32.allOff()),
@@ -1887,7 +1965,6 @@ class Actions:
             horse_np = self.base.game_instance['actors_np']["{0}:BS".format(horse_name)]
 
             self.base.camera.set_z(0)
-            self.base.camera.set_y(self.mouse.cam_y_back_pos)
 
             Sequence(Func(self.base.game_instance['player_ref'].set_python_tag, "is_on_horse", False),
                      Func(self.state.set_action_state, "is_using", True),
