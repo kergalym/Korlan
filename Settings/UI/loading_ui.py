@@ -128,7 +128,7 @@ class LoadingUI:
             seconds = 60 * dt
             alpha = self.fadeout_screen['frameColor'][3]
 
-            if alpha > 0 and int(seconds) > 1:
+            if alpha > 0 and seconds > 2:
                 alpha -= 0.1
                 self.fadeout_screen['frameColor'] = (0, 0, 0, alpha)
             elif alpha == 0.0:
