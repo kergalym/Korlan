@@ -546,7 +546,10 @@ class Actions:
                     self.base.game_instance['cursor_ui'].hide()
                 base.camera.set_x(0)
                 base.camera.set_y(self.mouse.cam_y_back_pos)
-                base.camera.set_z(0.5)
+                if self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
+                    base.camera.set_z(0.5)
+                elif not self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
+                    base.camera.set_z(0)
                 if self.base.game_instance['is_aiming']:
                     self.base.game_instance['is_aiming'] = False
 
@@ -2007,6 +2010,7 @@ class Actions:
                      Func(child.set_y, horse_near_pos[1]),
                      Func(player.set_z, -1),
                      Func(self.state.set_action_state, "is_using", False),
+                     Func(self.state.set_action_state, "horse_riding", False),
                      Func(self.state.set_action_state, "is_mounted", False),
                      Func(parent.set_python_tag, "is_mounted", False),
                      Func(taskMgr.remove, "player_mount_helper_task"),
