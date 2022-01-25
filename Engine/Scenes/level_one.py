@@ -8,7 +8,6 @@ from Engine.AI.ai_setup import AI
 from Engine.Render.render import RenderAttr
 from Engine.Scenes.scene import SceneOne
 from Engine.Physics.physics_setup import PhysicsAttr
-from Settings.UI.stat_ui import StatUI
 from Settings.UI.pause_menu_ui import PauseMenuUI
 from Settings.Input.mouse import Mouse
 
@@ -72,7 +71,6 @@ class LevelOne:
             npc_fsm_cls_self = npc_fsm_cls()
             self.actor_fsm_classes.append(npc_fsm_cls_self)
 
-        self.stat_ui = StatUI()
         self.pause_game_ui = PauseMenuUI()
         self.player_state = PlayerState()
         self.physics_attr = PhysicsAttr()
@@ -557,9 +555,6 @@ class LevelOne:
         if self.game_settings['Debug']['set_debug_mode'] == 'YES':
             if hasattr(self, "render_pipeline"):
                 self.base.accept("r", self.render_pipeline.reload_shaders)
-            taskMgr.add(self.stat_ui.show_game_stat_task,
-                        "show_game_stat_task",
-                        appendTask=True)
 
         """ Setup AI """
         if self.game_settings['Debug']['set_editor_mode'] == 'NO':

@@ -3,12 +3,13 @@ from direct.interval.IntervalGlobal import Parallel
 from direct.interval.IntervalGlobal import Func
 from direct.gui.DirectGui import *
 from direct.showbase.ShowBaseGlobal import aspect2d
-from panda3d.core import FontPool, TextNode, WindowProperties
+from panda3d.core import FontPool, TextNode
 from Engine.Scenes.level_one import LevelOne
 from direct.task.TaskManagerGlobal import taskMgr
 from Settings.UI.rp_lights_manager_ui import RPLightsMgrUI
 from Editor.editor import Editor
 from Settings.UI.hud_ui import HUD
+from Settings.UI.stat_ui import StatUI
 
 
 class LoadingUI:
@@ -43,7 +44,8 @@ class LoadingUI:
         self.title_loading_text = None
         self.base.game_instance['loading_is_done'] = 0
         self.base.game_instance['unloading_is_done'] = 0
-        # self.wp = WindowProperties()
+
+        self.stat_ui = StatUI()
 
     def set_loading_bar(self):
         assets = base.assets_collector()
@@ -103,6 +105,12 @@ class LoadingUI:
         self.hud.set_player_bar()
         self.hud.set_weapon_ui()
         self.base.game_instance['hud_np'] = self.hud
+
+        if self.game_settings['Debug']['set_debug_mode'] == 'YES':
+            self.stat_ui.set_state_ui()
+            taskMgr.add(self.stat_ui.show_game_stat_task,
+                        "show_game_stat_task",
+                        appendTask=True)
 
     def get_loading_queue_list(self, names):
         if isinstance(names, list) and names:
