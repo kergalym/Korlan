@@ -556,31 +556,59 @@ class Actions:
 
     def player_actions_task(self, player, anims, task):
         if player and anims:
-            any_action = player.get_anim_control(anims['Standing_idle_female'])
+            if not player.get_python_tag("is_on_horse"):
+                any_action = player.get_anim_control(anims['Standing_idle_female'])
+                if (any_action.is_playing() is False
+                        and base.player_states['is_idle']
+                        and base.player_states['is_attacked'] is False
+                        and base.player_states['is_busy'] is False
+                        and base.player_states['is_using'] is False
+                        and base.player_states['is_turning'] is False
+                        and base.player_states['is_moving'] is False
+                        and base.player_states['is_running'] is False
+                        and base.player_states['is_crouch_moving'] is False
+                        and base.player_states['is_crouching'] is False
+                        and base.player_states['is_mounted'] is False
+                        and base.player_states['horse_riding'] is False):
+                    self.fsm_player.request("Idle", player,
+                                            anims['Standing_idle_female'],
+                                            "play")
+                    if self.base.game_instance['player_props']['stamina'] < 100:
+                        self.base.game_instance['player_props']['stamina'] += 5
 
-            if (any_action.is_playing() is False
-                    and base.player_states['is_idle']
-                    and base.player_states['is_attacked'] is False
-                    and base.player_states['is_busy'] is False
-                    and base.player_states['is_using'] is False
-                    and base.player_states['is_turning'] is False
-                    and base.player_states['is_moving'] is False
-                    and base.player_states['is_running'] is False
-                    and base.player_states['is_crouch_moving'] is False
-                    and base.player_states['is_crouching'] is False
-                    and base.player_states['is_mounted'] is False):
-                self.fsm_player.request("Idle", player,
-                                        anims['Standing_idle_female'],
-                                        "play")
-                if self.base.game_instance['player_props']['stamina'] < 100:
-                    self.base.game_instance['player_props']['stamina'] += 5
+                    if (self.base.game_instance['hud_np']
+                            and self.base.game_instance['hud_np'].player_bar_ui_stamina):
+                        if self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] < 100:
+                            self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] += 5
+                            stamina = self.base.game_instance['hud_np'].player_bar_ui_stamina['value']
+                            player.set_python_tag("health", stamina)
 
-                if (self.base.game_instance['hud_np']
-                        and self.base.game_instance['hud_np'].player_bar_ui_stamina):
-                    if self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] < 100:
-                        self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] += 5
-                        stamina = self.base.game_instance['hud_np'].player_bar_ui_stamina['value']
-                        player.set_python_tag("health", stamina)
+            elif player.get_python_tag("is_on_horse"):
+                any_action = player.get_anim_control(anims['horse_riding_idle'])
+                if (any_action.is_playing() is False
+                        and base.player_states['is_idle']
+                        and base.player_states['is_attacked'] is False
+                        and base.player_states['is_busy'] is False
+                        and base.player_states['is_using'] is False
+                        and base.player_states['is_turning'] is False
+                        and base.player_states['is_moving'] is False
+                        and base.player_states['is_running'] is False
+                        and base.player_states['is_crouch_moving'] is False
+                        and base.player_states['is_crouching'] is False
+                        and base.player_states['is_mounted']
+                        and base.player_states['horse_riding']):
+                    self.fsm_player.request("Idle", player,
+                                            anims['horse_riding_idle'],
+                                            "play")
+                    if self.base.game_instance['player_props']['stamina'] < 100:
+                        self.base.game_instance['player_props']['stamina'] += 5
+
+                    if (self.base.game_instance['hud_np']
+                            and self.base.game_instance['hud_np'].player_bar_ui_stamina):
+                        if self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] < 100:
+                            self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] += 5
+                            stamina = self.base.game_instance['hud_np'].player_bar_ui_stamina['value']
+                            player.set_python_tag("health", stamina)
 
             # Here we accept keys
             if (not self.base.game_instance['ui_mode']
