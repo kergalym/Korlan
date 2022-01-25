@@ -27,6 +27,7 @@ class LoadingUI:
         self.font = FontPool
 
         """ Frames & Bars """
+        self.fadeout_screen = None
         self.loading_screen = None
         self.loading_frame = None
         self.loading_bar = None
@@ -111,6 +112,30 @@ class LoadingUI:
             taskMgr.add(self.stat_ui.show_game_stat_task,
                         "show_game_stat_task",
                         appendTask=True)
+
+        self.set_fadeout_screen()
+        taskMgr.add(self.fadeout_task,
+                    "fadeout_task",
+                    appendTask=True)
+
+    def set_fadeout_screen(self):
+        self.fadeout_screen = DirectFrame(frameColor=(0, 0, 0, 1),
+                                          frameSize=(-2, 2, -1, 1))
+
+    def fadeout_task(self, task):
+        if self.fadeout_screen:
+            dt = globalClock.getDt()
+            seconds = 50 * dt
+            alpha = self.fadeout_screen['frameColor'][3]
+
+            if alpha > 0 and int(seconds) > 1:
+                alpha -= 0.1
+                self.fadeout_screen['frameColor'] = (0, 0, 0, alpha)
+            elif alpha == 0.0:
+                self.fadeout_screen.destroy()
+                return task.done
+
+        return task.cont
 
     def get_loading_queue_list(self, names):
         if isinstance(names, list) and names:
