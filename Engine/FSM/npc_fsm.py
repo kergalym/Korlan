@@ -25,6 +25,7 @@ class NpcFSM:
         if player and self.npcs_bs and isinstance(self.npcs_bs, dict):
             for k in self.npcs_bs:
                 actor_bs = self.npcs_bs[k]
+                # todo: drop it to use built-in get_distance() function
                 xyz_vec = self.base.npc_distance_calculate(player=player, actor=actor_bs)
 
                 if xyz_vec:

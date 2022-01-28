@@ -1032,54 +1032,6 @@ class Main(ShowBase):
             items[key] = (parent_node.get_pos())
         return items
 
-    # todo: drop it to use built-in distance_to() function
-    def assets_pos_collector_no_player(self, player, exclude):
-        """ Function    : assets_pos_collector_no_player
-
-            Description : Collect game asset positions except for an actor.
-
-            Input       : Nodepath, List
-
-            Output      : None
-
-            Return      : Dictionary
-        """
-        if (player and exclude
-                and isinstance(exclude, list)):
-            assets = base.asset_nodes_collector()
-            t = []
-            items = {}
-            for asset in assets:
-                # We exclude player from assets,
-                # we need to retrieve the distance
-                if asset.get_name() != player.get_name():
-                    t.append(asset)
-
-            for n, x in enumerate(exclude, 0):
-                # We exclude any item from assets,
-                # we need to retrieve the distance
-                # TODO: Remove this dirty hack
-                try:
-                    if t[n].get_name() == x:
-                        t.pop(n)
-                except IndexError:
-                    pass
-            assets_children = base.asset_node_children_collector(
-                t, assoc_key=True)
-
-            if assets_children:
-                for key in assets_children:
-                    parent_node = assets_children[key].get_parent().get_parent()
-                    # Get bullet shape node path if it's here
-                    if (not parent_node.get_parent().is_empty()
-                            and 'BS' in parent_node.get_parent().get_name()):
-                        bullet_shape_node = parent_node.get_parent()
-                        items[key] = (bullet_shape_node.get_pos())
-                    elif (not parent_node.get_parent().is_empty()
-                          and 'BS' not in parent_node.get_parent().get_name()):
-                        items[key] = (parent_node.get_pos())
-                return items
-
     def navmesh_collector(self):
         """ Function    : navmesh_collector
 
@@ -1159,7 +1111,7 @@ class Main(ShowBase):
                                 shaders[key] = path
             return shaders
 
-    # todo: drop it to use built-in distance_to() function
+    # todo: drop it to use built-in get_distance() function
     def distance_calculate(self, items, actor):
         """ Function    : distance_calculate
 
@@ -1196,7 +1148,7 @@ class Main(ShowBase):
                                      round(vect_z, 1))
             return remained
 
-    # todo: drop it to use built-in distance_to() function
+    # todo: drop it to use built-in get_distance() function
     def npc_distance_calculate(self, player, actor):
         """ Function    : distance_calculate
 

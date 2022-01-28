@@ -83,6 +83,7 @@ class Items:
                 self.usable_items = self.usable_item_pos_collector(player)
 
             if self.usable_items:
+                # todo: drop it to use built-in get_distance() function
                 self.usable_items_dist_vect = base.distance_calculate(self.usable_items, player)
 
             if self.usable_items_dist_vect:

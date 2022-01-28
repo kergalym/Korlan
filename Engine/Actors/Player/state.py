@@ -83,27 +83,6 @@ class PlayerState:
 
         self.base.game_instance['player_props'] = self.player_props
 
-    def player_view_mode_task(self, assets_dist_vec, task):
-        if assets_dist_vec:
-            for k in assets_dist_vec:
-                digit = int(self.game_settings['Main']['camera_distance'])
-                if self.game_settings['Main']['person_look_mode'] == 'first':
-                    if assets_dist_vec[k][1] <= -0.0:
-                        base.cam.set_y(12)
-                        base.first_person_mode = True
-                    elif assets_dist_vec[k][1] >= -0.0:
-                        base.cam.set_y(digit)
-                        base.first_person_mode = False
-                elif self.game_settings['Main']['person_look_mode'] == 'third':
-                    base.first_person_mode = True
-                    base.first_person_mode = False
-                    return task.done
-
-        if self.base.game_instance['menu_mode']:
-            return task.done
-
-        return task.cont
-
     def clear_state(self):
         assets = self.base.assets_collector()
 

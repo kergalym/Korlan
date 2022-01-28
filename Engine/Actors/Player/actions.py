@@ -498,16 +498,6 @@ class Actions:
                             extraArgs=[player],
                             appendTask=True)"""
 
-                excluded_assets = ['Sky', 'Mountains', 'Grass', 'Ground', 'NPC']
-                # todo: replace with built-in distance_to() function
-                assets_dist_vec = base.distance_calculate(
-                    base.assets_pos_collector_no_player(player, excluded_assets), player)
-
-                taskMgr.add(self.state.player_view_mode_task,
-                            "player_view_mode_task",
-                            extraArgs=[assets_dist_vec],
-                            appendTask=True)
-
             self.base.game_instance['player_actions_init_is_activated'] = 1
 
     def cursor_state_task(self, task):
