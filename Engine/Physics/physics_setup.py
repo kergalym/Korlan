@@ -153,10 +153,10 @@ class PhysicsAttr:
         if self.debug_nodepath:
             if self.debug_nodepath.is_hidden():
                 self.debug_nodepath.show()
-                self.debug_nodepath.node().showBoundingBoxes(True)
+                # self.debug_nodepath.node().showBoundingBoxes(True)
             else:
                 self.debug_nodepath.hide()
-                self.debug_nodepath.node().showBoundingBoxes(False)
+                # self.debug_nodepath.node().showBoundingBoxes(False)
 
     def add_bullet_collider(self, assets):
         """ Function    : add_bullet_collider
