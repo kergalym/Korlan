@@ -9,6 +9,7 @@ class StatUI:
         self.fonts = base.fonts_collector()
         # instance of the abstract class
         self.font = FontPool
+        self.dist_vec = None
 
         """ Texts & Fonts"""
         # self.menu_font = self.fonts['OpenSans-Regular']
@@ -437,11 +438,13 @@ class StatUI:
         if base.game_instance['player_ref']:
             exclude = ['Sky', 'Mountains', 'Grass', 'Ground', 'NPC']
             player = base.game_instance['player_ref']
-            dist_vec = base.distance_calculate(
-                base.assets_pos_collector_no_player(player, exclude), player)
-            if dist_vec and not base.game_instance['menu_mode']:
-                dist_vec_fmt_h = self.gen_stat_text_h(dist_vec)
-                dist_vec_fmt_p = self.gen_stat_text_p(dist_vec)
+            # todo: refactoring
+            if not self.dist_vec:
+                self.dist_vec = base.distance_calculate(
+                    base.assets_pos_collector_no_player(player, exclude), player)
+            if self.dist_vec and not base.game_instance['menu_mode']:
+                dist_vec_fmt_h = self.gen_stat_text_h(self.dist_vec)
+                dist_vec_fmt_p = self.gen_stat_text_p(self.dist_vec)
                 stat_obj_fmt_h = self.gen_stat_obj_text_h()
                 stat_obj_fmt_p = self.gen_stat_obj_text_p()
                 stat_player_action_fmt_p = self.gen_stat_player_action_text_p()

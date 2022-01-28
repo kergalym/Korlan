@@ -304,6 +304,7 @@ class Main(ShowBase):
             "dev_ui_mode": False,
             "esc_mode": False,
             "gameplay_mode": '',
+            "free_camera": False,
             "is_aiming": False,
             "first_person_mode": False,
             "menu_scene_video": None,

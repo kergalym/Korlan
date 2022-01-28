@@ -163,6 +163,9 @@ class SceneOne:
 
             coll_scene.hide()
 
+            if self.game_settings['Debug']['set_debug_mode'] == "YES":
+                scene.hide()
+
     def scene_toggle(self, scene):
         if scene.is_hidden():
             scene.show()

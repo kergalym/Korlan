@@ -52,7 +52,7 @@ class Actions:
         self.arrow_ref = None
         self.arrow_brb_in_use = None
         self.arrow_is_prepared = False
-        self.arrow_charge_units = 1000
+        self.arrow_charge_units = 100
         self.draw_bow_is_done = 0
         self.raytest_result = None
         self.hit_target = None
@@ -307,9 +307,9 @@ class Actions:
             name = self.hit_target.get_name()
             self.target_np = render.find("**/{0}".format(name))
 
-            if self.arrow_brb_in_use and self.arrow_ref:
-                self.arrow_ref.set_python_tag("shot", 1)
-
+            if (self.target_np
+                    and self.arrow_brb_in_use
+                    and self.arrow_ref):
                 # Calculate initial velocity
                 # velocity = self.target_pos - self.arrow_brb_in_use.get_pos()
                 # velocity = self.target_pos - self.bow.get_pos()
@@ -318,6 +318,7 @@ class Actions:
 
                 # Get Bullet Rigid Body wrapped arrow
                 self.arrow_brb_in_use.node().set_kinematic(False)
+                self.arrow_ref.set_python_tag("shot", 1)
                 self.arrow_brb_in_use.wrt_reparent_to(render)
 
                 # self.arrow_brb_in_use.node().setLinearVelocity(velocity)
@@ -334,11 +335,17 @@ class Actions:
 
     def arrow_fly_task(self, task):
         dt = globalClock.getDt()
+        base.camera.set_y(base.camera, 5 * dt)
         if self.arrow_brb_in_use:
             power = self.arrow_ref.get_python_tag("power")
-            if power > self.arrow_charge_units and self.arrow_ref.get_python_tag("ready") == 1:
+            if self.arrow_ref.get_python_tag("ready") == 1:
+                # self.base.game_instance['free_camera'] = True
+                print("power: ", power, "ready: ", self.arrow_ref.get_python_tag("ready"))
                 self.arrow_brb_in_use.set_x(self.arrow_brb_in_use, -power * dt)
-
+                """base.camera.set_y(base.camera, power * dt)
+                print(base.camera.get_y())"""
+            """else:
+                self.base.game_instance['free_camera'] = False"""
         return task.cont
 
     def calculate_arrow_trajectory_task(self, task):
@@ -416,8 +423,9 @@ class Actions:
             return
         if self.base.game_instance['physics_world_np'] and self.dropped_arrows:
             for arrow_rb in self.dropped_arrows:
-                self.base.game_instance['physics_world_np'].removeRigidBody(arrow_rb.node())
-                arrow_rb.remove_node()
+                if arrow_rb:
+                    self.base.game_instance['physics_world_np'].remove_rigid_body(arrow_rb.node())
+                    arrow_rb.remove_node()
             return task.done
 
     def start_archery_helper_tasks(self):
@@ -515,7 +523,8 @@ class Actions:
                 if not self.base.game_instance['is_aiming']:
                     self.base.game_instance['is_aiming'] = True
                 if (self.base.game_instance['player_ref'].get_python_tag("is_on_horse")
-                        and self.base.game_instance['is_aiming']):
+                        and self.base.game_instance['is_aiming']
+                        and not self.base.game_instance['free_camera']):
                     pos_y = -4.2
                     pos_z = 0.25
                 else:
@@ -531,7 +540,8 @@ class Actions:
                 if not self.base.game_instance['is_aiming']:
                     self.base.game_instance['is_aiming'] = True
                 if (self.base.game_instance['player_ref'].get_python_tag("is_on_horse")
-                        and self.base.game_instance['is_aiming']):
+                        and self.base.game_instance['is_aiming']
+                        and not self.base.game_instance['free_camera']):
                     pos_y = -4.2
                     pos_z = 0.25
                 else:
@@ -1793,10 +1803,13 @@ class Actions:
                 if self.target_test_ui:
                     self.target_test_ui.show()
                 power = self.arrow_ref.get_python_tag("power")
-                if self.base.game_instance['hud_np'].charge_arrow_bar_ui:
-                    self.base.game_instance['hud_np'].charge_arrow_bar_ui['value'] = power
-                power += 10
-                self.arrow_ref.set_python_tag("power", power)
+                if power < self.arrow_charge_units:
+                    if self.base.game_instance['hud_np'].charge_arrow_bar_ui:
+                        self.base.game_instance['hud_np'].charge_arrow_bar_ui['value'] = power
+                    power += 10
+                    self.arrow_ref.set_python_tag("power", power)
+
+                self.base.game_instance['free_camera'] = True
 
                 Sequence(Wait(0.1),
                          Func(player.pose, action, -0.98),
@@ -1810,11 +1823,12 @@ class Actions:
                     and self.kbd.keymap["block"]
                     and self.arrow_ref.get_python_tag("ready") == 0
                     and self.arrow_ref.get_python_tag("shot") == 0
-                    and self.arrow_ref.get_python_tag("power") > self.arrow_charge_units):
+                    and self.arrow_ref.get_python_tag("power") > 0):
                 self.arrow_ref.set_python_tag("ready", 1)
                 self.bow_shoot()
                 if self.base.game_instance['hud_np'].charge_arrow_bar_ui:
                     self.base.game_instance['hud_np'].charge_arrow_bar_ui['value'] = 0
+                self.base.game_instance['free_camera'] = False
 
             if (not self.kbd.keymap["attack"]
                     and not self.kbd.keymap["block"]
@@ -1827,6 +1841,7 @@ class Actions:
                     self.base.game_instance['hud_np'].charge_arrow_bar_ui['value'] = 0
                 if self.arrow_ref.get_python_tag("power") > 0:
                     self.arrow_ref.set_python_tag("power", 0)
+                self.base.game_instance['free_camera'] = False
 
             if (not self.kbd.keymap["attack"]
                     and not self.kbd.keymap["block"]
@@ -1838,6 +1853,7 @@ class Actions:
                 self.state.set_action_state("is_busy", False)
                 if self.arrow_ref.get_python_tag("power") > 0:
                     self.arrow_ref.set_python_tag("power", 0)
+                self.base.game_instance['free_camera'] = False
 
     def player_horse_riding_bow_shoot_action(self, player, anims, action):
         if (player and isinstance(anims, dict)
@@ -1884,7 +1900,7 @@ class Actions:
                     and self.kbd.keymap["block"]
                     and self.arrow_ref.get_python_tag("ready") == 0
                     and self.arrow_ref.get_python_tag("shot") == 0
-                    and self.arrow_ref.get_python_tag("power") > self.arrow_charge_units):
+                    and self.arrow_ref.get_python_tag("power") > 0):
                 self.arrow_ref.set_python_tag("ready", 1)
                 self.bow_shoot()
                 if self.base.game_instance['hud_np'].charge_arrow_bar_ui:

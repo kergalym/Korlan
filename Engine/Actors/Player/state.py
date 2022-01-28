@@ -1,5 +1,6 @@
 from direct.task.TaskManagerGlobal import taskMgr
-from panda3d.core import WindowProperties
+from panda3d.bullet import BulletBoxShape, BulletRigidBodyNode, BulletGhostNode
+from panda3d.core import WindowProperties, NodePath, BitMask32, Vec3
 
 
 class PlayerState:
@@ -238,12 +239,14 @@ class PlayerState:
                 for name in weapons:
                     weapon = base.loader.loadModel(base.assets_collector()[name])
                     weapon.set_name(name)
-                    weapon.reparent_to(joint)
                     if "bow_kazakh" not in name:
+                        weapon.reparent_to(joint)
                         weapon.set_pos(10, 20, -8)
                         weapon.set_hpr(325.30, 343.30, 7.13)
                         weapon.set_scale(100)
+                        self.set_weapon_collider(weapon=weapon, joint=joint)
                     if "bow_kazakh" in name:
+                        weapon.reparent_to(joint)
                         weapon.set_pos(0, 12, -12)
                         weapon.set_hpr(78.69, 99.46, 108.43)
                         weapon.set_scale(100)
@@ -252,6 +255,42 @@ class PlayerState:
             base.player_state_armed = False
             base.player_state_magic = False
             base.player_state_equipped = True
+
+    def set_weapon_collider(self, weapon, joint):
+        if weapon and joint:
+            # Create weapon collider
+            name = weapon.get_name()
+            min_, max_ = weapon.get_tight_bounds()
+            size = max_ - min_
+            shape = BulletBoxShape(Vec3(0.05, 0.55, 0.05))
+            body = BulletGhostNode('{0}_BRB'.format(name))
+            weapon_rb_np = NodePath(body)
+            weapon_rb_np.wrt_reparent_to(joint)
+            weapon_rb_np.set_pos(10, -14.90, -8)
+            weapon_rb_np.set_hpr(0, 0, 0)
+            weapon_rb_np.set_scale(weapon.get_scale())
+            weapon.wrt_reparent_to(weapon_rb_np)
+            weapon.set_hpr(325, 343, 0)
+            weapon.set_pos(0, 0.3, 0)
+            weapon_rb_np.node().add_shape(shape)
+            # weapon_rb_np.node().set_mass(2.0)
+
+            # Player and its owning arrow won't collide with each other
+            weapon_rb_np.set_collide_mask(BitMask32.bit(0x0f))
+
+            # Enable CCD
+            # weapon_rb_np.node().set_ccd_motion_threshold(1e-7)
+            # weapon_rb_np.node().set_ccd_swept_sphere_radius(0.50)
+            # weapon_rb_np.node().set_kinematic(True)
+
+            self.base.game_instance['physics_world_np'].attach_ghost(weapon_rb_np.node())
+
+    def clear_weapon_collider(self, weapon, joint):
+        if weapon and joint:
+            if "BRB" in weapon.get_parent().get_name():
+                weapon_rb_np = weapon.get_parent()
+                weapon.reparent_to(joint)
+                self.base.game_instance['physics_world_np'].remove_rigid_body(weapon_rb_np.node())
 
     def get_weapon(self, actor, weapon_name, bone_name):
         if (actor and weapon_name and bone_name
@@ -265,16 +304,20 @@ class PlayerState:
 
             joint = actor.exposeJoint(None, "modelRoot", bone_name)
             if render.find("**/{0}".format(weapon_name)):
-                weapon = render.find("**/{0}".format(weapon_name))
-                weapon.reparent_to(joint)
                 if "bow_kazakh" not in weapon_name:
+                    # get weapon collider
+                    weapon = render.find("**/{0}_BRB".format(weapon_name))
+                    weapon.reparent_to(joint)
                     # rescale weapon because it's scale 100 times smaller than we need
                     weapon.set_scale(100)
-                    weapon.set_pos(-11.0, 13.0, -3.0)
+                    weapon.set_pos(-20.0, 40.0, 1.0)
                     weapon.set_hpr(212.47, 0.0, 18.43)
                     if weapon.is_hidden():
                         weapon.show()
+
                 elif "bow_kazakh" in weapon_name:
+                    weapon = render.find("**/{0}".format(weapon_name))
+                    weapon.reparent_to(joint)
                     # rescale weapon because it's scale 100 times smaller than we need
                     weapon.set_scale(100)
                     weapon.set_pos(0, 2.0, 2.0)
@@ -292,14 +335,18 @@ class PlayerState:
                 and isinstance(bone_name, str)):
             joint = actor.exposeJoint(None, "modelRoot", bone_name)
             if render.find("**/{0}".format(weapon_name)):
-                weapon = render.find("**/{0}".format(weapon_name))
-                weapon.reparent_to(joint)
                 if "bow_kazakh" not in weapon_name:
+                    # get weapon collider
+                    weapon = render.find("**/{0}_BRB".format(weapon_name))
+                    weapon.reparent_to(joint)
+                    # self.clear_weapon_collider(weapon=weapon, joint=joint)
                     # rescale weapon because it's scale 100 times smaller than we need
                     weapon.set_scale(100)
-                    weapon.set_pos(10, 20, -8)
-                    weapon.set_hpr(325.30, 343.30, 7.13)
+                    weapon.set_pos(10, -14.90, -8)
+                    weapon.set_hpr(0, 0, 0)
                 elif "bow_kazakh" in weapon_name:
+                    weapon = render.find("**/{0}".format(weapon_name))
+                    weapon.reparent_to(joint)
                     # rescale weapon because it's scale 100 times smaller than we need
                     weapon.set_scale(100)
                     weapon.set_pos(0, 12, -12)
