@@ -1032,6 +1032,7 @@ class Main(ShowBase):
             items[key] = (parent_node.get_pos())
         return items
 
+    # todo: drop it to use built-in distance_to() function
     def assets_pos_collector_no_player(self, player, exclude):
         """ Function    : assets_pos_collector_no_player
 
@@ -1158,6 +1159,7 @@ class Main(ShowBase):
                                 shaders[key] = path
             return shaders
 
+    # todo: drop it to use built-in distance_to() function
     def distance_calculate(self, items, actor):
         """ Function    : distance_calculate
 
@@ -1194,6 +1196,7 @@ class Main(ShowBase):
                                      round(vect_z, 1))
             return remained
 
+    # todo: drop it to use built-in distance_to() function
     def npc_distance_calculate(self, player, actor):
         """ Function    : distance_calculate
 

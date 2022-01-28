@@ -1,4 +1,5 @@
 from direct.gui.DirectGui import *
+from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import FontPool, TextNode
 
 
@@ -9,7 +10,7 @@ class StatUI:
         self.fonts = base.fonts_collector()
         # instance of the abstract class
         self.font = FontPool
-        self.dist_vec = None
+        self.actions_ui_np = []
 
         """ Texts & Fonts"""
         # self.menu_font = self.fonts['OpenSans-Regular']
@@ -19,7 +20,7 @@ class StatUI:
             self.stat_overlay = None
             self.title_dbg_mode_obj_pos = None
             self.title_item_name = None
-            self.title_item_coord = None
+            self.title_item_dist = None
             self.text_stat_h = None
             self.text_stat_p = None
             self.text_toggle_col = None
@@ -33,14 +34,14 @@ class StatUI:
             self.title_dbg_mode_npc_state = None
             self.text_npc_action_stat_p = None
 
-    def set_state_ui(self):
+    def set_stat_ui(self):
         self.stat_overlay = DirectFrame(frameColor=(0, 0, 0, 0.5),
                                         frameSize=(-2, 2, -1, 1))
 
         self.title_dbg_mode_obj_pos = OnscreenText(text="",
                                                    pos=(-1.8, 0.9),
                                                    scale=0.03,
-                                                   fg=(255, 255, 255, 0.9),
+                                                   fg=(0.9, 1, 0, 0.9),
                                                    font=self.font.load_font(self.menu_font),
                                                    align=TextNode.ALeft,
                                                    mayChange=True)
@@ -48,23 +49,23 @@ class StatUI:
         self.title_item_name = OnscreenText(text="",
                                             pos=(-1.8, 0.85),
                                             scale=0.03,
-                                            fg=(255, 255, 255, 0.9),
+                                            fg=(0.9, 1, 0, 0.9),
                                             font=self.font.load_font(self.menu_font),
                                             align=TextNode.ALeft,
                                             mayChange=True)
 
-        self.title_item_coord = OnscreenText(text="",
-                                             pos=(-1.35, 0.85),
-                                             scale=0.03,
-                                             fg=(255, 255, 255, 0.9),
-                                             font=self.font.load_font(self.menu_font),
-                                             align=TextNode.ALeft,
-                                             mayChange=True)
+        self.title_item_dist = OnscreenText(text="",
+                                            pos=(-1.35, 0.85),
+                                            scale=0.03,
+                                            fg=(0.9, 1, 0, 0.9),
+                                            font=self.font.load_font(self.menu_font),
+                                            align=TextNode.ALeft,
+                                            mayChange=True)
 
         self.text_stat_h = OnscreenText(text="",
                                         pos=(-1.8, 0.8),
                                         scale=0.03,
-                                        fg=(255, 255, 255, 0.9),
+                                        fg=(0.9, 1, 0, 0.9),
                                         font=self.font.load_font(self.menu_font),
                                         align=TextNode.ALeft,
                                         mayChange=True)
@@ -72,7 +73,7 @@ class StatUI:
         self.text_stat_p = OnscreenText(text="",
                                         pos=(-1.4, 0.8),
                                         scale=0.03,
-                                        fg=(255, 255, 255, 0.9),
+                                        fg=(0.9, 1, 0, 0.9),
                                         font=self.font.load_font(self.menu_font),
                                         align=TextNode.ALeft,
                                         mayChange=True)
@@ -80,7 +81,7 @@ class StatUI:
         self.text_toggle_col = OnscreenText(text="",
                                             pos=(-1.8, -0.8),
                                             scale=0.03,
-                                            fg=(255, 255, 255, 0.9),
+                                            fg=(0.9, 1, 0, 0.9),
                                             font=self.font.load_font(self.menu_font),
                                             align=TextNode.ALeft,
                                             mayChange=True)
@@ -88,7 +89,7 @@ class StatUI:
         self.title_dbg_mode_obj_state = OnscreenText(text="",
                                                      pos=(-0.6, 0.9),
                                                      scale=0.03,
-                                                     fg=(255, 255, 255, 0.9),
+                                                     fg=(0.9, 1, 0, 0.9),
                                                      font=self.font.load_font(self.menu_font),
                                                      align=TextNode.ALeft,
                                                      mayChange=True)
@@ -96,7 +97,7 @@ class StatUI:
         self.title_inuse_item_name = OnscreenText(text="",
                                                   pos=(-0.6, 0.85),
                                                   scale=0.03,
-                                                  fg=(255, 255, 255, 0.9),
+                                                  fg=(0.9, 1, 0, 0.9),
                                                   font=self.font.load_font(self.menu_font),
                                                   align=TextNode.ALeft,
                                                   mayChange=True)
@@ -104,7 +105,7 @@ class StatUI:
         self.title_item_state = OnscreenText(text="",
                                              pos=(-0.2, 0.85),
                                              scale=0.03,
-                                             fg=(255, 255, 255, 0.9),
+                                             fg=(0.9, 1, 0, 0.9),
                                              font=self.font.load_font(self.menu_font),
                                              align=TextNode.ALeft,
                                              mayChange=True)
@@ -112,7 +113,7 @@ class StatUI:
         self.text_obj_stat_h = OnscreenText(text="",
                                             pos=(-0.6, 0.8),
                                             scale=0.03,
-                                            fg=(255, 255, 255, 0.9),
+                                            fg=(0.9, 1, 0, 0.9),
                                             font=self.font.load_font(self.menu_font),
                                             align=TextNode.ALeft,
                                             mayChange=True)
@@ -120,7 +121,7 @@ class StatUI:
         self.text_obj_stat_p = OnscreenText(text="",
                                             pos=(-0.2, 0.8),
                                             scale=0.03,
-                                            fg=(255, 255, 255, 0.9),
+                                            fg=(0.9, 1, 0, 0.9),
                                             font=self.font.load_font(self.menu_font),
                                             align=TextNode.ALeft,
                                             mayChange=True)
@@ -128,7 +129,7 @@ class StatUI:
         self.title_dbg_mode_player_state = OnscreenText(text="",
                                                         pos=(0.5, 0.9),
                                                         scale=0.03,
-                                                        fg=(255, 255, 255, 0.9),
+                                                        fg=(0.9, 1, 0, 0.9),
                                                         font=self.font.load_font(self.menu_font),
                                                         align=TextNode.ALeft,
                                                         mayChange=True)
@@ -136,7 +137,7 @@ class StatUI:
         self.text_player_action_stat_p = OnscreenText(text="",
                                                       pos=(0.5, 0.8),
                                                       scale=0.03,
-                                                      fg=(255, 255, 255, 0.9),
+                                                      fg=(0.9, 1, 0, 0.9),
                                                       font=self.font.load_font(self.menu_font),
                                                       align=TextNode.ALeft,
                                                       mayChange=True)
@@ -144,7 +145,7 @@ class StatUI:
         self.title_dbg_mode_npc_state = OnscreenText(text="",
                                                      pos=(0.5, -0.2),
                                                      scale=0.03,
-                                                     fg=(255, 255, 255, 0.9),
+                                                     fg=(0.9, 1, 0, 0.9),
                                                      font=self.font.load_font(self.menu_font),
                                                      align=TextNode.ALeft,
                                                      mayChange=True)
@@ -152,16 +153,16 @@ class StatUI:
         self.text_npc_action_stat_p = OnscreenText(text="",
                                                    pos=(0.5, -0.3),
                                                    scale=0.03,
-                                                   fg=(255, 255, 255, 0.9),
+                                                   fg=(0.9, 1, 0, 0.9),
                                                    font=self.font.load_font(self.menu_font),
                                                    align=TextNode.ALeft,
                                                    mayChange=True)
 
-    def clear_state_ui(self):
+    def clear_stat_ui(self):
         self.stat_overlay.destroy()
         self.title_dbg_mode_obj_pos.destroy()
         self.title_item_name.destroy()
-        self.title_item_coord.destroy()
+        self.title_item_dist.destroy()
         self.text_stat_h.destroy()
         self.text_stat_p.destroy()
         self.text_toggle_col.destroy()
@@ -206,13 +207,9 @@ class StatUI:
         """
         if records and isinstance(records, dict):
             records_designed = ''
-            for state in records:
-                text_x = "  X: {0} ".format(records[state][0])
-                text_y = "  Y: {0} ".format(records[state][1])
-                text_z = "  Z: {0} \n".format(records[state][2])
-                records_designed += text_x
-                records_designed += text_y
-                records_designed += text_z
+            for key in records:
+                text_dist = "   {0} \n".format(records[key])
+                records_designed += text_dist
             return records_designed
 
     def gen_stat_obj_text_h(self):
@@ -257,23 +254,6 @@ class StatUI:
                 records_designed += text_near_item
                 return records_designed
 
-    def gen_stat_player_action_text_p(self):
-        """ Function    : gen_stat_player_action_text_p
-
-            Description : Generate stat text
-
-            Input       : None
-
-            Output      : None
-
-            Return      : String
-        """
-        if hasattr(base, "player_states"):
-            records_designed = ''
-            for key in base.player_states:
-                records_designed += "{0}: {1}\n".format(key, base.player_states[key])
-            return records_designed
-
     def gen_stat_npc_action_text_p(self):
         """ Function    : gen_stat_npc_action_text_p
 
@@ -309,8 +289,8 @@ class StatUI:
                         and set_mode == 'show'):
                     self.stat_overlay.show()
                     self.title_dbg_mode_obj_pos.setText("DEBUG MODE: Objects Position")
-                    self.title_item_name.setText("ITEM NAME")
-                    self.title_item_coord.setText("ITEM COORDINATES")
+                    self.title_item_name.setText("OBJECT NAME")
+                    self.title_item_dist.setText("OBJECT DISTANCE (units)")
                     self.text_stat_h.setText(records_h)
                     self.text_stat_p.setText(records_p)
                     msg = "Press F1 to toggle a collision representation"
@@ -318,7 +298,7 @@ class StatUI:
 
                     self.title_dbg_mode_obj_pos.show()
                     self.title_item_name.show()
-                    self.title_item_coord.show()
+                    self.title_item_dist.show()
                     self.text_stat_h.show()
                     self.text_stat_p.show()
                     self.text_toggle_col.show()
@@ -327,7 +307,7 @@ class StatUI:
                     self.stat_overlay.hide()
                     self.title_dbg_mode_obj_pos.hide()
                     self.title_item_name.hide()
-                    self.title_item_coord.hide()
+                    self.title_item_dist.hide()
                     self.text_stat_h.hide()
                     self.text_stat_p.hide()
                     self.text_toggle_col.hide()
@@ -370,7 +350,7 @@ class StatUI:
                     self.text_obj_stat_h.hide()
                     self.text_obj_stat_p.hide()
 
-    def set_player_action_stat_text(self, records_p, set_mode):
+    def set_player_action_stat_text(self, set_mode):
         """ Function    : set_player_action_stat_text
 
             Description : Generate stat text
@@ -381,14 +361,23 @@ class StatUI:
 
             Return      : None
         """
-        if (records_p
-                and isinstance(records_p, str)
-                and isinstance(set_mode, str)):
+        if self.actions_ui_np and isinstance(set_mode, str):
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
                 if (not base.game_instance['menu_mode']
                         and set_mode == 'show'):
-                    self.title_dbg_mode_player_state.setText("DEBUG MODE: Character Actions")
-                    self.text_player_action_stat_p.setText(records_p)
+                    self.title_dbg_mode_player_state.setText("DEBUG MODE: Player State")
+
+                    if hasattr(base, "player_states"):
+                        for index, key in enumerate(base.player_states):
+                            item = "{0}: {1}\n".format(key, base.player_states[key])
+                            color = (0.9, 1, 0, 1)
+                            if base.player_states[key]:
+                                color = (1, 0.1, 0, 1)
+
+                            if len(self.actions_ui_np) >= index:
+                                self.actions_ui_np[index].setText(item)
+                                self.actions_ui_np[index]['fg'] = color
+
                     self.title_dbg_mode_player_state.show()
                     self.text_player_action_stat_p.show()
 
@@ -424,6 +413,19 @@ class StatUI:
                     self.title_dbg_mode_npc_state.hide()
                     self.text_npc_action_stat_p.hide()
 
+    def get_actors_distance(self):
+        actors = base.game_instance['actors_np']
+        player = base.game_instance['player_ref']
+        npcs = {}
+
+        for name in actors:
+            if actors[name]:
+                actor = actors[name]
+                dist_vec = actor.get_distance(player)
+                npcs[name] = round(dist_vec)
+
+        return npcs
+
     def show_game_stat_task(self, task):
         """ Function    : show_game_stat_task
 
@@ -435,28 +437,46 @@ class StatUI:
 
             Return      : Task event
         """
-        if base.game_instance['player_ref']:
-            exclude = ['Sky', 'Mountains', 'Grass', 'Ground', 'NPC']
-            player = base.game_instance['player_ref']
-            # todo: refactoring
-            if not self.dist_vec:
-                self.dist_vec = base.distance_calculate(
-                    base.assets_pos_collector_no_player(player, exclude), player)
-            if self.dist_vec and not base.game_instance['menu_mode']:
-                dist_vec_fmt_h = self.gen_stat_text_h(self.dist_vec)
-                dist_vec_fmt_p = self.gen_stat_text_p(self.dist_vec)
-                stat_obj_fmt_h = self.gen_stat_obj_text_h()
-                stat_obj_fmt_p = self.gen_stat_obj_text_p()
-                stat_player_action_fmt_p = self.gen_stat_player_action_text_p()
-                stat_npc_action_fmt_p = self.gen_stat_npc_action_text_p()
-                self.set_stat_text(dist_vec_fmt_h, dist_vec_fmt_p, set_mode='show')
-                self.set_obj_stat_text(stat_obj_fmt_h, stat_obj_fmt_p, set_mode='show')
-                self.set_player_action_stat_text(stat_player_action_fmt_p, set_mode='show')
-                self.set_npc_action_stat_text(stat_npc_action_fmt_p, set_mode='show')
-                self.text_toggle_col.show()
+        if not base.game_instance['menu_mode']:
+            dist_vec = self.get_actors_distance()
+            dist_vec_fmt_h = self.gen_stat_text_h(dist_vec)
+            dist_vec_fmt_p = self.gen_stat_text_p(dist_vec)
+            stat_obj_fmt_h = self.gen_stat_obj_text_h()
+            stat_obj_fmt_p = self.gen_stat_obj_text_p()
+            stat_npc_action_fmt_p = self.gen_stat_npc_action_text_p()
+            self.set_stat_text(dist_vec_fmt_h, dist_vec_fmt_p, set_mode='show')
+            self.set_obj_stat_text(stat_obj_fmt_h, stat_obj_fmt_p, set_mode='show')
+            self.set_player_action_stat_text(set_mode='show')
+            self.set_npc_action_stat_text(stat_npc_action_fmt_p, set_mode='show')
+            self.text_toggle_col.show()
 
         elif base.game_instance['menu_mode']:
-            self.clear_state_ui()
+            self.clear_game_stat()
             return task.done
 
         return task.cont
+
+    def set_game_stat(self):
+        self.set_stat_ui()
+        pos_y = 0.8
+
+        for i in range(len(base.player_states)):
+            if i >= 0:
+                pos_y -= 0.04
+
+            item = OnscreenText(text="",
+                                pos=(0.5, pos_y),
+                                scale=0.03,
+                                fg=(255, 255, 255, 0.9),
+                                font=self.font.load_font(self.menu_font),
+                                align=TextNode.ALeft,
+                                mayChange=True,
+                                parent=self.text_player_action_stat_p)
+            self.actions_ui_np.append(item)
+
+        taskMgr.add(self.show_game_stat_task,
+                    "show_game_stat_task",
+                    appendTask=True)
+
+    def clear_game_stat(self):
+        self.clear_stat_ui()

@@ -499,6 +499,7 @@ class Actions:
                             appendTask=True)"""
 
                 excluded_assets = ['Sky', 'Mountains', 'Grass', 'Ground', 'NPC']
+                # todo: replace with built-in distance_to() function
                 assets_dist_vec = base.distance_calculate(
                     base.assets_pos_collector_no_player(player, excluded_assets), player)
 

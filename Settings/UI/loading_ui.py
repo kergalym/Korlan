@@ -108,10 +108,7 @@ class LoadingUI:
         self.base.game_instance['hud_np'] = self.hud
 
         if self.game_settings['Debug']['set_debug_mode'] == 'YES':
-            self.stat_ui.set_state_ui()
-            taskMgr.add(self.stat_ui.show_game_stat_task,
-                        "show_game_stat_task",
-                        appendTask=True)
+            self.stat_ui.set_game_stat()
 
         self.set_fadeout_screen()
         taskMgr.add(self.fadeout_task,
