@@ -263,7 +263,7 @@ class PlayerState:
             min_, max_ = weapon.get_tight_bounds()
             size = max_ - min_
             shape = BulletBoxShape(Vec3(0.05, 0.55, 0.05))
-            body = BulletGhostNode('{0}_BRB'.format(name))
+            body = BulletGhostNode('{0}_BGN'.format(name))
             weapon_rb_np = NodePath(body)
             weapon_rb_np.wrt_reparent_to(joint)
             weapon_rb_np.set_pos(10, -14.90, -8)
@@ -306,7 +306,7 @@ class PlayerState:
             if render.find("**/{0}".format(weapon_name)):
                 if "bow_kazakh" not in weapon_name:
                     # get weapon collider
-                    weapon = render.find("**/{0}_BRB".format(weapon_name))
+                    weapon = render.find("**/{0}_BGN".format(weapon_name))
                     weapon.reparent_to(joint)
                     # rescale weapon because it's scale 100 times smaller than we need
                     weapon.set_scale(100)
@@ -337,7 +337,7 @@ class PlayerState:
             if render.find("**/{0}".format(weapon_name)):
                 if "bow_kazakh" not in weapon_name:
                     # get weapon collider
-                    weapon = render.find("**/{0}_BRB".format(weapon_name))
+                    weapon = render.find("**/{0}_BGN".format(weapon_name))
                     weapon.reparent_to(joint)
                     # self.clear_weapon_collider(weapon=weapon, joint=joint)
                     # rescale weapon because it's scale 100 times smaller than we need

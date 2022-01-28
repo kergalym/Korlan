@@ -335,17 +335,13 @@ class Actions:
 
     def arrow_fly_task(self, task):
         dt = globalClock.getDt()
-        base.camera.set_y(base.camera, 5 * dt)
         if self.arrow_brb_in_use:
             power = self.arrow_ref.get_python_tag("power")
             if self.arrow_ref.get_python_tag("ready") == 1:
-                # self.base.game_instance['free_camera'] = True
                 print("power: ", power, "ready: ", self.arrow_ref.get_python_tag("ready"))
                 self.arrow_brb_in_use.set_x(self.arrow_brb_in_use, -power * dt)
-                """base.camera.set_y(base.camera, power * dt)
-                print(base.camera.get_y())"""
-            """else:
-                self.base.game_instance['free_camera'] = False"""
+                base.camera.set_y(base.camera, power * dt)
+                print(base.camera.get_y())
         return task.cont
 
     def calculate_arrow_trajectory_task(self, task):
