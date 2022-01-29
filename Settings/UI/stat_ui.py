@@ -457,6 +457,8 @@ class StatUI:
 
     def set_game_stat(self):
         self.set_stat_ui()
+        if len(self.actions_ui_np) > 0:
+            self.actions_ui_np = []
         pos_y = 0.8
 
         for i in range(len(base.player_states)):
