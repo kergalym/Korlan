@@ -368,15 +368,14 @@ class StatUI:
                     self.title_dbg_mode_player_state.setText("DEBUG MODE: Player State")
 
                     if hasattr(base, "player_states"):
-                        for index, key in enumerate(base.player_states):
+                        for key, node in zip(base.player_states, self.actions_ui_np):
                             item = "{0}: {1}\n".format(key, base.player_states[key])
                             color = (0.9, 1, 0, 1)
                             if base.player_states[key]:
                                 color = (1, 0.1, 0, 1)
 
-                            if len(self.actions_ui_np) >= index:
-                                self.actions_ui_np[index].setText(item)
-                                self.actions_ui_np[index]['fg'] = color
+                            node.setText(item)
+                            node['fg'] = color
 
                     self.title_dbg_mode_player_state.show()
                     self.text_player_action_stat_p.show()
