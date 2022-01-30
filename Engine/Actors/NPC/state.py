@@ -127,6 +127,7 @@ class NpcState:
 
             actor.set_python_tag("npc_hud_np", npc_hud_ui)
             actor.set_python_tag("health_np", health)
+            actor.set_python_tag("damage_level", 1)
 
             # todo: add stamina and courage
             # actor.set_python_tag("npc_stamina_np", courage)

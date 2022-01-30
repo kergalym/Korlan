@@ -561,6 +561,9 @@ class PhysicsAttr:
                             if self.base.game_instance['hud_np']:
                                 if self.base.game_instance['hud_np'].player_bar_ui_health['value'] > 0:
                                     self.base.game_instance['hud_np'].player_bar_ui_health['value'] -= 1
+                                    health = actor.get_python_tag("health")
+                                    health -= 1
+                                    actor.set_python_tag("health", health)
 
         if self.base.game_instance['menu_mode']:
             return task.done

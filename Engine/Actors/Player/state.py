@@ -90,6 +90,7 @@ class PlayerState:
             actor.set_python_tag("health", 100)
             actor.set_python_tag("stamina", 100)
             actor.set_python_tag("courage", 100)
+            actor.set_python_tag("damage_level", 1)
             actor.set_python_tag("is_on_horse", False)
             actor.set_python_tag("damage_weapons", self.damage_weapons)
 
