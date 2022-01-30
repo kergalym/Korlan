@@ -241,9 +241,6 @@ class Korlan:
                 self.korlan.set_python_tag("courage", 100)
                 self.korlan.set_python_tag("is_on_horse", False)
 
-                taskMgr.add(self.state.actor_life,
-                            "actor_life",
-                            appendTask=True)
 
 
 

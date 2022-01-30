@@ -459,7 +459,7 @@ class StatUI:
         self.set_stat_ui()
         if len(self.actions_ui_np) > 0:
             self.actions_ui_np.clear()
-        pos_y = 0.8
+        pos_y = 0.9
 
         for i in range(len(base.player_states)):
             if i >= 0:

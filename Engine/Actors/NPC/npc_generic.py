@@ -1,10 +1,6 @@
 from direct.actor.Actor import Actor
-from direct.gui.DirectWaitBar import DirectWaitBar
-from direct.gui.OnscreenText import OnscreenText
-from direct.showbase.ShowBaseGlobal import aspect2d
-from direct.task.TaskManagerGlobal import taskMgr
-from panda3d.core import NodePath
 from Engine.Render.render import RenderAttr
+from Engine.Actors.NPC.state import NpcState
 
 
 class NpcGeneric:
@@ -21,57 +17,10 @@ class NpcGeneric:
         self.base = base
         self.render = render
         self.render_attr = RenderAttr()
+        self.npc_state = NpcState()
 
         self.actor = None
-        self.anims = None
         self.game_settings = base.game_settings
-        self.game_dir = base.game_dir
-        self.actor_life_perc = None
-        self.actor_is_dead = False
-        self.actor_is_alive = False
-        self.npc_life_label = None
-        self.npc_label = None
-        self.npc_label_np = None
-
-    def actor_life(self, task):
-        if self.actor:
-            actor_name = self.actor.get_name()
-            actor_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
-            if actor_bs:
-                self.npc_label_np = NodePath(actor_name)
-                self.set_actor_label(name=actor_bs.get_name(), np=self.npc_label_np)
-                self.set_actor_life(np=self.npc_label_np)
-                self.npc_label_np.reparent_to(aspect2d)
-                self.npc_label_np.hide()
-                return task.done
-        return task.cont
-
-    def has_actor_life(self):
-        if (self.actor_is_dead is False
-                and self.actor_is_alive is False):
-            self.actor_is_alive = True
-            self.actor_life_perc = 150
-        else:
-            return False
-
-    def set_actor_life(self, np):
-        if np:
-            self.actor_life_perc = 150
-            self.npc_life_label = DirectWaitBar(text="", value=self.actor_life_perc,
-                                                range=self.actor_life_perc,
-                                                pos=(0.0, 0.0, 0.85), scale=.10)
-            self.npc_life_label.reparent_to(np)
-            self.npc_life_label.set_bin("fixed", 0)
-
-    def set_actor_label(self, name, np):
-        if np and name and isinstance(name, str):
-            if "_" in name and ":BS" in name:
-                name_to_disp = name.split("_")[1]
-                name_to_disp = name_to_disp.split(":")[0]
-                self.npc_label = OnscreenText(text=name_to_disp, pos=(0.0, 0.9),
-                                              fg=(255, 255, 255, 1), scale=.10)
-                self.npc_label.reparent_to(np)
-                self.npc_label.set_bin("fixed", 0)
 
     async def set_actor(self, mode, name, path, animation, axis, rotation, scale, culling):
         if (isinstance(path, str)
@@ -143,15 +92,10 @@ class NpcGeneric:
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
                 self.render.analyze()
 
-            self.actor.set_python_tag("health", 100)
-            self.actor.set_python_tag("stamina", 100)
-            self.actor.set_python_tag("courage", 100)
+            # Set HUD and tags
+            self.npc_state.set_npc_hud(actor=self.actor)
 
-            if "Horse" in name:
-                self.actor.set_python_tag("is_mounted", False)
-                self.actor.set_python_tag("is_ready_to_be_used", False)
-            else:
-                self.actor.set_python_tag("is_on_horse", False)
+            # set NPC Parameters
+            self.npc_state.setup_npc_state(actor=self.actor)
 
-            taskMgr.add(self.actor_life,
-                        "actor_life")
+

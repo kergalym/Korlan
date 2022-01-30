@@ -76,13 +76,10 @@ class LevelOne:
         self.physics_attr = PhysicsAttr()
         self.ai = None
         self.mouse = Mouse()
-        self.base.npcs_actors_health = {}
-        self.base.npcs_lbl_np = {}
         self.base.focused_actor = None
         self.actors_for_focus = None
         self.actor_focus_index = 1
         self.npcs_fsm_states = {}
-        self.base.npcs_hits = {}
         self.assets = None
         self.envprobe = None
 
@@ -124,94 +121,6 @@ class LevelOne:
             if self.base.game_instance['loading_is_done'] == 1:
                 if self.base.sound_sfx_nature.status() != self.base.sound_sfx_nature.PLAYING:
                     self.base.sound_sfx_nature.play()
-        return task.cont
-
-    def collect_actors_health_task(self, task):
-        if self.base.game_instance['ai_is_activated'] == 1:
-            for npc_cls in self.actor_classes:
-                if npc_cls and npc_cls.actor:
-                    name = npc_cls.actor.get_name()
-                    self.base.npcs_actors_health[name] = npc_cls.npc_life_label
-                if self.korlan.korlan:
-                    base.player_health = self.korlan.korlan_life_perc
-
-        return task.cont
-
-    def show_actor_label(self, name):
-        if name:
-            enemy_npc_bs = self.base.get_actor_bullet_shape_node(asset=name, type="NPC")
-            if enemy_npc_bs and not enemy_npc_bs.is_empty():  # is enemy here?
-                if self.ai and self.ai.near_npc.get(name):
-                    if self.base.npcs_lbl_np.get(name):
-
-                        for i in self.base.npcs_lbl_np:
-                            if name != i:
-                                self.base.npcs_lbl_np[i].hide()
-
-                        self.base.npcs_lbl_np[name].show()
-                        self.base.camera.look_at(enemy_npc_bs)
-
-    def select_by_mouse_wheel(self, actors):
-        if (actors and isinstance(actors, dict)
-                and self.ai and self.ai.near_npc):
-            if self.mouse.keymap["wheel_up"]:
-                if (self.actor_focus_index < len(actors)
-                        and not self.actor_focus_index < 0
-                        and self.actor_focus_index != 0):
-                    self.actor_focus_index += 1
-                    self.base.focused_actor = actors[self.actor_focus_index]
-                    self.show_actor_label(name=self.base.focused_actor)
-                    self.base.focused_actor = actors[self.actor_focus_index]
-                self.mouse.keymap['wheel_up'] = False
-
-            if self.mouse.keymap["wheel_down"]:
-                if len(actors) - 1 > 1:
-                    actors_num = len(actors) - 1
-                else:
-                    actors_num = len(actors)
-
-                if (self.actor_focus_index != 0
-                        and not self.actor_focus_index < actors_num
-                        and not self.actor_focus_index > len(actors)):
-                    self.actor_focus_index -= 1
-                    self.base.focused_actor = actors[self.actor_focus_index]
-                    self.show_actor_label(name=self.base.focused_actor)
-                    self.base.focused_actor = actors[self.actor_focus_index]
-                self.mouse.keymap['wheel_down'] = False
-
-    def npc_focus_switch_task(self, task):
-        self.select_by_mouse_wheel(actors=self.actors_for_focus)
-        return task.cont
-
-    def hitbox_handling_task(self, task):
-        # TODO: Use it to stop previous action animations
-        if self.physics_attr.world:
-            for hitboxes in self.physics_attr.world.get_ghosts():
-                # Drop the HB suffix
-                name = hitboxes.get_name().split(":")[0]
-                # Reconstruct name with dropping joint suffix to be consistent with pure name
-                if "NPC" in name:
-                    name = name.split("_")
-                    name = "{0}_{1}".format(name[0], name[1])
-                elif "Player" in name:
-                    name = name.split("_")[0]
-                for node in hitboxes.get_overlapping_nodes():
-                    if (node and node.is_active()
-                            and "NPC" in node.get_name()
-                            and "RightHand" in node.get_name()):
-                        for hit in node.get_overlapping_nodes():
-                            if hit and hit.is_active():
-                                if ("Player" in hit.get_name()
-                                        and "Hips" in hit.get_name()):
-                                    self.base.npcs_hits[name] = True
-                                else:
-                                    self.base.npcs_hits[name] = False
-                                if ("NPC" in hit.get_name()
-                                        and "Hips" in hit.get_name()):
-                                    self.base.npcs_hits[name] = True
-                                else:
-                                    self.base.npcs_hits[name] = False
-
         return task.cont
 
     def unload_game_scene(self):
@@ -281,8 +190,6 @@ class LevelOne:
                 taskMgr.remove("npc_distance_calculate_task")
                 taskMgr.remove("update_npc_states_task")
                 taskMgr.remove("update_pathfinding_task")
-                taskMgr.remove("npc_focus_switch_task")
-                taskMgr.remove("hitbox_handling_task")
                 taskMgr.remove("update_ai_world")
 
                 for key in level_npc_assets['class']:
@@ -309,15 +216,8 @@ class LevelOne:
                 self.korlan.korlan.delete()
                 self.korlan.korlan.cleanup()
 
-            """
-            for key in self.base.game_instance['level_assets_np']['name']:
-                task_name = "update_{0}_area_trigger_task".format(key.lower())
-                taskMgr.remove(task_name)
-            """
-
             for npc_cls in self.actor_classes:
                 if npc_cls.actor:
-                    npc_cls.npc_label_np.remove_node()
                     npc_cls.actor.delete()
                     npc_cls.actor.cleanup()
 
@@ -335,9 +235,6 @@ class LevelOne:
 
             self.player_state.clear_state()
             self.actor_focus_index = 1
-
-            if self.base.game_instance['hud_np']:
-                self.base.game_instance['hud_np'].clear_npc_hud()
 
             self.base.game_instance['mouse_control_is_activated'] = 0
             self.base.game_instance['physics_is_activated'] = 0
@@ -392,7 +289,6 @@ class LevelOne:
 
         for npc_cls in self.actor_classes:
             if npc_cls.actor:
-                npc_cls.npc_label_np.remove_node()
                 npc_cls.actor.delete()
                 npc_cls.actor.cleanup()
 
@@ -565,16 +461,6 @@ class LevelOne:
             self.ai.set_ai_world(assets=level_assets_joined,
                                  npcs_fsm_states=self.npcs_fsm_states,
                                  lvl_name="lvl_one")
-
-            taskMgr.add(self.collect_actors_health_task,
-                        "collect_actors_health_task",
-                        appendTask=True)
-
-            """
-            taskMgr.add(self.hitbox_handling_task,
-                        "hitbox_handling_task",
-                        appendTask=True)
-            """
 
         """
         taskMgr.add(self.env_probe_task,

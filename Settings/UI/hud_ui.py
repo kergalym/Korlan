@@ -33,8 +33,6 @@ class HUD:
         self.player_bar_ui_courage = None
         self.cursor_ui = None
         self.charge_arrow_bar_ui = None
-        self.npc_hud_ui = None
-        self.npc_hud_bar_ui = None
 
         self.menu_font = self.fonts['OpenSans-Regular']
         # instance of the abstract class
@@ -109,50 +107,6 @@ class HUD:
             self.charge_arrow_bar_ui.hide()
             self.charge_arrow_bar_ui.destroy()
             self.charge_arrow_bar_ui.remove_node()
-
-    def set_npc_hud(self, npc_name):
-        if npc_name and isinstance(npc_name, str):
-            if self.base.game_instance['actors_ref'].get(npc_name):
-                npc = self.base.game_instance['actors_ref'][npc_name]
-                health = npc.get_python_tag("health")
-                if not self.npc_hud_ui:
-                    self.npc_hud_ui = DirectFrame(text="",
-                                                  frameColor=(0.0, 0.0, 0.0, 0.4),
-                                                  pos=(0.35, 0, 0.57),
-                                                  frameSize=self.npc_hud_ui_frame_size,
-                                                  scale=self.npc_hud_ui_scale)
-                    # logo
-                    logo = OnscreenImage(image=self.images['{0}_logo_ui'.format(npc_name.lower())],
-                                         pos=(-1.73, 0, 1.45),
-                                         scale=(0.1, 0, 0.47),
-                                         parent=self.npc_hud_ui)
-                    logo.set_transparency(TransparencyAttrib.MAlpha)
-                    # text
-                    text = DirectLabel(text=npc_name,
-                                       text_fg=(255, 255, 255, 1),
-                                       text_font=self.font.load_font(self.menu_font),
-                                       frameColor=(255, 255, 255, 0),
-                                       pos=(-1.4, 0, 1.7),
-                                       scale=(0.03, 0, 0.2),
-                                       borderWidth=(0, 0),
-                                       parent=self.npc_hud_ui)
-                    self.base.text_npc_hud = text
-                    # bar
-                    bar = DirectWaitBar(text="",
-                                        value=health,
-                                        range=100,
-                                        frameColor=(0, 0.1, 0.1, 1),
-                                        barColor=(0.6, 0, 0, 1),
-                                        pos=(-1.32, 0, 1.2),
-                                        scale=(0.3, 0, 1.7),
-                                        parent=self.npc_hud_ui)
-                    self.base.bar_npc_hud = bar
-
-    def clear_npc_hud(self):
-        if self.npc_hud_ui:
-            self.npc_hud_ui.hide()
-            self.npc_hud_ui.destroy()
-            self.npc_hud_ui.remove_node()
 
     def clear_aim_cursor(self):
         if self.cursor_ui:

@@ -263,7 +263,12 @@ class PhysicsAttr:
                     # attach hitboxes and weapons
                     self.bullet_solids.get_bs_hitbox(actor=actor,
                                                      joints=["LeftHand", "RightHand", "Hips"],
+                                                     mask=self.mask0,
                                                      world=self.world)
+                    # hitboxes task
+                    taskMgr.add(self.update_actor_hitbox_trace_task,
+                                "update_{0}_hitboxes_task".format(col_name.lower()),
+                                extraArgs=[actor], appendTask=True)
 
                 elif type == 'npc':
                     actor_node = BulletRigidBodyNode(col_name)
@@ -293,7 +298,13 @@ class PhysicsAttr:
                     # attach hitboxes and weapons
                     self.bullet_solids.get_bs_hitbox(actor=actor,
                                                      joints=["LeftHand", "RightHand", "Hips"],
+                                                     mask=self.mask,
                                                      world=self.world)
+
+                    # hitboxes task
+                    taskMgr.add(self.update_actor_hitbox_trace_task,
+                                "update_{0}_hitboxes_task".format(col_name.lower()),
+                                extraArgs=[actor], appendTask=True)
 
                     actor_bs_np.node().set_kinematic(True)
 
@@ -456,7 +467,7 @@ class PhysicsAttr:
                 player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
                 actor_bs_np = self.base.game_instance['actors_np']["{0}:BS".format(animal_actor.get_name())]
 
-                for node in trigger.getOverlappingNodes():
+                for node in trigger.get_overlapping_nodes():
                     # ignore trigger itself and ground both
                     if "NPC" in node.get_name() or "Player" in node.get_name():
                         # if player close to horse
@@ -473,21 +484,21 @@ class PhysicsAttr:
                                         base.player_states["horse_is_ready_to_be_used"] = True
                                         base.game_instance['player_using_horse'] = animal_actor.get_name()
                                 elif (not animal_actor.get_python_tag("is_mounted")
-                                        and not player.get_python_tag("is_on_horse")
-                                        and node.get_name() != player_bs.get_name()):
+                                      and not player.get_python_tag("is_on_horse")
+                                      and node.get_name() != player_bs.get_name()):
                                     # clear horse name if player is on horse, horse is not free
                                     # and detected actor is not player
                                     animal_actor.set_python_tag("is_ready_to_be_used", False)
                                     if hasattr(base, "player_states"):
                                         base.player_states["horse_is_ready_to_be_used"] = False
 
-                                if self.base.game_instance['hud_np']:
-                                    self.base.game_instance['hud_np'].set_npc_hud(npc_name=animal_actor.get_name())
+                                if animal_actor.get_python_tag("npc_hud_np"):
+                                    animal_actor.get_python_tag("npc_hud_np").show()
 
                             elif (player_bs.get_distance(trigger_np) >= 2
                                   and player_bs.get_distance(trigger_np) <= 5):
-                                if self.base.game_instance['hud_np']:
-                                    self.base.game_instance['hud_np'].clear_npc_hud()
+                                if animal_actor.get_python_tag("npc_hud_np"):
+                                    animal_actor.get_python_tag("npc_hud_np").hide()
 
                 # keep actor_bs_np height while kinematic is active
                 # because in kinematic it has no gravity impact and gets unwanted drop down
@@ -507,24 +518,49 @@ class PhysicsAttr:
                 player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
                 actor_bs_np = self.base.game_instance['actors_np']["{0}:BS".format(actor.get_name())]
 
-                for node in trigger.getOverlappingNodes():
+                for node in trigger.get_overlapping_nodes():
                     # ignore trigger itself and ground both
                     if "NPC" in node.get_name() or "Player" in node.get_name():
                         # if player close to horse
                         if self.base.game_instance['player_ref']:
                             if player_bs.get_distance(trigger_np) <= 2 \
                                     and player_bs.get_distance(trigger_np) >= 1:
-                                if self.base.game_instance['hud_np']:
-                                    self.base.game_instance['hud_np'].set_npc_hud(npc_name=actor.get_name())
+                                if actor.get_python_tag("npc_hud_np"):
+                                    actor.get_python_tag("npc_hud_np").show()
                             elif (player_bs.get_distance(trigger_np) >= 2
                                   and player_bs.get_distance(trigger_np) <= 5):
-                                if self.base.game_instance['hud_np']:
-                                    self.base.game_instance['hud_np'].clear_npc_hud()
+                                if actor.get_python_tag("npc_hud_np"):
+                                    actor.get_python_tag("npc_hud_np").hide()
 
                 # keep actor_bs_np height while kinematic is active
                 # because in kinematic it has no gravity impact and gets unwanted drop down
                 if actor_bs_np and actor_bs_np.node().is_kinematic:
                     actor_bs_np.set_z(0.96)
+
+        if self.base.game_instance['menu_mode']:
+            return task.done
+
+        return task.cont
+
+    def update_actor_hitbox_trace_task(self, actor, task):
+        if actor and actor.find("**/**Hips:HB"):
+            hips_node = actor.find("**/**Hips:HB").node()
+            for node in hips_node.get_overlapping_nodes():
+                # todo: make list of objects producing damage
+                if "sword" in node.get_name():
+                    # actor.play("damage")
+                    if actor.get_python_tag("health") > 0:
+                        health = actor.get_python_tag("health")
+                        health -= 1
+                        actor.set_python_tag("health", health)
+                        print("got damage from", node.get_name(), "decreases ", health, " of ", actor.get_name())
+
+                        if "Player" in actor.get_name():
+                            if self.base.game_instance['hud_np']:
+                                self.base.game_instance['hud_np'].player_bar_ui_health['value'] = health
+                        elif "NPC" in actor.get_name():
+                            if actor.get_python_tag("npc_health_np"):
+                                actor.get_python_tag("npc_health_np")['value'] = health
 
         if self.base.game_instance['menu_mode']:
             return task.done

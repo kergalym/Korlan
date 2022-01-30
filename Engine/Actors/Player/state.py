@@ -19,6 +19,7 @@ class PlayerState:
             'courage': 100,
         }
         base.player_states = {
+            "is_alive": True,
             "is_idle": True,
             "is_moving": False,
             "is_running": False,
@@ -334,30 +335,6 @@ class PlayerState:
                 base.player_state_unarmed = True
                 base.player_state_armed = False
                 base.player_state_magic = False
-
-    def actor_life(self, task):
-        self.has_actor_life()
-
-        if self.base.game_instance['menu_mode']:
-            return task.done
-
-        return task.cont
-
-    def has_actor_life(self):
-        if (base.actor_is_dead is False
-                and base.actor_is_alive is False):
-            base.actor_life_perc = 100
-            base.actor_is_alive = True
-        else:
-            return False
-
-    def has_actor_any_item(self, item, exposed_joint):
-        if item and exposed_joint:
-            if (exposed_joint.get_num_children() == 1
-                    and item.get_name() == exposed_joint.get_child(0).get_name()):
-                return True
-            else:
-                return False
 
     # TODO Delete it
     def get_distance_to(self, items_dist_vect):

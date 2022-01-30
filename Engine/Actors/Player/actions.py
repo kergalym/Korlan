@@ -52,7 +52,7 @@ class Actions:
         self.arrow_ref = None
         self.arrow_brb_in_use = None
         self.arrow_is_prepared = False
-        self.arrow_charge_units = 100
+        self.arrow_charge_units = 1000
         self.draw_bow_is_done = 0
         self.raytest_result = None
         self.hit_target = None
@@ -393,13 +393,10 @@ class Actions:
                     hit_target_name = self.hit_target.get_name()
                     hit_target_name = hit_target_name.split("_trigger")[0]
                     self.base.game_instance['hud_np'].set_npc_hud(npc_name=hit_target_name)
-            else:
-                if self.base.game_instance['hud_np']:
-                    self.base.game_instance['hud_np'].clear_npc_hud()
 
             if self.base.game_instance['physics_world_np'] and self.arrow_brb_in_use:
-                self.base.game_instance['physics_world_np'].contactTest(self.hit_target)
-                if self.base.game_instance['physics_world_np'].contactTest(self.hit_target).getNumContacts() > 0:
+                contact_result = self.base.game_instance['physics_world_np'].contact_test(self.hit_target)
+                if contact_result.get_num_contacts() > 0:
                     if self.arrow_ref.get_python_tag("ready") == 1:
                         if self.target_np:
                             self.arrow_brb_in_use.set_collide_mask(BitMask32.allOff())

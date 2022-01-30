@@ -18,8 +18,8 @@ class BulletCollisionSolids:
         self.base.actor_hb = {}
         self.base.actor_hb_masks = {}
 
-    def get_bs_hitbox(self, actor, joints, world):
-        if (actor and joints and world
+    def get_bs_hitbox(self, actor, joints, mask, world):
+        if (actor and joints and mask and world
                 and isinstance(joints, list)):
 
             for joint in joints:
@@ -33,11 +33,11 @@ class BulletCollisionSolids:
                 if joint == "Hips":
                     ghost_np.set_pos(0, 0, 0)
                     ghost_np.set_scale(15, 15, 15)
-                elif joint == "LeftHand" or joint == "RightHand":
+                elif (joint == "LeftHand"
+                      or joint == "RightHand"):
                     ghost_np.set_pos(0, 8.0, 5.2)
                     ghost_np.set_scale(6, 6, 6)
 
-                mask = actor.get_collide_mask()
                 ghost_np.node().set_into_collide_mask(mask)
                 ghost_np.set_tag(key=name_hb, value=joint)
 
