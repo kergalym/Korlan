@@ -234,12 +234,13 @@ class Korlan:
                     "bow_kazakh",
                 ]
 
+                # Set Player Parameters
+                self.state.set_state(actor=self.korlan)
+
+                # Initialize Player Actions
                 self.actions.player_actions_init(self.korlan, animation[0])
 
-                self.korlan.set_python_tag("health", 100)
-                self.korlan.set_python_tag("stamina", 100)
-                self.korlan.set_python_tag("courage", 100)
-                self.korlan.set_python_tag("is_on_horse", False)
+
 
 
 

@@ -18,6 +18,7 @@ class PlayerState:
             'stamina': 100,
             'courage': 100,
         }
+        self.damage_weapons = ['sword', 'arrow', 'spear', 'fireballs']
         base.player_states = {
             "is_alive": True,
             "is_idle": True,
@@ -83,6 +84,14 @@ class PlayerState:
         self.render = render
 
         self.base.game_instance['player_props'] = self.player_props
+
+    def set_state(self, actor):
+        if actor:
+            actor.set_python_tag("health", 100)
+            actor.set_python_tag("stamina", 100)
+            actor.set_python_tag("courage", 100)
+            actor.set_python_tag("is_on_horse", False)
+            actor.set_python_tag("damage_weapons", self.damage_weapons)
 
     def clear_state(self):
         assets = self.base.assets_collector()

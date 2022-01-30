@@ -546,21 +546,21 @@ class PhysicsAttr:
         if actor and actor.find("**/**Hips:HB"):
             hips_node = actor.find("**/**Hips:HB").node()
             for node in hips_node.get_overlapping_nodes():
-                # todo: make list of objects producing damage
-                if "sword" in node.get_name():
-                    # actor.play("damage")
-                    if actor.get_python_tag("health") > 0:
-                        health = actor.get_python_tag("health")
-                        health -= 1
-                        actor.set_python_tag("health", health)
-                        print("got damage from", node.get_name(), "decreases ", health, " of ", actor.get_name())
+                damage_weapons = actor.get_python_tag("damage_weapons")
+                for weapon in damage_weapons:
+                    if weapon in node.get_name():
+                        # actor.play("damage")
+                        if "NPC" in actor.get_name():
+                            if actor.get_python_tag("health_np"):
+                                if actor.get_python_tag("health_np")['value'] > 0:
+                                    actor.get_python_tag("health_np")['value'] -= 1
+                                    health = actor.get_python_tag("health_np")['value']
+                                    print("got damage from", node.get_name(), "decreases ", health, " of ", actor.get_name())
 
-                        if "Player" in actor.get_name():
+                        elif "Player" in actor.get_name():
                             if self.base.game_instance['hud_np']:
-                                self.base.game_instance['hud_np'].player_bar_ui_health['value'] = health
-                        elif "NPC" in actor.get_name():
-                            if actor.get_python_tag("npc_health_np"):
-                                actor.get_python_tag("npc_health_np")['value'] = health
+                                if self.base.game_instance['hud_np'].player_bar_ui_health['value'] > 0:
+                                    self.base.game_instance['hud_np'].player_bar_ui_health['value'] -= 1
 
         if self.base.game_instance['menu_mode']:
             return task.done

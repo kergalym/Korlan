@@ -95,7 +95,7 @@ class NpcGeneric:
             # Set HUD and tags
             self.npc_state.set_npc_hud(actor=self.actor)
 
-            # set NPC Parameters
+            # Set NPC Parameters
             self.npc_state.setup_npc_state(actor=self.actor)
 
 
