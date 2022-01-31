@@ -57,50 +57,6 @@ class BulletCollisionSolids:
                     ghost_np.reparent_to(exp_joint)
                     world.attach_ghost(ghost)
 
-    def get_bs_hitbox_rb(self, actor, joints, mask, world):
-        if (actor and joints and mask and world
-                and isinstance(joints, list)):
-
-            for joint in joints:
-                shape = BulletBoxShape(Vec3(1, 1, 1))
-                name_hb = "{0}_{1}:HB".format(actor.get_name(), joint)
-                name = actor.get_name()
-                rigid = BulletRigidBodyNode(name_hb)
-                rigid.add_shape(shape)
-                rigid.set_mass(2.0)
-                rigid_np = render.attach_new_node(rigid)
-
-                if joint == "Hips":
-                    rigid_np.set_pos(0, 0, 0)
-                    rigid_np.set_scale(15, 15, 15)
-                elif (joint == "LeftHand"
-                      or joint == "RightHand"):
-                    rigid_np.set_pos(0, 8.0, 5.2)
-                    rigid_np.set_scale(6, 6, 6)
-
-                # Actor and its hitboxes won't collide with each other
-                rigid_np.node().set_into_collide_mask(mask)
-
-                # Enable CCD
-                rigid_np.node().set_ccd_motion_threshold(1e-7)
-                rigid_np.node().set_ccd_swept_sphere_radius(0.50)
-                rigid_np.node().set_kinematic(True)
-
-                rigid_np.set_tag(key=name_hb, value=joint)
-
-                if "Player" in name and self.base.game_instance['player_ref']:
-                    char_joint = self.base.game_instance['player_ref'].get_part_bundle('modelRoot').get_name()
-                    joint = "{0}:{1}".format(char_joint, joint)
-                    exp_joint = self.base.game_instance['player_ref'].expose_joint(None, "modelRoot", joint)
-                    rigid_np.reparent_to(exp_joint)
-                    world.attach_rigid_body(rigid)
-                elif "NPC" in name and self.base.game_instance['actors_ref']:
-                    char_joint = self.base.game_instance['actors_ref'][name].get_part_bundle('modelRoot').get_name()
-                    joint = "{0}:{1}".format(char_joint, joint)
-                    exp_joint = self.base.game_instance['actors_ref'][name].expose_joint(None, "modelRoot", joint)
-                    rigid_np.reparent_to(exp_joint)
-                    world.attach_rigid_body(rigid)
-
     def get_bs_sphere(self):
         radius = 0.6
         sphere = BulletSphereShape(radius)
