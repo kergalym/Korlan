@@ -570,6 +570,7 @@ class PhysicsAttr:
                 damage_weapons = actor.get_python_tag("damage_weapons")
                 for weapon in damage_weapons:
                     if weapon in node.get_name():
+                        node.set_into_collide_mask(BitMask32.allOff())
                         # actor.play("damage")
                         if actor.get_python_tag("health_np"):
                             if actor.get_python_tag("health_np")['value'] > 0:
