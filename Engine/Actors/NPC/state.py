@@ -21,7 +21,7 @@ class NpcState:
         # Left, right, bottom, top
         self.npc_hud_ui_frame_size = [-1.85, -1, 1.99, 0.88]
         self.npc_hud_ui_scale = (1.2, 0, 0.20)
-        self.damage_weapons = ['sword', 'arrow', 'spear', 'fireballs']
+        self.damage_weapons = ['LeftHand', 'RightHand', 'sword', 'arrow', 'spear', 'fireballs']
 
     def setup_npc_state(self, actor):
         if actor:

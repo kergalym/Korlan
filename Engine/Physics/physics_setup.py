@@ -266,7 +266,7 @@ class PhysicsAttr:
                                                      mask=self.mask0,
                                                      world=self.world)
                     # hitboxes task
-                    taskMgr.add(self.update_actor_hitbox_trace_task,
+                    taskMgr.add(self.update_player_hitbox_trace_task,
                                 "update_{0}_hitboxes_task".format(col_name.lower()),
                                 extraArgs=[actor], appendTask=True)
 
@@ -542,28 +542,39 @@ class PhysicsAttr:
 
         return task.cont
 
-    def update_actor_hitbox_trace_task(self, actor, task):
+    def update_player_hitbox_trace_task(self, actor, task):
         if actor and actor.find("**/**Hips:HB"):
-            hips_node = actor.find("**/**Hips:HB").node()
-            for node in hips_node.get_overlapping_nodes():
+            parent_node = actor.find("**/**Hips:HB").node()
+            for node in parent_node.get_overlapping_nodes():
                 damage_weapons = actor.get_python_tag("damage_weapons")
                 for weapon in damage_weapons:
                     if weapon in node.get_name():
                         # actor.play("damage")
-                        if "NPC" in actor.get_name():
-                            if actor.get_python_tag("health_np"):
-                                if actor.get_python_tag("health_np")['value'] > 0:
-                                    actor.get_python_tag("health_np")['value'] -= 1
-                                    health = actor.get_python_tag("health_np")['value']
-                                    print("got damage from", node.get_name(), "decreases ", health, " of ", actor.get_name())
+                        if self.base.game_instance['hud_np']:
+                            if self.base.game_instance['hud_np'].player_bar_ui_health['value'] > 0:
+                                self.base.game_instance['hud_np'].player_bar_ui_health['value'] -= 1
+                                health = actor.get_python_tag("health")
+                                health -= 1
+                                actor.set_python_tag("health", health)
 
-                        elif "Player" in actor.get_name():
-                            if self.base.game_instance['hud_np']:
-                                if self.base.game_instance['hud_np'].player_bar_ui_health['value'] > 0:
-                                    self.base.game_instance['hud_np'].player_bar_ui_health['value'] -= 1
-                                    health = actor.get_python_tag("health")
-                                    health -= 1
-                                    actor.set_python_tag("health", health)
+        if self.base.game_instance['menu_mode']:
+            return task.done
+
+        return task.cont
+
+    def update_actor_hitbox_trace_task(self, actor, task):
+        if actor and actor.find("**/**Hips:HB"):
+            parent_node = actor.find("**/**Hips:HB").node()
+            for node in parent_node.get_overlapping_nodes():
+                damage_weapons = actor.get_python_tag("damage_weapons")
+                for weapon in damage_weapons:
+                    if weapon in node.get_name():
+                        # actor.play("damage")
+                        if actor.get_python_tag("health_np"):
+                            if actor.get_python_tag("health_np")['value'] > 0:
+                                actor.get_python_tag("health_np")['value'] -= 1
+                                health = actor.get_python_tag("health_np")['value']
+                                print("got damage from", node.get_name(), "decreases ", health, " of ", actor.get_name())
 
         if self.base.game_instance['menu_mode']:
             return task.done

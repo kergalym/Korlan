@@ -18,7 +18,7 @@ class PlayerState:
             'stamina': 100,
             'courage': 100,
         }
-        self.damage_weapons = ['sword', 'arrow', 'spear', 'fireballs']
+        self.damage_weapons = ['LeftHand', 'RightHand', 'sword', 'arrow', 'spear', 'fireballs']
         base.player_states = {
             "is_alive": True,
             "is_idle": True,
@@ -263,19 +263,49 @@ class PlayerState:
             weapon.set_hpr(325, 343, 0)
             weapon.set_pos(0, 0.3, 0)
             weapon_rb_np.node().add_shape(shape)
-            # weapon_rb_np.node().set_mass(2.0)
 
             # Player and its owning arrow won't collide with each other
-            weapon_rb_np.set_collide_mask(BitMask32.bit(0x0f))
-
-            # Enable CCD
-            # weapon_rb_np.node().set_ccd_motion_threshold(1e-7)
-            # weapon_rb_np.node().set_ccd_swept_sphere_radius(0.50)
-            # weapon_rb_np.node().set_kinematic(True)
+            weapon_rb_np.set_collide_mask(BitMask32.allOff())
 
             self.base.game_instance['physics_world_np'].attach_ghost(weapon_rb_np.node())
 
+    def set_weapon_collider_rb(self, weapon, joint):
+        if weapon and joint:
+            # Create weapon collider
+            name = weapon.get_name()
+            min_, max_ = weapon.get_tight_bounds()
+            size = max_ - min_
+            shape = BulletBoxShape(Vec3(0.05, 0.55, 0.05))
+            body = BulletRigidBodyNode('{0}_BGN'.format(name))
+            weapon_rb_np = NodePath(body)
+            weapon_rb_np.wrt_reparent_to(joint)
+            weapon_rb_np.set_pos(10, -14.90, -8)
+            weapon_rb_np.set_hpr(0, 0, 0)
+            weapon_rb_np.set_scale(weapon.get_scale())
+            weapon.wrt_reparent_to(weapon_rb_np)
+            weapon.set_hpr(325, 343, 0)
+            weapon.set_pos(0, 0.3, 0)
+            weapon_rb_np.node().add_shape(shape)
+            weapon_rb_np.node().set_mass(2.0)
+
+            # Player and its owning arrow won't collide with each other
+            weapon_rb_np.set_collide_mask(BitMask32.allOff())
+
+            # Enable CCD
+            weapon_rb_np.node().set_ccd_motion_threshold(1e-7)
+            weapon_rb_np.node().set_ccd_swept_sphere_radius(0.50)
+            weapon_rb_np.node().set_kinematic(True)
+
+            self.base.game_instance['physics_world_np'].attach_rigid_body(weapon_rb_np.node())
+
     def clear_weapon_collider(self, weapon, joint):
+        if weapon and joint:
+            if "BRB" in weapon.get_parent().get_name():
+                weapon_rb_np = weapon.get_parent()
+                weapon.reparent_to(joint)
+                self.base.game_instance['physics_world_np'].remove_ghost(weapon_rb_np.node())
+
+    def clear_weapon_collider_rb(self, weapon, joint):
         if weapon and joint:
             if "BRB" in weapon.get_parent().get_name():
                 weapon_rb_np = weapon.get_parent()
