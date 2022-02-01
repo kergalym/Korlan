@@ -266,8 +266,8 @@ class PhysicsAttr:
                                                      mask=self.mask0,
                                                      world=self.world)
                     # hitboxes task
-                    taskMgr.add(self.update_player_hitbox_trace_task,
-                                "update_{0}_hitboxes_task".format(col_name.lower()),
+                    taskMgr.add(self.player_hitbox_trace_task,
+                                "{0}_hitboxes_task".format(col_name.lower()),
                                 extraArgs=[actor], appendTask=True)
 
                 elif type == 'npc':
@@ -302,8 +302,8 @@ class PhysicsAttr:
                                                      world=self.world)
 
                     # hitboxes task
-                    taskMgr.add(self.update_actor_hitbox_trace_task,
-                                "update_{0}_hitboxes_task".format(col_name.lower()),
+                    taskMgr.add(self.actor_hitbox_trace_task,
+                                "{0}_hitboxes_task".format(col_name.lower()),
                                 extraArgs=[actor], appendTask=True)
 
                     actor_bs_np.node().set_kinematic(True)
@@ -314,8 +314,8 @@ class PhysicsAttr:
 
                     # attach trigger sphere
                     self.set_ghost_trigger(actor)
-                    taskMgr.add(self.update_actor_area_trigger_task,
-                                "update_{0}_area_trigger_task".format(col_name.lower()),
+                    taskMgr.add(self.actor_area_trigger_task,
+                                "{0}_area_trigger_task".format(col_name.lower()),
                                 extraArgs=[actor], appendTask=True)
 
                 elif type == 'npc_animal':
@@ -353,13 +353,13 @@ class PhysicsAttr:
                     # attach trigger sphere
                     if "Horse" in col_name:
                         self.set_ghost_trigger(actor)
-                        taskMgr.add(self.update_mountable_animal_area_trigger_task,
-                                    "update_{0}_area_trigger_task".format(col_name.lower()),
+                        taskMgr.add(self.mountable_animal_area_trigger_task,
+                                    "{0}_area_trigger_task".format(col_name.lower()),
                                     extraArgs=[actor], appendTask=True)
                     else:
                         self.set_ghost_trigger(actor)
-                        taskMgr.add(self.update_actor_area_trigger_task,
-                                    "update_{0}_area_trigger_task".format(col_name.lower()),
+                        taskMgr.add(self.actor_area_trigger_task,
+                                    "{0}_area_trigger_task".format(col_name.lower()),
                                     extraArgs=[actor], appendTask=True)
 
     def set_static_object_colliders(self, obj, mask, automatic):
@@ -458,7 +458,10 @@ class PhysicsAttr:
             trigger_np.reparent_to(actor)
             trigger_np.set_pos(0, 0, 1)
 
-    def update_mountable_animal_area_trigger_task(self, animal_actor, task):
+    def mountable_animal_area_trigger_task(self, animal_actor, task):
+        if self.base.game_instance['menu_mode']:
+            return task.done
+
         if animal_actor:
             if animal_actor.find("**/{0}_trigger".format(animal_actor.get_name())):
                 trigger = animal_actor.find("**/{0}_trigger".format(animal_actor.get_name())).node()
@@ -505,12 +508,12 @@ class PhysicsAttr:
                 if actor_bs_np and actor_bs_np.node().is_kinematic:
                     actor_bs_np.set_z(0.96)
 
+        return task.cont
+
+    def actor_area_trigger_task(self, actor, task):
         if self.base.game_instance['menu_mode']:
             return task.done
 
-        return task.cont
-
-    def update_actor_area_trigger_task(self, actor, task):
         if actor:
             if actor.find("**/{0}_trigger".format(actor.get_name())):
                 trigger = actor.find("**/{0}_trigger".format(actor.get_name())).node()
@@ -537,12 +540,12 @@ class PhysicsAttr:
                 if actor_bs_np and actor_bs_np.node().is_kinematic:
                     actor_bs_np.set_z(0.96)
 
+        return task.cont
+
+    def player_hitbox_trace_task(self, actor, task):
         if self.base.game_instance['menu_mode']:
             return task.done
 
-        return task.cont
-
-    def update_player_hitbox_trace_task(self, actor, task):
         if actor and actor.find("**/**Hips:HB"):
             parent_node = actor.find("**/**Hips:HB").node()
             for node in parent_node.get_overlapping_nodes():
@@ -557,13 +560,12 @@ class PhysicsAttr:
                                 health = actor.get_python_tag("health")
                                 health -= 1
                                 actor.set_python_tag("health", health)
+        return task.cont
 
+    def actor_hitbox_trace_task(self, actor, task):
         if self.base.game_instance['menu_mode']:
             return task.done
 
-        return task.cont
-
-    def update_actor_hitbox_trace_task(self, actor, task):
         if actor and actor.find("**/**Hips:HB"):
             parent_node = actor.find("**/**Hips:HB").node()
             for node in parent_node.get_overlapping_nodes():
@@ -571,14 +573,9 @@ class PhysicsAttr:
                 for weapon in damage_weapons:
                     if weapon in node.get_name():
                         node.set_into_collide_mask(BitMask32.allOff())
+                        # play damage animation
                         # actor.play("damage")
                         if actor.get_python_tag("health_np"):
                             if actor.get_python_tag("health_np")['value'] > 0:
                                 actor.get_python_tag("health_np")['value'] -= 1
-                                health = actor.get_python_tag("health_np")['value']
-                                print("got damage from", node.get_name(), "decreases ", health, " of ", actor.get_name())
-
-        if self.base.game_instance['menu_mode']:
-            return task.done
-
         return task.cont
