@@ -15,8 +15,6 @@ class BulletCollisionSolids:
 
     def __init__(self):
         self.base = base
-        self.base.actor_hb = {}
-        self.base.actor_hb_masks = {}
 
     def get_bs_hitbox(self, actor, joints, mask, world):
         if (actor and joints and mask and world

@@ -387,16 +387,23 @@ class Actions:
                 and "Arrow" not in self.raytest_result.get_node().get_name()):
             self.hit_target = self.raytest_result.get_node()
             self.target_pos = self.raytest_result.get_hit_pos()
+            hit_target_name = self.hit_target.get_name()
+            hit_target_name = hit_target_name.split("_trigger")[0]
 
             if self.hit_target and "NPC" in self.hit_target.get_name():
                 if self.base.game_instance['hud_np']:
-                    hit_target_name = self.hit_target.get_name()
-                    hit_target_name = hit_target_name.split("_trigger")[0]
-                    self.base.game_instance['hud_np'].set_npc_hud(npc_name=hit_target_name)
+                    if (self.base.game_instance['actors_ref']
+                            and self.base.game_instance['actors_ref'].get(hit_target_name)):
+                        actor = self.base.game_instance['actors_ref'][hit_target_name]
+                        actor.get_python_tag("npc_hud_np").show()
 
             if self.base.game_instance['physics_world_np'] and self.arrow_brb_in_use:
                 contact_result = self.base.game_instance['physics_world_np'].contact_test(self.hit_target)
                 if contact_result.get_num_contacts() > 0:
+                    if (self.base.game_instance['actors_ref']
+                            and self.base.game_instance['actors_ref'].get(hit_target_name)):
+                        actor = self.base.game_instance['actors_ref'][hit_target_name]
+                        actor.get_python_tag("npc_hud_np").hide()
                     if self.arrow_ref.get_python_tag("ready") == 1:
                         if self.target_np:
                             self.arrow_brb_in_use.set_collide_mask(BitMask32.allOff())

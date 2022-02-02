@@ -405,7 +405,7 @@ class LevelOne:
                                cloud_color=(0.6, 0.6, 0.65, 1.0))
 
         """ Setup Physics """
-        self.physics_attr.set_physics_world()
+        self.physics_attr.set_physics_world(self.npcs_fsm_states)
 
         self.base.accept("add_bullet_collider", self.physics_attr.add_bullet_collider, [level_assets_joined])
 

@@ -135,7 +135,7 @@ class StatUI:
                                                         mayChange=True)
 
         self.text_player_action_stat_p = OnscreenText(text="",
-                                                      pos=(0.5, 0.8),
+                                                      pos=(0.5, 0.7),
                                                       scale=0.03,
                                                       fg=(0.9, 1, 0, 0.9),
                                                       font=self.font.load_font(self.menu_font),
