@@ -135,7 +135,7 @@ class StatUI:
                                                         mayChange=True)
 
         self.text_player_action_stat_p = OnscreenText(text="",
-                                                      pos=(0.5, 0.7),
+                                                      pos=(0.5, 0.8),
                                                       scale=0.03,
                                                       fg=(0.9, 1, 0, 0.9),
                                                       font=self.font.load_font(self.menu_font),
@@ -459,7 +459,7 @@ class StatUI:
         self.set_stat_ui()
         if len(self.actions_ui_np) > 0:
             self.actions_ui_np.clear()
-        pos_y = 0.9
+        pos_y = 0.85
 
         for i in range(len(base.player_states)):
             if i >= 0:

@@ -402,7 +402,7 @@ class PhysicsAttr:
             ground_nodepath.node().set_into_collide_mask(self.mask)
             self.world.attach_rigid_body(ground_nodepath.node())
 
-            # Box
+            # todo: remove test box soon
             shape = BulletBoxShape(Vec3(1, 1, 1))
             node = BulletRigidBodyNode('Box')
             node.set_mass(50.0)

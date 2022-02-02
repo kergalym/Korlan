@@ -111,46 +111,56 @@ class PauseMenuUI(MenuSettings):
 
             Return      : None
         """
+        if self.base.game_instance['loading_is_done'] == 1:
+            if self.pause_mode == 1:
+                return False
 
-        if self.pause_mode == 1:
-            return False
+            if self.base.game_instance['is_dialog_active']:
+                return False
 
-        if self.base.game_instance['is_dialog_active']:
-            return False
+            if self.base.game_instance['current_active_frame']:
+                self.base.game_instance['current_active_frame'].destroy()
 
-        if self.base.game_instance['current_active_frame']:
-            self.base.game_instance['current_active_frame'].destroy()
+            ui_geoms = base.ui_geom_collector()
+            maps = base.loader.loadModel(ui_geoms['btn_t_icon'])
+            geoms = (maps.find('**/button_any'),
+                     maps.find('**/button_pressed'),
+                     maps.find('**/button_rollover'))
 
-        ui_geoms = base.ui_geom_collector()
-        maps = base.loader.loadModel(ui_geoms['btn_t_icon'])
-        geoms = (maps.find('**/button_any'),
-                 maps.find('**/button_pressed'),
-                 maps.find('**/button_rollover'))
+            # close inventory
+            if self.base.game_instance['ui_mode']:
+                base.messenger.send("close_sheet")
 
-        # close inventory
-        if self.base.game_instance['ui_mode']:
-            base.messenger.send("close_sheet")
+            self.base.game_instance['ui_mode'] = True
+            self.pause_mode = 1
+            self.base.game_instance['esc_mode'] = True
+            win_props = WindowProperties()
+            win_props.set_cursor_hidden(False)
+            self.base.win.request_properties(win_props)
 
-        self.base.game_instance['ui_mode'] = True
-        self.pause_mode = 1
-        self.base.game_instance['esc_mode'] = True
-        win_props = WindowProperties()
-        win_props.set_cursor_hidden(False)
-        self.base.win.request_properties(win_props)
+            self.logo = OnscreenImage(image=self.images['korlan_logo_tengri'],
+                                      pos=self.logo_pos)
+            self.ornament_left = OnscreenImage(image=self.images['ornament_kz'],
+                                               pos=self.ornament_l_pos, color=(63.9, 63.9, 63.9, 0.5))
+            self.ornament_right = OnscreenImage(image=self.images['ornament_kz'],
+                                                pos=self.ornament_r_pos, color=(63.9, 63.9, 63.9, 0.5))
 
-        self.logo = OnscreenImage(image=self.images['korlan_logo_tengri'],
-                                  pos=self.logo_pos)
-        self.ornament_left = OnscreenImage(image=self.images['ornament_kz'],
-                                           pos=self.ornament_l_pos, color=(63.9, 63.9, 63.9, 0.5))
-        self.ornament_right = OnscreenImage(image=self.images['ornament_kz'],
-                                            pos=self.ornament_r_pos, color=(63.9, 63.9, 63.9, 0.5))
+            self.base.frame_int_pause = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
+                                                    frameSize=self.base.frame_int_pause_size)
+            self.base.frame_int_pause.setPos(self.pos_X, self.pos_Y, self.pos_Z)
+            self.base.build_info.reparent_to(self.base.frame_int_pause)
 
-        self.base.frame_int_pause = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
-                                                frameSize=self.base.frame_int_pause_size)
-        self.base.frame_int_pause.setPos(self.pos_X, self.pos_Y, self.pos_Z)
-        self.base.build_info.reparent_to(self.base.frame_int_pause)
+            self.btn_continue = DirectButton(text=self.language['continue'],
+                                             text_fg=(255, 255, 255, 0.9),
+                                             text_font=self.font.load_font(self.menu_font),
+                                             frameColor=(0, 0, 0, self.frm_opacity),
+                                             scale=self.btn_scale, borderWidth=(self.w, self.h),
+                                             parent=self.base.frame_int_pause,
+                                             geom=geoms, geom_scale=(15.3, 0, 2),
+                                             clickSound=self.base.sound_gui_click,
+                                             command=self.unload_pause_menu)
 
-        self.btn_continue = DirectButton(text=self.language['continue'],
+            self.btn_game = DirectButton(text=self.language['game'],
                                          text_fg=(255, 255, 255, 0.9),
                                          text_font=self.font.load_font(self.menu_font),
                                          frameColor=(0, 0, 0, self.frm_opacity),
@@ -158,59 +168,19 @@ class PauseMenuUI(MenuSettings):
                                          parent=self.base.frame_int_pause,
                                          geom=geoms, geom_scale=(15.3, 0, 2),
                                          clickSound=self.base.sound_gui_click,
-                                         command=self.unload_pause_menu)
+                                         command=self.ui_game.load_game_menu)
 
-        self.btn_game = DirectButton(text=self.language['game'],
-                                     text_fg=(255, 255, 255, 0.9),
-                                     text_font=self.font.load_font(self.menu_font),
-                                     frameColor=(0, 0, 0, self.frm_opacity),
-                                     scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                     parent=self.base.frame_int_pause,
-                                     geom=geoms, geom_scale=(15.3, 0, 2),
-                                     clickSound=self.base.sound_gui_click,
-                                     command=self.ui_game.load_game_menu)
+            self.btn_gfx = DirectButton(text=self.language['graphics'],
+                                        text_fg=(255, 255, 255, 0.9),
+                                        text_font=self.font.load_font(self.menu_font),
+                                        frameColor=(0, 0, 0, self.frm_opacity),
+                                        scale=self.btn_scale, borderWidth=(self.w, self.h),
+                                        parent=self.base.frame_int_pause,
+                                        geom=geoms, geom_scale=(15.3, 0, 2),
+                                        clickSound=self.base.sound_gui_click,
+                                        command=self.ui_gfx.load_graphics_menu)
 
-        self.btn_gfx = DirectButton(text=self.language['graphics'],
-                                    text_fg=(255, 255, 255, 0.9),
-                                    text_font=self.font.load_font(self.menu_font),
-                                    frameColor=(0, 0, 0, self.frm_opacity),
-                                    scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                    parent=self.base.frame_int_pause,
-                                    geom=geoms, geom_scale=(15.3, 0, 2),
-                                    clickSound=self.base.sound_gui_click,
-                                    command=self.ui_gfx.load_graphics_menu)
-
-        self.btn_sound = DirectButton(text=self.language['sound'],
-                                      text_fg=(255, 255, 255, 0.9),
-                                      text_font=self.font.load_font(self.menu_font),
-                                      frameColor=(0, 0, 0, self.frm_opacity),
-                                      scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                      parent=self.base.frame_int_pause,
-                                      geom=geoms, geom_scale=(15.3, 0, 2),
-                                      clickSound=self.base.sound_gui_click,
-                                      command=self.ui_snd.load_sound_menu)
-
-        self.btn_language = DirectButton(text=self.language['language'],
-                                         text_fg=(255, 255, 255, 0.9),
-                                         text_font=self.font.load_font(self.menu_font),
-                                         frameColor=(0, 0, 0, self.frm_opacity),
-                                         scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                         parent=self.base.frame_int_pause,
-                                         geom=geoms, geom_scale=(15.3, 0, 2),
-                                         clickSound=self.base.sound_gui_click,
-                                         command=self.ui_lng.load_language_menu)
-
-        self.btn_keymap = DirectButton(text=self.language['keymap'],
-                                       text_fg=(255, 255, 255, 0.9),
-                                       text_font=self.font.load_font(self.menu_font),
-                                       frameColor=(0, 0, 0, self.frm_opacity),
-                                       scale=self.btn_scale, borderWidth=(self.w, self.h),
-                                       parent=self.base.frame_int_pause,
-                                       geom=geoms, geom_scale=(15.3, 0, 2),
-                                       clickSound=self.base.sound_gui_click,
-                                       command=self.ui_kmp.load_keymap_menu)
-
-        self.btn_exit_game = DirectButton(text=self.language['exit_game'],
+            self.btn_sound = DirectButton(text=self.language['sound'],
                                           text_fg=(255, 255, 255, 0.9),
                                           text_font=self.font.load_font(self.menu_font),
                                           frameColor=(0, 0, 0, self.frm_opacity),
@@ -218,30 +188,60 @@ class PauseMenuUI(MenuSettings):
                                           parent=self.base.frame_int_pause,
                                           geom=geoms, geom_scale=(15.3, 0, 2),
                                           clickSound=self.base.sound_gui_click,
-                                          command=self.ui_exit_game.load_exit_menu)
+                                          command=self.ui_snd.load_sound_menu)
 
-        self.btn_continue.set_pos(-1.4, 0, 0)
-        self.btn_game.set_pos(-1.4, 0, -0.1)
-        self.btn_gfx.set_pos(-1.4, 0, -0.2)
-        self.btn_sound.set_pos(-1.4, 0, -0.3)
-        self.btn_language.set_pos(-1.4, 0, -0.4)
-        self.btn_keymap.set_pos(-1.4, 0, -0.5)
-        self.btn_exit_game.set_pos(-1.4, 0, -0.6)
-        self.logo.reparent_to(self.base.frame_int_pause)
-        self.logo.set_scale(self.logo_scale)
+            self.btn_language = DirectButton(text=self.language['language'],
+                                             text_fg=(255, 255, 255, 0.9),
+                                             text_font=self.font.load_font(self.menu_font),
+                                             frameColor=(0, 0, 0, self.frm_opacity),
+                                             scale=self.btn_scale, borderWidth=(self.w, self.h),
+                                             parent=self.base.frame_int_pause,
+                                             geom=geoms, geom_scale=(15.3, 0, 2),
+                                             clickSound=self.base.sound_gui_click,
+                                             command=self.ui_lng.load_language_menu)
 
-        self.ornament_right.reparent_to(self.base.frame_int_pause)
-        self.ornament_right.set_scale(self.ornament_scale)
-        self.ornament_right.set_hpr(0.0, 0.0, -90.0)
-        self.ornament_left.reparent_to(self.base.frame_int_pause)
-        self.ornament_left.set_scale(self.ornament_scale)
-        self.ornament_left.set_hpr(0.0, 0.0, -90.0)
-        self.ornament_right.set_transparency(TransparencyAttrib.MAlpha)
-        self.ornament_left.set_transparency(TransparencyAttrib.MAlpha)
+            self.btn_keymap = DirectButton(text=self.language['keymap'],
+                                           text_fg=(255, 255, 255, 0.9),
+                                           text_font=self.font.load_font(self.menu_font),
+                                           frameColor=(0, 0, 0, self.frm_opacity),
+                                           scale=self.btn_scale, borderWidth=(self.w, self.h),
+                                           parent=self.base.frame_int_pause,
+                                           geom=geoms, geom_scale=(15.3, 0, 2),
+                                           clickSound=self.base.sound_gui_click,
+                                           command=self.ui_kmp.load_keymap_menu)
 
-        # We make unload_pause_menu() method accessible
-        # to unload via ExitGame.do_accepted_event()
-        self.base.shared_functions['unload_pause_menu'] = self.unload_pause_menu
+            self.btn_exit_game = DirectButton(text=self.language['exit_game'],
+                                              text_fg=(255, 255, 255, 0.9),
+                                              text_font=self.font.load_font(self.menu_font),
+                                              frameColor=(0, 0, 0, self.frm_opacity),
+                                              scale=self.btn_scale, borderWidth=(self.w, self.h),
+                                              parent=self.base.frame_int_pause,
+                                              geom=geoms, geom_scale=(15.3, 0, 2),
+                                              clickSound=self.base.sound_gui_click,
+                                              command=self.ui_exit_game.load_exit_menu)
+
+            self.btn_continue.set_pos(-1.4, 0, 0)
+            self.btn_game.set_pos(-1.4, 0, -0.1)
+            self.btn_gfx.set_pos(-1.4, 0, -0.2)
+            self.btn_sound.set_pos(-1.4, 0, -0.3)
+            self.btn_language.set_pos(-1.4, 0, -0.4)
+            self.btn_keymap.set_pos(-1.4, 0, -0.5)
+            self.btn_exit_game.set_pos(-1.4, 0, -0.6)
+            self.logo.reparent_to(self.base.frame_int_pause)
+            self.logo.set_scale(self.logo_scale)
+
+            self.ornament_right.reparent_to(self.base.frame_int_pause)
+            self.ornament_right.set_scale(self.ornament_scale)
+            self.ornament_right.set_hpr(0.0, 0.0, -90.0)
+            self.ornament_left.reparent_to(self.base.frame_int_pause)
+            self.ornament_left.set_scale(self.ornament_scale)
+            self.ornament_left.set_hpr(0.0, 0.0, -90.0)
+            self.ornament_right.set_transparency(TransparencyAttrib.MAlpha)
+            self.ornament_left.set_transparency(TransparencyAttrib.MAlpha)
+
+            # We make unload_pause_menu() method accessible
+            # to unload via ExitGame.do_accepted_event()
+            self.base.shared_functions['unload_pause_menu'] = self.unload_pause_menu
 
     def unload_pause_menu(self):
         """ Function    : unload_pause_menu

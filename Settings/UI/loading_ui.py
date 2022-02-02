@@ -110,6 +110,8 @@ class LoadingUI:
         if self.game_settings['Debug']['set_debug_mode'] == 'YES':
             self.stat_ui.set_game_stat()
 
+        self.base.game_instance['loading_is_done'] = 1
+
         self.set_fadeout_screen()
         taskMgr.add(self.fadeout_task,
                     "fadeout_task",
@@ -164,7 +166,6 @@ class LoadingUI:
                         self.title_loading_text.setText(txt)
 
                 elif num == asset_num:
-                    self.base.game_instance['loading_is_done'] = 1
                     self.base.set_textures_srgb(True)
 
                     if (self.base.game_instance['player_actions_init_is_activated'] == 1
