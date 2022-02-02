@@ -148,11 +148,11 @@ class AI:
                                     "keep_actor_pitch_task",
                                     appendTask=True)
 
+                        self.base.game_instance['ai_is_activated'] = 1
+
                         # Start NPC Logics
                         self.npc_ai = NpcsAI(self.ai_world, self.ai_behaviors, self.ai_chars, self.player,
                                              self.player_fsm, self.npcs_fsm_states, self.npc_classes, self.near_npc)
-
-                        self.base.game_instance['ai_is_activated'] = 1
 
                         return task.done
 
