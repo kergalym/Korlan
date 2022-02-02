@@ -3,6 +3,8 @@ from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import Vec3, BitMask32
 from panda3d.bullet import BulletWorld, BulletDebugNode, BulletRigidBodyNode, BulletPlaneShape
 from direct.showbase.PhysicsManagerGlobal import physicsMgr
+
+from Engine.FSM.player_fsm import PlayerFSM
 from Engine.Physics.collision_solids import BulletCollisionSolids
 from Engine.Physics.npcs_physics import NpcsPhysics
 
@@ -28,6 +30,7 @@ class PhysicsAttr:
         self.cam_collider = None
         self.bullet_solids = BulletCollisionSolids()
         self.npcs_physics = NpcsPhysics()
+        self.fsm_player = PlayerFSM()
 
         self.no_mask = BitMask32.allOff()
         self.mask = BitMask32.allOn()
@@ -154,9 +157,10 @@ class PhysicsAttr:
                                                      mask=self.mask0,
                                                      world=self.world)
                     # hitboxes task
+                    request = self.fsm_player
                     taskMgr.add(self.npcs_physics.player_hitbox_trace_task,
                                 "{0}_hitboxes_task".format(col_name.lower()),
-                                extraArgs=[actor], appendTask=True)
+                                extraArgs=[actor, request], appendTask=True)
 
                 elif type == 'npc':
                     actor_node = BulletRigidBodyNode(col_name)
@@ -190,9 +194,11 @@ class PhysicsAttr:
                                                      world=self.world)
 
                     # hitboxes task
+                    name = actor.get_name()
+                    request = self.npcs_fsm_states[name]
                     taskMgr.add(self.npcs_physics.actor_hitbox_trace_task,
                                 "{0}_hitboxes_task".format(col_name.lower()),
-                                extraArgs=[actor], appendTask=True)
+                                extraArgs=[actor, request], appendTask=True)
 
                     actor_bs_np.node().set_kinematic(True)
 

@@ -148,7 +148,6 @@ class NpcsAI:
             actor_name = actor.get_name()
             # actor_npc_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
             # actor_npc_bs = actor.get_parent()
-
             # actor.set_blend(frameBlend=True)
 
             if passive:

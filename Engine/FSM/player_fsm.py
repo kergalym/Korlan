@@ -47,15 +47,19 @@ class PlayerFSM(FSM):
                     self.player.loop(action)
                 self.player.setPlayRate(self.base.actor_play_rate, action)
 
-    def enterAttacked(self, actor, action, task):
-        if actor and action and task:
+    def enterAttacked(self, actor, action, action_next, task):
+        if actor and action and action_next and task:
             any_action = actor.get_anim_control(action)
             any_action_seq = actor.actor_interval(action)
+            action_next_seq = actor.actor_interval(action)
 
             if isinstance(task, str):
                 if task == "play":
                     if not any_action.isPlaying():
-                        Sequence(any_action_seq, Func(self.fsm_state_wrapper, "is_attacked", False)).start()
+                        Sequence(Func(self.fsm_state_wrapper, "is_attacked", True),
+                                 any_action_seq,
+                                 Func(self.fsm_state_wrapper, "is_attacked", False),
+                                 action_next_seq).start()
 
                 elif task == "loop":
                     if not any_action.isPlaying():

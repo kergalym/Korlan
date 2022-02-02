@@ -147,10 +147,10 @@ class NpcFSM(FSM):
             if isinstance(task, str):
                 if task == "play":
                     if not any_action.isPlaying():
-                        Sequence(actor.actor_interval(action, loop=0),
+                        Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_attacked", True),
+                                 actor.actor_interval(action, loop=0),
                                  actor.actor_interval(action_next, loop=1),
-                                 Func(self.fsm_state_wrapper,
-                                      self, actor, "generic_states", "is_attacked", False)).start()
+                                 Func(self.fsm_state_wrapper, actor, "generic_states", "is_attacked", False)).start()
 
                 elif task == "loop":
                     if not any_action.isPlaying():
