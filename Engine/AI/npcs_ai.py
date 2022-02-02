@@ -1,4 +1,5 @@
 from direct.task.TaskManagerGlobal import taskMgr
+from direct.gui.OnscreenText import OnscreenText
 
 
 class NpcsAI:
@@ -15,6 +16,22 @@ class NpcsAI:
         self.npc_classes = npc_classes
         self.near_npc = near_npc
 
+        self.dbg_text_npc_frame_hit = OnscreenText(text="",
+                                                   pos=(0.5, 0.0),
+                                                   scale=0.2,
+                                                   fg=(255, 255, 255, 0.9),
+                                                   mayChange=True)
+
+        self.dbg_text_plr_frame_hit = OnscreenText(text="",
+                                                   pos=(0.5, -0.2),
+                                                   scale=0.2,
+                                                   fg=(255, 255, 255, 1.1),
+                                                   mayChange=True)
+
+        taskMgr.add(self.keep_actor_pitch_task,
+                    "keep_actor_pitch_task",
+                    appendTask=True)
+
         taskMgr.add(self.update_npc_states_task,
                     "update_npc_states_task",
                     appendTask=True)
@@ -22,6 +39,19 @@ class NpcsAI:
         """taskMgr.add(self.update_pathfinding_task,
                     "update_pathfinding_task",
                     appendTask=True)"""
+
+    def keep_actor_pitch_task(self, task):
+        # Fix me: Dirty hack for path finding issue
+        # when actor's pitch changes for reasons unknown for me xD
+
+        if self.base.game_instance['actors_ref']:
+            for actor in self.base.game_instance['actors_ref']:
+                if not self.base.game_instance['actors_ref'][actor].is_empty():
+                    # Prevent pitch changing
+                    self.base.game_instance['actors_ref'][actor].set_p(0)
+                    self.base.game_instance['actors_ref'][actor].get_parent().set_p(0)
+
+        return task.cont
 
     def set_actor_heading(self, actor, opponent, dt):
         if actor and opponent and dt:

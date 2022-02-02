@@ -1,4 +1,3 @@
-from direct.gui.OnscreenText import OnscreenText
 from panda3d.ai import AIWorld
 from panda3d.ai import AICharacter
 from direct.task.TaskManagerGlobal import taskMgr
@@ -31,32 +30,6 @@ class AI:
         self.npcs_xyz_vec = {}
         self.navmeshes = self.base.navmesh_collector()
 
-        self.dbg_text_npc_frame_hit = OnscreenText(text="",
-                                                   pos=(0.5, 0.0),
-                                                   scale=0.2,
-                                                   fg=(255, 255, 255, 0.9),
-                                                   mayChange=True)
-
-        self.dbg_text_plr_frame_hit = OnscreenText(text="",
-                                                   pos=(0.5, -0.2),
-                                                   scale=0.2,
-                                                   fg=(255, 255, 255, 1.1),
-                                                   mayChange=True)
-        self.integer = 0
-
-    def keep_actor_pitch_task(self, task):
-        # Fix me: Dirty hack for path finding issue
-        # when actor's pitch changes for reasons unknown for me xD
-
-        if self.base.game_instance['actors_ref']:
-            for actor in self.base.game_instance['actors_ref']:
-                if not self.base.game_instance['actors_ref'][actor].is_empty():
-                    # Prevent pitch changing
-                    self.base.game_instance['actors_ref'][actor].set_p(0)
-                    self.base.game_instance['actors_ref'][actor].get_parent().set_p(0)
-
-        return task.cont
-
     def update_ai_world_task(self, task):
         if self.ai_world:
             # Oh... Workaround for evil assertion error, again!
@@ -66,6 +39,24 @@ class AI:
                 # self.ai_world.update()
                 pass
         return task.cont
+
+    def set_ai_world(self, assets, npcs_fsm_states, lvl_name):
+        """ Function    : set_ai_world
+
+            Description : Enable AI
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
+        self.base.game_instance['ai_is_activated'] = 0
+
+        taskMgr.add(self.set_ai_world_task,
+                    "set_ai_world_task",
+                    extraArgs=[assets, npcs_fsm_states, lvl_name],
+                    appendTask=True)
 
     def set_ai_world_task(self, assets, npcs_fsm_states, lvl_name, task):
         """ Function    : set_ai_world_task
@@ -144,10 +135,6 @@ class AI:
                                     "update_ai_world",
                                     appendTask=True)
 
-                        taskMgr.add(self.keep_actor_pitch_task,
-                                    "keep_actor_pitch_task",
-                                    appendTask=True)
-
                         self.base.game_instance['ai_is_activated'] = 1
 
                         # Start NPC Logics
@@ -158,20 +145,4 @@ class AI:
 
         return task.cont
 
-    def set_ai_world(self, assets, npcs_fsm_states, lvl_name):
-        """ Function    : set_ai_world
 
-            Description : Enable AI
-
-            Input       : None
-
-            Output      : None
-
-            Return      : None
-        """
-        self.base.game_instance['ai_is_activated'] = 0
-
-        taskMgr.add(self.set_ai_world_task,
-                    "set_ai_world_task",
-                    extraArgs=[assets, npcs_fsm_states, lvl_name],
-                    appendTask=True)
