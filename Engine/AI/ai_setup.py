@@ -16,7 +16,6 @@ class AI:
         self.ai_world = AIWorld(world)
         self.base.game_instance['ai_world_np'] = self.ai_world
         self.player_fsm = PlayerFSM()
-        self.npc_ai = None
         self.npc_classes = {}
         self.ai_behaviors = {}
         self.npcs_fsm_states = None
@@ -138,8 +137,8 @@ class AI:
                         self.base.game_instance['ai_is_activated'] = 1
 
                         # Start NPC Logics
-                        self.npc_ai = NpcsAI(self.ai_world, self.ai_behaviors, self.ai_chars, self.player,
-                                             self.player_fsm, self.npcs_fsm_states, self.npc_classes, self.near_npc)
+                        NpcsAI(self.ai_world, self.ai_behaviors, self.ai_chars, self.player,
+                               self.player_fsm, self.npcs_fsm_states, self.npc_classes, self.near_npc)
 
                         return task.done
 
