@@ -1,4 +1,5 @@
 from direct.fsm.FSM import FSM
+from direct.interval.FunctionInterval import Func
 from direct.interval.MetaInterval import Sequence
 from direct.task.TaskManagerGlobal import taskMgr
 
@@ -55,13 +56,13 @@ class NpcFSM(FSM):
             and isinstance(path, list)
             or isinstance(path, int)
             or isinstance(path, float)
-                            and ai_behaviors):
+            and ai_behaviors):
             if behavior == "pathfollow":
                 ai_behaviors.path_follow(1)
                 ai_behaviors.add_to_path(path)
                 ai_behaviors.start_follow()
 
-    def set_state(self, actor, stack_name, state_name, bool_):
+    def fsm_state_wrapper(self, actor, stack_name, state_name, bool_):
         if actor and stack_name and state_name and isinstance(bool_, bool):
             actor.get_python_tag(stack_name)[state_name] = bool_
 
@@ -148,7 +149,8 @@ class NpcFSM(FSM):
                     if not any_action.isPlaying():
                         Sequence(actor.actor_interval(action, loop=0),
                                  actor.actor_interval(action_next, loop=1),
-                                 self.set_state(self, actor, "generic_states", "is_attacked", False)).start()
+                                 Func(self.fsm_state_wrapper,
+                                      self, actor, "generic_states", "is_attacked", False)).start()
 
                 elif task == "loop":
                     if not any_action.isPlaying():

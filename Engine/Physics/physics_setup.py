@@ -553,7 +553,7 @@ class PhysicsAttr:
                 for weapon in damage_weapons:
                     if weapon in node.get_name():
                         node.set_into_collide_mask(BitMask32.allOff())
-                        # actor.play("damage")
+                        base.player_states['is_attacked'] = True
                         if self.base.game_instance['hud_np']:
                             if self.base.game_instance['hud_np'].player_bar_ui_health['value'] > 0:
                                 self.base.game_instance['hud_np'].player_bar_ui_health['value'] -= 1
