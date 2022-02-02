@@ -319,6 +319,19 @@ class RenderAttr:
 
         return task.cont
 
+    def set_weather(self, weather):
+        if weather and isinstance(weather, str):
+            if weather == "wind":
+                pass
+            elif weather == "rain":
+                pass
+            elif weather == "storm":
+                pass
+            elif weather == "day":
+                pass
+            elif weather == "night":
+                pass
+
     def get_all_shaders(self, shaders):
         """ Function    : get_all_shaders
 

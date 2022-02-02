@@ -55,19 +55,13 @@ class NpcState:
                 "is_ready_to_be_used": False
             }
 
-            for key in generic_states:
-                value = generic_states[key]
-                actor.set_python_tag(key, value)
+            actor.set_python_tag("generic_states", generic_states)
 
             if "Human" in actor.get_name():
-                for key in human_spec_states:
-                    value = human_spec_states[key]
-                    actor.set_python_tag(key, value)
+                actor.set_python_tag("human_states", human_spec_states)
 
             elif "Horse" in actor.get_name():
-                for key in horse_spec_states:
-                    value = horse_spec_states[key]
-                    actor.set_python_tag(key, value)
+                actor.set_python_tag("horse_spec_states", horse_spec_states)
 
             actor.set_python_tag("damage_weapons", self.damage_weapons)
 

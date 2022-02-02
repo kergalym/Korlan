@@ -4,7 +4,6 @@ from panda3d.ai import AICharacter
 from direct.task.TaskManagerGlobal import taskMgr
 
 from Engine.FSM.player_fsm import PlayerFSM
-from Engine.FSM.npc_fsm import NpcFSM
 from Engine.AI.npcs_ai import NpcsAI
 from Settings.UI.cmd_dialogus_ui import CmdDialogusUI
 from Engine.Dialogs import dialogs_multi_lng
@@ -18,8 +17,7 @@ class AI:
         self.ai_world = AIWorld(world)
         self.base.game_instance['ai_world_np'] = self.ai_world
         self.player_fsm = PlayerFSM()
-        self.npc_fsm = NpcFSM()
-        self.npc_ai = NpcsAI()
+        self.npc_ai = None
         self.npc_classes = {}
         self.ai_behaviors = {}
         self.npcs_fsm_states = None
@@ -29,6 +27,8 @@ class AI:
         self.player = None
         self.dialogus = CmdDialogusUI()
         self.near_npc = {}
+        self.npcs_names = []
+        self.npcs_xyz_vec = {}
         self.navmeshes = self.base.navmesh_collector()
 
         self.dbg_text_npc_frame_hit = OnscreenText(text="",
@@ -57,35 +57,6 @@ class AI:
 
         return task.cont
 
-    def set_actor_heading(self, actor, opponent, dt):
-        if actor and opponent and dt:
-            vec_h = 2 * actor.get_h() - opponent.get_h()
-            actor.set_h(actor, vec_h * dt)
-
-    def set_actor_heading_once(self, actor, degree, dt):
-        if actor and degree and dt:
-            if actor.get_h() - degree != actor.get_h():
-                actor.set_h(actor, degree * dt)
-
-    def update_pathfinding_task(self, task):
-        if self.base.ai_chars_bs and self.ai_world and self.ai_behaviors:
-            for actor_name in self.ai_behaviors:
-                self.ai_chars[actor_name].set_max_force(7)
-
-                for name in self.base.ai_chars_bs:
-                    # Add actors as obstacles except actor that avoids them
-                    if name != actor_name:
-                        ai_char_bs = self.base.ai_chars_bs[name]
-                        if ai_char_bs:
-                            self.ai_behaviors[actor_name].path_find_to(ai_char_bs, "addPath")
-                            # self.ai_behaviors[actor_name].add_dynamic_obstacle(ai_char_bs)
-
-                            # Obstacle avoidance behavior
-                            # self.ai_behaviors[actor_name].obstacle_avoidance(1.0)
-                            # self.ai_world.add_obstacle(ai_char_bs)
-
-            return task.done
-
     def update_ai_world_task(self, task):
         if self.ai_world:
             # Oh... Workaround for evil assertion error, again!
@@ -95,61 +66,6 @@ class AI:
                 # self.ai_world.update()
                 pass
         return task.cont
-
-    def update_npc_states_task(self, task):
-        if (self.player
-                and self.base.game_instance['actors_ref']):
-            for actor_name, fsm_name in zip(self.base.game_instance['actors_ref'], self.npcs_fsm_states):
-                actor = self.base.game_instance['actors_ref'][actor_name]
-                request = self.npcs_fsm_states[fsm_name]
-                npc_class = self.npc_fsm.set_npc_class(actor=actor,
-                                                       npc_classes=self.npc_classes)
-
-                if npc_class and self.npc_fsm.npcs_xyz_vec and "Horse" not in actor_name:
-                    if npc_class == "friend":
-                        self.npc_ai.npc_friend_logic(actor=actor,
-                                                     player=self.player,
-                                                     player_fsm=self.player_fsm,
-                                                     request=request,
-                                                     ai_behaviors=self.ai_behaviors,
-                                                     npcs_xyz_vec=self.npc_fsm.npcs_xyz_vec,
-                                                     npcs_fsm_states=self.npcs_fsm_states,
-                                                     near_npc=self.near_npc,
-                                                     passive=False)
-                    if npc_class == "neutral":
-                        self.npc_ai.npc_neutral_logic(actor=actor,
-                                                      player=self.player,
-                                                      player_fsm=self.player_fsm,
-                                                      request=request,
-                                                      ai_behaviors=self.ai_behaviors,
-                                                      npcs_xyz_vec=self.npc_fsm.npcs_xyz_vec,
-                                                      npcs_fsm_states=self.npcs_fsm_states,
-                                                      near_npc=self.near_npc,
-                                                      passive=True)
-                    if npc_class == "enemy":
-                        self.npc_ai.npc_enemy_logic(actor=actor,
-                                                    player=self.player,
-                                                    player_fsm=self.player_fsm,
-                                                    request=request,
-                                                    ai_behaviors=self.ai_behaviors,
-                                                    npcs_xyz_vec=self.npc_fsm.npcs_xyz_vec,
-                                                    npcs_fsm_states=self.npcs_fsm_states,
-                                                    near_npc=self.near_npc,
-                                                    passive=False)
-        return task.cont
-
-    def set_weather(self, weather):
-        if weather and isinstance(weather, str):
-            if weather == "wind":
-                pass
-            elif weather == "rain":
-                pass
-            elif weather == "storm":
-                pass
-            elif weather == "day":
-                pass
-            elif weather == "night":
-                pass
 
     def set_ai_world_task(self, assets, npcs_fsm_states, lvl_name, task):
         """ Function    : set_ai_world_task
@@ -205,8 +121,8 @@ class AI:
                                         speed = 6
 
                                         # Do not duplicate if name is exist
-                                        if actor.get_name() not in self.npc_fsm.npcs_names:
-                                            self.npc_fsm.npcs_names.append(actor.get_name())
+                                        if actor.get_name() not in self.npcs_names:
+                                            self.npcs_names.append(actor.get_name())
 
                                         self.ai_char = AICharacter(actor_cls, actor, 100, 0.05, speed)
 
@@ -224,8 +140,6 @@ class AI:
                                                 if "NPC" not in node.get_name():
                                                     self.ai_behaviors[child_name].add_static_obstacle(node)
 
-                        self.npc_fsm.get_npcs(actors=self.base.game_instance['actors_ref'])
-
                         taskMgr.add(self.update_ai_world_task,
                                     "update_ai_world",
                                     appendTask=True)
@@ -234,18 +148,9 @@ class AI:
                                     "keep_actor_pitch_task",
                                     appendTask=True)
 
-                        """taskMgr.add(self.update_pathfinding_task,
-                                    "update_pathfinding_task",
-                                    appendTask=True)"""
-
-                        """taskMgr.add(self.update_npc_states_task,
-                                    "update_npc_states_task",
-                                    appendTask=True)"""
-
-                        taskMgr.add(self.npc_fsm.npc_distance_calculate_task,
-                                    "npc_distance_calculate_task",
-                                    extraArgs=[self.player],
-                                    appendTask=True)
+                        # Start NPC Logics
+                        self.npc_ai = NpcsAI(self.ai_world, self.ai_behaviors, self.ai_chars, self.player,
+                                             self.player_fsm, self.npcs_fsm_states, self.npc_classes, self.near_npc)
 
                         self.base.game_instance['ai_is_activated'] = 1
 

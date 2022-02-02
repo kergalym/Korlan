@@ -12,7 +12,7 @@ from Settings.UI.pause_menu_ui import PauseMenuUI
 from Settings.Input.mouse import Mouse
 
 from Engine.Actors.NPC.npc_generic import NpcGeneric
-from Engine.FSM.npc_generic_fsm import NpcGenericFSM
+from Engine.FSM.npc_fsm import NpcFSM
 
 py_npc_actor_classes = []
 py_npc_fsm_classes = []
@@ -33,7 +33,7 @@ level_npc_axis = {'NPC_Ernar': [-15.0, 15.0, 0],
 
 for i in range(len(level_npc_assets['name'])):
     py_npc_actor_classes.append(NpcGeneric)
-    py_npc_fsm_classes.append(NpcGenericFSM)
+    py_npc_fsm_classes.append(NpcFSM)
 
 """
 level_npc_assets = {'name': [],

@@ -1,42 +1,15 @@
+from direct.fsm.FSM import FSM
+from direct.interval.MetaInterval import Sequence
 from direct.task.TaskManagerGlobal import taskMgr
-from Engine.Actors.NPC.state import NpcState
 
 
-class NpcFSM:
+class NpcFSM(FSM):
     def __init__(self):
+        FSM.__init__(self, "NpcFSM")
         self.base = base
         self.render = render
         self.taskMgr = taskMgr
-        self.npc_state = NpcState()
-
-        self.npcs_actor_refs = {}
-        self.npcs_names = []
-        self.npcs_xyz_vec = {}
-        self.npcs_bs = {}
-
-    def get_npcs(self, actors):
-        # actors taken from self.base.game_instance['actors_ref']
-        for k in actors:
-            actor_bs = self.base.get_actor_bullet_shape_node(asset=k, type="NPC")
-            if actor_bs:
-                self.npcs_bs[k] = actor_bs
-
-    def npc_distance_calculate_task(self, player, task):
-        if player and self.npcs_bs and isinstance(self.npcs_bs, dict):
-            for k in self.npcs_bs:
-                actor_bs = self.npcs_bs[k]
-                # todo: drop it to use built-in get_distance() function
-                xyz_vec = self.base.npc_distance_calculate(player=player, actor=actor_bs)
-
-                if xyz_vec:
-                    tuple_xyz_vec = xyz_vec['vector']
-                    # Here we put tuple xyz values to our class member npcs_xyz_vec
-                    # for every actor name like 'NPC_Ernar:BS'
-                    self.npcs_xyz_vec[actor_bs.get_name()] = tuple_xyz_vec
-
-            self.base.npcs_xyz_vec = self.npcs_xyz_vec
-
-        return task.cont
+        base.fsm = self
 
     def set_basic_npc_behaviors(self, actor, player, ai_behaviors, behavior, vect):
         if (actor and player
@@ -77,21 +50,209 @@ class NpcFSM:
 
     def set_pathfollow_static_behavior(self, actor, path, ai_behaviors, behavior):
         if (actor and path, not actor.is_empty()
-                and behavior
-                and isinstance(behavior, str)
-                and isinstance(path, list)
-                or isinstance(path, int)
-                or isinstance(path, float)
-                and ai_behaviors):
+            and behavior
+            and isinstance(behavior, str)
+            and isinstance(path, list)
+            or isinstance(path, int)
+            or isinstance(path, float)
+                            and ai_behaviors):
             if behavior == "pathfollow":
                 ai_behaviors.path_follow(1)
                 ai_behaviors.add_to_path(path)
                 ai_behaviors.start_follow()
 
-    def set_npc_class(self, actor, npc_classes):
-        if (actor and not actor.is_empty()
-                and npc_classes and isinstance(npc_classes, dict)):
+    def set_state(self, actor, stack_name, state_name, bool_):
+        if actor and stack_name and state_name and isinstance(bool_, bool):
+            actor.get_python_tag(stack_name)[state_name] = bool_
 
-            for actor_cls in npc_classes:
-                if actor_cls in actor.get_name():
-                    return npc_classes[actor_cls]
+    def enterIdle(self, actor, action, task):
+        if actor and action and task:
+            any_action = actor.get_anim_control(action)
+            self.base.debug_any_action = any_action
+
+            if isinstance(task, str):
+                if task == "play":
+                    if not any_action.isPlaying():
+                        actor.play(action)
+                elif task == "loop":
+                    if not any_action.isPlaying():
+                        actor.loop(action)
+                actor.set_play_rate(self.base.actor_play_rate, action)
+
+    def enterWalk(self, actor, player, ai_behaviors, behavior, action, vect, task):
+        if actor and player and ai_behaviors and behavior and action and task:
+            any_action = actor.get_anim_control(action)
+            self.base.debug_any_action = any_action
+
+            if isinstance(task, str):
+                if task == "play":
+                    if not any_action.isPlaying():
+                        actor.play(action)
+                elif task == "loop":
+                    if not any_action.isPlaying():
+                        actor.loop(action)
+                actor.set_play_rate(self.base.actor_play_rate, action)
+
+            # Get correct NodePath
+            # actor = render.find("**/{0}".format(actor.get_name()))
+            if hasattr(self.base, "ai_chars_bs") and self.base.ai_chars_bs:
+                name = actor.get_name()
+                actor = self.base.ai_chars_bs[name]
+                self.set_basic_npc_behaviors(actor=actor,
+                                             player=player,
+                                             ai_behaviors=ai_behaviors,
+                                             behavior=behavior,
+                                             vect=vect)
+
+    def enterWalkAny(self, actor, path, ai_behaviors, behavior, action, task):
+        if actor and path and ai_behaviors and behavior and action and task:
+            any_action = actor.get_anim_control(action)
+
+            if isinstance(task, str):
+                if task == "play":
+                    if not any_action.isPlaying():
+                        actor.play(action)
+                elif task == "loop":
+                    if not any_action.isPlaying():
+                        actor.loop(action)
+                actor.set_play_rate(self.base.actor_play_rate, action)
+
+            # Get correct NodePath
+            actor = render.find("**/{0}".format(actor.get_name()))
+            self.set_pathfollow_static_behavior(actor=actor.get_parent(),
+                                                path=path,
+                                                ai_behaviors=ai_behaviors,
+                                                behavior=behavior)
+
+    def enterAttack(self, actor, action, task):
+        if actor and action and task:
+            any_action = actor.get_anim_control(action)
+            any_action_seq = actor.actor_interval(action)
+
+            if isinstance(task, str):
+                if task == "play":
+                    if not any_action.isPlaying():
+                        Sequence(any_action_seq).start()
+
+                elif task == "loop":
+                    if not any_action.isPlaying():
+                        actor.loop(action)
+                actor.set_play_rate(self.base.actor_play_rate, action)
+
+    def enterAttacked(self, actor, action, action_next, task):
+        if actor and action and action_next and task:
+            any_action = actor.get_anim_control(action)
+
+            if isinstance(task, str):
+                if task == "play":
+                    if not any_action.isPlaying():
+                        Sequence(actor.actor_interval(action, loop=0),
+                                 actor.actor_interval(action_next, loop=1),
+                                 self.set_state(self, actor, "generic_states", "is_attacked", False)).start()
+
+                elif task == "loop":
+                    if not any_action.isPlaying():
+                        actor.loop(action)
+                actor.set_play_rate(self.base.actor_play_rate, action)
+
+    def enterHAttack(self):
+        pass
+
+    def enterFAttack(self):
+        pass
+
+    def enterBlock(self, actor, action, action_next, task):
+        if actor and action and action_next and task:
+            any_action = actor.get_anim_control(action)
+
+            if isinstance(task, str):
+                if task == "play":
+                    if not any_action.isPlaying():
+                        Sequence(actor.actor_interval(action, loop=0),
+                                 actor.actor_interval(action_next, loop=1)).start()
+
+                elif task == "loop":
+                    if not any_action.isPlaying():
+                        actor.loop(action)
+                actor.set_play_rate(self.base.actor_play_rate, action)
+
+    def enterInteract(self):
+        pass
+
+    def enterLife(self):
+        pass
+
+    def enterDeath(self, actor, action, task):
+        if actor and action and task:
+            any_action = actor.get_anim_control(action)
+            any_action_seq = actor.actor_interval(action)
+
+            if isinstance(task, str):
+                if task == "play":
+                    if not any_action.isPlaying():
+                        Sequence(any_action_seq).start()
+
+                elif task == "loop":
+                    if not any_action.isPlaying():
+                        actor.loop(action)
+                actor.set_play_rate(self.base.actor_play_rate, action)
+
+    def enterMiscAct(self):
+        pass
+
+    def enterCrouch(self):
+        pass
+
+    def enterSwim(self):
+        pass
+
+    def enterStay(self):
+        pass
+
+    def enterJump(self):
+        pass
+
+    def enterLay(self):
+        pass
+
+    def filterIdle(self, request, args):
+        if request not in ['Idle']:
+            return (request,) + args
+        else:
+            return None
+
+    def filterWalk(self, request, args):
+        if request not in ['Walk']:
+            return (request,) + args
+        else:
+            return None
+
+    def filterWalkAny(self, request, args):
+        if request not in ['WalkAny']:
+            return (request,) + args
+        else:
+            return None
+
+    def filterAttack(self, request, args):
+        if request not in ['Attack']:
+            return (request,) + args
+        else:
+            return None
+
+    def filterAttacked(self, request, args):
+        if request not in ['Attacked']:
+            return (request,) + args
+        else:
+            return None
+
+    def filterBlock(self, request, args):
+        if request not in ['Block']:
+            return (request,) + args
+        else:
+            return None
+
+    def filterDeath(self, request, args):
+        if request not in ['Death']:
+            return (request,) + args
+        else:
+            return None

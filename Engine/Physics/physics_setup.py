@@ -560,6 +560,8 @@ class PhysicsAttr:
                                 health = actor.get_python_tag("health")
                                 health -= 1
                                 actor.set_python_tag("health", health)
+                            else:
+                                base.player_states['is_alive'] = False
         return task.cont
 
     def actor_hitbox_trace_task(self, actor, task):
@@ -573,9 +575,10 @@ class PhysicsAttr:
                 for weapon in damage_weapons:
                     if weapon in node.get_name():
                         node.set_into_collide_mask(BitMask32.allOff())
-                        # play damage animation
-                        # actor.play("damage")
+                        actor.get_python_tag("generic_states")['is_attacked'] = True
                         if actor.get_python_tag("health_np"):
                             if actor.get_python_tag("health_np")['value'] > 0:
                                 actor.get_python_tag("health_np")['value'] -= 1
+                            else:
+                                actor.get_python_tag("generic_states")['is_alive'] = False
         return task.cont

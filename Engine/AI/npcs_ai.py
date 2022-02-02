@@ -1,14 +1,108 @@
+from direct.task.TaskManagerGlobal import taskMgr
+
+
 class NpcsAI:
 
-    def __init__(self):
+    def __init__(self, ai_world, ai_behaviors, ai_chars, player,
+                 player_fsm, npcs_fsm_states, npc_classes, near_npc):
         self.base = base
+        self.ai_world = ai_world
+        self.ai_behaviors = ai_behaviors
+        self.ai_chars = ai_chars
+        self.player = player
+        self.player_fsm = player_fsm
+        self.npcs_fsm_states = npcs_fsm_states
+        self.npc_classes = npc_classes
+        self.near_npc = near_npc
 
-    def npc_friend_logic(self, actor, player, player_fsm, request, ai_behaviors,
-                         npcs_xyz_vec, npcs_fsm_states, near_npc, passive):
-        if (actor and player and player_fsm and request and npcs_xyz_vec and npcs_fsm_states
+        taskMgr.add(self.update_npc_states_task,
+                    "update_npc_states_task",
+                    appendTask=True)
+
+        """taskMgr.add(self.update_pathfinding_task,
+                    "update_pathfinding_task",
+                    appendTask=True)"""
+
+    def set_actor_heading(self, actor, opponent, dt):
+        if actor and opponent and dt:
+            vec_h = 2 * actor.get_h() - opponent.get_h()
+            actor.set_h(actor, vec_h * dt)
+
+    def set_actor_heading_once(self, actor, degree, dt):
+        if actor and degree and dt:
+            if actor.get_h() - degree != actor.get_h():
+                actor.set_h(actor, degree * dt)
+
+    def set_npc_class(self, actor, npc_classes):
+        if (actor and not actor.is_empty()
+                and npc_classes
+                and isinstance(npc_classes, dict)):
+
+            for actor_cls in npc_classes:
+                if actor_cls in actor.get_name():
+                    return npc_classes[actor_cls]
+
+    def update_pathfinding_task(self, task):
+        if self.base.ai_chars_bs and self.ai_world and self.ai_behaviors:
+            for actor_name in self.ai_behaviors:
+                self.ai_chars[actor_name].set_max_force(7)
+
+                for name in self.base.ai_chars_bs:
+                    # Add actors as obstacles except actor that avoids them
+                    if name != actor_name:
+                        ai_char_bs = self.base.ai_chars_bs[name]
+                        if ai_char_bs:
+                            self.ai_behaviors[actor_name].path_find_to(ai_char_bs, "addPath")
+                            # self.ai_behaviors[actor_name].add_dynamic_obstacle(ai_char_bs)
+
+                            # Obstacle avoidance behavior
+                            # self.ai_behaviors[actor_name].obstacle_avoidance(1.0)
+                            # self.ai_world.add_obstacle(ai_char_bs)
+
+            return task.done
+
+    def update_npc_states_task(self, task):
+        if (self.player
+                and self.base.game_instance['actors_ref']):
+            for actor_name, fsm_name in zip(self.base.game_instance['actors_ref'], self.npcs_fsm_states):
+                actor = self.base.game_instance['actors_ref'][actor_name]
+                request = self.npcs_fsm_states[fsm_name]
+                npc_class = self.set_npc_class(actor=actor,
+                                               npc_classes=self.npc_classes)
+
+                if npc_class and "Horse" not in actor_name:
+                    if npc_class == "friend":
+                        self.npc_friend_logic(actor=actor,
+                                              player=self.player,
+                                              request=request,
+                                              ai_behaviors=self.ai_behaviors,
+                                              npcs_fsm_states=self.npcs_fsm_states,
+                                              near_npc=self.near_npc,
+                                              passive=False)
+                    if npc_class == "neutral":
+                        self.npc_neutral_logic(actor=actor,
+                                               player=self.player,
+                                               request=request,
+                                               ai_behaviors=self.ai_behaviors,
+                                               npcs_fsm_states=self.npcs_fsm_states,
+                                               near_npc=self.near_npc,
+                                               passive=True)
+                    if npc_class == "enemy":
+                        self.npc_enemy_logic(actor=actor,
+                                             player=self.player,
+                                             player_fsm=self.player_fsm,
+                                             request=request,
+                                             ai_behaviors=self.ai_behaviors,
+                                             npcs_fsm_states=self.npcs_fsm_states,
+                                             near_npc=self.near_npc,
+                                             passive=False)
+        return task.cont
+
+    def npc_friend_logic(self, actor, player, request, ai_behaviors,
+                         npcs_fsm_states, near_npc, passive):
+        if (actor and player and request and npcs_fsm_states
                 and isinstance(passive, bool)
-                and isinstance(near_npc, dict)
-                and isinstance(npcs_xyz_vec, dict)):
+                and isinstance(near_npc, dict)):
 
             # Get the time that elapsed since last frame
             dt = globalClock.getDt()
@@ -26,10 +120,6 @@ class NpcsAI:
             # actor_npc_bs = actor.get_parent()
 
             # actor.set_blend(frameBlend=True)
-
-            vec_x = None
-            if npcs_xyz_vec.get(actor_bs_name):
-                vec_x = npcs_xyz_vec[actor_bs_name].length()
 
             if passive:
                 # Just stay
@@ -75,24 +165,22 @@ class NpcsAI:
                                 request.request("Attack", actor, "Boxing", "play")
                                 if (actor.get_current_frame("Boxing") >= 23
                                         and actor.get_current_frame("Boxing") <= 25):
-                                    self.base.npcs_hits[enemy_npc_ref.get_name()] = True
-                                    enemy_fsm_request.request("Attacked", enemy_npc_ref, "BigHitToHead", "Boxing", "play")
+                                    enemy_fsm_request.request("Attacked", enemy_npc_ref, "BigHitToHead", "Boxing",
+                                                              "play")
 
                             # NPC is attacked by enemy!
                             if (enemy_npc_ref.get_current_frame("Boxing")
                                     and enemy_npc_ref.get_current_frame("Boxing") >= 23
                                     and enemy_npc_ref.get_current_frame("Boxing") <= 25):
-                                self.base.npcs_hits[actor_name] = True
                                 if actor:
                                     if "Horse" not in actor.get_name():
                                         request.request("Attacked", actor, "BigHitToHead", "Boxing", "play")
 
-    def npc_neutral_logic(self, actor, player, player_fsm, request, ai_behaviors,
-                          npcs_xyz_vec, npcs_fsm_states, near_npc, passive):
-        if (actor and player and player_fsm and request and npcs_xyz_vec and npcs_fsm_states
+    def npc_neutral_logic(self, actor, player, request, ai_behaviors,
+                          npcs_fsm_states, near_npc, passive):
+        if (actor and player and request and npcs_fsm_states
                 and isinstance(passive, bool)
-                and isinstance(near_npc, dict)
-                and isinstance(npcs_xyz_vec, dict)):
+                and isinstance(near_npc, dict)):
             vect = {"panic_dist": 5,
                     "relax_dist": 5,
                     "wander_radius": 5,
@@ -128,11 +216,10 @@ class NpcsAI:
                         request.request("Idle", actor, "Standing_idle_male", "loop")
 
     def npc_enemy_logic(self, actor, player, player_fsm, request, ai_behaviors,
-                        npcs_xyz_vec, npcs_fsm_states, near_npc, passive):
-        if (actor and player and player_fsm and request and npcs_xyz_vec and npcs_fsm_states
+                        npcs_fsm_states, near_npc, passive):
+        if (actor and player and player_fsm and request and npcs_fsm_states
                 and isinstance(passive, bool)
-                and isinstance(near_npc, dict)
-                and isinstance(npcs_xyz_vec, dict)):
+                and isinstance(near_npc, dict)):
 
             # Get the time that elapsed since last frame
             dt = globalClock.getDt()
@@ -144,10 +231,9 @@ class NpcsAI:
                     "area_of_effect": 10}
 
             # Add :BS suffix since we'll get Bullet Shape NodePath here
-            actor_bs_name = "{0}:BS".format(actor.get_name())
             actor_name = actor.get_name()
 
-            # actor_npc_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
+            actor_npc_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
             # actor_npc_bs = actor.get_parent()
 
             # actor.set_blend(frameBlend=True)
@@ -155,9 +241,7 @@ class NpcsAI:
             # Leave it here for debugging purposes
             # self.get_npc_hits()
 
-            vec_x = None
-            if npcs_xyz_vec.get(actor_bs_name):
-                vec_x = npcs_xyz_vec[actor_bs_name].length()
+            vec = actor_npc_bs.get_distance(player)
 
             # Just stay
             if passive:
@@ -168,14 +252,12 @@ class NpcsAI:
                 enemy_npc_ref = None
                 for k in self.base.game_instance['actors_ref']:
                     if actor.get_name() not in k:
-                        if self.base.npcs_hits.get(k):
-                            enemy_npc_ref = self.base.game_instance['actors_ref'][k]
+                        enemy_npc_ref = self.base.game_instance['actors_ref'][k]
 
                 enemy_fsm_request = None
                 for fsm_name in npcs_fsm_states:
                     if actor.get_name() not in fsm_name:
-                        if self.base.npcs_hits.get(fsm_name):
-                            enemy_fsm_request = npcs_fsm_states[fsm_name]
+                        enemy_fsm_request = npcs_fsm_states[fsm_name]
 
                 enemy_npc_bs = None
                 if enemy_npc_ref and enemy_fsm_request:
@@ -183,20 +265,14 @@ class NpcsAI:
                     if hasattr(self.base, "ai_chars_bs") and self.base.ai_chars_bs:
                         enemy_npc_bs = self.base.ai_chars_bs[enemy_npc_ref_name]
 
-                # print(self.base.npcs_hits)
-
                 # If NPC is far from Player/NPC, do pursue Player/NPC
                 if ai_behaviors.get(actor_name):
                     if (ai_behaviors[actor_name].behavior_status("pursue") == "disabled"
                             or ai_behaviors[actor_name].behavior_status("pursue") == "active"):
-                        if self.base.npcs_hits.get(actor_name):
-                            request.request("Walk", actor, enemy_npc_bs, ai_behaviors[actor_name],
-                                            "pathfind", "Walking", vect, "loop")
-                        if not self.base.npcs_hits.get(actor_name):
-                            request.request("Walk", actor, player, ai_behaviors[actor_name],
-                                            "pathfind", "Walking", vect, "loop")
+                        request.request("Walk", actor, enemy_npc_bs, ai_behaviors[actor_name],
+                                        "pathfind", "Walking", vect, "loop")
 
-                    if vec_x == 1.0 or vec_x == -1.0:
+                    if vec == 1.0 or vec == -1.0:
                         ai_behaviors[actor_name].pause_ai("pursue")
                         near_npc[actor_name] = True
                     else:
@@ -223,19 +299,16 @@ class NpcsAI:
                         if (actor.get_current_frame("Boxing") >= 23
                                 and actor.get_current_frame("Boxing") <= 25):
                             if enemy_npc_ref:
-                                self.base.npcs_hits[enemy_npc_ref.get_name()] = True
                                 player_fsm.request("Attacked", enemy_npc_ref, "BigHitToHead", "play")
 
                         if (actor.get_current_frame("Boxing") >= 23
                                 and actor.get_current_frame("Boxing") <= 25
                                 and self.base.player_states["is_blocking"] is False):
                             if not enemy_npc_ref:
-                                for k in self.base.npcs_hits:
-                                    self.base.npcs_hits[k] = False
                                 player_fsm.request("Attacked", self.base.player_ref, "BigHitToHead", "play")
 
                         # Enemy is attacked by player!
-                        if (self.base.player_states["is_hitting"]):
+                        if self.base.player_states["is_hitting"]:
                             if (self.base.game_instance['player_ref'].get_current_frame("Boxing") >= 23
                                     and self.base.game_instance['player_ref'].get_current_frame("Boxing") <= 25):
                                 # Enemy does a block
@@ -244,23 +317,21 @@ class NpcsAI:
                             # Enemy health decreased when enemy miss a hits
                             if (actor.get_current_frame("center_blocking")
                                     and actor.get_current_frame("center_blocking") == 1):
-                                if hasattr(base, "npcs_actors_health") and base.npcs_actors_health:
-                                    if base.npcs_actors_health[actor_name].getPercent() != 0:
-                                        base.npcs_actors_health[actor_name]['value'] -= 5
+                                if actor.get_python_tag("health_np"):
+                                    if actor.get_python_tag("health_np")['value'] != 0:
+                                        actor.get_python_tag("health_np")['value'] -= 5
                                 request.request("Attacked", actor, "BigHitToHead", "Boxing", "play")
 
                             # Temporary thing, leave it here
-                            """if (hasattr(base, "npcs_actors_health")
-                                    and base.npcs_actors_health):
-                                value = base.npcs_actors_health[actor_name]['value']
+                            """if actor.get_python_tag("health_np"):
+                                value = actor.get_python_tag("health_np")['value']
                                 self.dbg_text_npc_frame_hit.setText(str(value) + actor_name)"""
 
                             # Enemy will die if no health or flee:
-                            if (hasattr(base, "npcs_actors_health")
-                                    and base.npcs_actors_health):
-                                if base.npcs_actors_health[actor_name].getPercent() != 0:
+                            if actor.get_python_tag("health_np"):
+                                if actor.get_python_tag("health_np")['value'] != 0:
                                     # Evade or attack the player
-                                    if base.npcs_actors_health[actor_name].getPercent() == 50.0:
+                                    if actor.get_python_tag("health_np")['value'] == 50.0:
                                         near_npc[actor_name] = False
                                         ai_behaviors[actor_name].remove_ai("pursue")
                                         request.request("Walk", actor, player, ai_behaviors[actor_name],
@@ -277,7 +348,6 @@ class NpcsAI:
                             if (actor.get_current_frame("Boxing") >= 23
                                     and actor.get_current_frame("Boxing") <= 25):
                                 if enemy_npc_ref:
-                                    self.base.npcs_hits[enemy_npc_ref.get_name()] = True
                                     enemy_fsm_request.request("Attacked", enemy_npc_ref, "BigHitToHead", "Boxing",
                                                               "play")
 
@@ -287,17 +357,16 @@ class NpcsAI:
                             # Enemy health decreased when enemy miss a hits
                             if (actor.get_current_frame("center_blocking")
                                     and actor.get_current_frame("center_blocking") == 1):
-                                if hasattr(base, "npcs_actors_health") and base.npcs_actors_health:
-                                    if base.npcs_actors_health[actor_name].getPercent() != 0:
-                                        base.npcs_actors_health[actor_name]['value'] -= 5
+                                if actor.get_python_tag("health_np"):
+                                    if actor.get_python_tag("health_np")['value'] != 0:
+                                        actor.get_python_tag("health_np")['value'] -= 5
                                 request.request("Attacked", actor, "BigHitToHead", "Boxing", "play")
 
                             # Enemy will die if no health or flee:
-                            if (hasattr(base, "npcs_actors_health")
-                                    and base.npcs_actors_health):
-                                if base.npcs_actors_health[actor_name].getPercent() != 0:
+                            if actor.get_python_tag("health_np"):
+                                if actor.get_python_tag("health_np")['value'] != 0:
                                     # Evade or attack the player
-                                    if base.npcs_actors_health[actor_name].getPercent() == 50.0:
+                                    if actor.get_python_tag("health_np")['value'] == 50.0:
                                         near_npc[actor_name] = False
                                         ai_behaviors[actor_name].remove_ai("pursue")
                                         request.request("Walk", actor, enemy_npc_bs, ai_behaviors[actor_name],
@@ -309,9 +378,9 @@ class NpcsAI:
                                     near_npc[actor_name] = False
 
                     # Enemy returns back
-                    if base.npcs_actors_health[actor_name]:
-                        if (base.npcs_actors_health[actor_name].getPercent() == 50.0
-                                and vec_x == 10.0 or vec_x == -10.0
+                    if actor.get_python_tag("health_np"):
+                        if (actor.get_python_tag("health_np")['value'] == 50.0
+                                and vec == 10.0 or vec == -10.0
                                 and ai_behaviors[actor_name].behavior_status("evade") == "paused"):
                             ai_behaviors[actor_name].remove_ai("evade")
                             # TODO: Change action to something more suitable
