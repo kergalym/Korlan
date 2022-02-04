@@ -1,30 +1,14 @@
 from direct.fsm.FSM import FSM
 from direct.interval.FunctionInterval import Func
 from direct.interval.MetaInterval import Sequence
-from direct.showbase.DirectObject import DirectObject
-from configparser import ConfigParser
-from direct.task.TaskManagerGlobal import taskMgr
 
 
 class PlayerFSM(FSM):
     def __init__(self):
         FSM.__init__(self, 'PlayerFSM')
-        self.d_object = DirectObject()
-        self.cfg_parser = ConfigParser()
-        self.is_moving = False
-        self.is_crouching = False
-        self.is_jumping = False
-        self.is_hitting = False
-        self.is_using = False
-        self.is_blocking = False
-        self.is_has_sword = False
-        self.is_has_bow = False
-        self.is_has_tengri = False
-        self.is_has_umai = False
         self.base = base
         self.render = render
         self.player = None
-        self.taskMgr = taskMgr
 
     def fsm_state_wrapper(self, state, boolean):
         if (state and isinstance(state, str)

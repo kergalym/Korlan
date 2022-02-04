@@ -4,12 +4,13 @@ from direct.gui.OnscreenText import OnscreenText
 
 class NpcsAI:
 
-    def __init__(self, ai_world, ai_behaviors, ai_chars, player,
+    def __init__(self, ai_world, ai_behaviors, ai_chars, ai_chars_bs, player,
                  player_fsm, npcs_fsm_states, npc_classes, near_npc):
         self.base = base
         self.ai_world = ai_world
         self.ai_behaviors = ai_behaviors
         self.ai_chars = ai_chars
+        self.ai_chars_bs = ai_chars_bs
         self.player = player
         self.player_fsm = player_fsm
         self.npcs_fsm_states = npcs_fsm_states
@@ -73,14 +74,14 @@ class NpcsAI:
                     return npc_classes[actor_cls]
 
     def update_pathfinding_task(self, task):
-        if self.base.ai_chars_bs and self.ai_world and self.ai_behaviors:
+        if self.ai_chars_bs and self.ai_world and self.ai_behaviors:
             for actor_name in self.ai_behaviors:
                 self.ai_chars[actor_name].set_max_force(7)
 
-                for name in self.base.ai_chars_bs:
+                for name in self.ai_chars_bs:
                     # Add actors as obstacles except actor that avoids them
                     if name != actor_name:
-                        ai_char_bs = self.base.ai_chars_bs[name]
+                        ai_char_bs = self.ai_chars_bs[name]
                         if ai_char_bs:
                             self.ai_behaviors[actor_name].path_find_to(ai_char_bs, "addPath")
                             # self.ai_behaviors[actor_name].add_dynamic_obstacle(ai_char_bs)
@@ -146,8 +147,7 @@ class NpcsAI:
             # Add :BS suffix since we'll get Bullet Shape NodePath here
             actor_bs_name = "{0}:BS".format(actor.get_name())
             actor_name = actor.get_name()
-            # actor_npc_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
-            # actor_npc_bs = actor.get_parent()
+            actor_npc_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
             # actor.set_blend(frameBlend=True)
 
             if passive:
@@ -162,23 +162,42 @@ class NpcsAI:
                     if actor.get_name() not in k:
                         enemy_npc_ref = self.base.game_instance['actors_ref'][k]
 
+                enemy_npc_bs = None
+                if enemy_npc_ref:
+                    enemy_npc_ref_name = enemy_npc_ref.get_name()
+                    if self.ai_chars_bs:
+                        # fixme, Mongol
+                        enemy_npc_bs = self.ai_chars_bs[enemy_npc_ref_name]
+
                 enemy_fsm_request = None
                 for fsm_name in npcs_fsm_states:
                     if actor.get_name() not in fsm_name:
                         enemy_fsm_request = npcs_fsm_states[fsm_name]
 
-                if enemy_npc_ref and enemy_fsm_request:
-                    enemy_npc_ref_name = enemy_npc_ref.get_name()
-                    enemy_npc_bs = None
-                    if hasattr(self.base, "ai_chars_bs") and self.base.ai_chars_bs:
-                        # fixme, Mongol
-                        enemy_npc_bs = self.base.ai_chars_bs[enemy_npc_ref_name]
+                player_vec = int(actor_npc_bs.get_distance(player))
+                enemy_vec = actor_npc_bs.get_distance(enemy_npc_bs)
 
-                    # If NPC is far from enemy, do pursue enemy
+                # If NPC is far from Player, do pursue Player
+                if ai_behaviors.get(actor_name):
                     if (ai_behaviors[actor_name].behavior_status("pursue") == "disabled"
                             or ai_behaviors[actor_name].behavior_status("pursue") == "active"):
+                        if player_vec == 1:
+                            ai_behaviors[actor_name].pause_ai("pursue")
+                            near_npc[actor_name] = True
+                        else:
+                            ai_behaviors[actor_name].resume_ai("pursue")
+                            near_npc[actor_name] = False
+                            request.request("Walk", actor, player, self.ai_chars_bs,
+                                            ai_behaviors[actor_name],
+                                            "pathfind", "Walking", vect, "loop")
+
+                    # If NPC is far from enemy, do pursue enemy
+                if (ai_behaviors[actor_name].behavior_status("pursue") == "disabled"
+                        or ai_behaviors[actor_name].behavior_status("pursue") == "active"):
+                    if enemy_vec == 1.0 or enemy_vec == -1.0:
                         if "Horse" not in actor.get_name():
                             request.request("Walk", actor, enemy_npc_bs,
+                                            self.ai_chars_bs,
                                             ai_behaviors[actor_name],
                                             "pathfind", "Walking", vect, "loop")
 
@@ -236,7 +255,8 @@ class NpcsAI:
                 # If NPC is far from Player, do pursue Player
                 if (ai_behaviors[actor_name].behavior_status("pursue") == "disabled"
                         or ai_behaviors[actor_name].behavior_status("pursue") == "active"):
-                    request.request("Walk", actor, player, ai_behaviors[actor_name],
+                    request.request("Walk", actor, player, self.ai_chars_bs,
+                                    ai_behaviors[actor_name],
                                     "pathfind", "Walking", vect, "loop")
 
                     # If NPC is close to Player, just stay
@@ -261,14 +281,8 @@ class NpcsAI:
 
             # Add :BS suffix since we'll get Bullet Shape NodePath here
             actor_name = actor.get_name()
-
             actor_npc_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
-            # actor_npc_bs = actor.get_parent()
-
             # actor.set_blend(frameBlend=True)
-
-            # Leave it here for debugging purposes
-            # self.get_npc_hits()
 
             vec = actor_npc_bs.get_distance(player)
 
@@ -291,14 +305,15 @@ class NpcsAI:
                 enemy_npc_bs = None
                 if enemy_npc_ref and enemy_fsm_request:
                     enemy_npc_ref_name = enemy_npc_ref.get_name()
-                    if hasattr(self.base, "ai_chars_bs") and self.base.ai_chars_bs:
-                        enemy_npc_bs = self.base.ai_chars_bs[enemy_npc_ref_name]
+                    if self.ai_chars_bs:
+                        enemy_npc_bs = self.ai_chars_bs[enemy_npc_ref_name]
 
                 # If NPC is far from Player/NPC, do pursue Player/NPC
                 if ai_behaviors.get(actor_name):
                     if (ai_behaviors[actor_name].behavior_status("pursue") == "disabled"
                             or ai_behaviors[actor_name].behavior_status("pursue") == "active"):
-                        request.request("Walk", actor, enemy_npc_bs, ai_behaviors[actor_name],
+                        request.request("Walk", actor, enemy_npc_bs, self.ai_chars_bs,
+                                        ai_behaviors[actor_name],
                                         "pathfind", "Walking", vect, "loop")
 
                     if vec == 1.0 or vec == -1.0:
@@ -363,7 +378,8 @@ class NpcsAI:
                                     if actor.get_python_tag("health_np")['value'] == 50.0:
                                         near_npc[actor_name] = False
                                         ai_behaviors[actor_name].remove_ai("pursue")
-                                        request.request("Walk", actor, player, ai_behaviors[actor_name],
+                                        request.request("Walk", actor, player, self.ai_chars_bs,
+                                                        ai_behaviors[actor_name],
                                                         "evader", "Walking", vect, "loop")
                                     pass
                                 else:
@@ -398,7 +414,8 @@ class NpcsAI:
                                     if actor.get_python_tag("health_np")['value'] == 50.0:
                                         near_npc[actor_name] = False
                                         ai_behaviors[actor_name].remove_ai("pursue")
-                                        request.request("Walk", actor, enemy_npc_bs, ai_behaviors[actor_name],
+                                        request.request("Walk", actor, enemy_npc_bs, self.ai_chars_bs,
+                                                        ai_behaviors[actor_name],
                                                         "evader", "Walking", vect, "loop")
                                     pass
                                 else:

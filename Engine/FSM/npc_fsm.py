@@ -1,7 +1,6 @@
 from direct.fsm.FSM import FSM
 from direct.interval.FunctionInterval import Func
 from direct.interval.MetaInterval import Sequence
-from direct.task.TaskManagerGlobal import taskMgr
 
 
 class NpcFSM(FSM):
@@ -9,7 +8,6 @@ class NpcFSM(FSM):
         FSM.__init__(self, "NpcFSM")
         self.base = base
         self.render = render
-        self.taskMgr = taskMgr
         base.fsm = self
 
     def set_basic_npc_behaviors(self, actor, player, ai_behaviors, behavior, vect):
@@ -51,12 +49,12 @@ class NpcFSM(FSM):
 
     def set_pathfollow_static_behavior(self, actor, path, ai_behaviors, behavior):
         if (actor and path, not actor.is_empty()
-            and behavior
-            and isinstance(behavior, str)
-            and isinstance(path, list)
-            or isinstance(path, int)
-            or isinstance(path, float)
-            and ai_behaviors):
+                            and behavior
+                            and isinstance(behavior, str)
+                            and isinstance(path, list)
+                            or isinstance(path, int)
+                            or isinstance(path, float)
+                            and ai_behaviors):
             if behavior == "pathfollow":
                 ai_behaviors.path_follow(1)
                 ai_behaviors.add_to_path(path)
@@ -80,8 +78,8 @@ class NpcFSM(FSM):
                         actor.loop(action)
                 actor.set_play_rate(self.base.actor_play_rate, action)
 
-    def enterWalk(self, actor, player, ai_behaviors, behavior, action, vect, task):
-        if actor and player and ai_behaviors and behavior and action and task:
+    def enterWalk(self, actor, player, ai_chars_bs, ai_behaviors, behavior, action, vect, task):
+        if actor and player and ai_chars_bs and ai_behaviors and behavior and action and task:
             any_action = actor.get_anim_control(action)
             self.base.debug_any_action = any_action
 
@@ -92,21 +90,20 @@ class NpcFSM(FSM):
                 elif task == "loop":
                     if not any_action.isPlaying():
                         actor.loop(action)
-                actor.set_play_rate(self.base.actor_play_rate, action)
+                actor.set_play_rate(1.0, action)
 
             # Get correct NodePath
-            # actor = render.find("**/{0}".format(actor.get_name()))
-            if hasattr(self.base, "ai_chars_bs") and self.base.ai_chars_bs:
+            if ai_chars_bs:
                 name = actor.get_name()
-                actor = self.base.ai_chars_bs[name]
+                actor = ai_chars_bs[name]
                 self.set_basic_npc_behaviors(actor=actor,
                                              player=player,
                                              ai_behaviors=ai_behaviors,
                                              behavior=behavior,
                                              vect=vect)
 
-    def enterWalkAny(self, actor, path, ai_behaviors, behavior, action, task):
-        if actor and path and ai_behaviors and behavior and action and task:
+    def enterWalkAny(self, actor, path, ai_chars_bs, ai_behaviors, behavior, action, task):
+        if actor and path and ai_chars_bs and ai_behaviors and behavior and action and task:
             any_action = actor.get_anim_control(action)
 
             if isinstance(task, str):
@@ -119,11 +116,13 @@ class NpcFSM(FSM):
                 actor.set_play_rate(self.base.actor_play_rate, action)
 
             # Get correct NodePath
-            actor = render.find("**/{0}".format(actor.get_name()))
-            self.set_pathfollow_static_behavior(actor=actor.get_parent(),
-                                                path=path,
-                                                ai_behaviors=ai_behaviors,
-                                                behavior=behavior)
+            if ai_chars_bs:
+                name = actor.get_name()
+                actor = ai_chars_bs[name]
+                self.set_pathfollow_static_behavior(actor=actor.get_parent(),
+                                                    path=path,
+                                                    ai_behaviors=ai_behaviors,
+                                                    behavior=behavior)
 
     def enterAttack(self, actor, action, task):
         if actor and action and task:

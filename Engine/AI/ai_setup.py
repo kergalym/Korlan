@@ -21,7 +21,7 @@ class AI:
         self.npcs_fsm_states = None
         self.ai_char = None
         self.ai_chars = {}
-        self.base.ai_chars_bs = {}
+        self.ai_chars_bs = {}
         self.player = None
         self.dialogus = CmdDialogusUI()
         self.near_npc = {}
@@ -105,7 +105,7 @@ class AI:
                                 for ref_name in self.base.game_instance['actors_ref']:
                                     if "NPC" in ref_name:
                                         actor = self.base.get_actor_bullet_shape_node(asset=ref_name, type="NPC")
-                                        self.base.ai_chars_bs[ref_name] = actor
+                                        self.ai_chars_bs[ref_name] = actor
 
                                     if actor:
                                         speed = 6
@@ -137,7 +137,7 @@ class AI:
                         self.base.game_instance['ai_is_activated'] = 1
 
                         # Start NPC Logics
-                        NpcsAI(self.ai_world, self.ai_behaviors, self.ai_chars, self.player,
+                        NpcsAI(self.ai_world, self.ai_behaviors, self.ai_chars, self.ai_chars_bs, self.player,
                                self.player_fsm, self.npcs_fsm_states, self.npc_classes, self.near_npc)
 
                         return task.done
