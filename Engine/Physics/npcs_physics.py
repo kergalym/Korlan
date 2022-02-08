@@ -150,26 +150,7 @@ class NpcsPhysics:
                                 health -= 1
                                 actor.set_python_tag("health", health)
                             else:
-                                base.player_states['is_alive'] = False
-        return task.cont
-
-    def actor_hitbox_trace_task(self, actor, request, task):
-        if self.base.game_instance['menu_mode']:
-            return task.done
-
-        if actor and actor.find("**/**Hips:HB") and request:
-            parent_node = actor.find("**/**Hips:HB").node()
-            for node in parent_node.get_overlapping_nodes():
-                damage_weapons = actor.get_python_tag("damage_weapons")
-                for weapon in damage_weapons:
-                    if weapon in node.get_name():
-                        node.set_into_collide_mask(BitMask32.allOff())
-                        name = actor.get_name()
-                        actor_ref = self.base.game_instance['actors_ref'][name]
-                        request.request("Attacked", actor_ref, "HitToBody", "Standing_idle_male", "play")
-                        if actor.get_python_tag("health_np"):
-                            if actor.get_python_tag("health_np")['value'] > 0:
-                                actor.get_python_tag("health_np")['value'] -= 1
-                            else:
-                                actor.get_python_tag("generic_states")['is_alive'] = False
+                                if base.player_states['is_alive']:
+                                    base.player_states['is_alive'] = False
+                                    actor_ref.play("Dying")
         return task.cont

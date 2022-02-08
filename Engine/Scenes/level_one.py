@@ -24,9 +24,9 @@ level_npc_assets = {'name': ['NPC_Ernar', 'NPC_Mongol', 'NPC_Mongol2', 'NPC_Korl
                     'class': ['friend', 'enemy', 'enemy', 'friend', 'enemy']
                     }
 
-level_npc_axis = {'NPC_Ernar': [-15.0, 15.0, 0],
-                  'NPC_Mongol': [-25.0, 25.0, 0],
-                  'NPC_Mongol2': [-35.0, 35.0, 0],
+level_npc_axis = {'NPC_Ernar': [-3.0, 17.0, 0],
+                  'NPC_Mongol': [-7.0, 20.0, 0],
+                  'NPC_Mongol2': [-10.0, 27.0, 0],
                   'NPC_Korlan_Horse': [-9.0, 5.0, 0],
                   'NPC_Horse': [9.0, 5.0, 0]
                   }

@@ -31,6 +31,22 @@ class PlayerFSM(FSM):
                     self.player.loop(action)
                 self.player.setPlayRate(self.base.actor_play_rate, action)
 
+    def enterForwardRoll(self, actor, action, action_next, task):
+        if actor and action and action_next and task:
+            any_action = actor.get_anim_control(action)
+            any_action_seq = actor.actor_interval(action)
+            action_next_seq = actor.actor_interval(action_next)
+
+            if isinstance(task, str):
+                if task == "play":
+                    if not any_action.isPlaying():
+                        Sequence(any_action_seq, action_next_seq).start()
+
+                elif task == "loop":
+                    if not any_action.isPlaying():
+                        actor.loop(action)
+                actor.set_play_rate(self.base.actor_play_rate, action)
+
     def enterAttacked(self, actor, action, action_next, task):
         if actor and action and action_next and task:
             any_action = actor.get_anim_control(action)
@@ -109,6 +125,12 @@ class PlayerFSM(FSM):
                     if not any_action.isPlaying():
                         actor.loop(action)
                 actor.set_play_rate(self.base.actor_play_rate, action)
+
+    def filterForwardRoll(self, request, args):
+        if request not in ['Attacked']:
+            return (request,) + args
+        else:
+            return None
 
     def filterAttacked(self, request, args):
         if (hasattr(self.base, 'player_ref')

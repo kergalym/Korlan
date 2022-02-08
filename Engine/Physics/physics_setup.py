@@ -186,19 +186,13 @@ class PhysicsAttr:
                     # It should not get own position values.
                     actor.set_y(0)
                     actor.set_x(0)
+                    actor.set_h(-180)
 
                     # attach hitboxes and weapons
                     self.bullet_solids.get_bs_hitbox(actor=actor,
                                                      joints=["LeftHand", "RightHand", "Hips"],
-                                                     mask=self.mask,
+                                                     mask=self.mask1,
                                                      world=self.world)
-
-                    # hitboxes task
-                    name = actor.get_name()
-                    request = self.npcs_fsm_states[name]
-                    taskMgr.add(self.npcs_physics.actor_hitbox_trace_task,
-                                "{0}_hitboxes_task".format(col_name.lower()),
-                                extraArgs=[actor, request], appendTask=True)
 
                     actor_bs_np.node().set_kinematic(True)
 
