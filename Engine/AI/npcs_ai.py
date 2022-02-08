@@ -18,10 +18,6 @@ class NpcsAI:
         self.npc_rotations = {}
         self.start_attack = False
 
-        taskMgr.add(self.keep_actor_pitch_task,
-                    "keep_actor_pitch_task",
-                    appendTask=True)
-
         taskMgr.add(self.update_npc_states_task,
                     "update_npc_states_task",
                     appendTask=True)
@@ -31,14 +27,14 @@ class NpcsAI:
                     appendTask=True)
 
         for name in self.ai_chars_bs:
-            if "Horse" not in name:
-                actor = self.base.game_instance['actors_ref'][name]
-                name_bs = "{0}:BS".format(name)
-                actor_bs = self.base.game_instance['actors_np'][name_bs]
-                request = self.npcs_fsm_states[name]
-                taskMgr.add(self.actor_hitbox_trace_task,
-                            "{0}_hitboxes_task".format(name.lower()),
-                            extraArgs=[actor, actor_bs, request], appendTask=True)
+            actor = self.base.game_instance['actors_ref'][name]
+            actor.set_blend(frameBlend=True)
+            name_bs = "{0}:BS".format(name)
+            actor_bs = self.base.game_instance['actors_np'][name_bs]
+            request = self.npcs_fsm_states[name]
+            taskMgr.add(self.actor_hitbox_trace_task,
+                        "{0}_hitboxes_task".format(name.lower()),
+                        extraArgs=[actor, actor_bs, request], appendTask=True)
 
     def actor_hitbox_trace_task(self, actor, actor_bs, request, task):
         if self.base.game_instance['menu_mode']:
@@ -59,19 +55,6 @@ class NpcsAI:
                                 if actor.get_python_tag("generic_states")['is_alive']:
                                     actor.get_python_tag("generic_states")['is_alive'] = False
                                     actor.play("Dying")
-        return task.cont
-
-    def keep_actor_pitch_task(self, task):
-        # Fix me: Dirty hack for path finding issue
-        # when actor's pitch changes for reasons unknown for me xD
-
-        if self.base.game_instance['actors_ref']:
-            for actor in self.base.game_instance['actors_ref']:
-                if not self.base.game_instance['actors_ref'][actor].is_empty():
-                    # Prevent pitch changing
-                    self.base.game_instance['actors_ref'][actor].set_p(0)
-                    self.base.game_instance['actors_ref'][actor].get_parent().set_p(0)
-
         return task.cont
 
     def update_pathfinding_task(self, task):
@@ -160,7 +143,6 @@ class NpcsAI:
                 actor_npc_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
                 self.ai_chars[actor_name].set_max_force(5)
                 actor_ref = self.base.game_instance['actors_ref'][actor_name]
-                # actor.set_blend(frameBlend=True)
 
                 if passive:
                     # Just stay
@@ -187,7 +169,6 @@ class NpcsAI:
                                 or ai_behaviors[actor_name].behavior_status("pursue") == "done"):
                             if player_vec <= 1:
                                 ai_behaviors[actor_name].remove_ai("pursue")
-                                actor_npc_bs.look_at(player)
                                 self.npc_in_staying_logic(actor, request)
                                 if (actor_ref.get_python_tag("health_np")['value']
                                         < actor_ref.get_python_tag("health_np")['range']):
@@ -197,8 +178,6 @@ class NpcsAI:
                                 request.request("Walk", actor, player, self.ai_chars_bs,
                                                 ai_behaviors[actor_name],
                                                 "pursuer", "Walking", vect, "loop")
-                                actor_npc_bs.look_at(player)
-                                actor_npc_bs.set_y(actor_npc_bs, 6 * dt)
 
                     # If NPC is far from enemy, do pursue enemy
                     """if self.base.game_instance['player_ref'].get_current_frame("Boxing"):
@@ -223,9 +202,7 @@ class NpcsAI:
                                     request.request("Walk", actor, enemy_npc_bs,
                                                     self.ai_chars_bs,
                                                     ai_behaviors[actor_name],
-                                                    "pursuer", "Walking", vect, "loop")
-                                    actor_npc_bs.look_at(player)
-                                    actor_npc_bs.set_y(actor_npc_bs, 6 * dt)"""
+                                                    "pursuer", "Walking", vect, "loop")"""
 
     def npc_neutral_logic(self, actor, player, request, ai_behaviors,
                           npcs_fsm_states, passive):
@@ -240,8 +217,6 @@ class NpcsAI:
 
                 actor_name = actor.get_name()
                 self.ai_chars[actor_name].set_max_force(5)
-
-                # actor.set_blend(frameBlend=True)
 
                 if passive:
                     # Just stay
@@ -273,7 +248,6 @@ class NpcsAI:
                 actor_name = actor.get_name()
                 actor_npc_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
                 self.ai_chars[actor_name].set_max_force(5)
-                # actor.set_blend(frameBlend=True)
 
                 # Just stay
                 if passive:
@@ -317,7 +291,7 @@ class NpcsAI:
 
                                     # NPC starts attacking the opponent when player first starts attacking it
                                     if "Horse" not in actor.get_name():
-                                        self.npc_in_attacking_logic(actor, actor_npc_bs, dt,  request)
+                                        self.npc_in_attacking_logic(actor, actor_npc_bs, dt, request)
 
                             elif enemy_vec > 1:
                                 if "Horse" not in actor.get_name():

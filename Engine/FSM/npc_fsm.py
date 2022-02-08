@@ -92,7 +92,6 @@ class NpcFSM(FSM):
     def enterIdle(self, actor, action, task):
         if actor and action and task:
             any_action = actor.get_anim_control(action)
-            self.base.debug_any_action = any_action
 
             if isinstance(task, str):
                 if task == "play":
@@ -106,7 +105,6 @@ class NpcFSM(FSM):
     def enterWalk(self, actor, player, ai_chars_bs, ai_behaviors, behavior, action, vect, task):
         if actor and player and ai_chars_bs and ai_behaviors and behavior and action and task:
             any_action = actor.get_anim_control(action)
-            self.base.debug_any_action = any_action
 
             if isinstance(task, str):
                 if task == "play":
@@ -121,11 +119,11 @@ class NpcFSM(FSM):
             if ai_chars_bs:
                 name = actor.get_name()
                 actor_bs = ai_chars_bs[name]
-                """self.set_basic_npc_behaviors(actor=actor_bs,
+                self.set_basic_npc_behaviors(actor=actor_bs,
                                              player=player,
                                              ai_behaviors=ai_behaviors,
                                              behavior=behavior,
-                                             vect=vect)"""
+                                             vect=vect)
 
     def enterWalkAny(self, actor, path, ai_chars_bs, ai_behaviors, behavior, action, task):
         if actor and path and ai_chars_bs and ai_behaviors and behavior and action and task:

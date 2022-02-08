@@ -54,6 +54,17 @@ class NpcsPhysics:
                 player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
                 actor_bs_np = self.base.game_instance['actors_np']["{0}:BS".format(animal_actor.get_name())]
 
+                # Fix me: Dirty hack for path finding issue
+                # when actor's pitch changes for reasons unknown for me xD
+                # Prevent pitch changing
+                self.base.game_instance['actors_ref'][animal_actor.get_name()].set_p(0)
+                self.base.game_instance['actors_ref'][animal_actor.get_name()].get_parent().set_p(0)
+                # Prevent from falling while collided
+                if (actor_bs_np and hasattr(actor_bs_np.node(), 'is_kinematic')
+                        and not actor_bs_np.node().is_kinematic):
+                    actor_bs_np.set_p(0)
+                    actor_bs_np.set_r(0)
+
                 for node in trigger.get_overlapping_nodes():
                     # ignore trigger itself and ground both
                     if "NPC" in node.get_name() or "Player" in node.get_name():
@@ -89,7 +100,8 @@ class NpcsPhysics:
 
                 # keep actor_bs_np height while kinematic is active
                 # because in kinematic it has no gravity impact and gets unwanted drop down
-                if actor_bs_np and actor_bs_np.node().is_kinematic:
+                if (actor_bs_np and hasattr(actor_bs_np.node(), 'is_kinematic')
+                        and actor_bs_np.node().is_kinematic):
                     actor_bs_np.set_z(0.96)
 
         return task.cont
@@ -109,6 +121,17 @@ class NpcsPhysics:
                 player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
                 actor_bs_np = self.base.game_instance['actors_np']["{0}:BS".format(actor.get_name())]
 
+                # Fix me: Dirty hack for path finding issue
+                # when actor's pitch changes for reasons unknown for me xD
+                # Prevent pitch changing
+                self.base.game_instance['actors_ref'][actor.get_name()].set_p(0)
+                self.base.game_instance['actors_ref'][actor.get_name()].get_parent().set_p(0)
+                # Prevent from falling while collided
+                if (actor_bs_np and hasattr(actor_bs_np.node(), 'is_kinematic')
+                        and not actor_bs_np.node().is_kinematic):
+                    actor_bs_np.set_p(0)
+                    actor_bs_np.set_r(0)
+
                 for node in trigger.get_overlapping_nodes():
                     # ignore trigger itself and ground both
                     if "NPC" in node.get_name() or "Player" in node.get_name():
@@ -125,7 +148,8 @@ class NpcsPhysics:
 
                 # keep actor_bs_np height while kinematic is active
                 # because in kinematic it has no gravity impact and gets unwanted drop down
-                if actor_bs_np and actor_bs_np.node().is_kinematic:
+                if (actor_bs_np and hasattr(actor_bs_np.node(), 'is_kinematic')
+                        and actor_bs_np.node().is_kinematic):
                     actor_bs_np.set_z(0.96)
 
         return task.cont

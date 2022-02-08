@@ -603,40 +603,42 @@ class Sheet(Inventory):
         """ Sets inventory ui """
         if (not self.base.game_instance['menu_mode']
                 and not self.base.game_instance['esc_mode']):
-            if self.base.frame_inv:
-                if self.base.frame_inv.is_hidden():
+            player = self.base.game_instance['player_ref']
+            if not player.get_python_tag("is_on_horse"):
+                if self.base.frame_inv:
+                    if self.base.frame_inv.is_hidden():
 
-                    if self.base.game_instance['hud_np']:
-                        self.base.game_instance['hud_np'].toggle_all_hud(state="hidden")
+                        if self.base.game_instance['hud_np']:
+                            self.base.game_instance['hud_np'].toggle_all_hud(state="hidden")
 
-                    self.base.frame_inv.show()
-                    # self.base.menu_selector.show()
-                    self.base.btn_select_inv.show()
-                    self.base.btn_select_journal.show()
+                        self.base.frame_inv.show()
+                        # self.base.menu_selector.show()
+                        self.base.btn_select_inv.show()
+                        self.base.btn_select_journal.show()
 
-                    self.base.btn_select_inv["state"] = DGG.DISABLED
-                    self.base.btn_select_journal["state"] = DGG.NORMAL
+                        self.base.btn_select_inv["state"] = DGG.DISABLED
+                        self.base.btn_select_journal["state"] = DGG.NORMAL
 
-                    self.props.set_cursor_hidden(False)
-                    self.base.win.request_properties(self.props)
+                        self.props.set_cursor_hidden(False)
+                        self.base.win.request_properties(self.props)
 
-                    self.base.game_instance['ui_mode'] = True
-                    self.base.is_inventory_active = True
-                    self.prepare_character()
+                        self.base.game_instance['ui_mode'] = True
+                        self.base.is_inventory_active = True
+                        self.prepare_character()
 
-                    self.toggle()
+                        self.toggle()
 
-                    # Stop item dragging on right mouse
-                    base.accept('mouse3-up', self.stop_drag)
+                        # Stop item dragging on right mouse
+                        base.accept('mouse3-up', self.stop_drag)
 
-                    # 'on item move' event processing
-                    # in this case we are delete item, which has been placed into the 'TRASH'
-                    base.accept('inventory-item-move', self.on_item_move)
-                    self.refresh_items()
-                    self.update_counters()
-                    self.refresh_player_properties()
-                else:
-                    self.clear_sheet()
+                        # 'on item move' event processing
+                        # in this case we are delete item, which has been placed into the 'TRASH'
+                        base.accept('inventory-item-move', self.on_item_move)
+                        self.refresh_items()
+                        self.update_counters()
+                        self.refresh_player_properties()
+                    else:
+                        self.clear_sheet()
 
     def clear_sheet(self):
         self.base.build_info.reparent_to(aspect2d)

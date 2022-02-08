@@ -253,7 +253,7 @@ class PlayerState:
             min_, max_ = weapon.get_tight_bounds()
             size = max_ - min_
             shape = BulletBoxShape(Vec3(0.05, 0.55, 0.05))
-            body = BulletGhostNode('Player_{0}_BGN'.format(name))
+            body = BulletGhostNode('{0}_BGN'.format(name))
             weapon_rb_np = NodePath(body)
             weapon_rb_np.wrt_reparent_to(joint)
             weapon_rb_np.set_pos(10, -14.90, -8)

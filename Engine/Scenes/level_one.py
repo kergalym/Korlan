@@ -186,7 +186,6 @@ class LevelOne:
 
             # Unload AI
             if self.ai and self.ai.ai_world:
-                taskMgr.remove("keep_actor_pitch_task")
                 taskMgr.remove("npc_distance_calculate_task")
                 taskMgr.remove("update_npc_states_task")
                 taskMgr.remove("update_pathfinding_task")

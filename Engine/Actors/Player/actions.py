@@ -805,6 +805,8 @@ class Actions:
                     speed.set_y(-move_unit)
             if (self.kbd.keymap["backward"]
                     and self.kbd.keymap["run"] is False
+                    and self.kbd.keymap["left"] is False
+                    and self.kbd.keymap["right"] is False
                     and base.player_states['is_moving']
                     and base.player_states['is_attacked'] is False
                     and base.player_states['is_busy'] is False
@@ -814,6 +816,8 @@ class Actions:
                     speed.set_y(move_unit)
             if (self.kbd.keymap["backward"]
                     and self.kbd.keymap["run"] is False
+                    and self.kbd.keymap["left"] is False
+                    and self.kbd.keymap["right"] is False
                     and base.player_states['is_moving'] is False
                     and base.player_states['is_attacked'] is False
                     and base.player_states['is_busy'] is False
@@ -829,7 +833,10 @@ class Actions:
             # If the player does action, loop the animation through messenger.
             if (self.kbd.keymap["forward"]
                     and self.kbd.keymap["run"] is False
-                    or self.kbd.keymap["backward"]):
+                    or self.kbd.keymap["backward"]
+                    and self.kbd.keymap["run"] is False
+                    and self.kbd.keymap["left"] is False
+                    and self.kbd.keymap["right"] is False):
                 if (base.player_states['is_moving'] is False
                         and base.player_states['is_attacked'] is False
                         and base.player_states['is_busy'] is False
@@ -868,7 +875,9 @@ class Actions:
                     and base.player_states['is_attacked'] is False
                     and base.player_states['is_busy'] is False
                     and self.kbd.keymap["run"] is False
-                    and base.player_states["is_running"] is False):
+                    and base.player_states["is_running"] is False
+                    and self.kbd.keymap["left"] is False
+                    and self.kbd.keymap["right"] is False):
                 player.set_play_rate(-1.0,
                                      anims[self.walking_forward_action])
 
@@ -1076,7 +1085,8 @@ class Actions:
                 if (self.kbd.keymap["forward"]
                         and self.kbd.keymap["run"]):
                     if base.input_state.is_set('forward'):
-                        if player.get_python_tag('stamina') > 1:
+                        if (player.get_python_tag('stamina')
+                                and player.get_python_tag('stamina') > 1):
                             stamina = player.get_python_tag('stamina')
                             stamina -= 5
                             player.set_python_tag("stamina", stamina)

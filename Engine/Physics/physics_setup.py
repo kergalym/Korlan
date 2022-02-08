@@ -186,7 +186,6 @@ class PhysicsAttr:
                     # It should not get own position values.
                     actor.set_y(0)
                     actor.set_x(0)
-                    actor.set_h(-180)
 
                     # attach hitboxes and weapons
                     self.bullet_solids.get_bs_hitbox(actor=actor,
@@ -195,6 +194,7 @@ class PhysicsAttr:
                                                      world=self.world)
 
                     actor_bs_np.node().set_kinematic(True)
+                    actor_bs_np.node().set_collision_response(True)
 
                     # reparent bullet-shaped actor to LOD node
                     actor_bs_np.reparent_to(self.base.game_instance['lod_np'])
@@ -233,6 +233,7 @@ class PhysicsAttr:
                     actor.set_x(0)
 
                     actor_bs_np.node().set_kinematic(True)
+                    actor_bs_np.node().set_collision_response(True)
 
                     # reparent bullet-shaped actor to LOD node
                     actor_bs_np.reparent_to(self.base.game_instance['lod_np'])
