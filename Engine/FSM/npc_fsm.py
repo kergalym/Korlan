@@ -1,7 +1,6 @@
 from direct.fsm.FSM import FSM
 from direct.interval.FunctionInterval import Func
 from direct.interval.MetaInterval import Sequence
-from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import BitMask32
 
 
@@ -10,31 +9,7 @@ class NpcFSM(FSM):
         FSM.__init__(self, "NpcFSM")
         self.base = base
         self.render = render
-        self.actor = None
         base.fsm = self
-        self.actor = None
-        self.actor_bs = None
-
-        taskMgr.add(self.idle_state_task, "idle_state_task")
-
-    def idle_state_task(self, task):
-        if self.base.game_instance['menu_mode']:
-            return task.done
-
-        if not self.state:
-            if self.actor and self.actor.get_python_tag("generic_states")['is_alive']:
-                self.actor.loop("Standing_idle_male")
-        else:
-            if self.actor and self.actor.get_python_tag("generic_states")['is_alive']:
-                self.actor.stop("Standing_idle_male")
-        return task.cont
-
-    def get_actor(self, actor):
-        if actor:
-            name = actor.get_name()
-            name = name.split(":")[0]
-            self.actor = self.base.game_instance['actors_ref'][name]
-            self.actor_bs = actor
 
     def set_basic_npc_behaviors(self, actor, player, ai_behaviors, behavior, vect):
         if (actor and player
@@ -95,12 +70,11 @@ class NpcFSM(FSM):
 
             if isinstance(task, str):
                 if task == "play":
-                    if not any_action.isPlaying():
+                    if not any_action.is_playing():
                         actor.play(action)
                 elif task == "loop":
-                    if not any_action.isPlaying():
+                    if not any_action.is_playing():
                         actor.loop(action)
-                actor.set_play_rate(self.base.actor_play_rate, action)
 
     def enterWalk(self, actor, player, ai_chars_bs, ai_behaviors, behavior, action, vect, task):
         if actor and player and ai_chars_bs and ai_behaviors and behavior and action and task:
@@ -108,10 +82,10 @@ class NpcFSM(FSM):
 
             if isinstance(task, str):
                 if task == "play":
-                    if not any_action.isPlaying():
+                    if not any_action.is_playing():
                         actor.play(action)
                 elif task == "loop":
-                    if not any_action.isPlaying():
+                    if not any_action.is_playing():
                         actor.loop(action)
                 actor.set_play_rate(1.0, action)
 
@@ -131,12 +105,11 @@ class NpcFSM(FSM):
 
             if isinstance(task, str):
                 if task == "play":
-                    if not any_action.isPlaying():
+                    if not any_action.is_playing():
                         actor.play(action)
                 elif task == "loop":
-                    if not any_action.isPlaying():
+                    if not any_action.is_playing():
                         actor.loop(action)
-                actor.set_play_rate(self.base.actor_play_rate, action)
 
             # Get correct NodePath
             if ai_chars_bs:
@@ -160,19 +133,19 @@ class NpcFSM(FSM):
                 suffix = "**RightHand:HB"
             """
 
-            actor_node = actor.find("**/{0}".format(suffix)).node()
+            hitbox_np = actor.find("**/{0}".format(suffix))
 
             if isinstance(task, str):
                 if task == "play":
-                    if not any_action.isPlaying():
-                        Sequence(Func(actor_node.set_into_collide_mask, BitMask32.bit(1)),
+                    if not any_action.is_playing():
+                        Sequence(Func(hitbox_np.set_collide_mask, BitMask32.bit(1)),
                                  any_action_seq,
-                                 Func(actor_node.set_into_collide_mask, BitMask32.allOff())).start()
+                                 Func(hitbox_np.set_collide_mask, BitMask32.allOff()),
+                                 action_next_seq).start()
 
                 elif task == "loop":
-                    if not any_action.isPlaying():
+                    if not any_action.is_playing():
                         actor.loop(action)
-                actor.set_play_rate(self.base.actor_play_rate, action)
 
     def enterForwardRoll(self, actor, action, action_next, task):
         if actor and action and action_next and task:
@@ -182,30 +155,29 @@ class NpcFSM(FSM):
 
             if isinstance(task, str):
                 if task == "play":
-                    if not any_action.isPlaying():
-                        Sequence(any_action_seq).start()
+                    if not any_action.is_playing():
+                        Sequence(any_action_seq, action_next_seq).start()
 
                 elif task == "loop":
-                    if not any_action.isPlaying():
+                    if not any_action.is_playing():
                         actor.loop(action)
-                actor.set_play_rate(self.base.actor_play_rate, action)
 
     def enterAttacked(self, actor, action, action_next, task):
         if actor and action and action_next and task:
             any_action = actor.get_anim_control(action)
+            any_action_seq = actor.actor_interval(action)
+            action_next_seq = actor.actor_interval(action_next)
 
             if isinstance(task, str):
                 if task == "play":
-                    if not any_action.isPlaying():
-                        Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_attacked", True),
-                                 actor.actor_interval(action, loop=0),
-                                 actor.actor_interval(action_next, loop=1),
-                                 Func(self.fsm_state_wrapper, actor, "generic_states", "is_attacked", False)).start()
+                    if not any_action.is_playing():
+                        Sequence(any_action_seq,
+                                 Func(self.fsm_state_wrapper, actor, "generic_states", "is_attacked", False),
+                                 action_next_seq).start()
 
                 elif task == "loop":
-                    if not any_action.isPlaying():
+                    if not any_action.is_playing():
                         actor.loop(action)
-                actor.set_play_rate(self.base.actor_play_rate, action)
 
     def enterHAttack(self):
         pass
@@ -219,14 +191,13 @@ class NpcFSM(FSM):
 
             if isinstance(task, str):
                 if task == "play":
-                    if not any_action.isPlaying():
+                    if not any_action.is_playing():
                         Sequence(actor.actor_interval(action, loop=0),
                                  actor.actor_interval(action_next, loop=1)).start()
 
                 elif task == "loop":
-                    if not any_action.isPlaying():
+                    if not any_action.is_playing():
                         actor.loop(action)
-                actor.set_play_rate(self.base.actor_play_rate, action)
 
     def enterInteract(self):
         pass
@@ -237,17 +208,19 @@ class NpcFSM(FSM):
     def enterDeath(self, actor, action, task):
         if actor and action and task:
             any_action = actor.get_anim_control(action)
-            any_action_seq = actor.actor_interval(action)
+
+            name = "{0}:BS".format(actor.get_name())
+            actor_bs = self.base.game_instance['actors_np'][name]
+            actor_bs.node().set_collision_response(False)
 
             if isinstance(task, str):
                 if task == "play":
-                    if not any_action.isPlaying():
-                        Sequence(any_action_seq).start()
+                    if not any_action.is_playing():
+                        actor.play(action)
 
                 elif task == "loop":
-                    if not any_action.isPlaying():
+                    if not any_action.is_playing():
                         actor.loop(action)
-                actor.set_play_rate(self.base.actor_play_rate, action)
 
     def enterMiscAct(self):
         pass

@@ -194,7 +194,7 @@ class PhysicsAttr:
                                                      world=self.world)
 
                     actor_bs_np.node().set_kinematic(True)
-                    actor_bs_np.node().set_collision_response(True)
+                    # actor_bs_np.node().set_collision_response(True)
 
                     # reparent bullet-shaped actor to LOD node
                     actor_bs_np.reparent_to(self.base.game_instance['lod_np'])
@@ -233,7 +233,7 @@ class PhysicsAttr:
                     actor.set_x(0)
 
                     actor_bs_np.node().set_kinematic(True)
-                    actor_bs_np.node().set_collision_response(True)
+                    # actor_bs_np.node().set_collision_response(True)
 
                     # reparent bullet-shaped actor to LOD node
                     actor_bs_np.reparent_to(self.base.game_instance['lod_np'])
@@ -416,6 +416,8 @@ class PhysicsAttr:
             model.set_name('box')
             model.set_pos(0, 0, 0)
             model.set_hpr(np.get_hpr())
+            # todo: test
+            self.base.box_np = np
 
             # Disable colliding
             self.world.set_group_collision_flag(0, 0, False)

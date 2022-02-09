@@ -107,9 +107,6 @@ class AI:
                                         actor = self.base.get_actor_bullet_shape_node(asset=ref_name, type="NPC")
                                         self.ai_chars_bs[ref_name] = actor
 
-                                        for npc in npcs_fsm_states:
-                                            if npcs_fsm_states.get(npc):
-                                                npcs_fsm_states[npc].get_actor(actor)
                                     if actor:
                                         speed = 6
 

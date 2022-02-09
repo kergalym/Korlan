@@ -489,9 +489,6 @@ class Actions:
                 taskMgr.add(self.prepare_arrows_helper(arrow_name="bow_arrow_kazakh",
                                                        joint_name="Korlan:Spine1"))
 
-                # Pass the player object to FSM
-                self.fsm_player.get_player(actor=player)
-
                 # Start actions
                 taskMgr.add(self.player_actions_task, "player_actions_task",
                             extraArgs=[player, anims],
@@ -1347,19 +1344,19 @@ class Actions:
                 elif not base.player_states['has_sword']:
                     suffix = "**RightHand:HB"
 
-                actor_node = player.find("**/{0}".format(suffix)).node()
+                hitbox_np = player.find("**/{0}".format(suffix))
 
                 self.player_in_crouched_to_stand_with_any_action(player, key, anims, action, "is_hitting")
 
-                if (actor_node and base.player_states['is_hitting'] is False
+                if (hitbox_np and base.player_states['is_hitting'] is False
                         and crouched_to_standing.is_playing() is False
                         and base.player_states['is_crouching'] is False):
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
                     Sequence(Func(self.state.set_action_state, "is_hitting", True),
-                             Func(actor_node.set_into_collide_mask, BitMask32.bit(0)),
+                             Func(hitbox_np.set_collide_mask, BitMask32.bit(0)),
                              any_action_seq,
-                             Func(actor_node.set_into_collide_mask, BitMask32.allOff()),
+                             Func(hitbox_np.set_collide_mask, BitMask32.allOff()),
                              Func(self.state.set_action_state, "is_hitting", False),
                              Func(self.state.set_do_once_key, key, False),
                              ).start()

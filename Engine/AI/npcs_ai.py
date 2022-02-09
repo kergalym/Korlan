@@ -45,16 +45,23 @@ class NpcsAI:
             for node in parent_node.get_overlapping_nodes():
                 damage_weapons = actor.get_python_tag("damage_weapons")
                 for weapon in damage_weapons:
-                    if weapon in node.get_name():
-                        node.set_into_collide_mask(BitMask32.allOff())
-                        request.request("Attacked", actor, "HitToBody", "Standing_idle_male", "play")
-                        if actor.get_python_tag("health_np"):
-                            if actor.get_python_tag("health_np")['value'] > 0:
-                                actor.get_python_tag("health_np")['value'] -= 1
-                            else:
-                                if actor.get_python_tag("generic_states")['is_alive']:
-                                    actor.get_python_tag("generic_states")['is_alive'] = False
-                                    actor.play("Dying")
+                    # Exclude our own weapon hits
+                    if (weapon in node.get_name()
+                            and actor.get_name() not in node.get_name()):
+                        hitbox_np = render.find("**/{0}".format(node.get_name()))
+                        if hitbox_np:
+                            # Deactivate enemy weapon if we got hit
+                            if str(hitbox_np.get_collide_mask()) != " 0000 0000 0000 0000 0000 0000 0000 0000\n":
+                                hitbox_np.set_collide_mask(BitMask32.allOff())
+
+                                if actor.get_python_tag("health_np"):
+                                    if actor.get_python_tag("health_np")['value'] > 0:
+                                        actor.get_python_tag("health_np")['value'] -= 1
+                                        request.request("Attacked", actor, "HitToBody", "Standing_idle_male", "play")
+                                    else:
+                                        if actor.get_python_tag("generic_states")['is_alive']:
+                                            actor.get_python_tag("generic_states")['is_alive'] = False
+                                            request.request("Death", actor, "Dying", "play")
         return task.cont
 
     def update_pathfinding_task(self, task):
@@ -65,7 +72,7 @@ class NpcsAI:
                 for name in self.ai_chars_bs:
                     if "Horse" not in name:
                         # Add actors as obstacles except actor that avoids them
-                        if name != actor_name:
+                        if name != actor_name and "Ernar" in name:
                             ai_char_bs = self.ai_chars_bs[name]
                             if ai_char_bs:
                                 # self.ai_behaviors[actor_name].path_find_to(ai_char_bs, "addPath")
@@ -73,8 +80,8 @@ class NpcsAI:
                                 # self.ai_behaviors[actor_name].path_find_to(self.player, "addPath")
                                 self.ai_behaviors[actor_name].add_dynamic_obstacle(self.player)
                                 # Obstacle avoidance behavior
-                                # self.ai_behaviors[actor_name].obstacle_avoidance(1.0)
-                                # self.ai_world.add_obstacle(ai_char_bs)
+                                self.ai_behaviors[actor_name].obstacle_avoidance(1.0)
+                                self.ai_world.add_obstacle(self.base.box_np)
 
             return task.done
 
@@ -310,35 +317,36 @@ class NpcsAI:
                                 request.request("Idle", actor, "Standing_idle_male", "loop")"""
 
     def update_npc_states_task(self, task):
-        if (self.player
-                and self.base.game_instance['actors_ref']):
-            for actor_name, fsm_name in zip(self.base.game_instance['actors_ref'], self.npcs_fsm_states):
-                actor = self.base.game_instance['actors_ref'][actor_name]
-                request = self.npcs_fsm_states[fsm_name]
-                npc_class = self.set_npc_class(actor=actor,
-                                               npc_classes=self.npc_classes)
+        if self.base.game_instance['loading_is_done'] == 1:
+            if (self.player
+                    and self.base.game_instance['actors_ref']):
+                for actor_name, fsm_name in zip(self.base.game_instance['actors_ref'], self.npcs_fsm_states):
+                    actor = self.base.game_instance['actors_ref'][actor_name]
+                    request = self.npcs_fsm_states[fsm_name]
+                    npc_class = self.set_npc_class(actor=actor,
+                                                   npc_classes=self.npc_classes)
 
-                if npc_class and "Horse" not in actor_name:
-                    if npc_class == "friend":
-                        self.npc_friend_logic(actor=actor,
-                                              player=self.player,
-                                              request=request,
-                                              ai_behaviors=self.ai_behaviors,
-                                              npcs_fsm_states=self.npcs_fsm_states,
-                                              passive=False)
-                    """if npc_class == "neutral":
-                        self.npc_neutral_logic(actor=actor,
-                                               player=self.player,
-                                               request=request,
-                                               ai_behaviors=self.ai_behaviors,
-                                               npcs_fsm_states=self.npcs_fsm_states,
-                                               passive=True)
-                    if npc_class == "enemy":
-                        self.npc_enemy_logic(actor=actor,
-                                             player=self.player,
-                                             player_fsm=self.player_fsm,
-                                             request=request,
-                                             ai_behaviors=self.ai_behaviors,
-                                             npcs_fsm_states=self.npcs_fsm_states,
-                                             passive=False)"""
+                    if npc_class and "Horse" not in actor_name:
+                        if npc_class == "friend":
+                            self.npc_friend_logic(actor=actor,
+                                                  player=self.player,
+                                                  request=request,
+                                                  ai_behaviors=self.ai_behaviors,
+                                                  npcs_fsm_states=self.npcs_fsm_states,
+                                                  passive=False)
+                        """if npc_class == "neutral":
+                            self.npc_neutral_logic(actor=actor,
+                                                   player=self.player,
+                                                   request=request,
+                                                   ai_behaviors=self.ai_behaviors,
+                                                   npcs_fsm_states=self.npcs_fsm_states,
+                                                   passive=True)
+                        if npc_class == "enemy":
+                            self.npc_enemy_logic(actor=actor,
+                                                 player=self.player,
+                                                 player_fsm=self.player_fsm,
+                                                 request=request,
+                                                 ai_behaviors=self.ai_behaviors,
+                                                 npcs_fsm_states=self.npcs_fsm_states,
+                                                 passive=False)"""
         return task.cont

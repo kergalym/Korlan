@@ -38,7 +38,7 @@ class BulletCollisionSolids:
                     ghost_np.set_pos(0, 8.0, 5.2)
                     ghost_np.set_scale(6, 6, 6)
                     # Actor and its hitboxes won't collide with each other
-                    ghost_np.node().set_into_collide_mask(BitMask32.allOff())
+                    ghost_np.set_collide_mask(BitMask32.allOff())
 
                 ghost_np.set_tag(key=name_hb, value=joint)
 

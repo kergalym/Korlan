@@ -124,10 +124,10 @@ class LoadingUI:
     def fadeout_task(self, task):
         if self.fadeout_screen:
             dt = globalClock.getDt()
-            seconds = 60 * dt
+            seconds = int(90 * dt)
             alpha = self.fadeout_screen['frameColor'][3]
 
-            if alpha > 0 and seconds > 2:
+            if alpha > 0 and seconds == 2:
                 alpha -= 0.1
                 self.fadeout_screen['frameColor'] = (0, 0, 0, alpha)
             elif alpha == 0.0:
