@@ -565,11 +565,11 @@ class RenderAttr:
                 # Set the flame effect
                 if self.game_settings['Main']['postprocessing'] == 'on' and adv_render:
                     self.render_pipeline.set_effect(self.flame_np,
-                                                    "{0}/Engine/Render/effects/flame.yaml".format(self.game_dir),
+                                                    "{0}/Engine/Render/effects/flame2.yaml".format(self.game_dir),
                                                     {})
                 elif self.game_settings['Main']['postprocessing'] == 'off' and not adv_render:
                     ready_shaders = self.get_all_shaders(self.base.shader_collector())
-                    #self.water_np.set_shader(ready_shaders['Flame'])
+                    # self.water_np.set_shader(ready_shaders['Flame'])
                     self.water_np.set_shader(ready_shaders['Flame2'])
 
                 taskMgr.add(self.flame_proc_shader_task,
