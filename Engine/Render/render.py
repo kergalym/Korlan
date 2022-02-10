@@ -552,10 +552,24 @@ class RenderAttr:
                 self.grass_np.setPos(0.0, 0.0, 0.0)
 
             elif adv_render and not render.find("**/water_plane").is_empty():
-                """self.render_pipeline.set_effect(self.grass,
+                textures = self.base.textures_collector("{0}/Engine/Shaders/".format(self.game_dir))
+                self.grass_np = render.find("**/Grass")
+                self.grass_np.setTransparency(TransparencyAttrib.MBinary, 1)
+                self.grass_np.reparentTo(self.grass_np.get_parent())
+                self.grass_np.setInstanceCount(256)
+                self.grass_np.node().setBounds(BoundingBox((0, 0, 0), (256, 256, 128)))
+                self.grass_np.node().setFinal(1)
+
+                self.render_pipeline.set_effect(self.grass_np,
                                                 "{0}/Engine/Render/effects/grass.yaml".format(self.game_dir),
                                                 {},
-                                                self.water_camera)"""
+                                                self.water_camera)
+
+                self.grass_np.setShaderInput('height', self.base.loader.load_texture(textures["heightmap"]))
+                self.grass_np.setShaderInput('grass', self.base.loader.load_texture(textures["grass"]))
+                self.grass_np.setShaderInput('uv_offset', uv_offset)
+                self.grass_np.setShaderInput('fogcenter', fogcenter)
+                self.grass_np.setPos(0.0, 0.0, 0.0)
 
     def set_flame(self, adv_render):
         if adv_render:

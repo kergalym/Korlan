@@ -131,15 +131,19 @@ class SceneOne:
                 # shader generation is not enabled. It would be reasonable
                 # to enable shader generation for the entire game, using this call:
                 # scene.set_shader_auto()
+                # Enable water
                 self.render_attr.set_water(adv_render=False, water_lvl=30.0)
-
+                # Enable flame
+                self.render_attr.set_flame(adv_render=False)
+                # Enable grass
+                self.render_attr.set_grass(True, adv_render=False)
             else:
                 # Enable water
                 self.render_attr.set_water(adv_render=True, water_lvl=30.0)
+                # Enable flame
                 self.render_attr.set_flame(adv_render=True)
-
                 # Enable grass
-                # self.render_attr.set_grass(True, adv_render=False)
+                self.render_attr.set_grass(True, adv_render=True)
 
                 # Enable flare
                 # self.render_attr.set_flare(True, adv_render=False)
