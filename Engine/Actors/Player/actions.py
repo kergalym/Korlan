@@ -889,16 +889,22 @@ class Actions:
             # If a move-key is pressed, move the player in the specified direction.
             speed = Vec3(0, 0, 0)
             move_unit = 7
+
+            # Get the time that elapsed since last frame
+            dt = globalClock.getDt()
+            seconds = int(60 * dt)
+
             if (self.kbd.keymap["forward"]
                     and self.kbd.keymap["run"]
                     and not base.player_states['is_jumping']):
                 if base.input_state.is_set('forward'):
                     if self.base.game_instance['player_props']['stamina'] > 1:
-                        self.base.game_instance['player_props']['stamina'] -= 5
-                        stamina = self.base.game_instance['player_props']['stamina']
-                        self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] = stamina
-                        player.set_python_tag('stamina', stamina)
-                        speed.set_y(-move_unit)
+                        if seconds == 1:
+                            self.base.game_instance['player_props']['stamina'] -= move_unit
+                            stamina = self.base.game_instance['player_props']['stamina']
+                            self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] = stamina
+                            player.set_python_tag('stamina', stamina)
+                    speed.set_y(-move_unit)
 
                     if self.base.game_instance['player_controller_np']:
                         self.base.game_instance['player_controller_np'].set_linear_movement(speed, True)
@@ -912,28 +918,30 @@ class Actions:
                         and base.player_states['is_busy'] is False
                         and base.player_states['is_crouch_moving'] is False
                         and base.player_states["is_running"] is False
-                        and base.player_states['is_idle']
-                        and player.get_python_tag('stamina') > 1
-                        and not player.get_python_tag('stamina') < 3):
-                    Sequence(Parallel(Func(self.seq_run_wrapper, player, anims, 'loop'),
-                                      Func(self.state.set_action_state, "is_running", True)),
-                             ).start()
+                        and base.player_states['is_idle']):
+                    if (player.get_python_tag('stamina') > 1
+                            and not player.get_python_tag('stamina') < 3):
+                        Sequence(Parallel(Func(self.seq_run_wrapper, player, anims, 'loop'),
+                                          Func(self.state.set_action_state, "is_running", True)),
+                                 ).start()
+
                 if (base.player_states['is_moving'] is False
                         and base.player_states['is_attacked'] is False
                         and base.player_states['is_busy'] is False
                         and base.player_states["is_crouch_moving"] is False
                         and base.player_states['is_running']
-                        and base.player_states['is_idle'] is False
-                        and player.get_python_tag('stamina') > 1
-                        and not player.get_python_tag('stamina') < 3):
-                    Sequence(Func(self.seq_run_wrapper, player, anims, 'loop')
-                             ).start()
-
+                        and base.player_states['is_idle'] is False):
+                    if (player.get_python_tag('stamina') > 1
+                            and not player.get_python_tag('stamina') < 3):
+                        Sequence(Func(self.seq_run_wrapper, player, anims, 'loop')
+                                 ).start()
             else:
                 if (base.player_states['is_running']
                         and base.player_states['is_attacked'] is False
                         and base.player_states['is_busy'] is False
                         and base.player_states["is_moving"] is False
+                        and self.kbd.keymap["left"] is False
+                        and self.kbd.keymap["right"] is False
                         and base.player_states['is_crouch_moving'] is False):
                     Sequence(Func(self.seq_run_wrapper, player, anims, 'stop'),
                              Func(self.state.set_action_state, "is_running", False)

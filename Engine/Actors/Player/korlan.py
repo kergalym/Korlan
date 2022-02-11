@@ -109,7 +109,6 @@ class Korlan:
                 if self.game_settings['Main']['postprocessing'] == 'off':
                     # TODO: uncomment if character has normals
                     # self.render_attr.set_shadows(self.scene, self.render)
-                    # self.render_attr.set_ssao(self.scene)
                     pass
 
                 if self.game_settings['Debug']['set_debug_mode'] == "YES":
@@ -223,7 +222,6 @@ class Korlan:
                                                                ambient_color=(1.0, 1.0, 1.0))"""
                     # self.render_attr.set_normal_mapping(self.korlan)
 
-                    # self.render_attr.set_ssao(self.scene)
                     pass
 
                 if self.game_settings['Debug']['set_debug_mode'] == "YES":

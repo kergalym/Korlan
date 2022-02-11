@@ -83,7 +83,6 @@ class NpcGeneric:
                     light = render.find("SpotLight_ToD")
                     self.render_attr.set_spotlight_shadows(obj=self.actor, light=light, shadow_blur=0.2,
                                                            ambient_color=(1.0, 1.0, 1.0))"""
-                # self.render_attr.set_ssao(self.actor)
                 pass
 
             # Add Bullet collider for this actor

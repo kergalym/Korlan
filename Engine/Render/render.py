@@ -2,12 +2,15 @@ from os.path import exists
 from pathlib import Path, PurePath
 from os import walk
 
+from direct.filter.CommonFilters import CommonFilters
+from direct.filter.FilterManager import FilterManager
 from direct.gui.DirectGui import OnscreenText
 from direct.interval.MetaInterval import Sequence
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import *
 from panda3d.core import FontPool, TextNode
-from Engine.Render.rpcore import PointLight, SpotLight
+from Engine.Render.rpcore import PointLight as RP_PointLight
+from Engine.Render.rpcore import SpotLight as RP_SpotLight
 from direct.particles.ParticleEffect import ParticleEffect
 import random
 
@@ -35,6 +38,7 @@ class RenderAttr:
         self.water_np = None
         self.water_camera = None
         self.water_buffer = None
+        self.ground_mesh = None
         self.grass_np = None
 
         # Set time of day
@@ -57,6 +61,10 @@ class RenderAttr:
         self.cloud_speed = 0
         self.time = 0
         self.uv = Vec4(0, 0, 0, 0)
+
+        if self.game_settings['Main']['postprocessing'] == 'off':
+            self.gfx_manager = FilterManager(base.win, base.cam)
+            self.gfx_filters = CommonFilters(base.win, base.cam)
 
         """ Texts & Fonts"""
         # self.menu_font = self.fonts['OpenSans-Regular']
@@ -119,7 +127,7 @@ class RenderAttr:
                         self.clouds[-1].getChild(0).setScale(cloud_size + random.random(),
                                                              cloud_size + random.random(),
                                                              cloud_size + random.random())
-                        self.clouds[-1].setPos(render, random.randrange(-self.cloud_x / 2, self.cloud_x / 2),
+                        self.clouds[-1].set_pos(render, random.randrange(-self.cloud_x / 2, self.cloud_x / 2),
                                                random.randrange(-self.cloud_y / 2, self.cloud_y / 2),
                                                random.randrange(self.cloud_z) + self.cloud_z * 2)
                         self.clouds[-1].setShaderInput("offset",
@@ -145,7 +153,7 @@ class RenderAttr:
     def update_clouds_task(self, task):
         self.time += task.time * self.cloud_speed
         self.offset += task.time
-        self.skybox_np.setPos(base.camera.getPos(render))
+        self.skybox_np.set_pos(base.camera.getPos(render))
         elapsed = task.time * self.cloud_speed
         for model in self.clouds:
             model.setY(model, -task.time * 10.0)
@@ -178,7 +186,7 @@ class RenderAttr:
             if not self.time_of_day_np and duration:
                 self.time_of_day_np = NodePath("TimeOfday")
             self.time_of_day_np.reparentTo(render)
-            self.time_of_day_np.setPos(0, 0, -10)
+            self.time_of_day_np.set_pos(0, 0, -10)
 
             # make the center of the world spin
             worldRotationInterval = self.time_of_day_np.hprInterval(duration, Point3(0, -180, 0),
@@ -190,13 +198,13 @@ class RenderAttr:
             self.time_of_day_light = render.attachNewNode(Spotlight("SpotLight_ToD"))
 
             if self.sun:
-                self.time_of_day_light.setPos(self.sun.get_pos())
+                self.time_of_day_light.set_pos(self.sun.get_pos())
             else:
-                self.time_of_day_light.setPos(0, 0, 800)
+                self.time_of_day_light.set_pos(0, 0, 800)
 
             self.time_of_day_light.lookAt(self.time_of_day_np)
             render.setLight(self.time_of_day_light)
-            self.time_of_day_light.reparentTo(self.time_of_day_np)
+            self.time_of_day_light.reparent_to(self.time_of_day_np)
 
             self.time_of_day_light.node().setShadowCaster(True, 2048, 2048)
             self.time_of_day_light.node().showFrustum()
@@ -384,18 +392,23 @@ class RenderAttr:
         MASK_WATER = BitMask32.bit(1)
         MASK_SHADOW = BitMask32.bit(2)
 
+        light = None
+        if render.find("**/plight"):
+            light = render.find("**/plight")
+
+        if render.find("**/Ground"):
+            self.ground_mesh = render.find("**/Ground")
         world = render.find("**/World")
         if world:
             if not adv_render:
                 if water_lvl > 0.0 and not render.find("**/water_plane").is_empty():
                     textures = self.base.textures_collector("{0}/Engine/Shaders/".format(self.game_dir))
                     self.water_np = render.find("**/water_plane")
-                    self.water_np.setPos(0, 0, -2.0)
                     self.water_np.set_transparency(True)
                     self.water_np.setTransparency(TransparencyAttrib.MAlpha)
                     self.water_np.flattenLight()
-                    self.water_np.setPos(0, 0, -2.0)
                     self.water_np.reparent_to(world)
+                    self.water_np.set_pos(0, 0, -2.0)
 
                     # Add a buffer and camera that will render the reflection texture
                     self.water_buffer = base.win.make_texture_buffer("water", 512, 512)
@@ -438,24 +451,25 @@ class RenderAttr:
                     self.water_np.set_shader_input("tile", 20.0)
                     self.water_np.set_shader_input("water_level", water_lvl)
                     self.water_np.set_shader_input("speed", 0.01)
-                    self.water_np.set_shader_input("wave", Vec4(0.005, 0.002, 6.0, 1.0))
-                    self.water_np.set_shader_input("camera_pos", base.camera.get_pos())
-                    self.water_np.set_shader_input("light_color", VBase4(240, 248, 255, 0))
-                    self.water_np.set_shader_input("light_pos", self.water_np.get_pos())
-                    self.water_np.set_shader_input("num_lights", 3)
+                    self.water_np.set_shader_input("wave", Vec4(0.005, 0.002, 6, 1))
 
-                    render.set_shader_input("fog", Vec4(0.3, 0.3, 0.3, 0.002))
+                    self.water_np.set_shader_input("camera_pos", base.camera.get_pos())
+
+                    light_color = light.node().get_color()
+                    light_pos = light.get_pos()
+                    self.water_np.set_shader_input("light_color", light_color)
+                    self.water_np.set_shader_input("light_pos", light_pos)
+                    self.water_np.set_shader_input("num_lights", 1)
+
+                    self.ground_mesh.set_shader_input("water_level", water_lvl)
+                    render.set_shader_input("fog", Vec4(0.3, 0.3, 0.3, 0.002))  # check!
                     render.set_shader_input("z_scale", 100.0)
-                    self.water_np.set_shader_input("tex_scale", 30.0)
-                    render.set_shader_input("ambient", Vec4(.001, .001, .001, 1))
-                else:
-                    self.water_np.hide(MASK_WATER)
-                    self.water_np.hide(MASK_SHADOW)
-                    # hide water by default
-                    self.water_np.hide()
-                    self.water_np.setDepthWrite(False)
-                    self.water_np.set_bin("transparent", 31)
-                    self.water_buffer.setActive(False)
+                    self.ground_mesh.set_shader_input("tex_scale", 30.0)
+                    render.set_shader_input("ambient", Vec4(.001, .001, .001, 1))  # check!
+
+                    taskMgr.add(self.update_water_reflections,
+                                "update_water_reflections",
+                                extraArgs=[water_plane], appendTask=True)
 
             if adv_render:
                 if water_lvl > 0.0 and not render.find("**/water_plane").is_empty():
@@ -463,12 +477,11 @@ class RenderAttr:
 
                     textures = self.base.textures_collector("{0}/Engine/Shaders/".format(self.game_dir))
                     self.water_np = render.find("**/water_plane")
-                    self.water_np.setPos(0, 0, -2.0)
                     self.water_np.set_transparency(True)
                     self.water_np.setTransparency(TransparencyAttrib.MAlpha)
                     self.water_np.flattenLight()
-                    self.water_np.setPos(0, 0, -2.0)
                     self.water_np.reparent_to(world)
+                    self.water_np.set_pos(0, 0, -2.0)
 
                     # Add a buffer and camera that will render the reflection texture
                     self.water_buffer = base.win.make_texture_buffer("water", 512, 512)
@@ -499,6 +512,7 @@ class RenderAttr:
                     self.render_pipeline.set_effect(self.water_np,
                                                     "{0}/Engine/Render/effects/water2.yaml".format(self.game_dir),
                                                     {})
+
                     # reflect UV generated on the shader - faster(?)
                     self.water_np.set_shader_input('camera', self.water_camera)
                     self.water_np.set_shader_input("reflection", water_texture)
@@ -512,64 +526,89 @@ class RenderAttr:
                     self.water_np.set_shader_input("tile", 20.0)
                     self.water_np.set_shader_input("water_level", water_lvl)
                     self.water_np.set_shader_input("speed", 0.01)
-                    self.water_np.set_shader_input("wave", Vec4(0.005, 0.002, 6.0, 1.0))
+                    self.water_np.set_shader_input("wave", Vec4(0.005, 0.002, 6, 1))
+
                     self.water_np.set_shader_input("camera_pos", base.camera.get_pos())
-                    self.water_np.set_shader_input("light_color", VBase4(240, 248, 255, 0))
+
+                    # light_color = light.node().get_color()
+                    # light_pos = light.get_pos()
+                    self.water_np.set_shader_input("light_color", Vec4(0, 0, 0, 1.0))
                     self.water_np.set_shader_input("light_pos", self.water_np.get_pos())
-                    self.water_np.set_shader_input("num_lights", 3)
+                    self.water_np.set_shader_input("num_lights", 1)
 
-                    render.set_shader_input("fog", Vec4(0.3, 0.3, 0.3, 0.002))
+                    self.ground_mesh.set_shader_input("water_level", water_lvl)
+                    render.set_shader_input("fog", Vec4(0.3, 0.3, 0.3, 0.002))  # check!
                     render.set_shader_input("z_scale", 100.0)
-                    self.water_np.set_shader_input("tex_scale", 30.0)
-                    render.set_shader_input("ambient", Vec4(.001, .001, .001, 1))
-                else:
-                    self.water_np.hide(MASK_WATER)
-                    self.water_np.hide(MASK_SHADOW)
-                    # hide water by default
-                    self.water_np.hide()
-                    self.water_np.setDepthWrite(False)
-                    self.water_np.set_bin("transparent", 31)
-                    self.water_buffer.setActive(False)
+                    self.ground_mesh.set_shader_input("tex_scale", 30.0)
+                    render.set_shader_input("ambient", Vec4(.001, .001, .001, 1))  # check!
 
-    def set_grass(self, bool, uv_offset, fogcenter=Vec3(0, 0, 0), adv_render=False):
-        if bool:
-            if not adv_render and not render.find("**/water_plane").is_empty():
-                textures = self.base.textures_collector("{0}/Engine/Shaders/".format(self.game_dir))
-                self.grass_np = render.find("**/Grass")
-                self.grass_np.setTransparency(TransparencyAttrib.MBinary, 1)
-                self.grass_np.reparentTo(self.grass_np.get_parent())
-                self.grass_np.setInstanceCount(256)
-                self.grass_np.node().setBounds(BoundingBox((0, 0, 0), (256, 256, 128)))
-                self.grass_np.node().setFinal(1)
+                    taskMgr.add(self.update_water_reflections,
+                                "update_water_reflections",
+                                extraArgs=[water_plane], appendTask=True)
 
-                ready_shaders = self.get_all_shaders(self.base.shader_collector())
-                self.grass_np.set_shader(ready_shaders['Grass'])
+    def update_water_reflections(self, water_plane_np, task):
+        if self.base.game_instance['menu_mode']:
+            return task.done
 
-                self.grass_np.setShaderInput('height', self.base.loader.load_texture(textures["heightmap"]))
-                self.grass_np.setShaderInput('grass', self.base.loader.load_texture(textures["grass"]))
-                self.grass_np.setShaderInput('uv_offset', uv_offset)
-                self.grass_np.setShaderInput('fogcenter', fogcenter)
-                self.grass_np.setPos(0.0, 0.0, 0.0)
+        if self.water_camera and self.water_np:
+            if self.water_np.get_z() > 0.0:
+                ref_mat = base.cam.get_mat(render) * water_plane_np.get_reflection_mat()
+                self.water_camera.set_mat(ref_mat)
+                print(ref_mat)
+        return task.cont
 
-            elif adv_render and not render.find("**/water_plane").is_empty():
-                textures = self.base.textures_collector("{0}/Engine/Shaders/".format(self.game_dir))
-                self.grass_np = render.find("**/Grass")
-                self.grass_np.setTransparency(TransparencyAttrib.MBinary, 1)
-                self.grass_np.reparentTo(self.grass_np.get_parent())
-                self.grass_np.setInstanceCount(256)
-                self.grass_np.node().setBounds(BoundingBox((0, 0, 0), (256, 256, 128)))
-                self.grass_np.node().setFinal(1)
+    def clear_water(self):
+        self.water_np.hide()
+        self.water_np.set_bin("transparent", 31)
+        self.water_buffer.set_active(False)
+        self.ground_mesh.set_shader_input("water_level", -1.0)
 
-                self.render_pipeline.set_effect(self.grass_np,
-                                                "{0}/Engine/Render/effects/grass.yaml".format(self.game_dir),
-                                                {},
-                                                self.water_camera)
+    def set_grass(self, uv_offset, fogcenter=Vec3(0, 0, 0), adv_render=False):
+        if not adv_render and not render.find("**/water_plane").is_empty():
+            textures = self.base.textures_collector("{0}/Engine/Shaders/".format(self.game_dir))
+            self.grass_np = render.find("**/Grass")
+            self.grass_np.setTransparency(TransparencyAttrib.MBinary, 1)
+            self.grass_np.reparentTo(self.grass_np.get_parent())
+            self.grass_np.setInstanceCount(256)
+            self.grass_np.node().setBounds(BoundingBox((0, 0, 0), (256, 256, 128)))
+            self.grass_np.node().setFinal(1)
 
-                self.grass_np.setShaderInput('height', self.base.loader.load_texture(textures["heightmap"]))
-                self.grass_np.setShaderInput('grass', self.base.loader.load_texture(textures["grass"]))
-                self.grass_np.setShaderInput('uv_offset', uv_offset)
-                self.grass_np.setShaderInput('fogcenter', fogcenter)
-                self.grass_np.setPos(0.0, 0.0, 0.0)
+            ready_shaders = self.get_all_shaders(self.base.shader_collector())
+            self.grass_np.set_shader(ready_shaders['Grass'])
+
+            self.grass_np.setShaderInput('height', self.base.loader.load_texture(textures["heightmap"]))
+            self.grass_np.setShaderInput('grass', self.base.loader.load_texture(textures["grass"]))
+            self.grass_np.setShaderInput('uv_offset', uv_offset)
+            self.grass_np.setShaderInput('fogcenter', fogcenter)
+            # fixme add light
+            self.grass_np.setShaderInput('light_color', Vec3(0, 0, 0))
+            self.grass_np.set_shader_input("light_pos", Vec3(0, 0, 0))
+            self.grass_np.set_shader_input("num_lights", 3)
+            self.grass_np.set_pos(0.0, 0.0, 0.0)
+
+        elif adv_render and not render.find("**/water_plane").is_empty():
+            textures = self.base.textures_collector("{0}/Engine/Shaders/".format(self.game_dir))
+            self.grass_np = render.find("**/Grass")
+            self.grass_np.setTransparency(TransparencyAttrib.MBinary, 1)
+            self.grass_np.reparentTo(self.grass_np.get_parent())
+            self.grass_np.setInstanceCount(256)
+            self.grass_np.node().setBounds(BoundingBox((0, 0, 0), (256, 256, 128)))
+            self.grass_np.node().setFinal(1)
+
+            self.render_pipeline.set_effect(self.grass_np,
+                                            "{0}/Engine/Render/effects/grass.yaml".format(self.game_dir),
+                                            {},
+                                            self.water_camera)
+
+            self.grass_np.setShaderInput('height', self.base.loader.load_texture(textures["heightmap"]))
+            self.grass_np.setShaderInput('grass', self.base.loader.load_texture(textures["grass"]))
+            self.grass_np.setShaderInput('uv_offset', uv_offset)
+            self.grass_np.setShaderInput('fogcenter', fogcenter)
+            # fixme add light
+            self.grass_np.setShaderInput('light_color', Vec3(0, 0, 0))
+            self.grass_np.set_shader_input("light_pos", Vec3(0, 0, 0))
+            self.grass_np.set_shader_input("num_lights", 3)
+            self.grass_np.set_pos(0.0, 0.0, 0.0)
 
     def set_flame(self, adv_render):
         if adv_render:
@@ -665,7 +704,6 @@ class RenderAttr:
                         light.node().set_color((color[0], color[0], color[0], 1))
                         self.render.setLight(light)
                         light.set_pos(pos[0], pos[1], pos[2])
-                        light.attenuation = (1, 0, 1)
                         self.base.game_instance['rp_lights']["scene"].append(light)
                     elif name == 'slight':
                         light = self.render.attach_new_node(Spotlight(name))
@@ -677,38 +715,37 @@ class RenderAttr:
                         self.render.setLight(light)
                         light.set_pos(pos[0], pos[1], pos[2])
                         light.set_hpr(hpr[0], hpr[1], hpr[2])
+                        light.attenuation = (1, 0, 1)
                         self.base.game_instance['rp_lights']["scene"].append(light)
                         self.set_spotlight_shadows(obj=self.render, light=light, shadow_blur=0.2,
                                                    ambient_color=(1.0, 1.0, 1.0))
 
                     elif name == 'dlight':
-                        if self.game_settings['Main']['postprocessing'] == 'off':
-                            light = DirectionalLight(name)
-                            light.set_color((color[0], color[0], color[0], 1))
-                            light_np = self.render.attach_new_node(light)
-                            # This light is facing backwards, towards the camera.
-                            light_np.set_hpr(hpr[0], hpr[1], hpr[2])
-                            light_np.set_pos(pos[0], pos[1], pos[2])
-                            light_np.set_scale(100)
-                            self.render.set_light(light_np)
-                            self.base.game_instance['rp_lights']["scene"].append(light)
-                            """self.set_spotlight_shadows(obj=self.render, light=light, shadow_blur=0.2,
+                        light = DirectionalLight(name)
+                        light.set_color((color[0], color[0], color[0], 1))
+                        light_np = self.render.attach_new_node(light)
+                        # This light is facing backwards, towards the camera.
+                        light_np.set_hpr(hpr[0], hpr[1], hpr[2])
+                        light_np.set_pos(pos[0], pos[1], pos[2])
+                        light_np.set_scale(100)
+                        self.render.set_light(light_np)
+                        self.base.game_instance['rp_lights']["scene"].append(light)
+                        """self.set_spotlight_shadows(obj=self.render, light=light, shadow_blur=0.2,
                                                  ambient_color=(1.0, 1.0, 1.0))"""
                     elif name == 'alight':
-                        if self.game_settings['Main']['postprocessing'] == 'off':
-                            light = AmbientLight(name)
-                            light.set_color((color[0], color[0], color[0], 1))
-                            light_np = self.render.attach_new_node(light)
-                            self.render.set_light(light_np)
-                            self.base.game_instance['rp_lights']["scene"].append(light)
-                            """self.set_spotlight_shadows(obj=self.render, light=light, shadow_blur=0.2,
+                        light = AmbientLight(name)
+                        light.set_color((color[0], color[0], color[0], 1))
+                        light_np = self.render.attach_new_node(light)
+                        self.render.set_light(light_np)
+                        self.base.game_instance['rp_lights']["scene"].append(light)
+                        """self.set_spotlight_shadows(obj=self.render, light=light, shadow_blur=0.2,
                                                  ambient_color=(1.0, 1.0, 1.0))"""
 
                 if self.game_settings['Main']['postprocessing'] == 'on':
                     if name == "slight":
                         # RP doesn't have nodegraph-like structure to find and remove lights,
                         # so we check self.rp_light before adding light
-                        light = SpotLight()
+                        light = RP_SpotLight()
                         light.pos = (pos[0], pos[1], pos[2])
                         light.color = (color[0], color[0], color[0])
                         light.set_color_from_temperature(3000.0)
@@ -725,7 +762,7 @@ class RenderAttr:
                     elif name == "plight":
                         # RP doesn't have nodegraph-like structure to find and remove lights,
                         # so we check self.rp_light before adding light
-                        light = PointLight()
+                        light = RP_PointLight()
                         light.pos = (pos[0], pos[1], pos[2])
                         light.color = (color[0], color[0], color[0])
                         light.set_color_from_temperature(3000.0)
@@ -775,6 +812,7 @@ class RenderAttr:
                         self.render.setLight(light)
                         light.set_pos(pos[0], pos[1], pos[2])
                         light.set_hpr(hpr[0], hpr[1], hpr[2])
+                        # light.attenuation = (1, 0, 1)
                         self.base.game_instance['rp_lights']["inventory"] = light
                         self.set_spotlight_shadows(obj=self.render, light=light, shadow_blur=0.2,
                                                    ambient_color=(1.0, 1.0, 1.0))
@@ -784,7 +822,7 @@ class RenderAttr:
                         # RP doesn't have nodegraph-like structure to find and remove lights,
                         # so we check self.rp_light before adding light
                         if not self.base.game_instance['rp_lights'].get("inventory"):
-                            light = SpotLight()
+                            light = RP_SpotLight()
                         else:
                             light = self.base.game_instance['rp_lights']["inventory"]
                         light.pos = (pos[0], pos[1], pos[2])
@@ -801,7 +839,7 @@ class RenderAttr:
                         # RP doesn't have nodegraph-like structure to find and remove lights,
                         # so we check self.rp_light before adding light
                         if not self.base.game_instance['rp_lights'].get("inventory"):
-                            light = PointLight()
+                            light = RP_PointLight()
                         else:
                             light = self.base.game_instance['rp_lights']["inventory"]
                         light.pos = (pos[0], pos[1], pos[2])
@@ -855,10 +893,53 @@ class RenderAttr:
             obj.set_shader_input('shadow_blur', shadow_blur)  # 0.2
             obj.set_shader_input('ambient_color', ambient_color)  # Vec3(1.0, 1.0, 1.0)
 
-    def set_normal_mapping(self, obj):
-        if obj:
+    def set_normal_mapping(self, obj, light, shadow_blur, ambient_color):
+        if (obj and light
+                and isinstance(shadow_blur, int)
+                and isinstance(ambient_color, Vec3)):
             ready_shaders = self.get_all_shaders(self.base.shader_collector())
             obj.set_shader(ready_shaders['Normalmapping'])
-            """obj.set_shader_input('my_light', light)
+            obj.set_shader_input('my_light', light)
             obj.set_shader_input('shadow_blur', shadow_blur)  # 0.2
-            obj.set_shader_input('ambient_color', ambient_color)  # Vec3(1.0, 1.0, 1.0)"""
+            obj.set_shader_input('ambient_color', ambient_color)  # Vec3(1.0, 1.0, 1.0)
+
+    def setup_native_renderer(self, bool_, task):
+        if isinstance(bool_, bool) and bool_:
+            if self.base.game_instance['loading_is_done'] == 1:
+                """depth_tex = Texture()
+                normal_tex = Texture()
+                quad = self.gfx_manager.renderSceneInto(textures={'depth': depth_tex,
+                                                                  'aux0': normal_tex})
+
+                vs_cam_pos = base.camera.get_pos()
+                name = "{0}:BS".format(self.base.game_instance['player_ref'].get_name())
+                player_pos = render.find("**/{0}".format(name)).get_pos()
+
+                ready_shaders = self.get_all_shaders(self.base.shader_collector())
+                quad.set_shader(ready_shaders['SSAO'])
+                quad.set_shader_input('g_screen_size', Vec2(1920, 1080))
+                quad.set_shader_input('normal_map', normal_tex)
+                quad.set_shader_input('depth_map', depth_tex)
+                quad.set_shader_input('texpad_depth', Vec4(1, 1, 1, 1))
+                quad.set_shader_input('vs_cam_pos', vs_cam_pos)
+                quad.set_shader_input('vs_model_pos', player_pos)"""
+
+                """ NATIVE SSAO
+                self.gfx_filters.set_ambient_occlusion(numsamples=16,
+                                                       radius=2.2,
+                                                       amount=2.0,
+                                                       strength=0.01,
+                                                       falloff=0.000002)"""
+                # self.gfx_filters.set_bloom()
+
+                """if self.time_of_day_light:
+                    self.gfx_filters.set_volumetric_lighting(caster=self.time_of_day_light,
+                                                             numsamples=32,
+                                                             density=1.0,
+                                                             decay=0.98,
+                                                             exposure=0.2)"""
+                # self.gfx_filters.set_gamma_adjust(1.5)
+
+                return task.done
+
+        return task.cont

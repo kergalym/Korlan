@@ -3,6 +3,7 @@
 vertex:
     inout: |
         uniform mat4 p3d_ModelViewMatrix;
+        uniform mat3 p3d_NormalMatrix;
         uniform mat4 trans_model_to_world;
         uniform mat4 trans_model_to_clip_of_camera;
         uniform vec4 fog;
@@ -79,7 +80,7 @@ fragment:
         uniform float num_lights;
         uniform float z_scale;
         out vec4 p3d_FragData;
-        uniform mat3 normalMatrix;
+        //uniform mat3 p3d_NormalMatrix;
         //in vec4 gl_TexCoord;
 
     material: |
@@ -113,11 +114,11 @@ fragment:
         //use the basis to move the normal in its own space by the offset
         vec3 normalOffset = -height_scale*(((n-me)-(s-me))*perp1 - ((e-me)-(w-me))*perp2);
         normal += normalOffset;
-        normal = normalize(normalMatrix * normal);
+        normal = normalize(p3d_NormalMatrix * normal);
 
         //TBN
-        vec3 tangent=  normalMatrix * cross(normal, vLeft);
-        vec3 binormal= normalMatrix * cross(normal, tangent);
+        vec3 tangent=  p3d_NormalMatrix * cross(normal, vLeft);
+        vec3 binormal= p3d_NormalMatrix * cross(normal, tangent);
 
         float h_map=texture2D(height, gl_TexCoord[2].xy).r;
         if (h_map*z_scale>water_level+2.0)
