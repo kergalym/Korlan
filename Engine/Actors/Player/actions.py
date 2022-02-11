@@ -788,7 +788,8 @@ class Actions:
                     and base.player_states['is_busy'] is False
                     and base.player_states['is_crouch_moving'] is False
                     and base.player_states['is_idle']):
-                if base.input_state.is_set('forward'):
+                if (base.input_state.is_set('forward')
+                        and self.kbd.keymap["run"] is False):
                     speed.set_y(-move_unit)
             if (self.kbd.keymap["forward"]
                     and self.kbd.keymap["run"] is False
@@ -798,7 +799,8 @@ class Actions:
                     and base.player_states['is_running'] is False
                     and base.player_states['is_crouch_moving']
                     and base.player_states['is_idle']):
-                if base.input_state.is_set('forward'):
+                if (base.input_state.is_set('forward')
+                        and self.kbd.keymap["run"] is False):
                     speed.set_y(-move_unit)
             if (self.kbd.keymap["backward"]
                     and self.kbd.keymap["run"] is False
