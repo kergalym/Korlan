@@ -27,7 +27,7 @@ THE SOFTWARE.
 from Engine.Render.rpcore.pluginbase.base_plugin import BasePlugin
 from Engine.Render.rpcore.stages.ambient_stage import AmbientStage
 
-from .ao_stage import AOStage
+from Engine.Render.rpplugins.ao.ao_stage import AOStage
 
 
 class Plugin(BasePlugin):

@@ -1,4 +1,3 @@
-//GLSL
 #version 140
 in vec2 p3d_MultiTexCoord0;
 in vec3 p3d_Binormal;

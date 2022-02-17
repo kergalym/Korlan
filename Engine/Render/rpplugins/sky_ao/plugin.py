@@ -27,8 +27,8 @@ THE SOFTWARE.
 from Engine.Render.rpcore.pluginbase.base_plugin import BasePlugin
 from Engine.Render.rpcore.stages.ambient_stage import AmbientStage
 
-from .capture_stage import SkyAOCaptureStage
-from .ao_stage import SkyAOStage
+from Engine.Render.rpplugins.sky_ao.capture_stage import SkyAOCaptureStage
+from Engine.Render.rpplugins.sky_ao.ao_stage import SkyAOStage
 
 
 class Plugin(BasePlugin):
@@ -54,7 +54,6 @@ class Plugin(BasePlugin):
         if self.is_plugin_enabled("env_probes"):
             self.get_plugin_instance("env_probes").capture_stage.required_inputs.append("SkyAOCapturePosition")
             self.get_plugin_instance("env_probes").capture_stage.required_pipes.append("SkyAOHeight")
-
 
     def on_pipeline_created(self):
         pass

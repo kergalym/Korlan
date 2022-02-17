@@ -26,7 +26,7 @@ THE SOFTWARE.
 
 from Engine.Render.rpcore.pluginbase.base_plugin import BasePlugin
 
-from .forward_stage import ForwardStage
+from Engine.Render.rpplugins.forward_shading.forward_stage import ForwardStage
 
 
 class Plugin(BasePlugin):

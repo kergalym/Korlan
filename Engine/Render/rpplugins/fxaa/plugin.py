@@ -26,7 +26,7 @@ THE SOFTWARE.
 
 from Engine.Render.rpcore.pluginbase.base_plugin import BasePlugin
 
-from .fxaa_stage import FXAAStage
+from Engine.Render.rpplugins.fxaa.fxaa_stage import FXAAStage
 
 
 class Plugin(BasePlugin):

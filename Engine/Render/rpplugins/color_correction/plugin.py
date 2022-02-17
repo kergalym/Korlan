@@ -30,11 +30,11 @@ from panda3d.core import SamplerState
 from Engine.Render.rpcore.pluginbase.base_plugin import BasePlugin
 from Engine.Render.rpcore.loader import RPLoader
 
-from .color_correction_stage import ColorCorrectionStage
-from .auto_exposure_stage import AutoExposureStage
-from .manual_exposure_stage import ManualExposureStage
-from .sharpen_stage import SharpenStage
-from .tonemapping_stage import TonemappingStage
+from Engine.Render.rpplugins.color_correction.color_correction_stage import ColorCorrectionStage
+from Engine.Render.rpplugins.color_correction.auto_exposure_stage import AutoExposureStage
+from Engine.Render.rpplugins.color_correction.manual_exposure_stage import ManualExposureStage
+from Engine.Render.rpplugins.color_correction.sharpen_stage import SharpenStage
+from Engine.Render.rpplugins.color_correction.tonemapping_stage import TonemappingStage
 
 
 class Plugin(BasePlugin):

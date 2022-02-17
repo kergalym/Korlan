@@ -103,7 +103,7 @@ class RenderStage(RPObject):
     def create_target(self, name):
         """ Creates a new render target and binds it to this stage """
         # Format the name like Plugin:Stage:Name, so it can be easily
-        # found in pstats below the plugin cagetory
+        # found in pstats below the plugin category
         name = self._get_plugin_id() + ":" + self.stage_id + ":" + name
         if name in self._targets:
             return self.error("Overriding existing target: " + name)

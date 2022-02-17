@@ -31,10 +31,10 @@ from Engine.Render.rpcore.util.shader_input_blocks import SimpleInputBlock
 from Engine.Render.rpcore.pluginbase.base_plugin import BasePlugin
 from Engine.Render.rpcore.stages.cull_lights_stage import CullLightsStage
 
-from .probe_manager import ProbeManager
-from .environment_capture_stage import EnvironmentCaptureStage
-from .apply_envprobes_stage import ApplyEnvprobesStage
-from .cull_probes_stage import CullProbesStage
+from Engine.Render.rpplugins.env_probes.probe_manager import ProbeManager
+from Engine.Render.rpplugins.env_probes.environment_capture_stage import EnvironmentCaptureStage
+from Engine.Render.rpplugins.env_probes.apply_envprobes_stage import ApplyEnvprobesStage
+from Engine.Render.rpplugins.env_probes.cull_probes_stage import CullProbesStage
 
 
 class Plugin(BasePlugin):

@@ -27,7 +27,7 @@ THE SOFTWARE.
 from Engine.Render.rpcore.loader import RPLoader
 from Engine.Render.rpcore.pluginbase.base_plugin import BasePlugin
 
-from .bloom_stage import BloomStage
+from Engine.Render.rpplugins.bloom.bloom_stage import BloomStage
 
 
 class Plugin(BasePlugin):

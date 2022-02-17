@@ -25,7 +25,7 @@ THE SOFTWARE.
 """
 
 from Engine.Render.rpcore.pluginbase.base_plugin import BasePlugin
-from .volumetrics_stage import VolumetricsStage
+from Engine.Render.rpplugins.volumetrics.volumetrics_stage import VolumetricsStage
 
 
 class Plugin(BasePlugin):

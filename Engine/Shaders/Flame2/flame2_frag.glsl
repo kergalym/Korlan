@@ -59,7 +59,7 @@ void main()
     vec3 color = vec3(1.0/(pow(c+1.61,vec3(4.0))) * cos(shift * texcoord.y / texcoord.y));
     
     color=vec3(1.0,.2,.05)/(pow((r.y+r.y)* max(.0,p.y)+0.1, 4.0));;
-    color += (textureLod(p3d_Texture0,uv*0.6+vec2(.5,.1)).xyz*0.01*pow((r.y+r.y)*.65,5.0)+0.055)
+    color += (texture(p3d_Texture0,uv*0.6+vec2(.5,.1)).xyz*0.01*pow((r.y+r.y)*.65,5.0)+0.055)
     *mix( vec3(.9,.4,.3),vec3(.7,.5,.2), uv.y);
     color = color/(1.0+max(vec3(0),color));
     p3d_FragColor = vec4(color.x, color.y, color.z, alpha);

@@ -3,6 +3,7 @@
 import logging
 import re
 import configparser
+import sys
 from shutil import rmtree
 from sys import exit as sys_exit
 from os import name as os_name
@@ -50,6 +51,8 @@ from Engine.Render.rpcore.render_pipeline import RenderPipeline
 from Engine.Render.rpcore.util.movement_controller import MovementController
 import importlib
 import psutil
+
+sys.dont_write_bytecode = True
 
 cfg_is_broken = False
 mf = Multifile()

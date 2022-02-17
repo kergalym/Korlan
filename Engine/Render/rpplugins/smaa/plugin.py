@@ -30,8 +30,8 @@ from Engine.Render.rpcore.globals import Globals
 from Engine.Render.rpcore.loader import RPLoader
 from Engine.Render.rpcore.pluginbase.base_plugin import BasePlugin
 
-from .smaa_stage import SMAAStage
-from .jitters import JITTERS
+from Engine.Render.rpplugins.smaa.smaa_stage import SMAAStage
+from Engine.Render.rpplugins.smaa.jitters import JITTERS
 
 
 class Plugin(BasePlugin):

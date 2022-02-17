@@ -26,7 +26,7 @@ THE SOFTWARE.
 
 from Engine.Render.rpcore.pluginbase.base_plugin import BasePlugin
 
-from .motion_blur_stage import MotionBlurStage
+from Engine.Render.rpplugins.motion_blur.motion_blur_stage import MotionBlurStage
 
 
 class Plugin(BasePlugin):

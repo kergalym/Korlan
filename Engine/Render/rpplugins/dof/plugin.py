@@ -26,7 +26,7 @@ THE SOFTWARE.
 
 from Engine.Render.rpcore.pluginbase.base_plugin import BasePlugin
 
-from .dof_stage import DoFStage
+from Engine.Render.rpplugins.dof.dof_stage import DoFStage
 
 
 class Plugin(BasePlugin):

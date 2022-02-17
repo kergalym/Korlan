@@ -1,0 +1,40 @@
+# Projected Water shadow effect.
+
+vertex:
+    inout: |
+        uniform vec3 cameraPosition;
+        uniform sampler2D waterHeightfield;
+        uniform mat4 trans_apiclip_to_world;
+        uniform float waterHeight;
+
+    includes: |
+        #pragma include "Engine/Render/rpcore/water/shader/projected_water_func.inc.glsl"
+        #pragma include "Engine/Render/rpcore/water/shader/position_reconstruction.inc.glsl"
+
+    transform: |
+        // Water shading
+        vec2 coord = p3d_Vertex.xz * 1.2;
+        vec4 worldPos = p3d_ModelMatrix * p3d_Vertex;
+
+        // Compute ray start and direction
+        vec3 rayStart = reprojectCoord(coord, 0.0);
+        vec3 rayDir = normalize(rayStart - reprojectCoord(coord, 1.0));
+
+        // Intersect the ray with the water
+        float distance = (-rayStart.z+waterHeight) / rayDir.z;
+        vec3 intersectedPos = vec3(0);
+        float maxWaterDist = 3000.0;
+
+        // If plane is hit
+        if (distance < 0.0) {
+        intersectedPos = rayStart + rayDir * distance;
+        } else {
+        intersectedPos = vec3(rayStart.xy + rayDir.xy * -maxWaterDist, 0.0);
+        }
+        worldPos.xyz = vec3(intersectedPos);
+        vOutput.texcoord = vec2(worldPos.xy / WATER_COORD_FACTOR);
+
+        // vec3 displace = texture(waterHeightfield, texcoord).xyz;
+        // worldPos.xyz += displace * vec3(0.6, 0.6, 1.5) * 1.7;
+
+        gl_Position = (p3d_ViewProjectionMatrix * worldPos);

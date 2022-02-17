@@ -1,4 +1,3 @@
-//GLSL
 #version 140
 uniform sampler2D reflection;
 uniform sampler2D water_norm;
@@ -27,6 +26,8 @@ uniform int num_lights;
 uniform float z_scale;
 uniform vec4 wave;
 uniform vec3 camera_pos;
+
+out  vec4 p3d_Color;
 
 void main()
     {
@@ -102,7 +103,7 @@ void main()
     vec3 L;
     vec3 R;
     float att;
-    float specular;
+    float specular = 0.0f;
     for (int i=0; i<num_lights; ++i)
         {
         //diffuse
@@ -140,8 +141,8 @@ void main()
     //final =mix(final, fog_color, ff);
     //final =mix(final,vec4(distortion.aaa*color.rgb, distortion.a*foam), foam);
     //final.a=clamp(facing2, 0.7,0.95);
-    gl_FragData[0]=final;
-    //gl_FragData[0]=vec4(foam, 0.0, 0.0, 1.0);
+    p3d_Color = final;
+    //p3d_Color=vec4(foam, 0.0, 0.0, 1.0);
     //float distToCamera =1.0-clamp(-vpos.z*0.002, 0.0, 1.0);
-    //gl_FragData[1] =vec4(ff, 1.0,specular,0.45+3.0*(1.0-final.a)*distToCamera);//(fog, shadow, glare, displace)
+    //p3d_Color =vec4(ff, 1.0,specular,0.45+3.0*(1.0-final.a)*distToCamera);//(fog, shadow, glare, displace)
     }

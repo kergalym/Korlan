@@ -31,8 +31,8 @@ import collections
 from Engine.Render.rpcore.globals import Globals
 from Engine.Render.rpcore.pluginbase.base_plugin import BasePlugin
 
-from .voxelization_stage import VoxelizationStage
-from .vxgi_stage import VXGIStage
+from Engine.Render.rpplugins.vxgi.voxelization_stage import VoxelizationStage
+from Engine.Render.rpplugins.vxgi.vxgi_stage import VXGIStage
 
 
 class Plugin(BasePlugin):

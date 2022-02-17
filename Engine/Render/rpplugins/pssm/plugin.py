@@ -32,10 +32,10 @@ from Engine.Render.rpcore.globals import Globals
 from Engine.Render.rpcore.pluginbase.base_plugin import BasePlugin
 from Engine.Render.rpcore.native import PSSMCameraRig, NATIVE_CXX_LOADED
 
-from .pssm_stage import PSSMStage
-from .pssm_shadow_stage import PSSMShadowStage
-from .pssm_scene_shadow_stage import PSSMSceneShadowStage
-from .pssm_dist_shadow_stage import PSSMDistShadowStage
+from Engine.Render.rpplugins.pssm.pssm_stage import PSSMStage
+from Engine.Render.rpplugins.pssm.pssm_shadow_stage import PSSMShadowStage
+from Engine.Render.rpplugins.pssm.pssm_scene_shadow_stage import PSSMSceneShadowStage
+from Engine.Render.rpplugins.pssm.pssm_dist_shadow_stage import PSSMDistShadowStage
 
 
 class Plugin(BasePlugin):

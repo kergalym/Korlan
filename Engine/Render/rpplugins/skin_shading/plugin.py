@@ -26,7 +26,7 @@ THE SOFTWARE.
 
 from Engine.Render.rpcore.pluginbase.base_plugin import BasePlugin
 
-from .skin_shading_stage import SkinShadingStage
+from Engine.Render.rpplugins.skin_shading.skin_shading_stage import SkinShadingStage
 
 
 class Plugin(BasePlugin):

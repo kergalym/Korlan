@@ -26,7 +26,7 @@ THE SOFTWARE.
 
 from Engine.Render.rpcore.pluginbase.base_plugin import BasePlugin
 
-from .ssr_stage import SSRStage
+from Engine.Render.rpplugins.ssr.ssr_stage import SSRStage
 
 
 class Plugin(BasePlugin):

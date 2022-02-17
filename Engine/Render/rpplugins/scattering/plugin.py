@@ -30,9 +30,9 @@ from panda3d.core import Vec3
 
 from Engine.Render.rpcore.pluginbase.base_plugin import BasePlugin
 
-from .scattering_stage import ScatteringStage
-from .scattering_envmap_stage import ScatteringEnvmapStage
-from .godray_stage import GodrayStage
+from Engine.Render.rpplugins.scattering.scattering_stage import ScatteringStage
+from Engine.Render.rpplugins.scattering.scattering_envmap_stage import ScatteringEnvmapStage
+from Engine.Render.rpplugins.scattering.godray_stage import GodrayStage
 
 
 class Plugin(BasePlugin):

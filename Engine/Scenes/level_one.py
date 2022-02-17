@@ -327,12 +327,13 @@ class LevelOne:
         self.base.game_instance['lod_np'] = NodePath(lod)
         self.base.game_instance['lod_np'].reparentTo(world_np)
 
-        # self.render_attr.set_time_of_day(duration=1800)  # 1800 sec == 30 min
-        self.render_attr.time_text_ui.show()
-        """taskMgr.add(self.render_attr.set_time_of_day_clock_task,
-                    "set_time_of_day_clock_task",
-                    extraArgs=["19:00", 1800],  # 1800 sec == 30 min
-                    appendTask=True)"""
+        if self.game_settings['Main']['postprocessing'] == 'on':
+            self.render_attr.set_time_of_day(duration=1800)  # 1800 sec == 30 min
+            self.render_attr.time_text_ui.show()
+            taskMgr.add(self.render_attr.set_time_of_day_clock_task,
+                        "set_time_of_day_clock_task",
+                        extraArgs=["19:00", 1800],  # 1800 sec == 30 min
+                        appendTask=True)
 
         """ Assets """
 

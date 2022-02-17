@@ -132,14 +132,17 @@ class SceneOne:
                 # to enable shader generation for the entire game, using this call:
                 # scene.set_shader_auto()
                 # Enable water
-                self.render_attr.set_water(adv_render=False, water_lvl=30.0)
+                # self.render_attr.set_water(adv_render=False, water_lvl=30.0)
+                # self.render_attr.set_water_enh(adv_render=False)
                 # Enable flame
                 self.render_attr.set_flame(adv_render=False)
                 # Enable grass
                 # self.render_attr.set_grass(adv_render=False, fogcenter=Vec3(256, 256, 0), uv_offset=Vec2(0, 0))
             else:
                 # Enable water
-                self.render_attr.set_water(adv_render=True, water_lvl=30.0)
+                # self.render_attr.set_water(adv_render=True, water_lvl=30.0)
+                # self.render_attr.set_water_enh(adv_render=True)
+                self.render_attr.set_projected_water(True)
                 # Enable flame
                 self.render_attr.set_flame(adv_render=True)
                 # Enable grass
