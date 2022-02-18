@@ -32,17 +32,17 @@ from __future__ import print_function, division
 import time
 from threading import Thread
 
-from Engine.Render.rplibs.six import iteritems  # noqa
-from Engine.Render.rplibs.pyqt_imports import * #noqa
+from Engine.Renderer.rplibs.six import iteritems  # noqa
+from Engine.Renderer.rplibs.pyqt_imports import * #noqa
 
-from Engine.Render.toolkit.day_time_editor.curve_widget import CurveWidget  # noqa
+from Engine.Renderer.toolkit.day_time_editor.curve_widget import CurveWidget  # noqa
 
-from Engine.Render.rpcore.pluginbase.manager import PluginManager  # noqa
-from Engine.Render.rpcore.mount_manager import MountManager  # noqa
-from Engine.Render.rpcore.util.network_communication import NetworkCommunication  # noqa
+from Engine.Renderer.rpcore.pluginbase.manager import PluginManager  # noqa
+from Engine.Renderer.rpcore.mount_manager import MountManager  # noqa
+from Engine.Renderer.rpcore.util.network_communication import NetworkCommunication  # noqa
 
-from Engine.Render.toolkit.day_time_editor.ui.main_window_generated import Ui_MainWindow  # noqa
-from Engine.Render.toolkit.day_time_editor.ui.point_insert_dialog_generated import Ui_Dialog as Ui_PointDialog  # noqa
+from Engine.Renderer.toolkit.day_time_editor.ui.main_window_generated import Ui_MainWindow  # noqa
+from Engine.Renderer.toolkit.day_time_editor.ui.point_insert_dialog_generated import Ui_Dialog as Ui_PointDialog  # noqa
 
 
 class PointDialog(QDialog, Ui_PointDialog):

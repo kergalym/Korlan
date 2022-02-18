@@ -1,5 +1,5 @@
 from direct.actor.Actor import Actor
-from Engine.Render.render import RenderAttr
+from Engine.Renderer.renderer import RenderAttr
 from Engine.Actors.NPC.state import NpcState
 
 

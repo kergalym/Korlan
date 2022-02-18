@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from Engine.Render.rplibs.yaml import yaml_py3 as rp_yaml
+from Engine.Renderer.rplibs.yaml import yaml_py3 as rp_yaml
 from Settings.menu_settings import MenuSettings
 
 
@@ -160,7 +160,7 @@ class Graphics(MenuSettings):
         return {1: 'OFF', 2: 'ON'}
 
     def get_ao_value(self):
-        with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
+        with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'r') as f:
             config = rp_yaml.safe_load(f)
             if 'ao' in config['enabled'] and config['overrides']['ao']['technique'] == 'SSAO':
                 return 2
@@ -176,7 +176,7 @@ class Graphics(MenuSettings):
                 return 7
 
     def get_bloom_value(self):
-        with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
+        with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'r') as f:
             config = rp_yaml.safe_load(f)
             if 'bloom' in config['enabled']:
                 return 2
@@ -184,7 +184,7 @@ class Graphics(MenuSettings):
                 return 1
 
     def get_clouds_value(self):
-        with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
+        with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'r') as f:
             config = rp_yaml.safe_load(f)
             if 'clouds' in config['enabled']:
                 return 2
@@ -192,7 +192,7 @@ class Graphics(MenuSettings):
                 return 1
 
     def get_cc_value(self):
-        with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
+        with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'r') as f:
             config = rp_yaml.safe_load(f)
             if 'color_correction' in config['enabled']:
                 return 2
@@ -200,7 +200,7 @@ class Graphics(MenuSettings):
                 return 1
 
     def get_scattering_value(self):
-        with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
+        with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'r') as f:
             config = rp_yaml.safe_load(f)
             if 'scattering' in config['enabled']:
                 return 2
@@ -208,7 +208,7 @@ class Graphics(MenuSettings):
                 return 1
 
     def get_sky_ao_value(self):
-        with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
+        with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'r') as f:
             config = rp_yaml.safe_load(f)
             if 'sky_ao' in config['enabled']:
                 return 2
@@ -216,7 +216,7 @@ class Graphics(MenuSettings):
                 return 1
 
     def get_ssr_value(self):
-        with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
+        with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'r') as f:
             config = rp_yaml.safe_load(f)
             if 'ssr' in config['enabled']:
                 return 2
@@ -224,7 +224,7 @@ class Graphics(MenuSettings):
                 return 1
 
     def get_forward_shading_value(self):
-        with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
+        with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'r') as f:
             config = rp_yaml.safe_load(f)
             if 'forward_shading' in config['enabled']:
                 return 2
@@ -232,7 +232,7 @@ class Graphics(MenuSettings):
                 return 1
 
     def get_skin_shading_value(self):
-        with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
+        with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'r') as f:
             config = rp_yaml.safe_load(f)
             if 'skin_shading' in config['enabled']:
                 return 2
@@ -240,7 +240,7 @@ class Graphics(MenuSettings):
                 return 1
 
     def get_pssm_value(self):
-        with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
+        with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'r') as f:
             config = rp_yaml.safe_load(f)
             if 'pssm' in config['enabled']:
                 return 2
@@ -248,7 +248,7 @@ class Graphics(MenuSettings):
                 return 1
 
     def get_dof_value(self):
-        with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
+        with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'r') as f:
             config = rp_yaml.safe_load(f)
             if 'dof' in config['enabled']:
                 return 2
@@ -256,7 +256,7 @@ class Graphics(MenuSettings):
                 return 1
 
     def get_env_probes_value(self):
-        with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
+        with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'r') as f:
             config = rp_yaml.safe_load(f)
             if 'env_probes' in config['enabled']:
                 return 2
@@ -264,7 +264,7 @@ class Graphics(MenuSettings):
                 return 1
 
     def get_motion_blur_value(self):
-        with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
+        with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'r') as f:
             config = rp_yaml.safe_load(f)
             if 'motion_blur' in config['enabled']:
                 return 2
@@ -272,7 +272,7 @@ class Graphics(MenuSettings):
                 return 1
 
     def get_volumetrics_value(self):
-        with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
+        with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'r') as f:
             config = rp_yaml.safe_load(f)
             if 'volumetrics' in config['enabled']:
                 return 2
@@ -323,15 +323,15 @@ class Graphics(MenuSettings):
 
     def save_ao_value(self, data):
         if data and isinstance(data, str):
-            with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
+            with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'r') as f:
                 config = rp_yaml.safe_load(f)
 
                 if config.get('disabled') and config.get('enabled'):
                     if data != 'ON' and data != 'OFF':
                         config['overrides']['ao']['technique'] = data
-                    with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'w') as f:
+                    with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'w') as f:
                         f.write(rp_yaml.safe_dump(config, default_flow_style=False))
-                    with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
+                    with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'r') as f:
                         config = rp_yaml.safe_load(f)
                         if data == 'ON':
                             if 'ao' in config['disabled']:
@@ -344,12 +344,12 @@ class Graphics(MenuSettings):
                             if 'ao' in config['enabled']:
                                 config['enabled'].remove('ao')
 
-            with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'w') as f:
+            with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'w') as f:
                 f.write(rp_yaml.safe_dump(config, default_flow_style=False))
 
     def save_bloom_value(self, data):
         if data and isinstance(data, str):
-            with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
+            with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'r') as f:
                 config = rp_yaml.safe_load(f)
 
                 if config.get('disabled') and config.get('enabled'):
@@ -364,12 +364,12 @@ class Graphics(MenuSettings):
                         if 'bloom' in config.get('enabled'):
                             config['enabled'].remove('bloom')
 
-            with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'w') as f:
+            with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'w') as f:
                 f.write(rp_yaml.safe_dump(config, default_flow_style=False))
 
     def save_clouds_value(self, data):
         if data and isinstance(data, str):
-            with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
+            with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'r') as f:
                 config = rp_yaml.safe_load(f)
 
                 if config.get('disabled') and config.get('enabled'):
@@ -384,12 +384,12 @@ class Graphics(MenuSettings):
                         if 'clouds' in config['enabled']:
                             config['enabled'].remove('clouds')
 
-            with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'w') as f:
+            with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'w') as f:
                 f.write(rp_yaml.safe_dump(config, default_flow_style=False))
 
     def save_color_correction_value(self, data):
         if data and isinstance(data, str):
-            with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
+            with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'r') as f:
                 config = rp_yaml.safe_load(f)
 
                 if config.get('disabled') and config.get('enabled'):
@@ -404,12 +404,12 @@ class Graphics(MenuSettings):
                         if 'color_correction' in config['enabled']:
                             config['enabled'].remove('color_correction')
 
-            with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'w') as f:
+            with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'w') as f:
                 f.write(rp_yaml.safe_dump(config, default_flow_style=False))
 
     def save_dof_value(self, data):
         if data and isinstance(data, str):
-            with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
+            with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'r') as f:
                 config = rp_yaml.safe_load(f)
 
                 if config.get('disabled') and config.get('enabled'):
@@ -424,12 +424,12 @@ class Graphics(MenuSettings):
                         if 'dof' in config['enabled']:
                             config['enabled'].remove('dof')
 
-            with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'w') as f:
+            with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'w') as f:
                 f.write(rp_yaml.safe_dump(config, default_flow_style=False))
 
     def save_env_probes_value(self, data):
         if data and isinstance(data, str):
-            with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
+            with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'r') as f:
                 config = rp_yaml.safe_load(f)
 
                 if config.get('disabled') and config.get('enabled'):
@@ -444,12 +444,12 @@ class Graphics(MenuSettings):
                         if 'env_probes' in config['enabled']:
                             config['enabled'].remove('env_probes')
 
-            with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'w') as f:
+            with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'w') as f:
                 f.write(rp_yaml.safe_dump(config, default_flow_style=False))
 
     def save_forward_shading_value(self, data):
         if data and isinstance(data, str):
-            with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
+            with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'r') as f:
                 config = rp_yaml.safe_load(f)
 
                 if config.get('disabled') and config.get('enabled'):
@@ -464,12 +464,12 @@ class Graphics(MenuSettings):
                         if 'forward_shading' in config['enabled']:
                             config['enabled'].remove('forward_shading')
 
-            with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'w') as f:
+            with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'w') as f:
                 f.write(rp_yaml.safe_dump(config, default_flow_style=False))
 
     def save_motion_blur_value(self, data):
         if data and isinstance(data, str):
-            with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
+            with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'r') as f:
                 config = rp_yaml.safe_load(f)
 
                 if config.get('disabled') and config.get('enabled'):
@@ -484,12 +484,12 @@ class Graphics(MenuSettings):
                         if 'motion_blur' in config['enabled']:
                             config['enabled'].remove('motion_blur')
 
-            with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'w') as f:
+            with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'w') as f:
                 f.write(rp_yaml.safe_dump(config, default_flow_style=False))
 
     def save_pssm_value(self, data):
         if data and isinstance(data, str):
-            with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
+            with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'r') as f:
                 config = rp_yaml.safe_load(f)
 
                 if config.get('disabled') and config.get('enabled'):
@@ -504,12 +504,12 @@ class Graphics(MenuSettings):
                         if 'pssm' in config['enabled']:
                             config['enabled'].remove('pssm')
 
-            with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'w') as f:
+            with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'w') as f:
                 f.write(rp_yaml.safe_dump(config, default_flow_style=False))
 
     def save_scattering_value(self, data):
         if data and isinstance(data, str):
-            with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
+            with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'r') as f:
                 config = rp_yaml.safe_load(f)
 
                 if config.get('disabled') and config.get('enabled'):
@@ -524,12 +524,12 @@ class Graphics(MenuSettings):
                         if 'scattering' in config['enabled']:
                             config['enabled'].remove('scattering')
 
-            with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'w') as f:
+            with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'w') as f:
                 f.write(rp_yaml.safe_dump(config, default_flow_style=False))
 
     def save_skin_shading_value(self, data):
         if data and isinstance(data, str):
-            with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
+            with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'r') as f:
                 config = rp_yaml.safe_load(f)
 
                 if config.get('disabled') and config.get('enabled'):
@@ -544,12 +544,12 @@ class Graphics(MenuSettings):
                         if 'skin_shading' in config['enabled']:
                             config['enabled'].remove('skin_shading')
 
-            with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'w') as f:
+            with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'w') as f:
                 f.write(rp_yaml.safe_dump(config, default_flow_style=False))
 
     def save_sky_ao_value(self, data):
         if data and isinstance(data, str):
-            with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
+            with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'r') as f:
                 config = rp_yaml.safe_load(f)
 
                 if config.get('disabled') and config.get('enabled'):
@@ -564,12 +564,12 @@ class Graphics(MenuSettings):
                         if 'sky_ao' in config['enabled']:
                             config['enabled'].remove('sky_ao')
 
-            with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'w') as f:
+            with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'w') as f:
                 f.write(rp_yaml.safe_dump(config, default_flow_style=False))
 
     def save_smaa_value(self, data):
         if data and isinstance(data, str):
-            with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
+            with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'r') as f:
                 config = rp_yaml.safe_load(f)
 
                 if config.get('disabled') and config.get('enabled'):
@@ -584,12 +584,12 @@ class Graphics(MenuSettings):
                         if 'smaa' in config['enabled']:
                             config['enabled'].remove('smaa')
 
-            with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'w') as f:
+            with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'w') as f:
                 f.write(rp_yaml.safe_dump(config, default_flow_style=False))
 
     def save_ssr_value(self, data):
         if data and isinstance(data, str):
-            with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
+            with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'r') as f:
                 config = rp_yaml.safe_load(f)
 
                 if config.get('disabled') and config.get('enabled'):
@@ -604,12 +604,12 @@ class Graphics(MenuSettings):
                         if 'ssr' in config['enabled']:
                             config['enabled'].remove('ssr')
 
-            with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'w') as f:
+            with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'w') as f:
                 f.write(rp_yaml.safe_dump(config, default_flow_style=False))
 
     def save_volumetrics_value(self, data):
         if data and isinstance(data, str):
-            with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'r') as f:
+            with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'r') as f:
                 config = rp_yaml.safe_load(f)
 
                 if config.get('disabled') and config.get('enabled'):
@@ -624,5 +624,5 @@ class Graphics(MenuSettings):
                         if 'volumetrics' in config['enabled']:
                             config['enabled'].remove('volumetrics')
 
-            with open("{0}/Engine/Render/config/plugins.yaml".format(self.game_dir), 'w') as f:
+            with open("{0}/Engine/Renderer/config/plugins.yaml".format(self.game_dir), 'w') as f:
                 f.write(rp_yaml.safe_dump(config, default_flow_style=False))

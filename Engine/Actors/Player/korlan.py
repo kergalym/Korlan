@@ -5,7 +5,7 @@ from panda3d.core import WindowProperties
 from panda3d.core import LPoint3f
 from direct.task.TaskManagerGlobal import taskMgr
 
-from Engine.Render.render import RenderAttr
+from Engine.Renderer.renderer import RenderAttr
 from Settings.Input.keyboard import Keyboard
 from Settings.Input.mouse import Mouse
 

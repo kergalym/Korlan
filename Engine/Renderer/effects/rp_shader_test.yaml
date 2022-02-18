@@ -1,0 +1,28 @@
+# shader test effect
+
+vertex:
+    inout: |
+      out vec2 texCoord;
+
+    transform: |
+      vOutput.position = p3d_ModelViewProjectionMatrix * p3d_Vertex;
+      texCoord = p3d_MultiTexCoord0;
+
+fragment:
+    inout: |
+      in vec2 texCoord;
+
+    defines: |
+      #define DONT_FETCH_DEFAULT_TEXTURES 0
+      #define DONT_SET_MATERIAL_PROPERTIES 1
+
+    material: |
+      vec3 m_base = vec3(0);
+      m_base = texture(cloak_tex,  texcoord).xyz;
+      m.basecolor = vec3(1.0,0.0,0.0);
+      m.shading_model =  mInput.shading_model;
+      m.specular_ior = 1.0;
+      m.metallic = 0.0;
+      m.roughness = 1.0;
+      m.shading_model_param0 = 0.0;
+      m.normal = vOutput.normal;

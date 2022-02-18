@@ -23,7 +23,7 @@ def exclude_docstrings(count):
 def count_my_lines():
     data = ''
     total = 0
-    exclude_dir = 'Render'
+    exclude_dir = 'Renderer'
     exclude_dir2 = "tmp"
     exclude_dir3 = "venv3.7"
     exclude_dir4 = "dist"
@@ -68,7 +68,7 @@ def count_my_lines():
 
                         data += "{0}: {1} line(s) of code\n\n".format(name, len(sorted))
 
-        file_of_excl_dir = "{0}/Engine/Render/render.py".format(game_dir)
+        file_of_excl_dir = "{0}/Engine/Renderer/renderer.py".format(game_dir)
         if exists(game_dir):
             with open(file_of_excl_dir, "r") as f:
                 count = f.read()
@@ -84,7 +84,7 @@ def count_my_lines():
                             total += 1
                             sorted.append(line)
 
-                data += "render.py: {0} line(s) of code\n\n".format(len(sorted))
+                data += "renderer.py: {0} line(s) of code\n\n".format(len(sorted))
 
     total_text = "Total: {0} line(s) of code\n\n".format(total)
 

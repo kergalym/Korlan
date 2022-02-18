@@ -34,15 +34,15 @@ import time
 from threading import Thread
 from functools import partial
 
-from Engine.Render.rplibs.six import iteritems  # noqa
-from Engine.Render.rplibs.pyqt_imports import * #noqa
+from Engine.Renderer.rplibs.six import iteritems  # noqa
+from Engine.Renderer.rplibs.pyqt_imports import * #noqa
 
 # Load the generated UI Layout
-from Engine.Render.toolkit.plugin_configurator.ui.main_window_generated import Ui_MainWindow  # noqa
+from Engine.Renderer.toolkit.plugin_configurator.ui.main_window_generated import Ui_MainWindow  # noqa
 
-from Engine.Render.rpcore.pluginbase.manager import PluginManager  # noqa
-from Engine.Render.rpcore.util.network_communication import NetworkCommunication  # noqa
-from Engine.Render.rpcore.mount_manager import MountManager  # noqa
+from Engine.Renderer.rpcore.pluginbase.manager import PluginManager  # noqa
+from Engine.Renderer.rpcore.util.network_communication import NetworkCommunication  # noqa
+from Engine.Renderer.rpcore.mount_manager import MountManager  # noqa
 
 
 class PluginConfigurator(QMainWindow, Ui_MainWindow):

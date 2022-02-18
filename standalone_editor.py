@@ -19,14 +19,14 @@ from code import InteractiveConsole
 from panda3d.core import *
 from pathlib import Path, PurePath
 
-from Engine.Render.rpcore import RenderPipeline, PointLight
-from Engine.Render.rpcore.util.movement_controller import MovementController
+from Engine.Renderer.rpcore import RenderPipeline, PointLight
+from Engine.Renderer.rpcore.util.movement_controller import MovementController
 
 import json
 
 p3d.load_prc_file_data("", """
 win-size 1920 1080
-window-title Render Pipeline compatible Yet Another Level Editor
+window-title Renderer Pipeline compatible Yet Another Level Editor
 """)
 
 p3d.load_prc_file_data('',
@@ -1836,7 +1836,7 @@ class Editor(ShowBase):
                 scale = self.flame_np.get_scale()
                 self.flame_np.set_scale(2, scale[1], scale[2])
                 self.render_pipeline.set_effect(self.flame_np,
-                                                "{0}/Engine/Render/effects/{1}.yaml".format(self.game_dir, name),
+                                                "{0}/Engine/Renderer/effects/{1}.yaml".format(self.game_dir, name),
                                                 {"render_gbuffer": True,
                                                  "render_shadow": True,
                                                  "alpha_testing": True,

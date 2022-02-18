@@ -12,7 +12,7 @@ from Engine.Inventory.inventory import Inventory
 from Engine.Inventory.item import Item
 from panda3d.core import TextNode
 from panda3d.core import WindowProperties
-from Engine.Render.render import RenderAttr
+from Engine.Renderer.renderer import RenderAttr
 
 
 class Sheet(Inventory):

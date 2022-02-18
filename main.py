@@ -39,7 +39,7 @@ from panda3d.core import Filename
 
 from Engine.Actors.Player.korlan import Korlan
 from Engine.Scenes.scene import SceneOne
-from Engine.Render.render import RenderAttr
+from Engine.Renderer.renderer import RenderAttr
 from Settings.Sound.sound import Sound
 from Settings.UI.menu_ui import MenuUI
 from Settings.gfx_menu_settings import Graphics
@@ -47,8 +47,8 @@ from panda3d.core import Thread
 from direct.stdpy import threading
 from code import InteractiveConsole
 from direct.task.TaskManagerGlobal import taskMgr
-from Engine.Render.rpcore.render_pipeline import RenderPipeline
-from Engine.Render.rpcore.util.movement_controller import MovementController
+from Engine.Renderer.rpcore.render_pipeline import RenderPipeline
+from Engine.Renderer.rpcore.util.movement_controller import MovementController
 import importlib
 import psutil
 
@@ -179,20 +179,20 @@ p3d.load_prc_file_data(
 )
 
 cfg_name = None
-if not vfs_exists('Engine/Render/config/plugins_def.yaml'):
+if not vfs_exists('Engine/Renderer/config/plugins_def.yaml'):
     cfg_is_broken = True
 else:
-    with vfs_open("Engine/Render/config/plugins_def.yaml", 'r') as f:
+    with vfs_open("Engine/Renderer/config/plugins_def.yaml", 'r') as f:
         config = f.read()
         if not config:
             cfg_is_broken = True
         else:
             f.close()
 
-if not vfs_exists('Engine/Render/config/plugins.yaml'):
+if not vfs_exists('Engine/Renderer/config/plugins.yaml'):
     cfg_is_broken = True
 else:
-    with vfs_open("Engine/Render/config/plugins.yaml", 'r') as f:
+    with vfs_open("Engine/Renderer/config/plugins.yaml", 'r') as f:
         config = f.read()
         if not config:
             cfg_is_broken = True
@@ -399,7 +399,7 @@ class Main(ShowBase):
             self.controller.setup()
 
         # Construct and create the pipeline
-        render_bg_tex = self.textures_collector('Engine/Render')
+        render_bg_tex = self.textures_collector('Engine/Renderer')
         if self.game_settings['Main']['postprocessing'] == 'on':
             self.render_pipeline = RenderPipeline()
             self.render_pipeline.set_loading_screen_image(render_bg_tex['background'])
@@ -433,7 +433,7 @@ class Main(ShowBase):
         self.sound.openal_mgr()
 
     def reload_render(self):
-        from Engine.Render import rpcore
+        from Engine.Renderer import rpcore
         importlib.reload(rpcore.render_pipeline)
 
     def check_and_do_cfg(self):

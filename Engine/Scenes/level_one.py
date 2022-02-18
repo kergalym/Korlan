@@ -5,7 +5,7 @@ from panda3d.core import *
 from Engine.Actors.Player.korlan import Korlan
 from Engine.Actors.Player.state import PlayerState
 from Engine.AI.ai_setup import AI
-from Engine.Render.render import RenderAttr
+from Engine.Renderer.renderer import RenderAttr
 from Engine.Scenes.scene import SceneOne
 from Engine.Physics.physics_setup import PhysicsAttr
 from Settings.UI.pause_menu_ui import PauseMenuUI
@@ -129,6 +129,9 @@ class LevelOne:
 
             assets = self.base.assets_collector()
             self.assets = assets
+
+            # Clear water
+            self.render_attr.clear_projected_water()
 
             # Stop sounds
             self.base.sound_sfx_nature.stop()
@@ -328,7 +331,6 @@ class LevelOne:
         self.base.game_instance['lod_np'].reparentTo(world_np)
 
         if self.game_settings['Main']['postprocessing'] == 'on':
-            self.render_attr.set_time_of_day(duration=1800)  # 1800 sec == 30 min
             self.render_attr.time_text_ui.show()
             taskMgr.add(self.render_attr.set_time_of_day_clock_task,
                         "set_time_of_day_clock_task",
@@ -368,12 +370,6 @@ class LevelOne:
                                       color=[0.8],
                                       task="attach")"""
 
-        # set native render effects
-        if self.game_settings['Main']['postprocessing'] == 'off':
-            taskMgr.add(self.render_attr.setup_native_renderer,
-                        "setup_native_renderer_task",
-                        extraArgs=[True], appendTask=True)
-
         # assets is a dict containing paths + models
         # anims is a list containing two dicts.
         # anims[0] is a dict containing names of animations
@@ -404,23 +400,13 @@ class LevelOne:
         for index, actor in enumerate(level_npc_assets['name'], 1):
             self.actors_for_focus[index] = actor
 
-        self.scene_one.set_env(cloud_dimensions=[2000, 2000, 100],
-                               cloud_speed=0.3,
-                               cloud_size=20,
-                               cloud_count=20,
-                               cloud_color=(0.6, 0.6, 0.65, 1.0))
-
         """ Setup Physics """
         self.physics_attr.set_physics_world(self.npcs_fsm_states)
 
         self.base.accept("add_bullet_collider", self.physics_attr.add_bullet_collider, [level_assets_joined])
 
         """ Async Loading """
-        suffix = ""
-        if self.game_settings['Main']['postprocessing'] == 'on':
-            suffix = "rp"
-        elif self.game_settings['Main']['postprocessing'] == 'off':
-            suffix = "p3d"
+        suffix = "rp"
 
         taskMgr.add(self.scene_one.set_level(path=assets['lvl_one_{0}'.format(suffix)],
                                              name="lvl_one",
