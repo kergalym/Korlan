@@ -88,8 +88,7 @@ class Korlan:
                 self.korlan.set_r(self.korlan, self.rot_r)
 
                 # Hardware skinning
-                if self.game_settings['Main']['postprocessing'] == 'on':
-                    self.render_attr.set_hardware_skinning(self.korlan, True)
+                self.render_attr.set_hardware_skinning(self.korlan, True)
 
                 self.korlan.loop(animation)
                 self.korlan.set_play_rate(self.base.actor_play_rate, animation)
@@ -104,12 +103,6 @@ class Korlan:
 
                 # Make actor global
                 self.base.game_instance['actors_ref']['player'] = self.korlan
-
-                # Set lights and Shadows
-                if self.game_settings['Main']['postprocessing'] == 'off':
-                    # TODO: uncomment if character has normals
-                    # self.render_attr.set_shadows(self.scene, self.render)
-                    pass
 
                 if self.game_settings['Debug']['set_debug_mode'] == "YES":
                     self.render.analyze()
@@ -209,20 +202,7 @@ class Korlan:
                 # Make actor global
                 self.base.game_instance['player_ref'] = self.korlan
 
-                if self.game_settings['Main']['postprocessing'] == 'on':
-
-                    self.render_attr.render_pipeline.prepare_scene(self.korlan)
-
-                if self.game_settings['Main']['postprocessing'] == 'off':
-                    # TODO: uncomment if character has normals
-                    # Set Lights and Shadows
-                    """if render.find("slight"):
-                        light = render.find("slight")
-                        self.render_attr.set_spotlight_shadows(obj=self.korlan, light=light, shadow_blur=0.2,
-                                                               ambient_color=(1.0, 1.0, 1.0))"""
-                    # self.render_attr.set_normal_mapping(self.korlan)
-
-                    pass
+                self.render_attr.render_pipeline.prepare_scene(self.korlan)
 
                 if self.game_settings['Debug']['set_debug_mode'] == "YES":
                     self.render.analyze()

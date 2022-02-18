@@ -127,21 +127,12 @@ class LoadingUI:
             seconds = int(90 * dt)
             alpha = self.fadeout_screen['frameColor'][3]
 
-            if self.game_settings['Main']['postprocessing'] == 'on':
-                if alpha > 0 and seconds == 2:
-                    alpha -= 0.1
-                    self.fadeout_screen['frameColor'] = (0, 0, 0, alpha)
-                elif alpha == 0.0:
-                    self.fadeout_screen.destroy()
-                    return task.done
-
-            elif self.game_settings['Main']['postprocessing'] == 'off':
-                if alpha > 0:
-                    alpha -= 0.1
-                    self.fadeout_screen['frameColor'] = (0, 0, 0, alpha)
-                elif alpha == 0.0:
-                    self.fadeout_screen.destroy()
-                    return task.done
+            if alpha > 0 and seconds == 2:
+                alpha -= 0.1
+                self.fadeout_screen['frameColor'] = (0, 0, 0, alpha)
+            elif alpha == 0.0:
+                self.fadeout_screen.destroy()
+                return task.done
 
         return task.cont
 

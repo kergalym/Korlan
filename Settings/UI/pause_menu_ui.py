@@ -1,8 +1,6 @@
 import json
-import logging
 
 from os.path import exists
-from pathlib import Path
 
 from direct.gui.DirectGui import *
 from direct.gui.OnscreenImage import OnscreenImage, TransparencyAttrib
@@ -85,9 +83,6 @@ class PauseMenuUI(MenuSettings):
         # instance of the abstract class
         self.font = FontPool
         self.text = TextNode("TextNode")
-
-        self.logging = logging
-        self.logging.basicConfig(filename="{0}/critical.log".format(Path.home()), level=logging.CRITICAL)
 
         self.cfg_path = self.base.game_cfg
         if exists(self.cfg_path):

@@ -32,6 +32,7 @@ class NpcsAI:
             name_bs = "{0}:BS".format(name)
             actor_bs = self.base.game_instance['actors_np'][name_bs]
             request = self.npcs_fsm_states[name]
+
             taskMgr.add(self.actor_hitbox_trace_task,
                         "{0}_hitboxes_task".format(name.lower()),
                         extraArgs=[actor, actor_bs, request], appendTask=True)
@@ -62,6 +63,7 @@ class NpcsAI:
                                         if actor.get_python_tag("generic_states")['is_alive']:
                                             actor.get_python_tag("generic_states")['is_alive'] = False
                                             request.request("Death", actor, "Dying", "play")
+
         return task.cont
 
     def update_pathfinding_task(self, task):
@@ -177,9 +179,13 @@ class NpcsAI:
                             if player_vec <= 1:
                                 ai_behaviors[actor_name].remove_ai("pursue")
                                 self.npc_in_staying_logic(actor, request)
-                                if (actor_ref.get_python_tag("health_np")['value']
-                                        < actor_ref.get_python_tag("health_np")['range']):
-                                    self.npc_in_attacking_logic(actor, player, dt, request)
+
+                                try:
+                                  if (actor_ref.get_python_tag("health_np")['value']
+                                          < actor_ref.get_python_tag("health_np")['range']):
+                                      self.npc_in_attacking_logic(actor, player, dt, request)
+                                except AttributeError:
+                                    import pdb; pdb.set_trace()
 
                             elif player_vec > 1:
                                 request.request("Walk", actor, player, self.ai_chars_bs,

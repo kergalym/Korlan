@@ -153,13 +153,7 @@ class LevelOne:
             self.render_attr.clear_flame()
 
             # Remove all lights
-            if self.game_settings['Main']['postprocessing'] == 'off':
-                render.clearLight()
-                if not render.find("**/+Light").is_empty():
-                    render.find("**/+Light").remove_node()
-                    render.find("**/+Light").clear()
-            elif (self.render_pipeline
-                  and self.game_settings['Main']['postprocessing'] == 'on'):
+            if self.render_pipeline:
                 base.render_attr.clear_lighting()
 
             # Remove Collisions
@@ -254,13 +248,7 @@ class LevelOne:
         assets = self.base.assets_collector()
 
         # Remove all lights
-        if self.game_settings['Main']['postprocessing'] == 'off':
-            render.clearLight()
-            if not render.find("**/+Light").is_empty():
-                render.find("**/+Light").remove_node()
-                render.find("**/+Light").clear()
-        elif (self.render_pipeline
-              and self.game_settings['Main']['postprocessing'] == 'on'):
+        if self.render_pipeline:
             base.render_attr.clear_lighting()
 
         # Remove Collisions
@@ -330,12 +318,11 @@ class LevelOne:
         self.base.game_instance['lod_np'] = NodePath(lod)
         self.base.game_instance['lod_np'].reparentTo(world_np)
 
-        if self.game_settings['Main']['postprocessing'] == 'on':
-            self.render_attr.time_text_ui.show()
-            taskMgr.add(self.render_attr.set_time_of_day_clock_task,
-                        "set_time_of_day_clock_task",
-                        extraArgs=["19:00", 1800],  # 1800 sec == 30 min
-                        appendTask=True)
+        self.render_attr.time_text_ui.show()
+        taskMgr.add(self.render_attr.set_time_of_day_clock_task,
+                    "set_time_of_day_clock_task",
+                    extraArgs=["19:00", 1800],  # 1800 sec == 30 min
+                    appendTask=True)
 
         """ Assets """
 

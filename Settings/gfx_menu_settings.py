@@ -26,7 +26,6 @@ class Graphics(MenuSettings):
             loaded_settings['Main']['dis_res'] = '1920x1080'
             loaded_settings['Main']['fullscreen'] = 'off'
             loaded_settings['Main']['antialiasing'] = 'on'
-            loaded_settings['Main']['postprocessing'] = 'on'
             loaded_settings['Main']['details'] = 'high'
             loaded_settings['Main']['texture_compression'] = 'active'
             loaded_settings['Main']['shadows'] = 'on'
@@ -90,17 +89,6 @@ class Graphics(MenuSettings):
         if loaded_settings['Main']['shadows'] == 'off':
             return 1
         elif loaded_settings['Main']['shadows'] == 'on':
-            return 2
-
-    def load_postpro_value(self):
-        postpro_stat = {1: 'OFF', 2: 'ON'}
-        return postpro_stat
-
-    def get_postpro_value(self):
-        loaded_settings = self.load_settings()
-        if loaded_settings['Main']['postprocessing'] == 'off':
-            return 1
-        elif loaded_settings['Main']['postprocessing'] == 'on':
             return 2
 
     def load_antial_value(self):
@@ -304,13 +292,6 @@ class Graphics(MenuSettings):
         loaded_settings = self.load_settings()
         if isinstance(data, str):
             loaded_settings['Main']['shadows'] = data.lower()
-            with open(self.cfg_path, "w") as cfg_file:
-                loaded_settings.write(cfg_file)
-
-    def save_postpro_value(self, data):
-        loaded_settings = self.load_settings()
-        if isinstance(data, str):
-            loaded_settings['Main']['postprocessing'] = data.lower()
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
 

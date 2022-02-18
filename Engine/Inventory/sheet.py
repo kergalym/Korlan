@@ -680,18 +680,11 @@ class Sheet(Inventory):
 
             player = render.find("**/Player")
             if player:
-                if self.game_settings['Main']['postprocessing'] == 'on':
-                    # set character view
-                    player_pos = player.get_pos()
-                    base.camera.set_x(player_pos[0] + -1.05)
-                    base.camera.set_y(player_pos[1] + -4.5)
-                    base.camera.set_z(player_pos[2] + 0.25)
-                else:
-                    # set character view
-                    player_pos = player.get_pos()
-                    base.camera.set_x(player_pos[0] + -1.3)
-                    base.camera.set_y(player_pos[1] + -4)
-                    base.camera.set_z(player_pos[2] + 0.3)
+                # set character view
+                player_pos = player.get_pos()
+                base.camera.set_x(player_pos[0] + -1.05)
+                base.camera.set_y(player_pos[1] + -4.5)
+                base.camera.set_z(player_pos[2] + 0.25)
 
                 base.camera.set_hpr(0, 0, 0)
                 if render.find("**/pivot"):
@@ -723,30 +716,20 @@ class Sheet(Inventory):
                 # set light
                 player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
                 if player_bs:
-
                     # keep previous player hpr states
                     self.player_hpr_saved = player_bs.get_hpr()
 
                     # face player to light
                     player_bs.set_h(0)
 
-                    if self.game_settings['Main']['postprocessing'] == 'on':
-                        light_pos = [player_bs.get_x(), player_bs.get_y() - 4.0, 8.0]
-                        self.render_attr.set_inv_lighting(name='slight',
-                                                          render=render,
-                                                          pos=light_pos,
-                                                          hpr=[0, 0.4, -1],
-                                                          color=[2.0],
-                                                          task="attach")
-                        self.render_attr.render_pipeline.prepare_scene(bg_black)
-                    else:
-                        light_pos = [player_bs.get_x(), player_bs.get_y() - 3.0, player_bs.get_z() + 0.8]
-                        self.render_attr.set_inv_lighting(name='slight',
-                                                          render=render,
-                                                          pos=light_pos,
-                                                          hpr=[0, 14, 0],
-                                                          color=[0.4],
-                                                          task="attach")
+                    light_pos = [player_bs.get_x(), player_bs.get_y() - 4.0, 8.0]
+                    self.render_attr.set_inv_lighting(name='slight',
+                                                      render=render,
+                                                      pos=light_pos,
+                                                      hpr=[0, 0.4, -1],
+                                                      color=[2.0],
+                                                      task="attach")
+                    self.render_attr.render_pipeline.prepare_scene(bg_black)
 
     def revert_character(self):
         # revert character view

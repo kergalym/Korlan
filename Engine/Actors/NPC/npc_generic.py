@@ -73,17 +73,7 @@ class NpcGeneric:
             # Make actor global
             self.base.game_instance['actors_ref'][name] = self.actor
 
-            if self.game_settings['Main']['postprocessing'] == 'on':
-                self.render_attr.render_pipeline.prepare_scene(self.actor)
-
-            if self.game_settings['Main']['postprocessing'] == 'off':
-                # TODO: uncomment if character has normals
-                # Set Lights and Shadows
-                """if render.find("SpotLight_ToD"):
-                    light = render.find("SpotLight_ToD")
-                    self.render_attr.set_spotlight_shadows(obj=self.actor, light=light, shadow_blur=0.2,
-                                                           ambient_color=(1.0, 1.0, 1.0))"""
-                pass
+            self.render_attr.render_pipeline.prepare_scene(self.actor)
 
             # Add Bullet collider for this actor
             self.base.messenger.send("add_bullet_collider")

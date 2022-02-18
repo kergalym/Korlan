@@ -9,19 +9,24 @@ class ProjectedWater:
     def __init__(self, water_options):
         self.water_options = water_options
         self.water_level = 0.0
-        self.model = Globals.base.loader.load_model("/$$rp/data/builtin_models/water/water_grid.bam")
-        self.model.reparent_to(Globals.base.render)
-        self.model.node().set_final(True)
-        self.model.node().set_bounds(OmniBoundingVolume())
-        self.model.set_two_sided(True)
-        self.model.set_shader_input("waterHeight", self.water_level)
-        self.model.set_mat(Mat4.identMat())
-        self.model.clear_transform()
+        self.model = None
+        self.pipeline = None
+        self.manager = None
 
     def setup_water(self, pipeline, water_level):
-        if (pipeline and self.model
+        if (pipeline
                 and isinstance(water_level, float)
                 and self.water_options):
+
+            self.water_level = 0.0
+            self.model = Globals.base.loader.load_model("/$$rp/data/builtin_models/water/water_grid.bam")
+            self.model.reparent_to(Globals.base.render)
+            self.model.node().set_final(True)
+            self.model.node().set_bounds(OmniBoundingVolume())
+            self.model.set_two_sided(True)
+            self.model.set_shader_input("waterHeight", self.water_level)
+            self.model.set_mat(Mat4.identMat())
+            self.model.clear_transform()
 
             self.pipeline = pipeline
             foam = Globals.base.loader.load_texture("/$$rp/data/builtin_models/water/water_foam.png")
@@ -53,7 +58,8 @@ class ProjectedWater:
     def clear_water(self):
         Globals.base.remove_task("update_water")
         if self.model:
-            self.model.remove_node()
+            self.model.delete()
+            self.model.claenup()
 
     def update_task(self, task):
         # Update water displacement
