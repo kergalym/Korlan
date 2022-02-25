@@ -70,6 +70,7 @@ game_settings = configparser.ConfigParser()
 game_settings['Main'] = {'disp_res': '1920x1080',
                          'fullscreen': 'off',
                          'antialiasing': 'on',
+                         'postprocessing': 'on',
                          'details': 'high',
                          'texture_compression': 'active',
                          'shadows': 'on',
@@ -398,12 +399,13 @@ class Main(ShowBase):
             self.controller.setup()
 
         # Construct and create the pipeline
-        render_bg_tex = self.textures_collector('Engine/Renderer')
-        self.render_pipeline = RenderPipeline()
-        self.render_pipeline.set_loading_screen_image(render_bg_tex['background'])
-        self.render_pipeline.pre_showbase_init()
-        self.render_pipeline.create(self)
-        self.accept("reload_render", self.reload_render)
+        if self.game_settings['Main']['postprocessing'] == 'on':
+            render_bg_tex = self.textures_collector('Engine/Renderer')
+            self.render_pipeline = RenderPipeline()
+            self.render_pipeline.set_loading_screen_image(render_bg_tex['background'])
+            self.render_pipeline.pre_showbase_init()
+            self.render_pipeline.create(self)
+            self.accept("reload_render", self.reload_render)
 
         """ Menu """
         if self.check_and_do_cfg():

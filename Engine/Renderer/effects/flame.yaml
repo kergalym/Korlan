@@ -12,15 +12,15 @@ fragment:
       float nx = 0.0;
       float ny = 0.0;
 
-      // Generate procedural flame texture from regular noise texture
+      // Generate procedural flame texture from noise function
       for (int i=1; i<ITERATIONS+1; i++)
       {
       	float ii = pow(float(i), 2.0);
       	float ifrac = float(i)/float(ITERATIONS);
       	float t = ifrac * iTime * SPEED;
       	float d = (1.0-ifrac) * DISPLACEMENT;
-      	nx += iqnoise( vec3(uv.x*ii-iTime*ifrac, uv.y*YSCALE*ii-t, 0.0), p3d_Texture0) * d * 2.0;
-      	ny += iqnoise( vec3(uv.x*ii+iTime*ifrac, uv.y*YSCALE*ii-t, iTime*ifrac/ii), p3d_Texture0) * d;
+      	nx += noise( vec3(uv.x*ii-iTime*ifrac, uv.y*YSCALE*ii-t, 0.0) ) * d * 2.0;
+      	ny += noise( vec3(uv.x*ii+iTime*ifrac, uv.y*YSCALE*ii-t, iTime*ifrac/ii) ) * d;
       }
 
       float flame = shape( vec2(uv.x+nx, uv.y+ny) );
@@ -36,9 +36,6 @@ fragment:
           discard;
 
       m.basecolor = col.rgb;
+      m.shading_model = 3; // transparency 3
 
-      //There are still some black pixels visible. This is because the texture was filtered.
-      // This can be prevented by setting the texture parameters to:
-      //glTexParameter(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-      //glTexParameter(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 

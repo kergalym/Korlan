@@ -202,7 +202,8 @@ class Korlan:
                 # Make actor global
                 self.base.game_instance['player_ref'] = self.korlan
 
-                self.render_attr.render_pipeline.prepare_scene(self.korlan)
+                if self.game_settings['Main']['postprocessing'] == 'on':
+                    self.render_attr.render_pipeline.prepare_scene(self.korlan)
 
                 if self.game_settings['Debug']['set_debug_mode'] == "YES":
                     self.render.analyze()

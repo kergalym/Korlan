@@ -28,6 +28,29 @@ class SceneOne:
         self.game_settings_filename = base.game_settings_filename
         self.cfg_path = self.game_cfg
 
+    def set_env(self, cloud_dimensions, cloud_speed, cloud_size, cloud_count, cloud_color):
+        if self.game_settings['Main']['postprocessing'] == 'off':
+            # Load the skybox
+            assets = self.base.assets_collector()
+            sky = self.base.loader.load_model(assets['sky'])
+            sun = self.base.loader.load_model(assets['sun'])
+            cloud = self.base.loader.load_model(assets['cloud'])
+            sky.set_name("sky")
+            sky.reparent_to(render)
+            sun.set_name("sun")
+            sun.reparent_to(render)
+            cloud.set_name("cloud")
+            cloud.reparent_to(render)
+            self.render_attr.set_sky_and_clouds(cloud_dimensions, cloud_speed, cloud_size, cloud_count, cloud_color)
+            # If you don't do this, none of the features
+            # listed above will have any effect. Panda will
+            # simply ignore normal maps, HDR, and so forth if
+            # shader generation is not enabled. It would be reasonable
+            # to enable shader generation for the entire game, using this call:
+            # scene.set_shader_auto()
+            # self.render_attr.set_shadows(scene, render)
+            render.set_attrib(LightRampAttrib.make_hdr1())
+
     async def set_level(self, path, name, axis, rotation, scale, culling):
         if (isinstance(path, str)
                 and isinstance(name, str)
@@ -53,6 +76,7 @@ class SceneOne:
             scene = await self.base.loader.load_model(path, blocking=False)
             world = render.find("**/World")
             if world:
+
                 # toggle texture compression for textures to compress them
                 # before load into VRAM
                 self.base.toggle_texture_compression(scene)
@@ -62,8 +86,7 @@ class SceneOne:
                 # scene.reparent_to(world)
                 # scene.flatten_strong()
                 # scene.hide()
-                if self.game_settings['Debug']['set_debug_mode'] == 'YES':
-                    base.accept("f2", self.scene_toggle, [scene])
+                base.accept("f2", self.scene_toggle, [scene])
 
                 scene.set_name(name)
                 scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
@@ -72,6 +95,8 @@ class SceneOne:
 
                 # Make scene global
                 self.base.game_instance['scene_np'] = scene
+
+            if self.game_settings['Main']['postprocessing'] == 'on':
                 self.render_attr.render_pipeline.prepare_scene(scene)
 
             if not render.find("**/Grass").is_empty():
@@ -91,12 +116,38 @@ class SceneOne:
             # Panda3D 1.10 doesn't enable alpha blending for textures by default
             scene.set_transparency(True)
 
-            # Enable water
-            self.render_attr.set_projected_water(True)
-            # Enable flame
-            self.render_attr.set_flame(adv_render=True)
-            # Enable grass
-            # self.render_attr.set_grass(adv_render=True, fogcenter=Vec3(256, 256, 0), uv_offset=Vec2(0, 0))
+            # render.set_attrib(LightRampAttrib.make_hdr1())
+
+            if self.game_settings['Main']['postprocessing'] == 'off':
+                # Set Lights and Shadows
+                if render.find("SpotLight_ToD"):
+                    light = render.find("SpotLight_ToD")
+                    self.render_attr.set_spotlight_shadows(obj=scene, light=light, shadow_blur=0.2,
+                                                           ambient_color=(1.0, 1.0, 1.0))
+
+                # If you don't do this, none of the features
+                # listed above will have any effect. Panda will
+                # simply ignore normal maps, HDR, and so forth if
+                # shader generation is not enabled. It would be reasonable
+                # to enable shader generation for the entire game, using this call:
+                # scene.set_shader_auto()
+                # Enable water
+                self.render_attr.set_water(adv_render=False, water_lvl=30.0)
+                # Enable flame
+                self.render_attr.set_flame(adv_render=False)
+                # Enable grass
+                # self.render_attr.set_grass(adv_render=False, fogcenter=Vec3(256, 256, 0), uv_offset=Vec2(0, 0))
+            else:
+                # Enable water
+                self.render_attr.set_projected_water(True)
+
+                # Enable flame
+                self.render_attr.set_flame(adv_render=True)
+                # Enable grass
+                # self.render_attr.set_grass(adv_render=True, fogcenter=Vec3(256, 256, 0), uv_offset=Vec2(0, 0))
+
+                # Enable flare
+                # self.render_attr.set_flare(True, adv_render=False)
 
             self.base.game_instance['scene_is_loaded'] = True
 

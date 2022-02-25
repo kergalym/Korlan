@@ -1,0 +1,52 @@
+# Particles effect
+
+vertex:
+    transform: |
+
+fragment:
+    inout: |
+
+    includes: |
+        #pragma include "Engine/Shaders/particles_func.inc.glsl"
+
+    defines: |
+        #define DONT_FETCH_DEFAULT_TEXTURES 0
+        #define DONT_SET_MATERIAL_PROPERTIES 1
+
+    material: |
+        vec2 uv = vOutput.texcoord.xy;
+
+        // define colors
+        const vec3 color1 = vec3(0.5, 0.0, 0.1);
+        const vec3 color2 = vec3(0.9, 0.1, 0.0);
+        const vec3 color3 = vec3(0.2, 0.1, 0.7);
+        const vec3 color4 = vec3(1.0, 0.9, 0.1);
+        const vec3 color5 = vec3(0.1);
+        const vec3 color6 = vec3(0.9);
+
+        // make noise
+        float q = fbm(uv - 0.3+1.0*0.5/2.0);
+        float qb = fbm(uv -  0.4+0.1/2.0);
+        float q2 = fbm(uv - 0.44 - 5.0*2.0) - 6.0;
+        float q3 = fbm(uv - 0.9 - 10.0*15.0)-4.0;
+        float q4 = fbm(uv - 1.4 - 20.0*14.0)+2.0;
+        q = (q + qb - .4 * q2 -2.0*q3  + .6*q4)/3.8;
+
+        // randomize colors
+        vec2 r = vec2(fbm(uv + q / 2.0 * uv.x - uv.y), fbm(uv + q));
+        vec3 c = mix(color1, color2, fbm(uv + r)) + mix(color3, color4, r.x) - mix(color5, color6, r.y);
+        vec3 color = vec3(1.0/(pow(c+1.61,vec3(4.0))) * vOutput.texcoord.y / vOutput.texcoord.y);
+        color = vec3(1.0,.2,.05)/(pow((r.y+r.y) * max(.0,uv.y)+0.1, 4.0));
+        color += (texture(p3d_Texture0,uv*0.6+vec2(.5,.1)).xyz*0.01
+                  *pow((r.y+r.y)*.65,5.0)+0.055)*mix(vec3(.9,.4,.3),vec3(.7,.5,.2), uv.y);
+        color = color/(1.0+max(vec3(0),color));
+
+        // define material properties
+        m.basecolor = color;
+        m.shading_model = 3; // transparency 3
+        m.specular_ior = 0.0;
+        m.metallic = 0.0;
+        m.roughness = 0.0;
+        m.shading_model_param0 = 0.1;
+        m.normal = vOutput.normal;
+

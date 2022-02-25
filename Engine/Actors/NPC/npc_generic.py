@@ -73,7 +73,8 @@ class NpcGeneric:
             # Make actor global
             self.base.game_instance['actors_ref'][name] = self.actor
 
-            self.render_attr.render_pipeline.prepare_scene(self.actor)
+            if self.game_settings['Main']['postprocessing'] == 'on':
+                self.render_attr.render_pipeline.prepare_scene(self.actor)
 
             # Add Bullet collider for this actor
             self.base.messenger.send("add_bullet_collider")

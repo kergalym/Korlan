@@ -20,3 +20,13 @@ float iqnoise( in vec3 x, in sampler2D p3d_Texture0 ) // iq noise function
 	vec2 rg = textureLod(p3d_Texture0, (uv+ 0.5)/256.0, 0.0 ).yx;
 	return mix( rg.x, rg.y, f.z ) * 2.0 - 1.0;
 }
+
+float noise(vec3 p)
+{
+	vec3 i = floor(p);
+	vec4 a = dot(i, vec3(1., 57., 21.)) + vec4(0., 57., 21., 78.);
+	vec3 f = cos((p-i)*acos(-1.))*(-.5)+.5;
+	a = mix(sin(cos(a)*a),sin(cos(1.+a)*(1.+a)), f.x);
+	a.xy = mix(a.xz, a.yw, f.y);
+	return mix(a.x, a.y, f.z);
+}

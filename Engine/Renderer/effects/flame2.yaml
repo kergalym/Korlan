@@ -42,8 +42,8 @@ fragment:
       color = color/(1.0+max(vec3(0),color));
 
       // Drop all black pixels at the first stage
-      /*if (alpha == 1.0)
-          discard;*/
+      if (alpha == 1.0)
+          discard;
 
       m.basecolor = vec4(color.x, color.y, color.z, alpha).rgb;
 

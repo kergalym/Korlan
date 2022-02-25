@@ -31,6 +31,7 @@ setup(
                 'Engine/Renderer/**/*.txo',
                 'Engine/Renderer/**/*.txo.*',
                 'Engine/Renderer/**/*.glsl',
+                'Engine/Renderer/**/*.compute',
                 'Engine/Shaders/**/*.*',
             ],
             # Workaround for
