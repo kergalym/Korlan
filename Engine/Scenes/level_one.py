@@ -110,7 +110,6 @@ class LevelOne:
                 self.envprobe.set_hpr(scene.get_hpr())
                 self.envprobe.border_smoothness = 0.05
                 self.envprobe.parallax_correction = True
-                self.render_attr.set_flame_particles(name="flame", empty_name="flame_empty_1")
             return task.done
 
         return task.cont
@@ -327,7 +326,13 @@ class LevelOne:
         self.base.game_instance['lod_np'] = NodePath(lod)
         self.base.game_instance['lod_np'].reparentTo(world_np)
 
-        # self.render_attr.set_time_of_day(duration=1800)  # 1800 sec == 30 min
+        # set native render effects
+        if self.game_settings['Main']['postprocessing'] == 'off':
+            taskMgr.add(self.render_attr.setup_native_renderer,
+                        "setup_native_renderer_task",
+                        extraArgs=[True], appendTask=True)
+
+        self.render_attr.set_time_of_day(duration=1800)  # 1800 sec == 30 min
         self.render_attr.time_text_ui.show()
         taskMgr.add(self.render_attr.set_time_of_day_clock_task,
                     "set_time_of_day_clock_task",
@@ -366,12 +371,6 @@ class LevelOne:
                                       hpr=[0, -20, 0],
                                       color=[0.8],
                                       task="attach")"""
-
-        # set native render effects
-        if self.game_settings['Main']['postprocessing'] == 'off':
-            taskMgr.add(self.render_attr.setup_native_renderer,
-                        "setup_native_renderer_task",
-                        extraArgs=[True], appendTask=True)
 
         # assets is a dict containing paths + models
         # anims is a list containing two dicts.

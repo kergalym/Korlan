@@ -94,6 +94,31 @@ class RenderAttr:
                                          align=TextNode.ALeft,
                                          mayChange=True)
 
+    def get_all_shaders(self, shaders):
+        """ Function    : get_all_shaders
+
+            Description : Get loaded shader set.
+
+            Input       : dict
+
+            Output      : None
+
+            Return      : Dictionary
+        """
+        if shaders and isinstance(shaders, dict):
+            loaded_shaders = {}
+            for k in shaders:
+                # Find shader for vert and frag files
+                # to construct a dict of the loaded shaders
+                name = k.split("_")[0]
+                shader = Shader.load(Shader.SL_GLSL,
+                                     vertex=shaders["{0}_vert".format(name)],
+                                     fragment=shaders["{0}_frag".format(name)])
+                # Contains shader memory addresses
+                loaded_shaders[name] = shader
+
+            return loaded_shaders
+
     def set_sky_and_clouds(self, cloud_dimensions, cloud_speed, cloud_size, cloud_count, cloud_color):
         if (cloud_dimensions
                 and cloud_speed
@@ -108,7 +133,7 @@ class RenderAttr:
             cloud_np = NodePath(cloud_lod)
             cloud = render.find("cloud")
             if cloud:
-                cloud.reparentTo(cloud_np)
+                cloud.reparent_to(cloud_np)
             cloud_lod.addSwitch(1000, 0)
 
             ready_shaders = self.get_all_shaders(self.base.shader_collector())
@@ -117,7 +142,7 @@ class RenderAttr:
 
             self.sky = render.find("sky")
             if self.sky:
-                self.sky.reparentTo(self.skybox_np)
+                self.sky.reparent_to(self.skybox_np)
                 self.sky.setBin('background', 1)
                 self.sky.setDepthWrite(0)
                 self.sky.setLightOff()
@@ -125,7 +150,7 @@ class RenderAttr:
 
                 self.sun = render.find("sun")
                 if self.sun:
-                    self.sun.reparentTo(self.skybox_np)
+                    self.sun.reparent_to(self.skybox_np)
                     self.sun.setBin('background', 1)
                     self.sun.setDepthWrite(0)
                     self.sun.setLightOff()
@@ -201,7 +226,7 @@ class RenderAttr:
             # node for the sun to rotate around and look at.
             if not self.time_of_day_np and duration:
                 self.time_of_day_np = NodePath("TimeOfday")
-            self.time_of_day_np.reparentTo(render)
+            self.time_of_day_np.reparent_to(render)
             self.time_of_day_np.set_pos(0, 0, -10)
 
             # make the center of the world spin
@@ -211,7 +236,7 @@ class RenderAttr:
             spinWorld.loop()
 
             # Directional Light
-            self.time_of_day_light = render.attachNewNode(Spotlight("SpotLight_ToD"))
+            self.time_of_day_light = render.attach_new_node(Spotlight("SpotLight_ToD"))
 
             if self.sun:
                 self.time_of_day_light.set_pos(self.sun.get_pos())
@@ -343,30 +368,14 @@ class RenderAttr:
 
         return task.cont
 
-    def get_all_shaders(self, shaders):
-        """ Function    : get_all_shaders
+    def set_projected_water(self, bool_):
+        if bool_:
+            self.proj_water = ProjectedWater(WaterOptions)
+            self.proj_water.setup_water(pipeline=self.render_pipeline, water_level=-3.0)
 
-            Description : Get loaded shader set.
-
-            Input       : dict
-
-            Output      : None
-
-            Return      : Dictionary
-        """
-        if shaders and isinstance(shaders, dict):
-            loaded_shaders = {}
-            for k in shaders:
-                # Find shader for vert and frag files
-                # to construct a dict of the loaded shaders
-                name = k.split("_")[0]
-                shader = Shader.load(Shader.SL_GLSL,
-                                     vertex=shaders["{0}_vert".format(name)],
-                                     fragment=shaders["{0}_frag".format(name)])
-                # Contains shader memory addresses
-                loaded_shaders[name] = shader
-
-            return loaded_shaders
+    def clear_projected_water(self):
+        if self.proj_water:
+            self.proj_water.clear_water()
 
     def set_water(self, water_lvl, adv_render):
         MASK_WATER = BitMask32.bit(1)
@@ -473,7 +482,7 @@ class RenderAttr:
             textures = self.base.textures_collector("{0}/Engine/Shaders/".format(self.game_dir))
             self.grass_np = render.find("**/Grass")
             self.grass_np.setTransparency(TransparencyAttrib.MBinary, 1)
-            self.grass_np.reparentTo(self.grass_np.get_parent())
+            self.grass_np.reparent_to(self.grass_np.get_parent())
             self.grass_np.setInstanceCount(256)
             self.grass_np.node().setBounds(BoundingBox((0, 0, 0), (256, 256, 128)))
             self.grass_np.node().setFinal(1)
@@ -495,7 +504,7 @@ class RenderAttr:
             textures = self.base.textures_collector("{0}/Engine/Shaders/".format(self.game_dir))
             self.grass_np = render.find("**/Grass")
             self.grass_np.setTransparency(TransparencyAttrib.MBinary, 1)
-            self.grass_np.reparentTo(self.grass_np.get_parent())
+            self.grass_np.reparent_to(self.grass_np.get_parent())
             self.grass_np.setInstanceCount(256)
             self.grass_np.node().setBounds(BoundingBox((0, 0, 0), (256, 256, 128)))
             self.grass_np.node().setFinal(1)
@@ -516,78 +525,34 @@ class RenderAttr:
             self.grass_np.set_pos(0.0, 0.0, 0.0)
 
     def set_flame(self, adv_render):
-        if adv_render:
-            if not render.find("**/flame").is_empty():
-                self.flame_np = render.find("**/flame")
-
-                # Set the flame effect
-                if self.game_settings['Main']['postprocessing'] == 'on' and adv_render:
-                    self.render_pipeline.set_effect(self.flame_np,
-                                                    "{0}/Engine/Renderer/effects/flame2.yaml".format(self.game_dir),
-                                                    {})
-                elif self.game_settings['Main']['postprocessing'] == 'off' and not adv_render:
-                    ready_shaders = self.get_all_shaders(self.base.shader_collector())
-                    # self.water_np.set_shader(ready_shaders['Flame'])
-                    self.water_np.set_shader(ready_shaders['Flame2'])
-
-                taskMgr.add(self.flame_proc_shader_task,
-                            "flame_proc_shader_task",
-                            appendTask=True)
-
-    def flame_proc_shader_task(self, task):
-        if self.flame_np:
-            time = task.time
-            self.flame_np.set_shader_input("iTime", time)
-
-        if self.base.game_instance['menu_mode']:
-            return task.done
-
-        return task.cont
-
-    def clear_flame(self):
-        if self.flame_np and not render.find("**/flame").is_empty():
-            render.find("**/flame").remove_node()
-            taskMgr.remove("flame_proc_shader_task")
-
-    def set_flame_particles(self, name, empty_name):
         # empty_name is a name of NodePath which we use to attach particles to it
-        # name is flame name (associated with .ptf name)
-        if (isinstance(name, str)
-                and isinstance(empty_name, str)
-                and not render.find("**/{0}".format(empty_name)).is_empty()):
-            # Collected emissive geoms
-            self.base.particles_emis = self.base.assets_collector()
-            # Collected .ptf files
+        # flame name (associated with .ptf name)
+        if not render.find("**/flame_empty_1").is_empty():
             particles_assets = self.base.particles_collector()
 
-            if not particles_assets.get(name):
+            if not particles_assets.get("flame"):
                 return
 
-            if not self.base.particles_emis.get('emi'):
-                return
-
-            node_path = render.find("**/{0}".format(empty_name))
+            node_path = render.find("**/{0}".format("flame_empty_1"))
             self.base.enable_particles()
             particles = ParticleEffect()
-            particles.load_config(particles_assets[name])
-            # Sets particles to birth relative to the teapot, but to render at
-            # toplevel
+            particles.load_config(particles_assets["flame"])
+            # Use empty geom to start
             particles.start(node_path)
             particles.set_pos(node_path.get_pos())
             # Add particles to keep them in list
-            self.particles[empty_name] = particles
+            self.particles["flame_empty_1"] = particles
 
-            # Disable shading for particles emission
-            emi = render.find("**/emi")
-            if emi:
-                self.render_pipeline.set_effect(emi,
-                                                "{0}/Engine/Renderer/effects/default.yaml".format(self.game_dir),
-                                                {"render_gbuffer": True,
+            if adv_render:
+                self.render_pipeline.set_effect(node_path,
+                                                "{0}/Engine/Renderer/effects/particles.yaml".format(self.game_dir),
+                                                {"render_gbuffer": False,
+                                                 "render_forward": True,
                                                  "render_shadow": False,
                                                  "alpha_testing": True,
-                                                 "normal_mapping": True})
+                                                 "normal_mapping": False})
 
-    def clear_flame_particles(self):
+    def clear_flame(self):
         if self.particles:
             self.particles = {}
         self.base.disable_particles()
@@ -842,15 +807,6 @@ class RenderAttr:
                 actor.set_attrib(attrib)
                 self.base.game_instance['hw_skinning'] = True
 
-    def set_projected_water(self, bool_):
-        if bool_:
-            self.proj_water = ProjectedWater(WaterOptions)
-            self.proj_water.setup_water(pipeline=self.render_pipeline, water_level=-3.0)
-
-    def clear_projected_water(self):
-        if self.proj_water:
-            self.proj_water.clear_water()
-
     def setup_native_renderer(self, bool_, task):
         if isinstance(bool_, bool) and bool_:
             if self.base.game_instance['loading_is_done'] == 1:
@@ -870,13 +826,13 @@ class RenderAttr:
                 quad.set_shader_input('vs_cam_pos', vs_cam_pos)
                 quad.set_shader_input('vs_model_pos', player_pos)"""
 
-                """ NATIVE SSAO
+                """ NATIVE SSAO """
                 self.gfx_filters.set_ambient_occlusion(numsamples=16,
                                                        radius=2.2,
                                                        amount=2.0,
                                                        strength=0.01,
-                                                       falloff=0.000002)"""
-                # self.gfx_filters.set_bloom()
+                                                       falloff=0.000002)
+                self.gfx_filters.set_bloom()
 
                 """if self.time_of_day_light:
                     self.gfx_filters.set_volumetric_lighting(caster=self.time_of_day_light,
