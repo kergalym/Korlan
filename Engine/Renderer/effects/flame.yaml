@@ -1,41 +1,52 @@
-# flame effect
+# Particles effect
+
+vertex:
+    transform: |
+
 fragment:
     inout: |
-      uniform float iTime;
 
     includes: |
-      #pragma include "Engine/Shaders/Flame/flame_f_func.inc.glsl"
+        #pragma include "Engine/Shaders/particles_func.inc.glsl"
+
+    defines: |
+        #define DONT_FETCH_DEFAULT_TEXTURES 0
+        #define DONT_SET_MATERIAL_PROPERTIES 1
 
     material: |
-      vec2 uv = vOutput.texcoord.xy;
+        vec2 uv = vOutput.texcoord.xy;
 
-      float nx = 0.0;
-      float ny = 0.0;
+        // define colors
+        const vec3 color1 = vec3(0.5, 0.0, 0.1);
+        const vec3 color2 = vec3(0.9, 0.1, 0.0);
+        const vec3 color3 = vec3(0.2, 0.1, 0.7);
+        const vec3 color4 = vec3(1.0, 0.9, 0.1);
+        const vec3 color5 = vec3(0.1);
+        const vec3 color6 = vec3(0.9);
 
-      // Generate procedural flame texture from noise function
-      for (int i=1; i<ITERATIONS+1; i++)
-      {
-      	float ii = pow(float(i), 2.0);
-      	float ifrac = float(i)/float(ITERATIONS);
-      	float t = ifrac * iTime * SPEED;
-      	float d = (1.0-ifrac) * DISPLACEMENT;
-      	nx += noise( vec3(uv.x*ii-iTime*ifrac, uv.y*YSCALE*ii-t, 0.0) ) * d * 2.0;
-      	ny += noise( vec3(uv.x*ii+iTime*ifrac, uv.y*YSCALE*ii-t, iTime*ifrac/ii) ) * d;
-      }
+        // make noise
+        float q = fbm(uv - 0.3+1.0*0.5/2.0);
+        float qb = fbm(uv -  0.4+0.1/2.0);
+        float q2 = fbm(uv - 0.44 - 5.0*2.0) - 6.0;
+        float q3 = fbm(uv - 0.9 - 10.0*15.0)-4.0;
+        float q4 = fbm(uv - 1.4 - 20.0*14.0)+2.0;
+        q = (q + qb - .4 * q2 -2.0*q3  + .6*q4)/3.8;
 
-      float flame = shape( vec2(uv.x+nx, uv.y+ny) );
-      vec3 col = pow(flame, TIGHTNESS) * FLAMETONE;
+        // randomize colors
+        vec2 r = vec2(fbm(uv + q / 2.0 * uv.x - uv.y), fbm(uv + q));
+        vec3 c = mix(color1, color2, fbm(uv + r)) + mix(color3, color4, r.x) - mix(color5, color6, r.y);
+        vec3 color = vec3(1.0/(pow(c+1.61,vec3(4.0))) * vOutput.texcoord.y / vOutput.texcoord.y);
+        color = vec3(1.0,.2,.05)/(pow((r.y+r.y) * max(.0,uv.y)+0.1, 4.0));
+        color += (texture(p3d_Texture0,uv*0.6+vec2(.5,.1)).xyz*0.01
+                  *pow((r.y+r.y)*.65,5.0)+0.055)*mix(vec3(.9,.4,.3),vec3(.7,.5,.2), uv.y);
+        color = color/(1.0+max(vec3(0),color));
 
-      // Tonemapping
-      col = col / (1.0+col);
-      col = pow(col, vec3(1.0/2.2));
-      col = clamp(col, 0.0, 1.0);
-
-      // Drop all black pixels at the first stage
-      if (col.rgb == vec3(0.0,0.0,0.0))
-          discard;
-
-      m.basecolor = col.rgb;
-      m.shading_model = 3; // transparency 3
-
+        // define material properties
+        m.basecolor = color;
+        m.shading_model = 3; // transparency 3
+        m.specular_ior = 0.0;
+        m.metallic = 0.0;
+        m.roughness = 0.0;
+        m.shading_model_param0 = 0.1;
+        m.normal = vOutput.normal;
 
