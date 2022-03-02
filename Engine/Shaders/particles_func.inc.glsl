@@ -17,3 +17,8 @@ float fbm(vec2 n) {
     }
     return total;
 }
+
+float plot (vec2 uv, float pct){
+  return  smoothstep( pct-0.01, pct, uv.y) -
+          smoothstep( pct, pct+0.01, uv.y);
+}

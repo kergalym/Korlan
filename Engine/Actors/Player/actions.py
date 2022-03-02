@@ -948,7 +948,7 @@ class Actions:
                              Func(self.state.set_action_state, "is_running", False)
                              ).start()
 
-                if self.kbd.keymap["run"] and player.get_python_tag('stamina') < 2:
+                if not self.kbd.keymap["run"] and player.get_python_tag('stamina') < 2:
                     Sequence(Func(self.seq_run_wrapper, player, anims, 'stop'),
                              Func(self.state.set_action_state, "is_running", False)
                              ).start()

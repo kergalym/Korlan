@@ -134,7 +134,9 @@ class SceneOne:
                 # Enable water
                 self.render_attr.set_water(adv_render=False, water_lvl=30.0)
                 # Enable flame
+                # todo: attach to empties in the loop
                 self.render_attr.set_flame(adv_render=False)
+                self.render_attr.set_smoke(adv_render=False)
                 # Enable grass
                 # self.render_attr.set_grass(adv_render=False, fogcenter=Vec3(256, 256, 0), uv_offset=Vec2(0, 0))
             else:
@@ -142,7 +144,9 @@ class SceneOne:
                 self.render_attr.set_projected_water(True)
 
                 # Enable flame
+                # todo: attach to empties in the loop
                 self.render_attr.set_flame(adv_render=True)
+                self.render_attr.set_smoke(adv_render=True)
                 # Enable grass
                 # self.render_attr.set_grass(adv_render=True, fogcenter=Vec3(256, 256, 0), uv_offset=Vec2(0, 0))
 

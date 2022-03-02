@@ -527,21 +527,20 @@ class RenderAttr:
     def set_flame(self, adv_render):
         # empty_name is a name of NodePath which we use to attach particles to it
         # flame name (associated with .ptf name)
-        if not render.find("**/flame_empty_1").is_empty():
+        if not render.find("**/flame_empty").is_empty():
             particles_assets = self.base.particles_collector()
 
             if not particles_assets.get("flame"):
                 return
 
-            node_path = render.find("**/{0}".format("flame_empty_1"))
+            node_path = render.find("**/{0}".format("flame_empty"))
             self.base.enable_particles()
             particles = ParticleEffect()
             particles.load_config(particles_assets["flame"])
             # Use empty geom to start
             particles.start(node_path)
-            particles.set_pos(node_path.get_pos())
             # Add particles to keep them in list
-            self.particles["flame_empty_1"] = particles
+            self.particles["flame_empty"] = particles
 
             if adv_render:
                 self.render_pipeline.set_effect(node_path,
@@ -553,6 +552,40 @@ class RenderAttr:
                                                  "normal_mapping": False})
 
     def clear_flame(self):
+        if self.particles:
+            self.particles = {}
+        self.base.disable_particles()
+
+    def set_smoke(self, adv_render):
+        # empty_name is a name of NodePath which we use to attach particles to it
+        # flame name (associated with .ptf name)
+        if not render.find("**/smoke_empty").is_empty():
+            particles_assets = self.base.particles_collector()
+
+            if not particles_assets.get("flame"):
+                return
+
+            node_path = render.find("**/{0}".format("smoke_empty"))
+            self.base.enable_particles()
+            particles = ParticleEffect()
+            particles.load_config(particles_assets["flame"])
+            # Use empty geom to start
+            particles.start(node_path)
+            # Add particles to keep them in list
+            self.particles["smoke_empty"] = particles
+
+            if adv_render:
+                self.render_pipeline.set_effect(node_path,
+                                                "{0}/Engine/Renderer/effects/smoke.yaml".format(self.game_dir),
+                                                {"render_gbuffer": False,
+                                                 "render_forward": True,
+                                                 "render_shadow": False,
+                                                 "alpha_testing": True,
+                                                 "normal_mapping": False})
+                node_path.set_shader_input("colorA", Vec3(0.149, 0.141, 0.912))
+                node_path.set_shader_input("colorB", Vec3(1.000, 0.833, 0.224))
+
+    def clear_smoke(self):
         if self.particles:
             self.particles = {}
         self.base.disable_particles()
