@@ -524,66 +524,70 @@ class RenderAttr:
             self.grass_np.set_shader_input("num_lights", 3)
             self.grass_np.set_pos(0.0, 0.0, 0.0)
 
-    def set_flame(self, adv_render):
+    def set_flame(self, adv_render, scene_np, flame_scale):
         # empty_name is a name of NodePath which we use to attach particles to it
         # flame name (associated with .ptf name)
-        if not render.find("**/flame_empty").is_empty():
-            particles_assets = self.base.particles_collector()
+        particles_assets = self.base.particles_collector()
 
-            if not particles_assets.get("flame"):
-                return
+        if scene_np and particles_assets.get("flame"):
+            for node_path in scene_np.get_children():
+                if "flame_empty" in node_path.get_name():
+                    self.base.enable_particles()
+                    particles = ParticleEffect()
+                    particles.load_config(particles_assets["flame"])
+                    # Use empty geom to start
+                    particles.start(node_path)
 
-            node_path = render.find("**/{0}".format("flame_empty"))
-            self.base.enable_particles()
-            particles = ParticleEffect()
-            particles.load_config(particles_assets["flame"])
-            # Use empty geom to start
-            particles.start(node_path)
-            # Add particles to keep them in list
-            self.particles["flame_empty"] = particles
+                    if flame_scale and isinstance(flame_scale, float):
+                        node_path.set_scale(flame_scale)
 
-            if adv_render:
-                self.render_pipeline.set_effect(node_path,
-                                                "{0}/Engine/Renderer/effects/flame.yaml".format(self.game_dir),
-                                                {"render_gbuffer": False,
-                                                 "render_forward": True,
-                                                 "render_shadow": False,
-                                                 "alpha_testing": True,
-                                                 "normal_mapping": False})
+                    # Add particles to keep them in list
+                    self.particles[node_path.get_name()] = particles
+
+                    if adv_render:
+                        self.render_pipeline.set_effect(node_path,
+                                                        "{0}/Engine/Renderer/effects/flame.yaml".format(self.game_dir),
+                                                        {"render_gbuffer": False,
+                                                         "render_forward": True,
+                                                         "render_shadow": False,
+                                                         "alpha_testing": True,
+                                                         "normal_mapping": False})
 
     def clear_flame(self):
         if self.particles:
             self.particles = {}
         self.base.disable_particles()
 
-    def set_smoke(self, adv_render):
+    def set_smoke(self, adv_render, scene_np, smoke_scale):
         # empty_name is a name of NodePath which we use to attach particles to it
         # flame name (associated with .ptf name)
-        if not render.find("**/smoke_empty").is_empty():
-            particles_assets = self.base.particles_collector()
+        particles_assets = self.base.particles_collector()
 
-            if not particles_assets.get("flame"):
-                return
+        if scene_np and particles_assets.get("flame"):
+            for node_path in scene_np.get_children():
+                if "flame_empty" in node_path.get_name():
+                    self.base.enable_particles()
+                    particles = ParticleEffect()
+                    particles.load_config(particles_assets["flame"])
+                    # Use empty geom to start
+                    particles.start(node_path)
 
-            node_path = render.find("**/{0}".format("smoke_empty"))
-            self.base.enable_particles()
-            particles = ParticleEffect()
-            particles.load_config(particles_assets["flame"])
-            # Use empty geom to start
-            particles.start(node_path)
-            # Add particles to keep them in list
-            self.particles["smoke_empty"] = particles
+                    if smoke_scale and isinstance(smoke_scale, float):
+                        node_path.set_scale(smoke_scale)
 
-            if adv_render:
-                self.render_pipeline.set_effect(node_path,
-                                                "{0}/Engine/Renderer/effects/smoke.yaml".format(self.game_dir),
-                                                {"render_gbuffer": False,
-                                                 "render_forward": True,
-                                                 "render_shadow": False,
-                                                 "alpha_testing": True,
-                                                 "normal_mapping": False})
-                node_path.set_shader_input("colorA", Vec3(0.149, 0.141, 0.912))
-                node_path.set_shader_input("colorB", Vec3(1.000, 0.833, 0.224))
+                    # Add particles to keep them in list
+                    self.particles[node_path.get_name()] = particles
+
+                    if adv_render:
+                        self.render_pipeline.set_effect(node_path,
+                                                        "{0}/Engine/Renderer/effects/flame.yaml".format(self.game_dir),
+                                                        {"render_gbuffer": False,
+                                                         "render_forward": True,
+                                                         "render_shadow": False,
+                                                         "alpha_testing": True,
+                                                         "normal_mapping": False})
+                        node_path.set_shader_input("colorA", Vec3(0.149, 0.141, 0.912))
+                        node_path.set_shader_input("colorB", Vec3(1.000, 0.833, 0.224))
 
     def clear_smoke(self):
         if self.particles:
