@@ -135,8 +135,8 @@ class SceneOne:
                 self.render_attr.set_water(adv_render=False, water_lvl=30.0)
                 # Enable flame
                 # todo: attach to empties in the loop
-                self.render_attr.set_flame(adv_render=False, scene_np=scene, flame_scale=0.2)
-                self.render_attr.set_smoke(adv_render=False, scene_np=scene, smoke_scale=0.2)
+                self.render_attr.set_flame_hearth(adv_render=False, scene_np=scene, flame_scale=0.2)
+                # self.render_attr.set_smoke_hearth(adv_render=False, scene_np=scene, smoke_scale=0.2)
                 # Enable grass
                 # self.render_attr.set_grass(adv_render=False, fogcenter=Vec3(256, 256, 0), uv_offset=Vec2(0, 0))
             else:
@@ -144,8 +144,8 @@ class SceneOne:
                 self.render_attr.set_projected_water(True)
 
                 # Enable flame
-                self.render_attr.set_flame(adv_render=True, scene_np=scene, flame_scale=0.2)
-                self.render_attr.set_smoke(adv_render=True, scene_np=scene, smoke_scale=0.2)
+                self.render_attr.set_flame_hearth(adv_render=True, scene_np=scene, flame_scale=0.2)
+                # self.render_attr.set_smoke_hearth(adv_render=True, scene_np=scene, smoke_scale=0.2)
                 # Enable grass
                 # self.render_attr.set_grass(adv_render=True, fogcenter=Vec3(256, 256, 0), uv_offset=Vec2(0, 0))
 

@@ -4,6 +4,7 @@ cp requirements_win.txt requirements.txt
 python3 setup_win.py build_apps # bdist_apps
 cd build/win_amd64/
 multify -cv -f GameData.mf Assets Settings Engine
+cp GameData.mf ../../GameData.mf
 deactivate
 
 rm -rf Assets/Actors
@@ -24,7 +25,7 @@ cd ../../
 
 cp -r build/win_amd64 dist/Korlan
 cd dist
-zip -r Korlan_Game_win_amd64.zip Korlan
+# zip -r Korlan_Game_win_amd64.zip Korlan
 rm -rf Korlan
 
 cd ../../../

@@ -27,7 +27,7 @@ fragment:
         // make noise
         float q = fbm(uv - 0.3+1.0*0.5/2.0);
         float qb = fbm(uv -  0.4+0.1/2.0);
-        float q2 = fbm(uv - 0.44 - 5.0*2.0) - 6.0;
+        float q2 = fbm(uv - 0.44 - 5.0*2.0)-6.0;
         float q3 = fbm(uv - 0.9 - 10.0*15.0)-4.0;
         float q4 = fbm(uv - 1.4 - 20.0*14.0)+2.0;
         q = (q + qb - .4 * q2 -2.0*q3  + .6*q4)/3.8;
@@ -43,10 +43,10 @@ fragment:
 
         // define material properties
         m.basecolor = color;
-        m.shading_model = 3; // transparency 3
+        m.shading_model = 0; // transparency 3
         m.specular_ior = 0.0;
         m.metallic = 0.0;
         m.roughness = 0.0;
-        m.shading_model_param0 = 0.1;
+        m.shading_model_param0 = 0.2;
         m.normal = vOutput.normal;
 

@@ -4,6 +4,7 @@ cp requirements_lin.txt requirements.txt
 python3 setup_lin.py build_apps # bdist_apps
 cd build/manylinux1_x86_64/
 multify -cv -f GameData.mf Assets Settings Engine
+cp GameData.mf ../../GameData.mf
 deactivate
 
 rm -rf Assets/Actors
@@ -24,7 +25,7 @@ cd ../../
 
 cp -r build/manylinux1_x86_64 dist/Korlan
 cd dist
-tar czf Korlan_Game_manylinux1_x86_64.tar.gz Korlan
+# tar czf Korlan_Game_manylinux1_x86_64.tar.gz Korlan
 rm -rf Korlan
 
 cd ../../../

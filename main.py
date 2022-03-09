@@ -299,6 +299,7 @@ class Main(ShowBase):
         ShowBase.__init__(self)
         rp_lights = {
             "scene": [],
+            "flame": [],
             "inventory": None
         }
         self.game_instance = {

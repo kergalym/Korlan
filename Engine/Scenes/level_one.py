@@ -336,12 +336,12 @@ class LevelOne:
         self.render_attr.time_text_ui.show()
         taskMgr.add(self.render_attr.set_time_of_day_clock_task,
                     "set_time_of_day_clock_task",
-                    extraArgs=["19:00", 1800],  # 1800 sec == 30 min
+                    extraArgs=["20:00", 1800],  # 1800 sec == 30 min
                     appendTask=True)
 
         """ Assets """
 
-        self.render_attr.set_lighting(name='plight',
+        """self.render_attr.set_lighting(name='plight',
                                       render=self.render,
                                       pos=[-7, 8, 8],
                                       hpr=[180, 130, 0],
@@ -353,7 +353,7 @@ class LevelOne:
                                       hpr=[180, 130, 0],
                                       color=[0.4],
                                       task="attach")
-        """self.render_attr.set_lighting(name='slight',
+        self.render_attr.set_lighting(name='slight',
                                       render=self.render,
                                       pos=[0, 3, 10],
                                       hpr=[0, -20, 0],
