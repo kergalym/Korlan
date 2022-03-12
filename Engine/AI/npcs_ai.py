@@ -33,6 +33,8 @@ class NpcsAI:
             actor_bs = self.base.game_instance['actors_np'][name_bs]
             request = self.npcs_fsm_states[name]
 
+            # todo: yurt place actions
+
             taskMgr.add(self.actor_hitbox_trace_task,
                         "{0}_hitboxes_task".format(name.lower()),
                         extraArgs=[actor, actor_bs, request], appendTask=True)

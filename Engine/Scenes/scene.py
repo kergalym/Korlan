@@ -1,5 +1,8 @@
+from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import *
 from Engine.Renderer.renderer import RenderAttr
+from Engine.Actors.Player.camera_modes import CameraModes
+from Engine.Quests.quests import Quests
 
 
 class SceneOne:
@@ -19,6 +22,8 @@ class SceneOne:
         self.type = None
         self.node_path = NodePath()
         self.render_attr = RenderAttr()
+        self.cam_modes = CameraModes()
+        self.quests = Quests()
         self.base = base
         self.render = render
         self.game_settings = base.game_settings
@@ -173,6 +178,18 @@ class SceneOne:
 
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
                 scene.hide()
+
+            # Add camera triggers
+            taskMgr.add(self.cam_modes.set_camera_trigger,
+                        "set_camera_trigger",
+                        extraArgs=[scene],
+                        appendTask=True)
+
+            # Add quest triggers
+            taskMgr.add(self.quests.set_quest_trigger,
+                        "set_quest_trigger",
+                        extraArgs=[scene],
+                        appendTask=True)
 
     def scene_toggle(self, scene):
         if scene.is_hidden():
