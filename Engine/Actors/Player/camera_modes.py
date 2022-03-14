@@ -20,7 +20,10 @@ class CameraModes:
                 self.is_at_home = False
                 world_np = self.render.find("**/World")
                 ph_world = self.base.game_instance["physics_world_np"]
-                radius = 1.75 - 2 * 0.3
+                # radius = 1.75 - 2 * 0.3
+                radius = 4
+
+                player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
 
                 for actor in scene.get_children():
                     if "cam_close" in actor.get_name():  # cam_close
@@ -35,52 +38,51 @@ class CameraModes:
 
                         taskMgr.add(self.camera_smooth_adjust_task,
                                     "camera_smooth_adjust_task",
-                                    extraArgs=[trigger_np, actor],
+                                    extraArgs=[actor, player_bs],
                                     appendTask=True)
 
                         return task.done
 
         return task.cont
 
-    def camera_smooth_adjust_task(self, trigger_np, actor, task):
+    def camera_smooth_adjust_task(self, actor, player_bs, task):
         if self.base.game_instance['menu_mode']:
             return task.done
 
         dt = globalClock.getDt()
-        for node in trigger_np.node().get_overlapping_nodes():
-            if "Player" in node.get_name():
-                player_bs = self.render.find("**/{0}".format(node.get_name()))
-                if player_bs and int(actor.get_distance(player_bs)) == 1:
-                    self.camera_smooth_close(dt)
-                else:
-                    self.camera_smooth_far(dt)
+        if (round(actor.get_distance(player_bs)) >= 1
+                and round(actor.get_distance(player_bs)) < 6):
+            self.camera_smooth_move_close(dt)
+
+        elif (round(actor.get_distance(player_bs)) >= 6
+                and round(actor.get_distance(player_bs)) < 17):
+            self.camera_smooth_move_far(dt)
 
         return task.cont
 
-    def camera_smooth_close(self, dt):
+    def camera_smooth_move_close(self, dt):
         if dt:
-            y = -2
-            z = -0.1
+            y = -1
+            speed = 1
             if round(self.base.camera.get_y()) != y and not self.is_at_home:
-                self.base.camera.set_y(self.base.camera, 1 * dt)
-            if self.base.camera.get_z() != z and not self.is_at_home:
-                # import pdb; pdb.set_trace()
-                # self.base.camera.set_z(self.base.camera, -2 * dt)
-                pass
+                self.base.camera.set_y(self.base.camera, speed * dt)
 
-            if self.base.camera.get_y() == y and self.base.camera.get_z() == z:
+            elif round(self.base.camera.get_y()) == y:
                 if not self.is_at_home:
                     self.is_at_home = True
 
-    def camera_smooth_far(self, dt):
+            self.base.camera.set_z(-0.2)
+
+    def camera_smooth_move_far(self, dt):
         if dt:
             y = -5
+            speed = 1
             if round(self.base.camera.get_y()) != y and self.is_at_home:
-                self.base.camera.set_y(self.base.camera, -1 * dt)
-            if self.base.camera.get_z() != 0.0 and self.is_at_home:
-                self.base.camera.set_z(self.base.camera, 1 * dt)
+                self.base.camera.set_y(self.base.camera, -speed * dt)
 
-            if self.base.camera.get_y() == y and self.base.camera.get_z() == 0.0:
+            elif round(self.base.camera.get_y()) == y:
                 self.base.camera.set_y(self.player_cam_y)
                 if self.is_at_home:
                     self.is_at_home = False
+
+            self.base.camera.set_z(0.0)
