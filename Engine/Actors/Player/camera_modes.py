@@ -52,19 +52,23 @@ class CameraModes:
         dt = globalClock.getDt()
         if (round(actor.get_distance(player_bs)) >= 1
                 and round(actor.get_distance(player_bs)) < 6):
-            self.camera_smooth_move_close(dt)
+            self.camera_smooth_move_close(dt=dt, speed=1)
 
         elif (round(actor.get_distance(player_bs)) >= 6
                 and round(actor.get_distance(player_bs)) < 17):
-            self.camera_smooth_move_far(dt)
+            self.camera_smooth_move_far(dt=dt, speed=1)
 
         return task.cont
 
-    def camera_smooth_move_close(self, dt):
-        if dt:
+    def camera_smooth_move_close(self, dt, speed):
+        if dt and isinstance(speed, int):
+            x = 0.3
             y = -1
-            speed = 1
-            if round(self.base.camera.get_y()) != y and not self.is_at_home:
+            if round(self.base.camera.get_x(), 1) != x:
+                self.base.camera.set_x(self.base.camera, speed * dt)
+
+            if (round(self.base.camera.get_y()) != y
+                    and not self.is_at_home):
                 self.base.camera.set_y(self.base.camera, speed * dt)
 
             elif round(self.base.camera.get_y()) == y:
@@ -73,11 +77,15 @@ class CameraModes:
 
             self.base.camera.set_z(-0.2)
 
-    def camera_smooth_move_far(self, dt):
-        if dt:
+    def camera_smooth_move_far(self, dt, speed):
+        if dt and isinstance(speed, int):
             y = -5
-            speed = 1
-            if round(self.base.camera.get_y()) != y and self.is_at_home:
+            # revert camera view
+            if round(self.base.camera.get_x(), 1) != 0.0:
+                self.base.camera.set_x(self.base.camera, -speed * dt)
+
+            if (round(self.base.camera.get_y()) != y
+                    and self.is_at_home):
                 self.base.camera.set_y(self.base.camera, -speed * dt)
 
             elif round(self.base.camera.get_y()) == y:
