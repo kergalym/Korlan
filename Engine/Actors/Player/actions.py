@@ -1195,6 +1195,7 @@ class Actions:
                         and base.player_states['is_idle'] is False
                         and base.player_states['is_crouching'] is False
                         and base.player_states['is_crouch_moving'] is False):
+                    self.base.game_instance['is_player_sitting'] = True
                     # TODO: Use blending for smooth transition between animations
                     # Do an animation sequence if player is crouched.
                     stand_to_crouch_seq = player.actor_interval(anims[self.standing_to_crouch_action],
@@ -1212,6 +1213,7 @@ class Actions:
                       and base.player_states['is_idle'] is False
                       and base.player_states['is_crouching'] is False
                       and base.player_states['is_crouch_moving']):
+                    self.base.game_instance['is_player_sitting'] = False
                     any_action_seq = player.actor_interval(anims[self.crouched_to_standing_action],
                                                            playRate=self.base.actor_play_rate)
                     Sequence(any_action_seq,

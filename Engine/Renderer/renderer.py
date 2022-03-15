@@ -655,7 +655,7 @@ class RenderAttr:
                         self.render_pipeline.remove_light(light)
                         self.base.game_instance['rp_lights']['flame'].remove(light)
 
-        if taskMgr.has_task_named("dynamic_lighting_task"):
+        if taskMgr.hasTaskNamed("dynamic_lighting_task"):
             taskMgr.remove("dynamic_lighting_task")
 
     def set_smoke(self, adv_render, scene_np, smoke_scale):

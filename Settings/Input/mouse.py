@@ -133,9 +133,6 @@ class Mouse:
                         else:
                             self.pivot.set_h(100)
 
-                        """if not pitch > 10.0 and not pitch < -50.0:
-                            self.floater.set_p(pitch)"""
-
     def mouse_control_task(self, task):
         """ Function    : mouse_control_task
 

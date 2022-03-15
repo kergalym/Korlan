@@ -16,15 +16,21 @@ class Quests:
             self.base.player_states["is_busy"] = bool_
 
     def toggle_action_state(self, actor, anim, anim_next, task):
-        # anim_next_seq = actor.get_anim_control(anim_next)
         any_action_seq = actor.actor_interval(anim, loop=0)
         any_action_next_seq = actor.actor_interval(anim_next, loop=1)
-        if self.seq and self.seq.is_playing():
+
+        if self.seq and self.base.game_instance["is_player_sitting"]:
+            self.base.game_instance["is_player_sitting"] = False
+            self.base.camera.set_z(0.0)
+            self.base.camera.set_y(-1)
             self.seq.finish()
             # Reverse play for standing_to_sit animation
             any_action_seq = actor.actor_interval(anim, loop=0, playRate=-1.0)
             Sequence(any_action_seq, Func(self.set_action_state, False)).start()
         else:
+            self.base.game_instance["is_player_sitting"] = True
+            self.base.camera.set_z(-0.5)
+            self.base.camera.set_y(-2.5)
             if task == "loop":
                 self.seq = Sequence(Func(self.set_action_state, True),
                                     any_action_seq, any_action_next_seq)
@@ -38,7 +44,7 @@ class Quests:
                     and self.base.game_instance["physics_world_np"]):
                 world_np = self.render.find("**/World")
                 ph_world = self.base.game_instance["physics_world_np"]
-                radius = 1.75 - 2 * 0.3
+                radius = 0.7
 
                 for actor in scene.get_children():
                     if "quest_" in actor.get_name():  # quest_empty_campfire
@@ -74,10 +80,11 @@ class Quests:
                 player_bs = render.find("**/{0}".format(node.get_name()))
                 player = self.base.game_instance['player_ref']
                 if player_bs and int(actor.get_distance(player_bs)) == 1:
-                    self.base.accept("e", self.toggle_action_state, [player,
-                                                                     "standing_to_sit_turkic",
-                                                                     "sitting_turkic",
-                                                                     "loop"])
+                    if not self.base.game_instance['is_player_sitting']:
+                        self.base.accept("e", self.toggle_action_state, [player,
+                                                                         "standing_to_sit_turkic",
+                                                                         "sitting_turkic",
+                                                                         "loop"])
 
         return task.cont
 

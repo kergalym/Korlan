@@ -47,20 +47,26 @@ class CameraModes:
 
     def camera_smooth_adjust_task(self, actor, player_bs, task):
         if self.base.game_instance['menu_mode']:
+            self.base.camera.set_z(0.0)
             return task.done
 
         dt = globalClock.getDt()
         if (round(actor.get_distance(player_bs)) >= 1
                 and round(actor.get_distance(player_bs)) < 6):
-            self.camera_smooth_move_close(dt=dt, speed=1)
+            self.camera_smooth_move_forward(dt=dt, speed=1)
 
         elif (round(actor.get_distance(player_bs)) >= 6
                 and round(actor.get_distance(player_bs)) < 17):
-            self.camera_smooth_move_far(dt=dt, speed=1)
+            self.camera_smooth_move_backward(dt=dt, speed=1)
+
+        if self.base.game_instance["is_player_sitting"]:
+            self.camera_smooth_move_down(dt, 1)
+        else:
+            self.camera_smooth_move_up(dt, 1)
 
         return task.cont
 
-    def camera_smooth_move_close(self, dt, speed):
+    def camera_smooth_move_forward(self, dt, speed):
         if dt and isinstance(speed, int):
             x = 0.3
             y = -1
@@ -75,9 +81,7 @@ class CameraModes:
                 if not self.is_at_home:
                     self.is_at_home = True
 
-            self.base.camera.set_z(-0.2)
-
-    def camera_smooth_move_far(self, dt, speed):
+    def camera_smooth_move_backward(self, dt, speed):
         if dt and isinstance(speed, int):
             y = -5
             # revert camera view
@@ -93,4 +97,15 @@ class CameraModes:
                 if self.is_at_home:
                     self.is_at_home = False
 
-            self.base.camera.set_z(0.0)
+            if not self.base.game_instance["is_player_sitting"]:
+                self.base.camera.set_z(0.0)
+
+    def camera_smooth_move_up(self, dt, speed):
+        if round(self.base.camera.get_z(), 1) != 0.0:
+            self.base.camera.set_z(self.base.camera, speed * dt)
+
+    def camera_smooth_move_down(self, dt, speed):
+        z = -0.5
+        if round(self.base.camera.get_z(), 1) != z:
+            self.base.camera.set_z(self.base.camera, -speed * dt)
+
