@@ -73,6 +73,7 @@ class Quests:
 
     def quest_yurt_campfire_task(self, trigger_np, actor, task):
         if self.base.game_instance['menu_mode']:
+            self.base.game_instance["is_player_sitting"] = False
             return task.done
 
         for node in trigger_np.node().get_overlapping_nodes():
