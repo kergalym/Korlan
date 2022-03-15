@@ -38,6 +38,21 @@ class Quests:
             elif task == "play":
                 Sequence(Func(self.set_action_state, True), any_action_seq).start()
 
+    def play_action_state(self, actor, anim, task):
+        any_action = actor.get_anim_control(anim)
+        any_action_seq = actor.actor_interval(anim, loop=0)
+
+        if any_action.is_playing():
+            actor.stop(anim)
+            self.set_action_state(False)
+        else:
+            if task == "loop":
+                self.seq = Sequence(Func(self.set_action_state, True),
+                                    any_action_seq)
+                self.seq.start()
+            elif task == "play":
+                Sequence(Func(self.set_action_state, True), any_action_seq).start()
+
     def set_quest_trigger(self, scene, task):
         if self.base.game_instance["loading_is_done"] == 1:
             if (self.render.find("**/World")
@@ -59,6 +74,11 @@ class Quests:
 
                         if "campfire" in actor.get_name():
                             taskMgr.add(self.quest_yurt_campfire_task, "quest_yurt_campfire_task",
+                                        extraArgs=[trigger_np, actor],
+                                        appendTask=True)
+
+                        elif "hearth" in actor.get_name():
+                            taskMgr.add(self.quest_cook_food_hearth_task, "quest_cook_food_hearth_task",
                                         extraArgs=[trigger_np, actor],
                                         appendTask=True)
 
@@ -102,5 +122,20 @@ class Quests:
                                                                      "standing_to_sit",
                                                                      "spring_water",
                                                                      "loop"])
+
+        return task.cont
+
+    def quest_cook_food_hearth_task(self, trigger_np, actor, task):
+        if self.base.game_instance['menu_mode']:
+            return task.done
+
+        for node in trigger_np.node().get_overlapping_nodes():
+            if "Player" in node.get_name():
+                player_bs = render.find("**/{0}".format(node.get_name()))
+                player = self.base.game_instance['player_ref']
+                if player_bs and int(actor.get_distance(player_bs)) == 1:
+                    self.base.accept("e", self.play_action_state, [player,
+                                                                   "cook_food",
+                                                                   "loop"])
 
         return task.cont
