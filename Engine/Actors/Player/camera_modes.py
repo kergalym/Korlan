@@ -52,10 +52,10 @@ class CameraModes:
 
         dt = globalClock.getDt()
         if (round(actor.get_distance(player_bs)) >= 1
-                and round(actor.get_distance(player_bs)) < 6):
+                and round(actor.get_distance(player_bs)) < 5):
             self.camera_smooth_move_forward(dt=dt, speed=1)
 
-        elif (round(actor.get_distance(player_bs)) >= 6
+        elif (round(actor.get_distance(player_bs)) >= 5
                 and round(actor.get_distance(player_bs)) < 17):
             self.camera_smooth_move_backward(dt=dt, speed=1)
 
