@@ -9,6 +9,7 @@ class CameraModes:
         self.base = base
         self.render = render
         self.is_at_home = False
+        self.base.game_instance["is_indoor"] = self.is_at_home
         self.player_cam_y = 0.0
 
     def set_camera_trigger(self, scene, task):
@@ -18,6 +19,7 @@ class CameraModes:
             if (self.render.find("**/World")
                     and self.base.game_instance["physics_world_np"]):
                 self.is_at_home = False
+                self.base.game_instance["is_indoor"] = self.is_at_home
                 world_np = self.render.find("**/World")
                 ph_world = self.base.game_instance["physics_world_np"]
                 # radius = 1.75 - 2 * 0.3
@@ -53,10 +55,12 @@ class CameraModes:
         dt = globalClock.getDt()
         if (round(actor.get_distance(player_bs)) >= 1
                 and round(actor.get_distance(player_bs)) < 5):
+            self.base.game_instance["is_indoor"] = True
             self.camera_smooth_move_forward(dt=dt, speed=1)
 
         elif (round(actor.get_distance(player_bs)) >= 5
                 and round(actor.get_distance(player_bs)) < 17):
+            self.base.game_instance["is_indoor"] = False
             self.camera_smooth_move_backward(dt=dt, speed=1)
 
         if self.base.game_instance["is_player_sitting"]:

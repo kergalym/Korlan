@@ -502,8 +502,9 @@ class Actions:
             self.base.game_instance['player_actions_init_is_activated'] = 1
 
     def cursor_state_task(self, task):
-        if (base.player_states['has_bow'] and
-                not self.base.game_instance['ui_mode']):
+        if (base.player_states['has_bow']
+                and not self.base.game_instance["is_indoor"]
+                and not self.base.game_instance['ui_mode']):
             if (self.kbd.keymap["block"]
                     and self.kbd.keymap["attack"]):
                 if self.base.game_instance['cursor_ui']:
@@ -635,12 +636,15 @@ class Actions:
                         self.player_crouch_action(player, 'crouch', anims)
                         self.player_jump_action(player, "jump", anims, "Jumping")
                         self.player_use_action(player, "use", anims, "PickingUp")
-                        self.player_attack_action(player, "attack", anims, "Boxing")
-                        self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
-                        self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
-                        self.player_block_action(player, "block", anims, "center_blocking")
-                        self.player_get_sword_action(player, "sword", anims, "sword_disarm_over_shoulder")
-                        self.player_get_bow_action(player, "bow", anims, "archer_standing_disarm_bow")
+
+                        if not self.base.game_instance["is_indoor"]:
+                            self.player_attack_action(player, "attack", anims, "Boxing")
+                            self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
+                            self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
+                            self.player_block_action(player, "block", anims, "center_blocking")
+                            self.player_get_sword_action(player, "sword", anims, "sword_disarm_over_shoulder")
+                            self.player_get_bow_action(player, "bow", anims, "archer_standing_disarm_bow")
+
                     if base.player_state_armed:
                         if self.floater:
                             self.player_movement_action(player, anims)
@@ -653,16 +657,18 @@ class Actions:
                             self.horse_riding_movement_action(anims)
                             self.horse_riding_run_action(anims)
 
-                        if base.player_states['has_sword'] and not base.player_states['has_bow']:
-                            self.player_attack_action(player, "attack", anims, "great_sword_slash")
-                            self.player_block_action(player, "block", anims, "great_sword_blocking")
-                        elif not base.player_states['has_sword'] and base.player_states['has_bow']:
-                            self.player_bow_shoot_action(player, anims, "archer_standing_draw_arrow")
+                        if not self.base.game_instance["is_indoor"]:
+                            if base.player_states['has_sword'] and not base.player_states['has_bow']:
+                                self.player_attack_action(player, "attack", anims, "great_sword_slash")
+                                self.player_block_action(player, "block", anims, "great_sword_blocking")
+                            elif not base.player_states['has_sword'] and base.player_states['has_bow']:
+                                self.player_bow_shoot_action(player, anims, "archer_standing_draw_arrow")
 
-                        self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
-                        self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
-                        self.player_get_sword_action(player, "sword", anims, "sword_disarm_over_shoulder")
-                        self.player_get_bow_action(player, "bow", anims, "archer_standing_disarm_bow")
+                            self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
+                            self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
+                            self.player_get_sword_action(player, "sword", anims, "sword_disarm_over_shoulder")
+                            self.player_get_bow_action(player, "bow", anims, "archer_standing_disarm_bow")
+
                     if base.player_state_magic:
                         if self.floater:
                             self.player_movement_action(player, anims)
@@ -671,11 +677,13 @@ class Actions:
                             self.player_crouch_action(player, 'crouch', anims)
                             self.player_jump_action(player, "jump", anims, "Jumping")
                             self.player_use_action(player, "use", anims, "PickingUp")
-                            self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
-                            self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
-                            self.player_block_action(player, "block", anims, "center_blocking")
-                            self.player_tengri_action(player, "tengri", anims, "PickingUp")
-                            self.player_umai_action(player, "umai", anims, "PickingUp")
+
+                            if not self.base.game_instance["is_indoor"]:
+                                self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
+                                self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
+                                self.player_block_action(player, "block", anims, "center_blocking")
+                                self.player_tengri_action(player, "tengri", anims, "PickingUp")
+                                self.player_umai_action(player, "umai", anims, "PickingUp")
 
                 elif base.player_states['is_mounted']:
                     if base.player_state_unarmed:

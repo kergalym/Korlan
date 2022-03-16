@@ -324,6 +324,7 @@ class Main(ShowBase):
             "actors_ref": {},
             "actors_np": {},
             "player_using_horse": '',
+            "is_indoor": False,
             "is_player_sitting": False,
             "scene_is_loaded": False,
             "player_is_loaded": False,
