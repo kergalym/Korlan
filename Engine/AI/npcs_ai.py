@@ -336,12 +336,12 @@ class NpcsAI:
 
                     if npc_class and "Horse" not in actor_name:
                         if npc_class == "friend":
-                            self.npc_friend_logic(actor=actor,
+                            """self.npc_friend_logic(actor=actor,
                                                   player=self.player,
                                                   request=request,
                                                   ai_behaviors=self.ai_behaviors,
                                                   npcs_fsm_states=self.npcs_fsm_states,
-                                                  passive=False)
+                                                  passive=False)"""
                         """if npc_class == "neutral":
                             self.npc_neutral_logic(actor=actor,
                                                    player=self.player,

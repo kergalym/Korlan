@@ -133,6 +133,9 @@ class Mouse:
                         else:
                             self.pivot.set_h(100)
 
+                        """if not pitch > 10.0 and not pitch < -50.0:
+                                self.floater.set_p(pitch)"""
+
     def mouse_control_task(self, task):
         """ Function    : mouse_control_task
 
@@ -145,7 +148,6 @@ class Mouse:
             Return      : Task event
         """
         # Figure out how much the mouse has moved (in pixels)
-        # print(self.base.game_instance['ui_mode'], self.base.game_instance['menu_mode'])
         if (not self.base.game_instance['ui_mode']
                 and not self.base.game_instance['menu_mode']):
             self.mouse_control()

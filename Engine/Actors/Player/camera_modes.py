@@ -53,20 +53,21 @@ class CameraModes:
             return task.done
 
         dt = globalClock.getDt()
+        speed = 2
         if (round(actor.get_distance(player_bs)) >= 1
                 and round(actor.get_distance(player_bs)) < 5):
             self.base.game_instance["is_indoor"] = True
-            self.camera_smooth_move_forward(dt=dt, speed=1)
+            self.camera_smooth_move_forward(dt=dt, speed=speed)
 
         elif (round(actor.get_distance(player_bs)) >= 5
                 and round(actor.get_distance(player_bs)) < 17):
             self.base.game_instance["is_indoor"] = False
-            self.camera_smooth_move_backward(dt=dt, speed=1)
+            self.camera_smooth_move_backward(dt=dt, speed=speed)
 
         if self.base.game_instance["is_player_sitting"]:
-            self.camera_smooth_move_down(dt, 1)
+            self.camera_smooth_move_down(dt=dt, speed=speed)
         else:
-            self.camera_smooth_move_up(dt, 1)
+            self.camera_smooth_move_up(dt=dt, speed=speed)
 
         return task.cont
 
