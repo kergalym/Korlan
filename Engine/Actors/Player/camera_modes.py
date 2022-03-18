@@ -40,26 +40,27 @@ class CameraModes:
 
                         taskMgr.add(self.camera_smooth_adjust_task,
                                     "camera_smooth_adjust_task",
-                                    extraArgs=[actor, player_bs],
+                                    extraArgs=[actor, player_bs, radius],
                                     appendTask=True)
 
                         return task.done
 
         return task.cont
 
-    def camera_smooth_adjust_task(self, actor, player_bs, task):
+    def camera_smooth_adjust_task(self, actor, player_bs, radius, task):
         if self.base.game_instance['menu_mode']:
             self.base.camera.set_z(0.0)
             return task.done
 
         dt = globalClock.getDt()
-        speed = 2
+        speed = 7
+        radius += 1
         if (round(actor.get_distance(player_bs)) >= 1
-                and round(actor.get_distance(player_bs)) < 5):
+                and round(actor.get_distance(player_bs)) < radius):
             self.base.game_instance["is_indoor"] = True
             self.camera_smooth_move_forward(dt=dt, speed=speed)
 
-        elif (round(actor.get_distance(player_bs)) >= 5
+        elif (round(actor.get_distance(player_bs)) >= radius
                 and round(actor.get_distance(player_bs)) < 17):
             self.base.game_instance["is_indoor"] = False
             self.camera_smooth_move_backward(dt=dt, speed=speed)
@@ -73,10 +74,9 @@ class CameraModes:
 
     def camera_smooth_move_forward(self, dt, speed):
         if dt and isinstance(speed, int):
-            x = 0.3
             y = -1
-            if round(self.base.camera.get_x(), 1) != x:
-                self.base.camera.set_x(self.base.camera, speed * dt)
+
+            self.base.camera.set_x(0.3)
 
             if (round(self.base.camera.get_y()) != y
                     and not self.is_at_home):
@@ -90,8 +90,7 @@ class CameraModes:
         if dt and isinstance(speed, int):
             y = -5
             # revert camera view
-            if round(self.base.camera.get_x(), 1) != 0.0:
-                self.base.camera.set_x(self.base.camera, -speed * dt)
+            self.base.camera.set_x(0.0)
 
             if (round(self.base.camera.get_y()) != y
                     and self.is_at_home):

@@ -52,7 +52,7 @@ class Actions:
         self.arrow_ref = None
         self.arrow_brb_in_use = None
         self.arrow_is_prepared = False
-        self.arrow_charge_units = 100
+        self.arrow_charge_units = 1000
         self.draw_bow_is_done = 0
         self.raytest_result = None
         self.hit_target = None
@@ -340,7 +340,7 @@ class Actions:
             power = self.arrow_ref.get_python_tag("power")
             if self.arrow_ref.get_python_tag("ready") == 1:
                 self.is_arrow_ready = True
-                self.arrow_brb_in_use.set_x(self.arrow_brb_in_use, -7 * dt)
+                self.arrow_brb_in_use.set_x(self.arrow_brb_in_use, -power * dt)
                 self.base.camera.set_y(self.base.camera, 7 * dt)
 
         return task.cont
