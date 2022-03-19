@@ -33,6 +33,7 @@ class HUD:
         self.player_bar_ui_courage = None
         self.cursor_ui = None
         self.charge_arrow_bar_ui = None
+        self.cooldown_bar_ui = None
 
         self.menu_font = self.fonts['OpenSans-Regular']
         # instance of the abstract class
@@ -107,6 +108,22 @@ class HUD:
             self.charge_arrow_bar_ui.hide()
             self.charge_arrow_bar_ui.destroy()
             self.charge_arrow_bar_ui.remove_node()
+
+    def set_cooldown_bar_ui(self):
+        self.cooldown_bar_ui = DirectWaitBar(text="",
+                                             value=100,
+                                             range=100,
+                                             frameColor=(0, 0.1, 0.1, 0),
+                                             barColor=(0.6, 0.7, 0.4, 1),
+                                             pos=(-1.2, 0, -0.93),
+                                             scale=(0.1, 0, 0.69))
+        self.cooldown_bar_ui.hide()
+
+    def clear_cooldown_bar_ui(self):
+        if self.cooldown_bar_ui:
+            self.cooldown_bar_ui.hide()
+            self.cooldown_bar_ui.destroy()
+            self.cooldown_bar_ui.remove_node()
 
     def clear_aim_cursor(self):
         if self.cursor_ui:
