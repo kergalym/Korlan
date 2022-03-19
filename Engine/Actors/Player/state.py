@@ -304,7 +304,7 @@ class PlayerState:
                     weapon.reparent_to(joint)
                     # rescale weapon because it's scale 100 times smaller than we need
                     weapon.set_scale(100)
-                    weapon.set_pos(0, 2.0, 2.0)
+                    weapon.set_pos(0, 5.0, 4.0)
                     weapon.set_hpr(216.57, 293.80, 316.85)
                     if weapon.is_hidden():
                         weapon.show()

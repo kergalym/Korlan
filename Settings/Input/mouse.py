@@ -20,6 +20,7 @@ class Mouse:
         self.mouse_sens = 0.2
         self.last = 0
         self.cam_y_back_pos = -4.6
+        self.base.game_instance["mouse_y_cam"] = self.cam_y_back_pos
         self.keymap = {
             'wheel_up': False,
             'wheel_down': False
@@ -131,7 +132,7 @@ class Mouse:
                         if self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
                             self.pivot.set_h(-160)
                         else:
-                            self.pivot.set_h(100)
+                            self.pivot.set_h(110)
 
                         """if not pitch > 10.0 and not pitch < -50.0:
                                 self.floater.set_p(pitch)"""

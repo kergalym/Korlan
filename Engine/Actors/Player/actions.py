@@ -1,7 +1,4 @@
-from direct.gui.DirectWaitBar import DirectWaitBar
-from direct.gui.OnscreenText import OnscreenText
-from panda3d.bullet import BulletBoxShape, BulletRigidBodyNode
-from panda3d.core import Vec3, Point3, NodePath, BitMask32, TextNode
+from panda3d.core import Vec3, BitMask32
 
 from Engine.Actors.Player.state import PlayerState
 from Engine.FSM.player_fsm import PlayerFSM
@@ -11,6 +8,7 @@ from Engine.Items.items import Items
 from Settings.Input.keyboard import Keyboard
 from Settings.Input.mouse import Mouse
 from Engine.Inventory.sheet import Sheet
+from Engine.Actors.archery import Archery
 
 
 class Actions:
@@ -45,26 +43,8 @@ class Actions:
         self.fsm_player = PlayerFSM()
         self.sheet = Sheet()
         self.state = PlayerState()
+        self.archery = Archery()
         self.base.is_cutscene_active = False
-        self.base.game_instance['is_aiming'] = False
-        self.arrows = []
-        self.dropped_arrows = []
-        self.arrow_ref = None
-        self.arrow_brb_in_use = None
-        self.arrow_is_prepared = False
-        self.arrow_charge_units = 1000
-        self.draw_bow_is_done = 0
-        self.raytest_result = None
-        self.hit_target = None
-        self.target_pos = None
-        self.target_np = None
-        self.is_arrow_ready = False
-        self.target_test_ui = OnscreenText(text="",
-                                           pos=(1.5, 0.8),
-                                           scale=0.05,
-                                           fg=(255, 255, 255, 0.9),
-                                           align=TextNode.ALeft,
-                                           mayChange=True)
 
     """ Play animation after action """
 
@@ -218,237 +198,6 @@ class Actions:
             print(self.base.game_instance['player_controller_np'].get_shape().get_local_scale())
             self.base.game_instance['player_controller_np'].get_shape().set_local_scale(Vec3(1, 1, size))"""
 
-    async def prepare_arrows_helper(self, arrow_name, joint_name):
-        if (self.base.game_instance['player_ref']
-                and arrow_name
-                and joint_name
-                and isinstance(arrow_name, str)
-                and isinstance(joint_name, str)):
-            self.arrows = []
-            assets = self.base.assets_collector()
-            joint = self.base.game_instance['player_ref'].expose_joint(None, "modelRoot", joint_name)
-            for i in range(self.base.game_instance['arrow_count']):
-                arrow = await self.base.loader.load_model(assets[arrow_name], blocking=False)
-                arrow.set_name(arrow_name)
-                arrow.reparent_to(joint)
-                arrow.set_pos(-10, 7, -12)
-                arrow.set_hpr(91.55, 0, 0)
-                arrow.set_scale(100)
-
-                arrow.set_python_tag("power", 0)
-                arrow.set_python_tag("ready", 0)
-                arrow.set_python_tag("shot", 0)
-                arrow.set_python_tag("owner", "player")
-                self.arrows.append(arrow)
-
-    def return_arrow_back(self, joint_name):
-        if self.arrow_ref and joint_name:
-            if self.arrow_ref.get_python_tag("ready") == 0:
-                joint = self.base.game_instance['player_ref'].exposeJoint(None, "modelRoot", joint_name)
-                if joint:
-                    self.arrow_ref.reparent_to(joint)
-                    self.arrow_ref.set_pos(-10, 7, -12)
-                    self.arrow_ref.set_hpr(91.55, 0, 0)
-                    self.arrow_ref.set_scale(100)
-
-                    self.arrow_ref.set_python_tag("power", 0)
-                    self.arrow_ref.set_python_tag("ready", 0)
-                    self.arrow_ref.set_python_tag("shot", 0)
-                    self.arrows.append(self.arrow_ref)
-
-        if self.base.game_instance['physics_world_np'] and self.arrow_brb_in_use:
-            self.base.game_instance['physics_world_np'].remove_rigid_body(self.arrow_brb_in_use.node())
-            self.arrow_brb_in_use.remove_node()
-
-    def prepare_arrow_for_shoot(self, bow_name):
-        if self.arrow_is_prepared:
-            return False
-        elif not self.arrow_is_prepared:
-            bow = render.find("**/{0}".format(bow_name))
-            if bow:
-                if len(self.arrows) < 1:
-                    return
-
-                if self.base.game_instance['physics_world_np']:
-                    # Remove arrow from inv and prepare it for use
-                    arrow = self.arrows.pop(0)
-                    arrow.reparent_to(bow)
-                    arrow.set_pos(0.04, -0.01, -0.01)
-                    arrow.set_hpr(0, 2.86, 0)
-                    arrow.set_scale(1)
-
-                    # Create arrow collider
-                    shape = BulletBoxShape(Vec3(0.05, 0.05, 0.05))
-                    body = BulletRigidBodyNode('Arrow_BRB')
-                    arrow_rb_np = NodePath(body)
-                    arrow_rb_np.wrt_reparent_to(bow)
-                    arrow_rb_np.set_pos(-0.16, -0.01, -0.02)
-                    arrow_rb_np.set_hpr(arrow.get_hpr())
-                    arrow_rb_np.set_scale(arrow.get_scale())
-                    arrow.wrt_reparent_to(arrow_rb_np)
-                    arrow_rb_np.node().add_shape(shape)
-                    arrow_rb_np.node().set_mass(2.0)
-
-                    # Player and its owning arrow won't collide with each other
-                    arrow_rb_np.set_collide_mask(BitMask32.bit(0))
-
-                    # Enable CCD
-                    arrow_rb_np.node().set_ccd_motion_threshold(1e-7)
-                    arrow_rb_np.node().set_ccd_swept_sphere_radius(0.50)
-                    arrow_rb_np.node().set_kinematic(True)
-
-                    self.base.game_instance['physics_world_np'].attach_rigid_body(arrow_rb_np.node())
-
-                    self.arrow_brb_in_use = arrow_rb_np
-                    self.arrow_ref = arrow
-                    self.arrow_is_prepared = True
-
-    def bow_shoot(self):
-        if self.target_pos and self.hit_target:
-            name = self.hit_target.get_name()
-            self.target_np = render.find("**/{0}".format(name))
-
-            if (self.target_np
-                    and self.arrow_brb_in_use
-                    and self.arrow_ref):
-                # Calculate initial velocity
-                # velocity = self.target_pos - self.arrow_brb_in_use.get_pos()
-                # velocity = self.target_pos - self.bow.get_pos()
-                # velocity.normalize()
-                # velocity *= 100.0
-
-                # Get Bullet Rigid Body wrapped arrow
-                self.arrow_brb_in_use.node().set_kinematic(False)
-                self.arrow_ref.set_python_tag("shot", 1)
-                self.arrow_brb_in_use.wrt_reparent_to(render)
-
-                # self.arrow_brb_in_use.node().setLinearVelocity(velocity)
-
-                # We record arrows which have been shot
-                self.dropped_arrows.append(self.arrow_brb_in_use)
-                if self.base.game_instance['arrow_count'] > 0:
-                    self.base.game_instance['arrow_count'] -= 1
-
-                self.arrow_is_prepared = False
-
-                # Destroy dropped arrows after 200 seconds which are 3 minutes
-                taskMgr.do_method_later(200, self.destroy_arrow, 'destroy_arrow')
-
-    def arrow_fly_task(self, task):
-        dt = globalClock.getDt()
-        if self.arrow_brb_in_use:
-            power = self.arrow_ref.get_python_tag("power")
-            if self.arrow_ref.get_python_tag("ready") == 1:
-                self.is_arrow_ready = True
-                self.arrow_brb_in_use.set_x(self.arrow_brb_in_use, -power * dt)
-                self.base.camera.set_y(self.base.camera, 7 * dt)
-
-        return task.cont
-
-    def calculate_arrow_trajectory_task(self, task):
-        """ Function    : calculate_arrow_trajectory_task
-
-            Description : Task calculating arrow trajectory.
-
-            Input       : None
-
-            Output      : None
-
-            Return      : Task status
-        """
-        if self.base.game_instance['physics_world_np']:
-            mouse_watch = base.mouseWatcherNode
-            if mouse_watch.has_mouse():
-                pos_mouse = base.mouseWatcherNode.get_mouse()
-                pos_from = Point3()
-                pos_to = Point3()
-                base.camLens.extrude(pos_mouse, pos_from, pos_to)
-
-                pos_from = self.render.get_relative_point(base.camera, pos_from)
-                pos_to = self.render.get_relative_point(base.camera, pos_to)
-
-                self.raytest_result = self.base.game_instance['physics_world_np'].ray_test_closest(pos_from, pos_to)
-
-        return task.cont
-
-    def arrow_hit_check_task(self, task):
-        """ Function    : arrow_hit_check_task
-
-            Description : Task checking for arrow hits.
-
-            Input       : None
-
-            Output      : None
-
-            Return      : Task status
-        """
-
-        if (self.raytest_result and self.raytest_result.get_node()
-                and "Player" not in self.raytest_result.get_node().get_name()
-                and "Arrow" not in self.raytest_result.get_node().get_name()):
-            self.hit_target = self.raytest_result.get_node()
-            self.target_pos = self.raytest_result.get_hit_pos()
-            hit_target_name = self.hit_target.get_name()
-            hit_target_name = hit_target_name.split("_trigger")[0]
-
-            self.target_test_ui.show()
-            self.target_test_ui.setText(self.hit_target.get_name())
-
-            if self.hit_target and "NPC" in self.hit_target.get_name():
-                if self.base.game_instance['hud_np']:
-                    if (self.base.game_instance['actors_ref']
-                            and self.base.game_instance['actors_ref'].get(hit_target_name)):
-                        actor = self.base.game_instance['actors_ref'][hit_target_name]
-                        actor.get_python_tag("npc_hud_np").show()
-
-            if self.base.game_instance['physics_world_np'] and self.arrow_brb_in_use:
-                contact_result = self.base.game_instance['physics_world_np'].contact_test(self.hit_target)
-                if contact_result.get_num_contacts() > 0:
-                    if (self.base.game_instance['actors_ref']
-                            and self.base.game_instance['actors_ref'].get(hit_target_name)):
-                        actor = self.base.game_instance['actors_ref'][hit_target_name]
-                        actor.get_python_tag("npc_hud_np").hide()
-                    if self.arrow_ref.get_python_tag("ready") == 1:
-                        if self.target_np:
-                            self.arrow_brb_in_use.set_collide_mask(BitMask32.allOff())
-                            self.arrow_brb_in_use.wrt_reparent_to(self.target_np)
-                            self.is_arrow_ready = False
-                            # self.arrow_brb_in_use.node().set_kinematic(True)
-                            self.arrow_ref.set_python_tag("ready", 0)
-                            self.reset_arrow_charge()
-
-        return task.cont
-
-    def reset_arrow_charge(self):
-        if self.arrow_brb_in_use:
-            self.arrow_ref.set_python_tag("power", 0)
-
-    def destroy_arrow(self, task):
-        if len(self.arrows) < 1:
-            return
-        if self.base.game_instance['physics_world_np'] and self.dropped_arrows:
-            for arrow_rb in self.dropped_arrows:
-                if arrow_rb:
-                    self.base.game_instance['physics_world_np'].remove_rigid_body(arrow_rb.node())
-                    arrow_rb.remove_node()
-            return task.done
-
-    def start_archery_helper_tasks(self):
-        taskMgr.add(self.calculate_arrow_trajectory_task, "calculate_arrow_trajectory_task")
-        taskMgr.add(self.arrow_hit_check_task, "arrow_hit_check_task")
-        taskMgr.add(self.arrow_fly_task, "arrow_fly_task")
-        taskMgr.add(self.cursor_state_task, "cursor_state_task")
-
-        self.base.game_instance['hud_np'].set_arrow_charge_ui()
-
-    def stop_archery_helper_tasks(self):
-        taskMgr.remove("calculate_arrow_trajectory_task")
-        taskMgr.remove("arrow_hit_check_task")
-        taskMgr.remove("arrow_fly_task")
-        taskMgr.remove("cursor_state_task")
-
-        self.base.game_instance['hud_np'].clear_arrow_charge_ui()
-
     """ Prepares actions for scene"""
 
     def player_actions_init(self, player, anims):
@@ -464,8 +213,9 @@ class Actions:
                 self.player = player
                 self.kbd.keymap_init()
                 self.kbd.keymap_init_released()
+                self.base.game_instance["kbd_np"] = self.kbd
                 base.input_state = self.kbd.bullet_keymap_init()
-                self.is_arrow_ready = False
+                self.archery.is_arrow_ready = False
 
                 # Define mouse
                 self.floater = self.mouse.set_floater(self.player)
@@ -492,8 +242,8 @@ class Actions:
 
                 # Define player attack here
                 self.state.set_player_equipment(player, "Korlan:Spine1")
-                taskMgr.add(self.prepare_arrows_helper(arrow_name="bow_arrow_kazakh",
-                                                       joint_name="Korlan:Spine1"))
+                taskMgr.add(self.archery.prepare_arrows_helper(arrow_name="bow_arrow_kazakh",
+                                                               joint_name="Korlan:Spine1"))
 
                 # Start actions
                 taskMgr.add(self.player_actions_task, "player_actions_task",
@@ -506,65 +256,6 @@ class Actions:
                             appendTask=True)"""
 
             self.base.game_instance['player_actions_init_is_activated'] = 1
-
-    def cursor_state_task(self, task):
-        if (base.player_states['has_bow']
-                and not self.base.game_instance["is_indoor"]
-                and not self.base.game_instance['ui_mode']):
-            if (self.kbd.keymap["block"]
-                    and self.kbd.keymap["attack"]):
-                if self.base.game_instance['cursor_ui']:
-                    self.base.game_instance['cursor_ui'].show()
-                if not self.base.game_instance['is_aiming']:
-                    self.base.game_instance['is_aiming'] = True
-                if (self.base.game_instance['player_ref'].get_python_tag("is_on_horse")
-                        and self.base.game_instance['is_aiming']
-                        and not self.base.game_instance['free_camera']):
-                    pos_y = -4.2
-                    pos_z = 0.25
-                else:
-                    pos_y = -2
-                    pos_z = -0.2
-                base.camera.set_x(0.5)
-
-                if not self.is_arrow_ready:
-                    base.camera.set_y(pos_y)
-
-                base.camera.set_z(pos_z)
-            elif (self.kbd.keymap["block"]
-                  and not self.kbd.keymap["attack"]):
-                if self.base.game_instance['cursor_ui']:
-                    self.base.game_instance['cursor_ui'].show()
-                if not self.base.game_instance['is_aiming']:
-                    self.base.game_instance['is_aiming'] = True
-                if (self.base.game_instance['player_ref'].get_python_tag("is_on_horse")
-                        and self.base.game_instance['is_aiming']
-                        and not self.base.game_instance['free_camera']):
-                    pos_y = -4.2
-                    pos_z = 0.25
-                else:
-                    pos_y = -2
-                    pos_z = -0.2
-                base.camera.set_x(0.5)
-
-                if not self.is_arrow_ready:
-                    base.camera.set_y(pos_y)
-
-                base.camera.set_z(pos_z)
-            elif (not self.kbd.keymap["block"]
-                  and not self.kbd.keymap["attack"]):
-                if self.base.game_instance['cursor_ui']:
-                    self.base.game_instance['cursor_ui'].hide()
-                base.camera.set_x(0)
-                base.camera.set_y(self.mouse.cam_y_back_pos)
-                if self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
-                    base.camera.set_z(0.5)
-                elif not self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
-                    base.camera.set_z(0)
-                if self.base.game_instance['is_aiming']:
-                    self.base.game_instance['is_aiming'] = False
-
-        return task.cont
 
     """ Prepares the player for scene """
 
@@ -1620,13 +1311,13 @@ class Actions:
                                                            playRate=self.base.actor_play_rate)
                     Sequence(crouch_to_stand_seq,
                              Func(self.state.get_weapon, player, "bow_kazakh", "Korlan:LeftHand"),
-                             Func(self.prepare_arrow_for_shoot, "bow_kazakh"),
+                             Func(self.archery.prepare_arrow_for_shoot, "bow_kazakh"),
                              Func(self.state.set_action_state, "has_bow", True),
                              Func(self.state.set_action_state, "is_using", True),
                              any_action_seq,
                              Func(self.state.set_action_state, "is_using", False),
                              Func(self.state.set_do_once_key, "bow", False),
-                             Func(self.start_archery_helper_tasks),
+                             Func(self.archery.start_archery_helper_tasks),
                              ).start()
 
                 elif (base.player_states['has_bow'] is False
@@ -1637,13 +1328,13 @@ class Actions:
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
                     Sequence(Func(self.state.get_weapon, player, "bow_kazakh", "Korlan:LeftHand"),
-                             Func(self.prepare_arrow_for_shoot, "bow_kazakh"),
+                             Func(self.archery.prepare_arrow_for_shoot, "bow_kazakh"),
                              Func(self.state.set_action_state, "has_bow", True),
                              Func(self.state.set_action_state, "is_using", True),
                              any_action_seq,
                              Func(self.state.set_action_state, "is_using", False),
                              Func(self.state.set_do_once_key, "bow", False),
-                             Func(self.start_archery_helper_tasks),
+                             Func(self.archery.start_archery_helper_tasks),
                              ).start()
 
                 elif (base.player_states['has_bow']
@@ -1661,10 +1352,10 @@ class Actions:
                              any_action_seq,
                              Func(self.state.set_action_state, "is_using", False),
                              Func(self.state.remove_weapon, player, "bow_kazakh", "Korlan:Spine1"),
-                             Func(self.return_arrow_back, "Korlan:Spine1"),
+                             Func(self.archery.return_arrow_back, "Korlan:Spine1"),
                              Func(self.state.set_action_state, "has_bow", False),
                              Func(self.state.set_do_once_key, "bow", False),
-                             Func(self.stop_archery_helper_tasks),
+                             Func(self.archery.stop_archery_helper_tasks),
                              ).start()
 
                 elif (base.player_states['has_bow']
@@ -1678,10 +1369,10 @@ class Actions:
                              any_action_seq,
                              Func(self.state.set_action_state, "is_using", False),
                              Func(self.state.remove_weapon, player, "bow_kazakh", "Korlan:Spine1"),
-                             Func(self.return_arrow_back, "Korlan:Spine1"),
+                             Func(self.archery.return_arrow_back, "Korlan:Spine1"),
                              Func(self.state.set_action_state, "has_bow", False),
                              Func(self.state.set_do_once_key, "bow", False),
-                             Func(self.stop_archery_helper_tasks),
+                             Func(self.archery.stop_archery_helper_tasks),
                              ).start()
 
     def player_horse_riding_get_sword_action(self, player, key, anims, action):
@@ -1742,13 +1433,13 @@ class Actions:
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
                     Sequence(Func(self.state.get_weapon, player, "bow_kazakh", "Korlan:LeftHand"),
-                             Func(self.prepare_arrow_for_shoot, "bow_kazakh"),
+                             Func(self.archery.prepare_arrow_for_shoot, "bow_kazakh"),
                              Func(self.state.set_horse_riding_weapon_state, "has_bow", True),
                              Func(self.state.set_action_state, "is_using", True),
                              any_action_seq,
                              Func(self.state.set_action_state, "is_using", False),
                              Func(self.state.set_do_once_key, "bow", False),
-                             Func(self.start_archery_helper_tasks),
+                             Func(self.archery.start_archery_helper_tasks),
                              ).start()
 
                 elif (base.player_states['has_bow']
@@ -1762,10 +1453,10 @@ class Actions:
                              any_action_seq,
                              Func(self.state.set_action_state, "is_using", False),
                              Func(self.state.remove_weapon, player, "bow_kazakh", "Korlan:Spine1"),
-                             Func(self.return_arrow_back, "Korlan:Spine1"),
+                             Func(self.archery.return_arrow_back, "Korlan:Spine1"),
                              Func(self.state.set_horse_riding_weapon_state, "has_bow", False),
                              Func(self.state.set_do_once_key, "bow", False),
-                             Func(self.stop_archery_helper_tasks),
+                             Func(self.archery.stop_archery_helper_tasks),
                              ).start()
 
     def player_tengri_action(self, player, key, anims, action):
@@ -1823,8 +1514,8 @@ class Actions:
                     and not base.do_key_once["block"]):
                 self.state.set_do_once_key("block", True)
                 crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
-                if self.arrow_ref.get_python_tag("power") > 0:
-                    self.arrow_ref.set_python_tag("power", 0)
+                if self.archery.arrow_ref.get_python_tag("power") > 0:
+                    self.archery.arrow_ref.set_python_tag("power", 0)
 
                 if (crouched_to_standing.is_playing() is False
                         and base.player_states['is_crouching'] is True):
@@ -1836,7 +1527,7 @@ class Actions:
                                                            playRate=self.base.actor_play_rate)
 
                     Sequence(crouch_to_stand_seq,
-                             Func(self.prepare_arrow_for_shoot, "bow_kazakh"),
+                             Func(self.archery.prepare_arrow_for_shoot, "bow_kazakh"),
                              any_action_seq,
                              Func(self.state.set_action_state, "is_busy", True)
                              ).start()
@@ -1845,7 +1536,7 @@ class Actions:
                       and base.player_states['is_crouching'] is False):
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
-                    Sequence(Func(self.prepare_arrow_for_shoot, "bow_kazakh"),
+                    Sequence(Func(self.archery.prepare_arrow_for_shoot, "bow_kazakh"),
                              any_action_seq,
                              Func(self.state.set_action_state, "is_busy", True)
                              ).start()
@@ -1853,60 +1544,68 @@ class Actions:
             if (self.kbd.keymap["block"]
                     and self.kbd.keymap["attack"]
                     and base.do_key_once["block"]
-                    and self.arrow_ref.get_python_tag("ready") == 0):
-                if self.target_test_ui:
-                    self.target_test_ui.show()
-                power = self.arrow_ref.get_python_tag("power")
-                if power < self.arrow_charge_units:
-                    if self.base.game_instance['hud_np'].charge_arrow_bar_ui:
-                        self.base.game_instance['hud_np'].charge_arrow_bar_ui['value'] = power
-                    power += 10
-                    self.arrow_ref.set_python_tag("power", power)
+                    and len(self.archery.arrows) > 1
+                    and self.archery.arrow_ref.get_python_tag("ready") == 0):
 
-                self.base.game_instance['free_camera'] = True
+                if self.archery.arrow_is_prepared:
+                    if self.archery.target_test_ui:
+                        self.archery.target_test_ui.show()
+                    power = self.archery.arrow_ref.get_python_tag("power")
+                    if power < self.archery.arrow_charge_units:
+                        if self.base.game_instance['hud_np'].charge_arrow_bar_ui:
+                            self.base.game_instance['hud_np'].charge_arrow_bar_ui['value'] = power
+                        power += 10
+                        self.archery.arrow_ref.set_python_tag("power", power)
 
-                Sequence(Wait(0.1),
-                         Func(player.pose, action, -0.98),
-                         Wait(0.1),
-                         Func(player.pose, action, -0.99),
-                         Wait(0.1),
-                         Func(player.pose, action, -1),
-                         ).start()
+                    self.base.game_instance['free_camera'] = True
+
+                    Sequence(Wait(0.1),
+                             Func(player.pose, action, -0.98),
+                             Wait(0.1),
+                             Func(player.pose, action, -0.99),
+                             Wait(0.1),
+                             Func(player.pose, action, -1),
+                             ).start()
 
             if (not self.kbd.keymap["attack"]
                     and self.kbd.keymap["block"]
-                    and self.arrow_ref.get_python_tag("ready") == 0
-                    and self.arrow_ref.get_python_tag("shot") == 0
-                    and self.arrow_ref.get_python_tag("power") > 0):
-                self.arrow_ref.set_python_tag("ready", 1)
-                self.bow_shoot()
-                if self.base.game_instance['hud_np'].charge_arrow_bar_ui:
-                    self.base.game_instance['hud_np'].charge_arrow_bar_ui['value'] = 0
-                self.base.game_instance['free_camera'] = False
+                    and self.archery.arrow_ref.get_python_tag("ready") == 0
+                    and self.archery.arrow_ref.get_python_tag("shot") == 0
+                    and self.archery.arrow_ref.get_python_tag("power") > 0):
+
+                if self.archery.arrow_is_prepared and len(self.archery.arrows) > 1:
+                    self.archery.arrow_ref.set_python_tag("ready", 1)
+                    self.archery.bow_shoot()
+                    if self.base.game_instance['hud_np'].charge_arrow_bar_ui:
+                        self.base.game_instance['hud_np'].charge_arrow_bar_ui['value'] = 0
+                    self.base.game_instance['free_camera'] = False
 
             if (not self.kbd.keymap["attack"]
                     and not self.kbd.keymap["block"]
                     and base.do_key_once["block"]):
-                if self.target_test_ui:
-                    self.target_test_ui.hide()
+                if self.archery.target_test_ui:
+                    self.archery.target_test_ui.hide()
                 self.state.set_do_once_key('block', False),
                 self.state.set_action_state("is_busy", False)
                 if self.base.game_instance['hud_np'].charge_arrow_bar_ui:
                     self.base.game_instance['hud_np'].charge_arrow_bar_ui['value'] = 0
-                if self.arrow_ref.get_python_tag("power") > 0:
-                    self.arrow_ref.set_python_tag("power", 0)
+                if self.archery.arrow_ref.get_python_tag("power") > 0:
+                    self.archery.arrow_ref.set_python_tag("power", 0)
+                self.archery.arrow_ref.set_python_tag("ready", 0)
                 self.base.game_instance['free_camera'] = False
 
             if (not self.kbd.keymap["attack"]
                     and not self.kbd.keymap["block"]
                     and not base.do_key_once["block"]):
-                if self.target_test_ui:
-                    self.target_test_ui.hide()
+                if self.archery.target_test_ui:
+                    self.archery.target_test_ui.hide()
                 if self.base.game_instance['hud_np'].charge_arrow_bar_ui:
                     self.base.game_instance['hud_np'].charge_arrow_bar_ui['value'] = 0
                 self.state.set_action_state("is_busy", False)
-                if self.arrow_ref.get_python_tag("power") > 0:
-                    self.arrow_ref.set_python_tag("power", 0)
+                if self.archery.arrow_ref.get_python_tag("power") > 0:
+                    self.archery.arrow_ref.set_python_tag("power", 0)
+                self.archery.arrow_ref.set_python_tag("ready", 0)
+
                 self.base.game_instance['free_camera'] = False
 
     def player_horse_riding_bow_shoot_action(self, player, anims, action):
@@ -1918,14 +1617,14 @@ class Actions:
                     and not base.do_key_once["block"]):
                 self.state.set_do_once_key("block", True)
                 crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
-                if self.arrow_ref.get_python_tag("power") > 0:
-                    self.arrow_ref.set_python_tag("power", 0)
+                if self.archery.arrow_ref.get_python_tag("power") > 0:
+                    self.archery.arrow_ref.set_python_tag("power", 0)
 
                 if (crouched_to_standing.is_playing() is False
                         and base.player_states['is_crouching'] is False):
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
-                    Sequence(Func(self.prepare_arrow_for_shoot, "bow_kazakh"),
+                    Sequence(Func(self.archery.prepare_arrow_for_shoot, "bow_kazakh"),
                              any_action_seq,
                              Func(self.state.set_action_state, "is_busy", True)
                              ).start()
@@ -1933,57 +1632,64 @@ class Actions:
             if (self.kbd.keymap["block"]
                     and self.kbd.keymap["attack"]
                     and base.do_key_once["block"]
-                    and self.arrow_ref.get_python_tag("ready") == 0):
-                if self.target_test_ui:
-                    self.target_test_ui.show()
-                power = self.arrow_ref.get_python_tag("power")
-                if self.base.game_instance['hud_np'].charge_arrow_bar_ui:
-                    self.base.game_instance['hud_np'].charge_arrow_bar_ui['value'] = power
-                power += 10
-                self.arrow_ref.set_python_tag("power", power)
+                    and len(self.archery.arrows) > 1
+                    and self.archery.arrow_ref.get_python_tag("ready") == 0):
 
-                Sequence(Wait(0.1),
-                         Func(player.pose, action, -0.98),
-                         Wait(0.1),
-                         Func(player.pose, action, -0.99),
-                         Wait(0.1),
-                         Func(player.pose, action, -1),
-                         ).start()
+                if self.archery.arrow_is_prepared:
+                    if self.archery.target_test_ui:
+                        self.archery.target_test_ui.show()
+                    power = self.archery.arrow_ref.get_python_tag("power")
+                    if self.base.game_instance['hud_np'].charge_arrow_bar_ui:
+                        self.base.game_instance['hud_np'].charge_arrow_bar_ui['value'] = power
+                    power += 10
+                    self.archery.arrow_ref.set_python_tag("power", power)
+
+                    Sequence(Wait(0.1),
+                             Func(player.pose, action, -0.98),
+                             Wait(0.1),
+                             Func(player.pose, action, -0.99),
+                             Wait(0.1),
+                             Func(player.pose, action, -1),
+                             ).start()
 
             if (not self.kbd.keymap["attack"]
                     and self.kbd.keymap["block"]
-                    and self.arrow_ref.get_python_tag("ready") == 0
-                    and self.arrow_ref.get_python_tag("shot") == 0
-                    and self.arrow_ref.get_python_tag("power") > 0):
-                self.arrow_ref.set_python_tag("ready", 1)
-                self.bow_shoot()
-                if self.base.game_instance['hud_np'].charge_arrow_bar_ui:
-                    self.base.game_instance['hud_np'].charge_arrow_bar_ui['value'] = 0
+                    and self.archery.arrow_ref.get_python_tag("ready") == 0
+                    and self.archery.arrow_ref.get_python_tag("shot") == 0
+                    and self.archery.arrow_ref.get_python_tag("power") > 0):
+
+                if self.archery.arrow_is_prepared and len(self.archery.arrows) > 1:
+                    self.archery.arrow_ref.set_python_tag("ready", 1)
+                    self.archery.bow_shoot()
+                    if self.base.game_instance['hud_np'].charge_arrow_bar_ui:
+                        self.base.game_instance['hud_np'].charge_arrow_bar_ui['value'] = 0
 
             if (not self.kbd.keymap["attack"]
                     and not self.kbd.keymap["block"]
                     and base.do_key_once["block"]):
-                if self.target_test_ui:
-                    self.target_test_ui.hide()
+                if self.archery.target_test_ui:
+                    self.archery.target_test_ui.hide()
                 self.state.set_do_once_key('block', False),
                 self.state.set_action_state("is_busy", False)
                 self.state.set_action_state("horse_riding", True)
                 if self.base.game_instance['hud_np'].charge_arrow_bar_ui:
                     self.base.game_instance['hud_np'].charge_arrow_bar_ui['value'] = 0
-                if self.arrow_ref.get_python_tag("power") > 0:
-                    self.arrow_ref.set_python_tag("power", 0)
+                if self.archery.arrow_ref.get_python_tag("power") > 0:
+                    self.archery.arrow_ref.set_python_tag("power", 0)
+                self.archery.arrow_ref.set_python_tag("ready", 0)
 
             if (not self.kbd.keymap["attack"]
                     and not self.kbd.keymap["block"]
                     and not base.do_key_once["block"]):
-                if self.target_test_ui:
-                    self.target_test_ui.hide()
+                if self.archery.target_test_ui:
+                    self.archery.target_test_ui.hide()
                 if self.base.game_instance['hud_np'].charge_arrow_bar_ui:
                     self.base.game_instance['hud_np'].charge_arrow_bar_ui['value'] = 0
                 self.state.set_action_state("is_busy", False)
                 self.state.set_action_state("horse_riding", True)
-                if self.arrow_ref.get_python_tag("power") > 0:
-                    self.arrow_ref.set_python_tag("power", 0)
+                if self.archery.arrow_ref.get_python_tag("power") > 0:
+                    self.archery.arrow_ref.set_python_tag("power", 0)
+                self.archery.arrow_ref.set_python_tag("ready", 0)
 
     def player_mount_helper_task(self, child, player, saddle_pos, task):
         if child and player:

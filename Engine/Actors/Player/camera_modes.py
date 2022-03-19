@@ -53,7 +53,7 @@ class CameraModes:
             return task.done
 
         dt = globalClock.getDt()
-        speed = 7
+        speed = 5
         radius += 1
         if (round(actor.get_distance(player_bs)) >= 1
                 and round(actor.get_distance(player_bs)) < radius):
