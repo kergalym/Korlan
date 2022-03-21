@@ -97,7 +97,7 @@ class HUD:
     def set_arrow_charge_ui(self):
         self.charge_arrow_bar_ui = DirectWaitBar(text="",
                                                  value=0,
-                                                 range=1000,
+                                                 range=100,
                                                  frameColor=(0, 0.1, 0.1, 0),
                                                  barColor=(0.6, 0, 0, 1),
                                                  pos=(-1.43, 0, -0.93),

@@ -1544,7 +1544,7 @@ class Actions:
             if (self.kbd.keymap["block"]
                     and self.kbd.keymap["attack"]
                     and base.do_key_once["block"]
-                    and len(self.archery.arrows) > 1
+                    and len(self.archery.arrows) > 0
                     and self.archery.arrow_ref.get_python_tag("ready") == 0):
 
                 if self.archery.arrow_is_prepared:
@@ -1573,7 +1573,7 @@ class Actions:
                     and self.archery.arrow_ref.get_python_tag("shot") == 0
                     and self.archery.arrow_ref.get_python_tag("power") > 0):
 
-                if self.archery.arrow_is_prepared and len(self.archery.arrows) > 1:
+                if self.archery.arrow_is_prepared and len(self.archery.arrows) > 0:
                     self.archery.arrow_ref.set_python_tag("ready", 1)
                     self.archery.bow_shoot()
                     if self.base.game_instance['hud_np'].charge_arrow_bar_ui:
@@ -1632,7 +1632,7 @@ class Actions:
             if (self.kbd.keymap["block"]
                     and self.kbd.keymap["attack"]
                     and base.do_key_once["block"]
-                    and len(self.archery.arrows) > 1
+                    and len(self.archery.arrows) > 0
                     and self.archery.arrow_ref.get_python_tag("ready") == 0):
 
                 if self.archery.arrow_is_prepared:
@@ -1658,7 +1658,7 @@ class Actions:
                     and self.archery.arrow_ref.get_python_tag("shot") == 0
                     and self.archery.arrow_ref.get_python_tag("power") > 0):
 
-                if self.archery.arrow_is_prepared and len(self.archery.arrows) > 1:
+                if self.archery.arrow_is_prepared and len(self.archery.arrows) > 0:
                     self.archery.arrow_ref.set_python_tag("ready", 1)
                     self.archery.bow_shoot()
                     if self.base.game_instance['hud_np'].charge_arrow_bar_ui:
