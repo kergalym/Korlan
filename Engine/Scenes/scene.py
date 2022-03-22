@@ -1,7 +1,7 @@
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import *
 from Engine.Renderer.renderer import RenderAttr
-from Engine.Actors.Player.camera_modes import CameraModes
+from Settings.Input.camera_modes import CameraModes
 from Engine.Quests.quests import Quests
 
 
