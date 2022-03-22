@@ -47,7 +47,7 @@ class Korlan:
         self.base.actor_is_alive = False
         self.base.actor_play_rate = 1.0
 
-    async def set_actor(self, mode, name, path, animation, axis, rotation, scale, culling):
+    async def set_actor(self, mode, name, animation, axis, rotation, scale, culling):
         if mode == 'menu':
             # Disable the camera trackball controls.
             self.base.disable_mouse()
@@ -55,13 +55,11 @@ class Korlan:
             props.set_cursor_hidden(False)
             self.base.win.request_properties(props)
 
-            if (isinstance(path, str)
-                    and isinstance(name, str)
+            if (isinstance(name, str)
                     and isinstance(axis, list)
                     and isinstance(rotation, list)
                     and isinstance(scale, list)
                     and isinstance(mode, str)
-                    and animation
                     and isinstance(animation, list)
                     and isinstance(culling, bool)):
 
@@ -74,24 +72,63 @@ class Korlan:
                 self.scale_x = scale[0]
                 self.scale_y = scale[1]
                 self.scale_z = scale[2]
-                anim_name = animation[0]
-                anim_path = animation[1]
 
-                self.korlan = self.base.loader.load_model(path, blocking=False)
-                self.korlan = Actor(self.korlan, {anim_name: anim_path})
+                self.base.game_instance['player_is_loaded'] = False
+
+                assets = self.base.assets_collector()
+
+                actor_parts_dict = {}
+
+                """actor_parts_dict = {
+                    "modelRoot": assets["Korlan_body"],
+                    "helmet": assets["Korlan_helmet"],
+                    "armor": assets["Korlan_armor"],
+                    "pants": assets["Korlan_pants"],
+                    "boots": assets["Korlan_boots"]
+                }"""
+
+                anims_full_dict = {
+                    "modelRoot": animation[1],
+                    "helmet": animation[1],
+                    "armor": animation[1],
+                    "pants": animation[1],
+                    "boots": animation[1]
+                }
+
+                # load player parts separately
+                body = await self.base.loader.load_model(assets["Korlan_body"], blocking=False)
+                helmet = await self.base.loader.load_model(assets["Korlan_helmet"], blocking=False)
+                armor = await self.base.loader.load_model(assets["Korlan_armor"], blocking=False)
+                pants = await self.base.loader.load_model(assets["Korlan_pants"], blocking=False)
+                boots = await self.base.loader.load_model(assets["Korlan_boots"], blocking=False)
+
+                actor_parts_dict['modelRoot'] = body
+                actor_parts_dict['helmet'] = helmet
+                actor_parts_dict['armor'] = armor
+                actor_parts_dict['pants'] = pants
+                actor_parts_dict['boots'] = boots
+
+                # and compose them into one
+                self.korlan = Actor(actor_parts_dict, anims_full_dict)
+
+                # toggle texture compression for textures to compress them
+                # before load into VRAM
+                self.base.toggle_texture_compression(self.korlan)
+
+                self.korlan.reparent_to(render)
+
+                self.base.game_instance['player_is_loaded'] = True
 
                 self.korlan.set_name(name)
                 self.korlan.set_scale(self.korlan, self.scale_x, self.scale_y, self.scale_z)
-                self.korlan.set_pos(self.pos_x, self.pos_y, self.pos_z)
+                self.korlan_start_pos = LPoint3f(self.pos_x, self.pos_y, 0.0)
+                self.korlan.set_pos(self.korlan_start_pos + (0, 0, self.pos_z))
                 self.korlan.set_h(self.korlan, self.rot_h)
                 self.korlan.set_p(self.korlan, self.rot_p)
                 self.korlan.set_r(self.korlan, self.rot_r)
 
-                # Hardware skinning
-                self.render_attr.set_hardware_skinning(self.korlan, True)
-
-                self.korlan.loop(animation)
-                self.korlan.set_play_rate(self.base.actor_play_rate, animation)
+                # Get actor joints
+                base.korlan_joints = self.korlan.get_joints()
 
                 # Set two sided, since some model may be broken
                 self.korlan.set_two_sided(culling)
@@ -99,10 +136,14 @@ class Korlan:
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
                 self.korlan.set_transparency(True)
 
-                self.korlan.reparent_to(render)
+                # Hardware skinning
+                self.render_attr.set_hardware_skinning(self.korlan, True)
 
                 # Make actor global
-                self.base.game_instance['actors_ref']['player'] = self.korlan
+                self.base.game_instance['player_ref'] = self.korlan
+
+                if self.game_settings['Main']['postprocessing'] == 'on':
+                    self.render_attr.render_pipeline.prepare_scene(self.korlan)
 
                 if self.game_settings['Debug']['set_debug_mode'] == "YES":
                     self.render.analyze()
@@ -114,8 +155,7 @@ class Korlan:
                 self.base.disable_mouse()
                 self.mouse.set_mouse_mode(mode="absolute")
 
-            if (isinstance(path, str)
-                    and isinstance(name, str)
+            if (isinstance(name, str)
                     and isinstance(axis, list)
                     and isinstance(rotation, list)
                     and isinstance(scale, list)

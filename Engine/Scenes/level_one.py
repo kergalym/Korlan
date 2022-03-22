@@ -326,13 +326,6 @@ class LevelOne:
         self.base.game_instance['lod_np'] = NodePath(lod)
         self.base.game_instance['lod_np'].reparentTo(world_np)
 
-        # set native render effects
-        if self.game_settings['Main']['postprocessing'] == 'off':
-            taskMgr.add(self.render_attr.setup_native_renderer,
-                        "setup_native_renderer_task",
-                        extraArgs=[True], appendTask=True)
-
-        self.render_attr.set_time_of_day(duration=1800)  # 1800 sec == 30 min
         self.render_attr.time_text_ui.show()
         taskMgr.add(self.render_attr.set_time_of_day_clock_task,
                     "set_time_of_day_clock_task",
@@ -402,12 +395,6 @@ class LevelOne:
         for index, actor in enumerate(level_npc_assets['name'], 1):
             self.actors_for_focus[index] = actor
 
-        self.scene_one.set_env(cloud_dimensions=[2000, 2000, 100],
-                               cloud_speed=0.3,
-                               cloud_size=20,
-                               cloud_count=20,
-                               cloud_color=(0.6, 0.6, 0.65, 1.0))
-
         """ Setup Physics """
         self.physics_attr.set_physics_world(self.npcs_fsm_states)
 
@@ -429,7 +416,6 @@ class LevelOne:
 
         taskMgr.add(self.korlan.set_actor(mode="game",
                                           name="Player",
-                                          path=assets['Korlan_{0}'.format(suffix)],
                                           animation=anims,
                                           axis=[0, 15.0, self.pos_z],
                                           rotation=[0, 0, 0],

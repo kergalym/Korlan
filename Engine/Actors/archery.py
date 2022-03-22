@@ -192,8 +192,8 @@ class Archery:
             Return      : Task status
         """
         if self.hit_target:
-            hit_target_name = self.hit_target.get_name()
-            hit_target_name = hit_target_name.split("_trigger")[0]
+            # hit_target_name = self.hit_target.get_name()
+            # hit_target_name = hit_target_name.split("_trigger")[0]
 
             # Toggle hit target hud if it's NPC
             """
@@ -212,7 +212,7 @@ class Archery:
 
             # Contact test
             if self.arrow_brb_in_use:
-                contact_result = self.base.game_instance['physics_world_np'].contact_test(self.hit_target)
+                # contact_result = self.base.game_instance['physics_world_np'].contact_test(self.hit_target)
 
                 # Show contacted object
                 self.target_test_ui.show()
@@ -274,12 +274,10 @@ class Archery:
     def arrow_fly_task(self, task):
         dt = globalClock.getDt()
         if self.arrow_brb_in_use:
-            # power = self.arrow_ref.get_python_tag("power")
-            # power = round(power / 15)  # 10
-            power = 20
-
+            power = self.arrow_ref.get_python_tag("power")
             if self.arrow_ref.get_python_tag("ready") == 1:
                 self.arrow_brb_in_use.set_x(self.arrow_brb_in_use, -power * dt)
+            print(self.arrow_ref.get_python_tag("ready"))
         return task.cont
 
     def cursor_state_task(self, task):
