@@ -602,7 +602,8 @@ class Sheet(Inventory):
     def set_sheet(self):
         """ Sets inventory ui """
         if (not self.base.game_instance['menu_mode']
-                and not self.base.game_instance['esc_mode']):
+                and not self.base.game_instance['esc_mode']
+                and not self.base.game_instance["is_player_sitting"]):
             player = self.base.game_instance['player_ref']
             if not player.get_python_tag("is_on_horse"):
                 if self.base.frame_inv:
