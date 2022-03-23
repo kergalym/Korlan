@@ -110,14 +110,14 @@ class Mouse:
                 heading = 0
                 pitch = 0
                 # Recentering the cursor and do mouse look
-                if base.win.move_pointer(0, int(base.win.getXSize() / 2), int(base.win.getYSize() / 2)):
+                if base.win.move_pointer(0, int(base.win.get_x_size() / 2), int(base.win.get_y_size() / 2)):
                     if not self.base.game_instance['is_aiming']:
                         # reset heading and pitch for floater
                         self.floater.set_h(0)
                         self.floater.set_p(0)
                         # apply heading and pitch
-                        heading = self.pivot.get_h() - (x - int(base.win.getXSize() / 2)) * self.mouse_sens
-                        pitch = self.pivot.get_p() - (y - int(base.win.getYSize() / 2)) * self.mouse_sens
+                        heading = self.pivot.get_h() - (x - int(base.win.get_x_size() / 2)) * self.mouse_sens
+                        pitch = self.pivot.get_p() - (y - int(base.win.get_y_size() / 2)) * self.mouse_sens
                         self.pivot.set_h(heading)
 
                         if not pitch > 10.0 and not pitch < -50.0:
