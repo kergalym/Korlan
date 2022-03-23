@@ -277,7 +277,6 @@ class Archery:
             power = self.arrow_ref.get_python_tag("power")
             if self.arrow_ref.get_python_tag("ready") == 1:
                 self.arrow_brb_in_use.set_x(self.arrow_brb_in_use, -power * dt)
-            print(self.arrow_ref.get_python_tag("ready"))
         return task.cont
 
     def cursor_state_task(self, task):
