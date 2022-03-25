@@ -82,15 +82,112 @@ class Mouse:
             # restore previous player's Z position
             player.set_z(-1.5)
             player.set_y(0)
-            # player.get_child(0).set_pos(0, 0, -1)
             # camera setup
             base.camera.reparent_to(self.pivot)
             base.camera.set_pos(0, self.cam_y_back_pos, 0)
 
+    def on_mouse_rotate_in_aiming(self, x, y):
+        """ Function    : on_mouse_rotate_in_aiming
+
+            Description : Activates player rotation by mouse in aiming.
+
+            Input       : Integer
+
+            Output      : None
+
+            Return      : None
+        """
+        # world heading in aiming
+        # todo: add rotate by player's last spine bone before hips
+        player_bs = self.base.get_actor_bullet_shape_node(asset="Player",
+                                                          type="Player")
+        if player_bs:
+            heading = player_bs.get_h() - (x - int(base.win.get_x_size() / 2)) * self.mouse_sens
+            pitch = self.floater.get_p() - (y - int(base.win.get_y_size() / 2)) * self.mouse_sens
+            player_bs.set_h(heading)
+
+            if self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
+                self.pivot.set_h(-160)
+            else:
+                self.pivot.set_h(110)
+
+            """if not pitch > 10.0 and not pitch < -50.0:
+                self.floater.set_p(pitch)
+            """
+
+    def on_mouse_look_around_player(self, x, y):
+        """ Function    : on_mouse_look_around_player
+
+            Description : Activates camera rotation by mouse.
+
+            Input       : Integer
+
+            Output      : None
+
+            Return      : None
+        """
+        if (not self.base.game_instance["kbd_np"].keymap["forward"]
+                and not self.base.game_instance["kbd_np"].keymap["backward"]):
+            # reset heading and pitch for floater
+            self.floater.set_h(0)
+            self.floater.set_p(0)
+
+            # apply heading and pitch
+            heading = self.pivot.get_h() - (x - int(base.win.get_x_size() / 2)) * self.mouse_sens
+            pitch = self.pivot.get_p() - (y - int(base.win.get_y_size() / 2)) * self.mouse_sens
+            self.pivot.set_h(heading)
+
+            if not pitch > 10.0 and not pitch < -50.0:
+                self.pivot.set_p(pitch)
+
+    def on_mouse_rotate_player(self, x, y):
+        """ Function    : on_mouse_rotate_player
+
+            Description : Activates player rotation by mouse.
+
+            Input       : Integer
+
+            Output      : None
+
+            Return      : None
+        """
+        if (self.base.game_instance["kbd_np"].keymap["forward"]
+                and not self.base.game_instance["kbd_np"].keymap["backward"]
+                or self.base.game_instance["kbd_np"].keymap["backward"]
+                and not self.base.game_instance["kbd_np"].keymap["forward"]):
+            player_bs = self.base.get_actor_bullet_shape_node(asset="Player",
+                                                              type="Player")
+            horse_name = self.base.game_instance['player_using_horse']
+            horse_bs = render.find("**/{0}:BS".format(horse_name))
+
+            if player_bs and not self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
+                # apply heading and pitch
+                heading = player_bs.get_h() - (x - int(base.win.get_x_size() / 2)) * self.mouse_sens
+                pitch = player_bs.get_p() - (y - int(base.win.get_y_size() / 2)) * self.mouse_sens
+                player_bs.set_h(heading)
+
+                # Show player only from back
+                self.pivot.set_h(180)
+
+                if not pitch > 10.0 and not pitch < -50.0:
+                    player_bs.set_p(pitch)
+
+            elif horse_bs and self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
+                # apply heading and pitch
+                heading = horse_bs.get_h() - (x - int(base.win.get_x_size() / 2)) * self.mouse_sens
+                pitch = horse_bs.get_p() - (y - int(base.win.get_y_size() / 2)) * self.mouse_sens
+                horse_bs.set_h(heading)
+
+                # Show player only from back
+                self.pivot.set_h(180)
+
+                if not pitch > 10.0 and not pitch < -50.0:
+                    player_bs.set_p(pitch)
+
     def mouse_control(self):
         """ Function    : mouse_control
 
-            Description : Mouse-rotation business for 3rd person view.
+            Description : Mouse rotation controlling logic for 3rd person view.
 
             Input       : None
 
@@ -107,40 +204,19 @@ class Mouse:
                 mouse_direction = base.win.getPointer(0)
                 x = mouse_direction.get_x()
                 y = mouse_direction.get_y()
-                heading = 0
-                pitch = 0
                 # Recentering the cursor and do mouse look
                 if base.win.move_pointer(0, int(base.win.get_x_size() / 2), int(base.win.get_y_size() / 2)):
                     if not self.base.game_instance['is_aiming']:
-                        # reset heading and pitch for floater
-                        self.floater.set_h(0)
-                        self.floater.set_p(0)
-                        # apply heading and pitch
-                        heading = self.pivot.get_h() - (x - int(base.win.get_x_size() / 2)) * self.mouse_sens
-                        pitch = self.pivot.get_p() - (y - int(base.win.get_y_size() / 2)) * self.mouse_sens
-                        self.pivot.set_h(heading)
-
-                        if not pitch > 10.0 and not pitch < -50.0:
-                            self.pivot.set_p(pitch)
+                        self.on_mouse_look_around_player(x, y)
+                        self.on_mouse_rotate_player(x, y)
 
                     elif self.base.game_instance['is_aiming']:
-                        # world heading in aiming
-                        heading = self.floater.get_h() - (x - int(base.win.getXSize() / 2)) * self.mouse_sens
-                        # pitch = self.floater.get_p() - (y - int(base.win.getYSize() / 2)) * self.mouse_sens
-                        self.floater.set_h(heading)
-
-                        if self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
-                            self.pivot.set_h(-160)
-                        else:
-                            self.pivot.set_h(110)
-
-                        """if not pitch > 10.0 and not pitch < -50.0:
-                                self.floater.set_p(pitch)"""
+                        self.on_mouse_rotate_in_aiming(x, y)
 
     def mouse_control_task(self, task):
         """ Function    : mouse_control_task
 
-            Description : Mouse-looking camera for 3rd person view.
+            Description : Mouse-looking camera task for 3rd person view.
 
             Input       : Task
 

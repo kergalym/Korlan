@@ -207,15 +207,18 @@ class Archery:
 
             if self.base.game_instance['physics_world_np'] and self.arrow_brb_in_use:
                 contact_result = self.base.game_instance['physics_world_np'].contact_test(self.hit_target)
-                if contact_result.get_num_contacts() > 0:
 
-                    # Hide NPC HUD
-                    if (self.base.game_instance['actors_ref']
-                            and self.base.game_instance['actors_ref'].get(hit_target_name)):
-                        actor = self.base.game_instance['actors_ref'][hit_target_name]
-                        actor.get_python_tag("npc_hud_np").hide()
+                for contact in contact_result.get_contacts():
+                    mpoint = contact.get_manifold_point()
+                    if round(mpoint.get_distance()) == 0.0:
+                        # Attach Arrow
+                        self.attach_arrow()
 
-                    self.attach_arrow()
+                        # Hide NPC HUD
+                        if (self.base.game_instance['actors_ref']
+                                and self.base.game_instance['actors_ref'].get(hit_target_name)):
+                            actor = self.base.game_instance['actors_ref'][hit_target_name]
+                            actor.get_python_tag("npc_hud_np").hide()
 
         return task.cont
 
