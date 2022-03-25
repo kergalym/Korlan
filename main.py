@@ -310,7 +310,7 @@ class Main(ShowBase):
             "gameplay_mode": '',
             "free_camera": False,
             "is_aiming": False,
-            "first_person_mode": False,
+            "person_look_mode": False,
             "menu_scene_video": None,
             "cutscene_is_active": False,
             "current_active_frame": None,

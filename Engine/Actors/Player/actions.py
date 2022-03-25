@@ -446,50 +446,51 @@ class Actions:
             # Get the time that elapsed since last frame
             dt = globalClock.getDt()
 
-            self.base.game_instance['gameplay_mode'] = self.game_settings['Main']['gameplay_mode']
+            self.base.game_instance['person_look_mode'] = self.game_settings['Main']['person_look_mode']
             self.player_bs = self.base.get_actor_bullet_shape_node(asset=player.get_name(), type="Player")
 
-            if self.base.game_instance['gameplay_mode']:
-                if self.base.game_instance['gameplay_mode'] == 'enhanced':
+            if self.base.game_instance['person_look_mode']:
+                if self.base.game_instance['person_look_mode'] == 'third':
                     if self.kbd.keymap["left"] and self.player_bs:
                         self.player_bs.set_h(self.player_bs.get_h() + 100 * dt)
                     if self.kbd.keymap["right"] and self.player_bs:
                         self.player_bs.set_h(self.player_bs.get_h() - 100 * dt)
 
-                    # Turning in place
-                    if (not self.kbd.keymap["forward"]
-                            and not self.kbd.keymap["run"]
-                            and self.kbd.keymap["left"]):
-                        Sequence(Parallel(Func(self.seq_turning_wrapper, player, anims, "left_turn", 'loop'),
-                                          Func(self.state.set_action_state, "is_turning", True)),
-                                 ).start()
-                    if (not self.kbd.keymap["forward"]
-                            and not self.kbd.keymap["run"]
-                            and self.kbd.keymap["right"]):
-                        Sequence(Parallel(Func(self.seq_turning_wrapper, player, anims, "right_turn", 'loop'),
-                                          Func(self.state.set_action_state, "is_turning", True)),
-                                 ).start()
+                elif self.base.game_instance['person_look_mode'] == 'first':
+                    self.base.camera.set_y(1)
 
-                    # Stop turning in place
-                    if (not self.kbd.keymap["forward"]
-                            and not self.kbd.keymap["run"]
-                            and not self.kbd.keymap["left"]):
-                        Sequence(Parallel(Func(self.seq_turning_wrapper, player, anims, "left_turn", 'stop'),
-                                          Func(self.state.set_action_state, "is_turning", False)),
-                                 ).start()
-                    if (not self.kbd.keymap["forward"]
-                            and not self.kbd.keymap["run"]
-                            and not self.kbd.keymap["right"]):
-                        Sequence(Parallel(Func(self.seq_turning_wrapper, player, anims, "right_turn", 'stop'),
-                                          Func(self.state.set_action_state, "is_turning", False)),
-                                 ).start()
+                    if self.kbd.keymap["left"] and self.player_bs:
+                        self.player_bs.set_h(self.player_bs.get_h() + 100 * dt)
+                    if self.kbd.keymap["right"] and self.player_bs:
+                        self.player_bs.set_h(self.player_bs.get_h() - 100 * dt)
 
-            if self.base.game_instance['gameplay_mode']:
-                if self.base.game_instance['gameplay_mode'] == 'simple' and self.mouse.pivot:
-                    self.mouse.pivot.set_h(self.base.camera.get_h())
+                # Turning in place
+                if (not self.kbd.keymap["forward"]
+                        and not self.kbd.keymap["run"]
+                        and self.kbd.keymap["left"]):
+                    Sequence(Parallel(Func(self.seq_turning_wrapper, player, anims, "left_turn", 'loop'),
+                                      Func(self.state.set_action_state, "is_turning", True)),
+                             ).start()
+                if (not self.kbd.keymap["forward"]
+                        and not self.kbd.keymap["run"]
+                        and self.kbd.keymap["right"]):
+                    Sequence(Parallel(Func(self.seq_turning_wrapper, player, anims, "right_turn", 'loop'),
+                                      Func(self.state.set_action_state, "is_turning", True)),
+                             ).start()
 
-                if self.base.game_instance['first_person_mode'] and self.mouse.pivot:
-                    self.mouse.pivot.set_h(self.base.camera.get_h())
+                # Stop turning in place
+                if (not self.kbd.keymap["forward"]
+                        and not self.kbd.keymap["run"]
+                        and not self.kbd.keymap["left"]):
+                    Sequence(Parallel(Func(self.seq_turning_wrapper, player, anims, "left_turn", 'stop'),
+                                      Func(self.state.set_action_state, "is_turning", False)),
+                             ).start()
+                if (not self.kbd.keymap["forward"]
+                        and not self.kbd.keymap["run"]
+                        and not self.kbd.keymap["right"]):
+                    Sequence(Parallel(Func(self.seq_turning_wrapper, player, anims, "right_turn", 'stop'),
+                                      Func(self.state.set_action_state, "is_turning", False)),
+                             ).start()
 
             if (self.kbd.keymap["forward"]
                     and self.kbd.keymap["run"] is False
@@ -682,52 +683,53 @@ class Actions:
                 # Get the time that elapsed since last frame
                 dt = globalClock.getDt()
 
-                self.base.game_instance['gameplay_mode'] = self.game_settings['Main']['gameplay_mode']
-                if self.base.game_instance['gameplay_mode']:
-                    if self.base.game_instance['gameplay_mode'] == 'enhanced':
+                self.base.game_instance['person_look_mode'] = self.game_settings['Main']['person_look_mode']
+                if self.base.game_instance['person_look_mode']:
+                    if self.base.game_instance['gameplay_mode'] == 'third':
                         if self.kbd.keymap["left"] and horse_bs:
                             horse_bs.set_h(horse_bs.get_h() + 100 * dt)
                         if self.kbd.keymap["right"] and horse_bs:
                             horse_bs.set_h(horse_bs.get_h() - 100 * dt)
 
-                        # Turning in place
-                        if (not self.kbd.keymap["forward"]
-                                and not self.kbd.keymap["run"]
-                                and self.kbd.keymap["left"]):
-                            # todo: add anim and uncomment
-                            """Sequence(Parallel(Func(self.seq_horse_turning_wrapper, player, anims, "left_turn", 'loop'),
-                                              Func(self.state.set_action_state, "is_turning", True)),
-                                     ).start()"""
-                        if (not self.kbd.keymap["forward"]
-                                and not self.kbd.keymap["run"]
-                                and self.kbd.keymap["right"]):
-                            # todo: add anim and uncomment
-                            """Sequence(Parallel(Func(self.seq_horse_turning_wrapper, player, anims, "right_turn", 'loop'),
-                                              Func(self.state.set_action_state, "is_turning", True)),
-                                     ).start()"""
+                    elif self.base.game_instance['person_look_mode'] == 'first':
+                        self.base.camera.set_y(1)
 
-                        # Stop turning in place
-                        if (not self.kbd.keymap["forward"]
-                                and not self.kbd.keymap["run"]
-                                and not self.kbd.keymap["left"]):
-                            # todo: add anim and uncomment
-                            """Sequence(Parallel(Func(self.seq_horse_turning_wrapper, player, anims, "left_turn", 'stop'),
-                                              Func(self.state.set_action_state, "is_turning", False)),
-                                     ).start()"""
-                        if (not self.kbd.keymap["forward"]
-                                and not self.kbd.keymap["run"]
-                                and not self.kbd.keymap["right"]):
-                            # todo: add anim and uncomment
-                            """Sequence(Parallel(Func(self.seq_horse_turning_wrapper, player, anims, "right_turn", 'stop'),
-                                              Func(self.state.set_action_state, "is_turning", False)),
-                                     ).start()"""
+                        if self.kbd.keymap["left"] and horse_bs:
+                            horse_bs.set_h(horse_bs.get_h() + 100 * dt)
+                        if self.kbd.keymap["right"] and horse_bs:
+                            horse_bs.set_h(horse_bs.get_h() - 100 * dt)
 
-                if self.base.game_instance['gameplay_mode']:
-                    if self.base.game_instance['gameplay_mode'] == 'simple' and self.mouse.pivot:
-                        self.mouse.pivot.set_h(self.base.camera.get_h())
+                    # Turning in place
+                    if (not self.kbd.keymap["forward"]
+                            and not self.kbd.keymap["run"]
+                            and self.kbd.keymap["left"]):
+                        # todo: add anim and uncomment
+                        """Sequence(Parallel(Func(self.seq_horse_turning_wrapper, player, anims, "left_turn", 'loop'),
+                                          Func(self.state.set_action_state, "is_turning", True)),
+                                 ).start()"""
+                    if (not self.kbd.keymap["forward"]
+                            and not self.kbd.keymap["run"]
+                            and self.kbd.keymap["right"]):
+                        # todo: add anim and uncomment
+                        """Sequence(Parallel(Func(self.seq_horse_turning_wrapper, player, anims, "right_turn", 'loop'),
+                                          Func(self.state.set_action_state, "is_turning", True)),
+                                 ).start()"""
 
-                    if self.base.game_instance['first_person_mode'] and self.mouse.pivot:
-                        self.mouse.pivot.set_h(self.base.camera.get_h())
+                    # Stop turning in place
+                    if (not self.kbd.keymap["forward"]
+                            and not self.kbd.keymap["run"]
+                            and not self.kbd.keymap["left"]):
+                        # todo: add anim and uncomment
+                        """Sequence(Parallel(Func(self.seq_horse_turning_wrapper, player, anims, "left_turn", 'stop'),
+                                          Func(self.state.set_action_state, "is_turning", False)),
+                                 ).start()"""
+                    if (not self.kbd.keymap["forward"]
+                            and not self.kbd.keymap["run"]
+                            and not self.kbd.keymap["right"]):
+                        # todo: add anim and uncomment
+                        """Sequence(Parallel(Func(self.seq_horse_turning_wrapper, player, anims, "right_turn", 'stop'),
+                                          Func(self.state.set_action_state, "is_turning", False)),
+                                 ).start()"""
 
                 if (self.kbd.keymap["forward"]
                         and self.kbd.keymap["run"] is False):
