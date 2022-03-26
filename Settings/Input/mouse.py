@@ -199,6 +199,10 @@ class Mouse:
             self.base.game_instance['mouse_control_is_activated'] = 1
 
         if self.game_settings['Debug']['set_editor_mode'] == 'NO':
+
+            if self.base.game_instance['person_look_mode'] == 'first':
+                self.base.camera.set_y(1)
+
             # TPS Logic
             if self.pivot:
                 mouse_direction = base.win.getPointer(0)
