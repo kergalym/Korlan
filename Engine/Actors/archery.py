@@ -163,8 +163,8 @@ class Archery:
             mouse_watch = base.mouseWatcherNode
             if mouse_watch.has_mouse():
                 pos_mouse = base.mouseWatcherNode.get_mouse()
-                pos_from = Point3()
-                pos_to = Point3()
+                pos_from = Point3(0, 0, 0)
+                pos_to = Point3(0, 1000, 0)
                 base.camLens.extrude(pos_mouse, pos_from, pos_to)
 
                 pos_from = self.render.get_relative_point(base.camera, pos_from)
@@ -230,8 +230,8 @@ class Archery:
                 self.target_np = render.find("**/{0}".format(name))
 
                 if self.target_np:
-                    self.arrow_brb_in_use.set_collide_mask(BitMask32.allOff())
-                    self.arrow_brb_in_use.wrt_reparent_to(self.target_np)
+                    self.arrow_ref.set_collide_mask(BitMask32.allOff())
+                    self.arrow_ref.wrt_reparent_to(self.target_np)
                     self.is_arrow_ready = False
                     # self.arrow_brb_in_use.node().set_kinematic(True)
                     self.arrow_ref.set_python_tag("ready", 0)
@@ -267,6 +267,7 @@ class Archery:
                 self.arrow_brb_in_use.set_x(self.arrow_brb_in_use, -power * dt)
                 self.base.camera.set_y(self.base.camera, power * dt)
                 self.base.camera.set_z(self.arrow_brb_in_use.get_z())
+
         return task.cont
 
     def cursor_state_task(self, task):

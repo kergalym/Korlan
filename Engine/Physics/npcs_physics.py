@@ -8,24 +8,6 @@ class NpcsPhysics:
         self.base = base
         self.render = render
 
-    def collision_info(self, player, item):
-        if player and item and self.base.game_instance['physics_world_np']:
-
-            query_all = self.base.game_instance['physics_world_np'].ray_test_all(player.get_pos(),
-                                                                                 item.get_pos())
-
-            collision_info = {"hits": query_all.has_hits(),
-                              "fraction": query_all.get_closest_hit_fraction(),
-                              "num_hits": query_all.get_num_hits()}
-
-            for query in query_all.get_hits():
-                collision_info["hit_pos"] = query.get_hit_pos()
-                collision_info["hit_normal"] = query.get_hit_normal()
-                collision_info["hit_fraction"] = query.get_hit_fraction()
-                collision_info["node"] = query.get_node()
-
-            return collision_info
-
     def set_ghost_trigger(self, actor, world):
         if actor:
             radius = 1.75 - 2 * 0.3
