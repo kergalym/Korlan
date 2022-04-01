@@ -109,7 +109,7 @@ class Mouse:
             if self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
                 self.pivot.set_h(-160)
             else:
-                self.pivot.set_h(110)
+                self.pivot.set_h(180)
 
             """if not pitch > 10.0 and not pitch < -50.0:
                 self.floater.set_p(pitch)
