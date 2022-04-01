@@ -43,7 +43,7 @@ class Actions:
         self.fsm_player = PlayerFSM()
         self.sheet = Sheet()
         self.state = PlayerState()
-        self.archery = Archery()
+        self.archery = Archery("Player")
         self.base.is_cutscene_active = False
 
     """ Play animation after action """

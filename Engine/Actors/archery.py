@@ -5,7 +5,7 @@ from panda3d.core import BitMask32, NodePath, Vec3, TextNode, Point3
 
 
 class Archery:
-    def __init__(self):
+    def __init__(self, actor):
         self.game_settings = base.game_settings
         self.base = base
         self.render = render
@@ -23,8 +23,11 @@ class Archery:
         self.is_ready_for_cooldown = False
         self.target_pos = None
         self.target_np = None
-        self.is_arrow_ready = False
-        self.base.game_instance['is_aiming'] = False
+        self.aim = None
+
+        if actor == "Player":
+            from Settings.Input.aim import Aim
+            self.aim = Aim()
 
         self.target_test_ui = OnscreenText(text="",
                                            pos=(1.5, 0.8),
@@ -232,7 +235,7 @@ class Archery:
                 if self.target_np:
                     self.arrow_ref.set_collide_mask(BitMask32.allOff())
                     self.arrow_ref.wrt_reparent_to(self.target_np)
-                    self.is_arrow_ready = False
+                    self.base.game_instance["is_arrow_ready"] = False
                     # self.arrow_brb_in_use.node().set_kinematic(True)
                     self.arrow_ref.set_python_tag("ready", 0)
                     self.reset_arrow_charge()
@@ -262,76 +265,11 @@ class Archery:
             if self.arrow_ref.get_python_tag("ready") == 1:
 
                 if self.game_settings['Debug']['set_debug_mode'] == 'YES':
-                    self.is_arrow_ready = True
+                    self.base.game_instance["is_arrow_ready"] = True
 
                 self.arrow_brb_in_use.set_x(self.arrow_brb_in_use, -power * dt)
                 self.base.camera.set_y(self.base.camera, power * dt)
                 self.base.camera.set_z(self.arrow_brb_in_use.get_z())
-
-        return task.cont
-
-    def cursor_state_task(self, task):
-        if self.base.game_instance['menu_mode']:
-            return task.done
-
-        if (base.player_states['has_bow']
-                and not self.base.game_instance["is_indoor"]
-                and not self.base.game_instance['ui_mode']):
-            if (self.base.game_instance['kbd_np'].keymap["block"]
-                    and self.base.game_instance['kbd_np'].keymap["attack"]):
-                if self.base.game_instance['cursor_ui']:
-                    self.base.game_instance['cursor_ui'].show()
-                if not self.base.game_instance['is_aiming']:
-                    self.base.game_instance['is_aiming'] = True
-                if (self.base.game_instance['player_ref'].get_python_tag("is_on_horse")
-                        and self.base.game_instance['is_aiming']
-                        and not self.base.game_instance['free_camera']):
-                    pos_y = -4.2
-                    pos_z = 0.25
-                else:
-                    pos_y = -2
-                    pos_z = -0.2
-                base.camera.set_x(0.5)
-
-                if not self.is_arrow_ready:
-                    base.camera.set_y(pos_y)
-
-                base.camera.set_z(pos_z)
-
-            elif (self.base.game_instance['kbd_np'].keymap["block"]
-                  and not self.base.game_instance['kbd_np'].keymap["attack"]):
-                if self.base.game_instance['cursor_ui']:
-                    self.base.game_instance['cursor_ui'].show()
-                if not self.base.game_instance['is_aiming']:
-                    self.base.game_instance['is_aiming'] = True
-                if (self.base.game_instance['player_ref'].get_python_tag("is_on_horse")
-                        and self.base.game_instance['is_aiming']
-                        and not self.base.game_instance['free_camera']):
-                    pos_y = -4.2
-                    pos_z = 0.25
-                else:
-                    pos_y = -2
-                    pos_z = -0.2
-                base.camera.set_x(0.5)
-
-                if not self.is_arrow_ready:
-                    base.camera.set_y(pos_y)
-
-                base.camera.set_z(pos_z)
-
-            elif (not self.base.game_instance['kbd_np'].keymap["block"]
-                  and not self.base.game_instance['kbd_np'].keymap["attack"]):
-                if self.base.game_instance['cursor_ui']:
-                    self.base.game_instance['cursor_ui'].hide()
-                base.camera.set_x(0)
-                base.camera.set_y(self.base.game_instance["mouse_y_cam"])
-                if self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
-                    base.camera.set_z(0.5)
-                elif not self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
-                    base.camera.set_z(0)
-                if self.base.game_instance['is_aiming']:
-                    self.base.game_instance['is_aiming'] = False
-                    self.is_arrow_ready = False
 
         return task.cont
 
@@ -358,7 +296,9 @@ class Archery:
         taskMgr.add(self.calculate_arrow_trajectory_task, "calculate_arrow_trajectory_task")
         taskMgr.add(self.arrow_hit_check_task, "arrow_hit_check_task")
         taskMgr.add(self.arrow_fly_task, "arrow_fly_task")
-        taskMgr.add(self.cursor_state_task, "cursor_state_task")
+
+        if self.aim:
+            taskMgr.add(self.aim.aim_state_task, "aim_state_task")
 
         self.base.game_instance['hud_np'].set_arrow_charge_ui()
 
@@ -368,7 +308,9 @@ class Archery:
         taskMgr.remove("calculate_arrow_trajectory_task")
         taskMgr.remove("arrow_hit_check_task")
         taskMgr.remove("arrow_fly_task")
-        taskMgr.remove("cursor_state_task")
+
+        if self.aim:
+            taskMgr.remove("aim_state_task")
 
         self.base.game_instance['hud_np'].clear_arrow_charge_ui()
 
