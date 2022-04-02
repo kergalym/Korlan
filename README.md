@@ -12,10 +12,10 @@ The Game is dedicated to Tengri and Tengrism.
  Game Overview
 
 <img src="https://i.imgur.com/WyiBJLI.png" />
- Weapons Overview
+ Inventory Overview
 
 <img src="https://i.imgur.com/CYPivTC.jpg" />
- Inventory Overview
+ Weapons Overview
 
 ### Note: there is only Project Code uses the Game Engine API ###
 * No Assets included
