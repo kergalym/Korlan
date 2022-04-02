@@ -209,23 +209,32 @@ class Archery:
                         actor.get_python_tag("npc_hud_np").show()
 
             if self.base.game_instance['physics_world_np'] and self.arrow_brb_in_use:
-                contact_result = self.base.game_instance['physics_world_np'].contact_test(self.hit_target)
+                # contact_result = self.base.game_instance['physics_world_np'].contact_test(self.hit_target)
 
-                for contact in contact_result.get_contacts():
+                self.pierce_arrow()
+
+                # Hide NPC HUD
+                if (self.base.game_instance['actors_ref']
+                        and self.base.game_instance['actors_ref'].get(hit_target_name)):
+                    actor = self.base.game_instance['actors_ref'][hit_target_name]
+                    actor.get_python_tag("npc_hud_np").hide()
+
+                """for contact in contact_result.get_contacts():
                     mpoint = contact.get_manifold_point()
                     if round(mpoint.get_distance()) == 0.0:
                         # Attach Arrow
-                        self.attach_arrow()
+                        self.pierce_arrow()
 
                         # Hide NPC HUD
                         if (self.base.game_instance['actors_ref']
                                 and self.base.game_instance['actors_ref'].get(hit_target_name)):
                             actor = self.base.game_instance['actors_ref'][hit_target_name]
                             actor.get_python_tag("npc_hud_np").hide()
+                """
 
         return task.cont
 
-    def attach_arrow(self):
+    def pierce_arrow(self):
         if self.arrow_ref and self.arrow_brb_in_use:
             if self.arrow_ref.get_python_tag("ready") == 1:
 
@@ -233,12 +242,14 @@ class Archery:
                 self.target_np = render.find("**/{0}".format(name))
 
                 if self.target_np:
-                    self.arrow_ref.set_collide_mask(BitMask32.allOff())
-                    self.arrow_ref.wrt_reparent_to(self.target_np)
-                    self.base.game_instance["is_arrow_ready"] = False
-                    # self.arrow_brb_in_use.node().set_kinematic(True)
-                    self.arrow_ref.set_python_tag("ready", 0)
-                    self.reset_arrow_charge()
+                    distance = round(self.arrow_brb_in_use.get_distance(self.target_np), 1)
+                    if distance >= 0.8 and distance <= 1.1:
+                        self.arrow_brb_in_use.set_collide_mask(BitMask32.allOff())
+                        self.arrow_ref.wrt_reparent_to(self.target_np)
+                        self.base.game_instance["is_arrow_ready"] = False
+                        # self.arrow_brb_in_use.node().set_kinematic(True)
+                        self.arrow_ref.set_python_tag("ready", 0)
+                        self.reset_arrow_charge()
 
     def reset_arrow_charge(self):
         if self.arrow_brb_in_use:
@@ -264,8 +275,7 @@ class Archery:
             power = 10
             if self.arrow_ref.get_python_tag("ready") == 1:
 
-                if self.game_settings['Debug']['set_debug_mode'] == 'YES':
-                    self.base.game_instance["is_arrow_ready"] = True
+                self.base.game_instance["is_arrow_ready"] = True
 
                 self.arrow_brb_in_use.set_x(self.arrow_brb_in_use, -power * dt)
                 self.base.camera.set_y(self.base.camera, power * dt)
