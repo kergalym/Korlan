@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.7
+#!/usr/bin/env python3
 
 import logging
 import re
@@ -64,7 +64,7 @@ if exists("GameData.mf"):
 else:
     cfg_is_broken = True
 
-build_info_txt = "Build 0.5. 01/2022"
+build_info_txt = "Build 0.6. 04/2022"
 
 game_settings = configparser.ConfigParser()
 game_settings['Main'] = {'disp_res': '1920x1080',
@@ -157,7 +157,7 @@ p3d.load_prc_file_data(
     'icon-filename icon-16.ico\n'
     'win-origin -1 -2\n'
     'window-title Korlan - Daughter of the Steppes\n'
-    'show-frame-rate-meter  t\n'
+    'show-frame-rate-meter  f\n'
     'audio-library-name p3openal_audio\n'
     'model-cache-dir'
     'model-cache-textures f\n'

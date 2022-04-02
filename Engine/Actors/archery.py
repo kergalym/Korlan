@@ -49,7 +49,7 @@ class Archery:
                 arrow = await self.base.loader.load_model(assets[arrow_name], blocking=False)
                 arrow.set_name(arrow_name)
                 arrow.reparent_to(joint)
-                arrow.set_pos(-10, 7, -12)
+                arrow.set_pos(-7, 7, -10)
                 arrow.set_hpr(91.55, 0, 0)
                 arrow.set_scale(100)
 

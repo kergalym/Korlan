@@ -45,7 +45,7 @@ class Equip:
                         arrow.reparent_to(weapon)
                         # rescale weapon because it's scale 100 times smaller than we need
                         arrow.set_scale(100)
-                        arrow.set_pos(-10, 7, -12)
+                        arrow.set_pos(-7, 7, -10)
                         arrow.set_hpr(91.55, 0, 0)
                         if arrow.is_hidden():
                             arrow.show()

@@ -8,12 +8,11 @@ The Game is dedicated to Tengri and Tengrism.
 
 ### Early Game Gallery (Working in progress) ###
 
-<img src="https://i.imgur.com/Fm1SKOj.jpg" />
-<img src="https://i.imgur.com/aNyrjSd.jpg" />
- Characters and the Nomad's House
+<img src="https://i.imgur.com/LtYdSvh.png" />
+ Game Overview
 
 <img src="https://i.imgur.com/CYPivTC.jpg" />
- Weapons Nomads use
+ Weapons Overview
 
 ### Note: there is only Project Code uses the Game Engine API ###
 * No Assets included
