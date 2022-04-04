@@ -1,22 +1,24 @@
 disabled:
 - dof
-- motion_blur
 - fxaa
-- bloom
-- volumetrics
 - vxgi
-- skin_shading
-- env_probes
-- sky_ao
+
 enabled:
 - ao
+- bloom
 - color_correction
 - forward_shading
+- motion_blur
 - pssm
 - scattering
+- skin_shading
+- sky_ao
 - smaa
 - ssr
 - clouds
+- env_probes
+- volumetrics
+
 overrides:
   ao:
     alchemy_max_distance: 5.86

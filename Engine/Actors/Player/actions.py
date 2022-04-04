@@ -7,6 +7,7 @@ from direct.task.TaskManagerGlobal import taskMgr
 from Engine.Items.items import Items
 from Settings.Input.keyboard import Keyboard
 from Settings.Input.mouse import Mouse
+from Settings.Input.outdoor_camera import OutdoorCamera
 from Engine.Inventory.sheet import Sheet
 from Engine.Actors.archery import Archery
 
@@ -40,6 +41,7 @@ class Actions:
         self.items = Items()
         self.kbd = Keyboard()
         self.mouse = Mouse()
+        self.outdoor_cam = OutdoorCamera()
         self.fsm_player = PlayerFSM()
         self.sheet = Sheet()
         self.state = PlayerState()
@@ -226,6 +228,8 @@ class Actions:
                 taskMgr.add(self.mouse.mouse_control_task,
                             "mouse_control_task",
                             appendTask=True)
+
+                self.outdoor_cam.add_cam_zoomin_task()
 
                 # Define player sheet here
                 # Open and close sheet
@@ -1708,7 +1712,8 @@ class Actions:
                             extraArgs=[child, player, saddle_pos],
                             appendTask=True)
 
-                self.base.camera.set_z(0.5)
+                # self.base.camera.set_z(0.5)
+                self.outdoor_cam.sm_zoom_up = True
 
                 Sequence(Func(horse_np.set_collide_mask, BitMask32.bit(0)),
                          Func(child.set_collide_mask, BitMask32.allOff()),
@@ -1753,7 +1758,8 @@ class Actions:
             base.game_instance['player_using_horse'] = ''
             horse_np = self.base.game_instance['actors_np']["{0}:BS".format(horse_name)]
 
-            self.base.camera.set_z(0)
+            # self.base.camera.set_z(0)
+            self.outdoor_cam.sm_zoom_down = True
 
             Sequence(Func(self.base.game_instance['player_ref'].set_python_tag, "is_on_horse", False),
                      Func(self.state.set_action_state, "is_using", True),

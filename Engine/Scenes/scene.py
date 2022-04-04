@@ -1,7 +1,7 @@
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import *
 from Engine.Renderer.renderer import RenderAttr
-from Settings.Input.camera_modes import CameraModes
+from Settings.Input.indoor_camera import IndoorCamera
 from Engine.Quests.quests import Quests
 
 
@@ -22,7 +22,7 @@ class SceneOne:
         self.type = None
         self.node_path = NodePath()
         self.render_attr = RenderAttr()
-        self.cam_modes = CameraModes()
+        self.cam_modes = IndoorCamera()
         self.quests = Quests()
         self.base = base
         self.render = render

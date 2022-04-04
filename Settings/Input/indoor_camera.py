@@ -3,7 +3,7 @@ from panda3d.bullet import BulletSphereShape, BulletGhostNode
 from panda3d.core import BitMask32
 
 
-class CameraModes:
+class IndoorCamera:
 
     def __init__(self):
         self.base = base
@@ -11,6 +11,7 @@ class CameraModes:
         self.is_at_home = False
         self.base.game_instance["is_indoor"] = self.is_at_home
         self.player_cam_y = 0.0
+        self.speed = 5
 
     def set_camera_trigger(self, scene, task):
         if self.base.game_instance["loading_is_done"] == 1:
@@ -38,8 +39,8 @@ class CameraModes:
                         trigger_np.reparent_to(actor)
                         trigger_np.set_pos(0, 0, 1)
 
-                        taskMgr.add(self.camera_smooth_movement_task,
-                                    "camera_smooth_movement_task",
+                        taskMgr.add(self.camera_smooth_zooming_task,
+                                    "camera_smooth_zooming_task",
                                     extraArgs=[actor, player_bs, radius],
                                     appendTask=True)
 
@@ -47,33 +48,32 @@ class CameraModes:
 
         return task.cont
 
-    def camera_smooth_movement_task(self, actor, player_bs, radius, task):
+    def camera_smooth_zooming_task(self, actor, player_bs, radius, task):
         if self.base.game_instance['menu_mode']:
             self.base.camera.set_z(0.0)
             return task.done
 
         dt = globalClock.getDt()
-        speed = 5
         radius += 1
         if not self.base.game_instance["ui_mode"]:
             if (round(actor.get_distance(player_bs)) >= 1
                     and round(actor.get_distance(player_bs)) < radius):
                 self.base.game_instance["is_indoor"] = True
-                self.camera_smooth_move_forward(dt=dt, speed=speed)
+                self.camera_smooth_zoom_in(dt=dt, speed=self.speed)
 
                 if self.base.game_instance["is_player_sitting"]:
-                    self.camera_smooth_move_down(dt=dt, speed=speed)
+                    self.camera_smooth_move_down(dt=dt, speed=self.speed)
                 else:
-                    self.camera_smooth_move_up(dt=dt, speed=speed)
+                    self.camera_smooth_move_up(dt=dt, speed=self.speed)
 
             elif (round(actor.get_distance(player_bs)) >= radius
                     and round(actor.get_distance(player_bs)) < 17):
                 self.base.game_instance["is_indoor"] = False
-                self.camera_smooth_move_backward(dt=dt, speed=speed)
+                self.camera_smooth_zoom_out(dt=dt, speed=self.speed)
 
         return task.cont
 
-    def camera_smooth_move_forward(self, dt, speed):
+    def camera_smooth_zoom_in(self, dt, speed):
         if dt and isinstance(speed, int):
             y = -1
 
@@ -87,7 +87,7 @@ class CameraModes:
                 if not self.is_at_home:
                     self.is_at_home = True
 
-    def camera_smooth_move_backward(self, dt, speed):
+    def camera_smooth_zoom_out(self, dt, speed):
         if dt and isinstance(speed, int):
             y = -5
             # revert camera view
