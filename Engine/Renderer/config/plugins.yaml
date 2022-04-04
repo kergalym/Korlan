@@ -1,23 +1,27 @@
+# Renderer Pipeline Plugin Configuration
+# Instead of editing this file, prefer to use the Plugin Configurator
+# Any formatting and comments will be lost
+
 disabled:
-- dof
-- fxaa
-- vxgi
+    - dof
+    - fxaa
+    - vxgi
 
 enabled:
-- ao
-- bloom
-- color_correction
-- forward_shading
-- motion_blur
-- pssm
-- scattering
-- skin_shading
-- sky_ao
-- smaa
-- ssr
-- clouds
-- env_probes
-- volumetrics
+    - ao
+    - bloom
+    - color_correction
+    - forward_shading
+    - motion_blur
+    - pssm
+    - scattering
+    - skin_shading
+    - sky_ao
+    - smaa
+    - ssr
+    - clouds
+    - env_probes
+    - volumetrics
 
 overrides:
   ao:

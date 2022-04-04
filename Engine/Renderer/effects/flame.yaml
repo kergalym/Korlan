@@ -43,7 +43,7 @@ fragment:
 
         // define material properties
         m.basecolor = color;
-        m.shading_model = 0; // transparency 3
+        m.shading_model = 1; // transparency 3
         m.specular_ior = 0.0;
         m.metallic = 0.0;
         m.roughness = 0.0;
