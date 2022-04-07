@@ -267,6 +267,7 @@ class Actions:
 
     def player_actions_task(self, player, anims, task):
         if player and anims:
+            # Define player actions
             if not player.get_python_tag("is_on_horse"):
                 any_action = player.get_anim_control(anims['Standing_idle_female'])
                 if (any_action.is_playing() is False
@@ -281,6 +282,7 @@ class Actions:
                         and base.player_states['is_crouching'] is False
                         and base.player_states['is_mounted'] is False
                         and base.player_states['horse_riding'] is False):
+
                     self.fsm_player.request("Idle", player,
                                             anims['Standing_idle_female'],
                                             "play")
@@ -897,7 +899,6 @@ class Actions:
                     # Do an animation sequence if player is crouched.
                     stand_to_crouch_seq = player.actor_interval(anims[self.standing_to_crouch_action],
                                                                 playRate=self.base.actor_play_rate)
-
                     Sequence(Func(self.state.set_action_state, "is_crouching", True),
                              stand_to_crouch_seq,
                              Func(self.player_bullet_crouch_helper),
@@ -913,6 +914,10 @@ class Actions:
                     self.base.game_instance['is_player_sitting'] = False
                     any_action_seq = player.actor_interval(anims[self.crouched_to_standing_action],
                                                            playRate=self.base.actor_play_rate)
+
+                    self.base.game_instance["player_ref"].set_control_effect("Standing_idle_female", 0.1)
+                    self.base.game_instance["player_ref"].set_control_effect(self.crouched_to_standing_action, 0.9)
+
                     Sequence(any_action_seq,
                              Func(self.state.set_action_state_crouched, "is_crouch_moving", False),
                              Func(self.state.set_do_once_key, key, False),
@@ -1370,6 +1375,7 @@ class Actions:
                 crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
                 self.state.set_do_once_key(key, True)
                 base.player_states['is_idle'] = False
+
                 if (base.player_states['has_sword'] is False
                         and crouched_to_standing.is_playing() is False
                         and base.player_states['is_crouch_moving'] is False):
@@ -1682,6 +1688,12 @@ class Actions:
             if self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
                 child.set_x(saddle_pos[0])
                 child.set_y(saddle_pos[1])
+
+                self.base.camera.set_y(-5.5)
+                self.base.camera.set_z(0.5)
+            else:
+                self.base.camera.set_y(self.base.game_instance["mouse_y_cam"])
+                self.base.camera.set_z(0)
         return task.cont
 
     def mount_action(self, anims):
@@ -1712,7 +1724,6 @@ class Actions:
                             extraArgs=[child, player, saddle_pos],
                             appendTask=True)
 
-                # self.base.camera.set_z(0.5)
                 self.outdoor_cam.sm_zoom_up = True
 
                 Sequence(Func(horse_np.set_collide_mask, BitMask32.bit(0)),
@@ -1758,7 +1769,6 @@ class Actions:
             base.game_instance['player_using_horse'] = ''
             horse_np = self.base.game_instance['actors_np']["{0}:BS".format(horse_name)]
 
-            # self.base.camera.set_z(0)
             self.outdoor_cam.sm_zoom_down = True
 
             Sequence(Func(self.base.game_instance['player_ref'].set_python_tag, "is_on_horse", False),

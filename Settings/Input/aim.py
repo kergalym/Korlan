@@ -55,11 +55,11 @@ class Aim:
                 self.base.game_instance['cursor_ui'].hide()
 
         self.base.camera.set_x(0)
-        self.base.camera.set_y(self.base.game_instance["mouse_y_cam"])
 
         if self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
             self.base.camera.set_z(0.5)
         elif not self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
+            self.base.camera.set_y(self.base.game_instance["mouse_y_cam"])
             self.base.camera.set_z(0)
         if self.base.game_instance['is_aiming']:
             self.base.game_instance['is_aiming'] = False
@@ -72,7 +72,6 @@ class Aim:
         if (self.base.player_states['has_bow']
                 and not self.base.game_instance["is_indoor"]
                 and not self.base.game_instance['ui_mode']):
-
             if (self.base.game_instance['kbd_np'].keymap["block"]
                     and self.base.game_instance['kbd_np'].keymap["attack"]):
                 # Start aiming and charging arrow

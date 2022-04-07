@@ -79,14 +79,6 @@ class Korlan:
 
                 actor_parts_dict = {}
 
-                """actor_parts_dict = {
-                    "modelRoot": assets["Korlan_body"],
-                    "helmet": assets["Korlan_helmet"],
-                    "armor": assets["Korlan_armor"],
-                    "pants": assets["Korlan_pants"],
-                    "boots": assets["Korlan_boots"]
-                }"""
-
                 anims_full_dict = {
                     "modelRoot": animation[1],
                     "helmet": animation[1],
@@ -178,14 +170,6 @@ class Korlan:
                 assets = self.base.assets_collector()
 
                 actor_parts_dict = {}
-
-                """actor_parts_dict = {
-                    "modelRoot": assets["Korlan_body"],
-                    "helmet": assets["Korlan_helmet"],
-                    "armor": assets["Korlan_armor"],
-                    "pants": assets["Korlan_pants"],
-                    "boots": assets["Korlan_boots"]
-                }"""
 
                 anims_full_dict = {
                     "modelRoot": animation[1],

@@ -143,7 +143,7 @@ class Mouse:
     def on_mouse_rotate_player(self, x, y):
         """ Function    : on_mouse_rotate_player
 
-            Description : Activates player rotation by mouse.
+            Description : Activates player rotation by mouse while walking.
 
             Input       : Integer
 
