@@ -103,17 +103,17 @@ class Mouse:
                                                           type="Player")
         if player_bs:
             heading = player_bs.get_h() - (x - int(base.win.get_x_size() / 2)) * self.mouse_sens
-            pitch = self.floater.get_p() - (y - int(base.win.get_y_size() / 2)) * self.mouse_sens
+            pitch = self.pivot.get_p() - (y - int(base.win.get_y_size() / 2)) * self.mouse_sens
             player_bs.set_h(heading)
 
             if self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
                 self.pivot.set_h(-160)
+                if not pitch > 10.0 and not pitch < -50.0:
+                    self.pivot.set_p(pitch)
             else:
                 self.pivot.set_h(180)
-
-            """if not pitch > 10.0 and not pitch < -50.0:
-                self.floater.set_p(pitch)
-            """
+                if not pitch > 10.0 and not pitch < -50.0:
+                    self.pivot.set_p(pitch)
 
     def on_mouse_look_around_player(self, x, y):
         """ Function    : on_mouse_look_around_player
@@ -163,26 +163,26 @@ class Mouse:
             if player_bs and not self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
                 # apply heading and pitch
                 heading = player_bs.get_h() - (x - int(base.win.get_x_size() / 2)) * self.mouse_sens
-                pitch = player_bs.get_p() - (y - int(base.win.get_y_size() / 2)) * self.mouse_sens
+                pitch = self.pivot.get_p() - (y - int(base.win.get_y_size() / 2)) * self.mouse_sens
                 player_bs.set_h(heading)
 
                 # Show player only from back
                 self.pivot.set_h(180)
 
                 if not pitch > 10.0 and not pitch < -50.0:
-                    player_bs.set_p(pitch)
+                    self.pivot.set_p(pitch)
 
             elif horse_bs and self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
                 # apply heading and pitch
                 heading = horse_bs.get_h() - (x - int(base.win.get_x_size() / 2)) * self.mouse_sens
-                pitch = horse_bs.get_p() - (y - int(base.win.get_y_size() / 2)) * self.mouse_sens
+                pitch = self.pivot.get_p() - (y - int(base.win.get_y_size() / 2)) * self.mouse_sens
                 horse_bs.set_h(heading)
 
                 # Show player only from back
                 self.pivot.set_h(180)
 
                 if not pitch > 10.0 and not pitch < -50.0:
-                    player_bs.set_p(pitch)
+                    self.pivot.set_p(pitch)
 
     def mouse_control(self):
         """ Function    : mouse_control
