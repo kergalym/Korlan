@@ -102,7 +102,7 @@ void main() {
             if (dist_to_camera < 6.0) {
                 alpha_factor = mix(0.99, 0.1, saturate(dist_to_camera / 2.0));
             } else {
-                alpha_factor = mix(0.99, 0.1, saturate(dist_to_camera / 15.0));
+                alpha_factor = mix(0.99, 0.1, saturate(dist_to_camera / 12.0));
             }
             if (sampled_diffuse.a < alpha_factor) discard;
         #endif

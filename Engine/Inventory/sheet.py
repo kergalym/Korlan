@@ -69,7 +69,8 @@ class Sheet(Inventory):
         """ Frames, Buttons & Fonts"""
         self.menu_font = self.fonts['OpenSans-Regular']
 
-        self.base.frame_inv = DirectFrame(frameColor=(0, 0, 0, 0),
+        # Transparent background
+        self.base.frame_inv = DirectFrame(frameColor=(0, 0, 0, 0.0),
                                           frameSize=self.base.frame_inv_size,
                                           pos=(0, 0, 0))
         self.base.build_info.reparent_to(self.base.frame_inv)
