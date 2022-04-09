@@ -5,6 +5,7 @@
 disabled:
     - dof
     - fxaa
+    - volumetrics
     - vxgi
 
 enabled:
@@ -21,7 +22,6 @@ enabled:
     - ssr
     - clouds
     - env_probes
-    - volumetrics
 
 overrides:
   ao:

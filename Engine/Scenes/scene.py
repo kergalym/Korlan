@@ -85,20 +85,14 @@ class SceneOne:
                 grass = render.find("**/Grass")
                 grass.set_two_sided(True)
 
-            # TODO: Get Lightmap from Texture Collector
-            """ts = TextureStage("lightmap")
-            lightmap = base.loader.load_texture("/tmp/tex/ligtmap.png")
-            ts.setTexcoordName("lightmap")
-
-            scene.set_texture(ts, lightmap)"""
+            # Enable lightmapping for this scene
+            self.render_attr.apply_lightmap_to_scene(scene=scene, lightmap="lightmap_scene_one")
 
             # Set two sided, since some model may be broken
             scene.set_two_sided(culling)
 
             # Panda3D 1.10 doesn't enable alpha blending for textures by default
             scene.set_transparency(True)
-
-            # render.set_attrib(LightRampAttrib.make_hdr1())
 
             if self.game_settings['Main']['postprocessing'] == 'on':
                 # Enable water

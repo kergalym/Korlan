@@ -384,7 +384,7 @@ class RenderAttr:
 
                     if adv_render:
                         self.render_pipeline.set_effect(node_path,
-                                                        "{0}/Engine/Renderer/effects/flame.yaml".format(self.game_dir),
+                                                        "{0}/Engine/Renderer/effects/smoke.yaml".format(self.game_dir),
                                                         {"render_gbuffer": False,
                                                          "render_forward": True,
                                                          "render_shadow": False,
@@ -548,4 +548,21 @@ class RenderAttr:
                 attrib = attrib.set_flag(ShaderAttrib.F_hardware_skinning, bool_)
                 actor.set_attrib(attrib)
                 self.base.game_instance['hw_skinning'] = True
+
+    def apply_lightmap_to_scene(self, scene, lightmap):
+        """
+        if scene and isinstance(lightmap, str) and lightmap:
+            ts = TextureStage("lightmap")
+            path = "{0}/Assets/Lightmaps/{1}.png".format(self.game_dir, lightmap)
+            lightmap = base.loader.load_texture(path)
+            ts.set_texcoord_name("lightmap")
+            scene.set_texture(ts, lightmap)
+            self.render_pipeline.set_effect(scene,
+                                            "{0}/Engine/Renderer/effects/default.yaml".format(self.game_dir),
+                                            {"render_gbuffer": True,
+                                             "render_forward": False,
+                                             "render_shadow": False,
+                                             "alpha_testing": True,
+                                             "normal_mapping": True})
+            """
 

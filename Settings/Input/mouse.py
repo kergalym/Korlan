@@ -1,6 +1,7 @@
 from panda3d.core import WindowProperties, LVector3, CompassEffect
 from direct.showbase import DirectObject
 from panda3d.core import NodePath, PandaNode
+from Engine.Actors.manage_joints import ManageJoints
 
 
 class Mouse:
@@ -25,6 +26,8 @@ class Mouse:
             'wheel_up': False,
             'wheel_down': False
         }
+        player = self.base.game_instance['player_ref']
+        self.manage_joints = ManageJoints(player)
         self.base.game_instance['mouse_control_is_activated'] = 0
 
     def set_key(self, key, value):
@@ -104,16 +107,21 @@ class Mouse:
         if player_bs:
             heading = player_bs.get_h() - (x - int(base.win.get_x_size() / 2)) * self.mouse_sens
             pitch = self.pivot.get_p() - (y - int(base.win.get_y_size() / 2)) * self.mouse_sens
-            player_bs.set_h(heading)
 
             if self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
                 self.pivot.set_h(-160)
-                if not pitch > 10.0 and not pitch < -50.0:
-                    self.pivot.set_p(pitch)
+                if pitch > 10.0 and not pitch < -50.0:
+                    # self.pivot.set_p(pitch)
+                    self.manage_joints.rotate_joint(heading, pitch)
+                if heading > 60 and heading < -60:
+                    player_bs.set_h(heading)
             else:
                 self.pivot.set_h(180)
-                if not pitch > 10.0 and not pitch < -50.0:
-                    self.pivot.set_p(pitch)
+                if pitch > 10.0 and not pitch < -50.0:
+                    # self.pivot.set_p(pitch)
+                    self.manage_joints.rotate_joint(heading, pitch)
+                if heading > 60 and heading < -60:
+                    player_bs.set_h(heading)
 
     def on_mouse_look_around_player(self, x, y):
         """ Function    : on_mouse_look_around_player
@@ -211,6 +219,7 @@ class Mouse:
                 # Recentering the cursor and do mouse look
                 if base.win.move_pointer(0, int(base.win.get_x_size() / 2), int(base.win.get_y_size() / 2)):
                     if not self.base.game_instance['is_aiming']:
+                        self.manage_joints.reset_rotated_joints()
                         self.on_mouse_look_around_player(x, y)
                         self.on_mouse_rotate_player(x, y)
 
