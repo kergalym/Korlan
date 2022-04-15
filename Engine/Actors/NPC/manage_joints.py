@@ -11,9 +11,8 @@ class ManageJoints:
             name = ''
             if not self.actor:
                 # Assign once
-                if "Player" in self.actor_name:
-                    self.actor = self.base.game_instance['player_ref']
-                    name = "Korlan"
+                self.actor = render.find("**/{0}".format(self.actor_name))
+                name = self.actor_name
 
             if self.actor:
                 parts = self.base.game_instance["player_parts"]

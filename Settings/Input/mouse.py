@@ -1,7 +1,6 @@
 from panda3d.core import WindowProperties, LVector3
 from direct.showbase import DirectObject
 from panda3d.core import NodePath
-from Engine.Actors.Player.manage_joints import ManageJoints
 
 
 class Mouse:
@@ -26,8 +25,9 @@ class Mouse:
             'wheel_up': False,
             'wheel_down': False
         }
-        self.manage_joints = ManageJoints("Player")
         self.base.game_instance['mouse_control_is_activated'] = 0
+        self.actor = None
+        self.actor_parts = {}
 
     def set_key(self, key, value):
         """ Function    : set_key
@@ -88,6 +88,39 @@ class Mouse:
             base.camera.reparent_to(self.pivot)
             base.camera.set_pos(0, self.cam_y_back_pos, 0)
 
+    def rotate_player_joint(self, heading, pitch):
+        if isinstance(heading, float) and isinstance(pitch, float):
+            name = ''
+            if not self.actor:
+                # Assign once
+                self.actor = self.base.game_instance['player_ref']
+                name = "Korlan"
+
+            if self.actor:
+                parts = self.base.game_instance["player_parts"]
+                # Assign once
+                for part in parts:
+                    if not self.actor_parts.get(part):
+                        self.actor_parts[part] = self.actor.control_joint(None, part, "{0}:Spine".format(name))
+
+                    # Actor joints have reversed axis,
+                    # so set_h() works as for setting pitch
+                    # and set_r() works as for setting heading
+                    if self.actor_parts.get(part):
+                        if not self.actor.get_python_tag("is_on_horse"):
+                            self.actor_parts[part].set_h(pitch)
+                        elif self.actor.get_python_tag("is_on_horse"):
+                            self.actor_parts[part].set_r(pitch)
+
+    def reset_rotated_player_joints(self):
+        # Rotate by pitch all parts simultaneously
+        for part in self.actor_parts:
+            if self.actor_parts.get(part):
+                if (self.actor_parts[part].get_h() != 0
+                        or self.actor_parts[part].get_p() != 0
+                        or self.actor_parts[part].get_r() != 0):
+                    self.actor_parts[part].set_hpr(0, 0, 0)
+
     def on_mouse_rotate_in_aiming(self, x, y):
         """ Function    : on_mouse_rotate_in_aiming
 
@@ -99,8 +132,8 @@ class Mouse:
 
             Return      : None
         """
-        # world heading in aiming
-        # todo: add rotate by player's last spine bone before hips
+        # Do world heading in aiming
+        # and rotate by player's last spine bone before hips
         player_bs = self.base.get_actor_bullet_shape_node(asset="Player",
                                                           type="Player")
         if player_bs:
@@ -113,15 +146,15 @@ class Mouse:
 
                 # limit pitch by 60 angle
                 if not pv_pitch > 10.0 and not pv_pitch < -50.0:
-                    self.manage_joints.rotate_player_joint(pv_heading, pv_pitch)
+                    self.rotate_player_joint(pv_heading, pv_pitch)
                     self.pivot.set_p(pv_pitch)
-            else:
+            elif not self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
                 self.pivot.set_h(180)
                 player_bs.set_h(heading)
 
                 # limit pitch by 60 angle
                 if not pv_pitch > 10.0 and not pv_pitch < -50.0:
-                    self.manage_joints.rotate_player_joint(pv_heading, pv_pitch)
+                    self.rotate_player_joint(pv_heading, pv_pitch)
                     self.pivot.set_p(pv_pitch)
 
     def on_mouse_look_around_player(self, x, y):
@@ -223,7 +256,7 @@ class Mouse:
                 # Recentering the cursor and do mouse look
                 if base.win.move_pointer(0, int(base.win.get_x_size() / 2), int(base.win.get_y_size() / 2)):
                     if not self.base.game_instance['is_aiming']:
-                        self.manage_joints.reset_rotated_player_joints()
+                        self.reset_rotated_player_joints()
                         self.on_mouse_look_around_player(x, y)
                         self.on_mouse_rotate_player(x, y)
 
