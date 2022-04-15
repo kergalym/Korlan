@@ -1,7 +1,7 @@
-from panda3d.core import WindowProperties, LVector3, CompassEffect
+from panda3d.core import WindowProperties, LVector3
 from direct.showbase import DirectObject
-from panda3d.core import NodePath, PandaNode
-from Engine.Actors.manage_joints import ManageJoints
+from panda3d.core import NodePath
+from Engine.Actors.Player.manage_joints import ManageJoints
 
 
 class Mouse:
@@ -26,8 +26,7 @@ class Mouse:
             'wheel_up': False,
             'wheel_down': False
         }
-        player = self.base.game_instance['player_ref']
-        self.manage_joints = ManageJoints(player)
+        self.manage_joints = ManageJoints("Player")
         self.base.game_instance['mouse_control_is_activated'] = 0
 
     def set_key(self, key, value):
@@ -106,22 +105,24 @@ class Mouse:
                                                           type="Player")
         if player_bs:
             heading = player_bs.get_h() - (x - int(base.win.get_x_size() / 2)) * self.mouse_sens
-            pitch = self.pivot.get_p() - (y - int(base.win.get_y_size() / 2)) * self.mouse_sens
+            pv_heading = self.pivot.get_h() - (y - int(base.win.get_x_size() / 2)) * self.mouse_sens
+            pv_pitch = self.pivot.get_p() - (y - int(base.win.get_y_size() / 2)) * self.mouse_sens
 
             if self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
                 self.pivot.set_h(-160)
-                if pitch > 10.0 and not pitch < -50.0:
-                    # self.pivot.set_p(pitch)
-                    self.manage_joints.rotate_joint(heading, pitch)
-                if heading > 60 and heading < -60:
-                    player_bs.set_h(heading)
+
+                # limit pitch by 60 angle
+                if not pv_pitch > 10.0 and not pv_pitch < -50.0:
+                    self.manage_joints.rotate_player_joint(pv_heading, pv_pitch)
+                    self.pivot.set_p(pv_pitch)
             else:
                 self.pivot.set_h(180)
-                if pitch > 10.0 and not pitch < -50.0:
-                    # self.pivot.set_p(pitch)
-                    self.manage_joints.rotate_joint(heading, pitch)
-                if heading > 60 and heading < -60:
-                    player_bs.set_h(heading)
+                player_bs.set_h(heading)
+
+                # limit pitch by 60 angle
+                if not pv_pitch > 10.0 and not pv_pitch < -50.0:
+                    self.manage_joints.rotate_player_joint(pv_heading, pv_pitch)
+                    self.pivot.set_p(pv_pitch)
 
     def on_mouse_look_around_player(self, x, y):
         """ Function    : on_mouse_look_around_player
@@ -141,12 +142,13 @@ class Mouse:
             self.floater.set_p(0)
 
             # apply heading and pitch
-            heading = self.pivot.get_h() - (x - int(base.win.get_x_size() / 2)) * self.mouse_sens
-            pitch = self.pivot.get_p() - (y - int(base.win.get_y_size() / 2)) * self.mouse_sens
-            self.pivot.set_h(heading)
+            pv_heading = self.pivot.get_h() - (x - int(base.win.get_x_size() / 2)) * self.mouse_sens
+            pv_pitch = self.pivot.get_p() - (y - int(base.win.get_y_size() / 2)) * self.mouse_sens
+            self.pivot.set_h(pv_heading)
 
-            if not pitch > 10.0 and not pitch < -50.0:
-                self.pivot.set_p(pitch)
+            # limit pitch by 60 angle
+            if not pv_pitch > 10.0 and not pv_pitch < -50.0:
+                self.pivot.set_p(pv_pitch)
 
     def on_mouse_rotate_player(self, x, y):
         """ Function    : on_mouse_rotate_player
@@ -171,26 +173,28 @@ class Mouse:
             if player_bs and not self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
                 # apply heading and pitch
                 heading = player_bs.get_h() - (x - int(base.win.get_x_size() / 2)) * self.mouse_sens
-                pitch = self.pivot.get_p() - (y - int(base.win.get_y_size() / 2)) * self.mouse_sens
+                pv_pitch = self.pivot.get_p() - (y - int(base.win.get_y_size() / 2)) * self.mouse_sens
                 player_bs.set_h(heading)
 
                 # Show player only from back
                 self.pivot.set_h(180)
 
-                if not pitch > 10.0 and not pitch < -50.0:
-                    self.pivot.set_p(pitch)
+                # limit pitch by 60 angle
+                if not pv_pitch > 10.0 and not pv_pitch < -50.0:
+                    self.pivot.set_p(pv_pitch)
 
             elif horse_bs and self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
                 # apply heading and pitch
                 heading = horse_bs.get_h() - (x - int(base.win.get_x_size() / 2)) * self.mouse_sens
-                pitch = self.pivot.get_p() - (y - int(base.win.get_y_size() / 2)) * self.mouse_sens
+                pv_pitch = self.pivot.get_p() - (y - int(base.win.get_y_size() / 2)) * self.mouse_sens
                 horse_bs.set_h(heading)
 
                 # Show player only from back
                 self.pivot.set_h(180)
 
-                if not pitch > 10.0 and not pitch < -50.0:
-                    self.pivot.set_p(pitch)
+                # limit pitch by 60 angle
+                if not pv_pitch > 10.0 and not pv_pitch < -50.0:
+                    self.pivot.set_p(pv_pitch)
 
     def mouse_control(self):
         """ Function    : mouse_control
@@ -219,7 +223,7 @@ class Mouse:
                 # Recentering the cursor and do mouse look
                 if base.win.move_pointer(0, int(base.win.get_x_size() / 2), int(base.win.get_y_size() / 2)):
                     if not self.base.game_instance['is_aiming']:
-                        self.manage_joints.reset_rotated_joints()
+                        self.manage_joints.reset_rotated_player_joints()
                         self.on_mouse_look_around_player(x, y)
                         self.on_mouse_rotate_player(x, y)
 

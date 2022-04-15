@@ -673,6 +673,10 @@ class Sheet(Inventory):
 
     def prepare_character(self):
         if self.base.is_inventory_active:
+            # Hide world from inventory
+            if render.find("**/World"):
+                render.find("**/World").hide()
+
             # keep default state of player camera
             self.player_camera_default["pos"] = base.camera.get_pos()
             self.player_camera_default["hpr"] = base.camera.get_hpr()
@@ -699,29 +703,6 @@ class Sheet(Inventory):
                 if render.find("**/pivot"):
                     render.find("**/pivot").set_hpr(24.6, -0.999999, 0)
 
-                # set scene
-                bg_black = None
-                if not render.find("**/bg_black_char_sheet"):
-                    geoms = self.base.inventory_geoms_collector()
-                    if geoms:
-                        bg_black = base.loader.loadModel(geoms["bg_black_char_sheet"])
-                        bg_black.set_name("bg_black_char_sheet")
-                        player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
-                        if player_bs:
-                            bg_black.reparent_to(player_bs)
-                            bg_black.set_pos(0, 0, 0)
-                            bg_black.set_h(player_bs.get_h())
-                            bg_black.set_two_sided(True)
-                else:
-                    if render.find("**/bg_black_char_sheet"):
-                        bg_black = render.find("**/bg_black_char_sheet")
-
-                if bg_black:
-                    bg_black.show()
-
-                if render.find("**/World"):
-                    render.find("**/World").hide()
-
                 # set light
                 player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
                 if player_bs:
@@ -740,7 +721,6 @@ class Sheet(Inventory):
                                                           hpr=[0, 0.4, -1],
                                                           color=[2.0],
                                                           task="attach")
-                        self.render_attr.render_pipeline.prepare_scene(bg_black)
                     else:
                         light_pos = [player_bs.get_x(), player_bs.get_y() - 3.0, player_bs.get_z() + 0.8]
                         self.render_attr.set_inv_lighting(name='slight',
@@ -751,7 +731,7 @@ class Sheet(Inventory):
                                                           task="attach")
 
     def revert_character(self):
-        # revert character view
+        # Revert character view
         player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
         if player_bs:
             player_bs.set_hpr(self.player_hpr_saved)
@@ -764,10 +744,7 @@ class Sheet(Inventory):
         if render.find("**/pivot"):
             render.find("**/pivot").set_hpr(pivot_hpr)
 
-        # revert scene
-        if render.find("**/bg_black_char_sheet"):
-            bg_black = render.find("**/bg_black_char_sheet")
-            bg_black.hide()
+        # Show world again
         if render.find("**/World"):
             render.find("**/World").show()
 

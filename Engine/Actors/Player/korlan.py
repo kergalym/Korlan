@@ -47,6 +47,11 @@ class Korlan:
         self.base.actor_is_alive = False
         self.base.actor_play_rate = 1.0
 
+    def save_player_parts(self, parts):
+        if self.korlan and isinstance(self.base.game_instance["player_parts"], list):
+            for name in parts:
+                self.base.game_instance["player_parts"].append(name)
+
     async def set_actor(self, mode, name, animation, axis, rotation, scale, culling):
         if mode == 'menu':
             # Disable the camera trackball controls.
@@ -75,30 +80,42 @@ class Korlan:
 
                 self.base.game_instance['player_is_loaded'] = False
 
+                # Korlan_empty is the first asset containing only skeleton (armature).
+                # Next ones are Korlan_body, Korlan_armor, Korlan_pants and Korlan_boots,
+                # all of them contain armature with weighted meshes.
+                # Each of them follows the previous one and assembles in this order.
+                # This allows to avoid unwanted shifting of the meshes while playing the animation.
                 assets = self.base.assets_collector()
+
+                part_names = ["modelRoot", "body", "helmet", "armor", "pants", "boots"]
+                asset_names = ["Korlan_empty", "Korlan_body", "Korlan_helmet",
+                               "Korlan_armor", "Korlan_pants", "Korlan_boots"]
 
                 actor_parts_dict = {}
 
                 anims_full_dict = {
-                    "modelRoot": animation[1],
-                    "helmet": animation[1],
-                    "armor": animation[1],
-                    "pants": animation[1],
-                    "boots": animation[1]
+                    part_names[0]: animation[1],
+                    part_names[1]: animation[1],
+                    part_names[2]: animation[1],
+                    part_names[3]: animation[1],
+                    part_names[4]: animation[1],
+                    part_names[5]: animation[1]
                 }
 
                 # load player parts separately
-                body = await self.base.loader.load_model(assets["Korlan_body"], blocking=False)
-                helmet = await self.base.loader.load_model(assets["Korlan_helmet"], blocking=False)
-                armor = await self.base.loader.load_model(assets["Korlan_armor"], blocking=False)
-                pants = await self.base.loader.load_model(assets["Korlan_pants"], blocking=False)
-                boots = await self.base.loader.load_model(assets["Korlan_boots"], blocking=False)
+                empty = await self.base.loader.load_model(assets[asset_names[0]], blocking=False)
+                body = await self.base.loader.load_model(assets[asset_names[1]], blocking=False)
+                helmet = await self.base.loader.load_model(assets[asset_names[2]], blocking=False)
+                armor = await self.base.loader.load_model(assets[asset_names[3]], blocking=False)
+                pants = await self.base.loader.load_model(assets[asset_names[4]], blocking=False)
+                boots = await self.base.loader.load_model(assets[asset_names[5]], blocking=False)
 
-                actor_parts_dict['modelRoot'] = body
-                actor_parts_dict['helmet'] = helmet
-                actor_parts_dict['armor'] = armor
-                actor_parts_dict['pants'] = pants
-                actor_parts_dict['boots'] = boots
+                actor_parts_dict[part_names[0]] = empty
+                actor_parts_dict[part_names[1]] = body
+                actor_parts_dict[part_names[2]] = helmet
+                actor_parts_dict[part_names[3]] = armor
+                actor_parts_dict[part_names[4]] = pants
+                actor_parts_dict[part_names[5]] = boots
 
                 # and compose them into one
                 self.korlan = Actor(actor_parts_dict, anims_full_dict)
@@ -120,6 +137,7 @@ class Korlan:
                 self.korlan.set_r(self.korlan, self.rot_r)
 
                 # Get actor joints
+                self.save_player_parts(part_names)
                 base.korlan_joints = self.korlan.get_joints()
 
                 # Set two sided, since some model may be broken
@@ -167,30 +185,42 @@ class Korlan:
 
                 self.base.game_instance['player_is_loaded'] = False
 
+                # Korlan_empty is the first asset containing only skeleton (armature).
+                # Next ones are Korlan_body, Korlan_armor, Korlan_pants and Korlan_boots,
+                # all of them contain armature with weighted meshes.
+                # Each of them follows the previous one and assembles in this order.
+                # This allows to avoid unwanted shifting of the meshes while playing the animation.
                 assets = self.base.assets_collector()
+
+                part_names = ["modelRoot", "body", "helmet", "armor", "pants", "boots"]
+                asset_names = ["Korlan_empty", "Korlan_body", "Korlan_helmet",
+                               "Korlan_armor", "Korlan_pants", "Korlan_boots"]
 
                 actor_parts_dict = {}
 
                 anims_full_dict = {
-                    "modelRoot": animation[1],
-                    "helmet": animation[1],
-                    "armor": animation[1],
-                    "pants": animation[1],
-                    "boots": animation[1]
+                    part_names[0]: animation[1],
+                    part_names[1]: animation[1],
+                    part_names[2]: animation[1],
+                    part_names[3]: animation[1],
+                    part_names[4]: animation[1],
+                    part_names[5]: animation[1]
                 }
 
                 # load player parts separately
-                body = await self.base.loader.load_model(assets["Korlan_body"], blocking=False)
-                helmet = await self.base.loader.load_model(assets["Korlan_helmet"], blocking=False)
-                armor = await self.base.loader.load_model(assets["Korlan_armor"], blocking=False)
-                pants = await self.base.loader.load_model(assets["Korlan_pants"], blocking=False)
-                boots = await self.base.loader.load_model(assets["Korlan_boots"], blocking=False)
+                empty = await self.base.loader.load_model(assets[asset_names[0]], blocking=False)
+                body = await self.base.loader.load_model(assets[asset_names[1]], blocking=False)
+                helmet = await self.base.loader.load_model(assets[asset_names[2]], blocking=False)
+                armor = await self.base.loader.load_model(assets[asset_names[3]], blocking=False)
+                pants = await self.base.loader.load_model(assets[asset_names[4]], blocking=False)
+                boots = await self.base.loader.load_model(assets[asset_names[5]], blocking=False)
 
-                actor_parts_dict['modelRoot'] = body
-                actor_parts_dict['helmet'] = helmet
-                actor_parts_dict['armor'] = armor
-                actor_parts_dict['pants'] = pants
-                actor_parts_dict['boots'] = boots
+                actor_parts_dict[part_names[0]] = empty
+                actor_parts_dict[part_names[1]] = body
+                actor_parts_dict[part_names[2]] = helmet
+                actor_parts_dict[part_names[3]] = armor
+                actor_parts_dict[part_names[4]] = pants
+                actor_parts_dict[part_names[5]] = boots
 
                 # and compose them into one
                 self.korlan = Actor(actor_parts_dict, anims_full_dict)
@@ -212,6 +242,7 @@ class Korlan:
                 self.korlan.set_r(self.korlan, self.rot_r)
 
                 # Get actor joints
+                self.save_player_parts(part_names)
                 base.korlan_joints = self.korlan.get_joints()
 
                 # Set two sided, since some model may be broken

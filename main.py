@@ -297,6 +297,9 @@ class Main(ShowBase):
 
     def __init__(self):
         ShowBase.__init__(self)
+        self.default_background_color = self.get_background_color()
+        # Set background color black to make it more consistent with RP's black screen
+        self.set_background_color(0, 0, 0)
         rp_lights = {
             "scene": [],
             "flame": [],
@@ -324,6 +327,7 @@ class Main(ShowBase):
             "player_ref": None,
             "actors_ref": {},
             "actors_np": {},
+            "player_parts": [],
             "player_using_horse": '',
             "is_indoor": False,
             "is_player_sitting": False,
@@ -1370,6 +1374,9 @@ class Main(ShowBase):
         self.game_instance['menu_mode'] = True
         self.menu.load_main_menu()
         self.load_video(file="MENU_SCENE_VID", type="menu_scene")
+
+        # Revert background color after loading intro, since we don't show default gray color
+        self.set_background_color(self.default_background_color)
 
 
 if not cfg_is_broken:

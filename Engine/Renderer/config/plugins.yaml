@@ -1,28 +1,22 @@
-# Renderer Pipeline Plugin Configuration
-# Instead of editing this file, prefer to use the Plugin Configurator
-# Any formatting and comments will be lost
-
 disabled:
-    - dof
-    - fxaa
-    - volumetrics
-    - vxgi
-
+- dof
+- fxaa
+- volumetrics
+- vxgi
 enabled:
-    - ao
-    - bloom
-    - color_correction
-    - forward_shading
-    - motion_blur
-    - pssm
-    - scattering
-    - skin_shading
-    - sky_ao
-    - smaa
-    - ssr
-    - clouds
-    - env_probes
-
+- ao
+- bloom
+- color_correction
+- forward_shading
+- motion_blur
+- pssm
+- scattering
+- skin_shading
+- sky_ao
+- smaa
+- ssr
+- clouds
+- env_probes
 overrides:
   ao:
     alchemy_max_distance: 5.86
