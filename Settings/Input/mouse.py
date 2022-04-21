@@ -110,7 +110,21 @@ class Mouse:
                         if not self.actor.get_python_tag("is_on_horse"):
                             self.actor_parts[part].set_h(pitch)
                         elif self.actor.get_python_tag("is_on_horse"):
-                            self.actor_parts[part].set_r(pitch)
+                            dt = globalClock.getDt()
+                            h = round(self.actor_parts[part].get_r(), 1)
+                            p = round(self.actor_parts[part].get_p(), 1)
+                            if self.base.game_instance["kbd_np"].keymap["t_up"]:
+                                if not p > 10.0:
+                                    self.actor_parts[part].set_p(p + 100 * dt)
+                            if self.base.game_instance["kbd_np"].keymap["t_down"]:
+                                if not p < -40.0:
+                                    self.actor_parts[part].set_p(p - 100 * dt)
+                            if self.base.game_instance["kbd_np"].keymap["t_left"]:
+                                if not h > 40.0:
+                                    self.actor_parts[part].set_r(h + 100 * dt)
+                            if self.base.game_instance["kbd_np"].keymap["t_right"]:
+                                if not h < -50.0:
+                                    self.actor_parts[part].set_r(h - 100 * dt)
 
     def reset_rotated_player_joints(self):
         # Rotate by pitch all parts simultaneously
@@ -133,25 +147,21 @@ class Mouse:
             Return      : None
         """
         # Do world heading in aiming
-        # and rotate by player's last spine bone before hips
+        # and rotate player's last spine bone before hips
         player_bs = self.base.get_actor_bullet_shape_node(asset="Player",
                                                           type="Player")
         if player_bs:
             heading = player_bs.get_h() - (x - int(base.win.get_x_size() / 2)) * self.mouse_sens
             pv_heading = self.pivot.get_h() - (y - int(base.win.get_x_size() / 2)) * self.mouse_sens
             pv_pitch = self.pivot.get_p() - (y - int(base.win.get_y_size() / 2)) * self.mouse_sens
+            self.pivot.set_h(180)
 
             if self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
-                self.pivot.set_h(-160)
-
                 # limit pitch by 60 angle
-                if not pv_pitch > 10.0 and not pv_pitch < -50.0:
-                    self.rotate_player_joint(pv_heading, pv_pitch)
-                    self.pivot.set_p(pv_pitch)
+                self.rotate_player_joint(pv_heading, pv_pitch)
+                self.pivot.set_p(0)
             elif not self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
-                self.pivot.set_h(180)
                 player_bs.set_h(heading)
-
                 # limit pitch by 60 angle
                 if not pv_pitch > 10.0 and not pv_pitch < -50.0:
                     self.rotate_player_joint(pv_heading, pv_pitch)

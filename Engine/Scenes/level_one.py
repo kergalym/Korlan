@@ -9,7 +9,6 @@ from Engine.Renderer.renderer import RenderAttr
 from Engine.Scenes.scene import SceneOne
 from Engine.Physics.physics_setup import PhysicsAttr
 from Settings.UI.pause_menu_ui import PauseMenuUI
-from Settings.Input.mouse import Mouse
 
 from Engine.Actors.NPC.npc_generic import NpcGeneric
 from Engine.FSM.npc_fsm import NpcFSM
@@ -75,7 +74,6 @@ class LevelOne:
         self.player_state = PlayerState()
         self.physics_attr = PhysicsAttr()
         self.ai = None
-        self.mouse = Mouse()
         self.base.focused_actor = None
         self.actors_for_focus = None
         self.actor_focus_index = 1
@@ -308,8 +306,6 @@ class LevelOne:
 
     def load_new_game(self):
         self.unload_menu_scene()
-
-        self.mouse.mouse_wheel_init()
 
         # We make any unload_game_scene() method accessible global
         # in UnloadingUI.start_unloading()

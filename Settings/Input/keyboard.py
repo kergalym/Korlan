@@ -15,6 +15,10 @@ class Keyboard:
         self.k_backward_lo = self.game_settings['Keymap']['backward'].lower()
         self.k_left_lo = self.game_settings['Keymap']['left'].lower()
         self.k_right_lo = self.game_settings['Keymap']['right'].lower()
+        self.k_tup_lo = self.game_settings['Keymap']['t_up'].lower()
+        self.k_tdown_lo = self.game_settings['Keymap']['t_down'].lower()
+        self.k_tleft_lo = self.game_settings['Keymap']['t_left'].lower()
+        self.k_tright_lo = self.game_settings['Keymap']['t_right'].lower()
         self.k_run_lo = self.game_settings['Keymap']['run'].lower()
         self.k_crouch_lo = self.game_settings['Keymap']['crouch'].lower()
         self.k_jump_lo = self.game_settings['Keymap']['jump'].lower()
@@ -33,6 +37,10 @@ class Keyboard:
             'backward': False,
             'left': False,
             'right': False,
+            't_up': False,
+            't_down': False,
+            't_left': False,
+            't_right': False,
             'run': False,
             'crouch': False,
             'jump': False,
@@ -79,6 +87,10 @@ class Keyboard:
         self.base.accept(self.k_backward_lo, self.set_key, ['backward', True])
         self.base.accept(self.k_left_lo, self.set_key, ['left', True])
         self.base.accept(self.k_right_lo, self.set_key, ['right', True])
+        self.base.accept(self.k_tup_lo, self.set_key, ['t_up', True])
+        self.base.accept(self.k_tdown_lo, self.set_key, ['t_down', True])
+        self.base.accept(self.k_tleft_lo, self.set_key, ['t_left', True])
+        self.base.accept(self.k_tright_lo, self.set_key, ['t_right', True])
         self.base.accept(self.k_run_lo, self.set_key, ['run', True])
         self.base.accept(self.k_crouch_lo, self.set_key, ['crouch', True])
         self.base.accept(self.k_jump_lo, self.set_key, ['jump', True])
@@ -107,6 +119,10 @@ class Keyboard:
         self.base.accept("{0}-up".format(self.k_backward_lo), self.set_key, ['backward', False])
         self.base.accept("{0}-up".format(self.k_left_lo), self.set_key, ['left', False])
         self.base.accept("{0}-up".format(self.k_right_lo), self.set_key, ['right', False])
+        self.base.accept("{0}-up".format(self.k_tup_lo), self.set_key, ['t_up', False])
+        self.base.accept("{0}-up".format(self.k_tdown_lo), self.set_key, ['t_down', False])
+        self.base.accept("{0}-up".format(self.k_tleft_lo), self.set_key, ['t_left', False])
+        self.base.accept("{0}-up".format(self.k_tright_lo), self.set_key, ['t_right', False])
         self.base.accept("{0}-up".format(self.k_run_lo), self.set_key, ['run', False])
         self.base.accept("{0}-up".format(self.k_crouch_lo), self.set_key, ['crouch', False])
         self.base.accept("{0}-up".format(self.k_jump_lo), self.set_key, ['jump', False])
@@ -135,8 +151,9 @@ class Keyboard:
         inputState.watchWithModifiers('reverse', self.k_backward_lo)
         inputState.watchWithModifiers('left', self.k_left_lo)
         inputState.watchWithModifiers('right',  self.k_right_lo)
-
-        # inputState.watchWithModifiers('turnLeft', self.k_left_lo)
-        # inputState.watchWithModifiers('turnRight', self.k_right_lo)
+        inputState.watchWithModifiers('t_up', self.k_tup_lo)
+        inputState.watchWithModifiers('t_down', self.k_tdown_lo)
+        inputState.watchWithModifiers('t_left', self.k_tleft_lo)
+        inputState.watchWithModifiers('t_right', self.k_tright_lo)
 
         return inputState

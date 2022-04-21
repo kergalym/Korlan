@@ -222,6 +222,7 @@ class Actions:
                 self.base.game_instance['person_look_mode'] = self.game_settings['Main']['person_look_mode']
 
                 # Define mouse
+                self.mouse.mouse_wheel_init()
                 self.floater = self.mouse.set_floater(self.player)
                 self.base.messenger.send("add_bullet_collider")
 
@@ -1705,7 +1706,9 @@ class Actions:
                 child.set_x(saddle_pos[0])
                 child.set_y(saddle_pos[1])
 
-                self.base.camera.set_y(-5.5)
+                if not self.base.game_instance['is_aiming']:
+                    self.base.camera.set_y(-5.5)
+
                 self.base.camera.set_z(0.5)
             else:
                 self.base.camera.set_y(self.base.game_instance["mouse_y_cam"])
