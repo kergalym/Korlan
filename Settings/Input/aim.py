@@ -40,16 +40,12 @@ class Aim:
         if not self.base.game_instance['is_aiming']:
             self.base.game_instance['is_aiming'] = True
 
-        pos_y = 0
-        pos_z = 0
         if (self.base.game_instance['player_ref'].get_python_tag("is_on_horse")
                 and self.base.game_instance['is_aiming']
                 and not self.base.game_instance['free_camera']):
             pos_y = -3.7
             pos_z = 0.29
-        elif (not self.base.game_instance['player_ref'].get_python_tag("is_on_horse")
-                and self.base.game_instance['is_aiming']
-                and not self.base.game_instance['free_camera']):
+        else:
             pos_y = -2
             pos_z = -0.2
 
