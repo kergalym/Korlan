@@ -18,11 +18,15 @@ class Aim:
         if (self.base.game_instance['player_ref'].get_python_tag("is_on_horse")
                 and self.base.game_instance['is_aiming']
                 and not self.base.game_instance['free_camera']):
+            self.base.game_instance['cursor_ui'].set_x(-0.5)
+            self.base.game_instance['cursor_ui'].set_z(-0.5)
             pos_y = -3.7
             pos_z = 0.29
         elif (not self.base.game_instance['player_ref'].get_python_tag("is_on_horse")
                 and self.base.game_instance['is_aiming']
                 and not self.base.game_instance['free_camera']):
+            self.base.game_instance['cursor_ui'].set_x(-0.75)
+            self.base.game_instance['cursor_ui'].set_z(0)
             pos_y = -2
             pos_z = -0.2
         self.base.camera.set_x(0.5)

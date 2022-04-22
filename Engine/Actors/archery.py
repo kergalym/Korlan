@@ -92,8 +92,8 @@ class Archery:
                     # Remove arrow from inv and prepare it for use
                     arrow = self.arrows.pop(0)
                     arrow.reparent_to(bow)
-                    arrow.set_pos(0.04, -0.01, -0.01)
-                    arrow.set_hpr(0, 2.86, 0)
+                    arrow.set_pos(0.04, 0.0, -0.01)
+                    arrow.set_hpr(6.0, 2.86, 0)
                     arrow.set_scale(1)
 
                     # Create arrow collider
