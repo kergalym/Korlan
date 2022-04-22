@@ -1522,8 +1522,10 @@ class Actions:
                     and not base.do_key_once["block"]):
                 self.state.set_do_once_key("block", True)
                 crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
-                if self.archery.arrow_ref.get_python_tag("power") > 0:
-                    self.archery.arrow_ref.set_python_tag("power", 0)
+
+                if self.archery.arrow_ref:
+                    if self.archery.arrow_ref.get_python_tag("power") > 0:
+                        self.archery.arrow_ref.set_python_tag("power", 0)
 
                 if (crouched_to_standing.is_playing() is False
                         and base.player_states['is_crouching'] is True):
@@ -1555,7 +1557,7 @@ class Actions:
                     and len(self.archery.arrows) > 0
                     and self.archery.arrow_ref.get_python_tag("ready") == 0):
 
-                if self.archery.arrow_is_prepared:
+                if self.archery.arrow_ref and self.archery.arrow_is_prepared:
                     if self.archery.target_test_ui:
                         self.archery.target_test_ui.show()
                     power = self.archery.arrow_ref.get_python_tag("power")
@@ -1581,7 +1583,9 @@ class Actions:
                     and self.archery.arrow_ref.get_python_tag("shot") == 0
                     and self.archery.arrow_ref.get_python_tag("power") > 0):
 
-                if self.archery.arrow_is_prepared and len(self.archery.arrows) > 0:
+                if (self.archery.arrow_ref
+                        and self.archery.arrow_is_prepared
+                        and len(self.archery.arrows) > 0):
                     self.archery.arrow_ref.set_python_tag("ready", 1)
                     self.archery.bow_shoot()
                     if self.base.game_instance['hud_np'].charge_arrow_bar_ui:
@@ -1597,9 +1601,12 @@ class Actions:
                 self.state.set_action_state("is_busy", False)
                 if self.base.game_instance['hud_np'].charge_arrow_bar_ui:
                     self.base.game_instance['hud_np'].charge_arrow_bar_ui['value'] = 0
-                if self.archery.arrow_ref.get_python_tag("power") > 0:
-                    self.archery.arrow_ref.set_python_tag("power", 0)
-                self.archery.arrow_ref.set_python_tag("ready", 0)
+
+                if self.archery.arrow_ref:
+                    if self.archery.arrow_ref.get_python_tag("power") > 0:
+                        self.archery.arrow_ref.set_python_tag("power", 0)
+                    self.archery.arrow_ref.set_python_tag("ready", 0)
+
                 self.base.game_instance['free_camera'] = False
 
             if (not self.kbd.keymap["attack"]
@@ -1610,9 +1617,11 @@ class Actions:
                 if self.base.game_instance['hud_np'].charge_arrow_bar_ui:
                     self.base.game_instance['hud_np'].charge_arrow_bar_ui['value'] = 0
                 self.state.set_action_state("is_busy", False)
-                if self.archery.arrow_ref.get_python_tag("power") > 0:
-                    self.archery.arrow_ref.set_python_tag("power", 0)
-                self.archery.arrow_ref.set_python_tag("ready", 0)
+
+                if self.archery.arrow_ref:
+                    if self.archery.arrow_ref.get_python_tag("power") > 0:
+                        self.archery.arrow_ref.set_python_tag("power", 0)
+                    self.archery.arrow_ref.set_python_tag("ready", 0)
 
                 self.base.game_instance['free_camera'] = False
 
@@ -1626,8 +1635,10 @@ class Actions:
                     and not base.do_key_once["block"]):
                 self.state.set_do_once_key("block", True)
                 crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
-                if self.archery.arrow_ref.get_python_tag("power") > 0:
-                    self.archery.arrow_ref.set_python_tag("power", 0)
+
+                if self.archery.arrow_ref:
+                    if self.archery.arrow_ref.get_python_tag("power") > 0:
+                        self.archery.arrow_ref.set_python_tag("power", 0)
 
                 if (crouched_to_standing.is_playing() is False
                         and base.player_states['is_crouching'] is False):
@@ -1644,7 +1655,7 @@ class Actions:
                     and len(self.archery.arrows) > 0
                     and self.archery.arrow_ref.get_python_tag("ready") == 0):
 
-                if self.archery.arrow_is_prepared:
+                if self.archery.arrow_ref and self.archery.arrow_is_prepared:
                     if self.archery.target_test_ui:
                         self.archery.target_test_ui.show()
                     power = self.archery.arrow_ref.get_python_tag("power")
@@ -1667,7 +1678,9 @@ class Actions:
                     and self.archery.arrow_ref.get_python_tag("shot") == 0
                     and self.archery.arrow_ref.get_python_tag("power") > 0):
 
-                if self.archery.arrow_is_prepared and len(self.archery.arrows) > 0:
+                if (self.archery.arrow_ref
+                        and self.archery.arrow_is_prepared
+                        and len(self.archery.arrows) > 0):
                     self.archery.arrow_ref.set_python_tag("ready", 1)
                     self.archery.bow_shoot()
                     if self.base.game_instance['hud_np'].charge_arrow_bar_ui:
@@ -1683,9 +1696,11 @@ class Actions:
                 self.state.set_action_state("horse_riding", True)
                 if self.base.game_instance['hud_np'].charge_arrow_bar_ui:
                     self.base.game_instance['hud_np'].charge_arrow_bar_ui['value'] = 0
-                if self.archery.arrow_ref.get_python_tag("power") > 0:
-                    self.archery.arrow_ref.set_python_tag("power", 0)
-                self.archery.arrow_ref.set_python_tag("ready", 0)
+
+                if self.archery.arrow_ref:
+                    if self.archery.arrow_ref.get_python_tag("power") > 0:
+                        self.archery.arrow_ref.set_python_tag("power", 0)
+                    self.archery.arrow_ref.set_python_tag("ready", 0)
 
             if (not self.kbd.keymap["attack"]
                     and not self.kbd.keymap["block"]
@@ -1696,9 +1711,11 @@ class Actions:
                     self.base.game_instance['hud_np'].charge_arrow_bar_ui['value'] = 0
                 self.state.set_action_state("is_busy", False)
                 self.state.set_action_state("horse_riding", True)
-                if self.archery.arrow_ref.get_python_tag("power") > 0:
-                    self.archery.arrow_ref.set_python_tag("power", 0)
-                self.archery.arrow_ref.set_python_tag("ready", 0)
+
+                if self.archery.arrow_ref:
+                    if self.archery.arrow_ref.get_python_tag("power") > 0:
+                        self.archery.arrow_ref.set_python_tag("power", 0)
+                    self.archery.arrow_ref.set_python_tag("ready", 0)
 
     def player_mount_helper_task(self, child, player, saddle_pos, task):
         if child and player:

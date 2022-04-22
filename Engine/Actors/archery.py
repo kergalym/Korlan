@@ -251,6 +251,10 @@ class Archery:
                         self.arrow_ref.set_python_tag("ready", 0)
                         self.reset_arrow_charge()
 
+            else:
+                if self.base.game_instance["is_arrow_ready"]:
+                    self.arrow_ref.remove_node()
+
     def reset_arrow_charge(self):
         if self.arrow_brb_in_use:
             self.arrow_ref.set_python_tag("power", 0)
