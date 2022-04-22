@@ -67,7 +67,7 @@ class IndoorCamera:
                     self.camera_smooth_move_up(dt=dt, speed=self.speed)
 
             elif (round(actor.get_distance(player_bs)) >= radius
-                    and round(actor.get_distance(player_bs)) < 17):
+                    and round(actor.get_distance(player_bs)) < 7):
                 self.base.game_instance["is_indoor"] = False
                 self.camera_smooth_zoom_out(dt=dt, speed=self.speed)
 
