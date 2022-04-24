@@ -64,11 +64,18 @@ class SceneOne:
                 self.base.toggle_texture_compression(scene)
 
                 scene.reparent_to(self.base.game_instance['lod_np'])
-                self.base.game_instance['lod_np'].node().add_switch(1000.0, 0.0)
-                # scene.reparent_to(world)
+
+                # LOD quality preset
+                for lod_qk in self.base.game_instance["lod_quality"]:
+                    if self.game_settings['Main']['details'] == lod_qk:
+                        lod_qv = self.base.game_instance["lod_quality"][lod_qk]
+                        self.base.game_instance['lod_np'].node().add_switch(lod_qv[0],
+                                                                            lod_qv[1])
+
                 # scene.flatten_strong()
                 # scene.hide()
-                base.accept("f2", self.scene_toggle, [scene])
+                if self.game_settings['Debug']['set_debug_mode'] == "YES":
+                    base.accept("f2", self.scene_toggle, [scene])
 
                 scene.set_name(name)
                 scene.set_scale(self.scale_x, self.scale_y, self.scale_z)

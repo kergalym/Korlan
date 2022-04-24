@@ -68,7 +68,14 @@ class NpcGeneric:
             # before load into VRAM
             self.base.toggle_texture_compression(self.actor)
 
-            self.actor.reparent_to(render)
+            self.actor.reparent_to(self.base.game_instance['lod_np'])
+
+            # LOD quality preset
+            for lod_qk in self.base.game_instance["lod_quality"]:
+                if self.game_settings['Main']['details'] == lod_qk:
+                    lod_qv = self.base.game_instance["lod_quality"][lod_qk]
+                    self.base.game_instance['lod_np'].node().add_switch(lod_qv[0],
+                                                                        lod_qv[1])
 
             # Make actor global
             self.base.game_instance['actors_ref'][name] = self.actor

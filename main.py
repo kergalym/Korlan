@@ -21,7 +21,7 @@ import panda3d.core as p3d
 from direct.gui.OnscreenImage import OnscreenImage
 from direct.gui.OnscreenText import OnscreenText
 from direct.showbase.ShowBaseGlobal import render2d
-from panda3d.core import Filename, LODNode, Texture, Vec3
+from panda3d.core import Filename, LODNode, Texture, Vec3, Vec2
 from panda3d.core import WindowProperties
 from direct.showbase.ShowBase import ShowBase
 from direct.showbase.ShowBase import MovieTexture
@@ -324,6 +324,11 @@ class Main(ShowBase):
             "current_active_frame": None,
             "hud_np": None,
             "lod_np": None,
+            "lod_quality": {
+                "low": Vec2(999999.0, 100.0),
+                "medium": Vec2(100.0, 50.0),
+                "high": Vec2(50.0, 0.0)
+            },
             "rp_lights": rp_lights,
             "scene_np": None,
             "player_controller_np": None,
