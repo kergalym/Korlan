@@ -74,8 +74,8 @@ class SceneOne:
 
                 # scene.flatten_strong()
                 # scene.hide()
-                if self.game_settings['Debug']['set_debug_mode'] == "YES":
-                    base.accept("f2", self.scene_toggle, [scene])
+                # if self.game_settings['Debug']['set_debug_mode'] == "YES":
+                base.accept("f2", self.scene_toggle, [scene])
 
                 scene.set_name(name)
                 scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
@@ -106,8 +106,8 @@ class SceneOne:
                 self.render_attr.set_projected_water(True)
 
                 # Enable flame
-                self.render_attr.set_flame_hearth(adv_render=True, scene_np=scene, flame_scale=0.2)
-                self.render_attr.set_smoke_hearth(adv_render=True, scene_np=scene, smoke_scale=0.2)
+                self.render_attr.set_flame_hearth(adv_render=True, scene_np=scene, flame_scale=0.1)
+                self.render_attr.set_smoke_hearth(adv_render=True, scene_np=scene, smoke_scale=0.1)
                 # Enable grass
                 # self.render_attr.set_grass(adv_render=True, fogcenter=Vec3(256, 256, 0), uv_offset=Vec2(0, 0))
 

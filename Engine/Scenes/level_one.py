@@ -163,19 +163,8 @@ class LevelOne:
                         render.find("**/Collisions").remove_node()
                         render.find("**/Collisions").clear()
 
-            # Remove WaterNodePath
-            if not render.find("**/WaterNodePath").is_empty():
-                for i in range(render.find("**/WaterNodePath").get_num_nodes()):
-                    if not render.find("**/WaterNodePath").is_empty():
-                        render.find("**/WaterNodePath").remove_node()
-                        render.find("**/WaterNodePath").clear()
-
-            # Remove StateInitializer
-            if not render.find("**/StateInitializer").is_empty():
-                for i in range(render.find("**/StateInitializer").get_num_nodes()):
-                    if not render.find("**/StateInitializer").is_empty():
-                        render.find("**/StateInitializer").remove_node()
-                        render.find("**/StateInitializer").clear()
+            # Remove Water
+            self.render_attr.clear_projected_water()
 
             # Unload Physics
             if self.physics_attr and self.physics_attr.world:
@@ -264,19 +253,8 @@ class LevelOne:
                     render.find("**/Collisions").remove_node()
                     render.find("**/Collisions").clear()
 
-        # Remove WaterNodePath
-        if not render.find("**/WaterNodePath").is_empty():
-            for i in range(render.find("**/WaterNodePath").get_num_nodes()):
-                if not render.find("**/WaterNodePath").is_empty():
-                    render.find("**/WaterNodePath").remove_node()
-                    render.find("**/WaterNodePath").clear()
-
-        # Remove StateInitializer
-        if not render.find("**/StateInitializer").is_empty():
-            for i in range(render.find("**/StateInitializer").get_num_nodes()):
-                if not render.find("**/StateInitializer").is_empty():
-                    render.find("**/StateInitializer").remove_node()
-                    render.find("**/StateInitializer").clear()
+        # Remove Water
+        self.render_attr.clear_projected_water()
 
         # Player and actor cleanup
         if self.korlan.korlan:
