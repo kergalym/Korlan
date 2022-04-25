@@ -35,6 +35,13 @@ class HUD:
         self.charge_arrow_bar_ui = None
         self.cooldown_bar_ui = None
 
+        self.day_hud_light_tex = self.images['day_hud_light_ui']
+        self.day_hud_night_tex = self.images['day_hud_night_ui']
+
+        self.day_cycle_state = {
+            "light": False,
+            "night": False
+        }
         self.menu_font = self.fonts['OpenSans-Regular']
         # instance of the abstract class
         self.font = FontPool
@@ -156,14 +163,20 @@ class HUD:
         if not self.base.game_instance['ui_mode']:
             if (time and isinstance(time, str)
                     and self.day_hud_ui):
-                if time == "light":
-                    self.day_hud_ui.show()
-                    self.day_hud_ui.setImage(self.images['day_hud_light_ui'])
+                if time == "light" and not self.day_cycle_state["light"]:
+                    if self.day_hud_ui.is_hidden():
+                        self.day_hud_ui.show()
+                    self.day_hud_ui.setImage(self.day_hud_light_tex)
                     self.day_hud_ui.set_transparency(TransparencyAttrib.MAlpha)
-                if time == "night":
-                    self.day_hud_ui.show()
-                    self.day_hud_ui.setImage(self.images['day_hud_night_ui'])
+                    self.day_cycle_state["light"] = True
+                    self.day_cycle_state["night"] = False
+                if time == "night" and not self.day_cycle_state["night"]:
+                    if self.day_hud_ui.is_hidden():
+                        self.day_hud_ui.show()
+                    self.day_hud_ui.setImage(self.day_hud_night_tex)
                     self.day_hud_ui.set_transparency(TransparencyAttrib.MAlpha)
+                    self.day_cycle_state["night"] = True
+                    self.day_cycle_state["light"] = False
                 if time == "off":
                     self.day_hud_ui.hide()
 

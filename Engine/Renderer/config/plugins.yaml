@@ -1,6 +1,7 @@
 disabled:
 - dof
 - fxaa
+- volumetrics
 - vxgi
 enabled:
 - ao
@@ -16,7 +17,6 @@ enabled:
 - ssr
 - clouds
 - env_probes
-- volumetrics
 overrides:
   ao:
     alchemy_max_distance: 5.86

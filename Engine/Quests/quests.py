@@ -10,6 +10,7 @@ class Quests:
         self.base = base
         self.render = render
         self.seq = None
+        self.player_bs = None
 
     def set_action_state(self, bool_):
         if isinstance(bool_, bool):
@@ -98,9 +99,10 @@ class Quests:
 
         for node in trigger_np.node().get_overlapping_nodes():
             if "Player" in node.get_name():
-                player_bs = render.find("**/{0}".format(node.get_name()))
+                if not self.player_bs:
+                    self.player_bs = render.find("**/{0}".format(node.get_name()))
                 player = self.base.game_instance['player_ref']
-                if player_bs and int(actor.get_distance(player_bs)) == 1:
+                if self.player_bs and int(actor.get_distance(self.player_bs)) == 1:
                     if not self.base.game_instance['is_player_sitting']:
                         self.base.accept("e", self.toggle_action_state, [player,
                                                                          "standing_to_sit_turkic",

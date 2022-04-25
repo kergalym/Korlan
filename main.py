@@ -326,8 +326,8 @@ class Main(ShowBase):
             "lod_np": None,
             "lod_quality": {
                 "low": Vec2(999999.0, 100.0),
-                "medium": Vec2(100.0, 50.0),
-                "high": Vec2(50.0, 0.0)
+                "medium": Vec2(1000.0, 50.0),
+                "high": Vec2(4000.0, 0.0)
             },
             "rp_lights": rp_lights,
             "scene_np": None,
