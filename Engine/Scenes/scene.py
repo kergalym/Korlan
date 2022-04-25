@@ -74,8 +74,8 @@ class SceneOne:
 
                 # scene.flatten_strong()
                 # scene.hide()
-                # if self.game_settings['Debug']['set_debug_mode'] == "YES":
-                base.accept("f2", self.scene_toggle, [scene])
+                if self.game_settings['Debug']['set_debug_mode'] == "YES":
+                    base.accept("f2", self.scene_toggle, [scene])
 
                 scene.set_name(name)
                 scene.set_scale(self.scale_x, self.scale_y, self.scale_z)
