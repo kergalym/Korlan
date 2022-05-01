@@ -3,7 +3,7 @@ from panda3d.ai import AICharacter
 from direct.task.TaskManagerGlobal import taskMgr
 
 from Engine.FSM.player_fsm import PlayerFSM
-from Engine.AI.npcs_ai import NpcsAI
+from Engine.AI.npcs_ai_logic import NpcsAILogic
 from Settings.UI.cmd_dialogus_ui import CmdDialogusUI
 from Engine.Dialogs import dialogs_multi_lng
 
@@ -137,8 +137,8 @@ class AI:
                         self.base.game_instance['ai_is_activated'] = 1
 
                         # Start NPC Logics
-                        NpcsAI(self.ai_world, self.ai_behaviors, self.ai_chars, self.ai_chars_bs, self.player,
-                               self.player_fsm, self.npcs_fsm_states, self.npc_classes)
+                        NpcsAILogic(self.ai_world, self.ai_behaviors, self.ai_chars, self.ai_chars_bs, self.player,
+                                    self.player_fsm, self.npcs_fsm_states, self.npc_classes)
 
                         return task.done
 

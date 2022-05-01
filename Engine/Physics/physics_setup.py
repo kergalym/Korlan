@@ -2,17 +2,16 @@ from panda3d.bullet import BulletCharacterControllerNode, BulletBoxShape
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import Vec3, BitMask32
 from panda3d.bullet import BulletWorld, BulletDebugNode, BulletRigidBodyNode, BulletPlaneShape
-from direct.showbase.PhysicsManagerGlobal import physicsMgr
 
 from Engine.FSM.player_fsm import PlayerFSM
 from Engine.Physics.collision_solids import BulletCollisionSolids
-from Engine.Physics.npcs_physics import NpcsPhysics
+from Engine.Physics.player_physics import PlayerPhysics
+from Engine.Physics.npc_triggers import NpcTriggers
 
 
 class PhysicsAttr:
 
     def __init__(self):
-        self.physics_mgr = physicsMgr
         self.base = base
         self.world = None
         self.world_nodepath = None
@@ -29,7 +28,8 @@ class PhysicsAttr:
         self.cam_bs_nodepath = None
         self.cam_collider = None
         self.bullet_solids = BulletCollisionSolids()
-        self.npcs_physics = NpcsPhysics()
+        self.player_physics = PlayerPhysics()
+        self.npc_triggers = NpcTriggers()
         self.fsm_player = PlayerFSM()
 
         self.no_mask = BitMask32.allOff()
@@ -158,7 +158,7 @@ class PhysicsAttr:
                                                      world=self.world)
                     # hitboxes task
                     request = self.fsm_player
-                    taskMgr.add(self.npcs_physics.player_hitbox_trace_task,
+                    taskMgr.add(self.player_physics.player_hitbox_trace_task,
                                 "{0}_hitboxes_task".format(col_name.lower()),
                                 extraArgs=[actor, request], appendTask=True)
 
@@ -201,8 +201,8 @@ class PhysicsAttr:
                     self.base.game_instance['lod_np'].node().add_switch(50.0, 0.0)
 
                     # attach trigger sphere
-                    self.npcs_physics.set_ghost_trigger(actor, self.world)
-                    taskMgr.add(self.npcs_physics.actor_area_trigger_task,
+                    self.npc_triggers.set_ghost_trigger(actor, self.world)
+                    taskMgr.add(self.npc_triggers.actor_area_trigger_task,
                                 "{0}_area_trigger_task".format(col_name.lower()),
                                 extraArgs=[actor], appendTask=True)
 
@@ -241,13 +241,13 @@ class PhysicsAttr:
 
                     # attach trigger sphere
                     if "Horse" in col_name:
-                        self.npcs_physics.set_ghost_trigger(actor, self.world)
-                        taskMgr.add(self.npcs_physics.mountable_animal_area_trigger_task,
+                        self.npc_triggers.set_ghost_trigger(actor, self.world)
+                        taskMgr.add(self.npc_triggers.mountable_animal_area_trigger_task,
                                     "{0}_area_trigger_task".format(col_name.lower()),
                                     extraArgs=[actor], appendTask=True)
                     else:
-                        self.npcs_physics.set_ghost_trigger(actor, self.world)
-                        taskMgr.add(self.npcs_physics.actor_area_trigger_task,
+                        self.npc_triggers.set_ghost_trigger(actor, self.world)
+                        taskMgr.add(self.npc_triggers.actor_area_trigger_task,
                                     "{0}_area_trigger_task".format(col_name.lower()),
                                     extraArgs=[actor], appendTask=True)
 

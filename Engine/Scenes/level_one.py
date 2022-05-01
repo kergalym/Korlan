@@ -173,7 +173,7 @@ class LevelOne:
             # Unload AI
             if self.ai and self.ai.ai_world:
                 taskMgr.remove("npc_distance_calculate_task")
-                taskMgr.remove("update_npc_states_task")
+                taskMgr.remove("update_npc_actions_task")
                 taskMgr.remove("update_pathfinding_task")
                 taskMgr.remove("update_ai_world")
 

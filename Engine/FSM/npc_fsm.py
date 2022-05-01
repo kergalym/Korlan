@@ -120,32 +120,66 @@ class NpcFSM(FSM):
                                                     ai_behaviors=ai_behaviors,
                                                     behavior=behavior)
 
-    def enterAttack(self, actor, action, action_next, task):
-        if actor and action and action_next and task:
+    def enterAttack(self, actor, action, task):
+        if actor and action and task:
             any_action = actor.get_anim_control(action)
-            any_action_seq = actor.actor_interval(action)
-            action_next_seq = actor.actor_interval(action_next)
+            # any_action_seq = actor.actor_interval(action)
 
             suffix = '**RightHand:HB'
+            # suffix = ""
             """if actor.get_python_tag("generic_states")['has_sword']:
                 suffix = "sword_BGN"
             elif not actor.get_python_tag("generic_states")['has_sword']:
-                suffix = "**RightHand:HB"
+                suffix = "RightHand:HB"
             """
 
             hitbox_np = actor.find("**/{0}".format(suffix))
 
             if isinstance(task, str):
                 if task == "play":
-                    if not any_action.is_playing():
-                        Sequence(Func(hitbox_np.set_collide_mask, BitMask32.bit(1)),
-                                 any_action_seq,
-                                 Func(hitbox_np.set_collide_mask, BitMask32.allOff()),
-                                 action_next_seq).start()
 
-                elif task == "loop":
                     if not any_action.is_playing():
-                        actor.loop(action)
+                        actor.play(action)
+                    else:
+                        if actor.get_current_frame(action) == 0:
+                            self.fsm_state_wrapper(actor, "generic_states", "is_idle", False)
+                        elif (actor.get_current_frame(action) > 0
+                                and actor.get_current_frame(action) < 2):
+                            hitbox_np.set_collide_mask(BitMask32.bit(1))
+                        elif (actor.get_current_frame(action) > actor.get_num_frames(action)-6
+                              and actor.get_current_frame(action) < actor.get_num_frames(action)-2):
+                            hitbox_np.set_collide_mask(BitMask32.allOff())
+                        elif actor.get_current_frame(action) == actor.get_num_frames(action):
+                            self.fsm_state_wrapper(actor, "generic_states", "is_idle", True)
+                            actor.stop(action)
+
+    def enterAttacked(self, actor, action, task):
+        if actor and action and task and isinstance(action, str):
+
+            if isinstance(task, str):
+                if task == "play":
+                    any_action = actor.get_anim_control(action)
+
+                    if not any_action.is_playing():
+                        actor.play(action)
+                    else:
+                        if (actor.get_current_frame(action) > 0
+                                and actor.get_current_frame(action) < 2):
+                            self.fsm_state_wrapper(actor, "generic_states", "is_idle", False)
+                            self.fsm_state_wrapper(actor, "generic_states", "is_attacked", True)
+                        elif (actor.get_current_frame(action) > actor.get_num_frames(action) - 6
+                              and actor.get_current_frame(action) < actor.get_num_frames(action) - 2):
+                            self.fsm_state_wrapper(actor, "generic_states", "is_attacked", False)
+                            self.fsm_state_wrapper(actor, "generic_states", "is_idle", True)
+                            actor.stop(action)
+
+            """if task == "play":
+                any_action_seq = actor.actor_interval(action)
+                Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_idle", False),
+                         Func(self.fsm_state_wrapper, actor, "generic_states", "is_attacked", True),
+                         any_action_seq,
+                         Func(self.fsm_state_wrapper, actor, "generic_states", "is_attacked", False),
+                         Func(self.fsm_state_wrapper, actor, "generic_states", "is_idle", True)).start()"""
 
     def enterForwardRoll(self, actor, action, action_next, task):
         if actor and action and action_next and task:
@@ -157,23 +191,6 @@ class NpcFSM(FSM):
                 if task == "play":
                     if not any_action.is_playing():
                         Sequence(any_action_seq, action_next_seq).start()
-
-                elif task == "loop":
-                    if not any_action.is_playing():
-                        actor.loop(action)
-
-    def enterAttacked(self, actor, action, action_next, task):
-        if actor and action and action_next and task:
-            any_action = actor.get_anim_control(action)
-            any_action_seq = actor.actor_interval(action)
-            action_next_seq = actor.actor_interval(action_next)
-
-            if isinstance(task, str):
-                if task == "play":
-                    if not any_action.is_playing():
-                        Sequence(any_action_seq,
-                                 Func(self.fsm_state_wrapper, actor, "generic_states", "is_attacked", False),
-                                 action_next_seq).start()
 
                 elif task == "loop":
                     if not any_action.is_playing():
@@ -240,50 +257,3 @@ class NpcFSM(FSM):
     def enterLay(self):
         pass
 
-    def filterIdle(self, request, args):
-        if request not in ['Idle']:
-            return (request,) + args
-        else:
-            return None
-
-    def filterWalk(self, request, args):
-        if request not in ['Walk']:
-            return (request,) + args
-        else:
-            return None
-
-    def filterWalkAny(self, request, args):
-        if request not in ['WalkAny']:
-            return (request,) + args
-        else:
-            return None
-
-    def filterForwardRoll(self, request, args):
-        if request not in ['Attacked']:
-            return (request,) + args
-        else:
-            return None
-
-    def filterAttack(self, request, args):
-        if request not in ['Attack']:
-            return (request,) + args
-        else:
-            return None
-
-    def filterAttacked(self, request, args):
-        if request not in ['Attacked']:
-            return (request,) + args
-        else:
-            return None
-
-    def filterBlock(self, request, args):
-        if request not in ['Block']:
-            return (request,) + args
-        else:
-            return None
-
-    def filterDeath(self, request, args):
-        if request not in ['Death']:
-            return (request,) + args
-        else:
-            return None

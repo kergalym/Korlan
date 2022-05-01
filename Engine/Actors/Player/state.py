@@ -227,7 +227,7 @@ class PlayerState:
             weapons = self.base.game_instance["weapons"]
             if weapons:
                 for name in weapons:
-                    weapon = base.loader.loadModel(base.assets_collector()[name])
+                    weapon = base.loader.load_model(base.assets_collector()[name])
                     weapon.set_name(name)
                     if "bow_kazakh" not in name:
                         weapon.reparent_to(joint)
@@ -250,8 +250,8 @@ class PlayerState:
         if weapon and joint:
             # Create weapon collider
             name = weapon.get_name()
-            min_, max_ = weapon.get_tight_bounds()
-            size = max_ - min_
+            # min_, max_ = weapon.get_tight_bounds()
+            # size = max_ - min_
             shape = BulletBoxShape(Vec3(0.05, 0.55, 0.05))
             body = BulletGhostNode('{0}_BGN'.format(name))
             weapon_rb_np = NodePath(body)
@@ -263,6 +263,7 @@ class PlayerState:
             weapon.set_hpr(325, 343, 0)
             weapon.set_pos(0, 0.3, 0)
             weapon_rb_np.node().add_shape(shape)
+            # weapon_rb_np.node().set_kinematic(True)
 
             # Player and its owning arrow won't collide with each other
             weapon_rb_np.set_collide_mask(BitMask32.allOff())

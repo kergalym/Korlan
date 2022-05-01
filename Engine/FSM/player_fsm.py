@@ -41,22 +41,17 @@ class PlayerFSM(FSM):
                     if not any_action.is_playing():
                         actor.loop(action)
 
-    def enterAttacked(self, actor, action, action_next, task):
-        if actor and action and action_next and task:
+    def enterAttacked(self, actor, action, task):
+        if actor and action and task:
             any_action = actor.get_anim_control(action)
             any_action_seq = actor.actor_interval(action)
-            action_next_seq = actor.actor_interval(action_next)
 
             if isinstance(task, str):
                 if task == "play":
                     if not any_action.is_playing():
-                        Sequence(any_action_seq,
-                                 Func(self.fsm_state_wrapper, "is_attacked", False),
-                                 action_next_seq).start()
-
-                elif task == "loop":
-                    if not any_action.is_playing():
-                        actor.loop(action)
+                        Sequence(Func(self.fsm_state_wrapper, "is_attacked", True),
+                                 any_action_seq,
+                                 Func(self.fsm_state_wrapper, "is_attacked", False)).start()
 
     def enterSwim(self, actor, action, task):
         if actor and action and task:
@@ -111,7 +106,8 @@ class PlayerFSM(FSM):
             if isinstance(task, str):
                 if task == "play":
                     if not any_action.is_playing():
-                        Sequence(any_action_seq, Func(self.fsm_state_wrapper, "is_busy", False)).start()
+                        Sequence(any_action_seq,
+                                 Func(self.fsm_state_wrapper, "is_busy", False)).start()
 
                 elif task == "loop":
                     if not any_action.is_playing():
@@ -123,18 +119,11 @@ class PlayerFSM(FSM):
         else:
             return None
 
-    def filterAttacked(self, request, args):
-        if (hasattr(self.base, 'player_ref')
-                and self.base.player_ref):
-            any_action = self.base.player_ref.get_anim_control('BigHitToHead')
-            if (any_action.is_playing() is False
-                    and request in ['Attacked']):
-                base.player_states['is_attacked'] = True
-                return (request,) + args
-            elif (any_action.is_playing()
-                    and request in ['Attacked']):
-                base.player_states['is_attacked'] = False
-                return None
+    """def filterAttacked(self, request, args):
+        if request not in ['Attacked']:
+            any_action = args[0].get_anim_control(args[1])
+            if not any_action.is_playing():
+                return (request,) + args"""
 
     def filterSwim(self, request, args):
         if (hasattr(self.base, 'player_ref')
@@ -145,7 +134,7 @@ class PlayerFSM(FSM):
                 base.player_states['is_busy'] = True
                 return (request,) + args
             elif (any_action.is_playing()
-                    and request in ['Swim']):
+                  and request in ['Swim']):
                 base.player_states['is_busy'] = False
                 return None
 
@@ -158,7 +147,7 @@ class PlayerFSM(FSM):
                 base.player_states['is_attacked'] = True
                 return (request,) + args
             elif (any_action.is_playing()
-                    and request in ['Lay']):
+                  and request in ['Lay']):
                 base.player_states['is_attacked'] = False
                 return None
 
@@ -171,19 +160,12 @@ class PlayerFSM(FSM):
                 base.player_states['is_attacked'] = True
                 return (request,) + args
             elif (any_action.is_playing()
-                    and request in ['Life']):
+                  and request in ['Life']):
                 base.player_states['is_attacked'] = False
                 return None
 
     def filterDeath(self, request, args):
-        if (hasattr(self.base, 'player_ref')
-                and self.base.player_ref):
-            any_action = self.base.player_ref.get_anim_control('Death')
-            if (any_action.is_playing() is False
-                    and request in ['Death']):
-                base.player_states['is_attacked'] = True
+        if request not in ['Death']:
+            any_action = args[0].get_anim_control(args[1])
+            if not any_action.is_playing():
                 return (request,) + args
-            elif (any_action.is_playing()
-                    and request in ['Death']):
-                base.player_states['is_attacked'] = False
-                return None
