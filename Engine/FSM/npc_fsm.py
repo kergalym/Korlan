@@ -90,7 +90,7 @@ class NpcFSM(FSM):
                 actor.set_play_rate(1.0, action)
 
             # Get correct NodePath
-            if ai_chars_bs:
+            if self.base.game_instance["use_pandai"] and ai_chars_bs:
                 name = actor.get_name()
                 actor_bs = ai_chars_bs[name]
                 self.set_basic_npc_behaviors(actor=actor_bs,

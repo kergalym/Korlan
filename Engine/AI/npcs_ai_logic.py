@@ -1,4 +1,6 @@
 from direct.task.TaskManagerGlobal import taskMgr
+from panda3d.core import Vec3, Vec2
+
 from Engine.Physics.npc_physics import NpcPhysics
 
 
@@ -18,6 +20,12 @@ class NpcsAILogic:
         self.npc_classes = npc_classes
         self.npc_rotations = {}
         self.start_attack = False
+        self.navmesh_query = self.base.game_instance["navmesh_query"]
+        if not self.navmesh_query:
+            self.base.game_instance["use_pandai"] = True
+        else:
+            self.base.game_instance["use_pandai"] = False
+
         self.vect = {"panic_dist": 5,
                      "relax_dist": 5,
                      "wander_radius": 5,
@@ -110,31 +118,52 @@ class NpcsAILogic:
                 if actor_cls in actor.get_name():
                     return npc_classes[actor_cls]
 
+    def actor_rotate(self, actor_npc_bs, path_points):
+        current_dir = actor_npc_bs.get_hpr()
+
+        for i in range(len(path_points) - 1):
+            new_hpr = Vec3(Vec2(0, -1).signed_angle_deg(path_points[i + 1].xy - path_points[i].xy), current_dir[1],
+                           current_dir[2])
+            actor_npc_bs.set_hpr(new_hpr)
+            # actor_npc_bs.hprInterval(0, new_hpr)
+
     def npc_in_staying_logic(self, actor, request):
         if actor and request:
             actor_name = actor.get_name()
-            if (self.ai_behaviors[actor_name].behavior_status("pursue") == "disabled"
-                    or self.ai_behaviors[actor_name].behavior_status("pursue") == "done"):
-                if actor.get_python_tag("generic_states")['is_moving']:
-                    actor.get_python_tag("generic_states")['is_moving'] = False
-                if "Horse" not in actor_name:
-                    if self.ai_behaviors[actor_name].behavior_status("pursue") != "disabled":
-                        self.ai_behaviors[actor_name].remove_ai("pursue")
+            if self.base.game_instance["use_pandai"]:
+                if (self.ai_behaviors[actor_name].behavior_status("pursue") == "disabled"
+                        or self.ai_behaviors[actor_name].behavior_status("pursue") == "done"):
+                    if actor.get_python_tag("generic_states")['is_moving']:
+                        actor.get_python_tag("generic_states")['is_moving'] = False
+                    if "Horse" not in actor_name:
+                        if self.ai_behaviors[actor_name].behavior_status("pursue") != "disabled":
+                            self.ai_behaviors[actor_name].remove_ai("pursue")
 
                         if not actor.get_python_tag("generic_states")['is_idle']:
                             actor.get_python_tag("generic_states")['is_idle'] = True
+                            actor.get_python_tag("generic_states")['is_attacked'] = False
                             if actor.get_python_tag("generic_states")['is_idle']:
                                 if actor.get_python_tag("generic_states")['is_crouch_moving']:
                                     request.request("Idle", actor, "standing_to_crouch", "loop")
                                 elif not actor.get_python_tag("generic_states")['is_crouch_moving']:
                                     request.request("Idle", actor, "Standing_idle_male", "loop")
+            else:
+                if not actor.get_python_tag("generic_states")['is_idle']:
+                    actor.get_python_tag("generic_states")['is_idle'] = True
+                    actor.get_python_tag("generic_states")['is_attacked'] = False
+                    if actor.get_python_tag("generic_states")['is_idle']:
+                        if actor.get_python_tag("generic_states")['is_crouch_moving']:
+                            request.request("Idle", actor, "standing_to_crouch", "loop")
+                        elif not actor.get_python_tag("generic_states")['is_crouch_moving']:
+                            request.request("Idle", actor, "Standing_idle_male", "loop")
 
-    def npc_in_walking_logic(self, actor, oppo_npc_bs, request):
-        if actor and oppo_npc_bs and request:
+    def npc_in_walking_logic(self, actor, actor_npc_bs, oppo_npc_bs, request):
+        if actor and actor_npc_bs and oppo_npc_bs and request:
             actor_name = actor.get_name()
             if (self.ai_behaviors[actor_name].behavior_status("pursue") == "disabled"
                     or self.ai_behaviors[actor_name].behavior_status("pursue") == "done"):
-                if actor.get_python_tag("generic_states")['is_idle']:
+                if (actor.get_python_tag("generic_states")['is_idle']
+                        and not actor.get_python_tag("generic_states")['is_attacked']):
                     actor.get_python_tag("generic_states")['is_idle'] = False
                 if not actor.get_python_tag("generic_states")['is_moving']:
                     actor.get_python_tag("generic_states")['is_moving'] = True
@@ -143,6 +172,32 @@ class NpcsAILogic:
                                     self.ai_chars_bs,
                                     self.ai_behaviors[actor_name],
                                     "pursuer", "Walking", self.vect, "loop")
+
+                    # Start path from actor's pose
+                    pos = actor_npc_bs.get_pos()
+                    current_dir = actor_npc_bs.get_hpr()
+
+                    if self.navmesh_query:
+                        self.navmesh_query.nearest_point(pos)
+                        # Set last pos from opposite actor's pos
+                        last_pos = oppo_npc_bs.get_pos()
+
+                        # Find path
+                        path = self.navmesh_query.find_path(pos, last_pos)
+                        path_points = list(path.points)
+
+                        for i in range(len(path_points) - 1):
+                            speed = 5
+                            # Rotation
+                            new_hpr = Vec3(Vec2(0, -1).signed_angle_deg(path_points[i + 1].xy - path_points[i].xy),
+                                           current_dir[1],
+                                           current_dir[2])
+                            actor_npc_bs.set_hpr(new_hpr)
+
+                            # Movement
+                            dist = (path_points[i + 1] - path_points[i]).length()
+                            # dist / speed
+                            actor_npc_bs.set_pos(path_points[i+speed])
 
     def npc_in_gathering_logic(self, actor, request):
         pass
@@ -214,7 +269,6 @@ class NpcsAILogic:
                 actor_name = actor.get_name()
                 actor_npc_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
                 self.ai_chars[actor_name].set_max_force(5)
-                # actor_ref = self.base.game_instance['actors_ref'][actor_name]
 
                 if passive:
                     # Just stay
@@ -222,6 +276,7 @@ class NpcsAILogic:
                         self.npc_in_staying_logic(actor, request)
 
                 if passive is False:
+                    print(actor.get_current_anim())
                     # Get required data about enemy to deal with it
                     enemy_npc_ref = self.get_enemy_ref(exclude_cls="friend")
                     enemy_npc_bs = self.get_enemy_bs(exclude_cls="friend")
@@ -232,10 +287,9 @@ class NpcsAILogic:
                     if enemy_npc_ref.get_python_tag("generic_states")['is_alive']:
                         # If NPC is far from Player, do pursue Player
                         if player_dist > 1:
-                            self.npc_in_walking_logic(actor, player, request)
+                            self.npc_in_walking_logic(actor, actor_npc_bs, player, request)
                         elif player_dist <= 1:
                             self.npc_in_staying_logic(actor, request)
-                            self.npc_in_attacking_logic(actor, player, dt, request)
 
                     if not enemy_npc_ref.get_python_tag("generic_states")['is_alive']:
                         self.npc_in_staying_logic(actor, request)
@@ -243,13 +297,14 @@ class NpcsAILogic:
 
                     # If NPC is far from enemy, do pursue enemy
                     if self.base.game_instance['player_ref'].get_current_frame("Boxing"):
+                        self.npc_in_attacking_logic(actor, player, dt, request)
                         if not self.start_attack:
                             self.start_attack = True
 
                     # Friendly NPC starts attacking the opponent when player first starts attacking it
                     """if self.start_attack:
                         if enemy_dist > 1:
-                            self.npc_in_walking_logic(actor, enemy_npc_bs, request)
+                            self.npc_in_walking_logic(actor, actor_npc_bs, enemy_npc_bs, request)
                         elif enemy_dist <= 1:
                             self.npc_in_staying_logic(actor, request)
                             self.npc_in_attacking_logic(actor, enemy_npc_bs, dt, request)"""

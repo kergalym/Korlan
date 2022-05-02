@@ -4,6 +4,10 @@ from Engine.Renderer.renderer import RenderAttr
 from Settings.Input.indoor_camera import IndoorCamera
 from Engine.Quests.quests import Quests
 
+# TODO UNCOMMENT WHEN R&D BECOMES PRODUCTION-READY
+# from panda3d.navigation import NavMeshNode, NavMeshQuery
+# from panda3d.navmeshgen import NavMeshBuilder
+
 
 class SceneOne:
 
@@ -32,6 +36,49 @@ class SceneOne:
         self.game_cfg_dir = base.game_cfg_dir
         self.game_settings_filename = base.game_settings_filename
         self.cfg_path = self.game_cfg
+
+        # NavMeshBuilder is a class that is responsible
+        # for building the polygon meshes and navigation meshes.
+        self.builder = None
+        self.navmesh = None
+
+        self.navmeshnode = None
+        self.navmeshnodepath = None
+
+        # Define the NavMeshQuery instance
+        self.navmesh_query = None
+
+    def set_level_nav(self, scene):
+        if scene:
+            # TODO UNCOMMENT WHEN R&D BECOMES PRODUCTION-READY
+            """"# NavMeshBuilder is a class that is responsible
+            # for building the polygon meshes and navigation meshes.
+            self.builder = NavMeshBuilder()
+            # Take NodePath as input. This method only uses
+            # the collision nodes that are under this node.
+            self.builder.from_coll_node_path(scene)
+
+            self.builder.actor_height = 10
+            self.builder.actor_radius = 4
+            self.builder.actor_max_climb = 2
+            self.navmesh = self.builder.build()
+
+            self.navmeshnode = NavMeshNode("scene", self.navmesh)
+            self.navmeshnodepath: NodePath = scene.attach_new_node(self.navmeshnode)
+
+            # Uncomment the line below to save the generated navmesh to file.
+            # self.navmeshnodepath.write_bam_file("scene_navmesh.bam")
+
+            # Uncomment the following section to read the generated navmesh from file.
+            # self.navmeshnodepath.remove_node()
+            # self.navmeshnodepath = self.loader.loadModel("scene_navmesh.bam")
+            # self.navmeshnodepath.reparent_to(self.scene)
+            # self.navmeshnode: NavMeshNode = self.navmeshnodepath.node()
+            # self.navmesh = self.navmeshnode.get_nav_mesh()
+
+            # Initialize the NavMeshQuery that we will use.
+            self.navmesh_query = NavMeshQuery(self.navmesh)
+            self.base.game_instance["navmesh_query"] = self.navmesh_query"""
 
     async def set_level(self, path, name, axis, rotation, scale, culling):
         if (isinstance(path, str)
@@ -122,13 +169,13 @@ class SceneOne:
             coll_path = colliders_dict[coll_scene_name]
             coll_scene = await self.base.loader.load_model(coll_path, blocking=False)
             coll_scene.set_name(coll_scene_name)
-
             coll_scene_np = NodePath("Collisions")
             coll_scene_np.reparent_to(world)
-
             coll_scene.reparent_to(coll_scene_np)
-
             coll_scene.hide()
+
+            # Construct navigation system
+            # self.set_level_nav(scene)
 
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
                 scene.hide()

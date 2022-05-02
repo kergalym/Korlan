@@ -369,6 +369,8 @@ class Main(ShowBase):
             "arrow_count": 0,
             "item_player_access_codes": {},
             "level_assets_np": {},
+            "use_pandai": False,
+            "navmesh_query": None,
         }
         self.shared_functions = {}
 
