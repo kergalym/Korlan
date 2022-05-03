@@ -208,7 +208,8 @@ class Actions:
                 and isinstance(anims, dict)):
 
             for key in base.player_states:
-                base.player_states[key] = False
+                if key != "is_alive":
+                    base.player_states[key] = False
 
             self.base.game_instance['player_actions_init_is_activated'] = 0
             if self.game_settings['Debug']['set_editor_mode'] == 'NO':

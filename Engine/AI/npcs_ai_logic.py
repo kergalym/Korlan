@@ -277,7 +277,6 @@ class NpcsAILogic:
                         self.npc_in_staying_logic(actor, request)
 
                 if passive is False:
-                    # print(actor.get_current_anim())
                     # Get required data about enemy to deal with it
                     enemy_npc_ref = self.get_enemy_ref(exclude_cls="friend")
                     enemy_npc_bs = self.get_enemy_bs(exclude_cls="friend")

@@ -175,7 +175,7 @@ class PlayerState:
                 # since we allow only one equipped weapon
                 if "has" in action:
                     for key in base.player_states:
-                        if key != action:
+                        if key != action and key != "is_alive":
                             base.player_states[key] = False
 
             else:
@@ -184,7 +184,7 @@ class PlayerState:
                 # we don't have any weapon equipped
                 if "has" in action:
                     for key in base.player_states:
-                        if key != action:
+                        if key != action and key != "is_alive":
                             base.player_states[key] = False
                         if "idle" not in action:
                             base.player_states[key] = False
@@ -196,7 +196,7 @@ class PlayerState:
                 and isinstance(action, str)
                 and isinstance(state, bool)):
             for key in base.player_states:
-                if "has" in key:
+                if "has" in key and key != "is_alive":
                    base.player_states[key] = False
 
             base.player_states[action] = state
@@ -208,11 +208,12 @@ class PlayerState:
             if state:
                 for key in base.player_states:
                     if (action == "is_crouch_moving"
+                            and key != "is_alive"
                             and "has" not in key):
                         base.player_states[key] = False
                         base.player_states["is_idle"] = False
                         base.player_states["is_crouch_moving"] = True
-                    elif action == "is_idle":
+                    elif action == "is_idle" and key != "is_alive":
                         base.player_states[key] = False
                         base.player_states["is_idle"] = True
             elif not state:
