@@ -205,6 +205,7 @@ class NpcsAILogic:
     def npc_in_attacking_logic(self, actor, actor_npc_bs, dt, request):
         name = actor.get_name()
         if (actor.get_python_tag("generic_states")['is_idle']
+                and not actor.get_python_tag("generic_states")['is_attacked']
                 and not actor.get_python_tag("generic_states")['is_moving']):
             action = ""
             if (actor.get_python_tag("human_states")
@@ -276,7 +277,7 @@ class NpcsAILogic:
                         self.npc_in_staying_logic(actor, request)
 
                 if passive is False:
-                    print(actor.get_current_anim())
+                    # print(actor.get_current_anim())
                     # Get required data about enemy to deal with it
                     enemy_npc_ref = self.get_enemy_ref(exclude_cls="friend")
                     enemy_npc_bs = self.get_enemy_bs(exclude_cls="friend")

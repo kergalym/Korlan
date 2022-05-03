@@ -10,7 +10,8 @@ class StatUI:
         self.fonts = base.fonts_collector()
         # instance of the abstract class
         self.font = FontPool
-        self.actions_ui_np = []
+        self.player_actions_ui_np = []
+        self.npc_actions_ui_np = []
 
         """ Texts & Fonts"""
         # self.menu_font = self.fonts['OpenSans-Regular']
@@ -29,8 +30,10 @@ class StatUI:
             self.title_item_state = None
             self.text_obj_stat_h = None
             self.text_obj_stat_p = None
+            # Player State
             self.title_dbg_mode_player_state = None
             self.text_player_action_stat_p = None
+            # NPC State
             self.title_dbg_mode_npc_state = None
             self.text_npc_action_stat_p = None
 
@@ -143,7 +146,7 @@ class StatUI:
                                                       mayChange=True)
 
         self.title_dbg_mode_npc_state = OnscreenText(text="",
-                                                     pos=(0.5, -0.2),
+                                                     pos=(1.1, 0.9),
                                                      scale=0.03,
                                                      fg=(0.9, 1, 0, 0.9),
                                                      font=self.font.load_font(self.menu_font),
@@ -151,7 +154,7 @@ class StatUI:
                                                      mayChange=True)
 
         self.text_npc_action_stat_p = OnscreenText(text="",
-                                                   pos=(0.5, -0.3),
+                                                   pos=(1.1, 0.8),
                                                    scale=0.03,
                                                    fg=(0.9, 1, 0, 0.9),
                                                    font=self.font.load_font(self.menu_font),
@@ -254,21 +257,6 @@ class StatUI:
                 records_designed += text_near_item
                 return records_designed
 
-    def gen_stat_npc_action_text_p(self):
-        """ Function    : gen_stat_npc_action_text_p
-
-            Description : Generate stat text
-
-            Input       : None
-
-            Output      : None
-
-            Return      : String
-        """
-        if hasattr(base, "fsm"):
-            if base.fsm:
-                return "State: {0}\n".format(base.fsm.state)
-
     def set_stat_text(self, records_h, records_p, set_mode):
         """ Function    : set_stat_text
 
@@ -361,14 +349,14 @@ class StatUI:
 
             Return      : None
         """
-        if self.actions_ui_np and isinstance(set_mode, str):
+        if self.player_actions_ui_np and isinstance(set_mode, str):
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
                 if (not base.game_instance['menu_mode']
                         and set_mode == 'show'):
                     self.title_dbg_mode_player_state.setText("DEBUG MODE: Player State")
 
                     if hasattr(base, "player_states"):
-                        for key, node in zip(base.player_states, self.actions_ui_np):
+                        for key, node in zip(base.player_states, self.player_actions_ui_np):
                             item = "{0}: {1}\n".format(key, base.player_states[key])
                             color = (0.9, 1, 0, 1)
                             if base.player_states[key]:
@@ -385,7 +373,7 @@ class StatUI:
                     self.title_dbg_mode_player_state.hide()
                     self.text_player_action_stat_p.hide()
 
-    def set_npc_action_stat_text(self, records_p, set_mode):
+    def set_npc_action_stat_text(self, set_mode):
         """ Function    : set_npc_action_stat_text
 
             Description : Generate stat text
@@ -396,14 +384,24 @@ class StatUI:
 
             Return      : None
         """
-        if (records_p
-                and isinstance(records_p, str)
-                and isinstance(set_mode, str)):
+        if self.npc_actions_ui_np and isinstance(set_mode, str):
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
                 if (not base.game_instance['menu_mode']
                         and set_mode == 'show'):
-                    self.title_dbg_mode_npc_state.setText("DEBUG MODE: NPC States")
-                    self.text_npc_action_stat_p.setText(records_p)
+                    self.title_dbg_mode_npc_state.setText("DEBUG MODE: Friendly NPC State")
+
+                    if hasattr(base, "player_states"):
+                        npc_actions = self.get_npc_actions_list("Ernar")
+                        if npc_actions:
+                            for key, node in zip(npc_actions, self.npc_actions_ui_np):
+                                item = "{0}: {1}\n".format(key, npc_actions[key])
+                                color = (0.9, 1, 0, 1)
+                                if npc_actions[key]:
+                                    color = (1, 0.1, 0, 1)
+
+                                node.setText(item)
+                                node['fg'] = color
+
                     self.title_dbg_mode_npc_state.show()
                     self.text_npc_action_stat_p.show()
 
@@ -442,11 +440,10 @@ class StatUI:
             dist_vec_fmt_p = self.gen_stat_text_p(dist_vec)
             stat_obj_fmt_h = self.gen_stat_obj_text_h()
             stat_obj_fmt_p = self.gen_stat_obj_text_p()
-            stat_npc_action_fmt_p = self.gen_stat_npc_action_text_p()
             self.set_stat_text(dist_vec_fmt_h, dist_vec_fmt_p, set_mode='show')
             self.set_obj_stat_text(stat_obj_fmt_h, stat_obj_fmt_p, set_mode='show')
             self.set_player_action_stat_text(set_mode='show')
-            self.set_npc_action_stat_text(stat_npc_action_fmt_p, set_mode='show')
+            self.set_npc_action_stat_text(set_mode='show')
             self.text_toggle_col.show()
 
         elif base.game_instance['menu_mode']:
@@ -455,25 +452,61 @@ class StatUI:
 
         return task.cont
 
-    def set_game_stat(self):
-        self.set_stat_ui()
-        if len(self.actions_ui_np) > 0:
-            self.actions_ui_np.clear()
+    def draw_player_actions_list(self):
+        if len(self.player_actions_ui_np) > 0:
+            self.player_actions_ui_np.clear()
         pos_y = 0.85
 
-        for i in range(len(base.player_states)):
-            if i >= 0:
-                pos_y -= 0.04
+        if hasattr(base, "player_states"):
+            for i in range(len(base.player_states)):
+                if i >= 0:
+                    pos_y -= 0.04
 
-            item = OnscreenText(text="",
-                                pos=(0.5, pos_y),
-                                scale=0.03,
-                                fg=(255, 255, 255, 0.9),
-                                font=self.font.load_font(self.menu_font),
-                                align=TextNode.ALeft,
-                                mayChange=True,
-                                parent=self.text_player_action_stat_p)
-            self.actions_ui_np.append(item)
+                item = OnscreenText(text="",
+                                    pos=(0.5, pos_y),
+                                    scale=0.03,
+                                    fg=(255, 255, 255, 0.9),
+                                    font=self.font.load_font(self.menu_font),
+                                    align=TextNode.ALeft,
+                                    mayChange=True,
+                                    parent=self.text_player_action_stat_p)
+                self.player_actions_ui_np.append(item)
+
+    def get_npc_actions_list(self, actor_name):
+        if actor_name and isinstance(actor_name, str):
+            for k in base.game_instance["actors_ref"]:
+                actor = base.game_instance["actors_ref"][k]
+                if actor_name in actor.get_name():
+                    return actor.get_python_tag("generic_states")
+
+    def draw_npc_actions_list(self):
+        if len(self.npc_actions_ui_np) > 0:
+            self.npc_actions_ui_np.clear()
+        pos_y = 0.85
+
+        npc_states = self.get_npc_actions_list("Ernar")
+
+        if npc_states:
+            for i in range(len(npc_states)):
+                if i >= 0:
+                    pos_y -= 0.04
+
+                item = OnscreenText(text="",
+                                    pos=(1.1, pos_y),
+                                    scale=0.03,
+                                    fg=(255, 255, 255, 0.9),
+                                    font=self.font.load_font(self.menu_font),
+                                    align=TextNode.ALeft,
+                                    mayChange=True,
+                                    parent=self.text_npc_action_stat_p)
+                self.npc_actions_ui_np.append(item)
+
+    def set_game_stat(self):
+        self.set_stat_ui()
+
+        # Set player and NPC actions
+        self.draw_player_actions_list()
+        self.draw_npc_actions_list()
 
         taskMgr.add(self.show_game_stat_task,
                     "show_game_stat_task",

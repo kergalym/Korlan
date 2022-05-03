@@ -70,9 +70,10 @@ class NpcState:
             npc_name = actor.get_name()
             npc_hud_ui = DirectFrame(text="",
                                      frameColor=(0.0, 0.0, 0.0, 0.4),
-                                     pos=(0.35, 0, 0.57),
+                                     pos=(1.7, 0, -1.1),
                                      frameSize=self.npc_hud_ui_frame_size,
                                      scale=self.npc_hud_ui_scale)
+            base.npc_hud_ui = npc_hud_ui
             # logo
             logo = OnscreenImage(image=self.images['{0}_logo_ui'.format(npc_name.lower())],
                                  pos=(-1.73, 0, 1.45),
