@@ -17,30 +17,30 @@ py_npc_actor_classes = []
 py_npc_fsm_classes = []
 
 # List used by loading screen
-level_npc_assets = {'name': ['NPC_Ernar', 'NPC_Mongol', 'NPC_Mongol2', 'NPC_Korlan_Horse', 'NPC_Horse'],
+LEVEL_NPC_ASSETS = {'name': ['NPC_Ernar', 'NPC_Mongol', 'NPC_Mongol2', 'NPC_Korlan_Horse', 'NPC_Horse'],
                     'type': ['npc', 'npc', 'npc', 'npc_animal', 'npc_animal'],
                     'shape': ['capsule', 'capsule', 'capsule', 'capsule', 'capsule'],
                     'class': ['friend', 'enemy', 'enemy', 'friend', 'enemy']
                     }
 
-level_npc_axis = {'NPC_Ernar': [-3.0, 17.0, 0],
+LEVEL_NPC_AXIS = {'NPC_Ernar': [-3.0, 17.0, 0],
                   'NPC_Mongol': [-7.0, 20.0, 0],
                   'NPC_Mongol2': [-10.0, 27.0, 0],
                   'NPC_Korlan_Horse': [-9.0, 5.0, 0],
                   'NPC_Horse': [9.0, 5.0, 0]
                   }
 
-for i in range(len(level_npc_assets['name'])):
+for i in range(len(LEVEL_NPC_ASSETS['name'])):
     py_npc_actor_classes.append(NpcGeneric)
     py_npc_fsm_classes.append(NpcFSM)
 
 """
-level_npc_assets = {'name': [],
+LEVEL_NPC_ASSETS = {'name': [],
                     'type': [],
                     'shape': [],
                     'class': []
                     }
-level_npc_axis = {}
+LEVEL_NPC_AXIS = {}
 """
 
 
@@ -177,7 +177,7 @@ class LevelOne:
                 taskMgr.remove("update_pathfinding_task")
                 taskMgr.remove("update_ai_world")
 
-                for key in level_npc_assets['class']:
+                for key in LEVEL_NPC_ASSETS['class']:
                     self.ai.ai_world.removeAiChar(key)
 
                 self.ai.ai_char = None
@@ -353,20 +353,20 @@ class LevelOne:
                         'class': ['env', 'hero']
                         }
 
-        for actor, npc_fsm_cls in zip(level_npc_assets['name'], self.actor_fsm_classes):
+        for actor, npc_fsm_cls in zip(LEVEL_NPC_ASSETS['name'], self.actor_fsm_classes):
             if "NPC" in actor and npc_fsm_cls:
                 self.npcs_fsm_states[actor] = npc_fsm_cls
 
         # Join list values into one shared dict
         level_assets_joined = {}
-        for a_key, b_key in zip(level_assets, level_npc_assets):
+        for a_key, b_key in zip(level_assets, LEVEL_NPC_ASSETS):
             if a_key == b_key:
-                level_assets_joined[a_key] = level_assets[a_key] + level_npc_assets[a_key]
+                level_assets_joined[a_key] = level_assets[a_key] + LEVEL_NPC_ASSETS[a_key]
 
         self.base.game_instance['level_assets_np'] = level_assets_joined
 
         self.actors_for_focus = {}
-        for index, actor in enumerate(level_npc_assets['name'], 1):
+        for index, actor in enumerate(LEVEL_NPC_ASSETS['name'], 1):
             self.actors_for_focus[index] = actor
 
         """ Setup Physics """
@@ -396,13 +396,16 @@ class LevelOne:
                                           scale=[1.0, 1.0, 1.0],
                                           culling=True))
 
-        for actor, npc_cls, axis_actor in zip(level_npc_assets['name'],
-                                              self.actor_classes,
-                                              level_npc_axis):
+        for actor, _type, npc_cls, axis_actor in zip(LEVEL_NPC_ASSETS['name'],
+                                                     LEVEL_NPC_ASSETS['type'],
+                                                     self.actor_classes,
+                                                     LEVEL_NPC_AXIS):
+
             if actor == axis_actor:
-                axis = level_npc_axis[axis_actor]
+                axis = LEVEL_NPC_AXIS[axis_actor]
                 taskMgr.add(npc_cls.set_actor(mode="game",
                                               name=actor,
+                                              type=_type,
                                               path=assets['{0}_{1}'.format(actor, suffix)],
                                               animation=anims,
                                               axis=axis,

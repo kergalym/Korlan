@@ -142,6 +142,7 @@ class NpcFSM(FSM):
                         actor.play(action)
                     else:
                         if actor.get_current_frame(action) == 0:
+                            self.fsm_state_wrapper(actor, "human_states", "is_hitting", True)
                             self.fsm_state_wrapper(actor, "generic_states", "is_idle", False)
                         elif (actor.get_current_frame(action) > 0
                                 and actor.get_current_frame(action) < 2):
@@ -150,6 +151,7 @@ class NpcFSM(FSM):
                               and actor.get_current_frame(action) < actor.get_num_frames(action)-2):
                             hitbox_np.set_collide_mask(BitMask32.allOff())
                         elif actor.get_current_frame(action) == actor.get_num_frames(action):
+                            self.fsm_state_wrapper(actor, "human_states", "is_hitting", False)
                             self.fsm_state_wrapper(actor, "generic_states", "is_idle", True)
                             actor.stop(action)
 
@@ -160,18 +162,17 @@ class NpcFSM(FSM):
                 if task == "play":
                     any_action = actor.get_anim_control(action)
 
-                    if not any_action.is_playing():
-                        actor.play(action)
-                    else:
-                        if (actor.get_current_frame(action) > 0
-                                and actor.get_current_frame(action) < 2):
-                            self.fsm_state_wrapper(actor, "generic_states", "is_idle", False)
-                            self.fsm_state_wrapper(actor, "generic_states", "is_attacked", True)
-                        elif (actor.get_current_frame(action) > actor.get_num_frames(action) - 6
-                              and actor.get_current_frame(action) < actor.get_num_frames(action) - 2):
-                            self.fsm_state_wrapper(actor, "generic_states", "is_attacked", False)
-                            self.fsm_state_wrapper(actor, "generic_states", "is_idle", True)
-                            actor.stop(action)
+                    actor.play(action)
+
+                    if (actor.get_current_frame(action) > 0
+                            and actor.get_current_frame(action) < 2):
+                        self.fsm_state_wrapper(actor, "generic_states", "is_idle", False)
+                        self.fsm_state_wrapper(actor, "generic_states", "is_attacked", True)
+                    elif (actor.get_current_frame(action) > actor.get_num_frames(action) - 6
+                          and actor.get_current_frame(action) < actor.get_num_frames(action) - 2):
+                        self.fsm_state_wrapper(actor, "generic_states", "is_attacked", False)
+                        self.fsm_state_wrapper(actor, "generic_states", "is_idle", True)
+                        actor.stop(action)
 
             """if task == "play":
                 any_action_seq = actor.actor_interval(action)
@@ -181,16 +182,14 @@ class NpcFSM(FSM):
                          Func(self.fsm_state_wrapper, actor, "generic_states", "is_attacked", False),
                          Func(self.fsm_state_wrapper, actor, "generic_states", "is_idle", True)).start()"""
 
-    def enterForwardRoll(self, actor, action, action_next, task):
-        if actor and action and action_next and task:
+    def enterForwardRoll(self, actor, action, task):
+        if actor and action and task:
             any_action = actor.get_anim_control(action)
-            any_action_seq = actor.actor_interval(action)
-            action_next_seq = actor.actor_interval(action_next)
 
             if isinstance(task, str):
                 if task == "play":
                     if not any_action.is_playing():
-                        Sequence(any_action_seq, action_next_seq).start()
+                        actor.play(action)
 
                 elif task == "loop":
                     if not any_action.is_playing():
@@ -202,15 +201,14 @@ class NpcFSM(FSM):
     def enterFAttack(self):
         pass
 
-    def enterBlock(self, actor, action, action_next, task):
-        if actor and action and action_next and task:
+    def enterBlock(self, actor, action, task):
+        if actor and action and task:
             any_action = actor.get_anim_control(action)
 
             if isinstance(task, str):
                 if task == "play":
                     if not any_action.is_playing():
-                        Sequence(actor.actor_interval(action, loop=0),
-                                 actor.actor_interval(action_next, loop=1)).start()
+                        actor.play(action)
 
                 elif task == "loop":
                     if not any_action.is_playing():

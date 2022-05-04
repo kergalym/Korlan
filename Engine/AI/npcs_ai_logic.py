@@ -139,7 +139,8 @@ class NpcsAILogic:
                         if self.ai_behaviors[actor_name].behavior_status("pursue") != "disabled":
                             self.ai_behaviors[actor_name].remove_ai("pursue")
 
-                        if not actor.get_python_tag("generic_states")['is_idle']:
+                        if (not actor.get_python_tag("generic_states")['is_idle']
+                                and not actor.get_python_tag("human_states")['is_hitting']):
                             actor.get_python_tag("generic_states")['is_idle'] = True
                             actor.get_python_tag("generic_states")['is_attacked'] = False
                             if actor.get_python_tag("generic_states")['is_idle']:
@@ -148,7 +149,8 @@ class NpcsAILogic:
                                 elif not actor.get_python_tag("generic_states")['is_crouch_moving']:
                                     request.request("Idle", actor, "Standing_idle_male", "loop")
             else:
-                if not actor.get_python_tag("generic_states")['is_idle']:
+                if (not actor.get_python_tag("generic_states")['is_idle']
+                        and not actor.get_python_tag("human_states")['is_hitting']):
                     actor.get_python_tag("generic_states")['is_idle'] = True
                     actor.get_python_tag("generic_states")['is_attacked'] = False
                     if actor.get_python_tag("generic_states")['is_idle']:
@@ -163,6 +165,7 @@ class NpcsAILogic:
             if (self.ai_behaviors[actor_name].behavior_status("pursue") == "disabled"
                     or self.ai_behaviors[actor_name].behavior_status("pursue") == "done"):
                 if (actor.get_python_tag("generic_states")['is_idle']
+                        and not actor.get_python_tag("human_states")['is_hitting']
                         and not actor.get_python_tag("generic_states")['is_attacked']):
                     actor.get_python_tag("generic_states")['is_idle'] = False
                 if not actor.get_python_tag("generic_states")['is_moving']:

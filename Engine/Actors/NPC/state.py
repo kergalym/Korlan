@@ -37,9 +37,6 @@ class NpcState:
                 "is_attacked": False,
                 "is_busy": False,
                 "is_turning": False,
-                "is_mounted": False,
-                "horse_riding": False,
-                "is_on_horse": False
             }
             human_spec_states = {
                 "is_hitting": False,
@@ -48,7 +45,9 @@ class NpcState:
                 "is_using": False,
                 "is_blocking": False,
                 "has_sword": False,
-                "has_bow": False
+                "has_bow": False,
+                "horse_riding": False,
+                "is_on_horse": False
             }
             horse_spec_states = {
                 "is_mounted": False,
@@ -57,10 +56,12 @@ class NpcState:
 
             actor.set_python_tag("generic_states", generic_states)
 
-            if "Human" in actor.get_name():
+            npc_type = actor.get_python_tag("npc_type")
+
+            if npc_type == "npc":
                 actor.set_python_tag("human_states", human_spec_states)
 
-            elif "Horse" in actor.get_name():
+            elif npc_type == "npc_animal" and "Horse" in actor.get_name():
                 actor.set_python_tag("horse_spec_states", horse_spec_states)
 
             actor.set_python_tag("damage_weapons", self.damage_weapons)
