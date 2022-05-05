@@ -17,7 +17,6 @@ class PlayerFSM(FSM):
     def enterIdle(self, actor, action, state):
         if actor and action:
             any_action = actor.get_anim_control(action)
-
             if isinstance(state, str):
                 if state == "play":
                     if not any_action.is_playing():
@@ -29,25 +28,18 @@ class PlayerFSM(FSM):
     def enterForwardRoll(self, actor, action, task):
         if actor and action and task:
             any_action = actor.get_anim_control(action)
-
+            any_action_seq = actor.actor_interval(action)
             if isinstance(task, str):
                 if task == "play":
-                    # TODO: REPLACE WITH ANIM LOGIC
                     if not any_action.is_playing():
-                        actor.play(action)
-
-                elif task == "loop":
-                    if not any_action.is_playing():
-                        actor.loop(action)
+                        Sequence(any_action_seq).start()
 
     def enterAttacked(self, actor, action, task):
         if actor and action and task:
             any_action = actor.get_anim_control(action)
             any_action_seq = actor.actor_interval(action)
-
             if isinstance(task, str):
                 if task == "play":
-                    # TODO: REPLACE WITH ANIM LOGIC
                     if not any_action.is_playing():
                         Sequence(Func(self.fsm_state_wrapper, "is_attacked", True),
                                  any_action_seq,
@@ -56,59 +48,42 @@ class PlayerFSM(FSM):
     def enterSwim(self, actor, action, task):
         if actor and action and task:
             any_action = actor.get_anim_control(action)
-
+            any_action_seq = actor.actor_interval(action)
             if isinstance(task, str):
                 if task == "play":
-                    # TODO: REPLACE WITH ANIM LOGIC
                     if not any_action.is_playing():
-                        actor.play(action)
-
-                elif task == "loop":
-                    if not any_action.is_playing():
-                        actor.loop(action)
+                        Sequence(any_action_seq, Func(self.fsm_state_wrapper, "is_busy", False)).start()
 
     def enterLay(self, actor, action, task):
         if actor and action and task:
             any_action = actor.get_anim_control(action)
-
+            any_action_seq = actor.actor_interval(action)
             if isinstance(task, str):
                 if task == "play":
-                    # TODO: REPLACE WITH ANIM LOGIC
                     if not any_action.is_playing():
-                        actor.play(action)
-
-                elif task == "loop":
-                    if not any_action.is_playing():
-                        actor.loop(action)
+                        Sequence(any_action_seq, Func(self.fsm_state_wrapper, "is_busy", False)).start()
 
     def enterLife(self, actor, action, task):
         if actor and action and task:
             any_action = actor.get_anim_control(action)
-
+            any_action_seq = actor.actor_interval(action)
             if isinstance(task, str):
                 if task == "play":
-                    # TODO: REPLACE WITH ANIM LOGIC
                     if not any_action.is_playing():
-                        actor.play(action)
-
-                elif task == "loop":
-                    if not any_action.is_playing():
-                        actor.loop(action)
+                        Sequence(any_action_seq, Func(self.fsm_state_wrapper, "is_busy", False)).start()
 
     def enterDeath(self, actor, action, task):
         if actor and action and task:
             any_action = actor.get_anim_control(action)
+            any_action_seq = actor.actor_interval(action)
 
             actor_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
             actor_bs.node().set_collision_response(False)
 
             if isinstance(task, str):
                 if task == "play":
-                    # TODO: REPLACE WITH ANIM LOGIC
                     if not any_action.is_playing():
-                        actor.play(action)
+                        Sequence(any_action_seq,
+                                 Func(self.fsm_state_wrapper, "is_busy", False)).start()
 
-                elif task == "loop":
-                    if not any_action.is_playing():
-                        actor.loop(action)
 
