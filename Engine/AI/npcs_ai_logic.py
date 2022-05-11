@@ -37,8 +37,8 @@ class NpcsAILogic:
                     "update_pathfinding_task",
                     appendTask=True)
 
-        taskMgr.add(self.update_npc_actions_task,
-                    "update_npc_actions_task",
+        taskMgr.add(self.npc_behavior_init_task,
+                    "npc_behavior_init_task",
                     appendTask=True)
 
         # Keep this class instance for further usage in NpcBehavior class only
@@ -81,33 +81,37 @@ class NpcsAILogic:
 
             return task.done
 
-    def update_npc_actions_task(self, task):
+    def npc_behavior_init_task(self, task):
         if self.base.game_instance['loading_is_done'] == 1:
             if (self.player
                     and self.base.game_instance['actors_ref']):
-                for actor_name, fsm_name in zip(self.base.game_instance['actors_ref'], self.npcs_fsm_states):
+                for actor_name, fsm_name in zip(self.base.game_instance['actors_ref'],
+                                                self.npcs_fsm_states):
                     if "Horse" not in actor_name:
                         actor = self.base.game_instance['actors_ref'][actor_name]
                         request = self.npcs_fsm_states[fsm_name]
                         npc_class = self.set_npc_class(actor=actor,
                                                        npc_classes=self.npc_classes)
+                        if npc_class == "friend":
+                            name = actor_name.lower()
+                            taskMgr.add(self.npc_behavior.npc_friend_logic,
+                                        "{0}_npc_friend_logic_task".format(name),
+                                        extraArgs=[actor, self.player, request, False],
+                                        appendTask=True)
+                        if npc_class == "neutral":
+                            name = actor_name.lower()
+                            taskMgr.add(self.npc_behavior.npc_neutral_logic,
+                                        "{0}_npc_neutral_logic_task".format(name),
+                                        extraArgs=[actor, self.player, request, True],
+                                        appendTask=True)
+                        if npc_class == "enemy":
+                            name = actor_name.lower()
+                            taskMgr.add(self.npc_behavior.npc_enemy_logic,
+                                        "{0}_npc_enemy_logic_task".format(name),
+                                        extraArgs=[actor, self.player, request, False],
+                                        appendTask=True)
+                return task.done
 
-                        if npc_class:
-                            if npc_class == "friend":
-                                self.npc_behavior.npc_friend_logic(actor=actor,
-                                                                   player=self.player,
-                                                                   request=request,
-                                                                   passive=False)
-                            if npc_class == "neutral":
-                                self.npc_behavior.npc_neutral_logic(actor=actor,
-                                                                    player=self.player,
-                                                                    request=request,
-                                                                    passive=True)
-                            if npc_class == "enemy":
-                                self.npc_behavior.npc_enemy_logic(actor=actor,
-                                                                  player=self.player,
-                                                                  request=request,
-                                                                  passive=False)
         return task.cont
 
     def set_npc_class(self, actor, npc_classes):

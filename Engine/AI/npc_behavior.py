@@ -6,7 +6,7 @@ class NpcBehavior:
         # Keep this class instance for further usage in NpcBehavior class only
         self.npc_ai_logic = self.base.game_instance['npc_ai_logic_cls']
 
-    def npc_friend_logic(self, actor, player, request, passive):
+    def npc_friend_logic(self, actor, player, request, passive, task):
         if (actor and player and request and self.ai_chars_bs
                 and isinstance(passive, bool)):
             if actor.get_python_tag("generic_states")['is_alive']:
@@ -28,7 +28,6 @@ class NpcBehavior:
                     enemy_npc_bs = self.npc_ai_logic.get_enemy_bs(enemy_cls="enemy")
 
                     if actor_npc_bs and enemy_npc_ref and enemy_npc_bs:
-
                         player_dist = int(actor_npc_bs.get_distance(player))
                         enemy_dist = self.npc_ai_logic.get_enemy_vector(actor_npc_bs=actor_npc_bs, 
                                                                         exclude_cls="friend")
@@ -39,9 +38,7 @@ class NpcBehavior:
                                 if player_dist > 1:
                                     self.npc_ai_logic.npc_in_walking_logic(actor, actor_npc_bs, player, request)
                                 elif player_dist <= 1:
-                                    # if not actor.get_python_tag("generic_states")['is_busy']:
                                     self.npc_ai_logic.npc_in_staying_logic(actor, request)
-                                    # self.npc_in_gathering_logic(actor, request)
 
                             if self.base.game_instance['player_ref'].get_current_frame("Boxing"):
 
@@ -72,8 +69,9 @@ class NpcBehavior:
                         else:
                             if enemy_dist <= 1:
                                 self.npc_ai_logic.npc_in_staying_logic(actor, request)
+        return task.cont
 
-    def npc_neutral_logic(self, actor, player, request, passive):
+    def npc_neutral_logic(self, actor, player, request, passive, task):
         if actor and player and request and isinstance(passive, bool):
             if actor.get_python_tag("generic_states")['is_alive']:
                 actor_name = actor.get_name()
@@ -112,8 +110,9 @@ class NpcBehavior:
                         else:
                             if enemy_dist >= 1:
                                 self.npc_ai_logic.npc_in_staying_logic(actor, request)
+        return task.cont
 
-    def npc_enemy_logic(self, actor, player, request, passive):
+    def npc_enemy_logic(self, actor, player, request, passive, task):
         if actor and player and request and isinstance(passive, bool):
             if actor.get_python_tag("generic_states")['is_alive']:
                 # Get the time that elapsed since last frame
@@ -173,3 +172,4 @@ class NpcBehavior:
                                     ai_behaviors[actor_name].remove_ai("evade")
                                     # TODO: Change action to something more suitable
                                     request.request("Idle", actor, "Standing_idle_male", "loop")"""
+        return task.cont
