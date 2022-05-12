@@ -85,31 +85,30 @@ class NpcsAILogic:
         if self.base.game_instance['loading_is_done'] == 1:
             if (self.player
                     and self.base.game_instance['actors_ref']):
-                for actor_name, fsm_name in zip(self.base.game_instance['actors_ref'],
-                                                self.npcs_fsm_states):
-                    if "Horse" not in actor_name:
-                        actor = self.base.game_instance['actors_ref'][actor_name]
-                        request = self.npcs_fsm_states[fsm_name]
-                        npc_class = self.set_npc_class(actor=actor,
-                                                       npc_classes=self.npc_classes)
-                        if npc_class == "friend":
-                            name = actor_name.lower()
-                            taskMgr.add(self.npc_behavior.npc_friend_logic,
-                                        "{0}_npc_friend_logic_task".format(name),
-                                        extraArgs=[actor, self.player, request, False],
-                                        appendTask=True)
-                        if npc_class == "neutral":
-                            name = actor_name.lower()
-                            taskMgr.add(self.npc_behavior.npc_neutral_logic,
-                                        "{0}_npc_neutral_logic_task".format(name),
-                                        extraArgs=[actor, self.player, request, True],
-                                        appendTask=True)
-                        if npc_class == "enemy":
-                            name = actor_name.lower()
-                            taskMgr.add(self.npc_behavior.npc_enemy_logic,
-                                        "{0}_npc_enemy_logic_task".format(name),
-                                        extraArgs=[actor, self.player, request, False],
-                                        appendTask=True)
+                for actor_name in self.base.game_instance['actors_ref']:
+                    actor = self.base.game_instance['actors_ref'][actor_name]
+                    request = self.npcs_fsm_states[actor_name]
+                    npc_class = self.set_npc_class(actor=actor,
+                                                   npc_classes=self.npc_classes)
+
+                    if npc_class == "friend" and "Horse" not in actor_name:
+                        name = actor_name.lower()
+                        taskMgr.add(self.npc_behavior.npc_friend_logic,
+                                    "{0}_npc_friend_logic_task".format(name),
+                                    extraArgs=[actor, self.player, request, False],
+                                    appendTask=True)
+                    if npc_class == "neutral" and "Horse" not in actor_name:
+                        name = actor_name.lower()
+                        taskMgr.add(self.npc_behavior.npc_neutral_logic,
+                                    "{0}_npc_neutral_logic_task".format(name),
+                                    extraArgs=[actor, self.player, request, True],
+                                    appendTask=True)
+                    if npc_class == "enemy" and "Horse" not in actor_name:
+                        name = actor_name.lower()
+                        taskMgr.add(self.npc_behavior.npc_enemy_logic,
+                                    "{0}_npc_enemy_logic_task".format(name),
+                                    extraArgs=[actor, self.player, request, False],
+                                    appendTask=True)
                 return task.done
 
         return task.cont
