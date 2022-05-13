@@ -20,7 +20,7 @@ py_npc_fsm_classes = []
 LEVEL_NPC_ASSETS = {'name': ['NPC_Ernar', 'NPC_Mongol', 'NPC_Mongol2', 'NPC_Korlan_Horse', 'NPC_Horse'],
                     'type': ['npc', 'npc', 'npc', 'npc_animal', 'npc_animal'],
                     'shape': ['capsule', 'capsule', 'capsule', 'capsule', 'capsule'],
-                    'class': ['friend', 'enemy', 'enemy', 'friend', 'enemy']
+                    'class': ['friend', 'neutral', 'enemy', 'friend', 'enemy']
                     }
 
 LEVEL_NPC_AXIS = {'NPC_Ernar': [-3.0, 17.0, 0],

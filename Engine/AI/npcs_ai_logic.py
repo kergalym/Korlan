@@ -88,22 +88,25 @@ class NpcsAILogic:
                 for actor_name in self.base.game_instance['actors_ref']:
                     actor = self.base.game_instance['actors_ref'][actor_name]
                     request = self.npcs_fsm_states[actor_name]
-                    npc_class = self.set_npc_class(actor=actor,
-                                                   npc_classes=self.npc_classes)
+                    npc_class = self.npc_classes[actor_name]
 
-                    if npc_class == "friend" and "Horse" not in actor_name:
+                    # TODO Remove these lines when horse-related animations become ready
+                    if "Horse" in actor_name:
+                        continue
+
+                    if npc_class == "friend":
                         name = actor_name.lower()
                         taskMgr.add(self.npc_behavior.npc_friend_logic,
                                     "{0}_npc_friend_logic_task".format(name),
                                     extraArgs=[actor, self.player, request, False],
                                     appendTask=True)
-                    if npc_class == "neutral" and "Horse" not in actor_name:
+                    elif npc_class == "neutral":
                         name = actor_name.lower()
                         taskMgr.add(self.npc_behavior.npc_neutral_logic,
                                     "{0}_npc_neutral_logic_task".format(name),
                                     extraArgs=[actor, self.player, request, True],
                                     appendTask=True)
-                    if npc_class == "enemy" and "Horse" not in actor_name:
+                    elif npc_class == "enemy":
                         name = actor_name.lower()
                         taskMgr.add(self.npc_behavior.npc_enemy_logic,
                                     "{0}_npc_enemy_logic_task".format(name),
@@ -112,14 +115,6 @@ class NpcsAILogic:
                 return task.done
 
         return task.cont
-
-    def set_npc_class(self, actor, npc_classes):
-        if (actor and npc_classes
-                and isinstance(npc_classes, dict)):
-
-            for actor_cls in npc_classes:
-                if actor_cls in actor.get_name():
-                    return npc_classes[actor_cls]
 
     def actor_rotate(self, actor_npc_bs, path_points):
         current_dir = actor_npc_bs.get_hpr()
@@ -131,36 +126,68 @@ class NpcsAILogic:
             # actor_npc_bs.hprInterval(0, new_hpr)
 
     def is_ready_for_staying(self, actor):
-        if (actor.get_python_tag("generic_states")['is_moving']
-                and not actor.get_python_tag("generic_states")['is_running']
-                and not actor.get_python_tag("generic_states")['is_crouch_moving']
-                and not actor.get_python_tag("generic_states")['is_crouching']
-                and not actor.get_python_tag("generic_states")['is_jumping']
-                and not actor.get_python_tag("generic_states")['is_attacked']
-                and not actor.get_python_tag("generic_states")['is_busy']
-                and not actor.get_python_tag("generic_states")['is_using']
-                and not actor.get_python_tag("generic_states")['is_turning']
-                and not actor.get_python_tag("human_states")['horse_riding']
-                and not actor.get_python_tag("human_states")['is_on_horse']):
-            return True
-        else:
-            return False
+        if actor.get_python_tag("human_states"):
+            # Only Human NPC has human_states
+            if (actor.get_python_tag("generic_states")['is_moving']
+                    and not actor.get_python_tag("generic_states")['is_running']
+                    and not actor.get_python_tag("generic_states")['is_crouch_moving']
+                    and not actor.get_python_tag("generic_states")['is_crouching']
+                    and not actor.get_python_tag("generic_states")['is_jumping']
+                    and not actor.get_python_tag("generic_states")['is_attacked']
+                    and not actor.get_python_tag("generic_states")['is_busy']
+                    and not actor.get_python_tag("generic_states")['is_using']
+                    and not actor.get_python_tag("generic_states")['is_turning']
+                    and not actor.get_python_tag("human_states")['horse_riding']
+                    and not actor.get_python_tag("human_states")['is_on_horse']):
+                return True
+            else:
+                return False
+        elif not actor.get_python_tag("human_states"):
+            # Animal NPC has no human_states
+            if (actor.get_python_tag("generic_states")['is_moving']
+                    and not actor.get_python_tag("generic_states")['is_running']
+                    and not actor.get_python_tag("generic_states")['is_crouch_moving']
+                    and not actor.get_python_tag("generic_states")['is_crouching']
+                    and not actor.get_python_tag("generic_states")['is_jumping']
+                    and not actor.get_python_tag("generic_states")['is_attacked']
+                    and not actor.get_python_tag("generic_states")['is_busy']
+                    and not actor.get_python_tag("generic_states")['is_using']
+                    and not actor.get_python_tag("generic_states")['is_turning']):
+                return True
+            else:
+                return False
 
     def is_ready_for_walking(self, actor):
-        if (actor.get_python_tag("generic_states")['is_idle']
-                and not actor.get_python_tag("generic_states")['is_running']
-                and not actor.get_python_tag("generic_states")['is_crouch_moving']
-                and not actor.get_python_tag("generic_states")['is_crouching']
-                and not actor.get_python_tag("generic_states")['is_jumping']
-                and not actor.get_python_tag("generic_states")['is_attacked']
-                and not actor.get_python_tag("generic_states")['is_busy']
-                and not actor.get_python_tag("generic_states")['is_using']
-                and not actor.get_python_tag("generic_states")['is_turning']
-                and not actor.get_python_tag("human_states")['horse_riding']
-                and not actor.get_python_tag("human_states")['is_on_horse']):
-            return True
-        else:
-            return False
+        if actor.get_python_tag("human_states"):
+            # Only Human NPC has human_states
+            if (actor.get_python_tag("generic_states")['is_idle']
+                    and not actor.get_python_tag("generic_states")['is_running']
+                    and not actor.get_python_tag("generic_states")['is_crouch_moving']
+                    and not actor.get_python_tag("generic_states")['is_crouching']
+                    and not actor.get_python_tag("generic_states")['is_jumping']
+                    and not actor.get_python_tag("generic_states")['is_attacked']
+                    and not actor.get_python_tag("generic_states")['is_busy']
+                    and not actor.get_python_tag("generic_states")['is_using']
+                    and not actor.get_python_tag("generic_states")['is_turning']
+                    and not actor.get_python_tag("human_states")['horse_riding']
+                    and not actor.get_python_tag("human_states")['is_on_horse']):
+                return True
+            else:
+                return False
+        elif not actor.get_python_tag("human_states"):
+            # Animal NPC has no human_states
+            if (actor.get_python_tag("generic_states")['is_idle']
+                    and not actor.get_python_tag("generic_states")['is_running']
+                    and not actor.get_python_tag("generic_states")['is_crouch_moving']
+                    and not actor.get_python_tag("generic_states")['is_crouching']
+                    and not actor.get_python_tag("generic_states")['is_jumping']
+                    and not actor.get_python_tag("generic_states")['is_attacked']
+                    and not actor.get_python_tag("generic_states")['is_busy']
+                    and not actor.get_python_tag("generic_states")['is_using']
+                    and not actor.get_python_tag("generic_states")['is_turning']):
+                return True
+            else:
+                return False
 
     def npc_in_staying_logic(self, actor, request):
         if actor and request:
