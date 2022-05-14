@@ -20,7 +20,6 @@ class NpcsAILogic:
         self.npcs_fsm_states = npcs_fsm_states
         self.npc_classes = npc_classes
         self.npc_rotations = {}
-        self.start_attack = False
         self.navmesh_query = self.base.game_instance["navmesh_query"]
         if not self.navmesh_query:
             self.base.game_instance["use_pandai"] = True
@@ -100,13 +99,13 @@ class NpcsAILogic:
                                     "{0}_npc_friend_logic_task".format(name),
                                     extraArgs=[actor, self.player, request, False],
                                     appendTask=True)
-                    elif npc_class == "neutral":
+                    if npc_class == "neutral":
                         name = actor_name.lower()
                         taskMgr.add(self.npc_behavior.npc_neutral_logic,
                                     "{0}_npc_neutral_logic_task".format(name),
                                     extraArgs=[actor, self.player, request, True],
                                     appendTask=True)
-                    elif npc_class == "enemy":
+                    if npc_class == "enemy":
                         name = actor_name.lower()
                         taskMgr.add(self.npc_behavior.npc_enemy_logic,
                                     "{0}_npc_enemy_logic_task".format(name),
@@ -233,8 +232,10 @@ class NpcsAILogic:
 
             if self.base.game_instance["use_pandai"]:
                 if self.is_ready_for_walking(actor):
-                    if (self.ai_behaviors[actor_name].behavior_status("pursue") == "disabled"
-                            or self.ai_behaviors[actor_name].behavior_status("pursue") == "done"):
+                    if self.ai_behaviors[actor_name].behavior_status("pursue") == "disabled":
+                        actor.get_python_tag("generic_states")['is_idle'] = False
+                        actor.get_python_tag("generic_states")['is_moving'] = True
+                    elif self.ai_behaviors[actor_name].behavior_status("pursue") == "done":
                         actor.get_python_tag("generic_states")['is_idle'] = False
                         actor.get_python_tag("generic_states")['is_moving'] = True
             else:
