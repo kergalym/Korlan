@@ -88,7 +88,7 @@ class NpcsAILogic:
                 for actor_name in self.base.game_instance['actors_ref']:
                     actor = self.base.game_instance['actors_ref'][actor_name]
                     request = self.npcs_fsm_states[actor_name]
-                    npc_class = self.npc_classes[actor_name]
+                    npc_class = actor.get_python_tag("npc_class")
 
                     # TODO Remove these lines when horse-related animations become ready
                     if "Horse" in actor_name:

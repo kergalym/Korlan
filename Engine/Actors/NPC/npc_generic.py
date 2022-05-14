@@ -22,10 +22,11 @@ class NpcGeneric:
         self.actor = None
         self.game_settings = base.game_settings
 
-    async def set_actor(self, mode, name, type, path, animation, axis, rotation, scale, culling):
+    async def set_actor(self, mode, name, type, cls, path, animation, axis, rotation, scale, culling):
         if (isinstance(path, str)
                 and isinstance(name, str)
                 and isinstance(type, str)
+                and isinstance(cls, str)
                 and isinstance(axis, list)
                 and isinstance(rotation, list)
                 and isinstance(scale, list)
@@ -95,6 +96,9 @@ class NpcGeneric:
 
             # Set NPC type
             self.actor.set_python_tag("npc_type", type)
+
+            # Set NPC class
+            self.actor.set_python_tag("npc_class", cls)
 
             # Set NPC Parameters
             self.npc_state.setup_npc_state(actor=self.actor)

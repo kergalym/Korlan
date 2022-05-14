@@ -396,16 +396,18 @@ class LevelOne:
                                           scale=[1.0, 1.0, 1.0],
                                           culling=True))
 
-        for actor, _type, npc_cls, axis_actor in zip(LEVEL_NPC_ASSETS['name'],
-                                                     LEVEL_NPC_ASSETS['type'],
-                                                     self.actor_classes,
-                                                     LEVEL_NPC_AXIS):
+        for actor, _type, _class, npc_cls, axis_actor in zip(LEVEL_NPC_ASSETS['name'],
+                                                             LEVEL_NPC_ASSETS['type'],
+                                                             LEVEL_NPC_ASSETS['class'],
+                                                             self.actor_classes,
+                                                             LEVEL_NPC_AXIS):
 
             if actor == axis_actor:
                 axis = LEVEL_NPC_AXIS[axis_actor]
                 taskMgr.add(npc_cls.set_actor(mode="game",
                                               name=actor,
                                               type=_type,
+                                              cls=_class,
                                               path=assets['{0}_{1}'.format(actor, suffix)],
                                               animation=anims,
                                               axis=axis,
