@@ -7,6 +7,9 @@ class NpcBehavior:
         self.npc_ai_logic = self.base.game_instance['npc_ai_logic_cls']
 
     def npc_friend_logic(self, actor, player, request, passive, task):
+        if self.base.game_instance['menu_mode']:
+            return task.done
+
         if (actor and player and request and self.ai_chars_bs
                 and isinstance(passive, bool)):
             if actor.get_python_tag("generic_states")['is_alive']:
@@ -29,8 +32,8 @@ class NpcBehavior:
 
                     if actor_npc_bs and enemy_npc_ref and enemy_npc_bs:
                         player_dist = int(actor_npc_bs.get_distance(player))
-                        enemy_dist = self.npc_ai_logic.get_enemy_vector(actor_npc_bs=actor_npc_bs, 
-                                                                        exclude_cls="friend")
+                        enemy_dist = int(actor_npc_bs.get_distance(enemy_npc_bs))
+                        hitbox_dist = self.npc_ai_logic.get_hit_distance(actor)
 
                         if base.player_states['is_alive']:
                             if not self.npc_ai_logic.start_attack:
@@ -39,39 +42,36 @@ class NpcBehavior:
                                     self.npc_ai_logic.npc_in_walking_logic(actor, actor_npc_bs, player, request)
                                 elif player_dist <= 1:
                                     self.npc_ai_logic.npc_in_staying_logic(actor, request)
-
-                            if self.base.game_instance['player_ref'].get_current_frame("Boxing"):
-
-                                # Leave this here for debugging purposes
-                                """if player_dist <= 1:
-                                    if not actor.get_python_tag("generic_states")['is_busy']:
-                                        self.npc_ai_logic.npc_in_attacking_logic(actor, player, dt, request)
-                                """
-
-                                if not self.npc_ai_logic.start_attack:
-                                    self.npc_ai_logic.start_attack = True
+                                    if enemy_dist <= 1:
+                                        if hitbox_dist:
+                                            if hitbox_dist >= 0.5 and hitbox_dist <= 1.8:
+                                                self.npc_ai_logic.npc_in_blocking_logic(actor, request)
+                                            else:
+                                                self.npc_ai_logic.npc_in_attacking_logic(actor, enemy_npc_bs,
+                                                                                         dt, request)
                         else:
                             if player_dist <= 1:
                                 self.npc_ai_logic.npc_in_staying_logic(actor, request)
 
-                        if enemy_npc_ref.get_python_tag("generic_states")['is_alive']:
-                            # Friendly NPC starts attacking the opponent when player first starts attacking it
-                            if self.npc_ai_logic.start_attack:
-                                if enemy_dist > 1:
-                                    self.npc_ai_logic.npc_in_walking_logic(actor, actor_npc_bs, enemy_npc_bs, request)
-                                elif enemy_dist <= 1:
-                                    self.npc_ai_logic.npc_in_staying_logic(actor, request)
-                                    self.npc_ai_logic.npc_in_attacking_logic(actor, enemy_npc_bs, dt, request)
-
-                                """if self.base.game_instance['player_ref'].get_current_frame("Boxing"):
+                                if enemy_npc_ref.get_python_tag("generic_states")['is_alive']:
+                                    # Friendly NPC starts attacking the opponent when player first starts attacking it
+                                    if self.npc_ai_logic.start_attack:
+                                        if enemy_dist > 1:
+                                            self.npc_ai_logic.npc_in_walking_logic(actor, actor_npc_bs,
+                                                                                   enemy_npc_bs, request)
+                                        elif enemy_dist <= 1:
+                                            self.npc_ai_logic.npc_in_staying_logic(actor, request)
+                                            self.npc_ai_logic.npc_in_attacking_logic(actor, enemy_npc_bs,
+                                                                                     dt, request)
+                                else:
                                     if enemy_dist <= 1:
-                                        self.npc_ai_logic.npc_in_attacking_logic(actor, enemy_npc_bs, dt, request)"""
-                        else:
-                            if enemy_dist <= 1:
-                                self.npc_ai_logic.npc_in_staying_logic(actor, request)
+                                        self.npc_ai_logic.npc_in_staying_logic(actor, request)
         return task.cont
 
     def npc_neutral_logic(self, actor, player, request, passive, task):
+        if self.base.game_instance['menu_mode']:
+            return task.done
+
         if actor and player and request and isinstance(passive, bool):
             if actor.get_python_tag("generic_states")['is_alive']:
                 actor_name = actor.get_name()
@@ -90,7 +90,7 @@ class NpcBehavior:
                     if actor_npc_bs and enemy_npc_ref and enemy_npc_bs:
 
                         player_dist = int(actor_npc_bs.get_distance(player))
-                        enemy_dist = self.npc_ai_logic.get_enemy_vector(actor_npc_bs=actor_npc_bs, exclude_cls="neutral")
+                        enemy_dist = int(actor_npc_bs.get_distance(enemy_npc_bs))
 
                         """if base.player_states['is_alive']:
                             # If NPC is far from Player, do pursue Player
@@ -113,6 +113,9 @@ class NpcBehavior:
         return task.cont
 
     def npc_enemy_logic(self, actor, player, request, passive, task):
+        if self.base.game_instance['menu_mode']:
+            return task.done
+
         if actor and player and request and isinstance(passive, bool):
             if actor.get_python_tag("generic_states")['is_alive']:
                 # Get the time that elapsed since last frame
@@ -133,23 +136,8 @@ class NpcBehavior:
                     enemy_npc_bs = self.npc_ai_logic.get_enemy_bs(enemy_cls="friend")
 
                     if actor_npc_bs and enemy_npc_ref and enemy_npc_bs:
-
                         player_dist = int(actor_npc_bs.get_distance(player))
-                        enemy_dist = self.npc_ai_logic.get_enemy_vector(actor_npc_bs=actor_npc_bs, exclude_cls="enemy")
-
-                        if not self.npc_ai_logic.start_attack:
-                            """if base.player_states['is_alive']:
-                                # If NPC is far from Player, do pursue Player
-                                if player_dist > 1:
-                                    self.npc_in_walking_logic(actor, actor_npc_bs, player, request)
-                                elif player_dist <= 1:
-                                    self.npc_in_staying_logic(actor, request)
-                                    # self.npc_in_gathering_logic(actor, request)
-                                    if self.base.game_instance['player_ref'].get_current_frame("Boxing"):
-                                        self.npc_in_attacking_logic(actor, player, dt, request)
-                            else:
-                                if player_dist <= 1:
-                                    self.npc_ai_logic.npc_in_staying_logic(actor, request)"""
+                        enemy_dist = int(actor_npc_bs.get_distance(enemy_npc_bs))
 
                         if enemy_npc_ref.get_python_tag("generic_states")['is_alive']:
                             # If NPC is far from enemy, do pursue enemy
@@ -163,6 +151,19 @@ class NpcBehavior:
                         else:
                             if enemy_dist <= 1:
                                 self.npc_ai_logic.npc_in_staying_logic(actor, request)
+
+                                if base.player_states['is_alive']:
+                                    # If NPC is far from Player, do pursue Player
+                                    if player_dist > 1:
+                                        self.npc_ai_logic.npc_in_walking_logic(actor, actor_npc_bs, player, request)
+                                    elif player_dist <= 1:
+                                        self.npc_ai_logic.npc_in_staying_logic(actor, request)
+                                        # self.npc_in_gathering_logic(actor, request)
+                                        if self.base.game_instance['player_ref'].get_current_frame("Boxing"):
+                                            self.npc_ai_logic.npc_in_attacking_logic(actor, player, dt, request)
+                                else:
+                                    if player_dist <= 1:
+                                        self.npc_ai_logic.npc_in_staying_logic(actor, request)
 
                         """# Enemy returns back
                             if actor.get_python_tag("health_np"):

@@ -125,6 +125,22 @@ class NpcsAILogic:
             actor_npc_bs.set_hpr(new_hpr)
             # actor_npc_bs.hprInterval(0, new_hpr)
 
+    def get_hit_distance(self, actor):
+        if actor and actor.find("**/**Hips:HB"):
+            parent_node = actor.find("**/**Hips:HB").node()
+            parent_np = actor.find("**/**Hips:HB")
+
+            for node in parent_node.get_overlapping_nodes():
+                damage_weapons = actor.get_python_tag("damage_weapons")
+                for weapon in damage_weapons:
+                    # Exclude our own weapon hits
+                    if (weapon in node.get_name()
+                            and actor.get_name() not in node.get_name()):
+                        hitbox_np = render.find("**/{0}".format(node.get_name()))
+                        if hitbox_np:
+                            distance = round(hitbox_np.get_distance(parent_np), 1)
+                            return distance
+
     def is_ready_for_staying(self, actor):
         if actor.get_python_tag("human_states"):
             # Only Human NPC has human_states
@@ -261,6 +277,32 @@ class NpcsAILogic:
     def npc_in_gathering_logic(self, actor, request):
         pass
 
+    def npc_in_blocking_logic(self, actor, request):
+        if (actor.get_python_tag("generic_states")['is_idle']
+                and not actor.get_python_tag("generic_states")['is_attacked']
+                and not actor.get_python_tag("generic_states")['is_busy']
+                and not actor.get_python_tag("generic_states")['is_moving']):
+            action = ""
+            if (actor.get_python_tag("human_states")
+                    and actor.get_python_tag("human_states")['has_sword']):
+                action = "great_sword_blocking"
+            else:
+                action = "center_blocking"
+
+            """if actor_npc_bs.get_y() != actor_npc_bs.get_y() - 2:
+                actor_npc_bs.set_y(actor_npc_bs, -2 * dt)
+                request.request("ForwardRoll", actor, "forward_roll", "play")
+            elif actor_npc_bs.get_y() != actor_npc_bs.get_y() + 2:
+                actor_npc_bs.set_y(actor_npc_bs, 2 * dt)
+                request.request("ForwardRoll", actor, "forward_roll", "play")"""
+            request.request("Block", actor, action, "play")
+            """if actor_npc_bs.get_x() != actor_npc_bs.get_x() - 2:
+                actor_npc_bs.set_x(actor_npc_bs, -2 * dt)
+                request.request("ForwardRoll", actor, "forward_roll", "play")
+            elif actor_npc_bs.get_x() != actor_npc_bs.get_x() + 2:
+                actor_npc_bs.set_x(actor_npc_bs, 2 * dt)
+                request.request("ForwardRoll", actor, "forward_roll", "play")"""
+
     def npc_in_attacking_logic(self, actor, actor_npc_bs, dt, request):
         if (actor.get_python_tag("generic_states")['is_idle']
                 and not actor.get_python_tag("generic_states")['is_attacked']
@@ -297,26 +339,26 @@ class NpcsAILogic:
     def get_enemy_ref(self, enemy_cls):
         if enemy_cls and isinstance(enemy_cls, str):
             for k, cls in zip(self.base.game_instance['actors_ref'], self.npc_classes):
+
+                # TODO Remove these lines when horse-related animations become ready
+                if "Horse" in k:
+                    continue
+
                 if self.npc_classes[cls] == enemy_cls:
-                    if "Horse" not in k:
-                        enemy_npc_ref = self.base.game_instance['actors_ref'][k]
-                        if enemy_npc_ref and enemy_npc_ref.get_python_tag("generic_states")['is_alive']:
-                            return enemy_npc_ref
+                    enemy_npc_ref = self.base.game_instance['actors_ref'][k]
+                    if enemy_npc_ref and enemy_npc_ref.get_python_tag("generic_states")['is_alive']:
+                        return enemy_npc_ref
 
     def get_enemy_bs(self, enemy_cls):
         if enemy_cls and isinstance(enemy_cls, str):
             for k, cls in zip(self.base.game_instance['actors_ref'], self.npc_classes):
-                if self.npc_classes[cls] == enemy_cls:
-                    if "Horse" not in k:
-                        enemy_npc_ref = self.base.game_instance['actors_ref'][k]
-                        if enemy_npc_ref.get_python_tag("generic_states")['is_alive']:
-                            return self.ai_chars_bs[enemy_npc_ref.get_name()]
 
-    def get_enemy_vector(self, actor_npc_bs, exclude_cls):
-        if actor_npc_bs and exclude_cls:
-            for k, cls in zip(self.base.game_instance['actors_ref'], self.npc_classes):
-                if self.npc_classes[cls] != exclude_cls:
+                # TODO Remove these lines when horse-related animations become ready
+                if "Horse" in k:
+                    continue
+
+                if self.npc_classes[cls] == enemy_cls:
                     enemy_npc_ref = self.base.game_instance['actors_ref'][k]
-                    enemy_npc_bs = self.ai_chars_bs[enemy_npc_ref.get_name()]
-                    if enemy_npc_bs:
-                        return int(actor_npc_bs.get_distance(enemy_npc_bs))
+                    if enemy_npc_ref.get_python_tag("generic_states")['is_alive']:
+                        return self.ai_chars_bs[enemy_npc_ref.get_name()]
+
