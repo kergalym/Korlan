@@ -119,22 +119,6 @@ class NpcsAILogic:
 
         return task.cont
 
-    def actor_rotate(self, actor_npc_bs, path_points):
-        current_dir = actor_npc_bs.get_hpr()
-
-        for i in range(len(path_points) - 1):
-            new_hpr = Vec3(Vec2(0, -1).signed_angle_deg(path_points[i + 1].xy - path_points[i].xy), current_dir[1],
-                           current_dir[2])
-            actor_npc_bs.set_hpr(new_hpr)
-            # actor_npc_bs.hprInterval(0, new_hpr)
-
-    def face_actor_to(self, actor, target, dt):
-        if actor and target and dt:
-            if actor.get_h() != 45.0:
-                if actor.get_h() != actor.get_h() - target.get_h():
-                    vec_h = actor.get_h() - target.get_h()
-                    actor.set_h(actor, vec_h * dt)
-
     def get_enemy_ref(self, enemy_cls):
         if enemy_cls and isinstance(enemy_cls, str):
             for cls in self.npc_classes:
@@ -160,22 +144,6 @@ class NpcsAILogic:
                     enemy_npc_ref = self.base.game_instance['actors_ref'][cls]
                     if enemy_npc_ref.get_python_tag("generic_states")['is_alive']:
                         return self.ai_chars_bs[enemy_npc_ref.get_name()]
-
-    def get_hit_distance(self, actor):
-        if actor and actor.find("**/**Hips:HB"):
-            parent_node = actor.find("**/**Hips:HB").node()
-            parent_np = actor.find("**/**Hips:HB")
-
-            for node in parent_node.get_overlapping_nodes():
-                damage_weapons = actor.get_python_tag("damage_weapons")
-                for weapon in damage_weapons:
-                    # Exclude our own weapon hits
-                    if (weapon in node.get_name()
-                            and actor.get_name() not in node.get_name()):
-                        hitbox_np = render.find("**/{0}".format(node.get_name()))
-                        if hitbox_np:
-                            distance = round(hitbox_np.get_distance(parent_np), 1)
-                            return distance
 
     def is_ready_for_staying(self, actor):
         if actor.get_python_tag("human_states"):
@@ -366,3 +334,35 @@ class NpcsAILogic:
             elif actor_npc_bs.get_x() != actor_npc_bs.get_x() + 2:
                 actor_npc_bs.set_x(actor_npc_bs, 2 * dt)
                 request.request("ForwardRoll", actor, "forward_roll", "play")"""
+
+    def actor_rotate(self, actor_npc_bs, path_points):
+        current_dir = actor_npc_bs.get_hpr()
+
+        for i in range(len(path_points) - 1):
+            new_hpr = Vec3(Vec2(0, -1).signed_angle_deg(path_points[i + 1].xy - path_points[i].xy), current_dir[1],
+                           current_dir[2])
+            actor_npc_bs.set_hpr(new_hpr)
+            # actor_npc_bs.hprInterval(0, new_hpr)
+
+    def face_actor_to(self, actor, target, dt):
+        if actor and target and dt:
+            if actor.get_h() != 45.0:
+                if actor.get_h() != actor.get_h() - target.get_h():
+                    vec_h = actor.get_h() - target.get_h()
+                    actor.set_h(actor, vec_h * dt)
+
+    def get_hit_distance(self, actor):
+        if actor and actor.find("**/**Hips:HB"):
+            parent_node = actor.find("**/**Hips:HB").node()
+            parent_np = actor.find("**/**Hips:HB")
+
+            for node in parent_node.get_overlapping_nodes():
+                damage_weapons = actor.get_python_tag("damage_weapons")
+                for weapon in damage_weapons:
+                    # Exclude our own weapon hits
+                    if (weapon in node.get_name()
+                            and actor.get_name() not in node.get_name()):
+                        hitbox_np = render.find("**/{0}".format(node.get_name()))
+                        if hitbox_np:
+                            distance = round(hitbox_np.get_distance(parent_np), 1)
+                            return distance
