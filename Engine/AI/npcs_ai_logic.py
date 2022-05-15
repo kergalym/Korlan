@@ -20,6 +20,7 @@ class NpcsAILogic:
         self.npcs_fsm_states = npcs_fsm_states
         self.npc_classes = npc_classes
         self.npc_rotations = {}
+        self.activated_npc_count = 0
         self.navmesh_query = self.base.game_instance["navmesh_query"]
         if not self.navmesh_query:
             self.base.game_instance["use_pandai"] = True
@@ -31,14 +32,6 @@ class NpcsAILogic:
                      "wander_radius": 5,
                      "plane_flag": 0,
                      "area_of_effect": 10}
-
-        taskMgr.add(self.update_pathfinding_task,
-                    "update_pathfinding_task",
-                    appendTask=True)
-
-        taskMgr.add(self.npc_behavior_init_task,
-                    "npc_behavior_init_task",
-                    appendTask=True)
 
         # Keep this class instance for further usage in NpcBehavior class only
         self.base.game_instance["npc_ai_logic_cls"] = self
@@ -58,6 +51,14 @@ class NpcsAILogic:
             taskMgr.add(self.npc_physics.actor_hitbox_trace_task,
                         "{0}_hitboxes_task".format(name.lower()),
                         extraArgs=[actor, actor_bs, request], appendTask=True)
+
+        taskMgr.add(self.update_pathfinding_task,
+                    "update_pathfinding_task",
+                    appendTask=True)
+
+        taskMgr.add(self.npc_behavior_init_task,
+                    "npc_behavior_init_task",
+                    appendTask=True)
 
     def update_pathfinding_task(self, task):
         if self.ai_chars_bs and self.ai_world and self.ai_behaviors:
@@ -85,13 +86,14 @@ class NpcsAILogic:
             if (self.player
                     and self.base.game_instance['actors_ref']):
                 for actor_name in self.base.game_instance['actors_ref']:
-                    actor = self.base.game_instance['actors_ref'][actor_name]
-                    request = self.npcs_fsm_states[actor_name]
-                    npc_class = actor.get_python_tag("npc_class")
 
                     # TODO Remove these lines when horse-related animations become ready
                     if "Horse" in actor_name:
                         continue
+
+                    actor = self.base.game_instance['actors_ref'][actor_name]
+                    request = self.npcs_fsm_states[actor_name]
+                    npc_class = actor.get_python_tag("npc_class")
 
                     if npc_class == "friend":
                         name = actor_name.lower()
@@ -99,12 +101,14 @@ class NpcsAILogic:
                                     "{0}_npc_friend_logic_task".format(name),
                                     extraArgs=[actor, self.player, request, False],
                                     appendTask=True)
+
                     if npc_class == "neutral":
                         name = actor_name.lower()
                         taskMgr.add(self.npc_behavior.npc_neutral_logic,
                                     "{0}_npc_neutral_logic_task".format(name),
                                     extraArgs=[actor, self.player, request, True],
                                     appendTask=True)
+
                     if npc_class == "enemy":
                         name = actor_name.lower()
                         taskMgr.add(self.npc_behavior.npc_enemy_logic,
@@ -123,6 +127,39 @@ class NpcsAILogic:
                            current_dir[2])
             actor_npc_bs.set_hpr(new_hpr)
             # actor_npc_bs.hprInterval(0, new_hpr)
+
+    def face_actor_to(self, actor, target, dt):
+        if actor and target and dt:
+            if actor.get_h() != 45.0:
+                if actor.get_h() != actor.get_h() - target.get_h():
+                    vec_h = actor.get_h() - target.get_h()
+                    actor.set_h(actor, vec_h * dt)
+
+    def get_enemy_ref(self, enemy_cls):
+        if enemy_cls and isinstance(enemy_cls, str):
+            for cls in self.npc_classes:
+
+                # TODO Remove these lines when horse-related animations become ready
+                if "Horse" in cls:
+                    continue
+
+                if self.npc_classes[cls] == enemy_cls:
+                    enemy_npc_ref = self.base.game_instance['actors_ref'][cls]
+                    if enemy_npc_ref and enemy_npc_ref.get_python_tag("generic_states")['is_alive']:
+                        return enemy_npc_ref
+
+    def get_enemy_bs(self, enemy_cls):
+        if enemy_cls and isinstance(enemy_cls, str):
+            for cls in self.base.game_instance['actors_ref']:
+
+                # TODO Remove these lines when horse-related animations become ready
+                if "Horse" in cls:
+                    continue
+
+                if self.npc_classes[cls] == enemy_cls:
+                    enemy_npc_ref = self.base.game_instance['actors_ref'][cls]
+                    if enemy_npc_ref.get_python_tag("generic_states")['is_alive']:
+                        return self.ai_chars_bs[enemy_npc_ref.get_name()]
 
     def get_hit_distance(self, actor):
         if actor and actor.find("**/**Hips:HB"):
@@ -329,37 +366,3 @@ class NpcsAILogic:
             elif actor_npc_bs.get_x() != actor_npc_bs.get_x() + 2:
                 actor_npc_bs.set_x(actor_npc_bs, 2 * dt)
                 request.request("ForwardRoll", actor, "forward_roll", "play")"""
-
-    def face_actor_to(self, actor, target, dt):
-        if actor and target and dt:
-            if actor.get_h() != 45.0:
-                if actor.get_h() != actor.get_h() - target.get_h():
-                    vec_h = actor.get_h() - target.get_h()
-                    actor.set_h(actor, vec_h * dt)
-
-    def get_enemy_ref(self, enemy_cls):
-        if enemy_cls and isinstance(enemy_cls, str):
-            for k, cls in zip(self.base.game_instance['actors_ref'], self.npc_classes):
-
-                # TODO Remove these lines when horse-related animations become ready
-                if "Horse" in k:
-                    continue
-
-                if self.npc_classes[cls] == enemy_cls:
-                    enemy_npc_ref = self.base.game_instance['actors_ref'][k]
-                    if enemy_npc_ref and enemy_npc_ref.get_python_tag("generic_states")['is_alive']:
-                        return enemy_npc_ref
-
-    def get_enemy_bs(self, enemy_cls):
-        if enemy_cls and isinstance(enemy_cls, str):
-            for k, cls in zip(self.base.game_instance['actors_ref'], self.npc_classes):
-
-                # TODO Remove these lines when horse-related animations become ready
-                if "Horse" in k:
-                    continue
-
-                if self.npc_classes[cls] == enemy_cls:
-                    enemy_npc_ref = self.base.game_instance['actors_ref'][k]
-                    if enemy_npc_ref.get_python_tag("generic_states")['is_alive']:
-                        return self.ai_chars_bs[enemy_npc_ref.get_name()]
-
