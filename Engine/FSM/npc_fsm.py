@@ -99,6 +99,15 @@ class NpcFSM(FSM):
                                              behavior=behavior,
                                              vect=vect)
 
+    def enterTurn(self, actor, action, task):
+        if actor and action and task:
+            if isinstance(task, str):
+                if task == "play":
+                    any_action_seq = actor.actor_interval(action)
+                    Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", True),
+                             any_action_seq,
+                             Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", False)).start()
+
     def enterAttack(self, actor, action, task):
         if actor and action and task:
             any_action = actor.get_anim_control(action)

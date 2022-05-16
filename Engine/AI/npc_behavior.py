@@ -41,7 +41,12 @@ class NpcBehavior:
                                 self.npc_ai_logic.npc_in_walking_logic(actor, actor_npc_bs, player, request)
                             elif player_dist <= 1:
                                 self.npc_ai_logic.npc_in_staying_logic(actor, request)
+                                # If enemy is close start attacking
                                 if enemy_dist <= 1:
+                                    # Facing to enemy
+                                    self.npc_ai_logic.face_actor_to(actor_npc_bs, enemy_npc_bs)
+                                    # request.request("Attack", actor, "right_turn", "play")
+                                    # Counterattack an enemy or do block
                                     if hitbox_dist:
                                         if hitbox_dist >= 0.5 and hitbox_dist <= 1.8:
                                             self.npc_ai_logic.npc_in_blocking_logic(actor, request)
@@ -54,17 +59,19 @@ class NpcBehavior:
 
                                 if enemy_npc_ref.get_python_tag("generic_states")['is_alive']:
                                     # Friendly NPC starts attacking the opponent when player first starts attacking it
-                                    if self.npc_ai_logic.start_attack:
-                                        if enemy_dist > 1:
-                                            self.npc_ai_logic.npc_in_walking_logic(actor, actor_npc_bs,
-                                                                                   enemy_npc_bs, request)
-                                        elif enemy_dist <= 1:
-                                            self.npc_ai_logic.npc_in_staying_logic(actor, request)
-                                            self.npc_ai_logic.npc_in_attacking_logic(actor, enemy_npc_bs,
-                                                                                     dt, request)
+                                    if enemy_dist > 1:
+                                        self.npc_ai_logic.npc_in_walking_logic(actor, actor_npc_bs,
+                                                                               enemy_npc_bs, request)
+                                    elif enemy_dist <= 1:
+                                        self.npc_ai_logic.npc_in_staying_logic(actor, request)
+                                        self.npc_ai_logic.npc_in_attacking_logic(actor, enemy_npc_bs,
+                                                                                 dt, request)
                                 else:
                                     if enemy_dist <= 1:
                                         self.npc_ai_logic.npc_in_staying_logic(actor, request)
+                    else:
+                        self.npc_ai_logic.npc_in_staying_logic(actor, request)
+
         return task.cont
 
     def npc_neutral_logic(self, actor, player, request, passive, task):
@@ -109,6 +116,10 @@ class NpcBehavior:
                         else:
                             if enemy_dist >= 1:
                                 self.npc_ai_logic.npc_in_staying_logic(actor, request)
+
+                    else:
+                        self.npc_ai_logic.npc_in_staying_logic(actor, request)
+
         return task.cont
 
     def npc_enemy_logic(self, actor, player, request, passive, task):
@@ -172,4 +183,8 @@ class NpcBehavior:
                                     ai_behaviors[actor_name].remove_ai("evade")
                                     # TODO: Change action to something more suitable
                                     request.request("Idle", actor, "Standing_idle_male", "loop")"""
+
+                    else:
+                        self.npc_ai_logic.npc_in_staying_logic(actor, request)
+
         return task.cont

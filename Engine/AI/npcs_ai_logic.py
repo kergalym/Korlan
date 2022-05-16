@@ -1,3 +1,4 @@
+from direct.interval.MetaInterval import Sequence
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import Vec3, Vec2
 
@@ -344,12 +345,10 @@ class NpcsAILogic:
             actor_npc_bs.set_hpr(new_hpr)
             # actor_npc_bs.hprInterval(0, new_hpr)
 
-    def face_actor_to(self, actor, target, dt):
-        if actor and target and dt:
-            if actor.get_h() != 45.0:
-                if actor.get_h() != actor.get_h() - target.get_h():
-                    vec_h = actor.get_h() - target.get_h()
-                    actor.set_h(actor, vec_h * dt)
+    def face_actor_to(self, actor, target):
+        if actor and target:
+            actor.look_at(target.get_pos())
+            actor.set_h(target, -180)
 
     def get_hit_distance(self, actor):
         if actor and actor.find("**/**Hips:HB"):
