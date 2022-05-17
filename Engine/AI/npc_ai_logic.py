@@ -6,11 +6,12 @@ from Engine.Physics.npc_physics import NpcPhysics
 from Engine.AI.npc_behavior import NpcBehavior
 
 
-class NpcsAILogic:
+class NpcAILogic:
 
     def __init__(self, ai_world, ai_behaviors, ai_chars, ai_chars_bs, player,
                  player_fsm, npcs_fsm_states, npc_classes):
         self.base = base
+        self.render = render
         self.ai_world = ai_world
         self.ai_behaviors = ai_behaviors
         self.ai_chars = ai_chars
@@ -361,7 +362,7 @@ class NpcsAILogic:
                     # Exclude our own weapon hits
                     if (weapon in node.get_name()
                             and actor.get_name() not in node.get_name()):
-                        hitbox_np = render.find("**/{0}".format(node.get_name()))
+                        hitbox_np = self.render.find("**/{0}".format(node.get_name()))
                         if hitbox_np:
                             distance = round(hitbox_np.get_distance(parent_np), 1)
                             return distance
