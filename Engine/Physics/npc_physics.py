@@ -28,14 +28,16 @@ class NpcPhysics:
                                 distance = round(hitbox_np.get_distance(parent_np), 1)
                                 if distance >= 0.5 and distance <= 1.8:
                                     hitbox_np.set_collide_mask(BitMask32.allOff())
-
                                     if actor.get_python_tag("health_np"):
+                                        # NPC gets damage if he has health point
                                         if actor.get_python_tag("health_np")['value'] > 1:
                                             request.request("Attacked", actor, "HitToBody", "play")
-                                            actor.get_python_tag("health_np")['value'] -= 1
-                                        elif actor.get_python_tag("health_np")['value'] == 0:
-                                            if actor.get_python_tag("generic_states")['is_alive']:
-                                                actor.get_python_tag("generic_states")['is_alive'] = False
-                                                request.request("Death", actor, "Dying", "play")
+                                            actor.get_python_tag("health_np")['value'] -= 50
+
+            # NPC dies if he has no health point
+            if actor.get_python_tag("health_np")['value'] == 0:
+                if actor.get_python_tag("generic_states")['is_alive']:
+                    if actor.get_python_tag("generic_states")['is_idle']:
+                        request.request("Death", actor, "Dying", "play")
 
         return task.cont

@@ -208,16 +208,16 @@ class NpcFSM(FSM):
 
     def enterDeath(self, actor, action, task):
         if actor and action and task:
-            any_action = actor.get_anim_control(action)
-
-            name = "{0}:BS".format(actor.get_name())
-            actor_bs = self.base.game_instance['actors_np'][name]
-            actor_bs.node().set_collision_response(False)
-
             if isinstance(task, str):
                 if task == "play":
-                    if not any_action.is_playing():
-                        actor.play(action)
+                    name = "{0}:BS".format(actor.get_name())
+                    actor_bs = self.base.game_instance['actors_np'][name]
+                    actor_bs.node().set_collision_response(False)
+                    any_action_seq = actor.actor_interval(action)
+                    Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_alive", False),
+                             Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", True),
+                             any_action_seq,
+                             Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", False)).start()
 
     def enterCrouch(self, actor, action, task):
         if actor and action and task and isinstance(action, str):

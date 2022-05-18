@@ -22,7 +22,6 @@ class PlayerPhysics:
                     # Exclude our own weapon hits
                     if (weapon in node.get_name()
                             and actor.get_name() not in node.get_name()):
-
                         hitbox_np = render.find("**/{0}".format(node.get_name()))
                         if hitbox_np:
                             # Deactivate enemy weapon if we got hit
@@ -31,14 +30,19 @@ class PlayerPhysics:
                                 if distance >= 0.5 and distance <= 1.8:
                                     hitbox_np.set_collide_mask(BitMask32.allOff())
                                     if self.base.game_instance['hud_np']:
+                                        # Player gets damage if he has health point
                                         if self.base.game_instance['hud_np'].player_bar_ui_health['value'] > 1:
                                             request.request("Attacked", actor_ref, "HitToBody", "play")
                                             self.base.game_instance['hud_np'].player_bar_ui_health['value'] -= 1
-                                            health = actor.get_python_tag("health")
-                                            health -= 1
-                                            actor.set_python_tag("health", health)
-                                        elif actor.get_python_tag("health_np")['value'] == 0:
-                                            if base.player_states['is_alive']:
-                                                base.player_states['is_alive'] = False
-                                                request.request("Death", actor_ref, "Dying", "play")
+                                            if actor.get_python_tag("health") > 1:
+                                                health = actor.get_python_tag("health")
+                                                health -= 1
+                                                actor.set_python_tag("health", health)
+
+            # Player dies if he has no health point
+            if actor.get_python_tag("health") == 0:
+                if base.player_states['is_alive']:
+                    if base.player_states['is_idle']:
+                        request.request("Death", actor_ref, "Dying", "play")
+                    
         return task.cont
