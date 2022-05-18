@@ -47,17 +47,6 @@ class PlayerFSM(FSM):
                                  any_action_seq,
                                  Func(self.fsm_state_wrapper, "is_attacked", False)).start()
 
-    def enterSwim(self, actor, action, task):
-        if actor and action and task:
-            if isinstance(task, str):
-                if task == "play":
-                    any_action = actor.get_anim_control(action)
-                    any_action_seq = actor.actor_interval(action)
-                    if not any_action.is_playing():
-                        Sequence(Func(self.fsm_state_wrapper, "is_busy", True),
-                                 any_action_seq,
-                                 Func(self.fsm_state_wrapper, "is_busy", False)).start()
-
     def enterLay(self, actor, action, task):
         if actor and action and task:
             if isinstance(task, str):
