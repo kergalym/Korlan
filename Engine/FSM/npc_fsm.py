@@ -130,15 +130,6 @@ class NpcFSM(FSM):
                                  Func(hitbox_np.set_collide_mask, BitMask32.allOff()),
                                  Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", False)).start()
 
-    def enterAttacked(self, actor, action, task):
-        if actor and action and task and isinstance(action, str):
-            if isinstance(task, str):
-                if task == "play":
-                    any_action_seq = actor.actor_interval(action)
-                    Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_attacked", True),
-                             any_action_seq,
-                             Func(self.fsm_state_wrapper, actor, "generic_states", "is_attacked", False)).start()
-
     def enterForwardRoll(self, actor, action, task):
         if actor and action and task:
             if isinstance(task, str):
@@ -197,6 +188,15 @@ class NpcFSM(FSM):
                              any_action_seq,
                              Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", False)).start()
 
+    def enterAttacked(self, actor, action, task):
+        if actor and action and task and isinstance(action, str):
+            if isinstance(task, str):
+                if task == "play":
+                    any_action_seq = actor.actor_interval(action)
+                    Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_attacked", True),
+                             any_action_seq,
+                             Func(self.fsm_state_wrapper, actor, "generic_states", "is_attacked", False)).start()
+
     def enterLife(self, actor, action, task):
         if actor and action and task and isinstance(action, str):
             if isinstance(task, str):
@@ -219,15 +219,6 @@ class NpcFSM(FSM):
                     if not any_action.is_playing():
                         actor.play(action)
 
-    def enterMiscAct(self, actor, action, task):
-        if actor and action and task and isinstance(action, str):
-            if isinstance(task, str):
-                if task == "play":
-                    any_action_seq = actor.actor_interval(action)
-                    Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", True),
-                             any_action_seq,
-                             Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", False)).start()
-
     def enterCrouch(self, actor, action, task):
         if actor and action and task and isinstance(action, str):
             if isinstance(task, str):
@@ -236,15 +227,6 @@ class NpcFSM(FSM):
                     Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_crouching", True),
                              any_action_seq,
                              Func(self.fsm_state_wrapper, actor, "generic_states", "is_crouching", False)).start()
-
-    def enterSwim(self, actor, action, task):
-        if actor and action and task and isinstance(action, str):
-            if isinstance(task, str):
-                if task == "play":
-                    any_action_seq = actor.actor_interval(action)
-                    Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", True),
-                             any_action_seq,
-                             Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", False)).start()
 
     def enterJump(self, actor, action, task):
         if actor and action and task and isinstance(action, str):
