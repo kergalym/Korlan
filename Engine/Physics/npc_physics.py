@@ -32,7 +32,7 @@ class NpcPhysics:
                                         # NPC gets damage if he has health point
                                         if actor.get_python_tag("health_np")['value'] > 1:
                                             request.request("Attacked", actor, "HitToBody", "play")
-                                            actor.get_python_tag("health_np")['value'] -= 50
+                                            actor.get_python_tag("health_np")['value'] -= 1
 
             # NPC dies if he has no health point
             if actor.get_python_tag("health_np")['value'] == 0:
