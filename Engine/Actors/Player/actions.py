@@ -1801,8 +1801,7 @@ class Actions:
         parent = render.find("**/{0}".format(horse_name))
         child = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
         player = self.base.game_instance['player_ref']
-        bone = "spine.003"
-        if parent and child and bone and anims and not self.base.game_instance['is_aiming']:
+        if parent and child and anims and not self.base.game_instance['is_aiming']:
             if (self.base.game_instance['player_ref'].get_python_tag("is_on_horse")
                     and parent.get_python_tag("is_mounted")):
                 self.unmount_action(anims)
@@ -1855,8 +1854,7 @@ class Actions:
         parent_bs = render.find("**/{0}:BS".format(horse_name))
         child = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
         player = self.base.game_instance['player_ref']
-        bone = "spine.003"
-        if parent and child and bone and anims and not self.base.game_instance['is_aiming']:
+        if parent and child and anims and not self.base.game_instance['is_aiming']:
             # with inverted Z -0.7 stands for Up
             # Our horse (un)mounting animations have been made with imperfect positions,
             # so, I had to change child positions to get more satisfactory result

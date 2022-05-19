@@ -91,6 +91,8 @@ class NpcGeneric:
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
                 self.render.analyze()
 
+            self.base.game_instance["npc_state_cls"] = self.npc_state
+
             # Set HUD and tags
             self.npc_state.set_npc_hud(actor=self.actor)
 

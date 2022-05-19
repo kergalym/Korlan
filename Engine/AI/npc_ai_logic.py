@@ -48,6 +48,9 @@ class NpcAILogic:
             actor_bs = self.base.game_instance['actors_np'][name_bs]
             request = self.npcs_fsm_states[name]
 
+            self.npc_state = self.base.game_instance["npc_state_cls"]
+            self.npc_state.set_npc_equipment(actor, "Korlan:Spine1")
+
             # todo: yurt place actions
 
             taskMgr.add(self.npc_physics.actor_hitbox_trace_task,
@@ -296,20 +299,7 @@ class NpcAILogic:
                 action = "great_sword_blocking"
             else:
                 action = "center_blocking"
-
-            """if actor_npc_bs.get_y() != actor_npc_bs.get_y() - 2:
-                actor_npc_bs.set_y(actor_npc_bs, -2 * dt)
-                request.request("ForwardRoll", actor, "forward_roll", "play")
-            elif actor_npc_bs.get_y() != actor_npc_bs.get_y() + 2:
-                actor_npc_bs.set_y(actor_npc_bs, 2 * dt)
-                request.request("ForwardRoll", actor, "forward_roll", "play")"""
             request.request("Block", actor, action, "play")
-            """if actor_npc_bs.get_x() != actor_npc_bs.get_x() - 2:
-                actor_npc_bs.set_x(actor_npc_bs, -2 * dt)
-                request.request("ForwardRoll", actor, "forward_roll", "play")
-            elif actor_npc_bs.get_x() != actor_npc_bs.get_x() + 2:
-                actor_npc_bs.set_x(actor_npc_bs, 2 * dt)
-                request.request("ForwardRoll", actor, "forward_roll", "play")"""
 
     def npc_in_attacking_logic(self, actor, actor_npc_bs, dt, request):
         if (actor.get_python_tag("generic_states")['is_idle']
@@ -322,20 +312,99 @@ class NpcAILogic:
                 action = "great_sword_slash"
             else:
                 action = "Boxing"
-
-            """if actor_npc_bs.get_y() != actor_npc_bs.get_y() - 2:
-                actor_npc_bs.set_y(actor_npc_bs, -2 * dt)
-                request.request("ForwardRoll", actor, "forward_roll", "play")
-            elif actor_npc_bs.get_y() != actor_npc_bs.get_y() + 2:
-                actor_npc_bs.set_y(actor_npc_bs, 2 * dt)
-                request.request("ForwardRoll", actor, "forward_roll", "play")"""
             request.request("Attack", actor, action, "play")
-            """if actor_npc_bs.get_x() != actor_npc_bs.get_x() - 2:
-                actor_npc_bs.set_x(actor_npc_bs, -2 * dt)
-                request.request("ForwardRoll", actor, "forward_roll", "play")
-            elif actor_npc_bs.get_x() != actor_npc_bs.get_x() + 2:
-                actor_npc_bs.set_x(actor_npc_bs, 2 * dt)
-                request.request("ForwardRoll", actor, "forward_roll", "play")"""
+
+    def npc_in_forwardroll_logic(self, actor, actor_npc_bs, dt, request):
+        if actor_npc_bs.get_x() != actor_npc_bs.get_x() - 2:
+            actor_npc_bs.set_x(actor_npc_bs, -2 * dt)
+            request.request("ForwardRoll", actor, "forward_roll", "play")
+        elif actor_npc_bs.get_x() != actor_npc_bs.get_x() + 2:
+            actor_npc_bs.set_x(actor_npc_bs, 2 * dt)
+            request.request("ForwardRoll", actor, "forward_roll", "play")
+        elif actor_npc_bs.get_y() != actor_npc_bs.get_y() - 2:
+            actor_npc_bs.set_y(actor_npc_bs, -2 * dt)
+            request.request("ForwardRoll", actor, "forward_roll", "play")
+        elif actor_npc_bs.get_y() != actor_npc_bs.get_y() + 2:
+            actor_npc_bs.set_y(actor_npc_bs, 2 * dt)
+            request.request("ForwardRoll", actor, "forward_roll", "play")
+
+    def npc_in_crouching_logic(self, actor, request):
+        if (actor.get_python_tag("generic_states")['is_idle']
+                and not actor.get_python_tag("generic_states")['is_attacked']
+                and not actor.get_python_tag("generic_states")['is_busy']
+                and not actor.get_python_tag("generic_states")['is_moving']):
+            if (actor.get_python_tag("generic_states")
+                    and not actor.get_python_tag("generic_states")['is_crouch_moving']):
+                request.request("Crouch", actor)
+
+    def npc_in_jumping_logic(self, actor, request):
+        if (actor.get_python_tag("generic_states")['is_idle']
+                and not actor.get_python_tag("generic_states")['is_attacked']
+                and not actor.get_python_tag("generic_states")['is_busy']
+                and not actor.get_python_tag("generic_states")['is_moving']):
+            if (actor.get_python_tag("generic_states")
+                    and not actor.get_python_tag("generic_states")['is_crouch_moving']):
+                request.request("Jump", actor, "Jumping", "play")
+
+    def npc_in_mounting_logic(self, actor, actor_npc_bs, request):
+        if (actor.get_python_tag("generic_states")['is_idle']
+                and not actor.get_python_tag("generic_states")['is_attacked']
+                and not actor.get_python_tag("generic_states")['is_busy']
+                and not actor.get_python_tag("generic_states")['is_moving']):
+            if (actor.get_python_tag("human_states")
+                    and not actor.get_python_tag("human_states")['is_on_horse']):
+                horse = render.find("**/NPC_Horse")
+                if horse:
+                    if not horse.get_python_tag("horse_spec_states")["is_mounted"]:
+                        horse_bs = render.find("**/NPC_Horse:BS")
+                        if horse_bs:
+                            horse_dist = int(actor_npc_bs.get_distance(horse_bs))
+                            if horse_dist > 1:
+                                self.npc_in_walking_logic(actor, actor_npc_bs, horse_bs, request)
+                            elif horse_dist <= 1:
+                                horse_name = horse.get_name()
+                                request.request("HorseMount", actor, actor_npc_bs, horse_name)
+
+    def npc_in_unmounting_logic(self, actor, actor_npc_bs, request):
+        if (actor.get_python_tag("generic_states")['is_idle']
+                and not actor.get_python_tag("generic_states")['is_attacked']
+                and not actor.get_python_tag("generic_states")['is_busy']
+                and not actor.get_python_tag("generic_states")['is_moving']):
+            if (actor.get_python_tag("human_states")
+                    and actor.get_python_tag("human_states")['is_on_horse']):
+                request.request("HorseUnmount", actor, actor_npc_bs)
+
+    def npc_get_weapon(self, actor, request, weapon_name, bone_name):
+        if (actor.get_python_tag("generic_states")['is_idle']
+                and not actor.get_python_tag("generic_states")['is_attacked']
+                and not actor.get_python_tag("generic_states")['is_busy']
+                and not actor.get_python_tag("generic_states")['is_moving']):
+            if "sword" in weapon_name:
+                if (actor.get_python_tag("human_states")
+                        and not actor.get_python_tag("human_states")['has_sword']):
+                    request.request("GetWeapon", actor, "sword_disarm_over_shoulder",
+                                    weapon_name, bone_name, "play")
+            elif "bow" in weapon_name:
+                if (actor.get_python_tag("human_states")
+                        and not actor.get_python_tag("human_states")['has_bow']):
+                    request.request("GetWeapon", actor, "archer_standing_disarm_bow",
+                                    weapon_name, bone_name, "play")
+
+    def npc_remove_weapon(self, actor, request, weapon_name, bone_name):
+        if (actor.get_python_tag("generic_states")['is_idle']
+                and not actor.get_python_tag("generic_states")['is_attacked']
+                and not actor.get_python_tag("generic_states")['is_busy']
+                and not actor.get_python_tag("generic_states")['is_moving']):
+            if "sword" in weapon_name:
+                if (actor.get_python_tag("human_states")
+                        and actor.get_python_tag("human_states")['has_sword']):
+                    request.request("RemoveWeapon", actor, "sword_disarm_over_shoulder",
+                                    weapon_name, bone_name, "play")
+            elif "bow" in weapon_name:
+                if (actor.get_python_tag("human_states")
+                        and actor.get_python_tag("human_states")['has_bow']):
+                    request.request("RemoveWeapon", actor, "archer_standing_disarm_bow",
+                                    weapon_name, bone_name, "play")
 
     def actor_rotate(self, actor_npc_bs, path_points):
         current_dir = actor_npc_bs.get_hpr()
