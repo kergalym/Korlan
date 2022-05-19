@@ -163,7 +163,7 @@ class NpcFSM(FSM):
                      # so make player geom stay higher instead
                      Func(actor.set_z, saddle_pos[2]),
                      Func(child.set_collide_mask, BitMask32.bit(0)),
-                     Func(self.base.game_instance['player_ref'].set_python_tag, "is_on_horse", True),
+                     Func(actor.set_python_tag, "is_on_horse", True),
                      Func(self.state.set_action_state, "is_using", False),
                      Func(self.state.set_action_state, "horse_riding", True),
                      Func(self.state.set_action_state, "is_mounted", True),
@@ -189,7 +189,7 @@ class NpcFSM(FSM):
             base.game_instance['player_using_horse'] = ''
             horse_np = self.base.game_instance['actors_np']["{0}:BS".format(horse_name)]
 
-            Sequence(Func(self.base.game_instance['player_ref'].set_python_tag, "is_on_horse", False),
+            Sequence(Func(actor.set_python_tag, "is_on_horse", False),
                      Func(self.state.set_action_state, "is_using", True),
                      Func(child.set_collide_mask, BitMask32.allOff()),
                      Parallel(unmount_action_seq,
