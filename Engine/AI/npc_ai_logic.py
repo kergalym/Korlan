@@ -48,8 +48,9 @@ class NpcAILogic:
             actor_bs = self.base.game_instance['actors_np'][name_bs]
             request = self.npcs_fsm_states[name]
 
-            self.npc_state = self.base.game_instance["npc_state_cls"]
-            self.npc_state.set_npc_equipment(actor, "Korlan:Spine1")
+            if "animal" not in actor.get_python_tag("npc_type"):
+                self.npc_state = self.base.game_instance["npc_state_cls"]
+                self.npc_state.set_npc_equipment(actor, "Korlan:Spine1")
 
             # todo: yurt place actions
 

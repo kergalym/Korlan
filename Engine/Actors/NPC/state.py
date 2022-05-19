@@ -147,6 +147,7 @@ class NpcState:
                         self.set_weapon_collider(weapon=weapon, joint=joint)
                     if "bow" in name:
                         weapon.reparent_to(joint)
+                        print(weapon)
                         weapon.set_pos(0, 12, -12)
                         weapon.set_hpr(78.69, 99.46, 108.43)
                         weapon.set_scale(100)
