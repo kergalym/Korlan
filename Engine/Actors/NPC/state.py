@@ -198,10 +198,10 @@ class NpcState:
                         self.remove_weapon(actor, weapon, "Korlan:Spine1")
 
             joint = actor.exposeJoint(None, "modelRoot", bone_name)
-            if render.find("**/{0}".format(weapon_name)):
+            if actor.find("**/{0}".format(weapon_name)):
                 if "bow" not in weapon_name:
                     # get weapon collider
-                    weapon = render.find("**/{0}_BGN".format(weapon_name))
+                    weapon = actor.find("**/{0}_BGN".format(weapon_name))
                     weapon.reparent_to(joint)
                     # rescale weapon because it's scale 100 times smaller than we need
                     weapon.set_scale(100)
@@ -211,7 +211,7 @@ class NpcState:
                         weapon.show()
 
                 elif "bow" in weapon_name:
-                    weapon = render.find("**/{0}".format(weapon_name))
+                    weapon = actor.find("**/{0}".format(weapon_name))
                     weapon.reparent_to(joint)
                     # rescale weapon because it's scale 100 times smaller than we need
                     weapon.set_scale(100)
@@ -220,19 +220,15 @@ class NpcState:
                     if weapon.is_hidden():
                         weapon.show()
 
-                base.player_state_unarmed = False
-                base.player_state_armed = True
-                base.player_state_magic = False
-
     def remove_weapon(self, actor, weapon_name, bone_name):
         if (actor and weapon_name and bone_name
                 and isinstance(weapon_name, str)
                 and isinstance(bone_name, str)):
             joint = actor.exposeJoint(None, "modelRoot", bone_name)
-            if render.find("**/{0}".format(weapon_name)):
+            if actor.find("**/{0}".format(weapon_name)):
                 if "bow" not in weapon_name:
                     # get weapon collider
-                    weapon = render.find("**/{0}_BGN".format(weapon_name))
+                    weapon = actor.find("**/{0}_BGN".format(weapon_name))
                     weapon.reparent_to(joint)
                     # self.clear_weapon_collider(weapon=weapon, joint=joint)
                     # rescale weapon because it's scale 100 times smaller than we need
@@ -240,7 +236,7 @@ class NpcState:
                     weapon.set_pos(10, -14.90, -8)
                     weapon.set_hpr(0, 0, 0)
                 elif "bow" in weapon_name:
-                    weapon = render.find("**/{0}".format(weapon_name))
+                    weapon = actor.find("**/{0}".format(weapon_name))
                     weapon.reparent_to(joint)
                     # rescale weapon because it's scale 100 times smaller than we need
                     weapon.set_scale(100)

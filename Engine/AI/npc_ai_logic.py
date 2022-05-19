@@ -294,8 +294,7 @@ class NpcAILogic:
                 and not actor.get_python_tag("generic_states")['is_busy']
                 and not actor.get_python_tag("generic_states")['is_moving']):
             action = ""
-            if (actor.get_python_tag("human_states")
-                    and actor.get_python_tag("human_states")['has_sword']):
+            if actor.get_python_tag("human_states")['has_sword']:
                 action = "great_sword_blocking"
             else:
                 action = "center_blocking"
@@ -310,7 +309,7 @@ class NpcAILogic:
                 action = "great_sword_slash"
                 request.request("Attack", actor, action, "play")
             elif actor.get_python_tag("human_states")["has_bow"]:
-                action = "great_sword_slash"
+                action = "archer_standing_draw_arrow"
                 request.request("Archery", actor, action, "play")
             else:
                 action = "Boxing"
