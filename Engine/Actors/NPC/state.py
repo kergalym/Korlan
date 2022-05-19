@@ -131,7 +131,6 @@ class NpcState:
             actor.get_python_tag("npc_hud_np").remove_node()
 
     def set_npc_equipment(self, actor, bone_name):
-        # fixme
         if actor and isinstance(bone_name, str):
             joint = actor.exposeJoint(None, "modelRoot", bone_name)
 
@@ -189,7 +188,6 @@ class NpcState:
                 self.base.game_instance['physics_world_np'].remove_rigid_body(weapon_rb_np.node())
 
     def get_weapon(self, actor, weapon_name, bone_name):
-        # fixme
         if (actor and weapon_name and bone_name
                 and isinstance(weapon_name, str)
                 and isinstance(bone_name, str)):
@@ -227,7 +225,6 @@ class NpcState:
                 base.player_state_magic = False
 
     def remove_weapon(self, actor, weapon_name, bone_name):
-        # fixme
         if (actor and weapon_name and bone_name
                 and isinstance(weapon_name, str)
                 and isinstance(bone_name, str)):

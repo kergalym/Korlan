@@ -306,13 +306,15 @@ class NpcAILogic:
                 and not actor.get_python_tag("generic_states")['is_attacked']
                 and not actor.get_python_tag("generic_states")['is_busy']
                 and not actor.get_python_tag("generic_states")['is_moving']):
-            action = ""
-            if (actor.get_python_tag("human_states")
-                    and actor.get_python_tag("human_states")['has_sword']):
+            if actor.get_python_tag("human_states")["has_sword"]:
                 action = "great_sword_slash"
+                request.request("Attack", actor, action, "play")
+            elif actor.get_python_tag("human_states")["has_bow"]:
+                action = "great_sword_slash"
+                request.request("Archery", actor, action, "play")
             else:
                 action = "Boxing"
-            request.request("Attack", actor, action, "play")
+                request.request("Attack", actor, action, "play")
 
     def npc_in_forwardroll_logic(self, actor, actor_npc_bs, dt, request):
         if actor_npc_bs.get_x() != actor_npc_bs.get_x() - 2:

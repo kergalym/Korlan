@@ -45,8 +45,10 @@ class NpcBehavior:
                                 if enemy_dist <= 1:
                                     # Facing to enemy
                                     self.npc_ai_logic.face_actor_to(actor_npc_bs, enemy_npc_bs)
-                                    self.npc_ai_logic.npc_get_weapon(actor, request, "sword", "Korlan:LeftHand")
-                                    # self.npc_ai_logic.npc_get_weapon(actor, request, "bow", "Korlan:LeftHand")
+                                    # self.npc_ai_logic.npc_get_weapon(actor, request, "sword",
+                                    #                                 "Korlan:LeftHand")
+                                    self.npc_ai_logic.npc_get_weapon(actor, request, "bow",
+                                                                     "Korlan:LeftHand")
                                     # self.npc_ai_logic.npc_remove_weapon(actor, request, "sword", "Korlan:Spine")
                                     # self.npc_ai_logic.npc_remove_weapon(actor, request, "bow", "Korlan:Spine")
                                     # self.npc_ai_logic.npc_in_mounting_logic(actor, actor_npc_bs, request)

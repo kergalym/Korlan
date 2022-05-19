@@ -1,7 +1,9 @@
 from direct.fsm.FSM import FSM
-from direct.interval.FunctionInterval import Func
+from direct.interval.FunctionInterval import Func, Wait
 from direct.interval.MetaInterval import Sequence, Parallel
+from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import BitMask32, Vec3
+from Engine.Actors.archery import Archery
 
 
 class NpcFSM(FSM):
@@ -10,7 +12,18 @@ class NpcFSM(FSM):
         self.base = base
         self.render = render
         base.fsm = self
-        self.npc_state = self.base.game_instance["npc_state_cls"]
+        self.archery = None
+        taskMgr.add(self.archery_waiting_task, "archery_waiting_task")
+
+    def archery_waiting_task(self, task):
+        if self.base.game_instance['physics_is_activated'] == 1:
+            self.archery = Archery("NPC")
+            self.archery.is_arrow_ready = False
+            taskMgr.add(self.archery.prepare_arrows_helper(arrow_name="bow_arrow_kazakh",
+                                                           joint_name="Korlan:Spine1"))
+            return task.done
+
+        return task.cont
 
     def set_basic_npc_behaviors(self, actor, player, ai_behaviors, behavior, vect):
         if (actor and player
@@ -115,11 +128,14 @@ class NpcFSM(FSM):
             if isinstance(task, str):
                 if task == "play":
                     if not any_action.is_playing():
+                        has_weapon = "has_{0}".format(weapon_name)
                         any_action_seq = actor.actor_interval(action)
+                        npc_state = self.base.game_instance["npc_state_cls"]
                         Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", True),
-                                 Func(self.npc_state.get_weapon, actor, weapon_name, bone_name),
+                                 Func(npc_state.get_weapon, actor, weapon_name, bone_name),
                                  any_action_seq,
-                                 Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", False)).start()
+                                 Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", False),
+                                 Func(self.fsm_state_wrapper, actor, "human_states", has_weapon, True)).start()
 
     def enterRemoveWeapon(self, actor, action, weapon_name, bone_name, task):
         if actor and action and actor and weapon_name and bone_name and task:
@@ -127,11 +143,14 @@ class NpcFSM(FSM):
             if isinstance(task, str):
                 if task == "play":
                     if not any_action.is_playing():
+                        has_weapon = "has_{0}".format(weapon_name)
                         any_action_seq = actor.actor_interval(action)
+                        npc_state = self.base.game_instance["npc_state_cls"]
                         Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", True),
-                                 Func(self.npc_state.remove_weapon, actor, weapon_name, bone_name),
+                                 Func(npc_state.remove_weapon, actor, weapon_name, bone_name),
                                  any_action_seq,
-                                 Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", False)).start()
+                                 Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", False),
+                                 Func(self.fsm_state_wrapper, actor, "human_states", has_weapon, False)).start()
 
     def enterHorseMount(self, actor, child, horse_name):
         parent = render.find("**/{0}".format(horse_name))
@@ -150,7 +169,7 @@ class NpcFSM(FSM):
 
             Sequence(Func(horse_np.set_collide_mask, BitMask32.bit(0)),
                      Func(child.set_collide_mask, BitMask32.allOff()),
-                     Func(self.state.set_action_state, "is_using", True),
+                     Func(self.fsm_state_wrapper, actor, "generic_states", "is_using", True),
                      Parallel(mount_action_seq,
                               Func(child.reparent_to, parent),
                               Func(child.set_x, mounting_pos[0]),
@@ -164,9 +183,9 @@ class NpcFSM(FSM):
                      Func(actor.set_z, saddle_pos[2]),
                      Func(child.set_collide_mask, BitMask32.bit(0)),
                      Func(actor.set_python_tag, "is_on_horse", True),
-                     Func(self.state.set_action_state, "is_using", False),
-                     Func(self.state.set_action_state, "horse_riding", True),
-                     Func(self.state.set_action_state, "is_mounted", True),
+                     Func(self.fsm_state_wrapper, actor, "generic_states", "is_using", False),
+                     Func(self.fsm_state_wrapper, actor, "human_states", "horse_riding", True),
+                     Func(self.fsm_state_wrapper, actor, "human_states", "is_on_horse", True),
                      Func(parent.set_python_tag, "is_mounted", True),
                      horse_riding_action_seq
                      ).start()
@@ -190,7 +209,7 @@ class NpcFSM(FSM):
             horse_np = self.base.game_instance['actors_np']["{0}:BS".format(horse_name)]
 
             Sequence(Func(actor.set_python_tag, "is_on_horse", False),
-                     Func(self.state.set_action_state, "is_using", True),
+                     Func(self.fsm_state_wrapper, actor, "generic_states", "is_using", True),
                      Func(child.set_collide_mask, BitMask32.allOff()),
                      Parallel(unmount_action_seq,
                               Func(child.set_x, unmounting_pos[0]),
@@ -201,9 +220,9 @@ class NpcFSM(FSM):
                      Func(child.set_x, horse_near_pos[0]),
                      Func(child.set_y, horse_near_pos[1]),
                      Func(actor.set_z, -1),
-                     Func(self.state.set_action_state, "is_using", False),
-                     Func(self.state.set_action_state, "horse_riding", False),
-                     Func(self.state.set_action_state, "is_mounted", False),
+                     Func(self.fsm_state_wrapper, actor, "generic_states", "is_using", False),
+                     Func(self.fsm_state_wrapper, actor, "human_states", "horse_riding", False),
+                     Func(self.fsm_state_wrapper, actor, "human_states", "is_on_horse", False),
                      Func(parent.set_python_tag, "is_mounted", False),
                      Func(horse_np.set_collide_mask, BitMask32.allOn()),
                      Func(child.set_collide_mask, BitMask32.bit(0))
@@ -230,6 +249,81 @@ class NpcFSM(FSM):
                                  any_action_seq,
                                  Func(hitbox_np.set_collide_mask, BitMask32.allOff()),
                                  Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", False)).start()
+
+    def enterArchery(self, actor, action, task):
+        if actor and action and task:
+            if isinstance(task, str):
+                if task == "play":
+                    crouched_to_standing = actor.get_anim_control('crouched_to_standing')
+
+                    if self.archery.arrow_ref:
+                        if self.archery.arrow_ref.get_python_tag("power") > 0:
+                            self.archery.arrow_ref.set_python_tag("power", 0)
+
+                    if (crouched_to_standing.is_playing() is False
+                            and base.player_states['is_crouching'] is True):
+                        # TODO: Use blending for smooth transition between animations
+                        # Do an animation sequence if player is crouched.
+                        crouch_to_stand_seq = actor.actor_interval('crouched_to_standing',
+                                                                   playRate=self.base.actor_play_rate)
+                        any_action_seq = actor.actor_interval(action,
+                                                              playRate=self.base.actor_play_rate)
+
+                        Sequence(crouch_to_stand_seq,
+                                 Func(self.archery.prepare_arrow_for_shoot, "bow_kazakh"),
+                                 any_action_seq,
+                                 Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", True)
+                                 ).start()
+
+                    elif (crouched_to_standing.is_playing() is False
+                          and base.player_states['is_crouching'] is False):
+                        any_action_seq = actor.actor_interval(action,
+                                                              playRate=self.base.actor_play_rate)
+                        Sequence(Func(self.archery.prepare_arrow_for_shoot, "bow_kazakh"),
+                                 any_action_seq,
+                                 Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", True)
+                                 ).start()
+
+                if (len(self.archery.arrows) > 0
+                        and self.archery.arrow_ref.get_python_tag("ready") == 0):
+
+                    if self.archery.arrow_ref and self.archery.arrow_is_prepared:
+                        if self.archery.target_test_ui:
+                            self.archery.target_test_ui.show()
+                        power = self.archery.arrow_ref.get_python_tag("power")
+                        if power < self.archery.arrow_charge_units:
+                            if self.base.game_instance['hud_np'].charge_arrow_bar_ui:
+                                self.base.game_instance['hud_np'].charge_arrow_bar_ui['value'] = power
+                            power += 10
+                            self.archery.arrow_ref.set_python_tag("power", power)
+
+                        Sequence(Wait(0.1),
+                                 Func(actor.pose, action, -0.98),
+                                 Wait(0.1),
+                                 Func(actor.pose, action, -0.99),
+                                 Wait(0.1),
+                                 Func(actor.pose, action, -1),
+                                 ).start()
+
+                if (self.archery.arrow_ref.get_python_tag("ready") == 0
+                        and self.archery.arrow_ref.get_python_tag("shot") == 0
+                        and self.archery.arrow_ref.get_python_tag("power") > 0):
+
+                    if (self.archery.arrow_ref
+                            and self.archery.arrow_is_prepared
+                            and len(self.archery.arrows) > 0):
+                        self.archery.arrow_ref.set_python_tag("ready", 1)
+                        self.archery.bow_shoot()
+
+                    self.fsm_state_wrapper(actor, "generic_states", 'block', False),
+                    self.fsm_state_wrapper(actor, "generic_states", "is_busy", False)
+                    if self.base.game_instance['hud_np'].charge_arrow_bar_ui:
+                        self.base.game_instance['hud_np'].charge_arrow_bar_ui['value'] = 0
+
+                    if self.archery.arrow_ref:
+                        if self.archery.arrow_ref.get_python_tag("power") > 0:
+                            self.archery.arrow_ref.set_python_tag("power", 0)
+                        self.archery.arrow_ref.set_python_tag("ready", 0)
 
     def enterForwardRoll(self, actor, action, task):
         if actor and action and task:
