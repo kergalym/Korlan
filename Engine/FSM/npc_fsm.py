@@ -260,70 +260,69 @@ class NpcFSM(FSM):
                         if self.archery.arrow_ref.get_python_tag("power") > 0:
                             self.archery.arrow_ref.set_python_tag("power", 0)
 
-                    if (crouched_to_standing.is_playing() is False
-                            and base.player_states['is_crouching'] is True):
-                        # TODO: Use blending for smooth transition between animations
-                        # Do an animation sequence if player is crouched.
-                        crouch_to_stand_seq = actor.actor_interval('crouched_to_standing',
-                                                                   playRate=self.base.actor_play_rate)
-                        any_action_seq = actor.actor_interval(action,
-                                                              playRate=self.base.actor_play_rate)
+                        if (crouched_to_standing.is_playing() is False
+                                and base.player_states['is_crouching'] is True):
+                            # TODO: Use blending for smooth transition between animations
+                            # Do an animation sequence if player is crouched.
+                            crouch_to_stand_seq = actor.actor_interval('crouched_to_standing',
+                                                                       playRate=self.base.actor_play_rate)
+                            any_action_seq = actor.actor_interval(action,
+                                                                  playRate=self.base.actor_play_rate)
 
-                        Sequence(crouch_to_stand_seq,
-                                 Func(self.archery.prepare_arrow_for_shoot, "bow_kazakh"),
-                                 any_action_seq,
-                                 Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", True)
-                                 ).start()
+                            Sequence(crouch_to_stand_seq,
+                                     Func(self.archery.prepare_arrow_for_shoot, "bow_kazakh"),
+                                     any_action_seq,
+                                     Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", True)
+                                     ).start()
 
-                    elif (crouched_to_standing.is_playing() is False
-                          and base.player_states['is_crouching'] is False):
-                        any_action_seq = actor.actor_interval(action,
-                                                              playRate=self.base.actor_play_rate)
-                        Sequence(Func(self.archery.prepare_arrow_for_shoot, "bow_kazakh"),
-                                 any_action_seq,
-                                 Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", True)
-                                 ).start()
+                        elif (crouched_to_standing.is_playing() is False
+                              and base.player_states['is_crouching'] is False):
+                            any_action_seq = actor.actor_interval(action,
+                                                                  playRate=self.base.actor_play_rate)
+                            Sequence(Func(self.archery.prepare_arrow_for_shoot, "bow_kazakh"),
+                                     any_action_seq,
+                                     Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", True)
+                                     ).start()
 
-                if (len(self.archery.arrows) > 0
-                        and self.archery.arrow_ref.get_python_tag("ready") == 0):
+                        if (len(self.archery.arrows) > 0
+                                and self.archery.arrow_ref.get_python_tag("ready") == 0):
 
-                    if self.archery.arrow_ref and self.archery.arrow_is_prepared:
-                        if self.archery.target_test_ui:
-                            self.archery.target_test_ui.show()
-                        power = self.archery.arrow_ref.get_python_tag("power")
-                        if power < self.archery.arrow_charge_units:
+                            if self.archery.arrow_is_prepared:
+                                if self.archery.target_test_ui:
+                                    self.archery.target_test_ui.show()
+                                power = self.archery.arrow_ref.get_python_tag("power")
+                                if power < self.archery.arrow_charge_units:
+                                    if self.base.game_instance['hud_np'].charge_arrow_bar_ui:
+                                        self.base.game_instance['hud_np'].charge_arrow_bar_ui['value'] = power
+                                    power += 10
+                                    self.archery.arrow_ref.set_python_tag("power", power)
+
+                                Sequence(Wait(0.1),
+                                         Func(actor.pose, action, -0.98),
+                                         Wait(0.1),
+                                         Func(actor.pose, action, -0.99),
+                                         Wait(0.1),
+                                         Func(actor.pose, action, -1),
+                                         ).start()
+
+                        if (self.archery.arrow_ref.get_python_tag("ready") == 0
+                                and self.archery.arrow_ref.get_python_tag("shot") == 0
+                                and self.archery.arrow_ref.get_python_tag("power") > 0):
+
+                            if (self.archery.arrow_ref
+                                    and self.archery.arrow_is_prepared
+                                    and len(self.archery.arrows) > 0):
+                                self.archery.arrow_ref.set_python_tag("ready", 1)
+                                self.archery.bow_shoot()
+
+                            self.fsm_state_wrapper(actor, "generic_states", 'block', False),
+                            self.fsm_state_wrapper(actor, "generic_states", "is_busy", False)
                             if self.base.game_instance['hud_np'].charge_arrow_bar_ui:
-                                self.base.game_instance['hud_np'].charge_arrow_bar_ui['value'] = power
-                            power += 10
-                            self.archery.arrow_ref.set_python_tag("power", power)
+                                self.base.game_instance['hud_np'].charge_arrow_bar_ui['value'] = 0
 
-                        Sequence(Wait(0.1),
-                                 Func(actor.pose, action, -0.98),
-                                 Wait(0.1),
-                                 Func(actor.pose, action, -0.99),
-                                 Wait(0.1),
-                                 Func(actor.pose, action, -1),
-                                 ).start()
-
-                if (self.archery.arrow_ref.get_python_tag("ready") == 0
-                        and self.archery.arrow_ref.get_python_tag("shot") == 0
-                        and self.archery.arrow_ref.get_python_tag("power") > 0):
-
-                    if (self.archery.arrow_ref
-                            and self.archery.arrow_is_prepared
-                            and len(self.archery.arrows) > 0):
-                        self.archery.arrow_ref.set_python_tag("ready", 1)
-                        self.archery.bow_shoot()
-
-                    self.fsm_state_wrapper(actor, "generic_states", 'block', False),
-                    self.fsm_state_wrapper(actor, "generic_states", "is_busy", False)
-                    if self.base.game_instance['hud_np'].charge_arrow_bar_ui:
-                        self.base.game_instance['hud_np'].charge_arrow_bar_ui['value'] = 0
-
-                    if self.archery.arrow_ref:
-                        if self.archery.arrow_ref.get_python_tag("power") > 0:
-                            self.archery.arrow_ref.set_python_tag("power", 0)
-                        self.archery.arrow_ref.set_python_tag("ready", 0)
+                            if self.archery.arrow_ref.get_python_tag("power") > 0:
+                                self.archery.arrow_ref.set_python_tag("power", 0)
+                            self.archery.arrow_ref.set_python_tag("ready", 0)
 
     def enterForwardRoll(self, actor, action, task):
         if actor and action and task:
