@@ -19,7 +19,7 @@ class Actions:
         self.base = base
         self.render = render
         self.actor_play_rate = None
-
+        self.idle_action = "Standing_idle_female"
         self.walking_forward_action = "Walking"
         self.run_forward_action = "Running"
         self.crouch_walking_forward_action = 'crouch_walking_forward'
@@ -200,6 +200,23 @@ class Actions:
             print(self.base.game_instance['player_controller_np'].get_shape().get_local_scale())
             self.base.game_instance['player_controller_np'].get_shape().set_local_scale(Vec3(1, 1, size))"""
 
+    def ground_water_action_switch_task(self, task):
+        if self.base.game_instance['menu_mode']:
+            return task.done
+
+        if self.base.game_instance['water_trigger_np']:
+            trigger_np = self.base.game_instance['water_trigger_np']
+            for node in trigger_np.node().get_overlapping_nodes():
+                if "Player" in node.get_name():
+                    # todo: change idle_action to swim_idle
+                    self.idle_action = "Standing_idle_female"
+                    self.walking_forward_action = "Swimming"
+                else:
+                    self.idle_action = "Standing_idle_female"
+                    self.walking_forward_action = "Walking"
+
+        return task.cont
+
     """ Prepares actions for scene"""
 
     def player_actions_init(self, player, anims):
@@ -253,6 +270,9 @@ class Actions:
                 taskMgr.add(self.archery.prepare_arrows_helper(arrow_name="bow_arrow_kazakh",
                                                                joint_name="Korlan:Spine1"))
 
+                taskMgr.add(self.ground_water_action_switch_task,
+                            "ground_water_action_switch_task")
+
                 # Start actions
                 taskMgr.add(self.player_actions_task, "player_actions_task",
                             extraArgs=[player, anims],
@@ -271,7 +291,7 @@ class Actions:
         if player and anims:
             # Define player actions
             if not player.get_python_tag("is_on_horse"):
-                any_action = player.get_anim_control(anims['Standing_idle_female'])
+                any_action = player.get_anim_control(anims[self.idle_action])
                 if (any_action.is_playing() is False
                         and base.player_states['is_idle']
                         and base.player_states['is_attacked'] is False
@@ -286,7 +306,7 @@ class Actions:
                         and base.player_states['horse_riding'] is False):
 
                     self.fsm_player.request("Idle", player,
-                                            anims['Standing_idle_female'],
+                                            anims[self.idle_action],
                                             "play")
                     if self.base.game_instance['player_props']['stamina'] < 100:
                         self.base.game_instance['player_props']['stamina'] += 5
@@ -921,7 +941,7 @@ class Actions:
                     any_action_seq = player.actor_interval(anims[self.crouched_to_standing_action],
                                                            playRate=self.base.actor_play_rate)
 
-                    self.base.game_instance["player_ref"].set_control_effect("Standing_idle_female", 0.1)
+                    self.base.game_instance["player_ref"].set_control_effect(self.idle_action, 0.1)
                     self.base.game_instance["player_ref"].set_control_effect(self.crouched_to_standing_action, 0.9)
 
                     Sequence(any_action_seq,

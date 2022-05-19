@@ -1,4 +1,5 @@
 from direct.task.TaskManagerGlobal import taskMgr
+from panda3d.bullet import BulletSphereShape, BulletGhostNode
 from panda3d.core import *
 from Engine.Renderer.renderer import RenderAttr
 from Settings.Input.indoor_camera import IndoorCamera
@@ -79,6 +80,29 @@ class SceneOne:
             # Initialize the NavMeshQuery that we will use.
             self.navmesh_query = NavMeshQuery(self.navmesh)
             self.base.game_instance["navmesh_query"] = self.navmesh_query"""
+
+    def set_water_trigger(self, scene, radius, task):
+        if self.base.game_instance["loading_is_done"] == 1:
+            if (self.render.find("**/World")
+                    and self.base.game_instance["physics_world_np"]):
+                world_np = self.render.find("**/World")
+                ph_world = self.base.game_instance["physics_world_np"]
+
+                for actor in scene.get_children():
+                    if "water_box" in actor.get_name():
+                        sphere = BulletSphereShape(radius)
+                        trigger_bg = BulletGhostNode('{0}_trigger'.format(actor.get_name()))
+                        trigger_bg.add_shape(sphere)
+                        trigger_np = world_np.attach_new_node(trigger_bg)
+                        trigger_np.set_collide_mask(BitMask32(0x0f))
+                        ph_world.attach_ghost(trigger_bg)
+                        trigger_np.reparent_to(actor)
+                        trigger_np.set_pos(0, 0, 1)
+                        self.base.game_instance['water_trigger_np'] = trigger_np
+
+                        return task.done
+
+        return task.cont
 
     async def set_level(self, path, name, axis, rotation, scale, culling):
         if (isinstance(path, str)
@@ -184,6 +208,13 @@ class SceneOne:
             taskMgr.add(self.cam_modes.set_camera_trigger,
                         "set_camera_trigger",
                         extraArgs=[scene],
+                        appendTask=True)
+
+            # Add water trigger
+            radius = 7
+            taskMgr.add(self.set_water_trigger,
+                        "set_water_trigger",
+                        extraArgs=[scene, radius],
                         appendTask=True)
 
             # Add quest triggers
