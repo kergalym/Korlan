@@ -102,6 +102,13 @@ class NpcGeneric:
             # Set NPC class
             self.actor.set_python_tag("npc_class", cls)
 
+            # Set NPC allowed weapons list
+            a_weapons = [
+                "sword",
+                "bow",
+            ]
+            self.actor.set_python_tag("allowed_weapons", a_weapons)
+
             # Set NPC Parameters
             self.npc_state.setup_npc_state(actor=self.actor)
 
