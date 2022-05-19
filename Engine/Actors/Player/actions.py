@@ -333,6 +333,7 @@ class Actions:
                     if self.floater and not base.player_states['is_mounted']:
                         self.player_movement_action(player, anims)
                         self.player_run_action(player, anims)
+                        self.player_forwardroll_action(player, anims)
                     elif base.player_states['is_mounted']:
                         self.horse_riding_movement_action(anims)
                         self.horse_riding_run_action(anims)
@@ -362,6 +363,7 @@ class Actions:
                         if self.floater:
                             self.player_movement_action(player, anims)
                             self.player_run_action(player, anims)
+                            self.player_forwardroll_action(player, anims)
 
                             self.player_crouch_action(player, 'crouch', anims)
                             self.player_jump_action(player, "jump", anims, "Jumping")
@@ -386,6 +388,7 @@ class Actions:
                         if self.floater:
                             self.player_movement_action(player, anims)
                             self.player_run_action(player, anims)
+                            self.player_forwardroll_action(player, anims)
 
                             self.player_crouch_action(player, 'crouch', anims)
                             self.player_jump_action(player, "jump", anims, "Jumping")
@@ -1050,6 +1053,42 @@ class Actions:
                                  Func(self.state.set_action_state, "is_using", False),
                                  Func(self.state.set_do_once_key, key, False),
                                  ).start()
+
+    def player_forwardroll_action(self, player, anims):
+        if (player and isinstance(anims, dict)
+                and not base.player_states['is_using']
+                and not self.base.game_instance['is_aiming']):
+            crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
+
+            if (self.kbd.keymap["forward"]
+                    and self.kbd.keymap["jump"]
+                    and not base.do_key_once["jump"]):
+                self.state.set_do_once_key("jump", True)
+                if base.player_states['is_busy'] is False:
+                    any_action_seq = player.actor_interval(anims["forward_roll"],
+                                                           playRate=self.base.actor_play_rate)
+                    Sequence(Func(self.state.set_action_state, "is_busy", True),
+                             any_action_seq,
+                             Func(self.state.set_action_state, "is_busy", False),
+                             Func(self.state.set_do_once_key, "jump", False),
+                             ).start()
+            elif self.kbd.keymap["forward"] and not self.kbd.keymap["jump"]:
+                if (base.player_states['is_busy'] is False
+                        and crouched_to_standing.is_playing() is False
+                        and base.player_states['is_crouch_moving'] is False):
+                    walking_forward_seq = player.get_anim_control(anims[self.walking_forward_action])
+                    if walking_forward_seq.is_playing() is False:
+                        player.loop(anims[self.walking_forward_action])
+                        player.set_play_rate(self.base.actor_play_rate,
+                                             anims[self.walking_forward_action])
+                elif (base.player_states['is_busy'] is False
+                        and crouched_to_standing.is_playing()
+                        and base.player_states['is_crouch_moving']):
+                    crouch_move_forward_seq = player.get_anim_control(anims[self.crouch_walking_forward_action])
+                    if crouch_move_forward_seq.is_playing() is False:
+                        player.loop(anims[self.crouch_walking_forward_action])
+                        player.set_play_rate(self.base.actor_play_rate,
+                                             anims[self.crouch_walking_forward_action])
 
     def player_attack_action(self, player, key, anims, action):
         if (player and isinstance(anims, dict)

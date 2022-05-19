@@ -179,6 +179,15 @@ class NpcFSM(FSM):
                                  Func(hitbox_np.set_collide_mask, BitMask32.allOff()),
                                  Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", False)).start()
 
+    def enterDodge(self, actor, action, task):
+        if actor and action and task and isinstance(action, str):
+            if isinstance(task, str):
+                if task == "play":
+                    any_action_seq = actor.actor_interval(action)
+                    Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", True),
+                             any_action_seq,
+                             Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", False)).start()
+
     def enterInteract(self, actor, action, task):
         if actor and action and task and isinstance(action, str):
             if isinstance(task, str):
