@@ -209,11 +209,15 @@ class Actions:
             for node in trigger_np.node().get_overlapping_nodes():
                 if "Player" in node.get_name():
                     # todo: change idle_action to swim_idle
-                    self.idle_action = "Standing_idle_female"
-                    self.walking_forward_action = "Swimming"
+                    if self.idle_action != "Standing_idle_female":
+                        self.idle_action = "Standing_idle_female"
+                    if self.walking_forward_action != "Swimming":
+                        self.walking_forward_action = "Swimming"
                 else:
-                    self.idle_action = "Standing_idle_female"
-                    self.walking_forward_action = "Walking"
+                    if self.idle_action != "Standing_idle_female":
+                        self.idle_action = "Standing_idle_female"
+                    if self.walking_forward_action != "Walking":
+                        self.walking_forward_action = "Walking"
 
         return task.cont
 
