@@ -36,11 +36,7 @@ class NpcBehavior:
                         hitbox_dist = self.npc_ai_logic.get_hit_distance(actor)
 
                         if base.player_states['is_alive']:
-
-                            # TODO: BEBUG HORSE MOUNTING
-                            self.npc_ai_logic.npc_in_mounting_logic(actor, actor_npc_bs, request)
-                            # TODO: UNCOMMENT AFTER HORSE MOUNTING WILL BE DEBUGGED
-                            """if base.player_states['is_mounted']:
+                            if base.player_states['is_mounted']:
                                 self.npc_ai_logic.npc_in_mounting_logic(actor, actor_npc_bs, request)
                             else:
                                 self.npc_ai_logic.npc_in_unmounting_logic(actor, request)
@@ -70,7 +66,7 @@ class NpcBehavior:
                                             self.npc_ai_logic.npc_in_blocking_logic(actor, request)
                                         else:
                                             self.npc_ai_logic.npc_in_attacking_logic(actor, enemy_npc_bs,
-                                                                                     dt, request)"""
+                                                                                     dt, request)
                         else:
                             if player_dist <= 1:
                                 self.npc_ai_logic.npc_in_staying_logic(actor, request)

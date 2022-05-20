@@ -354,7 +354,7 @@ class NpcAILogic:
             horse = render.find("**/NPC_Horse")
             if horse:
                 if not horse.get_python_tag("horse_spec_states")["is_mounted"]:
-                    # horse_bs = render.find("**/NPC_Horse:BS")
+                    horse_bs = render.find("**/NPC_Horse:BS")
                     mountplace = horse.get_python_tag("mount_place")
                     if mountplace:
                         horse_dist = int(actor_npc_bs.get_distance(mountplace))

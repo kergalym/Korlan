@@ -243,7 +243,7 @@ class PhysicsAttr:
                         # attach mount place nodepath
                         mountplace = NodePath("Mountplace_{0}".format(actor.get_name()))
                         mountplace.reparent_to(actor_bs_np)
-                        pos = actor_bs_np.get_pos() + Vec3(0.6, -0.15, -0.45)
+                        pos = actor_bs_np.get_pos() + Vec3(0.5, -0.15, 0)
                         mountplace.set_pos(pos)
                         actor.set_python_tag("mount_place", mountplace)
 
