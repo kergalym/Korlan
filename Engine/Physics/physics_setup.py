@@ -1,6 +1,6 @@
 from panda3d.bullet import BulletCharacterControllerNode, BulletBoxShape
 from direct.task.TaskManagerGlobal import taskMgr
-from panda3d.core import Vec3, BitMask32
+from panda3d.core import Vec3, BitMask32, NodePath
 from panda3d.bullet import BulletWorld, BulletDebugNode, BulletRigidBodyNode, BulletPlaneShape
 
 from Engine.FSM.player_fsm import PlayerFSM
@@ -239,8 +239,16 @@ class PhysicsAttr:
                     actor_bs_np.reparent_to(self.base.game_instance['lod_np'])
                     self.base.game_instance['lod_np'].node().add_switch(50.0, 0.0)
 
-                    # attach trigger sphere
+                    if "NPC_Horse" in col_name:
+                        # attach mount place nodepath
+                        mountplace = NodePath("Mountplace_{0}".format(actor.get_name()))
+                        mountplace.reparent_to(actor_bs_np)
+                        pos = actor_bs_np.get_pos() + Vec3(0.6, -0.15, -0.45)
+                        mountplace.set_pos(pos)
+                        actor.set_python_tag("mount_place", mountplace)
+
                     if "Horse" in col_name:
+                        # attach trigger sphere
                         self.npc_triggers.set_ghost_trigger(actor, self.world)
                         taskMgr.add(self.npc_triggers.mountable_animal_area_trigger_task,
                                     "{0}_area_trigger_task".format(col_name.lower()),

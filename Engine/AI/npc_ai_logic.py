@@ -349,31 +349,33 @@ class NpcAILogic:
                 request.request("Jump", actor, "Jumping", "play")
 
     def npc_in_mounting_logic(self, actor, actor_npc_bs, request):
-        if (actor.get_python_tag("generic_states")['is_idle']
-                and not actor.get_python_tag("generic_states")['is_attacked']
-                and not actor.get_python_tag("generic_states")['is_busy']
-                and not actor.get_python_tag("generic_states")['is_moving']):
-            if (actor.get_python_tag("human_states")
-                    and not actor.get_python_tag("human_states")['is_on_horse']):
-                horse = render.find("**/NPC_Horse")
-                if horse:
-                    if not horse.get_python_tag("horse_spec_states")["is_mounted"]:
-                        horse_bs = render.find("**/NPC_Horse:BS")
-                        if horse_bs:
-                            horse_dist = int(actor_npc_bs.get_distance(horse_bs))
-                            if horse_dist > 1:
-                                self.npc_in_walking_logic(actor, actor_npc_bs, horse_bs, request)
-                            elif horse_dist <= 1:
+        if (actor.get_python_tag("human_states")
+                and not actor.get_python_tag("human_states")['is_on_horse']):
+            horse = render.find("**/NPC_Horse")
+            if horse:
+                if not horse.get_python_tag("horse_spec_states")["is_mounted"]:
+                    # horse_bs = render.find("**/NPC_Horse:BS")
+                    mountplace = horse.get_python_tag("mount_place")
+                    if mountplace:
+                        horse_dist = int(actor_npc_bs.get_distance(mountplace))
+                        if horse_dist > 1:
+                            self.npc_in_walking_logic(actor, actor_npc_bs, mountplace, request)
+                        elif horse_dist <= 1:
+                            self.npc_in_staying_logic(actor, request)
+                            if (actor.get_python_tag("generic_states")['is_idle']
+                                    and not actor.get_python_tag("generic_states")['is_attacked']
+                                    and not actor.get_python_tag("generic_states")['is_busy']
+                                    and not actor.get_python_tag("generic_states")['is_moving']):
                                 horse_name = horse.get_name()
                                 request.request("HorseMount", actor, actor_npc_bs, horse_name)
 
     def npc_in_unmounting_logic(self, actor, actor_npc_bs, request):
-        if (actor.get_python_tag("generic_states")['is_idle']
-                and not actor.get_python_tag("generic_states")['is_attacked']
-                and not actor.get_python_tag("generic_states")['is_busy']
-                and not actor.get_python_tag("generic_states")['is_moving']):
-            if (actor.get_python_tag("human_states")
-                    and actor.get_python_tag("human_states")['is_on_horse']):
+        if (actor.get_python_tag("human_states")
+                and actor.get_python_tag("human_states")['is_on_horse']):
+            if (actor.get_python_tag("generic_states")['is_idle']
+                    and not actor.get_python_tag("generic_states")['is_attacked']
+                    and not actor.get_python_tag("generic_states")['is_busy']
+                    and not actor.get_python_tag("generic_states")['is_moving']):
                 request.request("HorseUnmount", actor, actor_npc_bs)
 
     def npc_get_weapon(self, actor, request, weapon_name, bone_name):
