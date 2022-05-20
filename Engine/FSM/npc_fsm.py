@@ -193,8 +193,7 @@ class NpcFSM(FSM):
         horse_name = base.game_instance['player_using_horse']
         parent = render.find("**/{0}".format(horse_name))
         parent_bs = render.find("**/{0}:BS".format(horse_name))
-        bone = "spine.003"
-        if parent and child and bone:
+        if parent and child:
             # with inverted Z -0.7 stands for Up
             # Our horse (un)mounting animations have been made with imperfect positions,
             # so, I had to change child positions to get more satisfactory result
