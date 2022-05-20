@@ -165,6 +165,7 @@ class NpcFSM(FSM):
                                                     playRate=self.base.actor_play_rate)
             horse_riding_action_seq = actor.actor_interval("horse_riding_idle",
                                                            playRate=self.base.actor_play_rate)
+            actor.set_python_tag("mounted_horse", horse_name)
             horse_np = self.base.game_instance['actors_np']["{0}:BS".format(horse_name)]
 
             Sequence(Func(horse_np.set_collide_mask, BitMask32.bit(0)),
@@ -190,7 +191,7 @@ class NpcFSM(FSM):
                      ).start()
 
     def enterHorseUnmount(self, actor, child):
-        horse_name = base.game_instance['player_using_horse']
+        horse_name = actor.get_python_tag("mounted_horse")
         parent = render.find("**/{0}".format(horse_name))
         parent_bs = render.find("**/{0}:BS".format(horse_name))
         if parent and child:
@@ -198,7 +199,7 @@ class NpcFSM(FSM):
             # Our horse (un)mounting animations have been made with imperfect positions,
             # so, I had to change child positions to get more satisfactory result
             # with these animations in my game.
-            unmounting_pos = Vec3(0.6, -0.15, -0.45)
+            unmounting_pos = Vec3(0.6, -0.15, 0)
             # Reparent parent/child node back to its BulletCharacterControllerNode
             unmount_action_seq = actor.actor_interval("horse_unmounting",
                                                       playRate=self.base.actor_play_rate)

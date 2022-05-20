@@ -109,6 +109,9 @@ class NpcGeneric:
             ]
             self.actor.set_python_tag("allowed_weapons", a_weapons)
 
+            # Set NPC Horse Tag
+            self.actor.set_python_tag("mounted_horse", None)
+
             # Set NPC Parameters
             self.npc_state.setup_npc_state(actor=self.actor)
 
