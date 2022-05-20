@@ -39,7 +39,7 @@ class NpcBehavior:
                             if base.player_states['is_mounted']:
                                 self.npc_ai_logic.npc_in_mounting_logic(actor, actor_npc_bs, request)
                             else:
-                                self.npc_ai_logic.npc_in_unmounting_logic(actor, request)
+                                self.npc_ai_logic.npc_in_unmounting_logic(actor, actor_npc_bs, request)
 
                             # If NPC is far from Player, do pursue Player
                             if player_dist > 1:
@@ -57,8 +57,6 @@ class NpcBehavior:
                                     #                                 "Korlan:LeftHand")
                                     # self.npc_ai_logic.npc_remove_weapon(actor, request, "sword", "Korlan:Spine")
                                     # self.npc_ai_logic.npc_remove_weapon(actor, request, "bow", "Korlan:Spine")
-                                    # self.npc_ai_logic.npc_in_mounting_logic(actor, actor_npc_bs, request)
-                                    # self.npc_ai_logic.npc_in_unmounting_logic(actor, request)
                                     # request.request("Attack", actor, "right_turn", "play")
                                     # Counterattack an enemy or do block
                                     if hitbox_dist:
