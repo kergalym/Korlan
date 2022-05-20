@@ -199,7 +199,7 @@ class NpcFSM(FSM):
             # Our horse (un)mounting animations have been made with imperfect positions,
             # so, I had to change child positions to get more satisfactory result
             # with these animations in my game.
-            unmounting_pos = Vec3(0.6, -0.15, 0)
+            unmounting_pos = Vec3(0.5, -0.15, -0.45)
             # Reparent parent/child node back to its BulletCharacterControllerNode
             unmount_action_seq = actor.actor_interval("horse_unmounting",
                                                       playRate=self.base.actor_play_rate)
