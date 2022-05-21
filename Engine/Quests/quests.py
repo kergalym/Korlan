@@ -107,6 +107,9 @@ class Quests:
                     else:
                         player.set_python_tag("used_item_np", None)
                         player.set_python_tag("is_item_ready", False)
+                else:
+                    item_prop = self.base.game_instance['item_state']
+                    player.set_python_tag("current_item_prop", item_prop)
 
         return task.cont
 

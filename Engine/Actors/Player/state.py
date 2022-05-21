@@ -370,6 +370,7 @@ class PlayerState:
                 # TODO: Uncomment after pick_up_item() is debugged
                 """add_item_to_inventory = self.base.shared_functions['add_item_to_inventory']
                 if add_item_to_inventory:
+                    item_prop = player.get_python_tag("current_item_prop")
                     add_item_to_inventory(item=item.get_name(),
                                           count=1,
                                           inventory="INVENTORY_1",
