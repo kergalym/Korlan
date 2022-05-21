@@ -152,16 +152,6 @@ class Actions:
                 player.pose(anims[self.horse_crouch_walking_forward_action], 0)
                 player.loop(self.horse_idle_action)
 
-    """ Sets current item after action """
-
-    def seq_use_item_wrapper(self, player, anims, joint):
-        if player and anims and joint and base.player_states['is_using']:
-            # Do task every frame until we get a respective frame
-            if not player.get_python_tag("is_item_using"):
-                self.state.pick_up_item(player, joint)
-            elif player.get_python_tag("is_item_using"):
-                self.state.drop_item(player)
-
     """ Sets current player position after action """
 
     def seq_set_player_pos_wrapper(self, player, pos_y):
@@ -1006,7 +996,7 @@ class Actions:
                         Sequence(crouch_to_stand_seq,
                                  Func(self.state.set_action_state, "is_using", True),
                                  any_action_seq,
-                                 Func(self.seq_use_item_wrapper, player, anims, "RightHand"),
+                                 Func(self.state.pick_up_item, player, "RightHand"),
                                  Func(self.state.set_action_state, "is_using", False),
                                  Func(self.state.set_do_once_key, key, False),
                                  ).start()
@@ -1018,13 +1008,12 @@ class Actions:
                                                                playRate=self.base.actor_play_rate)
                         Sequence(Func(self.state.set_action_state, "is_using", True),
                                  any_action_seq,
-                                 Func(self.seq_use_item_wrapper, player, anims, "RightHand"),
+                                 Func(self.state.pick_up_item, player, "RightHand"),
                                  Func(self.state.set_action_state, "is_using", False),
                                  Func(self.state.set_do_once_key, key, False),
                                  ).start()
 
-                elif (not player.get_python_tag("is_item_using")
-                        and player.get_python_tag("is_item_ready")):
+                elif player.get_python_tag("is_item_using"):
                     base.player_states['is_idle'] = False
 
                     if (base.player_states['is_using'] is False
@@ -1040,7 +1029,7 @@ class Actions:
                         Sequence(crouch_to_stand_seq,
                                  Func(self.state.set_action_state, "is_using", True),
                                  any_action_seq,
-                                 Func(self.seq_use_item_wrapper, player, anims, "RightHand"),
+                                 Func(self.state.drop_item, player),
                                  Func(self.state.set_action_state, "is_using", False),
                                  Func(self.state.set_do_once_key, key, False),
                                  ).start()
@@ -1052,7 +1041,7 @@ class Actions:
                                                                playRate=self.base.actor_play_rate)
                         Sequence(Func(self.state.set_action_state, "is_using", True),
                                  any_action_seq,
-                                 Func(self.seq_use_item_wrapper, player, anims, "RightHand"),
+                                 Func(self.state.drop_item, player),
                                  Func(self.state.set_action_state, "is_using", False),
                                  Func(self.state.set_do_once_key, key, False),
                                  ).start()

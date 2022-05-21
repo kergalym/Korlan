@@ -396,11 +396,3 @@ class PlayerState:
             player.set_python_tag("used_item_np", None)
             player.set_python_tag("is_item_ready", False)
 
-    def take_item(self, player, joint):
-        if (player
-                and joint
-                and isinstance(joint, str)):
-            if not player.get_python_tag("is_item_using"):
-                self.pick_up_item(player, joint)
-            elif player.get_python_tag("is_item_using"):
-                self.drop_item(player)
