@@ -366,12 +366,16 @@ class PlayerState:
                 player.set_python_tag("is_item_using", True)
                 player.set_python_tag("is_item_ready", False)
 
-                add_item_to_inventory = self.base.shared_functions['add_item_to_inventory']
+                # TODO: Uncomment after pick_up_item() is debugged
+                """add_item_to_inventory = self.base.shared_functions['add_item_to_inventory']
                 if add_item_to_inventory:
                     add_item_to_inventory(item=item.get_name(),
                                           count=1,
                                           inventory="INVENTORY_1",
                                           inventory_type="misc")
+                    player.set_python_tag("is_item_using", False)
+                    player.set_python_tag("used_item_np", None)
+                    player.set_python_tag("is_item_ready", False)"""
 
     def drop_item(self, player):
         if player and not render.find('**/World').is_empty():
