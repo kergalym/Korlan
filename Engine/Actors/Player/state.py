@@ -343,6 +343,7 @@ class PlayerState:
                 base.player_state_magic = False
 
     def pick_up_item(self, player, joint):
+        # TODO: DEBUG ME!
         if (player
                 and joint
                 and isinstance(joint, str)):
@@ -378,6 +379,7 @@ class PlayerState:
                     player.set_python_tag("is_item_ready", False)"""
 
     def drop_item(self, player):
+        # TODO: DEBUG ME!
         if player and not render.find('**/World').is_empty():
             item = player.get_python_tag("used_item_np")
             player_bs = self.base.get_actor_bullet_shape_node(asset=player.get_name(), type="Player")
