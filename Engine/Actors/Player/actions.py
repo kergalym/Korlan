@@ -1810,7 +1810,7 @@ class Actions:
                 # Our horse (un)mounting animations have been made with imperfect positions,
                 # so, I had to change child positions to get more satisfactory result
                 # with these animations in my game.
-                mounting_pos = Vec3(0.6, -0.15, -0.45)
+                mounting_pos = Vec3(0.5, -0.15, -0.45)
                 saddle_pos = Vec3(0, -0.32, 0.16)
                 mount_action_seq = player.actor_interval(anims["horse_mounting"],
                                                          playRate=self.base.actor_play_rate)
@@ -1859,7 +1859,7 @@ class Actions:
             # Our horse (un)mounting animations have been made with imperfect positions,
             # so, I had to change child positions to get more satisfactory result
             # with these animations in my game.
-            unmounting_pos = Vec3(0.6, -0.15, -0.45)
+            unmounting_pos = Vec3(0.5, -0.15, -0.45)
             # Reparent parent/child node back to its BulletCharacterControllerNode
             unmount_action_seq = player.actor_interval(anims["horse_unmounting"],
                                                        playRate=self.base.actor_play_rate)
