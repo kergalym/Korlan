@@ -181,7 +181,7 @@ class Quests:
 
     def quest_yurt_rest_task(self, trigger_np, actor, task):
         if self.base.game_instance['menu_mode']:
-            self.base.game_instance["is_busy"] = False
+            self.base.game_instance['is_player_sitting'] = False
             return task.done
 
         for node in trigger_np.node().get_overlapping_nodes():
@@ -190,7 +190,7 @@ class Quests:
                     self.player_bs = render.find("**/{0}".format(node.get_name()))
                 player = self.base.game_instance['player_ref']
                 if self.player_bs and int(actor.get_distance(self.player_bs)) == 1:
-                    if not self.base.game_instance['is_busy']:
+                    if not self.base.game_instance['is_player_sitting']:
                         # todo: change to suitable standing_to_laying anim
                         self.base.accept("e", self.toggle_action_state, [player,
                                                                          "standing_to_sit_turkic",
