@@ -36,10 +36,24 @@ class NpcBehavior:
                         hitbox_dist = self.npc_ai_logic.get_hit_distance(actor)
 
                         if base.player_states['is_alive']:
+
+                            # Test NPC Logic Actions
+                            # request.request("Attack", actor, "right_turn", "play")
+                            # self.npc_ai_logic.npc_in_forwardroll_logic(actor, actor_npc_bs, dt, request)
                             if base.player_states['is_mounted']:
                                 self.npc_ai_logic.npc_in_mounting_logic(actor, actor_npc_bs, request)
-                            else:
+                            elif not base.player_states['is_mounted']:
                                 self.npc_ai_logic.npc_in_unmounting_logic(actor, actor_npc_bs, request)
+
+                            if base.player_states['has_sword']:
+                                self.npc_ai_logic.npc_get_weapon(actor, request, "sword", "Korlan:LeftHand")
+                            elif not base.player_states['has_sword']:
+                                self.npc_ai_logic.npc_remove_weapon(actor, request, "sword", "Korlan:Spine")
+
+                            if base.player_states['has_bow']:
+                                self.npc_ai_logic.npc_get_weapon(actor, request, "bow", "Korlan:LeftHand")
+                            elif not base.player_states['has_bow']:
+                                self.npc_ai_logic.npc_remove_weapon(actor, request, "bow", "Korlan:Spine")
 
                             # If NPC is far from Player, do pursue Player
                             if player_dist > 1:
@@ -51,13 +65,6 @@ class NpcBehavior:
                                 if enemy_dist <= 1:
                                     # Facing to enemy
                                     self.npc_ai_logic.face_actor_to(actor_npc_bs, enemy_npc_bs)
-                                    self.npc_ai_logic.npc_get_weapon(actor, request, "sword",
-                                                                     "Korlan:LeftHand")
-                                    # self.npc_ai_logic.npc_get_weapon(actor, request, "bow",
-                                    #                                 "Korlan:LeftHand")
-                                    # self.npc_ai_logic.npc_remove_weapon(actor, request, "sword", "Korlan:Spine")
-                                    # self.npc_ai_logic.npc_remove_weapon(actor, request, "bow", "Korlan:Spine")
-                                    # request.request("Attack", actor, "right_turn", "play")
                                     # Counterattack an enemy or do block
                                     if hitbox_dist:
                                         if hitbox_dist >= 0.5 and hitbox_dist <= 1.8:

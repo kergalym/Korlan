@@ -166,10 +166,8 @@ class NpcFSM(FSM):
             horse_riding_action_seq = actor.actor_interval("horse_riding_idle",
                                                            playRate=self.base.actor_play_rate)
             actor.set_python_tag("mounted_horse", horse_name)
-            horse_np = self.base.game_instance['actors_np']["{0}:BS".format(horse_name)]
 
-            Sequence(Func(horse_np.set_collide_mask, BitMask32.bit(0)),
-                     Func(child.set_collide_mask, BitMask32.allOff()),
+            Sequence(Func(child.set_collide_mask, BitMask32.allOff()),
                      Func(self.fsm_state_wrapper, actor, "generic_states", "is_using", True),
                      Parallel(mount_action_seq,
                               Func(child.reparent_to, parent),
@@ -182,7 +180,6 @@ class NpcFSM(FSM):
                      # bullet shape has impact of gravity
                      # so make player geom stay higher instead
                      Func(actor.set_z, saddle_pos[2]),
-                     Func(child.set_collide_mask, BitMask32.bit(0)),
                      Func(self.fsm_state_wrapper, actor, "generic_states", "is_using", False),
                      Func(self.fsm_state_wrapper, actor, "human_states", "horse_riding", True),
                      Func(self.fsm_state_wrapper, actor, "human_states", "is_on_horse", True),
@@ -204,11 +201,8 @@ class NpcFSM(FSM):
             unmount_action_seq = actor.actor_interval("horse_unmounting",
                                                       playRate=self.base.actor_play_rate)
             horse_near_pos = Vec3(parent_bs.get_x(), parent_bs.get_y(), child.get_z()) + Vec3(1, 0, 0)
-            base.game_instance['player_using_horse'] = ''
-            horse_np = self.base.game_instance['actors_np']["{0}:BS".format(horse_name)]
 
             Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_using", True),
-                     Func(child.set_collide_mask, BitMask32.allOff()),
                      Parallel(unmount_action_seq,
                               Func(child.set_x, unmounting_pos[0]),
                               Func(child.set_y, unmounting_pos[1]),
@@ -222,8 +216,7 @@ class NpcFSM(FSM):
                      Func(self.fsm_state_wrapper, actor, "human_states", "horse_riding", False),
                      Func(self.fsm_state_wrapper, actor, "human_states", "is_on_horse", False),
                      Func(parent.set_python_tag, "is_mounted", False),
-                     Func(horse_np.set_collide_mask, BitMask32.allOn()),
-                     Func(child.set_collide_mask, BitMask32.bit(0))
+                     Func(child.set_collide_mask, BitMask32.allOn())
                      ).start()
 
     def enterAttack(self, actor, action, task):
