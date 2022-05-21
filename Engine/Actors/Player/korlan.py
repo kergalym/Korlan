@@ -268,6 +268,11 @@ class Korlan:
                     "bow_kazakh",
                 ]
 
+                # Set Used Item Record
+                self.korlan.set_python_tag("used_item_np", None)
+                self.korlan.set_python_tag("is_item_ready", False)
+                self.korlan.set_python_tag("is_item_using", False)
+
                 # Set Player Parameters
                 self.state.set_state(actor=self.korlan)
 

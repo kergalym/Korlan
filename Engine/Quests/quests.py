@@ -54,6 +54,62 @@ class Quests:
             elif task == "play":
                 Sequence(Func(self.set_action_state, True), any_action_seq).start()
 
+    def set_item_trigger(self, scene, task):
+        if self.base.game_instance["loading_is_done"] == 1:
+            if (self.render.find("**/World")
+                    and self.base.game_instance["physics_world_np"]):
+                world_np = self.render.find("**/World")
+                ph_world = self.base.game_instance["physics_world_np"]
+                radius = 0.5
+
+                for actor in scene.get_children():
+                    if "item_" in actor.get_name():  # yurt_item_empty_trigger
+                        sphere = BulletSphereShape(radius)
+                        trigger_bg = BulletGhostNode('{0}_trigger'.format(actor.get_name()))
+                        trigger_bg.add_shape(sphere)
+                        trigger_np = world_np.attach_new_node(trigger_bg)
+                        trigger_np.set_collide_mask(BitMask32(0x0f))
+                        ph_world.attach_ghost(trigger_bg)
+                        trigger_np.reparent_to(actor)
+                        trigger_np.set_pos(0, 0, 1)
+
+                        taskMgr.add(self.item_trigger_task,
+                                    "{0}_trigger_task".format(actor.get_name()),
+                                    extraArgs=[trigger_np, actor],
+                                    appendTask=True)
+
+                        return task.done
+
+        return task.cont
+
+    def item_trigger_task(self, trigger_np, actor, task):
+        if self.base.game_instance['menu_mode']:
+            self.base.game_instance["is_player_sitting"] = False
+            return task.done
+
+        for node in trigger_np.node().get_overlapping_nodes():
+            if "Player" in node.get_name():
+                if not self.player_bs:
+                    self.player_bs = render.find("**/{0}".format(node.get_name()))
+                player = self.base.game_instance['player_ref']
+                if not player.get_python_tag("is_item_using"):
+                    if int(actor.get_distance(self.player_bs)) == 1:
+                        actor_bs = actor.find("**/{0}:BS".format(actor.get_name()))
+                        # Currently close item parameters
+                        self.base.game_instance['item_state'] = {
+                            'type': 'item',
+                            'name': '{0}'.format(actor.get_name()),
+                            'weight': '{0}'.format(actor_bs.node.get_mass()),
+                            'in-use': False,
+                        }
+                        player.set_python_tag("used_item_np", actor_bs)
+                        player.set_python_tag("is_item_ready", True)
+                    else:
+                        player.set_python_tag("used_item_np", None)
+                        player.set_python_tag("is_item_ready", False)
+
+        return task.cont
+
     def set_quest_trigger(self, scene, task):
         if self.base.game_instance["loading_is_done"] == 1:
             if (self.render.find("**/World")
@@ -74,21 +130,25 @@ class Quests:
                         trigger_np.set_pos(0, 0, 1)
 
                         if "campfire" in actor.get_name():
-                            taskMgr.add(self.quest_yurt_campfire_task, "quest_yurt_campfire_task",
+                            taskMgr.add(self.quest_yurt_campfire_task,
+                                        "quest_yurt_campfire_task",
                                         extraArgs=[trigger_np, actor],
                                         appendTask=True)
                         elif "rest_place" in actor.get_name():
-                            taskMgr.add(self.quest_yurt_rest_task, "quest_yurt_rest_task",
+                            taskMgr.add(self.quest_yurt_rest_task,
+                                        "quest_yurt_rest_task",
                                         extraArgs=[trigger_np, actor],
                                         appendTask=True)
 
                         elif "hearth" in actor.get_name():
-                            taskMgr.add(self.quest_cook_food_hearth_task, "quest_cook_food_hearth_task",
+                            taskMgr.add(self.quest_cook_food_hearth_task,
+                                        "quest_cook_food_hearth_task",
                                         extraArgs=[trigger_np, actor],
                                         appendTask=True)
 
                         elif "spring_water" in actor.get_name():
-                            taskMgr.add(self.quest_spring_water_task, "quest_spring_water_task",
+                            taskMgr.add(self.quest_spring_water_task,
+                                        "quest_spring_water_task",
                                         extraArgs=[trigger_np, actor],
                                         appendTask=True)
 

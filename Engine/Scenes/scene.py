@@ -217,6 +217,12 @@ class SceneOne:
                         extraArgs=[scene, radius],
                         appendTask=True)
 
+            # Add item triggers
+            taskMgr.add(self.quests.set_item_trigger,
+                        "set_item_trigger",
+                        extraArgs=[scene],
+                        appendTask=True)
+
             # Add quest triggers
             taskMgr.add(self.quests.set_quest_trigger,
                         "set_quest_trigger",

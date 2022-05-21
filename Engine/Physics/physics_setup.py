@@ -411,7 +411,7 @@ class PhysicsAttr:
             ground_nodepath.node().set_into_collide_mask(self.mask)
             self.world.attach_rigid_body(ground_nodepath.node())
 
-            # todo: remove test box soon
+            # todo: remove archery test box soon
             shape = BulletBoxShape(Vec3(1, 1, 1))
             node = BulletRigidBodyNode('Box')
             node.set_mass(50.0)
@@ -424,6 +424,7 @@ class PhysicsAttr:
             model.set_name('box')
             model.set_pos(0, 0, 0)
             model.set_hpr(np.get_hpr())
+
             # todo: test
             self.base.box_np = np
 

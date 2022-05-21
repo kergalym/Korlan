@@ -342,75 +342,13 @@ class PlayerState:
                 base.player_state_armed = False
                 base.player_state_magic = False
 
-    # TODO Delete it
-    def get_distance_to(self, items_dist_vect):
-        assets = base.asset_nodes_assoc_collector()
-        item = None
-        for key in items_dist_vect:
-            if key and assets.get(key):
-                if key == assets[key].get_name():
-                    # noinspection PyChainedComparisons
-                    if (items_dist_vect[key][0] > 0.0
-                            and items_dist_vect[key][0] < 0.7
-                            or items_dist_vect[key][1] > 0.0
-                            and items_dist_vect[key][1] < 0.7):
-                        if base.is_item_in_use is False:
-                            base.is_item_close_to_use = True
-                            base.is_item_far_to_use = False
-                            item = assets[key]
-                        elif base.is_item_in_use:
-                            base.is_item_close_to_use = False
-                            base.is_item_far_to_use = True
-                    # noinspection PyChainedComparisons
-                    elif (items_dist_vect[key][0] < -0.0
-                          and items_dist_vect[key][0] > -0.7
-                          or items_dist_vect[key][1] < -0.0
-                          and items_dist_vect[key][1] > -0.7):
-                        if base.is_item_in_use is False:
-                            base.is_item_close_to_use = True
-                            base.is_item_far_to_use = False
-                            item = assets[key]
-                        elif base.is_item_in_use:
-                            base.is_item_close_to_use = False
-                            base.is_item_far_to_use = True
-                    else:
-                        base.is_item_close_to_use = False
-                        base.is_item_far_to_use = True
-        if item:
-            return item
-
-    def drop_item(self, player):
-        if player and not render.find('**/World').is_empty():
-            item = self.render.find("**/{0}".format(base.in_use_item_name))
-            player_bs = self.base.get_actor_bullet_shape_node(asset=player.get_name(), type="Player")
-            world = render.find('**/World')
-            item.reparent_to(world)
-            # TODO: Remove temporary scale definition
-            item.set_scale(0.1)
-            item.set_hpr(0, 0, 0)
-            # Put the item near player
-            # If player has the bullet shape
-            if player_bs:
-                item.set_pos(player_bs.get_pos() - (0.20, -0.5, 0))
-            item.node().set_kinematic(False)
-
-            base.is_item_in_use = False
-            base.is_item_in_use_long = False
-            base.is_item_close_to_use = False
-            base.is_item_far_to_use = False
-            base.in_use_item_name = None
-
-    def pick_up_item(self, player, joint, items_dist_vect):
+    def pick_up_item(self, player, joint):
         if (player
-                and items_dist_vect
                 and joint
-                and isinstance(joint, str)
-                and isinstance(items_dist_vect, dict)):
-            item = self.get_distance_to(items_dist_vect)
+                and isinstance(joint, str)):
+            item = player.get_python_tag("used_item_np")
             exposed_joint = player.expose_joint(None, "modelRoot", joint)
             # Get bullet shape node path
-            item = self.base.get_static_bullet_shape_node(asset=item.get_name())
-
             if (item
                     and exposed_joint.find(item.get_name()).is_empty()):
                 # We want to keep original scale of the item
@@ -425,34 +363,40 @@ class PlayerState:
                 item.node().set_ccd_motion_threshold(1e-7)
                 item.node().set_ccd_swept_sphere_radius(0.50)
 
-                # Set item state
-                base.is_item_in_use = True
-                base.is_item_in_use_long = True
-                base.is_item_close_to_use = False
-                base.is_item_far_to_use = False
-
-                """import pdb;
-                pdb.set_trace()"""
-                base.in_use_item_name = item.get_name()
+                player.set_python_tag("is_item_using", True)
+                player.set_python_tag("is_item_ready", False)
 
                 add_item_to_inventory = self.base.shared_functions['add_item_to_inventory']
                 if add_item_to_inventory:
-                    add_item_to_inventory(item=base.in_use_item_name,
+                    add_item_to_inventory(item=item.get_name(),
                                           count=1,
                                           inventory="INVENTORY_1",
                                           inventory_type="misc")
 
-    def take_item(self, player, joint, items_dist_vect):
+    def drop_item(self, player):
+        if player and not render.find('**/World').is_empty():
+            item = player.get_python_tag("used_item_np")
+            player_bs = self.base.get_actor_bullet_shape_node(asset=player.get_name(), type="Player")
+            world = render.find('**/World')
+            item.reparent_to(world)
+            # TODO: Remove temporary scale definition
+            item.set_scale(0.1)
+            item.set_hpr(0, 0, 0)
+            # Put the item near player
+            # If player has the bullet shape
+            if player_bs:
+                item.set_pos(player_bs.get_pos() - (0.20, -0.5, 0))
+            item.node().set_kinematic(False)
+
+            player.set_python_tag("is_item_using", False)
+            player.set_python_tag("used_item_np", None)
+            player.set_python_tag("is_item_ready", False)
+
+    def take_item(self, player, joint):
         if (player
-                and items_dist_vect
                 and joint
-                and isinstance(joint, str)
-                and isinstance(items_dist_vect, dict)):
-            if (base.is_item_close_to_use
-                    and base.is_item_in_use is False
-                    and base.is_item_in_use_long is False):
-                self.pick_up_item(player, joint, items_dist_vect)
-            elif (base.is_item_close_to_use is False
-                  and base.is_item_in_use is True
-                  and base.is_item_in_use_long is True):
+                and isinstance(joint, str)):
+            if not player.get_python_tag("is_item_using"):
+                self.pick_up_item(player, joint)
+            elif player.get_python_tag("is_item_using"):
                 self.drop_item(player)

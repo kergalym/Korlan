@@ -115,12 +115,12 @@ class NpcAILogic:
                                     extraArgs=[actor, self.player, request, True],
                                     appendTask=True)
 
-                    """if npc_class == "enemy":
+                    if npc_class == "enemy":
                         name = actor_name.lower()
                         taskMgr.add(self.npc_behavior.npc_enemy_logic,
                                     "{0}_npc_enemy_logic_task".format(name),
                                     extraArgs=[actor, self.player, request, False],
-                                    appendTask=True)"""
+                                    appendTask=True)
                 return task.done
 
         return task.cont

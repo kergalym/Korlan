@@ -4,7 +4,6 @@ from Engine.Actors.Player.state import PlayerState
 from Engine.FSM.player_fsm import PlayerFSM
 from direct.interval.IntervalGlobal import *
 from direct.task.TaskManagerGlobal import taskMgr
-from Engine.Items.items import Items
 from Settings.Input.keyboard import Keyboard
 from Settings.Input.mouse import Mouse
 from Settings.Input.outdoor_camera import OutdoorCamera
@@ -38,7 +37,6 @@ class Actions:
         self.player_bs = None
         self.floater = None
         self.taskMgr = taskMgr
-        self.items = Items()
         self.kbd = Keyboard()
         self.mouse = Mouse()
         self.outdoor_cam = OutdoorCamera()
@@ -156,23 +154,13 @@ class Actions:
 
     """ Sets current item after action """
 
-    def seq_use_item_wrapper_task(self, player, anims, joint, task):
-        if player and anims and joint:
-            if player.get_current_frame(anims["PickingUp"]) == 69:
-                char_joint = player.get_part_bundle("modelRoot").get_name()
-                joint = "{0}:{1}".format(char_joint, joint)
-                self.items.item_selector(actor=player,
-                                         joint=joint)
-                return task.done
-        return task.cont
-
     def seq_use_item_wrapper(self, player, anims, joint):
         if player and anims and joint and base.player_states['is_using']:
             # Do task every frame until we get a respective frame
-            taskMgr.add(self.seq_use_item_wrapper_task,
-                        "seq_use_item_wrapper_task",
-                        extraArgs=[player, anims, joint],
-                        appendTask=True)
+            if not player.get_python_tag("is_item_using"):
+                self.state.pick_up_item(player, joint)
+            elif player.get_python_tag("is_item_using"):
+                self.state.drop_item(player)
 
     """ Sets current player position after action """
 
@@ -281,11 +269,6 @@ class Actions:
                 taskMgr.add(self.player_actions_task, "player_actions_task",
                             extraArgs=[player, anims],
                             appendTask=True)
-
-                """taskMgr.add(self.items.get_item_distance_task,
-                            "get_item_distance_task",
-                            extraArgs=[player],
-                            appendTask=True)"""
 
             self.base.game_instance['player_actions_init_is_activated'] = 1
 
@@ -1006,10 +989,8 @@ class Actions:
             if self.kbd.keymap[key] and not base.do_key_once[key]:
                 self.state.set_do_once_key(key, True)
                 crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
-                if (hasattr(base, "is_item_close_to_use")
-                        and base.is_item_close_to_use is True
-                        and hasattr(base, "is_item_in_use")
-                        and base.is_item_in_use is False):
+                if (not player.get_python_tag("is_item_using")
+                        and player.get_python_tag("is_item_ready")):
                     base.player_states['is_idle'] = False
 
                     if (base.player_states['is_using'] is False
@@ -1042,10 +1023,8 @@ class Actions:
                                  Func(self.state.set_do_once_key, key, False),
                                  ).start()
 
-                elif (hasattr(base, "is_item_close_to_use")
-                      and base.is_item_close_to_use is False
-                      and hasattr(base, "is_item_in_use")
-                      and base.is_item_in_use is True):
+                elif (not player.get_python_tag("is_item_using")
+                        and player.get_python_tag("is_item_ready")):
                     base.player_states['is_idle'] = False
 
                     if (base.player_states['is_using'] is False
