@@ -979,6 +979,7 @@ class Actions:
             if self.kbd.keymap[key] and not base.do_key_once[key]:
                 self.state.set_do_once_key(key, True)
                 crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
+                # TODO: DEBUG ME!
                 if (not player.get_python_tag("is_item_using")
                         and player.get_python_tag("is_item_ready")):
                     base.player_states['is_idle'] = False

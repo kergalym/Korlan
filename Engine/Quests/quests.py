@@ -62,6 +62,7 @@ class Quests:
                 ph_world = self.base.game_instance["physics_world_np"]
                 radius = 0.5
 
+                # TODO: DEBUG ME!
                 for actor in scene.get_children():
                     if "item_" in actor.get_name():  # yurt_item_empty_trigger
                         sphere = BulletSphereShape(radius)
@@ -84,9 +85,10 @@ class Quests:
 
     def item_trigger_task(self, trigger_np, actor, task):
         if self.base.game_instance['menu_mode']:
-            self.base.game_instance["is_player_sitting"] = False
+            # self.base.game_instance["is_player_sitting"] = False
             return task.done
 
+        # TODO: DEBUG ME!
         for node in trigger_np.node().get_overlapping_nodes():
             if "Player" in node.get_name():
                 if not self.player_bs:
