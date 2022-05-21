@@ -60,7 +60,7 @@ class Quests:
                     and self.base.game_instance["physics_world_np"]):
                 world_np = self.render.find("**/World")
                 ph_world = self.base.game_instance["physics_world_np"]
-                radius = 0.5
+                radius = 0.3
 
                 # TODO: DEBUG ME!
                 for actor in scene.get_children():
@@ -79,7 +79,7 @@ class Quests:
                                     extraArgs=[trigger_np, actor],
                                     appendTask=True)
 
-                        return task.done
+                return task.done
 
         return task.cont
 
@@ -101,7 +101,7 @@ class Quests:
                         self.base.game_instance['item_state'] = {
                             'type': 'item',
                             'name': '{0}'.format(actor.get_name()),
-                            'weight': '{0}'.format(actor_bs.node.get_mass()),
+                            'weight': '{0}'.format(1),
                             'in-use': False,
                         }
                         player.set_python_tag("used_item_np", actor_bs)
@@ -121,7 +121,7 @@ class Quests:
                     and self.base.game_instance["physics_world_np"]):
                 world_np = self.render.find("**/World")
                 ph_world = self.base.game_instance["physics_world_np"]
-                radius = 0.7
+                radius = 0.3
 
                 for actor in scene.get_children():
                     if "quest_" in actor.get_name():  # quest_empty_campfire
@@ -133,7 +133,6 @@ class Quests:
                         ph_world.attach_ghost(trigger_bg)
                         trigger_np.reparent_to(actor)
                         trigger_np.set_pos(0, 0, 1)
-
                         if "campfire" in actor.get_name():
                             taskMgr.add(self.quest_yurt_campfire_task,
                                         "quest_yurt_campfire_task",
@@ -157,7 +156,7 @@ class Quests:
                                         extraArgs=[trigger_np, actor],
                                         appendTask=True)
 
-                        return task.done
+                return task.done
 
         return task.cont
 
