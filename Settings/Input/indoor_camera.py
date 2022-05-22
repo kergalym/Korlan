@@ -61,10 +61,12 @@ class IndoorCamera:
                 self.base.game_instance["is_indoor"] = True
                 self.camera_smooth_zoom_in(dt=dt, speed=self.speed)
 
-                if self.base.game_instance["is_player_sitting"]:
+                # TODO: Refactoring
+                """if (self.base.game_instance["is_player_sitting"]
+                        or self.base.game_instance["is_player_laying"]):
                     self.camera_smooth_move_down(dt=dt, speed=self.speed)
                 else:
-                    self.camera_smooth_move_up(dt=dt, speed=self.speed)
+                    self.camera_smooth_move_up(dt=dt, speed=self.speed)"""
 
             elif (round(actor.get_distance(player_bs)) >= radius
                     and round(actor.get_distance(player_bs)) < 7):

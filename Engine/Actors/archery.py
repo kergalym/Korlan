@@ -49,8 +49,9 @@ class Archery:
                 player_ref = self.base.game_instance['player_ref']
                 joint = player_ref.expose_joint(None, "modelRoot", joint_name)
             elif "NPC" in self.actor_name:
-                actor_ref = self.base.game_instance['actors_ref'][self.actor_name]
-                joint = actor_ref.expose_joint(None, "modelRoot", joint_name)
+                actor_ref = self.base.game_instance['actors_ref'].get(self.actor_name)
+                if actor_ref:
+                    joint = actor_ref.expose_joint(None, "modelRoot", joint_name)
             for i in range(self.base.game_instance['arrow_count']):
                 arrow = await self.base.loader.load_model(assets[arrow_name], blocking=False)
                 arrow.set_name(arrow_name)
