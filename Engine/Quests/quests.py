@@ -20,7 +20,7 @@ class Quests:
         any_action_seq = actor.actor_interval(anim, loop=0)
         any_action_next_seq = actor.actor_interval(anim_next, loop=1)
 
-        if self.seq and self.base.game_instance["is_player_sitting"]:
+        if self.seq:
             if "Player" in actor.get_name():
                 self.base.game_instance["is_player_sitting"] = False
                 self.base.camera.set_z(0.0)
@@ -50,13 +50,19 @@ class Quests:
         any_action_seq = actor.actor_interval(anim, loop=0)
         any_action_next_seq = actor.actor_interval(anim_next, loop=1)
 
-        if self.seq and self.base.game_instance["is_player_laying"]:
-            if "NPC" not in actor.get_name():
+        if self.seq:
+            if "Player" in actor.get_name():
                 self.base.game_instance["is_player_laying"] = False
                 self.base.camera.set_z(0.0)
                 self.base.camera.set_y(-1)
+                actor_name = actor.get_name()
+                actor_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="Player")
+                actor_bs.set_z(0)
             elif "NPC" in actor.get_name():
                 actor.set_python_tag("is_laying", False)
+                actor_name = actor.get_name()
+                actor_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
+                actor_bs.set_z(0)
             self.seq.finish()
             # Reverse play for standing_to_sit animation
             any_action_seq = actor.actor_interval(anim, loop=0, playRate=-1.0)
@@ -66,12 +72,18 @@ class Quests:
                 self.base.game_instance["is_player_laying"] = True
                 self.base.camera.set_z(-0.5)
                 self.base.camera.set_y(-2.5)
-
+                actor_name = actor.get_name()
+                actor_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="Player")
+                actor_bs.set_z(0.5)
             elif "NPC" in actor.get_name():
                 actor.set_python_tag("is_laying", True)
+                actor_name = actor.get_name()
+                actor_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
+                actor_bs.set_z(0.5)
 
             if task == "loop":
                 self.seq = Sequence(Func(self.set_action_state, True),
+                                    Func(actor),
                                     any_action_seq, any_action_next_seq)
                 self.seq.start()
             elif task == "play":
