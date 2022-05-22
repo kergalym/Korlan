@@ -58,12 +58,10 @@ class Quests:
                 self.base.camera.set_y(-1)
                 actor_name = actor.get_name()
                 actor_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="Player")
-                actor_bs.set_z(0)
             elif "NPC" in actor.get_name():
                 actor.set_python_tag("is_laying", False)
                 actor_name = actor.get_name()
                 actor_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
-                actor_bs.set_z(0)
             self.seq.finish()
             # Reverse play for standing_to_sit animation
             any_action_seq = actor.actor_interval(anim, loop=0, playRate=-1.0)
@@ -74,7 +72,7 @@ class Quests:
             actor_bs = None
             if "Player" in actor.get_name():
                 self.base.game_instance["is_player_laying"] = True
-                self.base.camera.set_z(-0.5)
+                self.base.camera.set_z(-1.5)
                 self.base.camera.set_y(-2.5)
                 actor_name = actor.get_name()
                 actor_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="Player")
