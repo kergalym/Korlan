@@ -401,7 +401,6 @@ class PlayerState:
             if player_bs:
                 item.set_pos(player_bs.get_pos() - (0.20, -0.5, 0))
             item.node().set_kinematic(False)
-
             player.set_python_tag("is_item_using", False)
             player.set_python_tag("used_item_np", None)
             player.set_python_tag("is_item_ready", False)

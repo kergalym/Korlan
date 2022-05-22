@@ -178,7 +178,8 @@ class NpcAILogic:
                     and not actor.get_python_tag("generic_states")['is_attacked']
                     and not actor.get_python_tag("generic_states")['is_busy']
                     and not actor.get_python_tag("generic_states")['is_using']
-                    and not actor.get_python_tag("generic_states")['is_turning']):
+                    and not actor.get_python_tag("generic_states")['is_turning']
+                    and not actor.get_python_tag("generic_states")['is_laying']):
                 return True
             else:
                 return False
@@ -195,6 +196,7 @@ class NpcAILogic:
                     and not actor.get_python_tag("generic_states")['is_busy']
                     and not actor.get_python_tag("generic_states")['is_using']
                     and not actor.get_python_tag("generic_states")['is_turning']
+                    and not actor.get_python_tag("generic_states")['is_laying']
                     and not actor.get_python_tag("human_states")['horse_riding']
                     and not actor.get_python_tag("human_states")['is_on_horse']):
                 return True
@@ -210,7 +212,8 @@ class NpcAILogic:
                     and not actor.get_python_tag("generic_states")['is_attacked']
                     and not actor.get_python_tag("generic_states")['is_busy']
                     and not actor.get_python_tag("generic_states")['is_using']
-                    and not actor.get_python_tag("generic_states")['is_turning']):
+                    and not actor.get_python_tag("generic_states")['is_turning']
+                    and not actor.get_python_tag("generic_states")['is_laying']):
                 return True
             else:
                 return False

@@ -340,6 +340,7 @@ class Main(ShowBase):
             "player_using_horse": '',
             "is_indoor": False,
             "is_player_sitting": False,
+            "is_player_laying": False,
             "scene_is_loaded": False,
             "player_is_loaded": False,
             "actors_are_loaded": False,

@@ -37,6 +37,8 @@ class NpcState:
                 "is_busy": False,
                 "is_using": False,
                 "is_turning": False,
+                "is_sitting": False,
+                "is_laying": False
             }
             human_spec_states = {
                 "has_sword": False,
@@ -243,13 +245,68 @@ class NpcState:
                     weapon.set_pos(0, 12, -12)
                     weapon.set_hpr(78.69, 99.46, 108.43)
 
-    def drop_item(self, player):
-        pass
+    def pick_up_item(self, actor, joint):
+        # TODO: DEBUG ME!
+        if (actor
+                and joint
+                and isinstance(joint, str)):
+            item = actor.get_python_tag("used_item_np")
+            exposed_joint = actor.expose_joint(None, "modelRoot", joint)
+            # Get bullet shape node path
+            if (item
+                    and exposed_joint.find(item.get_name()).is_empty()):
+                # We want to keep original scale of the item
+                item.wrt_reparent_to(exposed_joint)
 
-    def pick_up_item(self, player, joint, items_dist_vect):
-        pass
+                # Set kinematics to make item follow actor joint
+                item.node().set_kinematic(True)
 
-    def take_item(self, player, joint, items_dist_vect):
-        pass
+                item.set_h(205.0)
+                item.set_pos(0.4, 8.0, 5.2)
+                # Prevent fast moving objects from passing through thin obstacles.
+                item.node().set_ccd_motion_threshold(1e-7)
+                item.node().set_ccd_swept_sphere_radius(0.50)
+
+                actor.set_python_tag("is_item_using", True)
+                actor.set_python_tag("is_item_ready", False)
+
+                item_prop = actor.get_python_tag("current_item_prop")
+                item_prop['in-use'] = True
+
+                # TODO: Uncomment after pick_up_item() is debugged
+                """
+                add_item_to_inventory = self.base.shared_functions['add_item_to_inventory']
+                if add_item_to_inventory:
+                    item_prop = player.get_python_tag("current_item_prop")
+                    item_prop['in-use'] = False
+                    add_item_to_inventory(item=item.get_name(),
+                                          count=1,
+                                          inventory="INVENTORY_1",
+                                          inventory_type="misc")
+                    actor.set_python_tag("is_item_using", False)
+                    actor.set_python_tag("used_item_np", None)
+                    actor.set_python_tag("is_item_ready", False)
+                    actor.set_python_tag("current_item_prop", None)
+                """
+
+    def drop_item(self, actor):
+        # TODO: DEBUG ME!
+        if actor and not render.find('**/World').is_empty():
+            item = actor.get_python_tag("used_item_np")
+            actor_bs = self.base.get_actor_bullet_shape_node(asset=actor.get_name(), type="NPC")
+            world = render.find('**/World')
+            item.reparent_to(world)
+            # TODO: Remove temporary scale definition
+            item.set_scale(0.1)
+            item.set_hpr(0, 0, 0)
+            # Put the item near player
+            # If player has the bullet shape
+            if actor_bs:
+                item.set_pos(actor_bs.get_pos() - (0.20, -0.5, 0))
+            item.node().set_kinematic(False)
+            actor.set_python_tag("is_item_using", False)
+            actor.set_python_tag("used_item_np", None)
+            actor.set_python_tag("is_item_ready", False)
+
 
 

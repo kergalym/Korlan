@@ -263,6 +263,7 @@ class Korlan:
                 if self.game_settings['Debug']['set_debug_mode'] == "YES":
                     self.render.analyze()
 
+                # Set allowed weapons list
                 self.base.game_instance["weapons"] = [
                     "sword",
                     "bow_kazakh",

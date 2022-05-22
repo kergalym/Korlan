@@ -109,6 +109,12 @@ class NpcGeneric:
             ]
             self.actor.set_python_tag("allowed_weapons", a_weapons)
 
+            # Set Used Item Record
+            self.actor.set_python_tag("used_item_np", None)
+            self.actor.set_python_tag("is_item_ready", False)
+            self.actor.set_python_tag("is_item_using", False)
+            self.actor.set_python_tag("current_item_prop", None)
+
             # Set NPC Horse Tag
             self.actor.set_python_tag("mounted_horse", None)
 

@@ -5,10 +5,11 @@ from panda3d.core import BitMask32, NodePath, Vec3, TextNode, Point3
 
 
 class Archery:
-    def __init__(self, actor):
+    def __init__(self, actor_name):
         self.game_settings = base.game_settings
         self.base = base
         self.render = render
+        self.actor_name = actor_name
         self.arrow_ref = None
         self.arrows = []
         self.dropped_arrows = []
@@ -25,7 +26,7 @@ class Archery:
         self.target_np = None
         self.aim = None
 
-        if actor == "Player":
+        if self.actor_name == "Player":
             from Settings.Input.aim import Aim
             self.aim = Aim()
 
@@ -37,14 +38,19 @@ class Archery:
                                            mayChange=True)
 
     async def prepare_arrows_helper(self, arrow_name, joint_name):
-        if (self.base.game_instance['player_ref']
-                and arrow_name
+        if (arrow_name
                 and joint_name
                 and isinstance(arrow_name, str)
                 and isinstance(joint_name, str)):
             self.arrows = []
             assets = self.base.assets_collector()
-            joint = self.base.game_instance['player_ref'].expose_joint(None, "modelRoot", joint_name)
+            joint = None
+            if "Player" in self.actor_name:
+                player_ref = self.base.game_instance['player_ref']
+                joint = player_ref.expose_joint(None, "modelRoot", joint_name)
+            elif "NPC" in self.actor_name:
+                actor_ref = self.base.game_instance['actors_ref'][self.actor_name]
+                joint = actor_ref.expose_joint(None, "modelRoot", joint_name)
             for i in range(self.base.game_instance['arrow_count']):
                 arrow = await self.base.loader.load_model(assets[arrow_name], blocking=False)
                 arrow.set_name(arrow_name)
@@ -56,13 +62,19 @@ class Archery:
                 arrow.set_python_tag("power", 0)
                 arrow.set_python_tag("ready", 0)
                 arrow.set_python_tag("shot", 0)
-                arrow.set_python_tag("owner", "player")
+                arrow.set_python_tag("owner", self.actor_name.lower())
                 self.arrows.append(arrow)
 
     def return_arrow_back(self, joint_name):
         if self.arrow_ref and joint_name:
             if self.arrow_ref.get_python_tag("ready") == 0:
-                joint = self.base.game_instance['player_ref'].exposeJoint(None, "modelRoot", joint_name)
+                joint = None
+                if "Player" in self.actor_name:
+                    player_ref = self.base.game_instance['player_ref']
+                    joint = player_ref.expose_joint(None, "modelRoot", joint_name)
+                elif "NPC" in self.actor_name:
+                    actor_ref = self.base.game_instance['actors_ref'][self.actor_name]
+                    joint = actor_ref.expose_joint(None, "modelRoot", joint_name)
                 if joint:
                     self.arrow_ref.reparent_to(joint)
                     self.arrow_ref.set_pos(-10, 7, -12)
@@ -145,8 +157,9 @@ class Archery:
 
             self.arrow_is_prepared = False
 
-            self.base.game_instance['hud_np'].cooldown_bar_ui['value'] = 100
-            taskMgr.do_method_later(0.1, self.archery_cooldown_task, "archery_cooldown_task")
+            if "Player" in self.actor_name:
+                self.base.game_instance['hud_np'].cooldown_bar_ui['value'] = 100
+                taskMgr.do_method_later(0.1, self.archery_cooldown_task, "archery_cooldown_task")
 
             # Destroy dropped arrows after 200 seconds which are 3 minutes
             taskMgr.do_method_later(700, self.destroy_arrow, 'destroy_arrow')
@@ -162,18 +175,22 @@ class Archery:
 
             Return      : Task status
         """
-        if self.base.game_instance['physics_world_np']:
-            mouse_watch = base.mouseWatcherNode
-            if mouse_watch.has_mouse():
-                pos_mouse = base.mouseWatcherNode.get_mouse()
-                pos_from = Point3(0, 0, 0)
-                pos_to = Point3(0, 1000, 0)
-                base.camLens.extrude(pos_mouse, pos_from, pos_to)
+        if "Player" in self.actor_name:
+            if self.base.game_instance['physics_world_np']:
+                mouse_watch = base.mouseWatcherNode
+                if mouse_watch.has_mouse():
+                    pos_mouse = base.mouseWatcherNode.get_mouse()
+                    pos_from = Point3(0, 0, 0)
+                    pos_to = Point3(0, 1000, 0)
+                    base.camLens.extrude(pos_mouse, pos_from, pos_to)
 
-                pos_from = self.render.get_relative_point(base.camera, pos_from)
-                pos_to = self.render.get_relative_point(base.camera, pos_to)
-
-                self.raytest_result = self.base.game_instance['physics_world_np'].ray_test_closest(pos_from, pos_to)
+                    pos_from = self.render.get_relative_point(base.camera, pos_from)
+                    pos_to = self.render.get_relative_point(base.camera, pos_to)
+                    raytest_result = self.base.game_instance['physics_world_np'].ray_test_closest(pos_from, pos_to)
+                    self.raytest_result = raytest_result
+        elif "NPC" in self.actor_name:
+            # TODO: Add arrow trajectory logic
+            pass
 
         return task.cont
 
@@ -190,7 +207,7 @@ class Archery:
         """
 
         if (self.raytest_result and self.raytest_result.get_node()
-                and "Player" not in self.raytest_result.get_node().get_name()
+                and self.actor_name not in self.raytest_result.get_node().get_name()
                 and "Arrow" not in self.raytest_result.get_node().get_name()):
             self.hit_target = self.raytest_result.get_node()
             self.target_pos = self.raytest_result.get_hit_pos()
