@@ -72,8 +72,6 @@ class Quests:
             actor_bs = None
             if "Player" in actor.get_name():
                 self.base.game_instance["is_player_laying"] = True
-                self.base.camera.set_z(-1.5)
-                self.base.camera.set_y(-2.5)
                 actor_name = actor.get_name()
                 actor_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="Player")
             elif "NPC" in actor.get_name():
@@ -264,7 +262,7 @@ class Quests:
 
     def quest_yurt_rest_task(self, trigger_np, actor, task):
         if self.base.game_instance['menu_mode']:
-            self.base.game_instance['is_player_sitting'] = False
+            self.base.game_instance['is_player_laying'] = False
             return task.done
 
         for node in trigger_np.node().get_overlapping_nodes():
@@ -273,18 +271,21 @@ class Quests:
                     self.player_bs = render.find("**/{0}".format(node.get_name()))
                 player = self.base.game_instance['player_ref']
                 if self.player_bs and int(actor.get_distance(self.player_bs)) == 1:
-                    if not self.base.game_instance['is_player_sitting']:
+                    if not self.base.game_instance['is_player_laying']:
                         # todo: change to suitable standing_to_laying anim
                         self.base.accept("e", self.toggle_laying_state, [player,
                                                                          "standing_to_sit_turkic",
                                                                          "sleeping_idle",
                                                                          "loop"])
+                    elif self.base.game_instance['is_player_laying']:
+                        self.base.camera.set_z(-1.5)
+                        self.base.camera.set_y(-2.5)
             elif "NPC" in node.get_name():
                 name = node.get_name()
                 actor = self.base.game_instance["actors_ref"][name]
                 actor_bs = self.base.game_instance["actors_np"][name]
                 if actor_bs and int(actor.get_distance(actor_bs)) == 1:
-                    if not actor.get_python_tag('is_sitting'):
+                    if not actor.get_python_tag('generic_states')["is_laying"]:
                         # todo: change to suitable standing_to_laying anim
                         self.base.accept("e", self.toggle_laying_state, [actor,
                                                                          "standing_to_sit_turkic",
