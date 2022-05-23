@@ -266,178 +266,180 @@ class Actions:
 
     def player_actions_task(self, player, anims, task):
         if player and anims:
-            # Define player actions
-            if not player.get_python_tag("is_on_horse"):
-                any_action = player.get_anim_control(anims[self.idle_action])
-                if (any_action.is_playing() is False
-                        and base.player_states['is_idle']
-                        and base.player_states['is_attacked'] is False
-                        and base.player_states['is_busy'] is False
-                        and base.player_states['is_using'] is False
-                        and base.player_states['is_turning'] is False
-                        and base.player_states['is_moving'] is False
-                        and base.player_states['is_running'] is False
-                        and base.player_states['is_crouch_moving'] is False
-                        and base.player_states['is_crouching'] is False
-                        and base.player_states['is_mounted'] is False
-                        and base.player_states['horse_riding'] is False):
+            if (not self.base.game_instance["is_player_sitting"]
+                    and not self.base.game_instance["is_player_laying"]):
+                # Define player actions
+                if not player.get_python_tag("is_on_horse"):
+                    any_action = player.get_anim_control(anims[self.idle_action])
+                    if (any_action.is_playing() is False
+                            and base.player_states['is_idle']
+                            and base.player_states['is_attacked'] is False
+                            and base.player_states['is_busy'] is False
+                            and base.player_states['is_using'] is False
+                            and base.player_states['is_turning'] is False
+                            and base.player_states['is_moving'] is False
+                            and base.player_states['is_running'] is False
+                            and base.player_states['is_crouch_moving'] is False
+                            and base.player_states['is_crouching'] is False
+                            and base.player_states['is_mounted'] is False
+                            and base.player_states['horse_riding'] is False):
 
-                    self.fsm_player.request("Idle", player,
-                                            anims[self.idle_action],
-                                            "play")
-                    if self.base.game_instance['player_props']['stamina'] < 100:
-                        self.base.game_instance['player_props']['stamina'] += 5
+                        self.fsm_player.request("Idle", player,
+                                                anims[self.idle_action],
+                                                "play")
+                        if self.base.game_instance['player_props']['stamina'] < 100:
+                            self.base.game_instance['player_props']['stamina'] += 5
 
-                    if (self.base.game_instance['hud_np']
-                            and self.base.game_instance['hud_np'].player_bar_ui_stamina):
-                        if self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] < 100:
-                            self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] += 5
-                            stamina = self.base.game_instance['hud_np'].player_bar_ui_stamina['value']
-                            player.set_python_tag("health", stamina)
+                        if (self.base.game_instance['hud_np']
+                                and self.base.game_instance['hud_np'].player_bar_ui_stamina):
+                            if self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] < 100:
+                                self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] += 5
+                                stamina = self.base.game_instance['hud_np'].player_bar_ui_stamina['value']
+                                player.set_python_tag("health", stamina)
 
-            elif player.get_python_tag("is_on_horse"):
-                any_action = player.get_anim_control(anims['horse_riding_idle'])
-                if (any_action.is_playing() is False
-                        and base.player_states['is_idle']
-                        and base.player_states['is_attacked'] is False
-                        and base.player_states['is_busy'] is False
-                        and base.player_states['is_using'] is False
-                        and base.player_states['is_turning'] is False
-                        and base.player_states['is_moving'] is False
-                        and base.player_states['is_running'] is False
-                        and base.player_states['is_crouch_moving'] is False
-                        and base.player_states['is_crouching'] is False
-                        and base.player_states['is_mounted']
-                        and base.player_states['horse_riding']):
-                    self.fsm_player.request("Idle", player,
-                                            anims['horse_riding_idle'],
-                                            "play")
-                    if self.base.game_instance['player_props']['stamina'] < 100:
-                        self.base.game_instance['player_props']['stamina'] += 5
+                elif player.get_python_tag("is_on_horse"):
+                    any_action = player.get_anim_control(anims['horse_riding_idle'])
+                    if (any_action.is_playing() is False
+                            and base.player_states['is_idle']
+                            and base.player_states['is_attacked'] is False
+                            and base.player_states['is_busy'] is False
+                            and base.player_states['is_using'] is False
+                            and base.player_states['is_turning'] is False
+                            and base.player_states['is_moving'] is False
+                            and base.player_states['is_running'] is False
+                            and base.player_states['is_crouch_moving'] is False
+                            and base.player_states['is_crouching'] is False
+                            and base.player_states['is_mounted']
+                            and base.player_states['horse_riding']):
+                        self.fsm_player.request("Idle", player,
+                                                anims['horse_riding_idle'],
+                                                "play")
+                        if self.base.game_instance['player_props']['stamina'] < 100:
+                            self.base.game_instance['player_props']['stamina'] += 5
 
-                    if (self.base.game_instance['hud_np']
-                            and self.base.game_instance['hud_np'].player_bar_ui_stamina):
-                        if self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] < 100:
-                            self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] += 5
-                            stamina = self.base.game_instance['hud_np'].player_bar_ui_stamina['value']
-                            player.set_python_tag("health", stamina)
+                        if (self.base.game_instance['hud_np']
+                                and self.base.game_instance['hud_np'].player_bar_ui_stamina):
+                            if self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] < 100:
+                                self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] += 5
+                                stamina = self.base.game_instance['hud_np'].player_bar_ui_stamina['value']
+                                player.set_python_tag("health", stamina)
 
-            # Here we accept keys
-            if (not self.base.game_instance['ui_mode']
-                    and not self.base.game_instance['dev_ui_mode']
-                    or self.base.game_instance['dev_ui_mode']):
-                if base.player_state_unarmed:
-                    if self.floater and not base.player_states['is_mounted']:
-                        self.player_movement_action(player, anims)
-                        self.player_run_action(player, anims)
-                        self.player_forwardroll_action(player, anims)
-                    elif base.player_states['is_mounted']:
-                        self.horse_riding_movement_action(anims)
-                        self.horse_riding_run_action(anims)
-
-            if (not self.base.game_instance['ui_mode']
-                    and not self.base.game_instance['dev_ui_mode']):
-
-                # is horse ready?
-                if base.player_states["horse_is_ready_to_be_used"]:
-                    base.accept("e", self.mount_action, [anims])
-
-                if not base.player_states['is_mounted']:
+                # Here we accept keys
+                if (not self.base.game_instance['ui_mode']
+                        and not self.base.game_instance['dev_ui_mode']
+                        or self.base.game_instance['dev_ui_mode']):
                     if base.player_state_unarmed:
-                        self.player_crouch_action(player, 'crouch', anims)
-                        self.player_jump_action(player, "jump", anims, "Jumping")
-                        self.player_use_action(player, "use", anims, "PickingUp")
-
-                        if not self.base.game_instance["is_indoor"]:
-                            self.player_attack_action(player, "attack", anims, "Boxing")
-                            self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
-                            self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
-                            self.player_block_action(player, "block", anims, "center_blocking")
-                            self.player_get_sword_action(player, "sword", anims, "sword_disarm_over_shoulder")
-                            self.player_get_bow_action(player, "bow", anims, "archer_standing_disarm_bow")
-
-                    if base.player_state_armed:
-                        if self.floater:
+                        if self.floater and not base.player_states['is_mounted']:
                             self.player_movement_action(player, anims)
                             self.player_run_action(player, anims)
                             self.player_forwardroll_action(player, anims)
-
-                            self.player_crouch_action(player, 'crouch', anims)
-                            self.player_jump_action(player, "jump", anims, "Jumping")
-                            self.player_use_action(player, "use", anims, "PickingUp")
                         elif base.player_states['is_mounted']:
                             self.horse_riding_movement_action(anims)
                             self.horse_riding_run_action(anims)
 
-                        if not self.base.game_instance["is_indoor"]:
-                            if base.player_states['has_sword'] and not base.player_states['has_bow']:
-                                self.player_attack_action(player, "attack", anims, "great_sword_slash")
-                                self.player_block_action(player, "block", anims, "great_sword_blocking")
-                            elif not base.player_states['has_sword'] and base.player_states['has_bow']:
-                                self.player_bow_shoot_action(player, anims, "archer_standing_draw_arrow")
+                if (not self.base.game_instance['ui_mode']
+                        and not self.base.game_instance['dev_ui_mode']):
 
-                            self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
-                            self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
-                            self.player_get_sword_action(player, "sword", anims, "sword_disarm_over_shoulder")
-                            self.player_get_bow_action(player, "bow", anims, "archer_standing_disarm_bow")
+                    # is horse ready?
+                    if base.player_states["horse_is_ready_to_be_used"]:
+                        base.accept("e", self.mount_action, [anims])
 
-                    if base.player_state_magic:
-                        if self.floater:
-                            self.player_movement_action(player, anims)
-                            self.player_run_action(player, anims)
-                            self.player_forwardroll_action(player, anims)
-
+                    if not base.player_states['is_mounted']:
+                        if base.player_state_unarmed:
                             self.player_crouch_action(player, 'crouch', anims)
                             self.player_jump_action(player, "jump", anims, "Jumping")
                             self.player_use_action(player, "use", anims, "PickingUp")
 
                             if not self.base.game_instance["is_indoor"]:
+                                self.player_attack_action(player, "attack", anims, "Boxing")
                                 self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
                                 self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
                                 self.player_block_action(player, "block", anims, "center_blocking")
-                                self.player_tengri_action(player, "tengri", anims, "PickingUp")
-                                self.player_umai_action(player, "umai", anims, "PickingUp")
+                                self.player_get_sword_action(player, "sword", anims, "sword_disarm_over_shoulder")
+                                self.player_get_bow_action(player, "bow", anims, "archer_standing_disarm_bow")
 
-                elif base.player_states['is_mounted']:
-                    if base.player_state_unarmed:
-                        if self.floater:
-                            self.horse_riding_movement_action(anims)
-                            self.horse_riding_run_action(anims)
-                        # todo: add getting sword and bow anims
-                        """self.player_crouch_action(player, 'crouch', anims)
-                        self.player_jump_action(player, "jump", anims, "Jumping")"""
-                        self.player_horse_riding_get_sword_action(player, "sword", anims, "horse_riding_arm_sword")
-                        self.player_horse_riding_get_bow_action(player, "bow", anims, "horse_riding_arm_bow")
-                    if base.player_state_armed:
-                        if self.floater:
-                            self.horse_riding_movement_action(anims)
-                            self.horse_riding_run_action(anims)
+                        if base.player_state_armed:
+                            if self.floater:
+                                self.player_movement_action(player, anims)
+                                self.player_run_action(player, anims)
+                                self.player_forwardroll_action(player, anims)
 
-                        # todo: add getting sword and bow anims
-                        """self.player_crouch_action(player, 'crouch', anims)
-                        self.player_jump_action(player, "jump", anims, "Jumping")"""
+                                self.player_crouch_action(player, 'crouch', anims)
+                                self.player_jump_action(player, "jump", anims, "Jumping")
+                                self.player_use_action(player, "use", anims, "PickingUp")
+                            elif base.player_states['is_mounted']:
+                                self.horse_riding_movement_action(anims)
+                                self.horse_riding_run_action(anims)
 
-                        if base.player_states['has_sword'] and not base.player_states['has_bow']:
-                            self.player_horse_riding_swing_action(player, "attack", anims,
-                                                                  "horse_riding_swing")
-                        elif not base.player_states['has_sword'] and base.player_states['has_bow']:
-                            self.player_horse_riding_bow_shoot_action(player, anims,
-                                                                      "horse_riding_draw_arrow")
+                            if not self.base.game_instance["is_indoor"]:
+                                if base.player_states['has_sword'] and not base.player_states['has_bow']:
+                                    self.player_attack_action(player, "attack", anims, "great_sword_slash")
+                                    self.player_block_action(player, "block", anims, "great_sword_blocking")
+                                elif not base.player_states['has_sword'] and base.player_states['has_bow']:
+                                    self.player_bow_shoot_action(player, anims, "archer_standing_draw_arrow")
 
-                        self.player_horse_riding_get_sword_action(player, "sword", anims, "horse_riding_disarm_sword")
-                        self.player_horse_riding_get_bow_action(player, "bow", anims, "horse_riding_disarm_bow")
-                    if base.player_state_magic:
-                        if self.floater:
-                            self.horse_riding_movement_action(anims)
-                            self.horse_riding_run_action(anims)
+                                self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
+                                self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
+                                self.player_get_sword_action(player, "sword", anims, "sword_disarm_over_shoulder")
+                                self.player_get_bow_action(player, "bow", anims, "archer_standing_disarm_bow")
 
-                        # todo: add crouch and jump anims
-                        """self.player_crouch_action(player, 'crouch', anims)
-                        self.player_jump_action(player, "jump", anims, "Jumping")"""
+                        if base.player_state_magic:
+                            if self.floater:
+                                self.player_movement_action(player, anims)
+                                self.player_run_action(player, anims)
+                                self.player_forwardroll_action(player, anims)
 
-                        # fixme
-                        """self.player_tengri_action(player, "tengri", anims, "PickingUp")
-                        self.player_umai_action(player, "umai", anims, "PickingUp")"""
+                                self.player_crouch_action(player, 'crouch', anims)
+                                self.player_jump_action(player, "jump", anims, "Jumping")
+                                self.player_use_action(player, "use", anims, "PickingUp")
+
+                                if not self.base.game_instance["is_indoor"]:
+                                    self.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
+                                    self.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
+                                    self.player_block_action(player, "block", anims, "center_blocking")
+                                    self.player_tengri_action(player, "tengri", anims, "PickingUp")
+                                    self.player_umai_action(player, "umai", anims, "PickingUp")
+
+                    elif base.player_states['is_mounted']:
+                        if base.player_state_unarmed:
+                            if self.floater:
+                                self.horse_riding_movement_action(anims)
+                                self.horse_riding_run_action(anims)
+                            # todo: add getting sword and bow anims
+                            """self.player_crouch_action(player, 'crouch', anims)
+                            self.player_jump_action(player, "jump", anims, "Jumping")"""
+                            self.player_horse_riding_get_sword_action(player, "sword", anims, "horse_riding_arm_sword")
+                            self.player_horse_riding_get_bow_action(player, "bow", anims, "horse_riding_arm_bow")
+                        if base.player_state_armed:
+                            if self.floater:
+                                self.horse_riding_movement_action(anims)
+                                self.horse_riding_run_action(anims)
+
+                            # todo: add getting sword and bow anims
+                            """self.player_crouch_action(player, 'crouch', anims)
+                            self.player_jump_action(player, "jump", anims, "Jumping")"""
+
+                            if base.player_states['has_sword'] and not base.player_states['has_bow']:
+                                self.player_horse_riding_swing_action(player, "attack", anims,
+                                                                      "horse_riding_swing")
+                            elif not base.player_states['has_sword'] and base.player_states['has_bow']:
+                                self.player_horse_riding_bow_shoot_action(player, anims,
+                                                                          "horse_riding_draw_arrow")
+
+                            self.player_horse_riding_get_sword_action(player, "sword", anims, "horse_riding_disarm_sword")
+                            self.player_horse_riding_get_bow_action(player, "bow", anims, "horse_riding_disarm_bow")
+                        if base.player_state_magic:
+                            if self.floater:
+                                self.horse_riding_movement_action(anims)
+                                self.horse_riding_run_action(anims)
+
+                            # todo: add crouch and jump anims
+                            """self.player_crouch_action(player, 'crouch', anims)
+                            self.player_jump_action(player, "jump", anims, "Jumping")"""
+
+                            # fixme
+                            """self.player_tengri_action(player, "tengri", anims, "PickingUp")
+                            self.player_umai_action(player, "umai", anims, "PickingUp")"""
 
         return task.cont
 

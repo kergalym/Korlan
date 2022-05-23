@@ -287,7 +287,9 @@ class Mouse:
         # Figure out how much the mouse has moved (in pixels)
         if (not self.base.game_instance['ui_mode']
                 and not self.base.game_instance['menu_mode']):
-            self.mouse_control()
+            if (not self.base.game_instance["is_player_sitting"]
+                    and not self.base.game_instance["is_player_laying"]):
+                self.mouse_control()
 
         return task.cont
 

@@ -67,6 +67,8 @@ class Quests:
             # Stop having rest
             actor_bs = None
             if "Player" in actor.get_name():
+                if self.base.game_instance["is_player_laying"]:
+                    self.base.camera.reparent_to(self.base.game_instance["camera_pivot_np"])
                 self.base.game_instance["is_player_laying"] = False
                 self.base.camera.set_z(0.0)
                 self.base.camera.set_y(-1)
@@ -89,8 +91,9 @@ class Quests:
             actor_bs = None
             if "Player" in actor.get_name():
                 self.base.game_instance["is_player_laying"] = True
-                self.base.camera.set_z(-1.0)
-                self.base.camera.set_y(-3.0)
+                self.base.camera.set_z(-1.3)
+                self.base.camera.set_y(-4.2)
+                self.base.camera.set_p(10)
                 actor_name = actor.get_name()
                 actor_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="Player")
                 self.actor_geom_pos_z = actor.get_z()
