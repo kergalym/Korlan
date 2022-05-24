@@ -293,11 +293,11 @@ class Quests:
                 actor_bs = self.base.game_instance["actors_np"][name]
                 if actor_bs and int(place.get_distance(actor_bs)) == 0:
                     if not actor.get_python_tag('is_sitting'):
-                        self.base.accept("e", self._toggle_laying_state, [actor,
-                                                                          place,
-                                                                          "standing_to_sit_turkic",
-                                                                          "sitting_turkic",
-                                                                          "loop"])
+                        self._toggle_laying_state(actor,
+                                                  place,
+                                                  "standing_to_sit_turkic",
+                                                  "sitting_turkic",
+                                                  "loop")
         return task.cont
 
     def quest_yurt_rest_task(self, trigger_np, place, task):
@@ -325,11 +325,11 @@ class Quests:
                 if actor_bs and int(place.get_distance(actor_bs)) == 0:
                     if not actor.get_python_tag('generic_states')["is_laying"]:
                         # todo: change to suitable standing_to_laying anim
-                        self.base.accept("e", self._toggle_laying_state, [actor,
-                                                                          place,
-                                                                          "standing_to_sit_turkic",
-                                                                          "sleeping_idle",
-                                                                          "loop"])
+                        self._toggle_laying_state(actor,
+                                                  place,
+                                                  "standing_to_sit_turkic",
+                                                  "sleeping_idle",
+                                                  "loop")
 
         return task.cont
 
@@ -350,9 +350,7 @@ class Quests:
                 actor = self.base.game_instance["actors_ref"][name]
                 actor_bs = self.base.game_instance["actors_np"][name]
                 if actor_bs and int(place.get_distance(actor_bs)) == 0:
-                    self.base.accept("e", self.play_action_state, [actor,
-                                                                   "spring_water",
-                                                                   "play"])
+                    self.play_action_state(actor, "spring_water", "play")
         return task.cont
 
     def quest_cook_food_hearth_task(self, trigger_np, place, task):
@@ -374,9 +372,7 @@ class Quests:
                 actor = self.base.game_instance["actors_ref"][name]
                 actor_bs = self.base.game_instance["actors_np"][name]
                 if actor_bs and int(place.get_distance(actor_bs)) == 0:
-                    self.base.accept("e", self.play_action_state, [actor,
-                                                                   "cook_food",
-                                                                   "loop"])
+                    self.play_action_state(actor, "cook_food", "loop")
         """
 
         return task.cont
