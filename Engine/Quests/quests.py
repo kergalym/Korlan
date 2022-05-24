@@ -13,6 +13,7 @@ class Quests:
         self.player_bs = None
         self.rest_place_np = None
         self.actor_geom_pos_z = 0
+        self.cam_p = 0
 
     def set_action_state(self, actor, bool_):
         if actor and isinstance(bool_, bool):
@@ -33,6 +34,7 @@ class Quests:
             elif "NPC" in actor.get_name():
                 actor.set_python_tag("is_sitting", False)
             self.seq.finish()
+            self.seq = None
             # Reverse play for standing_to_sit animation
             any_action_seq = actor.actor_interval(anim, loop=0, playRate=-1.0)
             Sequence(any_action_seq, Func(self.set_action_state, actor, False)).start()
@@ -42,7 +44,7 @@ class Quests:
                 self.base.camera.set_z(-0.5)
                 self.base.camera.set_y(-3.0)
                 actor_name = actor.get_name()
-                actor_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
+                actor_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="Player")
                 heading = place.get_h() - 180
                 actor_bs.set_h(heading)
             elif "NPC" in actor.get_name():
@@ -67,10 +69,9 @@ class Quests:
             # Stop having rest
             actor_bs = None
             if "Player" in actor.get_name():
-                if self.base.game_instance["is_player_laying"]:
-                    self.base.camera.reparent_to(self.base.game_instance["camera_pivot_np"])
                 self.base.game_instance["is_player_laying"] = False
                 self.base.camera.set_z(0.0)
+                self.base.camera.set_p(self.cam_p)
                 self.base.camera.set_y(-1)
                 actor.set_z(self.actor_geom_pos_z)
                 actor_name = actor.get_name()
@@ -81,6 +82,7 @@ class Quests:
                 actor_name = actor.get_name()
                 actor_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
             self.seq.finish()
+            self.seq = None
             # Reverse play for standing_to_sit animation
             any_action_seq = actor.actor_interval(anim, loop=0, playRate=-1.0)
             Sequence(Func(actor_bs.set_z, 0),
@@ -93,6 +95,8 @@ class Quests:
                 self.base.game_instance["is_player_laying"] = True
                 self.base.camera.set_z(-1.3)
                 self.base.camera.set_y(-4.2)
+                self.base.camera.set_h(0)
+                self.cam_p = self.base.camera.get_p()
                 self.base.camera.set_p(10)
                 actor_name = actor.get_name()
                 actor_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="Player")
@@ -123,19 +127,20 @@ class Quests:
                          any_action_seq).start()
 
     def play_action_state(self, actor, anim, task):
-        any_action = actor.get_anim_control(anim)
-        any_action_seq = actor.actor_interval(anim, loop=0)
+        if actor and anim and task:
+            any_action = actor.get_anim_control(anim)
+            any_action_seq = actor.actor_interval(anim, loop=0)
 
-        if any_action.is_playing():
-            actor.stop(anim)
-            self.set_action_state(actor, False)
-        else:
-            if task == "loop":
-                self.seq = Sequence(Func(self.set_action_state, actor, True),
-                                    any_action_seq)
-                self.seq.start()
-            elif task == "play":
-                Sequence(Func(self.set_action_state, actor, True), any_action_seq).start()
+            if any_action.is_playing():
+                actor.stop(anim)
+                self.set_action_state(actor, False)
+            else:
+                if task == "loop":
+                    self.seq = Sequence(Func(self.set_action_state, actor, True),
+                                        any_action_seq)
+                    self.seq.start()
+                elif task == "play":
+                    Sequence(Func(self.set_action_state, actor, True), any_action_seq).start()
 
     def set_item_trigger(self, scene, task):
         if self.base.game_instance["loading_is_done"] == 1:
@@ -275,7 +280,7 @@ class Quests:
                 if not self.player_bs:
                     self.player_bs = render.find("**/{0}".format(node.get_name()))
                 player = self.base.game_instance['player_ref']
-                if self.player_bs and int(place.get_distance(self.player_bs)) == 1:
+                if self.player_bs and int(place.get_distance(self.player_bs)) == 0:
                     if not self.base.game_instance['is_player_sitting']:
                         self.base.accept("e", self._toggle_sitting_state, [player,
                                                                            place,
@@ -286,7 +291,7 @@ class Quests:
                 name = node.get_name()
                 actor = self.base.game_instance["actors_ref"][name]
                 actor_bs = self.base.game_instance["actors_np"][name]
-                if actor_bs and int(place.get_distance(actor_bs)) == 1:
+                if actor_bs and int(place.get_distance(actor_bs)) == 0:
                     if not actor.get_python_tag('is_sitting'):
                         self.base.accept("e", self._toggle_laying_state, [actor,
                                                                           place,
@@ -305,7 +310,7 @@ class Quests:
                 if not self.player_bs:
                     self.player_bs = render.find("**/{0}".format(node.get_name()))
                 player = self.base.game_instance['player_ref']
-                if self.player_bs and int(place.get_distance(self.player_bs)) == 1:
+                if self.player_bs and int(place.get_distance(self.player_bs)) == 0:
                     if not self.base.game_instance['is_player_laying']:
                         # todo: change to suitable standing_to_laying anim
                         self.base.accept("e", self._toggle_laying_state, [player,
@@ -317,7 +322,7 @@ class Quests:
                 name = node.get_name()
                 actor = self.base.game_instance["actors_ref"][name]
                 actor_bs = self.base.game_instance["actors_np"][name]
-                if actor_bs and int(place.get_distance(actor_bs)) == 1:
+                if actor_bs and int(place.get_distance(actor_bs)) == 0:
                     if not actor.get_python_tag('generic_states')["is_laying"]:
                         # todo: change to suitable standing_to_laying anim
                         self.base.accept("e", self._toggle_laying_state, [actor,
@@ -336,18 +341,16 @@ class Quests:
             if "Player" in node.get_name():
                 player_bs = render.find("**/{0}".format(node.get_name()))
                 player = self.base.game_instance['player_ref']
-                if player_bs and int(place.get_distance(player_bs)) == 1:
+                if player_bs and int(place.get_distance(player_bs)) == 0:
                     self.base.accept("e", self.play_action_state, [player,
-                                                                   place,
                                                                    "spring_water",
                                                                    "play"])
             elif "NPC" in node.get_name():
                 name = node.get_name()
                 actor = self.base.game_instance["actors_ref"][name]
                 actor_bs = self.base.game_instance["actors_np"][name]
-                if actor_bs and int(place.get_distance(actor_bs)) == 1:
+                if actor_bs and int(place.get_distance(actor_bs)) == 0:
                     self.base.accept("e", self.play_action_state, [actor,
-                                                                   place,
                                                                    "spring_water",
                                                                    "play"])
         return task.cont
@@ -356,23 +359,24 @@ class Quests:
         if self.base.game_instance['menu_mode']:
             return task.done
 
+        # TODO: Uncomment task when cook_food anim will be ready
+        """
         for node in trigger_np.node().get_overlapping_nodes():
             if "Player" in node.get_name():
                 player_bs = render.find("**/{0}".format(node.get_name()))
                 player = self.base.game_instance['player_ref']
-                if player_bs and int(place.get_distance(player_bs)) == 1:
+                if player_bs and int(place.get_distance(player_bs)) == 0:
                     self.base.accept("e", self.play_action_state, [player,
-                                                                   place,
                                                                    "cook_food",
                                                                    "loop"])
             elif "NPC" in node.get_name():
                 name = node.get_name()
                 actor = self.base.game_instance["actors_ref"][name]
                 actor_bs = self.base.game_instance["actors_np"][name]
-                if actor_bs and int(place.get_distance(actor_bs)) == 1:
+                if actor_bs and int(place.get_distance(actor_bs)) == 0:
                     self.base.accept("e", self.play_action_state, [actor,
-                                                                   place,
                                                                    "cook_food",
                                                                    "loop"])
+        """
 
         return task.cont

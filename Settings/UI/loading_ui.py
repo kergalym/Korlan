@@ -49,6 +49,12 @@ class LoadingUI:
         self.stat_ui = StatUI()
 
     def set_loading_bar(self):
+        # Enable game overlay
+        if self.game_settings['Debug']['set_debug_mode'] == 'NO':
+            game_overlay = DirectFrame(frameColor=(0, 0, 0, 0.5),
+                                       frameSize=(-2, 2, -1, 1))
+            self.base.game_instance["game_overlay_np"] = game_overlay
+
         assets = base.assets_collector()
         self.title_loading_text = OnscreenText(text="",
                                                pos=(-0.8, -0.8),

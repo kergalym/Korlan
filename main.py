@@ -315,6 +315,7 @@ class Main(ShowBase):
             "dev_ui_mode": False,
             "esc_mode": False,
             "gameplay_mode": '',
+            "game_overlay_np": None,
             "camera_pivot_np": None,
             "free_camera": False,
             "is_aiming": False,

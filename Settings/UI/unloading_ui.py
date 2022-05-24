@@ -34,6 +34,11 @@ class UnloadingUI:
         self.unloaded_items = 0
 
     def set_unloading_screen(self):
+        # Disable game overlay
+        if self.game_settings['Debug']['set_debug_mode'] == 'NO':
+            if self.base.game_instance["game_overlay_np"]:
+                self.base.game_instance["game_overlay_np"].destroy()
+
         self.unloading_text = OnscreenText(text="",
                                            pos=(-1.8, 0.9),
                                            scale=0.03,
