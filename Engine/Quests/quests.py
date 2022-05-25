@@ -18,7 +18,7 @@ class Quests:
         self.text_caps = self.base.ui_txt_geom_collector()
         if self.base.game_instance["renderpipeline_np"]:
             self.render_pipeline = self.base.game_instance["renderpipeline_np"]
-        self.trig_range = [0.1, 0.9]
+        self.trig_range = [0.1, 1.5]
 
     def set_action_state(self, actor, bool_):
         if actor and isinstance(bool_, bool):
@@ -56,12 +56,18 @@ class Quests:
                 actor_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="Player")
                 heading = place.get_h() - 180
                 actor_bs.set_h(heading)
+                place_pos = place.get_pos()
+                actor_bs.set_x(place_pos[0])
+                actor_bs.set_y(place_pos[1])
             elif "NPC" in actor.get_name():
                 actor.set_python_tag("is_sitting", True)
                 actor_name = actor.get_name()
                 actor_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
                 heading = place.get_h() - 180
                 actor_bs.set_h(heading)
+                place_pos = place.get_pos()
+                actor_bs.set_x(place_pos[0])
+                actor_bs.set_y(place_pos[1])
 
             if task == "loop":
                 self.seq = Sequence(Func(self.set_action_state, actor, True),
@@ -121,6 +127,9 @@ class Quests:
                 pos = actor_bs.get_pos() - Vec3(-0.3, -0.1, 0)
                 actor_bs.set_h(heading)
                 actor_bs.set_pos(pos)
+                place_pos = place.get_pos()
+                actor_bs.set_x(place_pos[0])
+                actor_bs.set_y(place_pos[1])
             elif "NPC" in actor.get_name():
                 actor.set_python_tag("is_laying", True)
                 actor_name = actor.get_name()
@@ -129,7 +138,10 @@ class Quests:
                 pos = actor_bs.get_pos() - Vec3(-0.3, -0.1, 0)
                 actor_bs.set_h(heading)
                 actor_bs.set_pos(pos)
-
+                place_pos = place.get_pos()
+                actor_bs.set_x(place_pos[0])
+                actor_bs.set_y(place_pos[1])
+                
             if task == "loop":
                 self.seq = Sequence(Func(self.set_action_state, actor, True),
                                     any_action_seq,
