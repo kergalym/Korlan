@@ -14,6 +14,10 @@ class Quests:
         self.rest_place_np = None
         self.actor_geom_pos_z = 0
         self.cam_p = 0
+        self.game_dir = base.game_dir
+        self.text_caps = self.base.ui_txt_geom_collector()
+        if self.base.game_instance["renderpipeline_np"]:
+            self.render_pipeline = self.base.game_instance["renderpipeline_np"]
 
     def set_action_state(self, actor, bool_):
         if actor and isinstance(bool_, bool):
@@ -62,6 +66,7 @@ class Quests:
                 Sequence(Func(self.set_action_state, actor, True), any_action_seq).start()
 
     def _toggle_laying_state(self, actor, place, anim, anim_next, task):
+        print(anim_next)
         any_action_seq = actor.actor_interval(anim, loop=0)
         any_action_next_seq = actor.actor_interval(anim_next, loop=1)
 
@@ -141,6 +146,36 @@ class Quests:
                     self.seq.start()
                 elif task == "play":
                     Sequence(Func(self.set_action_state, actor, True), any_action_seq).start()
+
+    def _set_dimensional_txt(self, txt_cap, obj):
+        if txt_cap and isinstance(txt_cap, str) and obj:
+            if self.text_caps[txt_cap]:
+                txt_cap_np = self.base.loader.load_model(self.text_caps[txt_cap])
+                txt_cap_np.reparent_to(obj)
+                txt_cap_np.set_two_sided(True)
+                txt_cap_np.set_name(txt_cap)
+                pos = obj.get_pos()
+                txt_cap_np.set_pos(pos)
+                # txt_cap_np.set_scale(0.5)
+                if self.render_pipeline:
+                    self.render_pipeline.set_effect(txt_cap_np,
+                                                    "{0}/Engine/Renderer/effects/default.yaml".format(self.game_dir),
+                                                    {"render_gbuffer": True,
+                                                     "render_shadow": False,
+                                                     "alpha_testing": True,
+                                                     "normal_mapping": False})
+                txt_cap_np.set_billboard_point_eye()
+
+    def toggle_3d_text_vis(self, trigger_np, place, actor):
+        if trigger_np and place and actor:
+            if trigger_np.find("txt_rest"):
+                txt_rest = trigger_np.find("txt_rest")
+                if txt_rest:
+                    if (int(place.get_distance(actor), 1) >= 1
+                            and int(place.get_distance(actor), 1) <= 5):
+                        txt_rest.show()
+                    else:
+                        txt_rest.hide()
 
     def set_item_trigger(self, scene, task):
         if self.base.game_instance["loading_is_done"] == 1:
@@ -244,23 +279,27 @@ class Quests:
                         trigger_np.reparent_to(actor)
                         trigger_np.set_pos(0, 0, 1)
                         if "campfire" in actor.get_name():
+                            self._set_dimensional_txt(txt_cap="txt_sit", obj=trigger_np)
                             taskMgr.add(self.quest_yurt_campfire_task,
                                         "quest_yurt_campfire_task",
                                         extraArgs=[trigger_np, actor],
                                         appendTask=True)
                         elif "rest_place" in actor.get_name():
+                            self._set_dimensional_txt(txt_cap="txt_rest", obj=trigger_np)
                             taskMgr.add(self.quest_yurt_rest_task,
                                         "quest_yurt_rest_task",
                                         extraArgs=[trigger_np, actor],
                                         appendTask=True)
 
                         elif "hearth" in actor.get_name():
+                            self._set_dimensional_txt(txt_cap="txt_use", obj=trigger_np)
                             taskMgr.add(self.quest_cook_food_hearth_task,
                                         "quest_cook_food_hearth_task",
                                         extraArgs=[trigger_np, actor],
                                         appendTask=True)
 
                         elif "spring_water" in actor.get_name():
+                            self._set_dimensional_txt(txt_cap="txt_use", actor=trigger_np)
                             taskMgr.add(self.quest_spring_water_task,
                                         "quest_spring_water_task",
                                         extraArgs=[trigger_np, actor],
@@ -310,6 +349,10 @@ class Quests:
                 if not self.player_bs:
                     self.player_bs = render.find("**/{0}".format(node.get_name()))
                 player = self.base.game_instance['player_ref']
+
+                # Show 3d text
+                self.toggle_3d_text_vis(trigger_np, place, self.player_bs)
+
                 if self.player_bs and int(place.get_distance(self.player_bs)) == 0:
                     if not self.base.game_instance['is_player_laying']:
                         # todo: change to suitable standing_to_laying anim

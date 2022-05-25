@@ -37,8 +37,8 @@ class RenderAttr:
         # instance of the abstract class
         self.font = FontPool
         self.game_settings = base.game_settings
-        if hasattr(base, "render_pipeline") and base.render_pipeline:
-            self.render_pipeline = base.render_pipeline
+        if self.base.game_instance["renderpipeline_np"]:
+            self.render_pipeline = self.base.game_instance["renderpipeline_np"]
         self.render = None
         self.particles = {}
 

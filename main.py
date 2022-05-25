@@ -335,6 +335,7 @@ class Main(ShowBase):
             "scene_np": None,
             "player_controller_np": None,
             "actor_controllers_np": {},
+            "renderpipeline_np": None,
             "player_ref": None,
             "actors_ref": {},
             "actors_np": {},
@@ -431,6 +432,7 @@ class Main(ShowBase):
             self.render_pipeline.set_loading_screen_image(render_bg_tex['background'])
             self.render_pipeline.pre_showbase_init()
             self.render_pipeline.create(self)
+            self.game_instance["renderpipeline_np"] = self.render_pipeline
             self.accept("reload_render", self.reload_render)
 
         """ Menu """
@@ -924,6 +926,32 @@ class Main(ShowBase):
             Return      : Dictionary
         """
         tex_path = "Settings/UI/ui_tex/menu/"
+        ui_geoms = {}
+        if vfs_exists(tex_path):
+            for root, dirs, files in vfs_walk(tex_path, topdown=True):
+                for file in files:
+                    if file.endswith(".egg"):
+                        key = re.sub('.egg$', '', file)
+                        path = str(PurePath("{0}/".format(root), file))
+                        ui_geoms[key] = Filename.from_os_specific(path).getFullpath()
+                    elif file.endswith(".egg.bam"):
+                        key = re.sub('.egg.bam$', '', file)
+                        path = str(PurePath("{0}/".format(root), file))
+                        ui_geoms[key] = Filename.from_os_specific(path).getFullpath()
+            return ui_geoms
+
+    def ui_txt_geom_collector(self):
+        """ Function    : ui_txt_geom_collector
+
+            Description : Collect text geoms.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : Dictionary
+        """
+        tex_path = "Settings/UI/3D_Text/"
         ui_geoms = {}
         if vfs_exists(tex_path):
             for root, dirs, files in vfs_walk(tex_path, topdown=True):
