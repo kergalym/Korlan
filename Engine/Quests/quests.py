@@ -360,7 +360,7 @@ class Quests:
                 actor = self.base.game_instance["actors_ref"][name]
                 actor_bs = self.base.game_instance["actors_np"][name]
                 if (round(place.get_distance(actor_bs), 1) >= 0.1
-                        and int(place.get_distance(actor_bs)) <= 0.9):
+                        and round(place.get_distance(actor_bs), 1) <= 0.9):
                     if not actor.get_python_tag('is_sitting'):
                         self._toggle_laying_state(actor,
                                                   place,
@@ -398,7 +398,7 @@ class Quests:
                 actor = self.base.game_instance["actors_ref"][name]
                 actor_bs = self.base.game_instance["actors_np"][name]
                 if (round(place.get_distance(actor_bs), 1) >= 0.1
-                        and int(place.get_distance(actor_bs)) <= 0.9):
+                        and round(place.get_distance(actor_bs), 1) <= 0.9):
                     if not actor.get_python_tag('generic_states')["is_laying"]:
                         # todo: change to suitable standing_to_laying anim
                         self._toggle_laying_state(actor,
@@ -432,7 +432,7 @@ class Quests:
                 actor = self.base.game_instance["actors_ref"][name]
                 actor_bs = self.base.game_instance["actors_np"][name]
                 if (round(place.get_distance(actor_bs), 1) >= 0.1
-                        and int(place.get_distance(actor_bs)) <= 0.9):
+                        and round(place.get_distance(actor_bs), 1) <= 0.9):
                     self.play_action_state(actor, "spring_water", "play")
         return task.cont
 
