@@ -30,7 +30,11 @@ class Quests:
         any_action_seq = actor.actor_interval(anim, loop=0)
         any_action_next_seq = actor.actor_interval(anim_next, loop=1)
 
+        txt_cap = render.find("**/txt_sit")
+
         if self.seq:
+            if txt_cap:
+                txt_cap.hide()
             if "Player" in actor.get_name():
                 self.base.game_instance["is_player_sitting"] = False
                 self.base.camera.set_z(0.0)
@@ -66,11 +70,14 @@ class Quests:
                 Sequence(Func(self.set_action_state, actor, True), any_action_seq).start()
 
     def _toggle_laying_state(self, actor, place, anim, anim_next, task):
-        print(anim_next)
         any_action_seq = actor.actor_interval(anim, loop=0)
         any_action_next_seq = actor.actor_interval(anim_next, loop=1)
 
+        txt_cap = render.find("**/txt_rest")
+
         if self.seq:
+            if txt_cap:
+                txt_cap.show()
             # Stop having rest
             actor_bs = None
             if "Player" in actor.get_name():
@@ -94,6 +101,8 @@ class Quests:
                      any_action_seq,
                      Func(self.set_action_state, actor, False)).start()
         else:
+            if txt_cap:
+                txt_cap.hide()
             # Start having rest
             actor_bs = None
             if "Player" in actor.get_name():
@@ -169,16 +178,18 @@ class Quests:
 
     def toggle_3d_text_vis(self, trigger_np, txt_label, place, actor):
         if trigger_np and place and txt_label and actor:
-            if trigger_np.find(txt_label):
-                txt_cap = trigger_np.find(txt_label)
-                if txt_cap:
-                    if (int(place.get_distance(actor)) >= 0
-                            and int(place.get_distance(actor)) <= 2):
-                        txt_cap.show()
-                    elif int(place.get_distance(actor)) == 0:
-                        txt_cap.hide()
-                    elif int(place.get_distance(actor)) > 1:
-                        txt_cap.hide()
+            if (not self.base.game_instance['is_player_sitting']
+                    or not self.base.game_instance['is_player_laying']):
+                if trigger_np.find(txt_label):
+                    txt_cap = trigger_np.find(txt_label)
+                    if txt_cap:
+                        if (round(place.get_distance(actor), 1) >= 0.1
+                                and int(place.get_distance(actor)) <= 1.1):
+                            txt_cap.show()
+                        elif round(place.get_distance(actor), 1) == 0.0:
+                            txt_cap.hide()
+                        elif round(place.get_distance(actor), 1) > 1.1:
+                            txt_cap.hide()
 
     def set_item_trigger(self, scene, task):
         if self.base.game_instance["loading_is_done"] == 1:
@@ -228,7 +239,8 @@ class Quests:
                                         place=actor, actor=self.player_bs)
 
                 if not player.get_python_tag("is_item_using"):
-                    if int(actor.get_distance(self.player_bs)) == 1:
+                    if (round(actor.get_distance(self.player_bs), 1) >= 0.1
+                            and int(actor.get_distance(self.player_bs)) <= 0.9):
                         actor_bs = actor.find("**/{0}:BS".format(actor.get_name()))
                         # Currently close item parameters
                         self.base.game_instance['item_state'] = {
@@ -250,7 +262,8 @@ class Quests:
                 actor_npc = self.base.game_instance["actors_ref"][name]
                 actor_npc_bs = self.base.game_instance["actors_np"][name]
                 if not actor_npc.get_python_tag("is_item_using"):
-                    if int(actor.get_distance(actor_npc_bs)) == 1:
+                    if (round(actor.get_distance(actor_npc_bs), 1) >= 0.1
+                            and int(actor.get_distance(actor_npc_bs)) <= 0.9):
                         actor_bs = actor.find("**/{0}:BS".format(actor.get_name()))
                         # Currently close item parameters
                         self.base.game_instance['item_state'] = {
@@ -334,7 +347,8 @@ class Quests:
                 self.toggle_3d_text_vis(trigger_np=trigger_np, txt_label="txt_sit",
                                         place=place, actor=self.player_bs)
 
-                if self.player_bs and int(place.get_distance(self.player_bs)) == 0:
+                if (round(place.get_distance(self.player_bs), 1) >= 0.1
+                        and int(place.get_distance(self.player_bs)) <= 0.9):
                     if not self.base.game_instance['is_player_sitting']:
                         self.base.accept("e", self._toggle_sitting_state, [player,
                                                                            place,
@@ -345,7 +359,8 @@ class Quests:
                 name = node.get_name()
                 actor = self.base.game_instance["actors_ref"][name]
                 actor_bs = self.base.game_instance["actors_np"][name]
-                if actor_bs and int(place.get_distance(actor_bs)) == 0:
+                if (round(place.get_distance(actor_bs), 1) >= 0.1
+                        and int(place.get_distance(actor_bs)) <= 0.9):
                     if not actor.get_python_tag('is_sitting'):
                         self._toggle_laying_state(actor,
                                                   place,
@@ -369,7 +384,8 @@ class Quests:
                 self.toggle_3d_text_vis(trigger_np=trigger_np, txt_label="txt_rest",
                                         place=place, actor=self.player_bs)
 
-                if self.player_bs and int(place.get_distance(self.player_bs)) == 0:
+                if (round(place.get_distance(self.player_bs), 1) >= 0.1
+                        and int(place.get_distance(self.player_bs)) <= 0.9):
                     if not self.base.game_instance['is_player_laying']:
                         # todo: change to suitable standing_to_laying anim
                         self.base.accept("e", self._toggle_laying_state, [player,
@@ -381,7 +397,8 @@ class Quests:
                 name = node.get_name()
                 actor = self.base.game_instance["actors_ref"][name]
                 actor_bs = self.base.game_instance["actors_np"][name]
-                if actor_bs and int(place.get_distance(actor_bs)) == 0:
+                if (round(place.get_distance(actor_bs), 1) >= 0.1
+                        and int(place.get_distance(actor_bs)) <= 0.9):
                     if not actor.get_python_tag('generic_states')["is_laying"]:
                         # todo: change to suitable standing_to_laying anim
                         self._toggle_laying_state(actor,
@@ -405,7 +422,8 @@ class Quests:
                 self.toggle_3d_text_vis(trigger_np=trigger_np, txt_label="txt_use",
                                         place=place, actor=self.player_bs)
 
-                if player_bs and int(place.get_distance(player_bs)) == 0:
+                if (round(place.get_distance(player_bs), 1) >= 0.1
+                        and int(place.get_distance(player_bs)) <= 0.9):
                     self.base.accept("e", self.play_action_state, [player,
                                                                    "spring_water",
                                                                    "play"])
@@ -413,7 +431,8 @@ class Quests:
                 name = node.get_name()
                 actor = self.base.game_instance["actors_ref"][name]
                 actor_bs = self.base.game_instance["actors_np"][name]
-                if actor_bs and int(place.get_distance(actor_bs)) == 0:
+                if (round(place.get_distance(actor_bs), 1) >= 0.1
+                        and int(place.get_distance(actor_bs)) <= 0.9):
                     self.play_action_state(actor, "spring_water", "play")
         return task.cont
 
