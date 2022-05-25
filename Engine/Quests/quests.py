@@ -156,7 +156,7 @@ class Quests:
                 txt_cap_np.set_name(txt_cap)
                 pos = obj.get_pos()
                 txt_cap_np.set_pos(pos[0], pos[1], -0.5)
-                txt_cap_np.set_scale(0.1)
+                txt_cap_np.set_scale(0.07)
                 base.txt_cap_np = txt_cap_np
                 if self.render_pipeline:
                     self.render_pipeline.set_effect(txt_cap_np,
@@ -167,16 +167,18 @@ class Quests:
                                                      "normal_mapping": False})
                 txt_cap_np.set_billboard_point_eye()
 
-    def toggle_3d_text_vis(self, trigger_np, place, actor):
-        if trigger_np and place and actor:
-            if trigger_np.find("txt_rest"):
-                txt_rest = trigger_np.find("txt_rest")
-                if txt_rest:
-                    if (int(place.get_distance(actor), 1) >= 1
-                            and int(place.get_distance(actor), 1) <= 5):
-                        txt_rest.show()
-                    else:
-                        txt_rest.hide()
+    def toggle_3d_text_vis(self, trigger_np, txt_label, place, actor):
+        if trigger_np and place and txt_label and actor:
+            if trigger_np.find(txt_label):
+                txt_cap = trigger_np.find(txt_label)
+                if txt_cap:
+                    if (int(place.get_distance(actor)) >= 0
+                            and int(place.get_distance(actor)) <= 2):
+                        txt_cap.show()
+                    elif int(place.get_distance(actor)) == 0:
+                        txt_cap.hide()
+                    elif int(place.get_distance(actor)) > 1:
+                        txt_cap.hide()
 
     def set_item_trigger(self, scene, task):
         if self.base.game_instance["loading_is_done"] == 1:
@@ -198,7 +200,7 @@ class Quests:
                         trigger_np.reparent_to(actor)
                         trigger_np.set_pos(0, 0, 1)
 
-                        self._set_dimensional_txt(txt_cap="txt_rest", obj=trigger_np)
+                        self._set_dimensional_txt(txt_cap="txt_use", obj=trigger_np)
 
                         taskMgr.add(self.item_trigger_task,
                                     "{0}_trigger_task".format(actor.get_name()),
@@ -220,6 +222,11 @@ class Quests:
                 if not self.player_bs:
                     self.player_bs = render.find("**/{0}".format(node.get_name()))
                 player = self.base.game_instance['player_ref']
+
+                # Show 3d text
+                self.toggle_3d_text_vis(trigger_np=trigger_np, txt_label="txt_use",
+                                        place=actor, actor=self.player_bs)
+
                 if not player.get_python_tag("is_item_using"):
                     if int(actor.get_distance(self.player_bs)) == 1:
                         actor_bs = actor.find("**/{0}:BS".format(actor.get_name()))
@@ -322,6 +329,11 @@ class Quests:
                 if not self.player_bs:
                     self.player_bs = render.find("**/{0}".format(node.get_name()))
                 player = self.base.game_instance['player_ref']
+
+                # Show 3d text
+                self.toggle_3d_text_vis(trigger_np=trigger_np, txt_label="txt_sit",
+                                        place=place, actor=self.player_bs)
+
                 if self.player_bs and int(place.get_distance(self.player_bs)) == 0:
                     if not self.base.game_instance['is_player_sitting']:
                         self.base.accept("e", self._toggle_sitting_state, [player,
@@ -354,7 +366,8 @@ class Quests:
                 player = self.base.game_instance['player_ref']
 
                 # Show 3d text
-                # self.toggle_3d_text_vis(trigger_np, place, self.player_bs)
+                self.toggle_3d_text_vis(trigger_np=trigger_np, txt_label="txt_rest",
+                                        place=place, actor=self.player_bs)
 
                 if self.player_bs and int(place.get_distance(self.player_bs)) == 0:
                     if not self.base.game_instance['is_player_laying']:
@@ -387,6 +400,11 @@ class Quests:
             if "Player" in node.get_name():
                 player_bs = render.find("**/{0}".format(node.get_name()))
                 player = self.base.game_instance['player_ref']
+
+                # Show 3d text
+                self.toggle_3d_text_vis(trigger_np=trigger_np, txt_label="txt_use",
+                                        place=place, actor=self.player_bs)
+
                 if player_bs and int(place.get_distance(player_bs)) == 0:
                     self.base.accept("e", self.play_action_state, [player,
                                                                    "spring_water",
@@ -404,21 +422,26 @@ class Quests:
             return task.done
 
         # TODO: Uncomment task when cook_food anim will be ready
-        """
         for node in trigger_np.node().get_overlapping_nodes():
             if "Player" in node.get_name():
                 player_bs = render.find("**/{0}".format(node.get_name()))
                 player = self.base.game_instance['player_ref']
+                
+                # Show 3d text
+                self.toggle_3d_text_vis(trigger_np=trigger_np, txt_label="txt_use", 
+                                        place=place, actor=self.player_bs)
+                
+                """
                 if player_bs and int(place.get_distance(player_bs)) == 0:
                     self.base.accept("e", self.play_action_state, [player,
                                                                    "cook_food",
                                                                    "loop"])
+                """
             elif "NPC" in node.get_name():
                 name = node.get_name()
                 actor = self.base.game_instance["actors_ref"][name]
                 actor_bs = self.base.game_instance["actors_np"][name]
                 if actor_bs and int(place.get_distance(actor_bs)) == 0:
                     self.play_action_state(actor, "cook_food", "loop")
-        """
 
         return task.cont
