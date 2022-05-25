@@ -155,11 +155,12 @@ class Quests:
                 txt_cap_np.set_two_sided(True)
                 txt_cap_np.set_name(txt_cap)
                 pos = obj.get_pos()
-                txt_cap_np.set_pos(pos)
-                # txt_cap_np.set_scale(0.5)
+                txt_cap_np.set_pos(pos[0], pos[1], -0.5)
+                txt_cap_np.set_scale(0.1)
+                base.txt_cap_np = txt_cap_np
                 if self.render_pipeline:
                     self.render_pipeline.set_effect(txt_cap_np,
-                                                    "{0}/Engine/Renderer/effects/default.yaml".format(self.game_dir),
+                                                    "{0}/Engine/Renderer/effects/dim_text.yaml".format(self.game_dir),
                                                     {"render_gbuffer": True,
                                                      "render_shadow": False,
                                                      "alpha_testing": True,
@@ -196,6 +197,8 @@ class Quests:
                         ph_world.attach_ghost(trigger_bg)
                         trigger_np.reparent_to(actor)
                         trigger_np.set_pos(0, 0, 1)
+
+                        self._set_dimensional_txt(txt_cap="txt_rest", obj=trigger_np)
 
                         taskMgr.add(self.item_trigger_task,
                                     "{0}_trigger_task".format(actor.get_name()),
@@ -351,7 +354,7 @@ class Quests:
                 player = self.base.game_instance['player_ref']
 
                 # Show 3d text
-                self.toggle_3d_text_vis(trigger_np, place, self.player_bs)
+                # self.toggle_3d_text_vis(trigger_np, place, self.player_bs)
 
                 if self.player_bs and int(place.get_distance(self.player_bs)) == 0:
                     if not self.base.game_instance['is_player_laying']:
