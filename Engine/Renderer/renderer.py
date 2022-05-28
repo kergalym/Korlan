@@ -254,10 +254,9 @@ class RenderAttr:
                     light_u.energy = 2.0
                     light_u.ies_profile = self.render_pipeline.load_ies_profile("x_arrow.ies")
                     light_u.casts_shadows = True
-                    light_u.shadow_map_resolution = 128
+                    light_u.shadow_map_resolution = 512
                     light_u.near_plane = 0.2
                     light_u.radius = 3.0
-                    # light.inner_radius = 10.0
                     self.base.game_instance['rp_lights']["flame"].append(light_u)
                     self.render_pipeline.add_light(light_u)
 
@@ -265,13 +264,12 @@ class RenderAttr:
                     light_a = RP_PointLight()
                     light_a.pos = Vec3(node_path.get_x(), node_path.get_y(), 1.7)
                     light_a.set_color_from_temperature(1000.0)
-                    light_a.energy = 5.0
+                    light_a.energy = 6.0
                     light_a.ies_profile = self.render_pipeline.load_ies_profile("x_arrow.ies")
                     light_a.casts_shadows = True
-                    light_a.shadow_map_resolution = 128
+                    light_a.shadow_map_resolution = 512
                     light_a.near_plane = 0.2
                     light_a.radius = 3.0
-                    # light.inner_radius = 10.0
                     self.base.game_instance['rp_lights']["flame"].append(light_a)
                     self.render_pipeline.add_light(light_a)
 

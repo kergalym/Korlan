@@ -98,16 +98,16 @@ class LevelOne:
         return task.cont
 
     def env_probe_task(self, task):
-        if (self.base.game_instance['physics_is_activated'] == 1 and
-                not render.find("**/lvl_one*").is_empty()):
-            if hasattr(self, 'render_pipeline'):
+        if (self.base.game_instance['physics_is_activated'] == 1
+                and self.base.game_instance['scene_np']):
+            if self.base.game_instance["renderpipeline_np"]:
 
                 # Set sRGB
                 self.base.set_textures_srgb(True)
 
                 # Set Environment Probe
                 self.envprobe = self.render_pipeline.add_environment_probe()
-                scene = render.find("**/lvl_one*")
+                scene = self.base.game_instance['scene_np']
                 self.envprobe.set_pos(scene.get_pos())
                 self.envprobe.set_scale(scene.get_scale())
                 self.envprobe.set_hpr(scene.get_hpr())
@@ -399,7 +399,7 @@ class LevelOne:
                                           axis=[0, 15.0, self.pos_z],
                                           rotation=[0, 0, 0],
                                           scale=[1.0, 1.0, 1.0],
-                                          culling=True))
+                                          culling=False))
 
         for actor, _type, _class, npc_cls, axis_actor in zip(LEVEL_NPC_ASSETS['name'],
                                                              LEVEL_NPC_ASSETS['type'],
@@ -436,11 +436,9 @@ class LevelOne:
                                  npcs_fsm_states=self.npcs_fsm_states,
                                  lvl_name="lvl_one")
 
-        """
         taskMgr.add(self.env_probe_task,
                     "env_probe_task",
                     appendTask=True)
-        """
 
         taskMgr.add(self.world_sfx_task,
                     "world_sfx_task",

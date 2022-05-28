@@ -1257,11 +1257,11 @@ class Main(ShowBase):
             Return      : False
         """
         if bool:
-            for tex in render.findAllTextures():
-                if tex.getNumComponents() == 4:
-                    tex.setFormat(Texture.F_srgb_alpha)
-                elif tex.getNumComponents() == 3:
-                    tex.setFormat(Texture.F_srgb)
+            for tex in render.find_all_textures():
+                if tex.get_num_components() == 4:
+                    tex.set_format(Texture.F_srgb_alpha)
+                if tex.get_num_components() == 3:
+                    tex.set_format(Texture.F_srgb)
 
     def video_status_task(self, media, type, file, task):
         """ Function    : video_status_task
