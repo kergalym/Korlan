@@ -975,6 +975,8 @@ class Actions:
         if (player and isinstance(anims, dict)
                 and isinstance(action, str)
                 and isinstance(key, str)
+                and not self.base.game_instance['is_player_sitting']
+                and not self.base.game_instance['is_player_laying']
                 and not base.player_states['is_using']
                 and not base.player_states['is_moving']
                 and not self.base.game_instance['is_aiming']):

@@ -28,7 +28,7 @@ class SceneOne:
         self.node_path = NodePath()
         self.render_attr = RenderAttr()
         self.cam_modes = IndoorCamera()
-        self.quests = Quests()
+        self.quests = None
         self.base = base
         self.render = render
         self.game_settings = base.game_settings
@@ -217,6 +217,7 @@ class SceneOne:
                         extraArgs=[scene, radius],
                         appendTask=True)
 
+            self.quests = Quests()
             # Add item triggers
             taskMgr.add(self.quests.set_item_trigger,
                         "set_item_trigger",
