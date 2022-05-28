@@ -9,9 +9,6 @@ class Quests:
     def __init__(self):
         self.base = base
         self.render = render
-        self.game_settings = base.game_settings
-        self.k_use_lo = self.game_settings['Keymap']['use'].lower()
-        self.seq = None
         self.player_bs = None
         self.rest_place_np = None
         self.actor_geom_pos_z = 0
