@@ -51,7 +51,7 @@ class LoadingUI:
     def set_loading_bar(self):
         # Enable game overlay
         if self.game_settings['Debug']['set_debug_mode'] == 'NO':
-            game_overlay = DirectFrame(frameColor=(0, 0, 0, 0.5),
+            game_overlay = DirectFrame(frameColor=(0, 0, 0, 0.1),
                                        frameSize=(-2, 2, -1, 1))
             self.base.game_instance["game_overlay_np"] = game_overlay
 
@@ -172,8 +172,6 @@ class LoadingUI:
                         self.title_loading_text.setText(txt)
 
                 elif num == asset_num:
-                    self.base.set_textures_srgb(True)
-
                     if (self.base.game_instance['player_actions_init_is_activated'] == 1
                             and self.base.game_instance['mouse_control_is_activated'] == 1
                             and self.base.game_instance['physics_is_activated'] == 1):
@@ -182,7 +180,7 @@ class LoadingUI:
                             self.loading_bar.hide()
                             txt = "Press Enter to continue..."
                             self.title_loading_text.setText(txt)
-                            self.title_loading_text['align'] = TextNode.ACenter
+                            self.title_loading_text['align'] = TextNode.A_center
                             self.title_loading_text['pos'] = (0.0, -0.8)
 
                             self.base.accept('enter', self.prepare_to_game)

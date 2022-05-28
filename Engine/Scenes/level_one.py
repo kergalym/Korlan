@@ -101,6 +101,11 @@ class LevelOne:
         if (self.base.game_instance['physics_is_activated'] == 1 and
                 not render.find("**/lvl_one*").is_empty()):
             if hasattr(self, 'render_pipeline'):
+
+                # Set sRGB
+                self.base.set_textures_srgb(True)
+
+                # Set Environment Probe
                 self.envprobe = self.render_pipeline.add_environment_probe()
                 scene = render.find("**/lvl_one*")
                 self.envprobe.set_pos(scene.get_pos())

@@ -81,6 +81,7 @@ class RenderAttr:
         self.elapsed_seconds = 0
         self.minutes = 0
         self.hour = 0
+        self.day = 0
 
         """ Texts & Fonts"""
         # self.menu_font = self.fonts['OpenSans-Regular']
@@ -88,10 +89,10 @@ class RenderAttr:
 
         self.time_text_ui = OnscreenText(text="",
                                          pos=(0.0, 0.77),
-                                         scale=0.03,
+                                         scale=0.04,
                                          fg=(255, 255, 255, 0.9),
                                          font=self.font.load_font(self.menu_font),
-                                         align=TextNode.ALeft,
+                                         align=TextNode.A_center,
                                          mayChange=True)
 
     def set_time_of_day_clock_task(self, time, duration, task):
@@ -128,11 +129,17 @@ class RenderAttr:
                         if self.elapsed_seconds > 59:
                             self.minutes = 00
 
+                # Day counting
+                if self.hour == 23 and self.elapsed_seconds > 59:
+                    self.day += 1
+
                 if self.minutes < 10:
-                    self.time_text_ui.setText("{0}:0{1}".format(self.hour, self.minutes))
+                    text = "Day {0}    {1}:0{2}".format(self.day, self.hour, self.minutes)
+                    self.time_text_ui.setText(text)
                     self.render_pipeline.daytime_mgr.time = "{0}:0{1}".format(self.hour, self.minutes)
                 elif self.minutes > 9:
-                    self.time_text_ui.setText("{0}:{1}".format(self.hour, self.minutes))
+                    text = "Day {0}    {1}:{2}".format(self.day, self.hour, self.minutes)
+                    self.time_text_ui.setText(text)
                     self.render_pipeline.daytime_mgr.time = "{0}:{1}".format(self.hour, self.minutes)
 
                 if not self.base.game_instance['ui_mode']:
