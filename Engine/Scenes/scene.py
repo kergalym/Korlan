@@ -5,6 +5,7 @@ from Engine.Renderer.renderer import RenderAttr
 from Settings.Input.indoor_camera import IndoorCamera
 from Engine.Quests.quests import Quests
 
+
 # TODO UNCOMMENT WHEN R&D BECOMES PRODUCTION-READY
 # from panda3d.navigation import NavMeshNode, NavMeshQuery
 # from panda3d.navmeshgen import NavMeshBuilder
@@ -17,7 +18,6 @@ class SceneOne:
         self.loader = None
         self.game_settings = None
         self.render_type = None
-        self.render_pipeline = None
         self.model = None
         self.axis = None
         self.rotation = None

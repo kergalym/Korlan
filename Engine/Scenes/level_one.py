@@ -103,7 +103,7 @@ class LevelOne:
             if self.base.game_instance["renderpipeline_np"]:
 
                 # Set sRGB
-                self.base.set_textures_srgb(True)
+                # self.base.set_textures_srgb(True)
 
                 # Set Environment Probe
                 self.envprobe = self.render_pipeline.add_environment_probe()
