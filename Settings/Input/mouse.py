@@ -167,6 +167,21 @@ class Mouse:
                     self.rotate_player_joint(pv_heading, pv_pitch)
                     self.pivot.set_p(pv_pitch)
 
+    def on_limit_camera_in_social_action(self):
+        if self.base.game_instance["is_player_laying"]:
+            player_bs = self.base.get_actor_bullet_shape_node(asset="Player",
+                                                              type="Player")
+            self.pivot.look_at(player_bs.get_pos())
+            self.pivot.set_h(player_bs, 180)
+            self.pivot.set_p(-35)
+
+        elif self.base.game_instance["is_player_sitting"]:
+            player_bs = self.base.get_actor_bullet_shape_node(asset="Player",
+                                                              type="Player")
+            self.pivot.look_at(player_bs.get_pos())
+            self.pivot.set_h(player_bs, -360)
+            self.pivot.set_p(-25)
+
     def on_mouse_look_around_player(self, x, y):
         """ Function    : on_mouse_look_around_player
 
@@ -187,11 +202,18 @@ class Mouse:
             # apply heading and pitch
             pv_heading = self.pivot.get_h() - (x - int(base.win.get_x_size() / 2)) * self.mouse_sens
             pv_pitch = self.pivot.get_p() - (y - int(base.win.get_y_size() / 2)) * self.mouse_sens
-            self.pivot.set_h(pv_heading)
 
-            # limit pitch by 60 angle
-            if not pv_pitch > 10.0 and not pv_pitch < -50.0:
-                self.pivot.set_p(pv_pitch)
+            # Limit camera heading while player is sitting or laying
+            if (self.base.game_instance["is_player_sitting"]
+                    or self.base.game_instance["is_player_laying"]):
+                self.on_limit_camera_in_social_action()
+            else:
+                # Heading player in the regular way
+                self.pivot.set_h(pv_heading)
+
+                # limit pitch by 60 angle
+                if not pv_pitch > 10.0 and not pv_pitch < -50.0:
+                    self.pivot.set_p(pv_pitch)
 
     def on_mouse_rotate_player(self, x, y):
         """ Function    : on_mouse_rotate_player
@@ -217,6 +239,7 @@ class Mouse:
                 # apply heading and pitch
                 heading = player_bs.get_h() - (x - int(base.win.get_x_size() / 2)) * self.mouse_sens
                 pv_pitch = self.pivot.get_p() - (y - int(base.win.get_y_size() / 2)) * self.mouse_sens
+
                 player_bs.set_h(heading)
 
                 # Show player only from back
