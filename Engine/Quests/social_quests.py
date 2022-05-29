@@ -5,7 +5,7 @@ from panda3d.bullet import BulletSphereShape, BulletGhostNode
 from panda3d.core import BitMask32, Vec3
 
 
-class Quests:
+class SocialQuests:
     def __init__(self):
         self.base = base
         self.render = render

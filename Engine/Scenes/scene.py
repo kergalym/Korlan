@@ -3,7 +3,7 @@ from panda3d.bullet import BulletSphereShape, BulletGhostNode
 from panda3d.core import *
 from Engine.Renderer.renderer import RenderAttr
 from Settings.Input.indoor_camera import IndoorCamera
-from Engine.Quests.quests import Quests
+from Engine.Quests.social_quests import SocialQuests
 
 
 # TODO UNCOMMENT WHEN R&D BECOMES PRODUCTION-READY
@@ -28,7 +28,7 @@ class SceneOne:
         self.node_path = NodePath()
         self.render_attr = RenderAttr()
         self.cam_modes = IndoorCamera()
-        self.quests = None
+        self.social_quests = None
         self.base = base
         self.render = render
         self.game_settings = base.game_settings
@@ -217,15 +217,15 @@ class SceneOne:
                         extraArgs=[scene, radius],
                         appendTask=True)
 
-            self.quests = Quests()
+            self.social_quests = SocialQuests()
             # Add item triggers
-            taskMgr.add(self.quests.set_item_trigger,
+            taskMgr.add(self.social_quests.set_item_trigger,
                         "set_item_trigger",
                         extraArgs=[scene],
                         appendTask=True)
 
             # Add quest triggers
-            taskMgr.add(self.quests.set_quest_trigger,
+            taskMgr.add(self.social_quests.set_quest_trigger,
                         "set_quest_trigger",
                         extraArgs=[scene],
                         appendTask=True)
