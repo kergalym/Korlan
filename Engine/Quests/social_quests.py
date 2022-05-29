@@ -241,59 +241,61 @@ class SocialQuests:
         if self.base.game_instance['menu_mode']:
             return task.done
 
-        # TODO: DEBUG ME!
-        for node in trigger_np.node().get_overlapping_nodes():
-            if "Player" in node.get_name():
-                if not self.player_bs:
-                    self.player_bs = render.find("**/{0}".format(node.get_name()))
-                player = self.base.game_instance['player_ref']
+        player = self.base.game_instance['player_ref']
+        if not player.get_python_tag("is_on_horse"):
+            # TODO: DEBUG ME!
+            for node in trigger_np.node().get_overlapping_nodes():
+                if "Player" in node.get_name():
+                    if not self.player_bs:
+                        self.player_bs = render.find("**/{0}".format(node.get_name()))
+                    player = self.base.game_instance['player_ref']
 
-                # Show 3d text
-                self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_use",
-                                                        place=actor, actor=self.player_bs)
+                    # Show 3d text
+                    self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_use",
+                                                            place=actor, actor=self.player_bs)
 
-                if not player.get_python_tag("is_item_using"):
-                    if (round(actor.get_distance(self.player_bs), 1) >= self.trig_range[0]
-                            and round(actor.get_distance(self.player_bs), 1) <= self.trig_range[1]):
-                        actor_bs = actor.find("**/{0}:BS".format(actor.get_name()))
-                        # Currently close item parameters
-                        self.base.game_instance['item_state'] = {
-                            'type': 'item',
-                            'name': '{0}'.format(actor.get_name()),
-                            'weight': '{0}'.format(1),
-                            'in-use': False,
-                        }
-                        player.set_python_tag("used_item_np", actor_bs)
-                        player.set_python_tag("is_item_ready", True)
-                    elif round(actor.get_distance(self.player_bs), 1) > self.trig_range[1]:
-                        player.set_python_tag("used_item_np", None)
-                        player.set_python_tag("is_item_ready", False)
-                else:
-                    item_prop = self.base.game_instance['item_state']
-                    player.set_python_tag("current_item_prop", item_prop)
-            elif "NPC" in node.get_name():
-                name = node.get_name()
-                actor_npc = self.base.game_instance["actors_ref"][name]
-                actor_npc_bs = self.base.game_instance["actors_np"][name]
-                if not actor_npc.get_python_tag("is_item_using"):
-                    if (round(actor.get_distance(actor_npc_bs), 1) >= self.trig_range[0]
-                            and round(actor.get_distance(actor_npc_bs), 1) <= self.trig_range[1]):
-                        actor_bs = actor.find("**/{0}:BS".format(actor.get_name()))
-                        # Currently close item parameters
-                        self.base.game_instance['item_state'] = {
-                            'type': 'item',
-                            'name': '{0}'.format(actor.get_name()),
-                            'weight': '{0}'.format(1),
-                            'in-use': False,
-                        }
-                        actor_npc.set_python_tag("used_item_np", actor_bs)
-                        actor_npc.set_python_tag("is_item_ready", True)
+                    if not player.get_python_tag("is_item_using"):
+                        if (round(actor.get_distance(self.player_bs), 1) >= self.trig_range[0]
+                                and round(actor.get_distance(self.player_bs), 1) <= self.trig_range[1]):
+                            actor_bs = actor.find("**/{0}:BS".format(actor.get_name()))
+                            # Currently close item parameters
+                            self.base.game_instance['item_state'] = {
+                                'type': 'item',
+                                'name': '{0}'.format(actor.get_name()),
+                                'weight': '{0}'.format(1),
+                                'in-use': False,
+                            }
+                            player.set_python_tag("used_item_np", actor_bs)
+                            player.set_python_tag("is_item_ready", True)
+                        elif round(actor.get_distance(self.player_bs), 1) > self.trig_range[1]:
+                            player.set_python_tag("used_item_np", None)
+                            player.set_python_tag("is_item_ready", False)
                     else:
-                        actor_npc.set_python_tag("used_item_np", None)
-                        actor_npc.set_python_tag("is_item_ready", False)
-                else:
-                    item_prop = self.base.game_instance['item_state']
-                    actor_npc.set_python_tag("current_item_prop", item_prop)
+                        item_prop = self.base.game_instance['item_state']
+                        player.set_python_tag("current_item_prop", item_prop)
+                elif "NPC" in node.get_name():
+                    name = node.get_name()
+                    actor_npc = self.base.game_instance["actors_ref"][name]
+                    actor_npc_bs = self.base.game_instance["actors_np"][name]
+                    if not actor_npc.get_python_tag("is_item_using"):
+                        if (round(actor.get_distance(actor_npc_bs), 1) >= self.trig_range[0]
+                                and round(actor.get_distance(actor_npc_bs), 1) <= self.trig_range[1]):
+                            actor_bs = actor.find("**/{0}:BS".format(actor.get_name()))
+                            # Currently close item parameters
+                            self.base.game_instance['item_state'] = {
+                                'type': 'item',
+                                'name': '{0}'.format(actor.get_name()),
+                                'weight': '{0}'.format(1),
+                                'in-use': False,
+                            }
+                            actor_npc.set_python_tag("used_item_np", actor_bs)
+                            actor_npc.set_python_tag("is_item_ready", True)
+                        else:
+                            actor_npc.set_python_tag("used_item_np", None)
+                            actor_npc.set_python_tag("is_item_ready", False)
+                    else:
+                        item_prop = self.base.game_instance['item_state']
+                        actor_npc.set_python_tag("current_item_prop", item_prop)
 
         return task.cont
 
@@ -351,39 +353,40 @@ class SocialQuests:
             self.base.game_instance["is_player_sitting"] = False
             return task.done
 
-        for node in trigger_np.node().get_overlapping_nodes():
-            if "Player" in node.get_name():
-                if not self.player_bs:
-                    self.player_bs = render.find("**/{0}".format(node.get_name()))
-                player = self.base.game_instance['player_ref']
+        player = self.base.game_instance['player_ref']
+        if not player.get_python_tag("is_on_horse"):
+            for node in trigger_np.node().get_overlapping_nodes():
+                if "Player" in node.get_name():
+                    if not self.player_bs:
+                        self.player_bs = render.find("**/{0}".format(node.get_name()))
 
-                # Show 3d text
-                self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_sit",
-                                                        place=place, actor=self.player_bs)
+                    # Show 3d text
+                    self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_sit",
+                                                            place=place, actor=self.player_bs)
 
-                if (round(place.get_distance(self.player_bs), 1) >= self.trig_range[0]
-                        and round(place.get_distance(self.player_bs), 1) <= self.trig_range[1]):
-                    if (self.base.game_instance["kbd_np"].keymap["use"]
-                            and not base.player_states['is_using']
-                            and not base.player_states['is_moving']
-                            and not self.base.game_instance['is_aiming']):
-                        self._toggle_sitting_state(player,
-                                                   place,
-                                                   "standing_to_sit_turkic",
-                                                   "sitting_turkic",
-                                                   "loop")
-            elif "NPC" in node.get_name():
-                name = node.get_name()
-                actor = self.base.game_instance["actors_ref"][name]
-                actor_bs = self.base.game_instance["actors_np"][name]
-                if (round(place.get_distance(actor_bs), 1) >= self.trig_range[0]
-                        and round(place.get_distance(actor_bs), 1) <= self.trig_range[1]):
-                    if not actor.get_python_tag('is_sitting'):
-                        self._toggle_laying_state(actor,
-                                                  place,
-                                                  "standing_to_sit_turkic",
-                                                  "sitting_turkic",
-                                                  "loop")
+                    if (round(place.get_distance(self.player_bs), 1) >= self.trig_range[0]
+                            and round(place.get_distance(self.player_bs), 1) <= self.trig_range[1]):
+                        if (self.base.game_instance["kbd_np"].keymap["use"]
+                                and not base.player_states['is_using']
+                                and not base.player_states['is_moving']
+                                and not self.base.game_instance['is_aiming']):
+                            self._toggle_sitting_state(player,
+                                                       place,
+                                                       "standing_to_sit_turkic",
+                                                       "sitting_turkic",
+                                                       "loop")
+                elif "NPC" in node.get_name():
+                    name = node.get_name()
+                    actor = self.base.game_instance["actors_ref"][name]
+                    actor_bs = self.base.game_instance["actors_np"][name]
+                    if (round(place.get_distance(actor_bs), 1) >= self.trig_range[0]
+                            and round(place.get_distance(actor_bs), 1) <= self.trig_range[1]):
+                        if not actor.get_python_tag('is_sitting'):
+                            self._toggle_laying_state(actor,
+                                                      place,
+                                                      "standing_to_sit_turkic",
+                                                      "sitting_turkic",
+                                                      "loop")
         return task.cont
 
     def quest_yurt_rest_task(self, trigger_np, place, task):
@@ -391,41 +394,42 @@ class SocialQuests:
             self.base.game_instance['is_player_laying'] = False
             return task.done
 
-        for node in trigger_np.node().get_overlapping_nodes():
-            if "Player" in node.get_name():
-                if not self.player_bs:
-                    self.player_bs = render.find("**/{0}".format(node.get_name()))
-                player = self.base.game_instance['player_ref']
+        player = self.base.game_instance['player_ref']
+        if not player.get_python_tag("is_on_horse"):
+            for node in trigger_np.node().get_overlapping_nodes():
+                if "Player" in node.get_name():
+                    if not self.player_bs:
+                        self.player_bs = render.find("**/{0}".format(node.get_name()))
 
-                # Show 3d text
-                self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_rest",
-                                                        place=place, actor=self.player_bs)
+                    # Show 3d text
+                    self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_rest",
+                                                            place=place, actor=self.player_bs)
 
-                if (round(place.get_distance(self.player_bs), 1) >= self.trig_range[0]
-                        and round(place.get_distance(self.player_bs), 1) <= self.trig_range[1]):
-                    # todo: change to suitable standing_to_laying anim
-                    if (self.base.game_instance["kbd_np"].keymap["use"]
-                            and not base.player_states['is_using']
-                            and not base.player_states['is_moving']
-                            and not self.base.game_instance['is_aiming']):
-                        self._toggle_laying_state(player,
-                                                  place,
-                                                  "standing_to_sit_turkic",
-                                                  "sleeping_idle",
-                                                  "loop")
-            elif "NPC" in node.get_name():
-                name = node.get_name()
-                actor = self.base.game_instance["actors_ref"][name]
-                actor_bs = self.base.game_instance["actors_np"][name]
-                if (round(place.get_distance(actor_bs), 1) >= self.trig_range[0]
-                        and round(place.get_distance(actor_bs), 1) <= self.trig_range[1]):
-                    if not actor.get_python_tag('generic_states')["is_laying"]:
+                    if (round(place.get_distance(self.player_bs), 1) >= self.trig_range[0]
+                            and round(place.get_distance(self.player_bs), 1) <= self.trig_range[1]):
                         # todo: change to suitable standing_to_laying anim
-                        self._toggle_laying_state(actor,
-                                                  place,
-                                                  "standing_to_sit_turkic",
-                                                  "sleeping_idle",
-                                                  "loop")
+                        if (self.base.game_instance["kbd_np"].keymap["use"]
+                                and not base.player_states['is_using']
+                                and not base.player_states['is_moving']
+                                and not self.base.game_instance['is_aiming']):
+                            self._toggle_laying_state(player,
+                                                      place,
+                                                      "standing_to_sit_turkic",
+                                                      "sleeping_idle",
+                                                      "loop")
+                elif "NPC" in node.get_name():
+                    name = node.get_name()
+                    actor = self.base.game_instance["actors_ref"][name]
+                    actor_bs = self.base.game_instance["actors_np"][name]
+                    if (round(place.get_distance(actor_bs), 1) >= self.trig_range[0]
+                            and round(place.get_distance(actor_bs), 1) <= self.trig_range[1]):
+                        if not actor.get_python_tag('generic_states')["is_laying"]:
+                            # todo: change to suitable standing_to_laying anim
+                            self._toggle_laying_state(actor,
+                                                      place,
+                                                      "standing_to_sit_turkic",
+                                                      "sleeping_idle",
+                                                      "loop")
 
         return task.cont
 
@@ -433,62 +437,64 @@ class SocialQuests:
         if self.base.game_instance['menu_mode']:
             return task.done
 
-        for node in trigger_np.node().get_overlapping_nodes():
-            if "Player" in node.get_name():
-                player_bs = render.find("**/{0}".format(node.get_name()))
-                player = self.base.game_instance['player_ref']
+        player = self.base.game_instance['player_ref']
+        if not player.get_python_tag("is_on_horse"):
+            for node in trigger_np.node().get_overlapping_nodes():
+                if "Player" in node.get_name():
+                    player_bs = render.find("**/{0}".format(node.get_name()))
 
-                # Show 3d text
-                self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_use",
-                                                        place=place, actor=self.player_bs)
+                    # Show 3d text
+                    self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_use",
+                                                            place=place, actor=self.player_bs)
 
-                if (round(place.get_distance(player_bs), 1) >= self.trig_range[0]
-                        and round(place.get_distance(player_bs), 1) <= self.trig_range[1]):
-                    if (self.base.game_instance["kbd_np"].keymap["use"]
-                            and not base.player_states['is_using']
-                            and not base.player_states['is_moving']
-                            and not self.base.game_instance['is_aiming']):
-                        self.play_action_state(player, "spring_water", "play")
-            elif "NPC" in node.get_name():
-                name = node.get_name()
-                actor = self.base.game_instance["actors_ref"][name]
-                actor_bs = self.base.game_instance["actors_np"][name]
-                if (round(place.get_distance(actor_bs), 1) >= self.trig_range[0]
-                        and round(place.get_distance(actor_bs), 1) <= self.trig_range[1]):
-                    self.play_action_state(actor, "spring_water", "play")
+                    if (round(place.get_distance(player_bs), 1) >= self.trig_range[0]
+                            and round(place.get_distance(player_bs), 1) <= self.trig_range[1]):
+                        if (self.base.game_instance["kbd_np"].keymap["use"]
+                                and not base.player_states['is_using']
+                                and not base.player_states['is_moving']
+                                and not self.base.game_instance['is_aiming']):
+                            self.play_action_state(player, "spring_water", "play")
+                elif "NPC" in node.get_name():
+                    name = node.get_name()
+                    actor = self.base.game_instance["actors_ref"][name]
+                    actor_bs = self.base.game_instance["actors_np"][name]
+                    if (round(place.get_distance(actor_bs), 1) >= self.trig_range[0]
+                            and round(place.get_distance(actor_bs), 1) <= self.trig_range[1]):
+                        self.play_action_state(actor, "spring_water", "play")
         return task.cont
 
     def quest_cook_food_hearth_task(self, trigger_np, place, task):
         if self.base.game_instance['menu_mode']:
             return task.done
 
-        # TODO: Uncomment task when cook_food anim will be ready
-        for node in trigger_np.node().get_overlapping_nodes():
-            if "Player" in node.get_name():
-                player_bs = render.find("**/{0}".format(node.get_name()))
-                player = self.base.game_instance['player_ref']
+        player = self.base.game_instance['player_ref']
+        if not player.get_python_tag("is_on_horse"):
+            # TODO: Uncomment task when cook_food anim will be ready
+            for node in trigger_np.node().get_overlapping_nodes():
+                if "Player" in node.get_name():
+                    player_bs = render.find("**/{0}".format(node.get_name()))
 
-                # Show 3d text
-                self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_use",
-                                                        place=place, actor=player_bs)
+                    # Show 3d text
+                    self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_use",
+                                                            place=place, actor=player_bs)
 
-                """
-                if (round(place.get_distance(player_bs), 1) >= self.trig_range[0]
-                        and round(place.get_distance(player_bs), 1) <= self.trig_range[1]):
-                    if (self.base.game_instance["kbd_np"].keymap["use"]
-                            and not base.player_states['is_using']
-                            and not base.player_states['is_moving']
-                            and not self.base.game_instance['is_aiming']):
-                    self.base.accept("e", self.play_action_state, [player,
-                                                                   "cook_food",
-                                                                   "loop"])
-                """
-            elif "NPC" in node.get_name():
-                name = node.get_name()
-                actor = self.base.game_instance["actors_ref"][name]
-                actor_bs = self.base.game_instance["actors_np"][name]
-                if (round(place.get_distance(actor_bs), 1) >= self.trig_range[0]
-                        and round(place.get_distance(actor_bs), 1) <= self.trig_range[1]):
-                    self.play_action_state(actor, "cook_food", "loop")
+                    """
+                    if (round(place.get_distance(player_bs), 1) >= self.trig_range[0]
+                            and round(place.get_distance(player_bs), 1) <= self.trig_range[1]):
+                        if (self.base.game_instance["kbd_np"].keymap["use"]
+                                and not base.player_states['is_using']
+                                and not base.player_states['is_moving']
+                                and not self.base.game_instance['is_aiming']):
+                        self.base.accept("e", self.play_action_state, [player,
+                                                                       "cook_food",
+                                                                       "loop"])
+                    """
+                elif "NPC" in node.get_name():
+                    name = node.get_name()
+                    actor = self.base.game_instance["actors_ref"][name]
+                    actor_bs = self.base.game_instance["actors_np"][name]
+                    if (round(place.get_distance(actor_bs), 1) >= self.trig_range[0]
+                            and round(place.get_distance(actor_bs), 1) <= self.trig_range[1]):
+                        self.play_action_state(actor, "cook_food", "loop")
 
         return task.cont

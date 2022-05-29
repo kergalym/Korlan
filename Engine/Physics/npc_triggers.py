@@ -78,6 +78,16 @@ class NpcTriggers:
                                   and player_bs.get_distance(trigger_np) <= 5):
                                 if animal_actor.get_python_tag("npc_hud_np"):
                                     animal_actor.get_python_tag("npc_hud_np").hide()
+                                animal_actor.set_python_tag("is_ready_to_be_used", False)
+                                if hasattr(base, "player_states"):
+                                    base.player_states["horse_is_ready_to_be_used"] = False
+
+                # Set these booleans to False if horse is using already
+                if player:
+                    if player.get_python_tag("is_on_horse"):
+                        animal_actor.set_python_tag("is_ready_to_be_used", False)
+                        if hasattr(base, "player_states"):
+                            base.player_states["horse_is_ready_to_be_used"] = False
 
                 # keep hide npc hud while inventory or menu is opening
                 if self.base.game_instance['ui_mode']:
