@@ -61,6 +61,21 @@ class SocialQuests:
             if "NPC" in actor.get_name():
                 actor.get_python_tag("generic_states")["is_busy"] = bool_
 
+    def set_do_once_key(self, key, value):
+        """ Function    : set_do_once_key
+
+            Description : Set the state of the do once keys
+
+            Input       : String, Boolean
+
+            Output      : None
+
+            Return      : None
+        """
+        if (key and isinstance(key, str)
+                and isinstance(value, bool)):
+            base.do_key_once[key] = value
+
     def _toggle_sitting_state(self, actor, place, anim, anim_next, task):
         any_action_seq = actor.actor_interval(anim, loop=0)
         any_action_next_seq = actor.actor_interval(anim_next, loop=1)
@@ -80,6 +95,7 @@ class SocialQuests:
             # Reverse play for standing_to_sit animation
             any_action_seq = actor.actor_interval(anim, loop=0, playRate=-1.0)
             Sequence(any_action_seq,
+                     Func(self.set_do_once_key, "use", False),
                      Func(self.set_action_state, actor, False)
                      ).start()
         elif (not self.base.game_instance["is_player_sitting"]
@@ -143,6 +159,7 @@ class SocialQuests:
             any_action_seq = actor.actor_interval(anim, loop=0, playRate=-1.0)
             Sequence(Func(actor_bs.set_z, 0),
                      any_action_seq,
+                     Func(self.set_do_once_key, "use", False),
                      Func(self.set_action_state, actor, False)).start()
         if (not self.base.game_instance["is_player_laying"]
                 and not self.base.player_states["is_busy"]):
