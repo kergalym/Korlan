@@ -45,64 +45,39 @@ class PlayerCamera:
             self.base.camera.set_z(0.0)
             return task.done
 
-        # self.base.camera.node().get_lens().set_fov(90)
         if not self.base.game_instance["ui_mode"]:
             dt = globalClock.getDt()
             trigger = player_bs.find("**/player_cam_trigger").node()
             if trigger:
                 for node in trigger.get_overlapping_nodes():
-                    # print(node.get_name())
                     if "indoor" in node.get_name():
                         node_np = render.find("**/{0}".format(node.get_name()))
                         if (round(trigger_np.get_distance(node_np)) >= 1
                                 and round(trigger_np.get_distance(node_np)) < 4):
                             if not self.base.game_instance["is_indoor"]:
-                                self.camera_smooth_zoom_in(dt=dt, speed=self.speed)
-
-                            # TODO: Refactoring
-                            """if (self.base.game_instance["is_player_sitting"]
-                                    or self.base.game_instance["is_player_laying"]):
-                                self.camera_smooth_move_down(dt=dt, speed=self.speed)
-                            else:
-                                self.camera_smooth_move_up(dt=dt, speed=self.speed)"""
-
+                                self.camera_smooth_zoom_in(dt=dt, speed=self.speed, y=-1)
                         elif (round(trigger_np.get_distance(node_np)) >= 4
                                 and round(trigger_np.get_distance(node_np)) < 7):
-                            if self.base.game_instance["is_indoor"]:
-                                self.camera_smooth_zoom_out(dt=dt, speed=self.speed)
+                            self.camera_smooth_zoom_out(dt=dt, speed=self.speed, y=-5)
 
         return task.cont
 
-    def camera_smooth_zoom_in(self, dt, speed):
+    def camera_smooth_zoom_in(self, dt, speed, y):
         if dt and isinstance(speed, int):
-            y = -1
             self.base.camera.set_x(0.3)
             if round(self.base.camera.get_y()) != y:
                 self.base.camera.set_y(self.base.camera, speed * dt)
             elif round(self.base.camera.get_y()) == y:
                 self.base.game_instance["is_indoor"] = True
 
-    def camera_smooth_zoom_out(self, dt, speed):
+    def camera_smooth_zoom_out(self, dt, speed, y):
         if dt and isinstance(speed, int):
-            y = -5
             # revert camera view
             self.base.camera.set_x(0.0)
-
             if round(self.base.camera.get_y()) != y:
                 self.base.camera.set_y(self.base.camera, -speed * dt)
             elif round(self.base.camera.get_y()) == y:
                 self.base.camera.set_y(self.base.game_instance["mouse_y_cam"])
                 self.base.game_instance["is_indoor"] = False
 
-            if not self.base.game_instance["is_player_sitting"]:
-                self.base.camera.set_z(0.0)
-
-    def camera_smooth_move_up(self, dt, speed):
-        if round(self.base.camera.get_z(), 1) != 0.0:
-            self.base.camera.set_z(self.base.camera, speed * dt)
-
-    def camera_smooth_move_down(self, dt, speed):
-        z = -0.5
-        if round(self.base.camera.get_z(), 1) != z:
-            self.base.camera.set_z(self.base.camera, -speed * dt)
 
