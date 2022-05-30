@@ -342,7 +342,7 @@ class Actions:
 
                     # is horse ready?
                     if base.player_states["horse_is_ready_to_be_used"]:
-                        base.accept("e", self.mount_action, [anims])
+                        self.mount_action(anims)
 
                     if not base.player_states['is_mounted']:
                         if base.player_state_unarmed:
@@ -1770,56 +1770,59 @@ class Actions:
         return task.cont
 
     def mount_action(self, anims):
-        horse_name = base.game_instance['player_using_horse']
-        parent = render.find("**/{0}".format(horse_name))
-        child = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
-        player = self.base.game_instance['player_ref']
-        if parent and child and anims and not self.base.game_instance['is_aiming']:
-            if (self.base.game_instance['player_ref'].get_python_tag("is_on_horse")
-                    and parent.get_python_tag("is_mounted")):
-                self.unmount_action(anims)
-            else:
-                # with inverted Z -0.5 stands for Up
-                # Our horse (un)mounting animations have been made with imperfect positions,
-                # so, I had to change child positions to get more satisfactory result
-                # with these animations in my game.
-                mounting_pos = Vec3(0.5, -0.15, -0.45)
-                saddle_pos = Vec3(0, -0.32, 0.16)
-                mount_action_seq = player.actor_interval(anims["horse_mounting"],
-                                                         playRate=self.base.actor_play_rate)
-                horse_riding_action_seq = player.actor_interval(anims["horse_riding_idle"],
-                                                                playRate=self.base.actor_play_rate)
-                horse_np = self.base.game_instance['actors_np']["{0}:BS".format(horse_name)]
+        if self.kbd.keymap["use"] and not base.do_key_once["use"]:
+            self.state.set_do_once_key("use", True)
+            horse_name = base.game_instance['player_using_horse']
+            parent = render.find("**/{0}".format(horse_name))
+            child = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
+            player = self.base.game_instance['player_ref']
+            if parent and child and anims and not self.base.game_instance['is_aiming']:
+                if (self.base.game_instance['player_ref'].get_python_tag("is_on_horse")
+                        and parent.get_python_tag("is_mounted")):
+                    self.unmount_action(anims)
+                else:
+                    # with inverted Z -0.5 stands for Up
+                    # Our horse (un)mounting animations have been made with imperfect positions,
+                    # so, I had to change child positions to get more satisfactory result
+                    # with these animations in my game.
+                    mounting_pos = Vec3(0.5, -0.15, -0.45)
+                    saddle_pos = Vec3(0, -0.32, 0.16)
+                    mount_action_seq = player.actor_interval(anims["horse_mounting"],
+                                                             playRate=self.base.actor_play_rate)
+                    horse_riding_action_seq = player.actor_interval(anims["horse_riding_idle"],
+                                                                    playRate=self.base.actor_play_rate)
+                    horse_np = self.base.game_instance['actors_np']["{0}:BS".format(horse_name)]
 
-                taskMgr.add(self.player_mount_helper_task,
-                            "player_mount_helper_task",
-                            extraArgs=[child, player, saddle_pos],
-                            appendTask=True)
+                    taskMgr.add(self.player_mount_helper_task,
+                                "player_mount_helper_task",
+                                extraArgs=[child, player, saddle_pos],
+                                appendTask=True)
 
-                self.outdoor_cam.sm_zoom_up = True
+                    self.outdoor_cam.sm_zoom_up = True
 
-                Sequence(Func(horse_np.set_collide_mask, BitMask32.bit(0)),
-                         Func(child.set_collide_mask, BitMask32.allOff()),
-                         Func(self.state.set_action_state, "is_using", True),
-                         Parallel(mount_action_seq,
-                                  Func(child.reparent_to, parent),
-                                  Func(child.set_x, mounting_pos[0]),
-                                  Func(child.set_y, mounting_pos[1]),
-                                  Func(player.set_z, mounting_pos[2]),
-                                  Func(child.set_h, 0)),
-                         Func(child.set_x, saddle_pos[0]),
-                         Func(child.set_y, saddle_pos[1]),
-                         # bullet shape has impact of gravity
-                         # so make player geom stay higher instead
-                         Func(player.set_z, saddle_pos[2]),
-                         Func(child.set_collide_mask, BitMask32.bit(0)),
-                         Func(self.base.game_instance['player_ref'].set_python_tag, "is_on_horse", True),
-                         Func(self.state.set_action_state, "is_using", False),
-                         Func(self.state.set_action_state, "horse_riding", True),
-                         Func(self.state.set_action_state, "is_mounted", True),
-                         Func(parent.set_python_tag, "is_mounted", True),
-                         horse_riding_action_seq
-                         ).start()
+                    Sequence(Func(horse_np.set_collide_mask, BitMask32.bit(0)),
+                             Func(child.set_collide_mask, BitMask32.allOff()),
+                             Func(self.state.set_action_state, "is_using", True),
+                             Parallel(mount_action_seq,
+                                      Func(child.reparent_to, parent),
+                                      Func(child.set_x, mounting_pos[0]),
+                                      Func(child.set_y, mounting_pos[1]),
+                                      Func(player.set_z, mounting_pos[2]),
+                                      Func(child.set_h, 0)),
+                             Func(child.set_x, saddle_pos[0]),
+                             Func(child.set_y, saddle_pos[1]),
+                             # bullet shape has impact of gravity
+                             # so make player geom stay higher instead
+                             Func(player.set_z, saddle_pos[2]),
+                             Func(child.set_collide_mask, BitMask32.bit(0)),
+                             Func(self.base.game_instance['player_ref'].set_python_tag, "is_on_horse", True),
+                             Func(self.state.set_action_state, "is_using", False),
+                             Func(self.state.set_action_state, "horse_riding", True),
+                             Func(self.state.set_action_state, "is_mounted", True),
+                             Func(parent.set_python_tag, "is_mounted", True),
+                             Func(self.state.set_do_once_key, "use", False),
+                             horse_riding_action_seq
+                             ).start()
 
     def unmount_action(self, anims):
         horse_name = base.game_instance['player_using_horse']
@@ -1860,5 +1863,6 @@ class Actions:
                      Func(parent.set_python_tag, "is_mounted", False),
                      Func(taskMgr.remove, "player_mount_helper_task"),
                      Func(horse_np.set_collide_mask, BitMask32.allOn()),
-                     Func(child.set_collide_mask, BitMask32.bit(0))
+                     Func(child.set_collide_mask, BitMask32.bit(0)),
+                     Func(self.state.set_do_once_key, "use", False)
                      ).start()
