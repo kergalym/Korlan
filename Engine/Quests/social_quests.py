@@ -199,13 +199,11 @@ class SocialQuests:
 
             if task == "loop":
                 Sequence(any_action_seq,
-                         Func(actor_bs.set_z, 1.9),
                          Func(self.set_action_state, actor, True),
                          any_action_next_seq,
                          ).start()
             elif task == "play":
-                Sequence(Func(actor_bs.set_z, 1.9),
-                         any_action_seq,
+                Sequence(any_action_seq,
                          Func(self.set_action_state, actor, True)).start()
 
     def play_action_state(self, actor, anim, task):

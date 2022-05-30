@@ -13,7 +13,7 @@ class IndoorCamera:
         self.player_cam_y = 0.0
         self.speed = 5
 
-    def set_camera_trigger(self, scene, task):
+    def set_camera_trigger(self, task):
         if self.base.game_instance["loading_is_done"] == 1:
             self.player_cam_y = self.base.camera.get_y()
 
@@ -23,6 +23,7 @@ class IndoorCamera:
                 self.base.game_instance["is_indoor"] = self.is_at_home
                 world_np = self.render.find("**/World")
                 ph_world = self.base.game_instance["physics_world_np"]
+                scene = self.base.game_instance["scene_np"]
                 # radius = 1.75 - 2 * 0.3
                 radius = 4
 

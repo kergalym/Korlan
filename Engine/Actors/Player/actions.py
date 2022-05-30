@@ -7,6 +7,7 @@ from direct.task.TaskManagerGlobal import taskMgr
 from Settings.Input.keyboard import Keyboard
 from Settings.Input.mouse import Mouse
 from Settings.Input.outdoor_camera import OutdoorCamera
+from Settings.Input.indoor_camera import IndoorCamera
 from Engine.Inventory.sheet import Sheet
 from Engine.Actors.archery import Archery
 
@@ -40,6 +41,7 @@ class Actions:
         self.kbd = Keyboard()
         self.mouse = Mouse()
         self.outdoor_cam = OutdoorCamera()
+        self.indoor_cam = IndoorCamera()
         self.fsm_player = PlayerFSM()
         self.sheet = Sheet()
         self.state = PlayerState()
@@ -221,7 +223,7 @@ class Actions:
 
                 self.base.game_instance['person_look_mode'] = self.game_settings['Main']['person_look_mode']
 
-                # Define mouse
+                # Define Mouse System
                 self.mouse.mouse_wheel_init()
                 self.floater = self.mouse.set_floater(self.player)
                 self.base.messenger.send("add_bullet_collider")
@@ -230,7 +232,11 @@ class Actions:
                             "mouse_control_task",
                             appendTask=True)
 
+                # Set Camera System
                 self.outdoor_cam.add_cam_zoomin_task()
+                taskMgr.add(self.indoor_cam.set_camera_trigger,
+                            "set_camera_trigger",
+                            appendTask=True)
 
                 # Define player sheet here
                 # Open and close sheet

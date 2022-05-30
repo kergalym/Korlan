@@ -2,7 +2,6 @@ from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.bullet import BulletSphereShape, BulletGhostNode
 from panda3d.core import *
 from Engine.Renderer.renderer import RenderAttr
-from Settings.Input.indoor_camera import IndoorCamera
 from Engine.Quests.social_quests import SocialQuests
 
 
@@ -27,7 +26,6 @@ class SceneOne:
         self.type = None
         self.node_path = NodePath()
         self.render_attr = RenderAttr()
-        self.cam_modes = IndoorCamera()
         self.social_quests = None
         self.base = base
         self.render = render
@@ -203,12 +201,6 @@ class SceneOne:
 
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
                 scene.hide()
-
-            # Add camera triggers
-            taskMgr.add(self.cam_modes.set_camera_trigger,
-                        "set_camera_trigger",
-                        extraArgs=[scene],
-                        appendTask=True)
 
             # Add water trigger
             radius = 7

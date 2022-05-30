@@ -38,10 +38,12 @@ class OutdoorCamera:
             elif self.sm_zoom_out:
                 self.camera_smooth_zoom_out(dt=dt, speed=self.speed)
 
-            if self.sm_zoom_up:
+            # TODO: Refactoring
+            """if self.sm_zoom_up:
                 self.camera_smooth_move_down(dt=dt, speed=self.speed)
             elif self.sm_zoom_down:
                 self.camera_smooth_move_up(dt=dt, speed=self.speed)
+            """
 
         return task.cont
 
