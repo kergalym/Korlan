@@ -199,7 +199,7 @@ class Mouse:
             self.floater.set_h(0)
             self.floater.set_p(0)
 
-            # apply heading and pitch
+            # Apply heading and pitch
             pv_heading = self.pivot.get_h() - (x - int(base.win.get_x_size() / 2)) * self.mouse_sens
             pv_pitch = self.pivot.get_p() - (y - int(base.win.get_y_size() / 2)) * self.mouse_sens
 

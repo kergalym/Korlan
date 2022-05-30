@@ -406,7 +406,8 @@ class NpcFSM(FSM):
                 if task == "play":
                     name = "{0}:BS".format(actor.get_name())
                     actor_bs = self.base.game_instance['actors_np'][name]
-                    actor_bs.node().set_collision_response(False)
+                    if actor_bs:
+                        actor_bs.node().set_collision_response(False)
                     any_action_seq = actor.actor_interval(action)
                     Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_alive", False),
                              Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", True),

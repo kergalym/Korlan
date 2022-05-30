@@ -74,7 +74,8 @@ class PlayerFSM(FSM):
             if isinstance(task, str):
                 if task == "play":
                     actor_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
-                    actor_bs.node().set_collision_response(False)
+                    if actor_bs:
+                        actor_bs.node().set_collision_response(False)
                     any_action_seq = actor.actor_interval(action)
                     Sequence(Func(self.fsm_state_wrapper, "is_alive", False),
                              Func(self.fsm_state_wrapper, "is_busy", True),

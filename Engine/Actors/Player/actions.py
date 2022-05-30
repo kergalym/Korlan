@@ -6,8 +6,7 @@ from direct.interval.IntervalGlobal import *
 from direct.task.TaskManagerGlobal import taskMgr
 from Settings.Input.keyboard import Keyboard
 from Settings.Input.mouse import Mouse
-from Settings.Input.outdoor_camera import OutdoorCamera
-from Settings.Input.indoor_camera import IndoorCamera
+from Settings.Input.player_camera import PlayerCamera
 from Engine.Inventory.sheet import Sheet
 from Engine.Actors.archery import Archery
 
@@ -40,8 +39,7 @@ class Actions:
         self.taskMgr = taskMgr
         self.kbd = Keyboard()
         self.mouse = Mouse()
-        self.outdoor_cam = OutdoorCamera()
-        self.indoor_cam = IndoorCamera()
+        self.player_cam = PlayerCamera()
         self.fsm_player = PlayerFSM()
         self.sheet = Sheet()
         self.state = PlayerState()
@@ -233,8 +231,7 @@ class Actions:
                             appendTask=True)
 
                 # Set Camera System
-                self.outdoor_cam.add_cam_zoomin_task()
-                taskMgr.add(self.indoor_cam.set_camera_trigger,
+                taskMgr.add(self.player_cam.set_camera_trigger,
                             "set_camera_trigger",
                             appendTask=True)
 
@@ -1804,8 +1801,6 @@ class Actions:
                                 extraArgs=[child, player, saddle_pos],
                                 appendTask=True)
 
-                    self.outdoor_cam.sm_zoom_up = True
-
                     Sequence(Func(horse_np.set_collide_mask, BitMask32.bit(0)),
                              Func(child.set_collide_mask, BitMask32.allOff()),
                              Func(self.state.set_action_state, "is_using", True),
@@ -1848,8 +1843,6 @@ class Actions:
             horse_near_pos = Vec3(parent_bs.get_x(), parent_bs.get_y(), child.get_z()) + Vec3(1, 0, 0)
             base.game_instance['player_using_horse'] = ''
             horse_np = self.base.game_instance['actors_np']["{0}:BS".format(horse_name)]
-
-            self.outdoor_cam.sm_zoom_down = True
 
             Sequence(Func(self.base.game_instance['player_ref'].set_python_tag, "is_on_horse", False),
                      Func(self.state.set_action_state, "is_using", True),
