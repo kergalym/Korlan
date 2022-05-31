@@ -150,14 +150,19 @@ class PluginManager(RPObject):
     def load_daytime_overrides(self, override_path):
         """ Loads an override file for the daytime settings, which contains
         values to override the settings with """
-        overrides = load_yaml_file(override_path)
+        overrides = None
+        try:
+            overrides = load_yaml_file(override_path)
+        except Exception:
+            pass
+
         if not overrides:
             self.warn("Failed to load daytime overrides")
             return
         for plugin_id, settings in iteritems(overrides["control_points"] or {}):
             for setting_id, control_points in iteritems(settings):
                 if setting_id not in self.day_settings[plugin_id]:
-                    self.warn("Unkown daytime override:", plugin_id, ":", setting_id)
+                    self.warn("Unknown daytime override:", plugin_id, ":", setting_id)
                     continue
                 self.day_settings[plugin_id][setting_id].set_control_points(control_points)
 

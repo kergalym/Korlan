@@ -9,11 +9,11 @@ class PlayerCamera:
         self.base = base
         self.render = render
         self.speed = 5
+        self.trig_radius = 1.75 - 2 * 0.3
 
     def set_ghost_trigger(self, actor, world):
         if actor and world:
-            radius = 1.75 - 2 * 0.3
-            sphere = BulletSphereShape(radius)
+            sphere = BulletSphereShape(self.trig_radius)
             trigger_bg = BulletGhostNode('player_cam_trigger')
             trigger_bg.add_shape(sphere)
             trigger_np = self.render.attach_new_node(trigger_bg)
@@ -50,6 +50,7 @@ class PlayerCamera:
             trigger = player_bs.find("**/player_cam_trigger").node()
             if trigger:
                 for node in trigger.get_overlapping_nodes():
+                    # Indoor triggering
                     if "indoor" in node.get_name():
                         node_np = render.find("**/{0}".format(node.get_name()))
                         if (round(trigger_np.get_distance(node_np)) >= 1
@@ -59,6 +60,20 @@ class PlayerCamera:
                         elif (round(trigger_np.get_distance(node_np)) >= 4
                                 and round(trigger_np.get_distance(node_np)) < 7):
                             self.camera_smooth_zoom_out(dt=dt, speed=self.speed, y=-5)
+                    """
+                    # Regular triggering
+                    elif "Player" or "Ground" not in node.get_name():
+                        if not self.base.game_instance["is_indoor"]:
+                            node_np = render.find("**/{0}".format(node.get_name()))
+                            pivot = player_bs.find("**/pivot")
+                            if round(trigger_np.get_distance(node_np)) <= 1:
+                                if int(player_bs.get_h()) == int(pivot.get_h()):
+                                    self.base.camera.set_y(-2)
+                                else:
+                                    self.base.camera.set_y(self.base.game_instance["mouse_y_cam"])
+                            elif round(trigger_np.get_distance(node_np)) > 1:
+                                self.base.camera.set_y(self.base.game_instance["mouse_y_cam"])
+                    """
 
         return task.cont
 

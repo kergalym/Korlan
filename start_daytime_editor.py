@@ -278,6 +278,7 @@ class DayTimeEditor(QMainWindow, Ui_MainWindow):
         if first_item:
             self.settings_tree.setCurrentItem(first_item)
 
+
 # Start application
 app = QApplication(sys.argv)
 qt_register_fonts()
