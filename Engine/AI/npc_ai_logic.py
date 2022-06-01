@@ -101,12 +101,12 @@ class NpcAILogic:
                     request = self.npcs_fsm_states[actor_name]
                     npc_class = actor.get_python_tag("npc_class")
 
-                    """if npc_class == "friend":
+                    if npc_class == "friend":
                         name = actor_name.lower()
                         taskMgr.add(self.npc_behavior.npc_friend_logic,
                                     "{0}_npc_friend_logic_task".format(name),
                                     extraArgs=[actor, self.player, request, False],
-                                    appendTask=True)"""
+                                    appendTask=True)
 
                     if npc_class == "neutral":
                         name = actor_name.lower()
@@ -115,12 +115,12 @@ class NpcAILogic:
                                     extraArgs=[actor, self.player, request, True],
                                     appendTask=True)
 
-                    """if npc_class == "enemy":
+                    if npc_class == "enemy":
                         name = actor_name.lower()
                         taskMgr.add(self.npc_behavior.npc_enemy_logic,
                                     "{0}_npc_enemy_logic_task".format(name),
                                     extraArgs=[actor, self.player, request, False],
-                                    appendTask=True)"""
+                                    appendTask=True)
                 return task.done
 
         return task.cont
