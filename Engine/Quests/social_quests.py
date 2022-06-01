@@ -99,7 +99,7 @@ class SocialQuests:
                      Func(self.set_action_state, actor, False)
                      ).start()
         elif (not self.base.game_instance["is_player_sitting"]
-                and not self.base.player_states["is_busy"]):
+              and not self.base.player_states["is_busy"]):
             if "Player" in actor.get_name():
                 self.base.game_instance["is_player_sitting"] = True
                 self.base.camera.set_z(-0.5)
@@ -252,68 +252,6 @@ class SocialQuests:
 
         return task.cont
 
-    def item_trigger_task(self, trigger_np, actor, task):
-        if self.base.game_instance['menu_mode']:
-            return task.done
-
-        player = self.base.game_instance['player_ref']
-        if not player.get_python_tag("is_on_horse"):
-            # TODO: DEBUG ME!
-            for node in trigger_np.node().get_overlapping_nodes():
-                if "Player" in node.get_name():
-                    if not self.player_bs:
-                        self.player_bs = render.find("**/{0}".format(node.get_name()))
-                    player = self.base.game_instance['player_ref']
-
-                    # Show 3d text
-                    self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_use",
-                                                            place=actor, actor=self.player_bs)
-
-                    if not player.get_python_tag("is_item_using"):
-                        if (round(actor.get_distance(self.player_bs), 1) >= self.trig_range[0]
-                                and round(actor.get_distance(self.player_bs), 1) <= self.trig_range[1]):
-                            actor_bs = actor.find("**/{0}:BS".format(actor.get_name()))
-                            # Currently close item parameters
-                            self.base.game_instance['item_state'] = {
-                                'type': 'item',
-                                'name': '{0}'.format(actor.get_name()),
-                                'weight': '{0}'.format(1),
-                                'in-use': False,
-                            }
-                            player.set_python_tag("used_item_np", actor_bs)
-                            player.set_python_tag("is_item_ready", True)
-                        elif round(actor.get_distance(self.player_bs), 1) > self.trig_range[1]:
-                            player.set_python_tag("used_item_np", None)
-                            player.set_python_tag("is_item_ready", False)
-                    else:
-                        item_prop = self.base.game_instance['item_state']
-                        player.set_python_tag("current_item_prop", item_prop)
-                elif "NPC" in node.get_name():
-                    name = node.get_name()
-                    actor_npc = self.base.game_instance["actors_ref"][name]
-                    actor_npc_bs = self.base.game_instance["actors_np"][name]
-                    if not actor_npc.get_python_tag("is_item_using"):
-                        if (round(actor.get_distance(actor_npc_bs), 1) >= self.trig_range[0]
-                                and round(actor.get_distance(actor_npc_bs), 1) <= self.trig_range[1]):
-                            actor_bs = actor.find("**/{0}:BS".format(actor.get_name()))
-                            # Currently close item parameters
-                            self.base.game_instance['item_state'] = {
-                                'type': 'item',
-                                'name': '{0}'.format(actor.get_name()),
-                                'weight': '{0}'.format(1),
-                                'in-use': False,
-                            }
-                            actor_npc.set_python_tag("used_item_np", actor_bs)
-                            actor_npc.set_python_tag("is_item_ready", True)
-                        else:
-                            actor_npc.set_python_tag("used_item_np", None)
-                            actor_npc.set_python_tag("is_item_ready", False)
-                    else:
-                        item_prop = self.base.game_instance['item_state']
-                        actor_npc.set_python_tag("current_item_prop", item_prop)
-
-        return task.cont
-
     def set_quest_trigger(self, scene, task):
         if self.base.game_instance["loading_is_done"] == 1:
             if (self.render.find("**/World")
@@ -390,10 +328,16 @@ class SocialQuests:
                                                        "standing_to_sit_turkic",
                                                        "sitting_turkic",
                                                        "loop")
-                elif "NPC" in node.get_name():
+                # TODO: Uncomment first to debug
+                """
+                elif ("NPC" in node.get_name()
+                      and "trigger" not in node.get_name()
+                      and "Hips" not in node.get_name()):
                     name = node.get_name()
+                    name = name.split(":")[0]
+                    name_bs = node.get_name()
                     actor = self.base.game_instance["actors_ref"][name]
-                    actor_bs = self.base.game_instance["actors_np"][name]
+                    actor_bs = self.base.game_instance["actors_np"][name_bs]
                     if (round(place.get_distance(actor_bs), 1) >= self.trig_range[0]
                             and round(place.get_distance(actor_bs), 1) <= self.trig_range[1]):
                         if not actor.get_python_tag('is_sitting'):
@@ -402,6 +346,8 @@ class SocialQuests:
                                                       "standing_to_sit_turkic",
                                                       "sitting_turkic",
                                                       "loop")
+                """
+
         return task.cont
 
     def quest_yurt_rest_task(self, trigger_np, place, task):
@@ -432,10 +378,16 @@ class SocialQuests:
                                                       "standing_to_sit_turkic",
                                                       "sleeping_idle",
                                                       "loop")
-                elif "NPC" in node.get_name():
+                # TODO: Uncomment first to debug
+                """
+                elif ("NPC" in node.get_name()
+                      and "trigger" not in node.get_name()
+                      and "Hips" not in node.get_name()):
                     name = node.get_name()
+                    name = name.split(":")[0]
+                    name_bs = node.get_name()
                     actor = self.base.game_instance["actors_ref"][name]
-                    actor_bs = self.base.game_instance["actors_np"][name]
+                    actor_bs = self.base.game_instance["actors_np"][name_bs]
                     if (round(place.get_distance(actor_bs), 1) >= self.trig_range[0]
                             and round(place.get_distance(actor_bs), 1) <= self.trig_range[1]):
                         if not actor.get_python_tag('generic_states')["is_laying"]:
@@ -445,6 +397,7 @@ class SocialQuests:
                                                       "standing_to_sit_turkic",
                                                       "sleeping_idle",
                                                       "loop")
+                """
 
         return task.cont
 
@@ -469,13 +422,21 @@ class SocialQuests:
                                 and not base.player_states['is_moving']
                                 and not self.base.game_instance['is_aiming']):
                             self.play_action_state(player, "spring_water", "play")
-                elif "NPC" in node.get_name():
+                # TODO: Uncomment first to debug
+                """
+                elif ("NPC" in node.get_name()
+                      and "trigger" not in node.get_name()
+                      and "Hips" not in node.get_name()):
                     name = node.get_name()
+                    name = name.split(":")[0]
+                    name_bs = node.get_name()
                     actor = self.base.game_instance["actors_ref"][name]
-                    actor_bs = self.base.game_instance["actors_np"][name]
+                    actor_bs = self.base.game_instance["actors_np"][name_bs]
                     if (round(place.get_distance(actor_bs), 1) >= self.trig_range[0]
                             and round(place.get_distance(actor_bs), 1) <= self.trig_range[1]):
                         self.play_action_state(actor, "spring_water", "play")
+                """
+
         return task.cont
 
     def quest_cook_food_hearth_task(self, trigger_np, place, task):
@@ -504,12 +465,89 @@ class SocialQuests:
                                                                        "cook_food",
                                                                        "loop"])
                     """
-                elif "NPC" in node.get_name():
+                # TODO: Uncomment first to debug
+                """
+                elif ("NPC" in node.get_name()
+                      and "trigger" not in node.get_name()
+                      and "Hips" not in node.get_name()):
                     name = node.get_name()
+                    name = name.split(":")[0]
+                    name_bs = node.get_name()
                     actor = self.base.game_instance["actors_ref"][name]
-                    actor_bs = self.base.game_instance["actors_np"][name]
+                    actor_bs = self.base.game_instance["actors_np"][name_bs]
                     if (round(place.get_distance(actor_bs), 1) >= self.trig_range[0]
                             and round(place.get_distance(actor_bs), 1) <= self.trig_range[1]):
                         self.play_action_state(actor, "cook_food", "loop")
+                """
 
         return task.cont
+
+    def item_trigger_task(self, trigger_np, actor, task):
+        if self.base.game_instance['menu_mode']:
+            return task.done
+
+        player = self.base.game_instance['player_ref']
+        if not player.get_python_tag("is_on_horse"):
+            # TODO: DEBUG ME!
+            for node in trigger_np.node().get_overlapping_nodes():
+                if "Player" in node.get_name():
+                    if not self.player_bs:
+                        self.player_bs = render.find("**/{0}".format(node.get_name()))
+                    player = self.base.game_instance['player_ref']
+
+                    # Show 3d text
+                    self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_use",
+                                                            place=actor, actor=self.player_bs)
+
+                    if not player.get_python_tag("is_item_using"):
+                        if (round(actor.get_distance(self.player_bs), 1) >= self.trig_range[0]
+                                and round(actor.get_distance(self.player_bs), 1) <= self.trig_range[1]):
+                            actor_bs = actor.find("**/{0}:BS".format(actor.get_name()))
+                            # Currently close item parameters
+                            self.base.game_instance['item_state'] = {
+                                'type': 'item',
+                                'name': '{0}'.format(actor.get_name()),
+                                'weight': '{0}'.format(1),
+                                'in-use': False,
+                            }
+                            player.set_python_tag("used_item_np", actor_bs)
+                            player.set_python_tag("is_item_ready", True)
+                        elif round(actor.get_distance(self.player_bs), 1) > self.trig_range[1]:
+                            player.set_python_tag("used_item_np", None)
+                            player.set_python_tag("is_item_ready", False)
+                    else:
+                        item_prop = self.base.game_instance['item_state']
+                        player.set_python_tag("current_item_prop", item_prop)
+                # TODO: Uncomment first to debug
+                """
+                elif ("NPC" in node.get_name()
+                      and "trigger" not in node.get_name()
+                      and "Hips" not in node.get_name()):
+                    name = node.get_name()
+                    name = name.split(":")[0]
+                    name_bs = node.get_name()
+                    actor_npc = self.base.game_instance["actors_ref"][name]
+                    actor_npc_bs = self.base.game_instance["actors_np"][name_bs]
+                    if not actor_npc.get_python_tag("is_item_using"):
+                        if (round(actor.get_distance(actor_npc_bs), 1) >= self.trig_range[0]
+                                and round(actor.get_distance(actor_npc_bs), 1) <= self.trig_range[1]):
+                            actor_bs = actor.find("**/{0}:BS".format(actor.get_name()))
+                            # Currently close item parameters
+                            self.base.game_instance['item_state'] = {
+                                'type': 'item',
+                                'name': '{0}'.format(actor.get_name()),
+                                'weight': '{0}'.format(1),
+                                'in-use': False,
+                            }
+                            actor_npc.set_python_tag("used_item_np", actor_bs)
+                            actor_npc.set_python_tag("is_item_ready", True)
+                        else:
+                            actor_npc.set_python_tag("used_item_np", None)
+                            actor_npc.set_python_tag("is_item_ready", False)
+                    else:
+                        item_prop = self.base.game_instance['item_state']
+                        actor_npc.set_python_tag("current_item_prop", item_prop)
+                """
+
+        return task.cont
+

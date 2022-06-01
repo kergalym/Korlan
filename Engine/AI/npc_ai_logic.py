@@ -52,8 +52,6 @@ class NpcAILogic:
                 self.npc_state = self.base.game_instance["npc_state_cls"]
                 self.npc_state.set_npc_equipment(actor, "Korlan:Spine1")
 
-            # todo: yurt place actions
-
             taskMgr.add(self.npc_physics.actor_hitbox_trace_task,
                         "{0}_hitboxes_task".format(name.lower()),
                         extraArgs=[actor, actor_bs, request], appendTask=True)

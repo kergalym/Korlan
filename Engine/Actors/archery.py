@@ -209,7 +209,8 @@ class Archery:
 
         if (self.raytest_result and self.raytest_result.get_node()
                 and self.actor_name not in self.raytest_result.get_node().get_name()
-                and "Arrow" not in self.raytest_result.get_node().get_name()):
+                and "Arrow" not in self.raytest_result.get_node().get_name()
+                and "player_cam_trigger" not in self.raytest_result.get_node().get_name()):
             self.hit_target = self.raytest_result.get_node()
             self.target_pos = self.raytest_result.get_hit_pos()
             hit_target_name = self.hit_target.get_name()
@@ -300,8 +301,10 @@ class Archery:
                 self.base.game_instance["is_arrow_ready"] = True
 
                 self.arrow_brb_in_use.set_x(self.arrow_brb_in_use, -power * dt)
-                self.base.camera.set_y(self.base.camera, power * dt)
-                self.base.camera.set_z(self.arrow_brb_in_use.get_z())
+
+                if "Player" in self.actor_name:
+                    self.base.camera.set_y(self.base.camera, power * dt)
+                    self.base.camera.set_z(self.arrow_brb_in_use.get_z())
 
         return task.cont
 

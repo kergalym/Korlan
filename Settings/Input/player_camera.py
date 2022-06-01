@@ -46,34 +46,35 @@ class PlayerCamera:
             return task.done
 
         if not self.base.game_instance["ui_mode"]:
-            dt = globalClock.getDt()
-            trigger = player_bs.find("**/player_cam_trigger").node()
-            if trigger:
-                for node in trigger.get_overlapping_nodes():
-                    # Indoor triggering
-                    if "indoor" in node.get_name():
-                        node_np = render.find("**/{0}".format(node.get_name()))
-                        if (round(trigger_np.get_distance(node_np)) >= 1
-                                and round(trigger_np.get_distance(node_np)) < 4):
-                            if not self.base.game_instance["is_indoor"]:
-                                self.camera_smooth_zoom_in(dt=dt, speed=self.speed, y=-1)
-                        elif (round(trigger_np.get_distance(node_np)) >= 4
-                                and round(trigger_np.get_distance(node_np)) < 7):
-                            self.camera_smooth_zoom_out(dt=dt, speed=self.speed, y=-5)
-                    """
-                    # Regular triggering
-                    elif "Player" or "Ground" not in node.get_name():
-                        if not self.base.game_instance["is_indoor"]:
+            if not self.base.game_instance['is_aiming']:
+                dt = globalClock.getDt()
+                trigger = player_bs.find("**/player_cam_trigger").node()
+                if trigger:
+                    for node in trigger.get_overlapping_nodes():
+                        # Indoor triggering
+                        if "indoor" in node.get_name():
                             node_np = render.find("**/{0}".format(node.get_name()))
-                            pivot = player_bs.find("**/pivot")
-                            if round(trigger_np.get_distance(node_np)) <= 1:
-                                if int(player_bs.get_h()) == int(pivot.get_h()):
-                                    self.base.camera.set_y(-2)
-                                else:
+                            if (round(trigger_np.get_distance(node_np)) >= 1
+                                    and round(trigger_np.get_distance(node_np)) < 4):
+                                if not self.base.game_instance["is_indoor"]:
+                                    self.camera_smooth_zoom_in(dt=dt, speed=self.speed, y=-1)
+                            elif (round(trigger_np.get_distance(node_np)) >= 4
+                                    and round(trigger_np.get_distance(node_np)) < 7):
+                                self.camera_smooth_zoom_out(dt=dt, speed=self.speed, y=-5)
+                        """
+                        # Regular triggering
+                        elif "Player" or "Ground" not in node.get_name():
+                            if not self.base.game_instance["is_indoor"]:
+                                node_np = render.find("**/{0}".format(node.get_name()))
+                                pivot = player_bs.find("**/pivot")
+                                if round(trigger_np.get_distance(node_np)) <= 1:
+                                    if int(player_bs.get_h()) == int(pivot.get_h()):
+                                        self.base.camera.set_y(-2)
+                                    else:
+                                        self.base.camera.set_y(self.base.game_instance["mouse_y_cam"])
+                                elif round(trigger_np.get_distance(node_np)) > 1:
                                     self.base.camera.set_y(self.base.game_instance["mouse_y_cam"])
-                            elif round(trigger_np.get_distance(node_np)) > 1:
-                                self.base.camera.set_y(self.base.game_instance["mouse_y_cam"])
-                    """
+                        """
 
         return task.cont
 
