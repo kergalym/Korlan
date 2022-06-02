@@ -299,8 +299,8 @@ class NpcFSM(FSM):
                                                               playRate=self.base.actor_play_rate)
 
                         Sequence(crouch_to_stand_seq,
-                                 Func(self.archery.prepare_arrow_for_shoot, "bow"),
                                  Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", True),
+                                 Func(self.archery.prepare_arrow_for_shoot, "bow"),
                                  any_action_seq,
                                  Func(self.archery_charge_wrapper),
                                  Func(self.archery_bow_shoot_wrapper),
@@ -311,8 +311,8 @@ class NpcFSM(FSM):
                           and base.player_states['is_crouching'] is False):
                         any_action_seq = actor.actor_interval(action,
                                                               playRate=self.base.actor_play_rate)
-                        Sequence(Func(self.archery.prepare_arrow_for_shoot, "bow"),
-                                 Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", True),
+                        Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", True),
+                                 Func(self.archery.prepare_arrow_for_shoot, "bow"),
                                  any_action_seq,
                                  Func(self.archery_charge_wrapper),
                                  Func(self.archery_bow_shoot_wrapper),

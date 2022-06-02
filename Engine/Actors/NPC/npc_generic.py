@@ -54,17 +54,14 @@ class NpcGeneric:
             self.actor.set_p(self.actor, self.rot_p)
             self.actor.set_r(self.actor, self.rot_r)
 
-            # Hardware skinning
-            self.render_attr.set_hardware_skinning(self.actor, True)
-
-            # Get actor joints
-            base.actor_joints = self.actor.get_joints()
-
             # Set two sided, since some model may be broken
             self.actor.set_two_sided(culling)
 
             # Panda3D 1.10 doesn't enable alpha blending for textures by default
             self.actor.set_transparency(True)
+
+            # Hardware skinning
+            self.render_attr.set_hardware_skinning(self.actor, True)
 
             # toggle texture compression for textures to compress them
             # before load into VRAM

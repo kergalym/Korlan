@@ -136,9 +136,9 @@ class Korlan:
                 self.korlan.set_p(self.korlan, self.rot_p)
                 self.korlan.set_r(self.korlan, self.rot_r)
 
-                # Get actor joints
+                # Save actor parts
                 self.save_player_parts(part_names)
-                base.korlan_joints = self.korlan.get_joints()
+                # base.korlan_joints = self.korlan.get_joints()
 
                 # Set two sided, since some model may be broken
                 self.korlan.set_two_sided(culling)
@@ -241,9 +241,8 @@ class Korlan:
                 self.korlan.set_p(self.korlan, self.rot_p)
                 self.korlan.set_r(self.korlan, self.rot_r)
 
-                # Get actor joints
+                # Save actor parts
                 self.save_player_parts(part_names)
-                base.korlan_joints = self.korlan.get_joints()
 
                 # Set two sided, since some model may be broken
                 self.korlan.set_two_sided(culling)
