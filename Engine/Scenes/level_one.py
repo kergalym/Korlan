@@ -61,15 +61,6 @@ class LevelOne:
         self.pos_z = 0
         self.actor_classes = []
         self.actor_fsm_classes = []
-
-        for npc_cls in py_npc_actor_classes:
-            npc_cls_self = npc_cls()
-            self.actor_classes.append(npc_cls_self)
-
-        for npc_fsm_cls in py_npc_fsm_classes:
-            npc_fsm_cls_self = npc_fsm_cls()
-            self.actor_fsm_classes.append(npc_fsm_cls_self)
-
         self.pause_game_ui = PauseMenuUI()
         self.player_state = PlayerState()
         self.physics_attr = PhysicsAttr()
@@ -357,6 +348,15 @@ class LevelOne:
                         'shape': ['auto', 'capsule'],
                         'class': ['env', 'hero']
                         }
+
+        # Construct and pass NPC_Generic and NPC_FSM classes
+        for npc_cls in py_npc_actor_classes:
+            npc_cls_self = npc_cls()
+            self.actor_classes.append(npc_cls_self)
+
+        for actor, npc_fsm_cls in zip(LEVEL_NPC_ASSETS['name'], py_npc_fsm_classes):
+            npc_fsm_cls_self = npc_fsm_cls(actor)
+            self.actor_fsm_classes.append(npc_fsm_cls_self)
 
         for actor, npc_fsm_cls in zip(LEVEL_NPC_ASSETS['name'], self.actor_fsm_classes):
             if "NPC" in actor and npc_fsm_cls:

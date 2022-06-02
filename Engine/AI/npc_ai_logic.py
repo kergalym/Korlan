@@ -43,6 +43,7 @@ class NpcAILogic:
         for name in self.ai_chars_bs:
             actor = self.base.game_instance['actors_ref'][name]
             actor.get_python_tag("generic_states")['is_idle'] = True
+            actor.set_python_tag("arrow_count", 20)
             actor.set_blend(frameBlend=True)
             name_bs = "{0}:BS".format(name)
             actor_bs = self.base.game_instance['actors_np'][name_bs]
@@ -113,12 +114,12 @@ class NpcAILogic:
                                     extraArgs=[actor, self.player, request, True],
                                     appendTask=True)
 
-                    if npc_class == "enemy":
+                    """if npc_class == "enemy":
                         name = actor_name.lower()
                         taskMgr.add(self.npc_behavior.npc_enemy_logic,
                                     "{0}_npc_enemy_logic_task".format(name),
                                     extraArgs=[actor, self.player, request, False],
-                                    appendTask=True)
+                                    appendTask=True)"""
                 return task.done
 
         return task.cont

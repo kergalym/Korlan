@@ -45,14 +45,18 @@ class Archery:
             self.arrows = []
             assets = self.base.assets_collector()
             joint = None
+            arrow_count = 0
             if "Player" in self.actor_name:
                 player_ref = self.base.game_instance['player_ref']
                 joint = player_ref.expose_joint(None, "modelRoot", joint_name)
+                arrow_count = self.base.game_instance['arrow_count']
             elif "NPC" in self.actor_name:
-                actor_ref = self.base.game_instance['actors_ref'].get(self.actor_name)
+                actor_ref = self.base.game_instance['actors_ref'][self.actor_name]
                 if actor_ref:
                     joint = actor_ref.expose_joint(None, "modelRoot", joint_name)
-            for i in range(self.base.game_instance['arrow_count']):
+                    arrow_count = actor_ref.get_python_tag("arrow_count")
+
+            for i in range(arrow_count):
                 arrow = await self.base.loader.load_model(assets[arrow_name], blocking=False)
                 arrow.set_name(arrow_name)
                 arrow.reparent_to(joint)
@@ -189,9 +193,19 @@ class Archery:
                     pos_to = self.render.get_relative_point(base.camera, pos_to)
                     raytest_result = self.base.game_instance['physics_world_np'].ray_test_closest(pos_from, pos_to)
                     self.raytest_result = raytest_result
+
         elif "NPC" in self.actor_name:
             # TODO: Add arrow trajectory logic
-            pass
+            pos_from = Point3(0, 0, 0)
+            pos_to = Point3(0, 1000, 0)
+
+            name_bs = "{0}:BS".format(self.actor_name)
+            actor_bs = self.base.game_instance['actors_np'][name_bs]
+
+            pos_from = self.render.get_relative_point(actor_bs, pos_from)
+            pos_to = self.render.get_relative_point(actor_bs, pos_to)
+            raytest_result = self.base.game_instance['physics_world_np'].ray_test_closest(pos_from, pos_to)
+            self.raytest_result = raytest_result
 
         return task.cont
 
@@ -335,9 +349,9 @@ class Archery:
         if self.aim:
             taskMgr.add(self.aim.aim_state_task, "aim_state_task")
 
-        self.base.game_instance['hud_np'].set_arrow_charge_ui()
-
-        self.base.game_instance['hud_np'].set_cooldown_bar_ui()
+        if "Player" in self.actor_name:
+            self.base.game_instance['hud_np'].set_arrow_charge_ui()
+            self.base.game_instance['hud_np'].set_cooldown_bar_ui()
 
     def stop_archery_helper_tasks(self):
         taskMgr.remove("calculate_arrow_trajectory_task")
@@ -347,7 +361,7 @@ class Archery:
         if self.aim:
             taskMgr.remove("aim_state_task")
 
-        self.base.game_instance['hud_np'].clear_arrow_charge_ui()
-
-        taskMgr.remove("archery_cooldown_task")
-        self.base.game_instance['hud_np'].clear_cooldown_bar_ui()
+        if "Player" in self.actor_name:
+            self.base.game_instance['hud_np'].clear_arrow_charge_ui()
+            taskMgr.remove("archery_cooldown_task")
+            self.base.game_instance['hud_np'].clear_cooldown_bar_ui()

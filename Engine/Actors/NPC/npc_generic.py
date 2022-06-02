@@ -97,6 +97,7 @@ class NpcGeneric:
             self.npc_state.set_npc_hud(actor=self.actor)
 
             # Set NPC type
+            self.actor.set_python_tag("npc_name", name)
             self.actor.set_python_tag("npc_type", type)
 
             # Set NPC class
@@ -108,6 +109,9 @@ class NpcGeneric:
                 "bow",
             ]
             self.actor.set_python_tag("allowed_weapons", a_weapons)
+
+            # Set bow arrows count
+            self.actor.set_python_tag("arrow_count", 0)
 
             # Set Used Item Record
             self.actor.set_python_tag("used_item_np", None)

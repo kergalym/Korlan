@@ -38,41 +38,72 @@ class NpcBehavior:
                         if base.player_states['is_alive']:
 
                             # Test NPC Logic Actions
-                            # request.request("Attack", actor, "right_turn", "play")
                             # self.npc_ai_logic.npc_in_forwardroll_logic(actor, actor_npc_bs, dt, request)
+
+                            # Mount if player mounts
                             if base.player_states['is_mounted']:
                                 self.npc_ai_logic.npc_in_mounting_logic(actor, actor_npc_bs, request)
                             elif not base.player_states['is_mounted']:
                                 self.npc_ai_logic.npc_in_unmounting_logic(actor, actor_npc_bs, request)
 
+                            # Equip/Unequip weapon if player does same
                             if base.player_states['has_sword']:
                                 self.npc_ai_logic.npc_get_weapon(actor, request, "sword", "Korlan:LeftHand")
                             elif not base.player_states['has_sword']:
                                 self.npc_ai_logic.npc_remove_weapon(actor, request, "sword", "Korlan:Spine")
-
                             if base.player_states['has_bow']:
                                 self.npc_ai_logic.npc_get_weapon(actor, request, "bow", "Korlan:LeftHand")
                             elif not base.player_states['has_bow']:
                                 self.npc_ai_logic.npc_remove_weapon(actor, request, "bow", "Korlan:Spine")
 
                             # If NPC is far from Player, do pursue Player
-                            if player_dist > 1:
-                                if not base.player_states['is_mounted']:
-                                    self.npc_ai_logic.npc_in_walking_logic(actor, actor_npc_bs, player, request)
-                            elif player_dist <= 1:
-                                self.npc_ai_logic.npc_in_staying_logic(actor, request)
-                                # If enemy is close start attacking
-                                if enemy_dist <= 1:
-                                    # Facing to enemy
-                                    self.npc_ai_logic.face_actor_to(actor_npc_bs, enemy_npc_bs)
-                                    # Counterattack an enemy or do block
-                                    if hitbox_dist:
-                                        if hitbox_dist >= 0.5 and hitbox_dist <= 1.8:
-                                            self.npc_ai_logic.npc_in_blocking_logic(actor, request)
-                                        else:
-                                            self.npc_ai_logic.npc_in_attacking_logic(actor, enemy_npc_bs,
-                                                                                     dt, request)
-                        else:
+                            if not base.player_states['is_mounted']:
+                                if (not actor.get_python_tag("human_states")["has_sword"]
+                                        or not actor.get_python_tag("human_states")["has_bow"]):
+                                    if player_dist > 1:
+                                        self.npc_ai_logic.npc_in_walking_logic(actor, actor_npc_bs, player, request)
+                                    elif player_dist <= 1:
+                                        self.npc_ai_logic.npc_in_staying_logic(actor, request)
+                                        # If enemy is close start attacking
+                                        if enemy_dist <= 1:
+                                            # Facing to enemy
+                                            self.npc_ai_logic.face_actor_to(actor_npc_bs, enemy_npc_bs)
+                                            # Counterattack an enemy or do block
+                                            if hitbox_dist:
+                                                if hitbox_dist >= 0.5 and hitbox_dist <= 1.8:
+                                                    self.npc_ai_logic.npc_in_blocking_logic(actor, request)
+                                                else:
+                                                    self.npc_ai_logic.npc_in_attacking_logic(actor, enemy_npc_bs,
+                                                                                             dt, request)
+                                if actor.get_python_tag("human_states")["has_sword"]:
+                                    if player_dist > 1:
+                                        self.npc_ai_logic.npc_in_walking_logic(actor, actor_npc_bs, player, request)
+                                    elif player_dist <= 1:
+                                        self.npc_ai_logic.npc_in_staying_logic(actor, request)
+                                        # If enemy is close start attacking
+                                        if enemy_dist <= 1:
+                                            # Facing to enemy
+                                            self.npc_ai_logic.face_actor_to(actor_npc_bs, enemy_npc_bs)
+                                            # Counterattack an enemy or do block
+                                            if hitbox_dist:
+                                                if hitbox_dist >= 0.5 and hitbox_dist <= 1.8:
+                                                    self.npc_ai_logic.npc_in_blocking_logic(actor, request)
+                                                else:
+                                                    self.npc_ai_logic.npc_in_attacking_logic(actor, enemy_npc_bs,
+                                                                                             dt, request)
+                                elif actor.get_python_tag("human_states")["has_bow"]:
+                                    # todo: test npc archery on player first
+                                    if player_dist > 1:
+                                        self.npc_ai_logic.npc_in_walking_logic(actor, actor_npc_bs, player, request)
+                                    elif player_dist <= 5:
+                                        self.npc_ai_logic.npc_in_staying_logic(actor, request)
+                                        # Facing to enemy
+                                        self.npc_ai_logic.face_actor_to(actor_npc_bs, player)
+                                        # If enemy is close start attacking
+                                        self.npc_ai_logic.npc_in_attacking_logic(actor, player,
+                                                                                 dt, request)
+
+                        elif not base.player_states['is_alive']:
                             if player_dist <= 1:
                                 self.npc_ai_logic.npc_in_staying_logic(actor, request)
 
@@ -85,6 +116,19 @@ class NpcBehavior:
                                         self.npc_ai_logic.npc_in_staying_logic(actor, request)
                                         self.npc_ai_logic.npc_in_attacking_logic(actor, enemy_npc_bs,
                                                                                  dt, request)
+
+                                    elif actor.get_python_tag("human_states")["has_bow"]:
+                                        if enemy_dist > 1:
+                                            self.npc_ai_logic.npc_in_walking_logic(actor, actor_npc_bs,
+                                                                                   enemy_npc_bs,
+                                                                                   request)
+                                        elif enemy_dist <= 5:
+                                            self.npc_ai_logic.npc_in_staying_logic(actor, request)
+                                            # Facing to enemy
+                                            self.npc_ai_logic.face_actor_to(actor_npc_bs, enemy_npc_bs)
+                                            # If enemy is close start attacking
+                                            self.npc_ai_logic.npc_in_attacking_logic(actor, enemy_npc_bs,
+                                                                                     dt, request)
                                 else:
                                     if enemy_dist <= 1:
                                         self.npc_ai_logic.npc_in_staying_logic(actor, request)
