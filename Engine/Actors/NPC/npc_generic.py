@@ -54,15 +54,6 @@ class NpcGeneric:
             self.actor.set_p(self.actor, self.rot_p)
             self.actor.set_r(self.actor, self.rot_r)
 
-            # Set two sided, since some model may be broken
-            self.actor.set_two_sided(culling)
-
-            # Panda3D 1.10 doesn't enable alpha blending for textures by default
-            self.actor.set_transparency(True)
-
-            # Hardware skinning
-            self.render_attr.set_hardware_skinning(self.actor, True)
-
             # toggle texture compression for textures to compress them
             # before load into VRAM
             self.base.toggle_texture_compression(self.actor)
@@ -75,6 +66,15 @@ class NpcGeneric:
                     lod_qv = self.base.game_instance["lod_quality"][lod_qk]
                     self.base.game_instance['lod_np'].node().add_switch(lod_qv[0],
                                                                         lod_qv[1])
+
+            # Set two sided, since some model may be broken
+            self.actor.set_two_sided(culling)
+
+            # Panda3D 1.10 doesn't enable alpha blending for textures by default
+            self.actor.set_transparency(True)
+
+            # Hardware skinning
+            self.render_attr.set_hardware_skinning(self.actor, True)
 
             # Make actor global
             self.base.game_instance['actors_ref'][name] = self.actor
