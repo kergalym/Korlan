@@ -66,9 +66,7 @@ HowTo: https://yogyog.org/tag/makehuman/
 
 ==================================================================================================
 
-Renewed YABEE egg exporter for Panda3D: https://github.com/kergalym/YABEE
-
-Python-Xlib: https://github.com/python-xlib/python-xlib
+PRPEE egg exporter for Panda3D: https://github.com/kergalym/PRPEE
 
 ==================================================================================================
 
