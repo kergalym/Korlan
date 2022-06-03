@@ -37,7 +37,7 @@ class NpcFSM(FSM):
                     self.archery.target_test_ui.show()
                 power = self.archery.arrow_ref.get_python_tag("power")
                 if power < self.archery.arrow_charge_units:
-                    power += 10
+                    power = self.archery.arrow_charge_units
                     self.archery.arrow_ref.set_python_tag("power", power)
 
     def archery_bow_shoot_wrapper(self):

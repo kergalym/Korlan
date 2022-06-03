@@ -14,7 +14,6 @@ class Archery:
         self.arrows = []
         self.dropped_arrows = []
         self.arrow_ref = None
-        self.arrow_brb_in_use = None
         self.arrow_is_prepared = False
         self.arrow_charge_units = 100
         self.arrow_brb_in_use = None
@@ -100,44 +99,46 @@ class Archery:
             return False
 
         elif not self.arrow_is_prepared:
-            bow = render.find("**/{0}".format(bow_name))
-            if bow:
-                if len(self.arrows) < 1:
-                    return False
+            actor = render.find("**/{0}".format(self.actor_name))
+            if actor:
+                bow = actor.find("**/{0}".format(bow_name))
+                if bow:
+                    if len(self.arrows) < 1:
+                        return False
 
-                if self.base.game_instance['physics_world_np']:
-                    # Remove arrow from inv and prepare it for use
-                    arrow = self.arrows.pop(0)
-                    arrow.reparent_to(bow)
-                    arrow.set_pos(0.04, 0.0, -0.01)
-                    arrow.set_hpr(6.0, 2.86, 0)
-                    arrow.set_scale(1)
+                    if self.base.game_instance['physics_world_np']:
+                        # Remove arrow from inv and prepare it for use
+                        arrow = self.arrows.pop(0)
+                        arrow.reparent_to(bow)
+                        arrow.set_pos(0.04, 0.0, -0.01)
+                        arrow.set_hpr(6.0, 2.86, 0)
+                        arrow.set_scale(1)
 
-                    # Create arrow collider
-                    shape = BulletBoxShape(Vec3(0.05, 0.05, 0.05))
-                    body = BulletRigidBodyNode('Arrow_BRB')
-                    arrow_rb_np = NodePath(body)
-                    arrow_rb_np.wrt_reparent_to(bow)
-                    arrow_rb_np.set_pos(-0.16, -0.01, -0.02)
-                    arrow_rb_np.set_hpr(arrow.get_hpr())
-                    arrow_rb_np.set_scale(arrow.get_scale())
-                    arrow.wrt_reparent_to(arrow_rb_np)
-                    arrow_rb_np.node().add_shape(shape)
-                    arrow_rb_np.node().set_mass(2.0)
+                        # Create arrow collider
+                        shape = BulletBoxShape(Vec3(0.05, 0.05, 0.05))
+                        body = BulletRigidBodyNode('Arrow_BRB')
+                        arrow_rb_np = NodePath(body)
+                        arrow_rb_np.wrt_reparent_to(bow)
+                        arrow_rb_np.set_pos(-0.16, -0.01, -0.02)
+                        arrow_rb_np.set_hpr(arrow.get_hpr())
+                        arrow_rb_np.set_scale(arrow.get_scale())
+                        arrow.wrt_reparent_to(arrow_rb_np)
+                        arrow_rb_np.node().add_shape(shape)
+                        arrow_rb_np.node().set_mass(2.0)
 
-                    # Player and its owning arrow won't collide with each other
-                    arrow_rb_np.set_collide_mask(BitMask32.bit(0))
+                        # Player and its owning arrow won't collide with each other
+                        arrow_rb_np.set_collide_mask(BitMask32.bit(0))
 
-                    # Enable CCD
-                    arrow_rb_np.node().set_ccd_motion_threshold(1e-7)
-                    arrow_rb_np.node().set_ccd_swept_sphere_radius(0.50)
-                    arrow_rb_np.node().set_kinematic(True)
+                        # Enable CCD
+                        arrow_rb_np.node().set_ccd_motion_threshold(1e-7)
+                        arrow_rb_np.node().set_ccd_swept_sphere_radius(0.50)
+                        arrow_rb_np.node().set_kinematic(True)
 
-                    self.base.game_instance['physics_world_np'].attach_rigid_body(arrow_rb_np.node())
+                        self.base.game_instance['physics_world_np'].attach_rigid_body(arrow_rb_np.node())
 
-                    self.arrow_brb_in_use = arrow_rb_np
-                    self.arrow_ref = arrow
-                    self.arrow_is_prepared = True
+                        self.arrow_brb_in_use = arrow_rb_np
+                        self.arrow_ref = arrow
+                        self.arrow_is_prepared = True
 
     def bow_shoot(self):
         if (self.arrow_brb_in_use
@@ -279,7 +280,10 @@ class Archery:
                     if distance >= 0.8 and distance <= 1.1:
                         self.arrow_brb_in_use.set_collide_mask(BitMask32.allOff())
                         self.arrow_ref.wrt_reparent_to(self.target_np)
-                        self.base.game_instance["is_arrow_ready"] = False
+
+                        if "Player" in self.actor_name:
+                            self.base.game_instance["is_arrow_ready"] = False
+
                         # self.arrow_brb_in_use.node().set_kinematic(True)
                         self.arrow_ref.set_python_tag("ready", 0)
                         self.reset_arrow_charge()
@@ -308,11 +312,15 @@ class Archery:
     def arrow_fly_task(self, task):
         dt = globalClock.getDt()
         if self.arrow_brb_in_use:
-            # power = self.arrow_ref.get_python_tag("power")
             power = 10
+
+            if "NPC" in self.actor_name:
+                power = self.arrow_ref.get_python_tag("power")
+
             if self.arrow_ref.get_python_tag("ready") == 1:
 
-                self.base.game_instance["is_arrow_ready"] = True
+                if "Player" in self.actor_name:
+                    self.base.game_instance["is_arrow_ready"] = True
 
                 self.arrow_brb_in_use.set_x(self.arrow_brb_in_use, -power * dt)
 
