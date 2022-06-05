@@ -185,18 +185,17 @@ class Archery:
                 mouse_watch = base.mouseWatcherNode
                 if mouse_watch.has_mouse():
                     pos_mouse = base.mouseWatcherNode.get_mouse()
-                    pos_from = Point3(0, 0, 0)
+                    pos_from = Point3(0, 1, 0)
                     pos_to = Point3(0, 1000, 0)
                     base.camLens.extrude(pos_mouse, pos_from, pos_to)
 
                     pos_from = self.render.get_relative_point(base.camera, pos_from)
                     pos_to = self.render.get_relative_point(base.camera, pos_to)
-                    raytest_result = self.base.game_instance['physics_world_np'].ray_test_closest(pos_from, pos_to)
-                    self.raytest_result = raytest_result
+                    physics_world_np = self.base.game_instance['physics_world_np']
+                    self.raytest_result = physics_world_np.ray_test_closest(pos_from, pos_to)
 
         elif "NPC" in self.actor_name:
-            # TODO: Add arrow trajectory logic
-            pos_from = Point3(0, 0, 0)
+            pos_from = Point3(0, 1, 0)
             pos_to = Point3(0, 1000, 0)
 
             name_bs = "{0}:BS".format(self.actor_name)
@@ -204,8 +203,8 @@ class Archery:
 
             pos_from = self.render.get_relative_point(actor_bs, pos_from)
             pos_to = self.render.get_relative_point(actor_bs, pos_to)
-            raytest_result = self.base.game_instance['physics_world_np'].ray_test_closest(pos_from, pos_to)
-            self.raytest_result = raytest_result
+            physics_world_np = self.base.game_instance['physics_world_np']
+            self.raytest_result = physics_world_np.ray_test_closest(pos_from, pos_to)
 
         return task.cont
 
@@ -232,6 +231,7 @@ class Archery:
 
             self.target_test_ui.show()
             self.target_test_ui.setText(self.hit_target.get_name())
+            physics_world_np = self.base.game_instance['physics_world_np']
 
             # Show NPC HUD
             if self.hit_target and "NPC" in self.hit_target.get_name():
@@ -241,9 +241,7 @@ class Archery:
                         actor = self.base.game_instance['actors_ref'][hit_target_name]
                         actor.get_python_tag("npc_hud_np").show()
 
-            if self.base.game_instance['physics_world_np'] and self.arrow_brb_in_use:
-                # contact_result = self.base.game_instance['physics_world_np'].contact_test(self.hit_target)
-
+            if physics_world_np and self.arrow_brb_in_use:
                 self.pierce_arrow()
 
                 # Hide NPC HUD
@@ -251,19 +249,6 @@ class Archery:
                         and self.base.game_instance['actors_ref'].get(hit_target_name)):
                     actor = self.base.game_instance['actors_ref'][hit_target_name]
                     actor.get_python_tag("npc_hud_np").hide()
-
-                """for contact in contact_result.get_contacts():
-                    mpoint = contact.get_manifold_point()
-                    if round(mpoint.get_distance()) == 0.0:
-                        # Attach Arrow
-                        self.pierce_arrow()
-
-                        # Hide NPC HUD
-                        if (self.base.game_instance['actors_ref']
-                                and self.base.game_instance['actors_ref'].get(hit_target_name)):
-                            actor = self.base.game_instance['actors_ref'][hit_target_name]
-                            actor.get_python_tag("npc_hud_np").hide()
-                """
 
         return task.cont
 
