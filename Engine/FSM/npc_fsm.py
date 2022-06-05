@@ -3,7 +3,7 @@ from direct.interval.FunctionInterval import Func, Wait
 from direct.interval.MetaInterval import Sequence, Parallel
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import BitMask32, Vec3
-from Engine.Actors.archery import Archery
+from Engine.Actors.NPC.archery import Archery
 
 
 class NpcFSM(FSM):

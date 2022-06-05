@@ -8,7 +8,7 @@ from Settings.Input.keyboard import Keyboard
 from Settings.Input.mouse import Mouse
 from Settings.Input.player_camera import PlayerCamera
 from Engine.Inventory.sheet import Sheet
-from Engine.Actors.archery import Archery
+from Engine.Actors.Player.player_archery import PlayerArchery
 
 
 class Actions:
@@ -43,7 +43,7 @@ class Actions:
         self.fsm_player = PlayerFSM()
         self.sheet = Sheet()
         self.state = PlayerState()
-        self.archery = Archery("Player")
+        self.archery = PlayerArchery()
         self.base.is_cutscene_active = False
 
     """ Play animation after action """

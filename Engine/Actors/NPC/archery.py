@@ -19,14 +19,8 @@ class Archery:
         self.arrow_brb_in_use = None
         self.raytest_result = None
         self.hit_target = None
-        self.is_ready_for_cooldown = False
         self.target_pos = None
         self.target_np = None
-        self.aim = None
-
-        if self.actor_name == "Player":
-            from Settings.Input.aim import Aim
-            self.aim = Aim()
 
         self.target_test_ui = OnscreenText(text="",
                                            pos=(1.5, 0.8),
@@ -44,15 +38,10 @@ class Archery:
             assets = self.base.assets_collector()
             joint = None
             arrow_count = 0
-            if "Player" in self.actor_name:
-                player_ref = self.base.game_instance['player_ref']
-                joint = player_ref.expose_joint(None, "modelRoot", joint_name)
-                arrow_count = self.base.game_instance['arrow_count']
-            elif "NPC" in self.actor_name:
-                actor_ref = self.base.game_instance['actors_ref'][self.actor_name]
-                if actor_ref:
-                    joint = actor_ref.expose_joint(None, "modelRoot", joint_name)
-                    arrow_count = actor_ref.get_python_tag("arrow_count")
+            actor_ref = self.base.game_instance['actors_ref'][self.actor_name]
+            if actor_ref:
+                joint = actor_ref.expose_joint(None, "modelRoot", joint_name)
+                arrow_count = actor_ref.get_python_tag("arrow_count")
 
             for i in range(arrow_count):
                 arrow = await self.base.loader.load_model(assets[arrow_name], blocking=False)
@@ -71,13 +60,8 @@ class Archery:
     def return_arrow_back(self, joint_name):
         if self.arrow_ref and joint_name:
             if self.arrow_ref.get_python_tag("ready") == 0:
-                joint = None
-                if "Player" in self.actor_name:
-                    player_ref = self.base.game_instance['player_ref']
-                    joint = player_ref.expose_joint(None, "modelRoot", joint_name)
-                elif "NPC" in self.actor_name:
-                    actor_ref = self.base.game_instance['actors_ref'][self.actor_name]
-                    joint = actor_ref.expose_joint(None, "modelRoot", joint_name)
+                actor_ref = self.base.game_instance['actors_ref'][self.actor_name]
+                joint = actor_ref.expose_joint(None, "modelRoot", joint_name)
                 if joint:
                     self.arrow_ref.reparent_to(joint)
                     self.arrow_ref.set_pos(-10, 7, -12)
@@ -162,10 +146,6 @@ class Archery:
 
             self.arrow_is_prepared = False
 
-            if "Player" in self.actor_name:
-                self.base.game_instance['hud_np'].cooldown_bar_ui['value'] = 100
-                taskMgr.do_method_later(0.1, self.archery_cooldown_task, "archery_cooldown_task")
-
             # Destroy dropped arrows after 200 seconds which are 3 minutes
             taskMgr.do_method_later(700, self.destroy_arrow, 'destroy_arrow')
 
@@ -180,31 +160,16 @@ class Archery:
 
             Return      : Task status
         """
-        if "Player" in self.actor_name:
-            if self.base.game_instance['physics_world_np']:
-                mouse_watch = base.mouseWatcherNode
-                if mouse_watch.has_mouse():
-                    pos_mouse = base.mouseWatcherNode.get_mouse()
-                    pos_from = Point3(0, 1, 0)
-                    pos_to = Point3(0, 1000, 0)
-                    base.camLens.extrude(pos_mouse, pos_from, pos_to)
+        pos_from = Point3(0, 1, 0)
+        pos_to = Point3(0, 1000, 0)
 
-                    pos_from = self.render.get_relative_point(base.camera, pos_from)
-                    pos_to = self.render.get_relative_point(base.camera, pos_to)
-                    physics_world_np = self.base.game_instance['physics_world_np']
-                    self.raytest_result = physics_world_np.ray_test_closest(pos_from, pos_to)
+        name_bs = "{0}:BS".format(self.actor_name)
+        actor_bs = self.base.game_instance['actors_np'][name_bs]
 
-        elif "NPC" in self.actor_name:
-            pos_from = Point3(0, 1, 0)
-            pos_to = Point3(0, 1000, 0)
-
-            name_bs = "{0}:BS".format(self.actor_name)
-            actor_bs = self.base.game_instance['actors_np'][name_bs]
-
-            pos_from = self.render.get_relative_point(actor_bs, pos_from)
-            pos_to = self.render.get_relative_point(actor_bs, pos_to)
-            physics_world_np = self.base.game_instance['physics_world_np']
-            self.raytest_result = physics_world_np.ray_test_closest(pos_from, pos_to)
+        pos_from = self.render.get_relative_point(actor_bs, pos_from)
+        pos_to = self.render.get_relative_point(actor_bs, pos_to)
+        physics_world_np = self.base.game_instance['physics_world_np']
+        self.raytest_result = physics_world_np.ray_test_closest(pos_from, pos_to)
 
         return task.cont
 
@@ -222,8 +187,7 @@ class Archery:
 
         if (self.raytest_result and self.raytest_result.get_node()
                 and self.actor_name not in self.raytest_result.get_node().get_name()
-                and "Arrow" not in self.raytest_result.get_node().get_name()
-                and "player_cam_trigger" not in self.raytest_result.get_node().get_name()):
+                and "Arrow" not in self.raytest_result.get_node().get_name()):
             self.hit_target = self.raytest_result.get_node()
             self.target_pos = self.raytest_result.get_hit_pos()
             hit_target_name = self.hit_target.get_name()
@@ -265,9 +229,6 @@ class Archery:
                         self.arrow_brb_in_use.set_collide_mask(BitMask32.allOff())
                         self.arrow_ref.wrt_reparent_to(self.target_np)
 
-                        if "Player" in self.actor_name:
-                            self.base.game_instance["is_arrow_ready"] = False
-
                         # self.arrow_brb_in_use.node().set_kinematic(True)
                         self.arrow_ref.set_python_tag("ready", 0)
                         self.reset_arrow_charge()
@@ -299,33 +260,10 @@ class Archery:
             power = 10
             if self.arrow_ref.get_python_tag("ready") == 1:
 
-                if "Player" in self.actor_name:
-                    self.base.game_instance["is_arrow_ready"] = True
-
                 self.arrow_brb_in_use.set_x(self.arrow_brb_in_use, -power * dt)
 
-                if "Player" in self.actor_name:
-                    self.base.camera.set_y(self.base.camera, power * dt)
-                    self.base.camera.set_z(self.arrow_brb_in_use.get_z())
-
-        return task.cont
-
-    def archery_cooldown_task(self, task):
-        if self.base.game_instance['menu_mode']:
-            self.is_ready_for_cooldown = False
-            return task.done
-
-        cooldown_bar = self.base.game_instance['hud_np'].cooldown_bar_ui
-        if cooldown_bar.is_hidden():
-            cooldown_bar.show()
-
-        if cooldown_bar['value'] > 0:
-            cooldown_bar['value'] -= 1
-        else:
-            if self.is_ready_for_cooldown:
-                self.is_ready_for_cooldown = False
-            if not cooldown_bar.is_hidden():
-                cooldown_bar.hide()
+                # self.base.camera.set_y(self.base.camera, power * dt)
+                # self.base.camera.set_z(self.arrow_brb_in_use.get_z())
 
         return task.cont
 
@@ -334,22 +272,8 @@ class Archery:
         taskMgr.add(self.arrow_hit_check_task, "arrow_hit_check_task")
         taskMgr.add(self.arrow_fly_task, "arrow_fly_task")
 
-        if self.aim:
-            taskMgr.add(self.aim.aim_state_task, "aim_state_task")
-
-        if "Player" in self.actor_name:
-            self.base.game_instance['hud_np'].set_arrow_charge_ui()
-            self.base.game_instance['hud_np'].set_cooldown_bar_ui()
-
     def stop_archery_helper_tasks(self):
         taskMgr.remove("calculate_arrow_trajectory_task")
         taskMgr.remove("arrow_hit_check_task")
         taskMgr.remove("arrow_fly_task")
 
-        if self.aim:
-            taskMgr.remove("aim_state_task")
-
-        if "Player" in self.actor_name:
-            self.base.game_instance['hud_np'].clear_arrow_charge_ui()
-            taskMgr.remove("archery_cooldown_task")
-            self.base.game_instance['hud_np'].clear_cooldown_bar_ui()
