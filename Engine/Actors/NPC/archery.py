@@ -141,9 +141,6 @@ class Archery:
 
             # We record arrows which have been shot
             self.dropped_arrows.append(self.arrow_brb_in_use)
-            if self.base.game_instance['arrow_count'] > 0:
-                self.base.game_instance['arrow_count'] -= 1
-
             self.arrow_is_prepared = False
 
             # Destroy dropped arrows after 200 seconds which are 3 minutes
@@ -234,8 +231,7 @@ class Archery:
                         self.reset_arrow_charge()
 
             else:
-                if self.base.game_instance["is_arrow_ready"]:
-                    self.arrow_ref.remove_node()
+                self.arrow_ref.remove_node()
 
     def reset_arrow_charge(self):
         if self.arrow_brb_in_use:
