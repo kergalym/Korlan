@@ -85,6 +85,7 @@ class Aim:
                 self.on_aim_activate_charge()
 
             elif (self.base.game_instance['kbd_np'].keymap["block"]
+                  and self.base.game_instance['arrow_count'] > 1
                   and not self.base.game_instance['kbd_np'].keymap["attack"]):
                 # Just start aiming
                 self.on_aim_activate()

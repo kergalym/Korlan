@@ -51,10 +51,6 @@ class NpcFSM(FSM):
                 self.archery.arrow_ref.set_python_tag("ready", 1)
                 self.archery.bow_shoot()
 
-            if self.archery.arrow_ref.get_python_tag("power") > 0:
-                self.archery.arrow_ref.set_python_tag("power", 0)
-            self.archery.arrow_ref.set_python_tag("ready", 0)
-
     def set_basic_npc_behaviors(self, actor, player, ai_behaviors, behavior, vect):
         if (actor and player
                 and not actor.is_empty()
@@ -281,7 +277,7 @@ class NpcFSM(FSM):
 
     def enterArchery(self, actor, action, task):
         if actor and action and task:
-            if isinstance(task, str):
+            if isinstance(task, str) and len(self.archery.arrows) > 0:
                 if task == "play":
                     crouched_to_standing = actor.get_anim_control('crouched_to_standing')
 
@@ -303,6 +299,7 @@ class NpcFSM(FSM):
                                  Func(self.archery.prepare_arrow_for_shoot, "bow"),
                                  any_action_seq,
                                  Func(self.archery_charge_wrapper),
+                                 Wait(2),
                                  Func(self.archery_bow_shoot_wrapper),
                                  Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", False)
                                  ).start()
@@ -315,6 +312,7 @@ class NpcFSM(FSM):
                                  Func(self.archery.prepare_arrow_for_shoot, "bow"),
                                  any_action_seq,
                                  Func(self.archery_charge_wrapper),
+                                 Wait(2),
                                  Func(self.archery_bow_shoot_wrapper),
                                  Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", False)
                                  ).start()

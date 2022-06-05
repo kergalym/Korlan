@@ -294,7 +294,8 @@ class Mouse:
                         self.on_mouse_rotate_player(x, y)
 
                     elif self.base.game_instance['is_aiming']:
-                        self.on_mouse_rotate_in_aiming(x, y)
+                        if self.base.game_instance['arrow_count'] > 1:
+                            self.on_mouse_rotate_in_aiming(x, y)
 
     def mouse_control_task(self, task):
         """ Function    : mouse_control_task

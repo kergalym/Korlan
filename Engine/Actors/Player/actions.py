@@ -1559,7 +1559,8 @@ class Actions:
                 and base.player_states['has_bow']):
             if (self.kbd.keymap["block"]
                     and not self.kbd.keymap["attack"]
-                    and not base.do_key_once["block"]):
+                    and not base.do_key_once["block"]
+                    and len(self.archery.arrows) > 0):
                 self.state.set_do_once_key("block", True)
                 crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
 
@@ -1672,7 +1673,8 @@ class Actions:
                 and base.player_states['has_bow']):
             if (self.kbd.keymap["block"]
                     and not self.kbd.keymap["attack"]
-                    and not base.do_key_once["block"]):
+                    and not base.do_key_once["block"]
+                    and len(self.archery.arrows) > 0):
                 self.state.set_do_once_key("block", True)
                 crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
 

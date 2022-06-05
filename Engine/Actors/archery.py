@@ -17,7 +17,6 @@ class Archery:
         self.arrow_is_prepared = False
         self.arrow_charge_units = 100
         self.arrow_brb_in_use = None
-        self.draw_bow_is_done = 0
         self.raytest_result = None
         self.hit_target = None
         self.is_ready_for_cooldown = False
@@ -313,10 +312,6 @@ class Archery:
         dt = globalClock.getDt()
         if self.arrow_brb_in_use:
             power = 10
-
-            if "NPC" in self.actor_name:
-                power = self.arrow_ref.get_python_tag("power")
-
             if self.arrow_ref.get_python_tag("ready") == 1:
 
                 if "Player" in self.actor_name:
