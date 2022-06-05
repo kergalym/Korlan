@@ -299,8 +299,8 @@ class NpcFSM(FSM):
                                  Func(self.archery.prepare_arrow_for_shoot, "bow"),
                                  any_action_seq,
                                  Func(self.archery_charge_wrapper),
-                                 Wait(2),
                                  Func(self.archery_bow_shoot_wrapper),
+                                 Wait(1),
                                  Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", False)
                                  ).start()
 
@@ -312,8 +312,8 @@ class NpcFSM(FSM):
                                  Func(self.archery.prepare_arrow_for_shoot, "bow"),
                                  any_action_seq,
                                  Func(self.archery_charge_wrapper),
-                                 Wait(2),
                                  Func(self.archery_bow_shoot_wrapper),
+                                 Wait(1),
                                  Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", False)
                                  ).start()
 
