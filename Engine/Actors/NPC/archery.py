@@ -157,7 +157,7 @@ class Archery:
 
             Return      : Task status
         """
-        pos_from = Point3(0, 1, 0)
+        pos_from = Point3(0, 0, 0)
         pos_to = Point3(0, 1000, 0)
 
         name_bs = "{0}:BS".format(self.actor_name)

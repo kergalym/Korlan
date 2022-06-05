@@ -302,8 +302,7 @@ class PlayerArchery:
         taskMgr.add(self.arrow_hit_check_task, "arrow_hit_check_task")
         taskMgr.add(self.arrow_fly_task, "arrow_fly_task")
 
-        if self.aim:
-            taskMgr.add(self.aim.aim_state_task, "aim_state_task")
+        taskMgr.add(self.aim.aim_state_task, "aim_state_task")
 
         self.base.game_instance['hud_np'].set_arrow_charge_ui()
         self.base.game_instance['hud_np'].set_cooldown_bar_ui()
@@ -313,8 +312,7 @@ class PlayerArchery:
         taskMgr.remove("arrow_hit_check_task")
         taskMgr.remove("arrow_fly_task")
 
-        if self.aim:
-            taskMgr.remove("aim_state_task")
+        taskMgr.remove("aim_state_task")
 
         self.base.game_instance['hud_np'].clear_arrow_charge_ui()
         taskMgr.remove("archery_cooldown_task")
