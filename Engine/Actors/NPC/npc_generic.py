@@ -100,6 +100,9 @@ class NpcGeneric:
             # Set NPC class
             self.actor.set_python_tag("npc_class", cls)
 
+            # Set Target Nodepath
+            self.actor.set_python_tag("target_np", None)
+
             # Set NPC allowed weapons list
             a_weapons = [
                 "sword",

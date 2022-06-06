@@ -637,8 +637,7 @@ class Actions:
                         and base.player_states['is_crouch_moving'] is False
                         and base.player_states["is_running"] is False
                         and base.player_states['is_idle']
-                        and player.get_python_tag('stamina') > 1
-                        and not player.get_python_tag('stamina') < 3):
+                        and player.get_python_tag('stamina') > 3):
                     Sequence(Parallel(Func(self.seq_run_wrapper, player, anims, 'loop'),
                                       Func(self.state.set_action_state, "is_running", True)),
                              ).start()
@@ -648,8 +647,7 @@ class Actions:
                         and base.player_states["is_crouch_moving"] is False
                         and base.player_states['is_running']
                         and base.player_states['is_idle'] is False
-                        and player.get_python_tag('stamina') > 1
-                        and not player.get_python_tag('stamina') < 3):
+                        and player.get_python_tag('stamina') > 3):
                     Sequence(Func(self.seq_run_wrapper, player, anims, 'loop')
                              ).start()
             else:

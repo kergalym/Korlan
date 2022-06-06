@@ -421,10 +421,18 @@ class NpcAILogic:
             actor_npc_bs.set_hpr(new_hpr)
             # actor_npc_bs.hprInterval(0, new_hpr)
 
-    def face_actor_to(self, actor, target):
-        if actor and target:
-            actor.look_at(target.get_pos())
-            actor.set_h(target, -180)
+    def face_actor_to(self, actor, target_np):
+        if actor and target_np:
+            actor.look_at(target_np.get_pos())
+            actor.set_h(target_np, -180)
+
+            # keep target once
+            saved_target_np = actor.get_python_tag("target_np")
+            if not saved_target_np:
+                actor.set_python_tag("target_np", target_np)
+            elif saved_target_np:
+                if saved_target_np.get_name() != target_np.get_name():
+                    actor.set_python_tag("target_np", target_np)
 
     def get_hit_distance(self, actor):
         if actor and actor.find("**/**Hips:HB"):

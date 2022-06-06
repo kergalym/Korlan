@@ -1,5 +1,6 @@
 from direct.gui.DirectLabel import DirectLabel
 from direct.gui.OnscreenImage import OnscreenImage
+from direct.gui.OnscreenText import OnscreenText
 from panda3d.core import TransparencyAttrib, TextNode, FontPool
 from direct.gui.DirectGui import DirectWaitBar
 from direct.gui.DirectGui import DirectFrame
@@ -15,18 +16,26 @@ class HUD:
         self.cursor_ui_scale = 0.04
         self.day_hud_ui_pos = (0.0, 0, 0.90)
         self.day_hud_ui_scale = (0.5, 0, 0.1)
-        self.weapon_state_ui_pos = (1.8, 0, -0.90)
-        self.weapon_state_ui_scale = 0.07
+        self.weapon_state_ui_pos = (1.7, 0, -0.80)
+        self.weapon_state_ui_scale = 0.09
+        self.arrow_count_ui_pos = (1.78, 0, -0.87)
+        self.arrow_count_ui_scale = 0.6
+
         # Left, right, bottom, top
         self.player_bar_ui_frame_size = [-1.85, -1.55, -0.99, -0.88]
+        self.weapon_ui_frame_size = [1.85, 1.55, -0.90, -0.7]
         self.player_bar_ui_scale = (0.14, 0, 0.10)
+        self.weapon_ui_scale = (0.14, 0, 0.14)
+
         # Left, right, bottom, top
         self.npc_hud_ui_frame_size = [-1.85, -1, 1.99, 0.88]
         self.npc_hud_ui_scale = (1.2, 0, 0.20)
 
         # HUD attributes
         self.day_hud_ui = None
+        self.weapon_ui_frame = None
         self.weapon_state_ui = None
+        self.arrow_count_ui = None
         self.player_bar_ui_frame = None
         self.player_bar_ui_health = None
         self.player_bar_ui_stamina = None
@@ -96,10 +105,24 @@ class HUD:
         self.player_bar_ui_courage.reparent_to(self.player_bar_ui_frame)
 
     def set_weapon_ui(self):
+        # Set weapon frame
+        self.weapon_ui_frame = DirectFrame(text="", frameColor=(0.0, 0.0, 0.0, 0.4),
+                                           frameSize=self.weapon_ui_frame_size)
+        self.weapon_ui_frame.set_pos(0, 0, 0)
+        base.weapon_ui_frame = self.weapon_ui_frame
+
+        # Set weapon icon
         self.weapon_state_ui = OnscreenImage(image=self.images['hands_ui'])
         self.weapon_state_ui.set_pos(self.weapon_state_ui_pos)
         self.weapon_state_ui.set_transparency(TransparencyAttrib.MAlpha)
         self.weapon_state_ui.set_scale(self.weapon_state_ui_scale)
+
+        # Set weapon count
+        text = str(self.base.game_instance['arrow_count'])
+        self.arrow_count_ui = OnscreenText(text=text, fg=(0.6, 0, 0, 1))
+        self.arrow_count_ui.set_pos(self.arrow_count_ui_pos)
+        self.arrow_count_ui.set_scale(self.arrow_count_ui_scale)
+        self.arrow_count_ui.hide()
 
     def set_arrow_charge_ui(self):
         self.charge_arrow_bar_ui = DirectWaitBar(text="",
@@ -158,6 +181,13 @@ class HUD:
                     and self.weapon_state_ui):
                 self.weapon_state_ui.setImage(self.images['{0}_ui'.format(weapon_name)])
                 self.weapon_state_ui.set_transparency(TransparencyAttrib.MAlpha)
+
+                if "bow" in weapon_name:
+                    if self.arrow_count_ui:
+                        self.arrow_count_ui.show()
+                else:
+                    if self.arrow_count_ui:
+                        self.arrow_count_ui.hide()
 
     def toggle_day_hud(self, time):
         if not self.base.game_instance['ui_mode']:

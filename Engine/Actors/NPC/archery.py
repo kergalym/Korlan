@@ -157,16 +157,16 @@ class Archery:
 
             Return      : Task status
         """
-        pos_from = Point3(0, 0, 0)
-        pos_to = Point3(0, 1000, 0)
-
         name_bs = "{0}:BS".format(self.actor_name)
         actor_bs = self.base.game_instance['actors_np'][name_bs]
 
-        pos_from = self.render.get_relative_point(actor_bs, pos_from)
-        pos_to = self.render.get_relative_point(actor_bs, pos_to)
-        physics_world_np = self.base.game_instance['physics_world_np']
-        self.raytest_result = physics_world_np.ray_test_closest(pos_from, pos_to)
+        if actor_bs.get_python_tag("target_np"):
+            target_np = actor_bs.get_python_tag("target_np")
+            pos_from = actor_bs.get_pos()
+            pos_to = target_np.get_pos()
+
+            physics_world_np = self.base.game_instance['physics_world_np']
+            self.raytest_result = physics_world_np.ray_test_closest(pos_from, pos_to)
 
         return task.cont
 
@@ -181,35 +181,52 @@ class Archery:
 
             Return      : Task status
         """
+        if self.raytest_result:
+            if "player_cam_trigger" in self.raytest_result.get_node().get_name():
+                name = self.raytest_result.get_node().get_name()
+                actor = render.find("**/*{0}".format(name))
+                player_bs = actor.get_parent()
 
-        if (self.raytest_result and self.raytest_result.get_node()
+                self.hit_target = player_bs.node()
+
+                hit_target_name = self.hit_target.get_name()
+                hit_target_name = hit_target_name.split("_Hips:HB")[0]
+
+                self.target_test_ui.show()
+                self.target_test_ui.setText(hit_target_name)
+
+                physics_world_np = self.base.game_instance['physics_world_np']
+                if physics_world_np and self.arrow_brb_in_use:
+                    self.pierce_arrow()
+        elif (self.raytest_result
                 and self.actor_name not in self.raytest_result.get_node().get_name()
-                and "Arrow" not in self.raytest_result.get_node().get_name()):
+                and "Arrow" not in self.raytest_result.get_node().get_name()
+                and "player_cam_trigger" not in self.raytest_result.get_node().get_name()):
             self.hit_target = self.raytest_result.get_node()
             self.target_pos = self.raytest_result.get_hit_pos()
             hit_target_name = self.hit_target.get_name()
-            hit_target_name = hit_target_name.split("_trigger")[0]
+            hit_target_name = hit_target_name.split("_Hips:HB")[0]
 
             self.target_test_ui.show()
             self.target_test_ui.setText(self.hit_target.get_name())
-            physics_world_np = self.base.game_instance['physics_world_np']
 
             # Show NPC HUD
             if self.hit_target and "NPC" in self.hit_target.get_name():
-                if self.base.game_instance['hud_np']:
-                    if (self.base.game_instance['actors_ref']
-                            and self.base.game_instance['actors_ref'].get(hit_target_name)):
-                        actor = self.base.game_instance['actors_ref'][hit_target_name]
-                        actor.get_python_tag("npc_hud_np").show()
+                if (self.base.game_instance['actors_ref']
+                        and self.base.game_instance['actors_ref'].get(hit_target_name)):
+                    actor = self.base.game_instance['actors_ref'][hit_target_name]
+                    actor.get_python_tag("npc_hud_np").show()
 
+            physics_world_np = self.base.game_instance['physics_world_np']
             if physics_world_np and self.arrow_brb_in_use:
                 self.pierce_arrow()
 
                 # Hide NPC HUD
-                if (self.base.game_instance['actors_ref']
-                        and self.base.game_instance['actors_ref'].get(hit_target_name)):
-                    actor = self.base.game_instance['actors_ref'][hit_target_name]
-                    actor.get_python_tag("npc_hud_np").hide()
+                if self.hit_target and "NPC" in self.hit_target.get_name():
+                    if (self.base.game_instance['actors_ref']
+                            and self.base.game_instance['actors_ref'].get(hit_target_name)):
+                        actor = self.base.game_instance['actors_ref'][hit_target_name]
+                        actor.get_python_tag("npc_hud_np").hide()
 
         return task.cont
 
@@ -222,7 +239,7 @@ class Archery:
 
                 if self.target_np:
                     distance = round(self.arrow_brb_in_use.get_distance(self.target_np), 1)
-                    if distance >= 0.8 and distance <= 1.1:
+                    if distance >= 0.0 and distance <= 0.5:
                         self.arrow_brb_in_use.set_collide_mask(BitMask32.allOff())
                         self.arrow_ref.wrt_reparent_to(self.target_np)
 
@@ -252,7 +269,6 @@ class Archery:
         if self.arrow_brb_in_use:
             power = 10
             if self.arrow_ref.get_python_tag("ready") == 1:
-
                 self.arrow_brb_in_use.set_x(self.arrow_brb_in_use, -power * dt)
 
                 # self.base.camera.set_y(self.base.camera, power * dt)
@@ -269,4 +285,3 @@ class Archery:
         taskMgr.remove("calculate_arrow_trajectory_task")
         taskMgr.remove("arrow_hit_check_task")
         taskMgr.remove("arrow_fly_task")
-

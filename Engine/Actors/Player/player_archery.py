@@ -145,6 +145,12 @@ class PlayerArchery:
             if self.base.game_instance['arrow_count'] > 0:
                 self.base.game_instance['arrow_count'] -= 1
 
+            # Update weapon bar for arrow count record
+            arrow_count_text = str(self.base.game_instance['arrow_count'])
+            if self.base.game_instance['arrow_count'] < 2:
+                arrow_count_text = "0"
+            self.base.game_instance['hud_np'].arrow_count_ui["text"] = arrow_count_text
+
             self.arrow_is_prepared = False
 
             self.base.game_instance['hud_np'].cooldown_bar_ui['value'] = 100
@@ -202,24 +208,24 @@ class PlayerArchery:
 
             self.target_test_ui.show()
             self.target_test_ui.setText(self.hit_target.get_name())
-            physics_world_np = self.base.game_instance['physics_world_np']
 
             # Show NPC HUD
             if self.hit_target and "NPC" in self.hit_target.get_name():
-                if self.base.game_instance['hud_np']:
-                    if (self.base.game_instance['actors_ref']
-                            and self.base.game_instance['actors_ref'].get(hit_target_name)):
-                        actor = self.base.game_instance['actors_ref'][hit_target_name]
-                        actor.get_python_tag("npc_hud_np").show()
+                if (self.base.game_instance['actors_ref']
+                        and self.base.game_instance['actors_ref'].get(hit_target_name)):
+                    actor = self.base.game_instance['actors_ref'][hit_target_name]
+                    actor.get_python_tag("npc_hud_np").show()
 
+            physics_world_np = self.base.game_instance['physics_world_np']
             if physics_world_np and self.arrow_brb_in_use:
                 self.pierce_arrow()
 
                 # Hide NPC HUD
-                if (self.base.game_instance['actors_ref']
-                        and self.base.game_instance['actors_ref'].get(hit_target_name)):
-                    actor = self.base.game_instance['actors_ref'][hit_target_name]
-                    actor.get_python_tag("npc_hud_np").hide()
+                if self.hit_target and "NPC" in self.hit_target.get_name():
+                    if (self.base.game_instance['actors_ref']
+                            and self.base.game_instance['actors_ref'].get(hit_target_name)):
+                        actor = self.base.game_instance['actors_ref'][hit_target_name]
+                        actor.get_python_tag("npc_hud_np").hide()
 
         return task.cont
 
