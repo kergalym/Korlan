@@ -360,6 +360,7 @@ class PlayerMovement:
                 # todo: uncomment when horse turning anims become ready
                 # self.turning_in_place(player, anims, self.seq_horse_turning_wrapper)
 
+                # Movement
                 if (self.kbd.keymap["forward"]
                         and not self.kbd.keymap["backward"]
                         and self.kbd.keymap["run"] is False):
