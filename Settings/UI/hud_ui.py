@@ -119,7 +119,7 @@ class HUD:
 
         # Set weapon count
         text = str(self.base.game_instance['arrow_count'])
-        self.arrow_count_ui = OnscreenText(text=text, fg=(0.6, 0, 0, 1))
+        self.arrow_count_ui = OnscreenText(text=text, fg=(255, 255, 255, 1))
         self.arrow_count_ui.set_pos(self.arrow_count_ui_pos)
         self.arrow_count_ui.set_scale(self.arrow_count_ui_scale)
         self.arrow_count_ui.hide()

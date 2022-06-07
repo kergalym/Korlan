@@ -86,19 +86,20 @@ class SceneOne:
                 world_np = self.render.find("**/World")
                 ph_world = self.base.game_instance["physics_world_np"]
 
-                for actor in scene.get_children():
-                    if "water_box" in actor.get_name():
-                        sphere = BulletSphereShape(radius)
-                        trigger_bg = BulletGhostNode('{0}_trigger'.format(actor.get_name()))
-                        trigger_bg.add_shape(sphere)
-                        trigger_np = world_np.attach_new_node(trigger_bg)
-                        trigger_np.set_collide_mask(BitMask32(0x0f))
-                        ph_world.attach_ghost(trigger_bg)
-                        trigger_np.reparent_to(actor)
-                        trigger_np.set_pos(0, 0, 1)
-                        self.base.game_instance['water_trigger_np'] = trigger_np
+                if scene:
+                    for actor in scene.get_children():
+                        if "water_box" in actor.get_name():
+                            sphere = BulletSphereShape(radius)
+                            trigger_bg = BulletGhostNode('{0}_trigger'.format(actor.get_name()))
+                            trigger_bg.add_shape(sphere)
+                            trigger_np = world_np.attach_new_node(trigger_bg)
+                            trigger_np.set_collide_mask(BitMask32(0x0f))
+                            ph_world.attach_ghost(trigger_bg)
+                            trigger_np.reparent_to(actor)
+                            trigger_np.set_pos(0, 0, 1)
+                            self.base.game_instance['water_trigger_np'] = trigger_np
 
-                        return task.done
+                            return task.done
 
         return task.cont
 

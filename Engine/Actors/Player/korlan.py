@@ -1,4 +1,4 @@
-from Engine.Actors.Player.actions import Actions
+from Engine.Actors.Player.player_controller import PlayerController
 from Engine.Actors.Player.state import PlayerState
 from direct.actor.Actor import Actor
 from panda3d.core import WindowProperties
@@ -41,7 +41,7 @@ class Korlan:
         self.taskMgr = taskMgr
         self.kbd = Keyboard()
         self.mouse = Mouse()
-        self.actions = Actions()
+        self.controller = PlayerController()
         self.state = PlayerState()
         self.base.actor_is_dead = False
         self.base.actor_is_alive = False
@@ -277,8 +277,8 @@ class Korlan:
                 # Set Player Parameters
                 self.state.set_state(actor=self.korlan)
 
-                # Initialize Player Actions
-                self.actions.player_actions_init(self.korlan, animation[0])
+                # Initialize Player Controller
+                self.controller.player_actions_init(self.korlan, animation[0])
 
 
 
