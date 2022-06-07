@@ -171,9 +171,15 @@ class HUD:
             self.day_hud_ui.remove_node()
 
     def clear_weapon_ui(self):
+        if self.weapon_ui_frame:
+            self.weapon_ui_frame.destroy()
+            self.weapon_ui_frame.remove_node()
         if self.weapon_state_ui:
             self.weapon_state_ui.destroy()
             self.weapon_state_ui.remove_node()
+        if self.arrow_count_ui:
+            self.arrow_count_ui.destroy()
+            self.arrow_count_ui.remove_node()
 
     def toggle_weapon_state(self, weapon_name):
         if not self.base.game_instance['ui_mode']:
