@@ -191,12 +191,13 @@ class PlayerMovement:
         dt = globalClock.getDt()
         seconds = int(60 * dt)
 
-        if self.base.game_instance['player_props']['stamina'] > 1:
-            if seconds == 1:
-                self.base.game_instance['player_props']['stamina'] -= move_unit
-                stamina = self.base.game_instance['player_props']['stamina']
-                self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] = stamina
-                player.set_python_tag('stamina', stamina)
+        if self.base.game_instance['hud_np']:
+            if self.base.game_instance['player_props']['stamina'] > 1:
+                if seconds == 2:
+                    self.base.game_instance['player_props']['stamina'] -= move_unit
+                    stamina = self.base.game_instance['player_props']['stamina']
+                    self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] = stamina
+                    player.set_python_tag('stamina', stamina)
 
     def is_ready_for_move(self):
         # Store player states which should not be played before walking
