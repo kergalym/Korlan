@@ -294,7 +294,9 @@ class PlayerActions:
                              Func(self.state.set_action_state, "is_busy", False),
                              Func(self.state.set_do_once_key, "jump", False),
                              ).start()
-            elif self.kbd.keymap["forward"] and not self.kbd.keymap["jump"]:
+            elif (self.kbd.keymap["forward"]
+                  and not self.kbd.keymap["run"]
+                  and not self.kbd.keymap["jump"]):
                 if (base.player_states['is_busy'] is False
                         and crouched_to_standing.is_playing() is False
                         and base.player_states['is_crouch_moving'] is False):

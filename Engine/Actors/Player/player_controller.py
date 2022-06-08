@@ -42,7 +42,7 @@ class PlayerController:
                 if not player.get_python_tag("is_on_horse"):
                     any_action = player.get_anim_control(anims[self.mov_actions.idle_action])
                     if (any_action.is_playing() is False
-                            and base.player_states['is_idle']
+                            # and base.player_states['is_idle']
                             and base.player_states['is_attacked'] is False
                             and base.player_states['is_busy'] is False
                             and base.player_states['is_using'] is False
@@ -70,7 +70,7 @@ class PlayerController:
                 elif player.get_python_tag("is_on_horse"):
                     any_action = player.get_anim_control(anims['horse_riding_idle'])
                     if (any_action.is_playing() is False
-                            and base.player_states['is_idle']
+                            # and base.player_states['is_idle']
                             and base.player_states['is_attacked'] is False
                             and base.player_states['is_busy'] is False
                             and base.player_states['is_using'] is False

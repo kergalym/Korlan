@@ -186,6 +186,18 @@ class PlayerMovement:
                               Func(self.state.set_action_state, "is_turning", False)),
                      ).start()
 
+    def decrement_stamina_while_runing(self, player, move_unit):
+        # Get the time that elapsed since last frame
+        dt = globalClock.getDt()
+        seconds = int(60 * dt)
+
+        if self.base.game_instance['player_props']['stamina'] > 1:
+            if seconds == 1:
+                self.base.game_instance['player_props']['stamina'] -= move_unit
+                stamina = self.base.game_instance['player_props']['stamina']
+                self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] = stamina
+                player.set_python_tag('stamina', stamina)
+
     def is_ready_for_move(self):
         # Store player states which should not be played before walking
         if not any(self.exclude_while_move.values()):
@@ -286,20 +298,13 @@ class PlayerMovement:
             speed = Vec3(0, 0, 0)
             move_unit = 7
 
-            # Get the time that elapsed since last frame
-            dt = globalClock.getDt()
-            seconds = int(60 * dt)
+            self.decrement_stamina_while_runing(player, move_unit)
 
             if (self.kbd.keymap["forward"]
                     and not self.kbd.keymap["backward"]
                     and self.kbd.keymap["run"]):
                 if base.input_state.is_set('forward'):
                     if self.base.game_instance['player_props']['stamina'] > 1:
-                        if seconds == 2:
-                            self.base.game_instance['player_props']['stamina'] -= move_unit
-                            stamina = self.base.game_instance['player_props']['stamina']
-                            self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] = stamina
-                            player.set_python_tag('stamina', stamina)
                         speed.set_y(-move_unit)
 
                     if self.base.game_instance['player_controller_np']:
@@ -427,6 +432,13 @@ class PlayerMovement:
                 horse_bs = render.find("**/{0}:BS".format(horse_name))
                 move_unit = 7
 
+                run_forward_seq = player.get_anim_control(anims[self.horse_run_forward_action])
+                print("run: ", run_forward_seq.is_playing())
+                print("keys forward and run: ", self.kbd.keymap["forward"], self.kbd.keymap["run"])
+                print("state: ", base.player_states['is_running'])
+
+                self.decrement_stamina_while_runing(player, move_unit)
+
                 # Get the time that elapsed since last frame
                 dt = globalClock.getDt()
 
@@ -434,16 +446,6 @@ class PlayerMovement:
                         and not self.kbd.keymap["backward"]
                         and self.kbd.keymap["run"]):
                     if base.input_state.is_set('forward'):
-                        if (player.get_python_tag('stamina')
-                                and player.get_python_tag('stamina') > 1):
-                            stamina = player.get_python_tag('stamina')
-                            stamina -= 5
-                            player.set_python_tag("stamina", stamina)
-                        if self.base.game_instance['player_props']['stamina'] > 1:
-                            self.base.game_instance['player_props']['stamina'] -= 5
-                        if self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] > 1:
-                            self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] -= 5
-
                         horse_bs.set_y(horse_bs, -move_unit * dt)
 
                 # If the player does action, loop the animation.
