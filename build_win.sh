@@ -1,15 +1,16 @@
 #!/bin/bash
 export PROJDIR="/home/galym/Korlan"
-export PYTHONPATH=$PROJDIR"/venv3.7/built"
-export LD_LIBRARY_PATH=$PROJDIR"/venv3.7/built/lib"
 export BUILDDIR=$PROJDIR"/build/win_amd64"
 
+# export PYTHONPATH=$PROJDIR"/venv3.7/built"
+# export LD_LIBRARY_PATH=$PROJDIR"/venv3.7/built/lib"
+
 cp requirements_win.txt requirements.txt
-#. venv3*/bin/activate
+. venv3*/bin/activate
 python3 setup_win.py build_apps # bdist_apps
 cd BUILDDIR
 multify -c -f GameData.mf Assets Settings Engine
-# deactivate
+deactivate
 
 rm -rf $BUILDDIR/Assets/Actors
 rm -rf $BUILDDIR/Assets/Animations
