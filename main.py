@@ -1112,6 +1112,32 @@ class Main(ShowBase):
                         navmeshes[key] = Filename.from_os_specific(path).getFullpath()
             return navmeshes
 
+    def navmesh_scene_collector(self):
+        """ Function    : navmesh_scene_collector
+
+            Description : Collect game scene navmeshes.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : Dictionary
+        """
+        navmesh_path = "Assets/NavMeshes"
+        navmeshes = {}
+        if vfs_exists(navmesh_path):
+            for root, dirs, files in vfs_walk(navmesh_path, topdown=True):
+                for file in files:
+                    if file.endswith(".egg"):
+                        key = re.sub('.egg$', '', file)
+                        path = str(PurePath("{0}/".format(root), file))
+                        navmeshes[key] = Filename.from_os_specific(path).getFullpath()
+                    elif file.endswith(".egg.bam"):
+                        key = re.sub('.egg.bam$', '', file)
+                        path = str(PurePath("{0}/".format(root), file))
+                        navmeshes[key] = Filename.from_os_specific(path).getFullpath()
+            return navmeshes
+
     def particles_collector(self):
         """ Function    : particles_collector
 

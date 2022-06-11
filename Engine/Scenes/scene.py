@@ -6,8 +6,8 @@ from Engine.Quests.social_quests import SocialQuests
 
 
 # TODO UNCOMMENT WHEN R&D BECOMES PRODUCTION-READY
-# from panda3d.navigation import NavMeshNode, NavMeshQuery
-# from panda3d.navmeshgen import NavMeshBuilder
+from panda3d.navigation import NavMeshNode, NavMeshQuery
+from panda3d.navmeshgen import NavMeshBuilder
 
 
 class SceneOne:
@@ -47,15 +47,21 @@ class SceneOne:
         # Define the NavMeshQuery instance
         self.navmesh_query = None
 
-    def set_level_nav(self, scene):
-        if scene:
+    def set_level_nav(self, scene_name):
+        if scene_name and isinstance(scene_name, str):
             # TODO UNCOMMENT WHEN R&D BECOMES PRODUCTION-READY
-            """"# NavMeshBuilder is a class that is responsible
+            # NavMeshBuilder is a class that is responsible
             # for building the polygon meshes and navigation meshes.
             self.builder = NavMeshBuilder()
             # Take NodePath as input. This method only uses
             # the collision nodes that are under this node.
-            self.builder.from_coll_node_path(scene)
+            navmesh_scenes = self.base.navmesh_scene_collector()
+            scene_name = "{0}_navmesh".format(scene_name)
+            navmesh_scene_np = self.base.loader.load_model(navmesh_scenes[scene_name])
+            navmesh_scene_np.reparent_to(render)
+            navmesh_scene_np.hide()
+
+            self.builder.from_coll_node_path(navmesh_scene_np)
 
             self.builder.actor_height = 10
             self.builder.actor_radius = 4
@@ -63,7 +69,7 @@ class SceneOne:
             self.navmesh = self.builder.build()
 
             self.navmeshnode = NavMeshNode("scene", self.navmesh)
-            self.navmeshnodepath: NodePath = scene.attach_new_node(self.navmeshnode)
+            self.navmeshnodepath: NodePath = navmesh_scene_np.attach_new_node(self.navmeshnode)
 
             # Uncomment the line below to save the generated navmesh to file.
             # self.navmeshnodepath.write_bam_file("scene_navmesh.bam")
@@ -77,7 +83,7 @@ class SceneOne:
 
             # Initialize the NavMeshQuery that we will use.
             self.navmesh_query = NavMeshQuery(self.navmesh)
-            self.base.game_instance["navmesh_query"] = self.navmesh_query"""
+            self.base.game_instance["navmesh_query"] = self.navmesh_query
 
     def set_water_trigger(self, scene, radius, task):
         if self.base.game_instance["loading_is_done"] == 1:
@@ -155,7 +161,7 @@ class SceneOne:
                 # before load into VRAM
                 self.base.toggle_texture_compression(scene)
 
-                scene.reparent_to(self.base.game_instance['lod_np'])
+                scene.reparent_to(render)
 
                 # LOD quality preset
                 for lod_qk in self.base.game_instance["lod_quality"]:
@@ -220,7 +226,7 @@ class SceneOne:
             coll_scene.hide()
 
             # Construct navigation system
-            # self.set_level_nav(scene)
+            self.set_level_nav(name)
 
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
                 scene.hide()
