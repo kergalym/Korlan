@@ -1,31 +1,28 @@
 #!/bin/bash
+export PROJDIR="/home/galym/Korlan"
+export PYTHONPATH=$PROJDIR"/venv3.7/built"
+export LD_LIBRARY_PATH=$PROJDIR"/venv3.7/built/lib"
+export BUILDDIR=$PROJDIR"/build/manylinux1_x86_64"
+
 cp requirements_lin.txt requirements.txt
-. venv3*/bin/activate
+# . venv3*/bin/activate
 python3 setup_lin.py build_apps # bdist_apps
-cd build/manylinux1_x86_64/
-multify -cv -f GameData.mf Assets Settings Engine
-#cp GameData.mf ../../GameData.mf
-deactivate
+cd $BUILDDIR
+multify -c -f GameData.mf Assets Settings Engine
+# deactivate
 
-rm -rf Assets/Actors
-rm -rf Assets/Animations
-rm -rf Assets/Colliders
-rm -rf Assets/Inventory
-rm -rf Assets/Items
-rm -rf Assets/Levels
-rm -rf Assets/Menu
-rm -rf Assets/Particles
-rm -rf Assets/Sounds
-rm -rf Assets/Videos
-rm -rf Assets/Weapons
-rm -rf Engine/Shaders
-rm -rf Settings
+rm -rf $BUILDDIR/Assets/Actors
+rm -rf $BUILDDIR/Assets/Animations
+rm -rf $BUILDDIR/Assets/Colliders
+rm -rf $BUILDDIR/Assets/Inventory
+rm -rf $BUILDDIR/Assets/Items
+rm -rf $BUILDDIR/Assets/Levels
+rm -rf $BUILDDIR/Assets/Menu
+rm -rf $BUILDDIR/Assets/Particles
+rm -rf $BUILDDIR/Assets/Sounds
+rm -rf $BUILDDIR/Assets/Videos
+rm -rf $BUILDDIR/Assets/Weapons
+rm -rf $BUILDDIR/Engine/Shaders
+rm -rf $BUILDDIR/Settings
 
-cd ../../
-
-cp -r build/manylinux1_x86_64 dist/Korlan
-cd dist
-# tar czf Korlan_Game_manylinux1_x86_64.tar.gz Korlan
-rm -rf Korlan
-
-cd ../../../
+cd $PROJDIR

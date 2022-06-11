@@ -21,7 +21,7 @@ class SocialQuests:
 
     def _set_dimensional_text(self, txt_cap, obj):
         if txt_cap and isinstance(txt_cap, str) and obj:
-            if self.text_caps[txt_cap]:
+            if self.text_caps and self.text_caps.get(txt_cap):
                 txt_cap_np = self.base.loader.load_model(self.text_caps[txt_cap])
                 txt_cap_np.reparent_to(obj)
                 txt_cap_np.set_two_sided(True)
@@ -30,7 +30,7 @@ class SocialQuests:
                 txt_cap_np.set_pos(pos[0], pos[1], -0.5)
                 txt_cap_np.set_scale(0.07)
                 base.txt_cap_np = txt_cap_np
-                if self.render_pipeline:
+                if hasattr(self, "render_pipeline") and self.render_pipeline:
                     self.render_pipeline.set_effect(txt_cap_np,
                                                     "{0}/Engine/Renderer/effects/dim_text.yaml".format(self.game_dir),
                                                     {"render_gbuffer": True,

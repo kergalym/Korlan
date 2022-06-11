@@ -16,6 +16,7 @@ setup(
                 'Settings/UI/ui_tex/**/*',
                 'Settings/UI/**/*.ttf',
                 'Settings/UI/**/*.txt',
+                'Settings/UI/**/*.egg*',
                 'Settings/Sound/*.ogg',
                 'Engine/Renderer/**/*.png',
                 'Engine/Renderer/**/*.jpg',
@@ -33,6 +34,7 @@ setup(
                 'Engine/Renderer/**/*.glsl',
                 'Engine/Renderer/**/*.compute',
                 'Engine/Shaders/**/*.*',
+                'tex/*.*',
             ],
             # Workaround for
             # AssertionError: macos_main_app must be defined if more than one gui_app is defined

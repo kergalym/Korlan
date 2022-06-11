@@ -18,7 +18,8 @@ class NpcBehavior:
 
                 # Add :BS suffix since we'll get Bullet Shape NodePath here
                 actor_name = actor.get_name()
-                self.ai_chars[actor_name].set_max_force(5)
+                if self.ai_chars.get(actor_name):
+                    self.ai_chars[actor_name].set_max_force(5)
 
                 if passive:
                     # Just stay
@@ -144,7 +145,8 @@ class NpcBehavior:
         if actor and player and request and isinstance(passive, bool):
             if actor.get_python_tag("generic_states")['is_alive']:
                 actor_name = actor.get_name()
-                self.ai_chars[actor_name].set_max_force(5)
+                if self.ai_chars.get(actor_name):
+                    self.ai_chars[actor_name].set_max_force(5)
 
                 if passive:
                     # Just stay
@@ -196,7 +198,8 @@ class NpcBehavior:
 
                 # Add :BS suffix since we'll get Bullet Shape NodePath here
                 actor_name = actor.get_name()
-                self.ai_chars[actor_name].set_max_force(5)
+                if self.ai_chars.get(actor_name):
+                    self.ai_chars[actor_name].set_max_force(5)
 
                 # Just stay
                 if passive:

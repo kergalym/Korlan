@@ -162,10 +162,11 @@ p3d.load_prc_file_data(
     'win-origin -1 -2\n'
     'window-title Korlan - Daughter of the Steppes\n'
     'show-frame-rate-meter  t\n'
+    'load-display pandagl\n'
     'audio-library-name p3openal_audio\n'
-    'model-cache-dir'
-    'model-cache-textures f\n'
-    'compressed-textures 0\n'
+    'model-cache-textures f \n'
+    'model-cache-dir\n'
+    'compressed-textures 0 \n'
     'bullet-filter-algorithm groups-mask\n'
     'hardware-animated-vertices f\n'
     'basic-shaders-only f\n'
@@ -329,7 +330,7 @@ class Main(ShowBase):
             "lod_quality": {
                 "low": Vec2(999999.0, 100.0),
                 "medium": Vec2(1000.0, 50.0),
-                "high": Vec2(500.0, 0.0)
+                "high": Vec2(0.0, 0.0)
             },
             "rp_lights": rp_lights,
             "scene_np": None,
