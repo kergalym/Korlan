@@ -58,7 +58,8 @@ class NpcGeneric:
             # before load into VRAM
             self.base.toggle_texture_compression(self.actor)
 
-            self.actor.reparent_to(self.base.game_instance['lod_np'])
+            # self.actor.reparent_to(self.base.game_instance['lod_np'])
+            self.actor.reparent_to(self.render)
 
             # LOD quality preset
             for lod_qk in self.base.game_instance["lod_quality"]:
@@ -66,6 +67,9 @@ class NpcGeneric:
                     lod_qv = self.base.game_instance["lod_quality"][lod_qk]
                     self.base.game_instance['lod_np'].node().add_switch(lod_qv[0],
                                                                         lod_qv[1])
+
+            # Set sRGB
+            self.base.set_textures_srgb(self.actor, True)
 
             # Set two sided, since some model may be broken
             self.actor.set_two_sided(culling)

@@ -170,8 +170,9 @@ class SceneOne:
                         self.base.game_instance['lod_np'].node().add_switch(lod_qv[0],
                                                                             lod_qv[1])
 
-                # scene.flatten_strong()
-                # scene.hide()
+                # Set sRGB
+                self.base.set_textures_srgb(scene, True)
+
                 if self.game_settings['Debug']['set_debug_mode'] == "YES":
                     base.accept("f2", self.scene_toggle, [scene])
 

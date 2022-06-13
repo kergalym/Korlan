@@ -92,10 +92,7 @@ class LevelOne:
         if (self.base.game_instance['physics_is_activated'] == 1
                 and self.base.game_instance['scene_np']):
             if self.base.game_instance["renderpipeline_np"]:
-
-                # Set sRGB
-                # self.base.set_textures_srgb(True)
-
+                
                 # Set Environment Probe
                 self.envprobe = self.render_pipeline.add_environment_probe()
                 scene = self.base.game_instance['scene_np']

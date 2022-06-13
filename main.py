@@ -1195,7 +1195,7 @@ class Main(ShowBase):
                                 shaders[key] = path
             return shaders
 
-    def set_textures_srgb(self, bool):
+    def set_textures_srgb(self, node, bool):
         """ Function    : set_textures_srgb
 
             Description : Set sRGB format for all loaded textures
@@ -1206,8 +1206,8 @@ class Main(ShowBase):
 
             Return      : False
         """
-        if bool:
-            for tex in render.find_all_textures():
+        if node and bool:
+            for tex in node.find_all_textures():
                 if tex.get_num_components() == 4:
                     tex.set_format(Texture.F_srgb_alpha)
                 if tex.get_num_components() == 3:

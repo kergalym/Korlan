@@ -244,6 +244,9 @@ class Korlan:
                 # Save actor parts
                 self.save_player_parts(part_names)
 
+                # Set sRGB
+                self.base.set_textures_srgb(self.korlan, True)
+
                 # Set two sided, since some model may be broken
                 self.korlan.set_two_sided(culling)
 
