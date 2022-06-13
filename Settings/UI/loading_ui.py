@@ -107,14 +107,19 @@ class LoadingUI:
     def prepare_to_game(self):
         self.clear_loading_bar()
 
-        self.hud.set_aim_cursor()
-        self.hud.set_day_hud()
-        self.hud.set_player_bar()
-        self.hud.set_weapon_ui()
-        self.base.game_instance['hud_np'] = self.hud
+        if self.game_settings['Debug']['set_editor_mode'] == 'NO':
+            self.hud.set_aim_cursor()
+            self.hud.set_day_hud()
+            self.hud.set_player_bar()
+            self.hud.set_weapon_ui()
+            self.base.game_instance['hud_np'] = self.hud
 
         if self.game_settings['Debug']['set_debug_mode'] == 'YES':
             self.stat_ui.set_game_stat()
+
+        if self.game_settings['Debug']['set_editor_mode'] == 'YES':
+            self.editor = Editor()
+            self.editor.set_editor()
 
         self.base.game_instance['loading_is_done'] = 1
 
@@ -173,7 +178,6 @@ class LoadingUI:
 
                 elif num == asset_num:
                     if (self.base.game_instance['player_actions_init_is_activated'] == 1
-                            and self.base.game_instance['mouse_control_is_activated'] == 1
                             and self.base.game_instance['physics_is_activated'] == 1):
                         last_np = assets['name'][asset_num - 1]
                         if render.find("**/{0}".format(last_np)):
@@ -188,12 +192,6 @@ class LoadingUI:
                             if self.game_settings['Debug']['set_light_editor_mode'] == 'YES':
                                 self.rp_lights_mgr_ui.set_ui_rpmgr()
 
-                            return task.done
-
-                        if self.game_settings['Debug']['set_editor_mode'] == 'YES':
-                            self.clear_loading_bar()
-                            self.editor = Editor()
-                            self.editor.set_editor()
                             return task.done
 
         return task.cont

@@ -23,7 +23,8 @@ class NpcAILogic:
         self.npc_classes = npc_classes
         self.npc_rotations = {}
         self.activated_npc_count = 0
-        self.navmesh_query = self.base.game_instance["navmesh_query"]
+        # self.navmesh_query = self.base.game_instance["navmesh_query"]
+        self.navmesh_query = None
         if not self.navmesh_query:
             self.base.game_instance["use_pandai"] = True
         else:
@@ -100,12 +101,12 @@ class NpcAILogic:
                     request = self.npcs_fsm_states[actor_name]
                     npc_class = actor.get_python_tag("npc_class")
 
-                    if npc_class == "friend":
+                    """if npc_class == "friend":
                         name = actor_name.lower()
                         taskMgr.add(self.npc_behavior.npc_friend_logic,
                                     "{0}_npc_friend_logic_task".format(name),
                                     extraArgs=[actor, self.player, request, False],
-                                    appendTask=True)
+                                    appendTask=True)"""
 
                     if npc_class == "neutral":
                         name = actor_name.lower()

@@ -4,7 +4,6 @@ from panda3d.core import *
 from Engine.Renderer.renderer import RenderAttr
 from Engine.Quests.social_quests import SocialQuests
 
-
 # TODO UNCOMMENT WHEN R&D BECOMES PRODUCTION-READY
 from panda3d.navigation import NavMeshNode, NavMeshQuery
 from panda3d.navmeshgen import NavMeshBuilder
@@ -49,7 +48,7 @@ class SceneOne:
 
     def set_level_nav(self, scene_name):
         if scene_name and isinstance(scene_name, str):
-            # TODO UNCOMMENT WHEN R&D BECOMES PRODUCTION-READY
+            # TODO DROP THIS LINE WHEN R&D BECOMES PRODUCTION-READY
             # NavMeshBuilder is a class that is responsible
             # for building the polygon meshes and navigation meshes.
             self.builder = NavMeshBuilder()
@@ -161,7 +160,8 @@ class SceneOne:
                 # before load into VRAM
                 self.base.toggle_texture_compression(scene)
 
-                scene.reparent_to(render)
+                # scene.reparent_to(self.base.game_instance['lod_np'])
+                scene.reparent_to(self.render)
 
                 # LOD quality preset
                 for lod_qk in self.base.game_instance["lod_quality"]:
@@ -211,9 +211,6 @@ class SceneOne:
 
             self.base.game_instance['scene_is_loaded'] = True
 
-            # Add Bullet colliders for this scene
-            self.base.messenger.send("add_bullet_collider")
-
             # Load collisions for a level
             colliders_dict = base.assets_collider_collector()
             coll_scene_name = '{0}_coll'.format(name)
@@ -224,6 +221,9 @@ class SceneOne:
             coll_scene_np.reparent_to(world)
             coll_scene.reparent_to(coll_scene_np)
             coll_scene.hide()
+
+            # Add Bullet colliders for this scene
+            self.base.messenger.send("add_bullet_collider")
 
             # Construct navigation system
             self.set_level_nav(name)

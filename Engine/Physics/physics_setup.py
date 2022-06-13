@@ -49,12 +49,12 @@ class PhysicsAttr:
 
             if type == "env":
                 self.set_static_object_colliders(actor=actor,
-                                                 mask=self.mask1,
+                                                 mask=self.mask,
                                                  automatic=False)
 
             elif type == "item":
                 self.set_dynamic_object_colliders(actor=actor,
-                                                  mask=self.mask1,
+                                                  mask=self.mask,
                                                   automatic=False)
 
             elif type == "player":
@@ -267,7 +267,11 @@ class PhysicsAttr:
                 if ("BS" in child.get_name()
                         or "BS" in child.get_parent().get_name()):
                     continue
+
                 # Skip unused mesh
+                if "empty" in child.get_name():
+                    continue
+
                 if "Ground" in child.get_name():
                     continue
 
@@ -294,7 +298,7 @@ class PhysicsAttr:
                         child_bs_np = actor.attach_new_node(BulletRigidBodyNode(child_bs_name))
                         child_bs_np.node().set_mass(0.0)
                         child_bs_np.node().add_shape(shape)
-                        child_bs_np.node().set_into_collide_mask(self.mask1)
+                        child_bs_np.node().set_into_collide_mask(mask)
 
                         self.world.attach(child_bs_np.node())
                         child.reparent_to(child_bs_np)
@@ -328,7 +332,7 @@ class PhysicsAttr:
                         child_bs_np = actor.attach_new_node(BulletRigidBodyNode(child_bs_name))
                         child_bs_np.node().set_mass(2.0)
                         child_bs_np.node().add_shape(shape)
-                        child_bs_np.node().set_into_collide_mask(self.mask1)
+                        child_bs_np.node().set_into_collide_mask(mask)
 
                         self.world.attach(child_bs_np.node())
                         child.reparent_to(child_bs_np)

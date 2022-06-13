@@ -122,7 +122,7 @@ class NpcTriggers:
                     # ignore trigger itself and ground both
                     if "NPC" in node.get_name() or "Player" in node.get_name():
                         # if player close to horse
-                        if self.base.game_instance['player_ref']:
+                        if player_bs and self.base.game_instance['player_ref']:
                             if player_bs.get_distance(trigger_np) <= 2 \
                                     and player_bs.get_distance(trigger_np) >= 1:
                                 if actor.get_python_tag("npc_hud_np"):
