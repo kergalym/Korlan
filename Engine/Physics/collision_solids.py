@@ -106,29 +106,3 @@ class BulletCollisionSolids:
                 shape = BulletTriangleMeshShape(mesh, dynamic=bool_)
                 return shape
 
-    def get_bs_predefined(self, obj, type_):
-        if obj and isinstance(type_, str):
-            bool_ = False
-            collection = render.find("**/Collisions/lvl*coll")
-            if collection:
-                for child in collection.get_children():
-                    # Cut coll suffix from collider mesh name
-                    name = child.get_name()
-                    if name.endswith(".coll.001"):
-                        name = name.split(".coll.001")[0]
-
-                        # Check if names are equal and construct the collider
-                        if name == obj.get_name():
-                            if hasattr(child.node(), "get_geom"):
-                                print(name, obj.get_name())
-                                geom = child.node().get_geom(0)
-                                mesh = BulletTriangleMesh()
-                                mesh.add_geom(geom)
-
-                                if type_ == 'dynamic':
-                                    bool_ = True
-                                if type_ == 'static':
-                                    bool_ = False
-
-                                shape = BulletTriangleMeshShape(mesh, dynamic=bool_)
-                                return shape

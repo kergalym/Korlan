@@ -155,7 +155,6 @@ p3d.load_prc_file_data(
     'window-type {0}\n'.format(wintype)
 )
 
-cpu_threads_num = psutil.cpu_count(logical=True)
 p3d.load_prc_file_data(
     '',
     'icon-filename icon-16.ico\n'
@@ -175,7 +174,7 @@ p3d.load_prc_file_data(
     'task-timer-verbose 0\n'
     'pstats-tasks 0\n'
     'loader-thread-priority normal\n'
-    'loader-num-threads {0}\n'.format(cpu_threads_num)
+    'loader-num-threads 2\n'
 )
 
 p3d.load_prc_file_data(
@@ -358,6 +357,7 @@ class Main(ShowBase):
             "kbd_np": None,
             "keymap": None,
             "pause_mode": False,
+            "physics_attr_cls": None,
             "physics_world_np": None,
             "ai_world_np": None,
             "water_trigger_np": None,

@@ -92,7 +92,7 @@ class LevelOne:
         if (self.base.game_instance['physics_is_activated'] == 1
                 and self.base.game_instance['scene_np']):
             if self.base.game_instance["renderpipeline_np"]:
-                
+
                 # Set Environment Probe
                 self.envprobe = self.render_pipeline.add_environment_probe()
                 scene = self.base.game_instance['scene_np']
@@ -374,7 +374,9 @@ class LevelOne:
         """ Setup Physics """
         self.physics_attr.set_physics_world(self.npcs_fsm_states)
 
-        self.base.accept("add_bullet_collider", self.physics_attr.add_bullet_collider, [level_assets_joined])
+        self.base.game_instance["physics_attr_cls"] = self.physics_attr
+
+        # self.base.accept("add_bullet_collider", self.physics_attr.add_bullet_collider, [level_assets_joined])
 
         """ Async Loading """
         suffix = ""
@@ -393,7 +395,7 @@ class LevelOne:
         taskMgr.add(self.korlan.set_actor(mode="game",
                                           name="Player",
                                           animation=anims,
-                                          axis=[0, 15.0, self.pos_z],
+                                          axis=[-8, 15.0, self.pos_z],
                                           rotation=[0, 0, 0],
                                           scale=[1.0, 1.0, 1.0],
                                           culling=False))

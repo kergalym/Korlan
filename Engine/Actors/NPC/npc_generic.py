@@ -87,7 +87,12 @@ class NpcGeneric:
                 self.render_attr.render_pipeline.prepare_scene(self.actor)
 
             # Add Bullet collider for this actor
-            self.base.messenger.send("add_bullet_collider")
+            physics_attr = self.base.game_instance["physics_attr_cls"]
+            physics_attr.set_actor_collider(actor=self.actor,
+                                            col_name='{0}:BS'.format(self.actor.get_name()),
+                                            shape="capsule",
+                                            mask=physics_attr.mask,
+                                            type=type)
 
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
                 self.render.analyze()
@@ -128,5 +133,3 @@ class NpcGeneric:
 
             # Set NPC Parameters
             self.npc_state.setup_npc_state(actor=self.actor)
-
-

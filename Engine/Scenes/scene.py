@@ -224,7 +224,10 @@ class SceneOne:
             coll_scene.hide()
 
             # Add Bullet colliders for this scene
-            self.base.messenger.send("add_bullet_collider")
+            physics_attr = self.base.game_instance["physics_attr_cls"]
+            physics_attr.set_static_object_colliders(actor=scene,
+                                                     mask=physics_attr.mask,
+                                                     automatic=False)
 
             # Construct navigation system
             self.set_level_nav(name)

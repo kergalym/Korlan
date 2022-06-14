@@ -41,71 +41,7 @@ class PhysicsAttr:
         self.mask5 = BitMask32.bit(5)
         self.ghost_mask = BitMask32.bit(1)
         self.npcs_fsm_states = None
-
-    def set_collision(self, actor, type, shape):
-        if (actor and type and shape
-                and isinstance(type, str)
-                and isinstance(shape, str)):
-
-            if type == "env":
-                self.set_static_object_colliders(actor=actor,
-                                                 mask=self.mask,
-                                                 automatic=False)
-
-            elif type == "item":
-                self.set_dynamic_object_colliders(actor=actor,
-                                                  mask=self.mask,
-                                                  automatic=False)
-
-            elif type == "player":
-                if hasattr(actor, "set_tag"):
-                    actor.set_tag(key=actor.get_name(), value='1')
-                self.set_actor_collider(actor=actor,
-                                        col_name='{0}:BS'.format(actor.get_name()),
-                                        shape=shape,
-                                        mask=self.mask0,
-                                        type="player")
-
-            else:
-                if hasattr(actor, "set_tag"):
-                    actor.set_tag(key=actor.get_name(), value='1')
-                self.set_actor_collider(actor=actor,
-                                        col_name='{0}:BS'.format(actor.get_name()),
-                                        shape=shape,
-                                        mask=self.mask,
-                                        type=type)
-
-    def add_bullet_collider(self, assets):
-        """ Function    : add_bullet_collider
-
-            Description : Adds bullet collider
-
-            Input       : Task
-
-            Output      : None
-
-            Return      : None
-        """
-        if assets and isinstance(assets, dict):
-            for name, type, shape in zip(assets['name'],
-                                         assets['type'],
-                                         assets['shape']):
-                np = render.find("**/{0}".format(name))
-                np_bs = render.find("**/{0}:BS".format(name))
-                if np and not np_bs:
-                    if type == 'player':
-                        self.set_collision(actor=np,
-                                           type=type,
-                                           shape=shape)
-
-                    elif type == 'actor':
-                        self.set_collision(actor=np,
-                                           type=type,
-                                           shape=shape)
-                    else:
-                        self.set_collision(actor=np,
-                                           type=type,
-                                           shape=shape)
+        self.coll_collection = None
 
     def set_actor_collider(self, actor, col_name, shape, mask, type):
         if (actor
@@ -261,41 +197,24 @@ class PhysicsAttr:
 
     def set_static_object_colliders(self, actor, mask, automatic):
         if actor and mask and self.world:
-            shape = None
-            for child in actor.get_children():
-                # Skip child which already has Bullet shape
-                if ("BS" in child.get_name()
-                        or "BS" in child.get_parent().get_name()):
-                    continue
 
-                # Skip unused mesh
-                if "empty" in child.get_name():
-                    continue
+            if not self.coll_collection:
+                self.coll_collection = render.find("**/Collisions/lvl*coll")
 
-                if "Ground" in child.get_name():
-                    continue
+            for coll in self.coll_collection.get_children():
+                # Cut coll suffix from collider mesh name
+                name = coll.get_name()
+                if name.endswith(".coll.001"):
+                    name = name.split(".coll.001")[0]
 
-                if "ground" in child.get_name():
-                    continue
+                # Find asset to attach it to rigidbody collider
+                if actor.find("**/{0}".format(name)):
+                    child = actor.find("**/{0}".format(name))
 
-                if "Grass" in child.get_name():
-                    continue
-
-                if "tree" in child.get_name():
-                    continue
-
-                if "mountain" in child.get_name():
-                    continue
-
-                if automatic:
-                    shape = self.bullet_solids.get_bs_auto(obj=child, type_="static")
-                elif not automatic:
-                    shape = self.bullet_solids.get_bs_predefined(obj=child, type_="static")
-
-                if child.get_num_children() == 0:
+                    shape = self.bullet_solids.get_bs_auto(obj=coll, type_="static")
                     if shape:
                         child_bs_name = "{0}:BS".format(child.get_name())
-                        child_bs_np = actor.attach_new_node(BulletRigidBodyNode(child_bs_name))
+                        child_bs_np = self.world_nodepath.attach_new_node(BulletRigidBodyNode(child_bs_name))
                         child_bs_np.node().set_mass(0.0)
                         child_bs_np.node().add_shape(shape)
                         child_bs_np.node().set_into_collide_mask(mask)
@@ -310,26 +229,26 @@ class PhysicsAttr:
                         # Make item position zero because now it's a child of bullet shape
                         child.set_pos(0, 0, 0)
 
-                elif child.get_num_children() > 0:
-                    self.set_static_object_colliders(child, mask, automatic)
-
     def set_dynamic_object_colliders(self, actor, mask, automatic):
         if actor and mask and self.world:
-            shape = None
-            for child in actor.get_children():
-                # Skip child which already has Bullet shape
-                if "BS" in child.get_name() or "BS" in child.get_parent().get_name():
-                    continue
 
-                if automatic:
-                    shape = self.bullet_solids.get_bs_auto(obj=child, type_="dynamic")
-                elif not automatic:
-                    shape = self.bullet_solids.get_bs_predefined(obj=child, type_="dynamic")
+            if not self.coll_collection:
+                self.coll_collection = render.find("**/Collisions/lvl*coll")
 
-                if child.get_num_children() == 0:
+            for coll in self.coll_collection.get_children():
+                # Cut coll suffix from collider mesh name
+                name = coll.get_name()
+                if name.endswith(".coll.001"):
+                    name = name.split(".coll.001")[0]
+
+                # Find asset to attach it to rigidbody collider
+                if actor.find("**/{0}".format(name)):
+                    child = actor.find("**/{0}".format(name))
+
+                    shape = self.bullet_solids.get_bs_auto(obj=coll, type_="dynamic")
                     if shape:
                         child_bs_name = "{0}:BS".format(child.get_name())
-                        child_bs_np = actor.attach_new_node(BulletRigidBodyNode(child_bs_name))
+                        child_bs_np = self.world_nodepath.attach_new_node(BulletRigidBodyNode(child_bs_name))
                         child_bs_np.node().set_mass(2.0)
                         child_bs_np.node().add_shape(shape)
                         child_bs_np.node().set_into_collide_mask(mask)
@@ -343,9 +262,6 @@ class PhysicsAttr:
 
                         # Make item position zero because now it's a child of bullet shape
                         child.set_pos(0, 0, 0)
-
-                elif child.get_num_children() > 0:
-                    self.set_dynamic_object_colliders(child, mask, automatic)
 
     def toggle_physics_debug(self):
         if self.debug_nodepath:
@@ -393,10 +309,10 @@ class PhysicsAttr:
 
             Return      : None
         """
-        world = render.find("**/World")
-        if world:
+        self.world_nodepath = render.find("**/World")
+        if self.world_nodepath:
             # Show a visual representation of the collisions occuring
-            self.debug_nodepath = world.attach_new_node(BulletDebugNode('Debug'))
+            self.debug_nodepath = self.world_nodepath.attach_new_node(BulletDebugNode('Debug'))
 
             base.accept("f1", self.toggle_physics_debug)
 
@@ -409,7 +325,7 @@ class PhysicsAttr:
                     self.world.set_debug_node(self.debug_nodepath.node())
 
             ground_shape = BulletPlaneShape(Vec3(0, 0, 1), 0)
-            ground_nodepath = world.attach_new_node(BulletRigidBodyNode('Ground'))
+            ground_nodepath = self.world_nodepath.attach_new_node(BulletRigidBodyNode('Ground'))
             ground_nodepath.node().add_shape(ground_shape)
             ground_nodepath.set_pos(0, 0, 0.10)
             ground_nodepath.node().set_into_collide_mask(self.mask)
@@ -444,3 +360,4 @@ class PhysicsAttr:
 
             self.npcs_fsm_states = npcs_fsm_states
             self.base.game_instance['physics_is_activated'] = 1
+

@@ -247,7 +247,13 @@ class PlayerController:
                 # Define Mouse System
                 self.mouse.mouse_wheel_init()
                 self.floater = self.mouse.set_floater(self.player)
-                self.base.messenger.send("add_bullet_collider")
+
+                physics_attr = self.base.game_instance["physics_attr_cls"]
+                physics_attr.set_actor_collider(actor=self.player,
+                                                col_name='{0}:BS'.format(self.player.get_name()),
+                                                shape="capsule",
+                                                mask=physics_attr.mask0,
+                                                type="player")
 
                 taskMgr.add(self.mouse.mouse_control_task,
                             "mouse_control_task",
