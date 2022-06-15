@@ -73,7 +73,8 @@ class LevelOne:
         self.envprobe = None
 
     def game_instance_diagnostic_task(self, task):
-        if self.base.game_instance['hud_np'] and self.base.game_instance['ai_is_activated'] == 1:
+        if (self.base.game_instance['hud_np']
+                and self.base.game_instance['ai_is_activated'] == 1):
             text = ''
             for key in self.base.game_instance:
                 text += "{0}:  {1}\n".format(key, self.base.game_instance[key])
@@ -375,8 +376,6 @@ class LevelOne:
         self.physics_attr.set_physics_world(self.npcs_fsm_states)
 
         self.base.game_instance["physics_attr_cls"] = self.physics_attr
-
-        # self.base.accept("add_bullet_collider", self.physics_attr.add_bullet_collider, [level_assets_joined])
 
         """ Async Loading """
         suffix = ""

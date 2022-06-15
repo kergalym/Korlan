@@ -195,8 +195,8 @@ class PhysicsAttr:
                                     "{0}_area_trigger_task".format(col_name.lower()),
                                     extraArgs=[actor], appendTask=True)
 
-    def set_static_object_colliders(self, actor, mask, automatic):
-        if actor and mask and self.world:
+    def set_static_object_colliders(self, scene, mask):
+        if scene and mask and self.world:
 
             if not self.coll_collection:
                 self.coll_collection = render.find("**/Collisions/lvl*coll")
@@ -208,29 +208,24 @@ class PhysicsAttr:
                     name = name.split(".coll.001")[0]
 
                 # Find asset to attach it to rigidbody collider
-                if actor.find("**/{0}".format(name)):
-                    child = actor.find("**/{0}".format(name))
+                if scene.find("**/{0}".format(name)):
+                    child = scene.find("**/{0}".format(name))
 
-                    shape = self.bullet_solids.get_bs_auto(obj=coll, type_="static")
-                    if shape:
-                        child_bs_name = "{0}:BS".format(child.get_name())
-                        child_bs_np = self.world_nodepath.attach_new_node(BulletRigidBodyNode(child_bs_name))
-                        child_bs_np.node().set_mass(0.0)
-                        child_bs_np.node().add_shape(shape)
-                        child_bs_np.node().set_into_collide_mask(mask)
+                    # Find asset to attach it to rigidbody collider
+                    if child:
+                        shape = self.bullet_solids.get_bs_auto(obj=coll, type_="static")
+                        if shape:
+                            child_bs_name = "{0}:BS".format(child.get_name())
+                            child_bs_np = child.attach_new_node(BulletRigidBodyNode(child_bs_name))
+                            child_bs_np.node().set_mass(0.0)
+                            child_bs_np.node().add_shape(shape)
+                            child_bs_np.node().set_into_collide_mask(mask)
 
-                        self.world.attach(child_bs_np.node())
-                        child.reparent_to(child_bs_np)
+                            self.world.attach(child_bs_np.node())
+                            child_bs_np.set_hpr(child.get_hpr())
 
-                        child_bs_np.set_pos(child.get_pos())
-                        child_bs_np.set_hpr(child.get_hpr())
-                        child_bs_np.set_scale(child.get_scale())
-
-                        # Make item position zero because now it's a child of bullet shape
-                        child.set_pos(0, 0, 0)
-
-    def set_dynamic_object_colliders(self, actor, mask, automatic):
-        if actor and mask and self.world:
+    def set_dynamic_object_colliders(self, scene, mask):
+        if scene and mask and self.world:
 
             if not self.coll_collection:
                 self.coll_collection = render.find("**/Collisions/lvl*coll")
@@ -242,26 +237,21 @@ class PhysicsAttr:
                     name = name.split(".coll.001")[0]
 
                 # Find asset to attach it to rigidbody collider
-                if actor.find("**/{0}".format(name)):
-                    child = actor.find("**/{0}".format(name))
+                if scene.find("**/{0}".format(name)):
+                    child = scene.find("**/{0}".format(name))
 
-                    shape = self.bullet_solids.get_bs_auto(obj=coll, type_="dynamic")
-                    if shape:
-                        child_bs_name = "{0}:BS".format(child.get_name())
-                        child_bs_np = self.world_nodepath.attach_new_node(BulletRigidBodyNode(child_bs_name))
-                        child_bs_np.node().set_mass(2.0)
-                        child_bs_np.node().add_shape(shape)
-                        child_bs_np.node().set_into_collide_mask(mask)
+                    # Find asset to attach it to rigidbody collider
+                    if child:
+                        shape = self.bullet_solids.get_bs_auto(obj=coll, type_="dynamic")
+                        if shape:
+                            child_bs_name = "{0}:BS".format(child.get_name())
+                            child_bs_np = child.attach_new_node(BulletRigidBodyNode(child_bs_name))
+                            child_bs_np.node().set_mass(0.0)
+                            child_bs_np.node().add_shape(shape)
+                            child_bs_np.node().set_into_collide_mask(mask)
 
-                        self.world.attach(child_bs_np.node())
-                        child.reparent_to(child_bs_np)
-
-                        child_bs_np.set_pos(child.get_pos())
-                        child_bs_np.set_hpr(child.get_hpr())
-                        child_bs_np.set_scale(child.get_scale())
-
-                        # Make item position zero because now it's a child of bullet shape
-                        child.set_pos(0, 0, 0)
+                            self.world.attach(child_bs_np.node())
+                            child_bs_np.set_hpr(child.get_hpr())
 
     def toggle_physics_debug(self):
         if self.debug_nodepath:
@@ -360,4 +350,3 @@ class PhysicsAttr:
 
             self.npcs_fsm_states = npcs_fsm_states
             self.base.game_instance['physics_is_activated'] = 1
-

@@ -34,6 +34,7 @@ class SceneOne:
         self.game_cfg_dir = base.game_cfg_dir
         self.game_settings_filename = base.game_settings_filename
         self.cfg_path = self.game_cfg
+        self.world_nodepath = None
 
         # NavMeshBuilder is a class that is responsible
         # for building the polygon meshes and navigation meshes.
@@ -153,8 +154,8 @@ class SceneOne:
 
             # Load the scene.
             scene = await self.base.loader.load_model(path, blocking=False)
-            world = render.find("**/World")
-            if world:
+            self.world_nodepath = render.find("**/World")
+            if self.world_nodepath:
 
                 # toggle texture compression for textures to compress them
                 # before load into VRAM
@@ -219,15 +220,14 @@ class SceneOne:
             coll_scene = await self.base.loader.load_model(coll_path, blocking=False)
             coll_scene.set_name(coll_scene_name)
             coll_scene_np = NodePath("Collisions")
-            coll_scene_np.reparent_to(world)
+            coll_scene_np.reparent_to(self.world_nodepath)
             coll_scene.reparent_to(coll_scene_np)
             coll_scene.hide()
 
             # Add Bullet colliders for this scene
             physics_attr = self.base.game_instance["physics_attr_cls"]
-            physics_attr.set_static_object_colliders(actor=scene,
-                                                     mask=physics_attr.mask,
-                                                     automatic=False)
+            physics_attr.set_static_object_colliders(scene=scene,
+                                                     mask=physics_attr.mask)
 
             # Construct navigation system
             self.set_level_nav(name)

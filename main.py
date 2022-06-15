@@ -1206,7 +1206,7 @@ class Main(ShowBase):
 
             Return      : False
         """
-        if node and bool:
+        if node and bool and self.game_settings['Main']['postprocessing'] == 'on':
             for tex in node.find_all_textures():
                 if tex.get_num_components() == 4:
                     tex.set_format(Texture.F_srgb_alpha)
