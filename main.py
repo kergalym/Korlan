@@ -1213,6 +1213,26 @@ class Main(ShowBase):
                 if tex.get_num_components() == 3:
                     tex.set_format(Texture.F_srgb)
 
+    def set_collider_lit(self, nodepath):
+        """ Function    : set_collider_lit
+
+            Description : Set collider color lit
+
+            Input       : Nodepath
+
+            Output      : None
+
+            Return      : None
+        """
+        if nodepath and isinstance(nodepath, NodePath):
+            self.render_pipeline.set_effect(nodepath,
+                                            "{0}/Engine/Renderer/effects/collider_no_mat.yaml".format(self.game_dir),
+                                            {"render_gbuffer": True,
+                                             "render_forward": False,
+                                             "render_shadow": False,
+                                             "alpha_testing": True,
+                                             "normal_mapping": False})
+
     def video_status_task(self, media, type, file, task):
         """ Function    : video_status_task
 

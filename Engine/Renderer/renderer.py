@@ -247,33 +247,34 @@ class RenderAttr:
                     # RP doesn't have nodegraph-like structure to find and remove lights,
                     # so we check self.rp_light before adding light
 
-                    # Put first light under hearth
-                    light_u = RP_PointLight()
-                    light_u.pos = Vec3(node_path.get_x(), node_path.get_y(), 0.3)
-                    light_u.set_color_from_temperature(1000.0)
-                    light_u.energy = 2.0
-                    light_u.ies_profile = self.render_pipeline.load_ies_profile("x_arrow.ies")
-                    light_u.casts_shadows = True
-                    light_u.shadow_map_resolution = 512
-                    light_u.near_plane = 0.2
-                    light_u.radius = 3.0
-                    self.base.game_instance['rp_lights']["flame"].append(light_u)
-                    self.render_pipeline.add_light(light_u)
-
                     # Put second light above hearth
                     light_a = RP_PointLight()
                     light_a.pos = Vec3(node_path.get_x(), node_path.get_y(), 1.7)
                     light_a.set_color_from_temperature(1000.0)
-                    light_a.energy = 6.0
-                    light_a.ies_profile = self.render_pipeline.load_ies_profile("x_arrow.ies")
+                    light_a.energy = 4.0
+                    light_a.ies_profile = self.render_pipeline.load_ies_profile("pear.ies")
                     light_a.casts_shadows = True
                     light_a.shadow_map_resolution = 512
                     light_a.near_plane = 0.2
                     light_a.radius = 3.0
+                    light_a.inner_radius = 0.2
                     self.base.game_instance['rp_lights']["flame"].append(light_a)
                     self.render_pipeline.add_light(light_a)
 
-                    # base.h_light = light
+                    # Put first light under hearth
+                    light_u = RP_PointLight()
+                    light_u.pos = Vec3(node_path.get_x(), node_path.get_y(), 0.3)
+                    light_u.set_color_from_temperature(1000.0)
+                    light_u.energy = 1.0
+                    light_u.ies_profile = self.render_pipeline.load_ies_profile("pear.ies")
+                    light_u.casts_shadows = True
+                    light_u.shadow_map_resolution = 512
+                    light_u.near_plane = 0.2
+                    light_u.radius = 3.0
+                    light_u.inner_radius = 0.2
+                    self.base.game_instance['rp_lights']["flame"].append(light_u)
+                    self.render_pipeline.add_light(light_u)
+
                 if "flame_empty_hearth" in node_path.get_name():
                     self.base.enable_particles()
                     particles_l = ParticleEffect()
@@ -444,6 +445,7 @@ class RenderAttr:
                         light.shadow_map_resolution = 128
                         light.near_plane = 0.2
                         light.radius = 10.0
+                        light.inner_radius = 0.2
                         self.base.game_instance['rp_lights']["scene"].append(light)
                         self.render_pipeline.add_light(light)
 
@@ -500,6 +502,7 @@ class RenderAttr:
                         light.shadow_map_resolution = 128
                         light.near_plane = 0.2
                         light.radius = 10.0
+                        light.inner_radius = 0.2
                         self.base.game_instance['rp_lights']["inventory"] = light
                         self.render_pipeline.add_light(light)
 

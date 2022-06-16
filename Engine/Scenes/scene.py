@@ -13,7 +13,6 @@ class SceneOne:
 
     def __init__(self):
         self.path = None
-        self.loader = None
         self.game_settings = None
         self.render_type = None
         self.model = None
@@ -162,7 +161,7 @@ class SceneOne:
                 self.base.toggle_texture_compression(scene)
 
                 # scene.reparent_to(self.base.game_instance['lod_np'])
-                scene.reparent_to(self.render)
+                scene.reparent_to(self.world_nodepath)
 
                 # LOD quality preset
                 for lod_qk in self.base.game_instance["lod_quality"]:

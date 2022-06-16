@@ -18,14 +18,14 @@ gl-debug-object-labels #t
 # ----------------- Misc Settings -----------------
 
 # Disable V-Sync
-sync-video f
+sync-video t
 
 # Limit the pstats-rate. This causes huge lag on windows 10.
 pstats-max-rate 200
 
 # No stack trace on assertion, set this to true to make panda crash on assertions
 # (which will allow to debug it)
-# assert-abort #t
+# assert-abort #f
 # show-dll-error-dialog #f
 
 # File system should be case sensitive
