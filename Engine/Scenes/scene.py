@@ -198,7 +198,8 @@ class SceneOne:
             scene.set_two_sided(culling)
 
             # Panda3D 1.10 doesn't enable alpha blending for textures by default
-            scene.set_transparency(True)
+            if self.game_settings['Main']['postprocessing'] == 'off':
+                scene.set_transparency(True)
 
             if self.game_settings['Main']['postprocessing'] == 'on':
                 # Enable water
@@ -206,7 +207,7 @@ class SceneOne:
 
                 # Enable flame
                 self.render_attr.set_flame_hearth(adv_render=True, scene_np=scene, flame_scale=0.1)
-                self.render_attr.set_smoke_hearth(adv_render=True, scene_np=scene, smoke_scale=0.1)
+                # self.render_attr.set_smoke_hearth(adv_render=True, scene_np=scene, smoke_scale=0.1)
                 # Enable grass
                 # self.render_attr.set_grass(adv_render=True, fogcenter=Vec3(256, 256, 0), uv_offset=Vec2(0, 0))
 
@@ -225,8 +226,9 @@ class SceneOne:
 
             # Add Bullet colliders for this scene
             physics_attr = self.base.game_instance["physics_attr_cls"]
-            physics_attr.set_static_object_colliders(scene=scene,
-                                                     mask=physics_attr.mask)
+            if hasattr(physics_attr, "set_static_object_colliders"):
+                physics_attr.set_static_object_colliders(scene=scene,
+                                                         mask=physics_attr.mask)
 
             # Construct navigation system
             self.set_level_nav(name)

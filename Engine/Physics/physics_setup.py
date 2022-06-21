@@ -14,7 +14,7 @@ class PhysicsAttr:
     def __init__(self):
         self.base = base
         self.world = None
-        self.world_nodepath = None
+        self.world_nodepath = render.find("**/World")
         self.debug_nodepath = None
         self.render = render
         self.game_settings = base.game_settings
@@ -52,8 +52,7 @@ class PhysicsAttr:
                 and isinstance(col_name, str)
                 and isinstance(shape, str)
                 and isinstance(type, str)):
-            world_np = render.find("**/World")
-            if not self.base.game_instance['menu_mode'] and world_np:
+            if not self.base.game_instance['menu_mode'] and self.world_nodepath:
                 actor_bs = None
                 actor_bs_np = None
                 if shape == 'capsule':
@@ -102,7 +101,7 @@ class PhysicsAttr:
                     actor_node = BulletRigidBodyNode(col_name)
                     actor_node.set_mass(1.0)
                     actor_node.add_shape(actor_bs)
-                    actor_bs_np = world_np.attach_new_node(actor_node)
+                    actor_bs_np = self.world_nodepath.attach_new_node(actor_node)
                     actor_bs_np.set_collide_mask(mask)
                     self.world.attach_rigid_body(actor_bs_np.node())
 
@@ -147,7 +146,7 @@ class PhysicsAttr:
                     actor_node = BulletRigidBodyNode(col_name)
                     actor_node.set_mass(1.0)
                     actor_node.add_shape(actor_bs_box)
-                    actor_bs_np = world_np.attach_new_node(actor_node)
+                    actor_bs_np = self.world_nodepath.attach_new_node(actor_node)
                     actor_bs_np.set_collide_mask(mask)
                     self.world.attach_rigid_body(actor_bs_np.node())
 
@@ -329,7 +328,8 @@ class PhysicsAttr:
             np = render.attach_new_node(node)
             np.set_pos(4, 2, 0)
             self.world.attach_rigid_body(node)
-            model = base.loader.load_model('/home/galym/Korlan/tmp/box.egg')
+            assets = self.base.assets_collector()
+            model = base.loader.load_model(assets['Box'])
             model.reparent_to(np)
             model.set_name('box')
             model.set_pos(0, 0, 0)

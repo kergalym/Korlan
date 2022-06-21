@@ -249,11 +249,12 @@ class PlayerController:
                 self.floater = self.mouse.set_floater(self.player)
 
                 physics_attr = self.base.game_instance["physics_attr_cls"]
-                physics_attr.set_actor_collider(actor=self.player,
-                                                col_name='{0}:BS'.format(self.player.get_name()),
-                                                shape="capsule",
-                                                mask=physics_attr.mask0,
-                                                type="player")
+                if hasattr(physics_attr, "set_actor_collider"):
+                    physics_attr.set_actor_collider(actor=self.player,
+                                                    col_name='{0}:BS'.format(self.player.get_name()),
+                                                    shape="capsule",
+                                                    mask=physics_attr.mask0,
+                                                    type="player")
 
                 taskMgr.add(self.mouse.mouse_control_task,
                             "mouse_control_task",

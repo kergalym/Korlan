@@ -13,7 +13,6 @@ from Settings.UI.pause_menu_ui import PauseMenuUI
 from Engine.Actors.NPC.npc_generic import NpcGeneric
 from Engine.FSM.npc_fsm import NpcFSM
 
-py_npc_actor_classes = []
 py_npc_fsm_classes = []
 
 # List used by loading screen
@@ -31,7 +30,6 @@ LEVEL_NPC_AXIS = {'NPC_Ernar': [-3.0, 17.0, 0],
                   }
 
 for i in range(len(LEVEL_NPC_ASSETS['name'])):
-    py_npc_actor_classes.append(NpcGeneric)
     py_npc_fsm_classes.append(NpcFSM)
 
 """
@@ -58,8 +56,8 @@ class LevelOne:
         self.render_attr = RenderAttr()
         self.scene_one = SceneOne()
         self.korlan = Korlan()
+        self.npc_generic = NpcGeneric()
         self.pos_z = 0
-        self.actor_classes = []
         self.actor_fsm_classes = []
         self.pause_game_ui = PauseMenuUI()
         self.player_state = PlayerState()
@@ -93,7 +91,6 @@ class LevelOne:
         if (self.base.game_instance['physics_is_activated'] == 1
                 and self.base.game_instance['scene_np']):
             if self.base.game_instance["renderpipeline_np"]:
-
                 # Set Environment Probe
                 self.envprobe = self.render_pipeline.add_environment_probe()
                 scene = self.base.game_instance['scene_np']
@@ -195,10 +192,9 @@ class LevelOne:
                 self.korlan.korlan.delete()
                 self.korlan.korlan.cleanup()
 
-            for npc_cls in self.actor_classes:
-                if npc_cls.actor:
-                    npc_cls.actor.delete()
-                    npc_cls.actor.cleanup()
+            if self.npc_generic.actor:
+                self.npc_generic.actor.delete()
+                self.npc_generic.actor.cleanup()
 
             # Clean Level World
             if render.find("**/World"):
@@ -255,10 +251,9 @@ class LevelOne:
             self.korlan.korlan.delete()
             self.korlan.korlan.cleanup()
 
-        for npc_cls in self.actor_classes:
-            if npc_cls.actor:
-                npc_cls.actor.delete()
-                npc_cls.actor.cleanup()
+        if self.npc_generic.actor:
+            self.npc_generic.actor.delete()
+            self.npc_generic.actor.cleanup()
 
         # Clean Level World
         if render.find("**/World"):
@@ -347,11 +342,7 @@ class LevelOne:
                         'class': ['env', 'hero']
                         }
 
-        # Construct and pass NPC_Generic and NPC_FSM classes
-        for npc_cls in py_npc_actor_classes:
-            npc_cls_self = npc_cls()
-            self.actor_classes.append(npc_cls_self)
-
+        # Construct and pass NPC_FSM classes
         for actor, npc_fsm_cls in zip(LEVEL_NPC_ASSETS['name'], py_npc_fsm_classes):
             npc_fsm_cls_self = npc_fsm_cls(actor)
             self.actor_fsm_classes.append(npc_fsm_cls_self)
@@ -399,25 +390,15 @@ class LevelOne:
                                           scale=[1.0, 1.0, 1.0],
                                           culling=False))
 
-        for actor, _type, _class, npc_cls, axis_actor in zip(LEVEL_NPC_ASSETS['name'],
-                                                             LEVEL_NPC_ASSETS['type'],
-                                                             LEVEL_NPC_ASSETS['class'],
-                                                             self.actor_classes,
-                                                             LEVEL_NPC_AXIS):
-
-            if actor == axis_actor:
-                axis = LEVEL_NPC_AXIS[axis_actor]
-                taskMgr.add(npc_cls.set_actor(mode="game",
-                                              name=actor,
-                                              type=_type,
-                                              cls=_class,
-                                              path=assets['{0}_{1}'.format(actor, suffix)],
-                                              animation=anims,
-                                              axis=axis,
-                                              rotation=[0, 0, 0],
-                                              scale=[1.0, 1.0, 1.0],
-                                              culling=True))
-                self.base.game_instance['actors_are_loaded'] = True
+        taskMgr.add(self.npc_generic.set_actor(level_npc_assets=LEVEL_NPC_ASSETS,
+                                               level_npc_axis=LEVEL_NPC_AXIS,
+                                               mode="game",
+                                               assets=assets,
+                                               suffix=suffix,
+                                               animation=anims,
+                                               rotation=[0, 0, 0],
+                                               scale=[1.0, 1.0, 1.0],
+                                               culling=True))
 
         """ Task for Debug mode """
         if self.game_settings['Debug']['set_debug_mode'] == 'YES':
