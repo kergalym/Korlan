@@ -1,5 +1,4 @@
 from direct.actor.Actor import Actor
-from Engine.Renderer.renderer import RenderAttr
 from Engine.Actors.NPC.state import NpcState
 
 
@@ -16,7 +15,6 @@ class NpcGeneric:
         self.rot_r = 0
         self.base = base
         self.render = render
-        self.render_attr = RenderAttr()
         self.npc_state = NpcState()
         self.world_nodepath = render.find("**/World")
 
@@ -87,13 +85,13 @@ class NpcGeneric:
                     self.actor.set_transparency(True)
 
                     # Hardware skinning
-                    self.render_attr.set_hardware_skinning(self.actor, False)
+                    base.game_instance['render_attr_cls'].set_hardware_skinning(self.actor, False)
 
                     # Make actor global
                     self.base.game_instance['actors_ref'][name] = self.actor
 
                     if self.game_settings['Main']['postprocessing'] == 'on':
-                        self.render_attr.render_pipeline.prepare_scene(self.actor)
+                        base.game_instance['render_attr_cls'].render_pipeline.prepare_scene(self.actor)
 
                     # Add Bullet collider for this actor
                     physics_attr = self.base.game_instance["physics_attr_cls"]

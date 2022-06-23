@@ -1,11 +1,10 @@
 from Engine.Actors.Player.player_controller import PlayerController
 from Engine.Actors.Player.state import PlayerState
 from direct.actor.Actor import Actor
-from panda3d.core import WindowProperties
+from panda3d.core import WindowProperties, Vec3
 from panda3d.core import LPoint3f
 from direct.task.TaskManagerGlobal import taskMgr
 
-from Engine.Renderer.renderer import RenderAttr
 from Settings.Input.keyboard import Keyboard
 from Settings.Input.mouse import Mouse
 
@@ -28,7 +27,6 @@ class Korlan:
         self.korlan_life_perc = None
         self.base = base
         self.render = render
-        self.render_attr = RenderAttr()
         self.anims = None
 
         self.game_settings = base.game_settings
@@ -147,13 +145,13 @@ class Korlan:
                 self.korlan.set_transparency(True)
 
                 # Hardware skinning
-                self.render_attr.set_hardware_skinning(self.korlan, True)
+                base.game_instance['render_attr_cls'].set_hardware_skinning(self.korlan, True)
 
                 # Make actor global
                 self.base.game_instance['player_ref'] = self.korlan
 
                 if self.game_settings['Main']['postprocessing'] == 'on':
-                    self.render_attr.render_pipeline.prepare_scene(self.korlan)
+                    base.game_instance['render_attr_cls'].render_pipeline.prepare_scene(self.korlan)
 
                 if self.game_settings['Debug']['set_debug_mode'] == "YES":
                     self.render.analyze()
@@ -254,13 +252,13 @@ class Korlan:
                 self.korlan.set_transparency(True)
 
                 # Hardware skinning
-                self.render_attr.set_hardware_skinning(self.korlan, True)
+                base.game_instance['render_attr_cls'].set_hardware_skinning(self.korlan, True)
 
                 # Make actor global
                 self.base.game_instance['player_ref'] = self.korlan
 
                 if self.game_settings['Main']['postprocessing'] == 'on':
-                    self.render_attr.render_pipeline.prepare_scene(self.korlan)
+                    base.game_instance['render_attr_cls'].render_pipeline.prepare_scene(self.korlan)
 
                 if self.game_settings['Debug']['set_debug_mode'] == "YES":
                     self.render.analyze()

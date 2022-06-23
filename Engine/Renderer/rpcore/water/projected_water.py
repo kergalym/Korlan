@@ -58,8 +58,8 @@ class ProjectedWater:
     def clear_water(self):
         Globals.base.remove_task("update_water")
         if self.model:
-            self.model.delete()
-            self.model.claenup()
+            self.model.clear()
+            self.model.remove_node()
 
     def update_task(self, task):
         # Update water displacement

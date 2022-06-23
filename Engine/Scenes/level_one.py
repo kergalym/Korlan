@@ -5,7 +5,6 @@ from panda3d.core import *
 from Engine.Actors.Player.korlan import Korlan
 from Engine.Actors.Player.state import PlayerState
 from Engine.AI.ai_setup import AI
-from Engine.Renderer.renderer import RenderAttr
 from Engine.Scenes.scene import SceneOne
 from Engine.Physics.physics_setup import PhysicsAttr
 from Settings.UI.pause_menu_ui import PauseMenuUI
@@ -53,7 +52,6 @@ class LevelOne:
             self.render_pipeline = base.render_pipeline
         self.loader = base.loader
         self.node_path = NodePath()
-        self.render_attr = RenderAttr()
         self.scene_one = SceneOne()
         self.korlan = Korlan()
         self.npc_generic = NpcGeneric()
@@ -131,11 +129,11 @@ class LevelOne:
             taskMgr.remove("cursor_state_task")
 
             # Remove day time task
-            self.render_attr.time_text_ui.hide()
+            base.game_instance['render_attr_cls'].time_text_ui.hide()
             taskMgr.remove("set_time_of_day_clock_task")
 
             # Remove all flames
-            self.render_attr.clear_flame()
+            base.game_instance['render_attr_cls'].clear_flame()
 
             # Remove all lights
             if self.game_settings['Main']['postprocessing'] == 'off':
@@ -155,7 +153,7 @@ class LevelOne:
                         render.find("**/Collisions").clear()
 
             # Remove Water
-            self.render_attr.clear_projected_water()
+            base.game_instance['render_attr_cls'].clear_projected_water()
 
             # Unload Physics
             if self.physics_attr and self.physics_attr.world:
@@ -244,7 +242,7 @@ class LevelOne:
                     render.find("**/Collisions").clear()
 
         # Remove Water
-        self.render_attr.clear_projected_water()
+        base.game_instance['render_attr_cls'].clear_projected_water()
 
         # Player and actor cleanup
         if self.korlan.korlan:
@@ -289,39 +287,39 @@ class LevelOne:
         self.base.game_instance['lod_np'] = NodePath(lod)
         self.base.game_instance['lod_np'].reparentTo(world_np)
 
-        self.render_attr.time_text_ui.show()
-        taskMgr.add(self.render_attr.set_time_of_day_clock_task,
+        base.game_instance['render_attr_cls'].time_text_ui.show()
+        taskMgr.add(base.game_instance['render_attr_cls'].set_time_of_day_clock_task,
                     "set_time_of_day_clock_task",
                     extraArgs=["18:00", 1800],  # 1800 sec == 30 min
                     appendTask=True)
 
         """ Assets """
 
-        """self.render_attr.set_lighting(name='plight',
+        """base.game_instance['render_attr_cls'].set_lighting(name='plight',
                                       render=self.render,
                                       pos=[-7, 8, 8],
                                       hpr=[180, 130, 0],
                                       color=[0.4],
                                       task="attach")
-        self.render_attr.set_lighting(name='plight',
+        base.game_instance['render_attr_cls'].set_lighting(name='plight',
                                       render=self.render,
                                       pos=[-12, 8, 8],
                                       hpr=[180, 130, 0],
                                       color=[0.4],
                                       task="attach")
-        self.render_attr.set_lighting(name='slight',
+        base.game_instance['render_attr_cls'].set_lighting(name='slight',
                                       render=self.render,
                                       pos=[0, 3, 10],
                                       hpr=[0, -20, 0],
                                       color=[0.5],
                                       task="attach")"""
-        """self.render_attr.set_lighting(name='dlight',
+        """base.game_instance['render_attr_cls'].set_lighting(name='dlight',
                                       render=self.render,
                                       pos=[0, -40, 10],
                                       hpr=[0, -20, 0],
                                       color=[0.7],
                                       task="attach")
-        self.render_attr.set_lighting(name='alight',
+        base.game_instance['render_attr_cls'].set_lighting(name='alight',
                                       render=self.render,
                                       pos=[0, 8.0, 10],
                                       hpr=[0, -20, 0],

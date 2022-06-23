@@ -12,7 +12,6 @@ from Engine.Inventory.inventory import Inventory
 from Engine.Inventory.item import Item
 from panda3d.core import TextNode
 from panda3d.core import WindowProperties
-from Engine.Renderer.renderer import RenderAttr
 
 
 class Sheet(Inventory):
@@ -31,7 +30,6 @@ class Sheet(Inventory):
         self.font = FontPool
         self.text = TextNode("TextNode")
         self.player_state = PlayerState()
-        self.render_attr = RenderAttr()
         self.menu_font = None
         self.cfg_path = None
 
@@ -703,6 +701,27 @@ class Sheet(Inventory):
                 if render.find("**/pivot"):
                     render.find("**/pivot").set_hpr(24.6, -0.999999, 0)
 
+                # set scene
+                bg_black = None
+                if not render.find("**/bg_black_char_sheet"):
+                    geoms = self.base.inventory_geoms_collector()
+                    if geoms:
+                        bg_black = base.loader.loadModel(geoms["bg_black_char_sheet"])
+                        bg_black.set_name("bg_black_char_sheet")
+                        player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
+                        if player_bs:
+                            bg_black.reparent_to(player_bs)
+                            bg_black.set_pos(0, 0, 0)
+                            bg_black.set_h(player_bs.get_h())
+                            bg_black.set_two_sided(True)
+                else:
+                    if render.find("**/bg_black_char_sheet"):
+                        bg_black = render.find("**/bg_black_char_sheet")
+                        bg_black.show()
+
+                if render.find("**/World"):
+                    render.find("**/World").hide()
+
                 # set light
                 player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
                 if player_bs:
@@ -715,7 +734,7 @@ class Sheet(Inventory):
 
                     if self.game_settings['Main']['postprocessing'] == 'on':
                         light_pos = [player_bs.get_x(), player_bs.get_y() - 4.0, 8.0]
-                        self.render_attr.set_inv_lighting(name='slight',
+                        base.game_instance['render_attr_cls'].set_inv_lighting(name='slight',
                                                           render=render,
                                                           pos=light_pos,
                                                           hpr=[0, 0.4, -1],
@@ -723,7 +742,7 @@ class Sheet(Inventory):
                                                           task="attach")
                     else:
                         light_pos = [player_bs.get_x(), player_bs.get_y() - 3.0, player_bs.get_z() + 0.8]
-                        self.render_attr.set_inv_lighting(name='slight',
+                        base.game_instance['render_attr_cls'].set_inv_lighting(name='slight',
                                                           render=render,
                                                           pos=light_pos,
                                                           hpr=[0, 14, 0],
@@ -744,8 +763,13 @@ class Sheet(Inventory):
         if render.find("**/pivot"):
             render.find("**/pivot").set_hpr(pivot_hpr)
 
+        # hide
+        if render.find("**/bg_black_char_sheet"):
+            bg_black = render.find("**/bg_black_char_sheet")
+            bg_black.hide()
+
         # Show world again
         if render.find("**/World"):
             render.find("**/World").show()
 
-        self.render_attr.clear_inv_lighting()
+        base.game_instance['render_attr_cls'].clear_inv_lighting()

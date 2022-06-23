@@ -335,6 +335,7 @@ class Main(ShowBase):
             "scene_np": None,
             "player_controller_np": None,
             "actor_controllers_np": {},
+            "render_attr_cls": None,
             "renderpipeline_np": None,
             "player_ref": None,
             "actors_ref": {},
@@ -449,6 +450,7 @@ class Main(ShowBase):
 
         self.scene_one = SceneOne()
         self.render_attr = RenderAttr()
+        self.game_instance["render_attr_cls"] = self.render_attr
         self.korlan = Korlan()
         self.sound = Sound()
         self.text = TextNode("TextNode")

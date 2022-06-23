@@ -1,7 +1,6 @@
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.bullet import BulletSphereShape, BulletGhostNode
 from panda3d.core import *
-from Engine.Renderer.renderer import RenderAttr
 from Engine.Quests.social_quests import SocialQuests
 
 # TODO UNCOMMENT WHEN R&D BECOMES PRODUCTION-READY
@@ -12,6 +11,8 @@ from panda3d.navmeshgen import NavMeshBuilder
 class SceneOne:
 
     def __init__(self):
+        self.base = base
+        self.render = render
         self.path = None
         self.game_settings = None
         self.render_type = None
@@ -23,10 +24,7 @@ class SceneOne:
         self.scale_z = None
         self.type = None
         self.node_path = NodePath()
-        self.render_attr = RenderAttr()
         self.social_quests = None
-        self.base = base
-        self.render = render
         self.game_settings = base.game_settings
         self.game_dir = base.game_dir
         self.game_cfg = base.game_cfg
@@ -185,14 +183,14 @@ class SceneOne:
                 self.base.game_instance['scene_np'] = scene
 
             if self.game_settings['Main']['postprocessing'] == 'on':
-                self.render_attr.render_pipeline.prepare_scene(scene)
+                base.game_instance['render_attr_cls'].render_pipeline.prepare_scene(scene)
 
             if not render.find("**/Grass").is_empty():
                 grass = render.find("**/Grass")
                 grass.set_two_sided(True)
 
             # Enable lightmapping for this scene
-            self.render_attr.apply_lightmap_to_scene(scene=scene, lightmap="lightmap_scene_one")
+            base.game_instance['render_attr_cls'].apply_lightmap_to_scene(scene=scene, lightmap="lightmap_scene_one")
 
             # Set two sided, since some model may be broken
             scene.set_two_sided(culling)
@@ -203,13 +201,13 @@ class SceneOne:
 
             if self.game_settings['Main']['postprocessing'] == 'on':
                 # Enable water
-                self.render_attr.set_projected_water(True)
+                base.game_instance['render_attr_cls'].set_projected_water(True)
 
                 # Enable flame
-                self.render_attr.set_flame_hearth(adv_render=True, scene_np=scene, flame_scale=0.1)
-                # self.render_attr.set_smoke_hearth(adv_render=True, scene_np=scene, smoke_scale=0.1)
+                base.game_instance['render_attr_cls'].set_flame_hearth(adv_render=True, scene_np=scene, flame_scale=0.1)
+                # base.game_instance['render_attr_cls'].set_smoke_hearth(adv_render=True, scene_np=scene, smoke_scale=0.1)
                 # Enable grass
-                # self.render_attr.set_grass(adv_render=True, fogcenter=Vec3(256, 256, 0), uv_offset=Vec2(0, 0))
+                # base.game_instance['render_attr_cls'].set_grass(adv_render=True, fogcenter=Vec3(256, 256, 0), uv_offset=Vec2(0, 0))
 
             self.base.game_instance['scene_is_loaded'] = True
 

@@ -1,36 +1,30 @@
-# Renderer Pipeline Plugin Configuration
-# Instead of editing this file, prefer to use the Plugin Configurator
-# Any formatting and comments will be lost
-
 disabled:
-    - dof
-    - fxaa
-    - vxgi
-
+- dof
+- fxaa
+- volumetrics
+- vxgi
+- skin_shading
 enabled:
-    - ao
-    - bloom
-    - color_correction
-    - forward_shading
-    - motion_blur
-    - pssm
-    - scattering
-    - skin_shading
-    - sky_ao
-    - smaa
-    - ssr
-    - clouds
-    - env_probes
-    - volumetrics
-
+- ao
+- bloom
+- color_correction
+- forward_shading
+- motion_blur
+- pssm
+- scattering
+- sky_ao
+- smaa
+- ssr
+- clouds
+- env_probes
 overrides:
     ao:
         blur_quality: MEDIUM
         blur_normal_factor: 2.97
         blur_depth_factor: 0.88158
         occlusion_strength: 2.19
-        clip_length: 1
-        technique: HBAO
+        clip_length: 4
+        technique: SSAO
         ssao_sample_radius: 95.29
         ssao_sequence: halton_3D_8
         ssao_bias: 0.0143
@@ -70,11 +64,11 @@ overrides:
         uc2t_toe_numerator: 0.0029
         uc2t_toe_denumerator: 0.2787
         uc2t_reference_white: 10.05
-        vignette_strength: 0.1286
-        film_grain_strength: 0.1286
+        vignette_strength: 0.5
+        film_grain_strength: 0.0
         color_lut: film_luts/default_lut.png
-        use_chromatic_aberration: True
-        chromatic_aberration_strength: 0.33012
+        use_chromatic_aberration: false
+        chromatic_aberration_strength: 0.019
         chromatic_aberration_samples: 2
         manual_camera_parameters: False
         min_exposure_value: 0.01
@@ -93,7 +87,7 @@ overrides:
         near_blur_strength: 0.4286
 
     env_probes:
-        probe_resolution: 256
+        probe_resolution: 128
         diffuse_probe_resolution: 2
         max_probes: 16
         max_probes_per_cell: 3
@@ -125,7 +119,7 @@ overrides:
         use_pcf: True
         filter_sequence: halton_2D_32
         filter_radius: 0.7
-        fixed_bias: 0.11426
+        fixed_bias: 0.11429
         slope_bias: 0.0
         normal_bias: 0.67
         use_pcss: False
@@ -136,7 +130,7 @@ overrides:
         dist_shadow_resolution: 4096
         dist_shadow_clipsize: 400.0
         dist_shadow_sundist: 300.0
-        scene_shadow_resolution: 4096
+        scene_shadow_resolution: 512
         scene_shadow_sundist: 300.0
 
     scattering:
@@ -151,8 +145,8 @@ overrides:
         atmosphere_start: 549.61
 
     skin_shading:
-        quality: high
-        blur_scale: 0.1
+        quality: medium
+        blur_scale: 0.43
 
     sky_ao:
         sample_radius: 17.17
@@ -165,7 +159,7 @@ overrides:
         capture_height: 568.75
 
     smaa:
-        use_reprojection: False
+        use_reprojection: True
         smaa_quality: ultra
         jitter_pattern: halton8
         history_length: 8
@@ -173,7 +167,7 @@ overrides:
 
     ssr:
         effect_scale: 1.0
-        trace_steps: 84
+        trace_steps: 64
         history_length: 16
         abort_on_object_infront: True
         intial_bias: 0.1
@@ -196,3 +190,4 @@ overrides:
         grid_ws_size: 100.0
         diffuse_cone_steps: 32
         specular_cone_steps: 150
+

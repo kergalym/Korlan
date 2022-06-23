@@ -46,12 +46,12 @@ class SocialQuests:
                 if trigger_np.find(txt_label):
                     txt_cap = trigger_np.find(txt_label)
                     if txt_cap:
-                        if (round(place.get_distance(actor), 1) >= self.trig_range[0]
-                                and round(place.get_distance(actor), 1) <= self.trig_range[1]):
+                        if (round(actor.get_distance(place), 1) >= self.trig_range[0]
+                                and round(actor.get_distance(place), 1) <= self.trig_range[1]):
                             txt_cap.show()
-                        elif round(place.get_distance(actor), 1) == 0.0:
+                        elif round(actor.get_distance(place), 1) == 0.0:
                             txt_cap.hide()
-                        elif round(place.get_distance(actor), 1) > self.trig_range[1]:
+                        elif round(actor.get_distance(place), 1) > self.trig_range[1]:
                             txt_cap.hide()
 
     def set_action_state(self, actor, bool_):
@@ -366,8 +366,8 @@ class SocialQuests:
                     self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_rest",
                                                             place=place, actor=self.player_bs)
 
-                    if (round(place.get_distance(self.player_bs), 1) >= self.trig_range[0]
-                            and round(place.get_distance(self.player_bs), 1) <= self.trig_range[1]):
+                    if (round(self.player_bs.get_distance(place), 1) >= self.trig_range[0]
+                            and round(self.player_bs.get_distance(place), 1) <= self.trig_range[1]):
                         # todo: change to suitable standing_to_laying anim
                         if (self.base.game_instance["kbd_np"].keymap["use"]
                                 and not base.player_states['is_using']
@@ -415,8 +415,8 @@ class SocialQuests:
                     self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_use",
                                                             place=place, actor=self.player_bs)
 
-                    if (round(place.get_distance(player_bs), 1) >= self.trig_range[0]
-                            and round(place.get_distance(player_bs), 1) <= self.trig_range[1]):
+                    if (round(self.player_bs.get_distance(place), 1) >= self.trig_range[0]
+                            and round(self.player_bs.get_distance(place), 1) <= self.trig_range[1]):
                         if (self.base.game_instance["kbd_np"].keymap["use"]
                                 and not base.player_states['is_using']
                                 and not base.player_states['is_moving']
@@ -500,8 +500,8 @@ class SocialQuests:
                                                             place=actor, actor=self.player_bs)
 
                     if not player.get_python_tag("is_item_using"):
-                        if (round(actor.get_distance(self.player_bs), 1) >= self.trig_range[0]
-                                and round(actor.get_distance(self.player_bs), 1) <= self.trig_range[1]):
+                        if (round(self.player_bs.get_distance(actor), 1) >= self.trig_range[0]
+                                and round(self.player_bs.get_distance(actor), 1) <= self.trig_range[1]):
                             actor_bs = actor.find("**/{0}:BS".format(actor.get_name()))
                             # Currently close item parameters
                             self.base.game_instance['item_state'] = {

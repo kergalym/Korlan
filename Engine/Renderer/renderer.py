@@ -9,7 +9,6 @@ from panda3d.core import FontPool, TextNode
 from Engine.Renderer.rpcore import PointLight as RP_PointLight
 from Engine.Renderer.rpcore import SpotLight as RP_SpotLight
 from direct.particles.ParticleEffect import ParticleEffect
-from Engine.Renderer.rpcore.water.projected_water import ProjectedWater
 import random
 
 
@@ -106,7 +105,7 @@ class RenderAttr:
                 self.minutes = self.elapsed_seconds // 60
 
                 if self.base.game_instance['ui_mode']:
-                    self.hour = 00
+                    self.hour = 15
                 else:
                     hour = time.split(':')
                     hour = int(hour[0])
@@ -157,6 +156,7 @@ class RenderAttr:
 
     def set_projected_water(self, bool_):
         if bool_:
+            from Engine.Renderer.rpcore.water.projected_water import ProjectedWater
             self.proj_water = ProjectedWater(WaterOptions)
             self.proj_water.setup_water(pipeline=self.render_pipeline, water_level=-3.0)
 
@@ -257,7 +257,7 @@ class RenderAttr:
                     light_a.shadow_map_resolution = 512
                     light_a.near_plane = 0.2
                     light_a.radius = 3.0
-                    light_a.inner_radius = 0.2
+                    # light_a.inner_radius = 0.2
                     self.base.game_instance['rp_lights']["flame"].append(light_a)
                     self.render_pipeline.add_light(light_a)
 
@@ -271,7 +271,7 @@ class RenderAttr:
                     light_u.shadow_map_resolution = 512
                     light_u.near_plane = 0.2
                     light_u.radius = 3.0
-                    light_u.inner_radius = 0.2
+                    # light_u.inner_radius = 0.2
                     self.base.game_instance['rp_lights']["flame"].append(light_u)
                     self.render_pipeline.add_light(light_u)
 
@@ -445,7 +445,7 @@ class RenderAttr:
                         light.shadow_map_resolution = 128
                         light.near_plane = 0.2
                         light.radius = 10.0
-                        light.inner_radius = 0.2
+                        # light.inner_radius = 0.2
                         self.base.game_instance['rp_lights']["scene"].append(light)
                         self.render_pipeline.add_light(light)
 
@@ -477,15 +477,21 @@ class RenderAttr:
                         else:
                             light = self.base.game_instance['rp_lights']["inventory"]
                         light.pos = (pos[0], pos[1], pos[2])
+
+                        player = render.find("**/Player:BS")
+                        if player:
+                            light.look_at(player.get_pos())
+
                         light.color = (color[0], color[0], color[0])
                         light.set_color_from_temperature(5000.0)
                         light.energy = 180
-                        light.ies_profile = self.render_pipeline.load_ies_profile("x_arrow.ies")
+                        light.ies_profile = self.render_pipeline.load_ies_profile("pearl.ies")
                         light.casts_shadows = True
                         light.shadow_map_resolution = 512
                         light.direction = (hpr[0], hpr[1], hpr[2])
                         self.base.game_instance['rp_lights']["inventory"] = light
                         self.render_pipeline.add_light(light)
+                        base.slight = light
                     elif name == "plight":
                         # RP doesn't have nodegraph-like structure to find and remove lights,
                         # so we check self.rp_light before adding light
@@ -496,13 +502,13 @@ class RenderAttr:
                         light.pos = (pos[0], pos[1], pos[2])
                         light.color = (color[0], color[0], color[0])
                         light.set_color_from_temperature(5000.0)
-                        light.energy = 100.0
+                        light.energy = 180.0
                         light.ies_profile = self.render_pipeline.load_ies_profile("x_arrow.ies")
                         light.casts_shadows = True
                         light.shadow_map_resolution = 128
                         light.near_plane = 0.2
                         light.radius = 10.0
-                        light.inner_radius = 0.2
+                        # light.inner_radius = 0.2
                         self.base.game_instance['rp_lights']["inventory"] = light
                         self.render_pipeline.add_light(light)
 
