@@ -163,6 +163,7 @@ class RenderAttr:
     def clear_projected_water(self):
         if self.proj_water:
             self.proj_water.clear_water()
+            self.proj_water = None
 
     def set_grass(self, uv_offset, fogcenter=Vec3(0, 0, 0), adv_render=False):
         if adv_render and not render.find("**/water_plane").is_empty():
@@ -485,7 +486,7 @@ class RenderAttr:
                         light.color = (color[0], color[0], color[0])
                         light.set_color_from_temperature(5000.0)
                         light.energy = 180
-                        light.ies_profile = self.render_pipeline.load_ies_profile("pearl.ies")
+                        light.ies_profile = self.render_pipeline.load_ies_profile("pear.ies")
                         light.casts_shadows = True
                         light.shadow_map_resolution = 512
                         light.direction = (hpr[0], hpr[1], hpr[2])

@@ -152,9 +152,6 @@ class LevelOne:
                         render.find("**/Collisions").remove_node()
                         render.find("**/Collisions").clear()
 
-            # Remove Water
-            base.game_instance['render_attr_cls'].clear_projected_water()
-
             # Unload Physics
             if self.physics_attr and self.physics_attr.world:
                 taskMgr.remove("update_physics_task")
@@ -203,6 +200,10 @@ class LevelOne:
                 self.base.game_instance['player_ref'].remove_node()
                 self.base.game_instance['player_ref'].clear()
 
+            # Clean level Navmesh
+            if self.base.game_instance["level_navmesh_np"]:
+                self.base.game_instance["level_navmesh_np"].remove_node()
+
             for key in assets:
                 self.loader.unload_model(assets[key])
 
@@ -222,47 +223,6 @@ class LevelOne:
                 taskMgr.remove("game_instance_diagnostic_task")
 
     def unload_menu_scene(self):
-        assets = self.base.assets_collector()
-
-        # Remove all lights
-        if self.game_settings['Main']['postprocessing'] == 'off':
-            render.clearLight()
-            if not render.find("**/+Light").is_empty():
-                render.find("**/+Light").remove_node()
-                render.find("**/+Light").clear()
-        elif (self.render_pipeline
-              and self.game_settings['Main']['postprocessing'] == 'on'):
-            base.render_attr.clear_lighting()
-
-        # Remove Collisions
-        if not render.find("**/Collisions").is_empty():
-            for i in range(render.find("**/Collisions").get_num_nodes()):
-                if not render.find("**/Collisions").is_empty():
-                    render.find("**/Collisions").remove_node()
-                    render.find("**/Collisions").clear()
-
-        # Remove Water
-        base.game_instance['render_attr_cls'].clear_projected_water()
-
-        # Player and actor cleanup
-        if self.korlan.korlan:
-            self.korlan.korlan.delete()
-            self.korlan.korlan.cleanup()
-
-        if self.npc_generic.actor:
-            self.npc_generic.actor.delete()
-            self.npc_generic.actor.cleanup()
-
-        # Clean Level World
-        if render.find("**/World"):
-            render.find("**/World").remove_node()
-            render.find("**/World").clear()
-
-        for key in assets:
-            self.loader.unload_model(assets[key])
-
-        self.actor_focus_index = 1
-
         self.base.game_instance['menu_mode'] = False
 
         if self.base.game_instance['menu_scene_video']:

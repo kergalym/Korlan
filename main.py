@@ -378,6 +378,7 @@ class Main(ShowBase):
             "item_player_access_codes": {},
             "level_assets_np": {},
             "use_pandai": False,
+            "level_navmesh_np": None,
             "navmesh_query": None,
         }
         self.shared_functions = {}
@@ -459,6 +460,10 @@ class Main(ShowBase):
         self.rotateY = 0
         self.rotateX = 0
         self.scene_mode = None
+
+        # Enable Projected water
+        if self.game_settings['Main']['postprocessing'] == 'on':
+            self.render_attr.set_projected_water(True)
 
         """ Sounds """
         self.sound.openal_mgr()

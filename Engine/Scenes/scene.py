@@ -56,6 +56,7 @@ class SceneOne:
             scene_name = "{0}_navmesh".format(scene_name)
             navmesh_scene_np = self.base.loader.load_model(navmesh_scenes[scene_name])
             navmesh_scene_np.reparent_to(render)
+            self.base.game_instance["level_navmesh_np"] = navmesh_scene_np
             navmesh_scene_np.hide()
 
             self.builder.from_coll_node_path(navmesh_scene_np)
@@ -200,9 +201,6 @@ class SceneOne:
                 scene.set_transparency(True)
 
             if self.game_settings['Main']['postprocessing'] == 'on':
-                # Enable water
-                base.game_instance['render_attr_cls'].set_projected_water(True)
-
                 # Enable flame
                 base.game_instance['render_attr_cls'].set_flame_hearth(adv_render=True, scene_np=scene, flame_scale=0.1)
                 # base.game_instance['render_attr_cls'].set_smoke_hearth(adv_render=True, scene_np=scene, smoke_scale=0.1)

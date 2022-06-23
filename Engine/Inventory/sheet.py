@@ -735,19 +735,19 @@ class Sheet(Inventory):
                     if self.game_settings['Main']['postprocessing'] == 'on':
                         light_pos = [player_bs.get_x(), player_bs.get_y() - 4.0, 8.0]
                         base.game_instance['render_attr_cls'].set_inv_lighting(name='slight',
-                                                          render=render,
-                                                          pos=light_pos,
-                                                          hpr=[0, 0.4, -1],
-                                                          color=[2.0],
-                                                          task="attach")
+                                                                               render=render,
+                                                                               pos=light_pos,
+                                                                               hpr=[0, 0.4, -1],
+                                                                               color=[2.0],
+                                                                               task="attach")
                     else:
                         light_pos = [player_bs.get_x(), player_bs.get_y() - 3.0, player_bs.get_z() + 0.8]
                         base.game_instance['render_attr_cls'].set_inv_lighting(name='slight',
-                                                          render=render,
-                                                          pos=light_pos,
-                                                          hpr=[0, 14, 0],
-                                                          color=[0.4],
-                                                          task="attach")
+                                                                               render=render,
+                                                                               pos=light_pos,
+                                                                               hpr=[0, 14, 0],
+                                                                               color=[0.4],
+                                                                               task="attach")
 
     def revert_character(self):
         # Revert character view
