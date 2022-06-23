@@ -16,7 +16,7 @@ class LoadingUI:
 
     def __init__(self):
         self.base = base
-        self.hud = HUD()
+        self.hud = None
         self.level_one = LevelOne()
         self.editor = None
         self.rp_lights_mgr_ui = RPLightsMgrUI()
@@ -108,11 +108,12 @@ class LoadingUI:
         self.clear_loading_bar()
 
         if self.game_settings['Debug']['set_editor_mode'] == 'NO':
+            self.hud = HUD()
+            self.base.game_instance['hud_np'] = self.hud
             self.hud.set_aim_cursor()
             self.hud.set_day_hud()
             self.hud.set_player_bar()
             self.hud.set_weapon_ui()
-            self.base.game_instance['hud_np'] = self.hud
 
         if self.game_settings['Debug']['set_debug_mode'] == 'YES':
             self.stat_ui.set_game_stat()

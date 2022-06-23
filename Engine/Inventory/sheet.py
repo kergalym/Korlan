@@ -610,6 +610,7 @@ class Sheet(Inventory):
 
                         if self.base.game_instance['hud_np']:
                             self.base.game_instance['hud_np'].toggle_all_hud(state="hidden")
+                        base.game_instance['render_attr_cls'].time_text_ui.hide()
 
                         self.base.frame_inv.show()
                         # self.base.menu_selector.show()
@@ -651,6 +652,7 @@ class Sheet(Inventory):
 
         if self.base.game_instance['hud_np']:
             self.base.game_instance['hud_np'].toggle_all_hud(state="visible")
+        base.game_instance['render_attr_cls'].time_text_ui.show()
 
         self.toggle()
 

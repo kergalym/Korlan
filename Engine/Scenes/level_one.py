@@ -124,6 +124,7 @@ class LevelOne:
                 self.base.game_instance['hud_np'].clear_day_hud()
                 self.base.game_instance['hud_np'].clear_player_bar()
                 self.base.game_instance['hud_np'].clear_weapon_ui()
+                self.base.game_instance['hud_np'] = None
             taskMgr.remove("cursor_state_task")
 
             # Remove day time task
@@ -245,8 +246,8 @@ class LevelOne:
         self.base.game_instance['lod_np'] = NodePath(lod)
         self.base.game_instance['lod_np'].reparentTo(world_np)
 
-        base.game_instance['render_attr_cls'].time_text_ui.show()
-        taskMgr.add(base.game_instance['render_attr_cls'].set_time_of_day_clock_task,
+        self.base.game_instance['render_attr_cls'].time_text_ui.show()
+        taskMgr.add(self.base.game_instance['render_attr_cls'].set_time_of_day_clock_task,
                     "set_time_of_day_clock_task",
                     extraArgs=["18:00", 1800],  # 1800 sec == 30 min
                     appendTask=True)
