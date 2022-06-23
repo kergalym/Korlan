@@ -48,8 +48,6 @@ class LevelOne:
         self.game_dir = base.game_dir
         self.base = base
         self.render = render
-        if hasattr(base, "render_pipeline") and base.render_pipeline:
-            self.render_pipeline = base.render_pipeline
         self.loader = base.loader
         self.node_path = NodePath()
         self.scene_one = SceneOne()
@@ -90,7 +88,7 @@ class LevelOne:
                 and self.base.game_instance['scene_np']):
             if self.base.game_instance["renderpipeline_np"]:
                 # Set Environment Probe
-                self.envprobe = self.render_pipeline.add_environment_probe()
+                self.envprobe = self.base.game_instance["renderpipeline_np"].add_environment_probe()
                 scene = self.base.game_instance['scene_np']
                 self.envprobe.set_pos(scene.get_pos())
                 self.envprobe.set_scale(scene.get_scale())
@@ -141,7 +139,7 @@ class LevelOne:
                 if not render.find("**/+Light").is_empty():
                     render.find("**/+Light").remove_node()
                     render.find("**/+Light").clear()
-            elif (self.render_pipeline
+            elif (self.base.game_instance["renderpipeline_np"]
                   and self.game_settings['Main']['postprocessing'] == 'on'):
                 base.render_attr.clear_lighting()
 

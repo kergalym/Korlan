@@ -15,7 +15,6 @@ class SceneOne:
         self.render = render
         self.path = None
         self.game_settings = None
-        self.render_type = None
         self.model = None
         self.axis = None
         self.rotation = None
