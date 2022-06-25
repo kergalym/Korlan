@@ -2,7 +2,7 @@ from direct.interval.FunctionInterval import Func
 from direct.interval.MetaInterval import Sequence
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.bullet import BulletSphereShape, BulletGhostNode
-from panda3d.core import BitMask32, Vec3, Point3
+from panda3d.core import BitMask32, Vec3
 
 
 class SocialQuests:
@@ -22,7 +22,7 @@ class SocialQuests:
             self.render_pipeline = self.base.game_instance["renderpipeline_np"]
 
         # Triggers
-        self.trig_range = [0.0, 1.0]
+        self.trig_range = [0.0, 0.7]
         self.item_range = [0.0, 0.7]
 
     def set_level_triggers(self, scene, task):

@@ -23,6 +23,18 @@ class PlayerActions:
         self.kbd = kbd
         self.archery = archery
 
+    def seq_pick_item_wrapper(self, player, action, joint_name):
+        if player and action and joint_name:
+            if (player.get_current_frame(action) > 57
+                    and player.get_current_frame(action) < 62):
+                self.state.pick_up_item(player, joint_name),
+
+    def seq_drop_item_wrapper(self, player, action):
+        if player and action:
+            if (player.get_current_frame(action) > 57
+                    and player.get_current_frame(action) < 62):
+                self.state.drop_item(player),
+
     def seq_set_player_pos_wrapper(self, player, pos_y):
         if (player and pos_y
                 and isinstance(pos_y, float)):
@@ -208,7 +220,6 @@ class PlayerActions:
             if self.kbd.keymap[key] and not base.do_key_once[key]:
                 self.state.set_do_once_key(key, True)
                 crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
-                # TODO: DEBUG ME!
                 if (not player.get_python_tag("is_item_using")
                         and player.get_python_tag("is_item_ready")):
                     base.player_states['is_idle'] = False
@@ -224,8 +235,8 @@ class PlayerActions:
                                                                playRate=self.base.actor_play_rate)
                         Sequence(crouch_to_stand_seq,
                                  Func(self.state.set_action_state, "is_using", True),
-                                 any_action_seq,
-                                 Func(self.state.pick_up_item, player, "Korlan:RightHand"),
+                                 Parallel(any_action_seq,
+                                          Func(self.seq_pick_item_wrapper, player, action, "Korlan:RightHand")),
                                  Func(self.state.set_action_state, "is_using", False),
                                  Func(self.state.set_do_once_key, key, False),
                                  ).start()
@@ -236,8 +247,8 @@ class PlayerActions:
                         any_action_seq = player.actor_interval(anims[action],
                                                                playRate=self.base.actor_play_rate)
                         Sequence(Func(self.state.set_action_state, "is_using", True),
-                                 any_action_seq,
-                                 Func(self.state.pick_up_item, player, "Korlan:RightHand"),
+                                 Parallel(any_action_seq,
+                                          Func(self.seq_pick_item_wrapper, player, action, "Korlan:RightHand")),
                                  Func(self.state.set_action_state, "is_using", False),
                                  Func(self.state.set_do_once_key, key, False),
                                  ).start()
@@ -256,8 +267,8 @@ class PlayerActions:
                                                                playRate=self.base.actor_play_rate)
                         Sequence(crouch_to_stand_seq,
                                  Func(self.state.set_action_state, "is_using", True),
-                                 any_action_seq,
-                                 Func(self.state.drop_item, player),
+                                 Parallel(any_action_seq,
+                                          Func(self.seq_drop_item_wrapper, player, action)),
                                  Func(self.state.set_action_state, "is_using", False),
                                  Func(self.state.set_do_once_key, key, False),
                                  ).start()
@@ -268,8 +279,8 @@ class PlayerActions:
                         any_action_seq = player.actor_interval(anims[action],
                                                                playRate=self.base.actor_play_rate)
                         Sequence(Func(self.state.set_action_state, "is_using", True),
-                                 any_action_seq,
-                                 Func(self.state.drop_item, player),
+                                 Parallel(any_action_seq,
+                                          Func(self.seq_drop_item_wrapper, player, action)),
                                  Func(self.state.set_action_state, "is_using", False),
                                  Func(self.state.set_do_once_key, key, False),
                                  ).start()
