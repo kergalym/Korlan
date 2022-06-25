@@ -530,8 +530,8 @@ class SocialQuests:
                                                         place=actor, actor=node)
                 if self.player_name in node.get_name():
                     if not self.player.get_python_tag("is_item_using"):
-                        if (round(self.player_bs.get_distance(actor), 1) >= self.trig_range[0]
-                                and round(self.player_bs.get_distance(actor), 1) <= self.trig_range[1]):
+                        if (round(self.player_bs.get_distance(actor), 1) >= self.item_range[0]
+                                and round(self.player_bs.get_distance(actor), 1) <= self.item_range[1]):
                             item_np = self._items_by_distance_sort()
 
                             # Construct the item properties only once
