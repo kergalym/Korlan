@@ -246,7 +246,6 @@ class NpcState:
                     weapon.set_hpr(78.69, 99.46, 108.43)
 
     def pick_up_item(self, actor, joint):
-        # TODO: DEBUG ME!
         if (actor
                 and joint
                 and isinstance(joint, str)):
@@ -256,16 +255,28 @@ class NpcState:
             if (item
                     and exposed_joint.find(item.get_name()).is_empty()):
                 # We want to keep original scale of the item
+                if hasattr(item, "set_python_tag"):
+                    item.set_python_tag("orig_scale", item.get_scale())
+
                 item.wrt_reparent_to(exposed_joint)
 
                 # Set kinematics to make item follow actor joint
-                item.node().set_kinematic(True)
+                if hasattr(item.node(), "set_kinematic"):
+                    item.node().set_kinematic(True)
 
-                item.set_h(205.0)
-                item.set_pos(0.4, 8.0, 5.2)
+                # Set item position and rotation
+                for name, pos, hpr in zip(actor.get_python_tag("usable_item_list")["name"],
+                                          actor.get_python_tag("usable_item_list")["pos"],
+                                          actor.get_python_tag("usable_item_list")["hpr"]):
+                    if name in item.get_name():
+                        item.set_hpr(hpr)
+                        item.set_pos(pos)
+
                 # Prevent fast moving objects from passing through thin obstacles.
-                item.node().set_ccd_motion_threshold(1e-7)
-                item.node().set_ccd_swept_sphere_radius(0.50)
+                if hasattr(item.node(), "set_ccd_motion_threshold"):
+                    item.node().set_ccd_motion_threshold(1e-7)
+                if hasattr(item.node(), "set_ccd_swept_sphere_radius"):
+                    item.node().set_ccd_swept_sphere_radius(0.50)
 
                 actor.set_python_tag("is_item_using", True)
                 actor.set_python_tag("is_item_ready", False)
@@ -290,20 +301,24 @@ class NpcState:
                 """
 
     def drop_item(self, actor):
-        # TODO: DEBUG ME!
         if actor and not render.find('**/World').is_empty():
             item = actor.get_python_tag("used_item_np")
             actor_bs = self.base.get_actor_bullet_shape_node(asset=actor.get_name(), type="NPC")
             world = render.find('**/World')
             item.reparent_to(world)
-            # TODO: Remove temporary scale definition
-            item.set_scale(0.1)
+
+            scale = item.get_python_tag("orig_scale")
+            item.set_scale(scale)
             item.set_hpr(0, 0, 0)
-            # Put the item near player
-            # If player has the bullet shape
+            # Put the item near actor
+            # If actor has the bullet shape
             if actor_bs:
-                item.set_pos(actor_bs.get_pos() - (0.20, -0.5, 0))
-            item.node().set_kinematic(False)
+                pos = Vec3(actor_bs.get_x(), actor_bs.get_y(), 0.2)
+                item.set_pos(pos)
+
+            if hasattr(item.node(), "set_kinematic"):
+                item.node().set_kinematic(False)
+
             actor.set_python_tag("is_item_using", False)
             actor.set_python_tag("used_item_np", None)
             actor.set_python_tag("is_item_ready", False)

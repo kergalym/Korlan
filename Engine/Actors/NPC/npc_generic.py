@@ -1,4 +1,6 @@
 from direct.actor.Actor import Actor
+from panda3d.core import Vec3
+
 from Engine.Actors.NPC.state import NpcState
 
 
@@ -102,9 +104,6 @@ class NpcGeneric:
                                                         mask=physics_attr.mask,
                                                         type=_type)
 
-                    if self.game_settings['Debug']['set_debug_mode'] == "YES":
-                        self.render.analyze()
-
                     self.base.game_instance["npc_state_cls"] = self.npc_state
 
                     # Set HUD and tags
@@ -120,24 +119,49 @@ class NpcGeneric:
                     # Set Target Nodepath
                     self.actor.set_python_tag("target_np", None)
 
-                    # Set NPC allowed weapons list
-                    a_weapons = [
-                        "sword",
-                        "bow",
-                    ]
-                    self.actor.set_python_tag("allowed_weapons", a_weapons)
+                    if "Horse" not in name and "Animal" not in name:
+                        # Set NPC allowed weapons list
+                        a_weapons = [
+                            "sword",
+                            "bow",
+                        ]
+                        self.actor.set_python_tag("allowed_weapons", a_weapons)
 
-                    # Set bow arrows count
-                    self.actor.set_python_tag("arrow_count", 0)
+                        # Set bow arrows count
+                        self.actor.set_python_tag("arrow_count", 0)
 
-                    # Set Used Item Record
-                    self.actor.set_python_tag("used_item_np", None)
-                    self.actor.set_python_tag("is_item_ready", False)
-                    self.actor.set_python_tag("is_item_using", False)
-                    self.actor.set_python_tag("current_item_prop", None)
+                        # Usable Items List
+                        _items = ["big_plate",
+                                  "piala",
+                                  "dombra",
+                                  "torsyk"]
 
-                    # Set NPC Horse Tag
-                    self.actor.set_python_tag("mounted_horse", None)
+                        _pos = [Vec3(0.4, 8.0, 5.2),
+                                Vec3(0.4, 8.0, 5.2),
+                                Vec3(0.4, 8.0, 5.2),
+                                Vec3(0.4, 8.0, 5.2)]
+
+                        _hpr = [Vec3(0, 0, 0),
+                                Vec3(0, 0, 0),
+                                Vec3(0, 0, 0),
+                                Vec3(0, 0, 0)]
+
+                        usable_item_list = {
+                            "name": _items,
+                            "pos": _pos,
+                            "hpr": _hpr
+                        }
+
+                        self.actor.set_python_tag("usable_item_list", usable_item_list)
+
+                        # Set Used Item Record
+                        self.actor.set_python_tag("used_item_np", None)
+                        self.actor.set_python_tag("is_item_ready", False)
+                        self.actor.set_python_tag("is_item_using", False)
+                        self.actor.set_python_tag("current_item_prop", None)
+
+                        # Set NPC Horse Tag
+                        self.actor.set_python_tag("mounted_horse", None)
 
                     # Set NPC Parameters
                     self.npc_state.setup_npc_state(actor=self.actor)

@@ -61,9 +61,9 @@ class NpcAILogic:
                     "update_pathfinding_task",
                     appendTask=True)
 
-        taskMgr.add(self.npc_behavior_init_task,
+        """taskMgr.add(self.npc_behavior_init_task,
                     "npc_behavior_init_task",
-                    appendTask=True)
+                    appendTask=True)"""
 
     def update_pathfinding_task(self, task):
         if self.ai_chars_bs and self.ai_world and self.ai_behaviors:

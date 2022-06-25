@@ -2,22 +2,47 @@ from direct.interval.FunctionInterval import Func
 from direct.interval.MetaInterval import Sequence
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.bullet import BulletSphereShape, BulletGhostNode
-from panda3d.core import BitMask32, Vec3
+from panda3d.core import BitMask32, Vec3, Point3
 
 
 class SocialQuests:
     def __init__(self):
         self.base = base
         self.render = render
+        self.player = None
         self.player_bs = None
+        self.player_name = ''
         self.rest_place_np = None
         self.actor_geom_pos_z = 0
         self.cam_p = 0
         self.game_dir = base.game_dir
         self.text_caps = self.base.ui_txt_geom_collector()
+        self.render_pipeline = None
         if self.base.game_instance["renderpipeline_np"]:
             self.render_pipeline = self.base.game_instance["renderpipeline_np"]
-        self.trig_range = [0.1, 1.5]
+
+        # Triggers
+        self.trig_range = [0.0, 1.0]
+        self.item_range = [0.0, 0.7]
+
+    def set_level_triggers(self, scene, task):
+        if self.base.game_instance['player_actions_init_is_activated'] == 1:
+            self.player = self.base.game_instance["player_ref"]
+            self.player_bs = render.find("**/{0}".format(self.player.get_name()))
+            self.player_name = self.player_bs.get_name()
+
+            # Add item triggers
+            taskMgr.add(self.set_item_trigger,
+                        "set_item_trigger")
+
+            # Add quest triggers
+            taskMgr.add(self.set_quest_trigger,
+                        "set_quest_trigger",
+                        extraArgs=[scene],
+                        appendTask=True)
+            return task.done
+
+        return task.cont
 
     def _set_dimensional_text(self, txt_cap, obj):
         if txt_cap and isinstance(txt_cap, str) and obj:
@@ -41,22 +66,22 @@ class SocialQuests:
 
     def toggle_dimensional_text_visibility(self, trigger_np, txt_label, place, actor):
         if trigger_np and place and txt_label and actor:
-            if (not self.base.game_instance['is_player_sitting']
-                    or not self.base.game_instance['is_player_laying']):
-                if trigger_np.find(txt_label):
-                    txt_cap = trigger_np.find(txt_label)
-                    if txt_cap:
-                        if (round(actor.get_distance(place), 1) >= self.trig_range[0]
-                                and round(actor.get_distance(place), 1) <= self.trig_range[1]):
+            if trigger_np.find(txt_label):
+                txt_cap = trigger_np.find(txt_label)
+                txt_cap.hide()
+                if self.player_name in actor.get_name():
+                    if (not self.base.game_instance['is_player_sitting']
+                            or not self.base.game_instance['is_player_laying']):
+                        if txt_cap.is_hidden():
                             txt_cap.show()
-                        elif round(actor.get_distance(place), 1) == 0.0:
-                            txt_cap.hide()
-                        elif round(actor.get_distance(place), 1) > self.trig_range[1]:
+                    elif (self.base.game_instance['is_player_sitting']
+                          or self.base.game_instance['is_player_laying']):
+                        if not txt_cap.is_hidden():
                             txt_cap.hide()
 
     def set_action_state(self, actor, bool_):
         if actor and isinstance(bool_, bool):
-            if "Player" in actor.get_name():
+            if self.player_name in actor.get_name():
                 self.base.player_states["is_busy"] = bool_
             if "NPC" in actor.get_name():
                 actor.get_python_tag("generic_states")["is_busy"] = bool_
@@ -86,7 +111,7 @@ class SocialQuests:
                 and self.base.player_states["is_busy"]):
             if txt_cap:
                 txt_cap.hide()
-            if "Player" in actor.get_name():
+            if self.player_name in actor.get_name():
                 self.base.game_instance["is_player_sitting"] = False
                 self.base.camera.set_z(0.0)
                 self.base.camera.set_y(-1)
@@ -100,7 +125,7 @@ class SocialQuests:
                      ).start()
         elif (not self.base.game_instance["is_player_sitting"]
               and not self.base.player_states["is_busy"]):
-            if "Player" in actor.get_name():
+            if self.player_name in actor.get_name():
                 self.base.game_instance["is_player_sitting"] = True
                 self.base.camera.set_z(-0.5)
                 self.base.camera.set_y(-3.0)
@@ -142,7 +167,7 @@ class SocialQuests:
                 txt_cap.show()
             # Stop having rest
             actor_bs = None
-            if "Player" in actor.get_name():
+            if self.player_name in actor.get_name():
                 self.base.game_instance["is_player_laying"] = False
                 self.base.camera.set_z(0.0)
                 self.base.camera.set_p(self.cam_p)
@@ -167,7 +192,7 @@ class SocialQuests:
                 txt_cap.hide()
             # Start having rest
             actor_bs = None
-            if "Player" in actor.get_name():
+            if self.player_name in actor.get_name():
                 self.base.game_instance["is_player_laying"] = True
                 self.base.camera.set_z(-1.3)
                 self.base.camera.set_y(-4.2)
@@ -221,7 +246,7 @@ class SocialQuests:
                 elif task == "play":
                     Sequence(Func(self.set_action_state, actor, True), any_action_seq).start()
 
-    def set_item_trigger(self, scene, task):
+    def set_item_trigger(self, task):
         if self.base.game_instance["loading_is_done"] == 1:
             if (self.render.find("**/World")
                     and self.base.game_instance["physics_world_np"]):
@@ -229,9 +254,9 @@ class SocialQuests:
                 ph_world = self.base.game_instance["physics_world_np"]
                 radius = 0.3
 
-                # TODO: DEBUG ME!
-                for actor in scene.get_children():
-                    if "item_" in actor.get_name():  # yurt_item_empty_trigger
+                for name in self.player.get_python_tag("usable_item_list")["name"]:
+                    actor = render.find("**/{0}".format(name))
+                    if actor:
                         sphere = BulletSphereShape(radius)
                         trigger_bg = BulletGhostNode('{0}_trigger'.format(actor.get_name()))
                         trigger_bg.add_shape(sphere)
@@ -306,24 +331,19 @@ class SocialQuests:
             self.base.game_instance["is_player_sitting"] = False
             return task.done
 
-        player = self.base.game_instance['player_ref']
-        if not player.get_python_tag("is_on_horse"):
+        if not self.player.get_python_tag("is_on_horse"):
             for node in trigger_np.node().get_overlapping_nodes():
-                if "Player" in node.get_name():
-                    if not self.player_bs:
-                        self.player_bs = render.find("**/{0}".format(node.get_name()))
-
-                    # Show 3d text
-                    self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_sit",
-                                                            place=place, actor=self.player_bs)
-
-                    if (round(place.get_distance(self.player_bs), 1) >= self.trig_range[0]
-                            and round(place.get_distance(self.player_bs), 1) <= self.trig_range[1]):
+                # Show 3d text
+                self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_sit",
+                                                        place=place, actor=node)
+                if self.player_name in node.get_name():
+                    if (round(self.player_bs.get_distance(place), 1) >= self.trig_range[0]
+                            and round(self.player_bs.get_distance(place), 1) <= self.trig_range[1]):
                         if (self.base.game_instance["kbd_np"].keymap["use"]
                                 and not base.player_states['is_using']
                                 and not base.player_states['is_moving']
                                 and not self.base.game_instance['is_aiming']):
-                            self._toggle_sitting_state(player,
+                            self._toggle_sitting_state(self.player,
                                                        place,
                                                        "standing_to_sit_turkic",
                                                        "sitting_turkic",
@@ -355,25 +375,19 @@ class SocialQuests:
             self.base.game_instance['is_player_laying'] = False
             return task.done
 
-        player = self.base.game_instance['player_ref']
-        if not player.get_python_tag("is_on_horse"):
+        if not self.player.get_python_tag("is_on_horse"):
             for node in trigger_np.node().get_overlapping_nodes():
-                if "Player" in node.get_name():
-                    if not self.player_bs:
-                        self.player_bs = render.find("**/{0}".format(node.get_name()))
-
-                    # Show 3d text
-                    self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_rest",
-                                                            place=place, actor=self.player_bs)
-
+                # Show 3d text
+                self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_rest",
+                                                        place=place, actor=node)
+                if self.player_name in node.get_name():
                     if (round(self.player_bs.get_distance(place), 1) >= self.trig_range[0]
                             and round(self.player_bs.get_distance(place), 1) <= self.trig_range[1]):
-                        # todo: change to suitable standing_to_laying anim
                         if (self.base.game_instance["kbd_np"].keymap["use"]
                                 and not base.player_states['is_using']
                                 and not base.player_states['is_moving']
                                 and not self.base.game_instance['is_aiming']):
-                            self._toggle_laying_state(player,
+                            self._toggle_laying_state(self.player,
                                                       place,
                                                       "standing_to_sit_turkic",
                                                       "sleeping_idle",
@@ -405,23 +419,19 @@ class SocialQuests:
         if self.base.game_instance['menu_mode']:
             return task.done
 
-        player = self.base.game_instance['player_ref']
-        if not player.get_python_tag("is_on_horse"):
+        if not self.player.get_python_tag("is_on_horse"):
             for node in trigger_np.node().get_overlapping_nodes():
-                if "Player" in node.get_name():
-                    player_bs = render.find("**/{0}".format(node.get_name()))
-
-                    # Show 3d text
-                    self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_use",
-                                                            place=place, actor=self.player_bs)
-
+                # Show 3d text
+                self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_use",
+                                                        place=place, actor=node)
+                if self.player_name in node.get_name():
                     if (round(self.player_bs.get_distance(place), 1) >= self.trig_range[0]
                             and round(self.player_bs.get_distance(place), 1) <= self.trig_range[1]):
                         if (self.base.game_instance["kbd_np"].keymap["use"]
                                 and not base.player_states['is_using']
                                 and not base.player_states['is_moving']
                                 and not self.base.game_instance['is_aiming']):
-                            self.play_action_state(player, "spring_water", "play")
+                            self.play_action_state(self.player, "spring_water", "play")
                 # TODO: Uncomment first to debug
                 """
                 elif ("NPC" in node.get_name()
@@ -443,28 +453,27 @@ class SocialQuests:
         if self.base.game_instance['menu_mode']:
             return task.done
 
-        player = self.base.game_instance['player_ref']
-        if not player.get_python_tag("is_on_horse"):
+        if not self.player.get_python_tag("is_on_horse"):
             # TODO: Uncomment task when cook_food anim will be ready
             for node in trigger_np.node().get_overlapping_nodes():
-                if "Player" in node.get_name():
-                    player_bs = render.find("**/{0}".format(node.get_name()))
+                # Show 3d text
+                self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_use",
+                                                        place=place, actor=node)
+                if self.player_name in node.get_name():
+                    if (round(self.player_bs.get_distance(place), 1) >= self.trig_range[0]
+                            and round(self.player_bs.get_distance(place), 1) <= self.trig_range[1]):
 
-                    # Show 3d text
-                    self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_use",
-                                                            place=place, actor=player_bs)
-
-                    """
-                    if (round(place.get_distance(player_bs), 1) >= self.trig_range[0]
-                            and round(place.get_distance(player_bs), 1) <= self.trig_range[1]):
-                        if (self.base.game_instance["kbd_np"].keymap["use"]
-                                and not base.player_states['is_using']
-                                and not base.player_states['is_moving']
-                                and not self.base.game_instance['is_aiming']):
-                        self.base.accept("e", self.play_action_state, [player,
-                                                                       "cook_food",
-                                                                       "loop"])
-                    """
+                        """
+                        if (round(place.get_distance(player_bs), 1) >= self.trig_range[0]
+                                and round(place.get_distance(player_bs), 1) <= self.trig_range[1]):
+                            if (self.base.game_instance["kbd_np"].keymap["use"]
+                                    and not base.player_states['is_using']
+                                    and not base.player_states['is_moving']
+                                    and not self.base.game_instance['is_aiming']):
+                            self.base.accept("e", self.play_action_state, [player,
+                                                                           "cook_food",
+                                                                           "loop"])
+                        """
                 # TODO: Uncomment first to debug
                 """
                 elif ("NPC" in node.get_name()
@@ -482,42 +491,57 @@ class SocialQuests:
 
         return task.cont
 
+    def _items_by_distance_sort(self):
+        for name in self.player.get_python_tag("usable_item_list")["name"]:
+            nodepath = render.find("**/{0}".format(name))
+            # todo: sort items for trigger_np attached to item, not empty shit!!!
+            if nodepath:
+                if (round(self.player_bs.get_distance(nodepath), 1) >= self.item_range[0]
+                        and round(self.player_bs.get_distance(nodepath), 1) <= self.item_range[1]):
+                    return nodepath
+
+    def _construct_item_property(self, player, item_np):
+        if player and item_np:
+            # Currently close item parameters
+            self.base.game_instance['item_state'] = {
+                'type': 'item',
+                'name': '{0}'.format(item_np.get_name()),
+                'weight': '{0}'.format(1),
+                'in-use': False,
+            }
+            player.set_python_tag("used_item_np", item_np)
+            player.set_python_tag("is_item_ready", True)
+            item_prop = self.base.game_instance['item_state']
+            player.set_python_tag("current_item_prop", item_prop)
+
     def item_trigger_task(self, trigger_np, actor, task):
         if self.base.game_instance['menu_mode']:
             return task.done
 
-        player = self.base.game_instance['player_ref']
-        if not player.get_python_tag("is_on_horse"):
-            # TODO: DEBUG ME!
+        if not self.player.get_python_tag("is_on_horse"):
             for node in trigger_np.node().get_overlapping_nodes():
-                if "Player" in node.get_name():
-                    if not self.player_bs:
-                        self.player_bs = render.find("**/{0}".format(node.get_name()))
-                    player = self.base.game_instance['player_ref']
-
-                    # Show 3d text
-                    self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_use",
-                                                            place=actor, actor=self.player_bs)
-
-                    if not player.get_python_tag("is_item_using"):
+                # Show 3d text if we closer to item trigger or close if we far from it
+                self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_use",
+                                                        place=actor, actor=node)
+                if self.player_name in node.get_name():
+                    if not self.player.get_python_tag("is_item_using"):
                         if (round(self.player_bs.get_distance(actor), 1) >= self.trig_range[0]
                                 and round(self.player_bs.get_distance(actor), 1) <= self.trig_range[1]):
-                            actor_bs = actor.find("**/{0}:BS".format(actor.get_name()))
-                            # Currently close item parameters
-                            self.base.game_instance['item_state'] = {
-                                'type': 'item',
-                                'name': '{0}'.format(actor.get_name()),
-                                'weight': '{0}'.format(1),
-                                'in-use': False,
-                            }
-                            player.set_python_tag("used_item_np", actor_bs)
-                            player.set_python_tag("is_item_ready", True)
-                        elif round(actor.get_distance(self.player_bs), 1) > self.trig_range[1]:
-                            player.set_python_tag("used_item_np", None)
-                            player.set_python_tag("is_item_ready", False)
-                    else:
-                        item_prop = self.base.game_instance['item_state']
-                        player.set_python_tag("current_item_prop", item_prop)
+                            item_np = self._items_by_distance_sort()
+
+                            # Construct the item properties only once
+                            # if we didn't move closer to item yet
+                            # or we moved closer to different item
+
+                            # Get item for first time, we didn't pick it up
+                            if item_np and not self.player.get_python_tag("used_item_np"):
+                                self._construct_item_property(self.player, item_np)
+                            # Get item for second time, we had picked up previous item,
+                            # but we alter it with picking another one
+                            elif (item_np and self.player.get_python_tag("used_item_np")
+                                  and self.player.get_python_tag("used_item_np").get_name() != item_np.get_name()):
+                                self._construct_item_property(self.player, item_np)
+
                 # TODO: Uncomment first to debug
                 """
                 elif ("NPC" in node.get_name()
@@ -550,4 +574,3 @@ class SocialQuests:
                 """
 
         return task.cont
-

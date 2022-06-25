@@ -247,14 +247,8 @@ class SceneOne:
 
             self.social_quests = SocialQuests()
             # Add item triggers
-            taskMgr.add(self.social_quests.set_item_trigger,
-                        "set_item_trigger",
-                        extraArgs=[scene],
-                        appendTask=True)
-
-            # Add quest triggers
-            taskMgr.add(self.social_quests.set_quest_trigger,
-                        "set_quest_trigger",
+            taskMgr.add(self.social_quests.set_level_triggers,
+                        "set_level_triggers",
                         extraArgs=[scene],
                         appendTask=True)
 

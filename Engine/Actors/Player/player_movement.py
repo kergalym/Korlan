@@ -208,6 +208,7 @@ class PlayerMovement:
     def player_movement_action(self, player, anims):
         if (player and isinstance(anims, dict)
                 and not self.base.game_instance['is_aiming']
+                and not base.player_states['is_using']
                 and self.is_ready_for_move()
                 and not self.kbd.keymap["attack"]
                 and not self.kbd.keymap["block"]):
@@ -293,6 +294,7 @@ class PlayerMovement:
     def player_run_action(self, player, anims):
         if (player and isinstance(anims, dict)
                 and not self.base.game_instance['is_aiming']
+                and not base.player_states['is_using']
                 and self.is_ready_for_move()
                 and not self.kbd.keymap["attack"]
                 and not self.kbd.keymap["block"]):

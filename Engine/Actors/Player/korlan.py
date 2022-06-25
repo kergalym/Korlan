@@ -260,14 +260,35 @@ class Korlan:
                 if self.game_settings['Main']['postprocessing'] == 'on':
                     base.game_instance['render_attr_cls'].render_pipeline.prepare_scene(self.korlan)
 
-                if self.game_settings['Debug']['set_debug_mode'] == "YES":
-                    self.render.analyze()
-
                 # Set allowed weapons list
                 self.base.game_instance["weapons"] = [
                     "sword",
                     "bow_kazakh",
                 ]
+
+                # Usable Items List
+                _items = ["big_plate",
+                          "piala",
+                          "dombra",
+                          "torsyk"]
+
+                _pos = [Vec3(0.4, 8.0, 5.2),
+                        Vec3(0.4, 8.0, 5.2),
+                        Vec3(0.4, 8.0, 5.2),
+                        Vec3(0.4, 8.0, 5.2)]
+
+                _hpr = [Vec3(0, 0, 0),
+                        Vec3(0, 0, 0),
+                        Vec3(0, 0, 0),
+                        Vec3(0, 0, 0)]
+
+                usable_item_list = {
+                    "name": _items,
+                    "pos": _pos,
+                    "hpr": _hpr
+                }
+
+                self.korlan.set_python_tag("usable_item_list", usable_item_list)
 
                 # Set Used Item Record
                 self.korlan.set_python_tag("used_item_np", None)

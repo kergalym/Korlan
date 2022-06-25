@@ -36,6 +36,7 @@ class RenderAttr:
         # instance of the abstract class
         self.font = FontPool
         self.game_settings = base.game_settings
+        self.render_pipeline = None
         if self.base.game_instance["renderpipeline_np"]:
             self.render_pipeline = self.base.game_instance["renderpipeline_np"]
         self.render = None
@@ -314,12 +315,13 @@ class RenderAttr:
             self.particles = {}
         self.base.disable_particles()
 
-        if self.base.game_instance['rp_lights'] and self.render_pipeline.light_mgr.num_lights > 0:
-            for i in range(self.render_pipeline.light_mgr.num_lights):
-                for light in self.base.game_instance['rp_lights']['flame']:
-                    if light:
-                        self.render_pipeline.remove_light(light)
-                        self.base.game_instance['rp_lights']['flame'].remove(light)
+        if self.render_pipeline:
+            if self.base.game_instance['rp_lights'] and self.render_pipeline.light_mgr.num_lights > 0:
+                for i in range(self.render_pipeline.light_mgr.num_lights):
+                    for light in self.base.game_instance['rp_lights']['flame']:
+                        if light:
+                            self.render_pipeline.remove_light(light)
+                            self.base.game_instance['rp_lights']['flame'].remove(light)
 
         if taskMgr.hasTaskNamed("dynamic_lighting_task"):
             taskMgr.remove("dynamic_lighting_task")
