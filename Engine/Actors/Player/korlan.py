@@ -292,6 +292,7 @@ class Korlan:
 
                 # Set Used Item Record
                 self.korlan.set_python_tag("used_item_np", None)
+                self.korlan.set_python_tag("used_item_txt_cap_np", None)
                 self.korlan.set_python_tag("is_item_ready", False)
                 self.korlan.set_python_tag("is_item_using", False)
                 self.korlan.set_python_tag("current_item_prop", None)

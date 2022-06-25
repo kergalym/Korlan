@@ -307,9 +307,11 @@ class NpcState:
             world = render.find('**/World')
             item.reparent_to(world)
 
-            scale = item.get_python_tag("orig_scale")
-            item.set_scale(scale)
-            item.set_hpr(0, 0, 0)
+            if hasattr(item, "get_python_tag"):
+                scale = item.get_python_tag("orig_scale")
+                item.set_scale(scale)
+                item.set_hpr(0, 0, 0)
+
             # Put the item near actor
             # If actor has the bullet shape
             if actor_bs:

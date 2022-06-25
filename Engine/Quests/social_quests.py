@@ -69,6 +69,11 @@ class SocialQuests:
             if trigger_np.find(txt_label):
                 txt_cap = trigger_np.find(txt_label)
                 txt_cap.hide()
+
+                if "txt_use" in txt_label:
+                    if not self.player.get_python_tag("used_item_txt_cap_np"):
+                        self.player.set_python_tag("used_item_txt_cap_np", txt_cap)
+
                 if self.player_name in actor.get_name():
                     if (not self.base.game_instance['is_player_sitting']
                             or not self.base.game_instance['is_player_laying']):

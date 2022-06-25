@@ -352,6 +352,10 @@ class PlayerState:
                 if hasattr(item, "set_python_tag"):
                     item.set_python_tag("orig_scale", item.get_scale())
 
+                # Hide txt cap while item is in use
+                txt_cap = player.get_python_tag("used_item_txt_cap_np")
+                txt_cap.hide()
+
                 item.wrt_reparent_to(exposed_joint)
 
                 # Set kinematics to make item follow actor joint
@@ -402,9 +406,15 @@ class PlayerState:
             world = render.find('**/World')
             item.reparent_to(world)
 
-            scale = item.get_python_tag("orig_scale")
-            item.set_scale(scale)
-            item.set_hpr(0, 0, 0)
+            # Show txt cap while item is not in use
+            txt_cap = player.get_python_tag("used_item_txt_cap_np")
+            txt_cap.show()
+
+            if hasattr(item, "get_python_tag"):
+                scale = item.get_python_tag("orig_scale")
+                item.set_scale(scale)
+                item.set_hpr(0, 0, 0)
+
             # Put the item near player
             # If player has the bullet shape
             if player_bs:
