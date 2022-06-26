@@ -75,7 +75,10 @@ class SocialQuests:
                 if self.player_name in actor.get_name():
 
                     if "txt_use" in txt_label:
-                        self.player.set_python_tag("used_item_txt_cap_np", txt_cap)
+                        used_item = self.player.get_python_tag("used_item_np")
+                        if used_item:
+                            if used_item.get_name() == place.get_name():
+                                self.player.set_python_tag("used_item_txt_cap_np", txt_cap)
 
                     if (not self.base.game_instance['is_player_sitting']
                             or not self.base.game_instance['is_player_laying']):
