@@ -353,7 +353,8 @@ class PlayerState:
                     item.set_python_tag("orig_scale", item.get_scale())
 
                 # Hide txt cap while item is in use
-                txt_cap = player.get_python_tag("used_item_txt_cap_np")
+                item_trigger = item.find("**/{0}_trigger".format(item.get_name()))
+                txt_cap = item_trigger.find("**/txt_use")
                 txt_cap.hide()
 
                 item.wrt_reparent_to(exposed_joint)
@@ -407,7 +408,8 @@ class PlayerState:
             item.reparent_to(world)
 
             # Show txt cap while item is not in use
-            txt_cap = player.get_python_tag("used_item_txt_cap_np")
+            item_trigger = item.find("**/{0}_trigger".format(item.get_name()))
+            txt_cap = item_trigger.find("**/txt_use")
             txt_cap.show()
 
             if hasattr(item, "get_python_tag"):

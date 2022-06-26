@@ -242,6 +242,9 @@ class Korlan:
                 # Save actor parts
                 self.save_player_parts(part_names)
 
+                # Enable blending to fix cloth poking
+                self.korlan.set_blend(frameBlend=True)
+
                 # Set sRGB
                 self.base.set_textures_srgb(self.korlan, True)
 
@@ -292,7 +295,6 @@ class Korlan:
 
                 # Set Used Item Record
                 self.korlan.set_python_tag("used_item_np", None)
-                self.korlan.set_python_tag("used_item_txt_cap_np", None)
                 self.korlan.set_python_tag("is_item_ready", False)
                 self.korlan.set_python_tag("is_item_using", False)
                 self.korlan.set_python_tag("current_item_prop", None)

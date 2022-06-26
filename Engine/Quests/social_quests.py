@@ -73,25 +73,16 @@ class SocialQuests:
                     txt_cap.hide()
 
                 if self.player_name in actor.get_name():
-
-                    if "txt_use" in txt_label:
-                        used_item = self.player.get_python_tag("used_item_np")
-                        if used_item:
-                            if used_item.get_name() == place.get_name():
-                                self.player.set_python_tag("used_item_txt_cap_np", txt_cap)
-
                     if (not self.base.game_instance['is_player_sitting']
                             or not self.base.game_instance['is_player_laying']):
-                        used_item_txt_cap = self.player.get_python_tag("used_item_txt_cap_np")
                         if txt_cap.is_hidden():
-                            if used_item_txt_cap:
-                                # Show only non-used item txt cap
-                                used_item = self.player.get_python_tag("used_item_np")
-                                if used_item:
-                                    if used_item.get_name() != place.get_name():
-                                        txt_cap.show()
-                                else:
+                            # Show only non-used item txt cap
+                            used_item = self.player.get_python_tag("used_item_np")
+                            if used_item:
+                                if used_item.get_name() != place.get_name():
                                     txt_cap.show()
+                            else:
+                                txt_cap.show()
 
                     elif (self.base.game_instance['is_player_sitting']
                           or self.base.game_instance['is_player_laying']):
