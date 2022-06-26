@@ -6,7 +6,7 @@
 # --------------  Development options  --------------
 
 pstats-gpu-timing #t
-gl-debug t
+gl-debug #t
 gl-debug-object-labels #t
 
 # -------------- Production options ---------------
@@ -25,7 +25,7 @@ pstats-max-rate 200
 
 # No stack trace on assertion, set this to true to make panda crash on assertions
 # (which will allow to debug it)
-# assert-abort #f
+# assert-abort #t
 # show-dll-error-dialog #f
 
 # File system should be case sensitive
@@ -38,7 +38,7 @@ state-cache #t
 transform-cache #t
 
 # Hide frame rate meter (we have our own)
-show-frame-rate-meter t
+show-frame-rate-meter #f
 
 # Set text settings
 text-minfilter linear
@@ -51,7 +51,7 @@ text-flatten 0
 text-dynamic-merge 1
 
 # For smoother animations
-even-animation t
+# even-animation #t
 
 # Threading, really buggy!
 #threading-model App/Cull/Draw
@@ -108,13 +108,13 @@ gl-version 4 3
 
 # Animations on the gpu. The default shader has to get adjusted to support this
 # feature before this option can be turned on.
-# hardware-animated-vertices #t
+hardware-animated-vertices #t
 
 # Try this options for performance
-uniquify-matrix t
-uniquify-transforms t
-uniquify-states t
-uniquify-attribs t
+uniquify-matrix #t
+uniquify-transforms #t
+uniquify-states #t
+uniquify-attribs #f
 
 # Enable garbarge collection
 garbage-collect-states #t
@@ -128,7 +128,7 @@ garbage-collect-states #t
 # display-list-animation #t
 
 # Better GL performance by not using gl-finish and so on
-gl-finish f
+gl-finish #f
 gl-force-no-error #t
 gl-check-errors #f
 gl-force-no-flush #t
@@ -138,7 +138,7 @@ gl-force-no-scissor #t
 gl-enable-memory-barriers #f
 
 # Disable threading
-lock-to-one-cpu f
+lock-to-one-cpu t
 support-threads t
 
 # Let the driver generate the mipmaps
@@ -172,8 +172,3 @@ allow-incomplete-render #t
 
 
 no-singular-invert #f
-
-texture-compression t
-driver-compress-textures t
-
-want-pstats 1

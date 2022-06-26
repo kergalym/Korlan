@@ -23,17 +23,22 @@ class PlayerActions:
         self.kbd = kbd
         self.archery = archery
 
-    def seq_pick_item_wrapper(self, player, action, joint_name):
-        if player and action and joint_name:
-            if (player.get_current_frame(action) > 57
-                    and player.get_current_frame(action) < 62):
-                self.state.pick_up_item(player, joint_name),
+    def seq_pick_item_wrapper_task(self, player, anims, action, joint_name, task):
+        if player and anims and action and joint_name:
+            if player.getCurrentFrame(action):
+                if (player.getCurrentFrame(action) > 70
+                        and player.getCurrentFrame(action) < 72):
+                    self.state.pick_up_item(player, joint_name)
+        return task.cont
 
-    def seq_drop_item_wrapper(self, player, action):
-        if player and action:
-            if (player.get_current_frame(action) > 57
-                    and player.get_current_frame(action) < 62):
-                self.state.drop_item(player),
+    def seq_drop_item_wrapper_task(self, player, anims, action, task):
+        if player and anims and action:
+            if player.getCurrentFrame(action):
+                if (player.getCurrentFrame(action) > 70
+                        and player.getCurrentFrame(action) < 72):
+                    self.state.drop_item(player)
+
+        return task.cont
 
     def seq_set_player_pos_wrapper(self, player, pos_y):
         if (player and pos_y
@@ -224,6 +229,11 @@ class PlayerActions:
                         and player.get_python_tag("is_item_ready")):
                     base.player_states['is_idle'] = False
 
+                    taskMgr.add(self.seq_pick_item_wrapper_task,
+                                "seq_pick_item_wrapper_task",
+                                extraArgs=[player, anims, action, "Korlan:RightHand"],
+                                appendTask=True),
+
                     if (base.player_states['is_using'] is False
                             and crouched_to_standing.is_playing() is False
                             and base.player_states['is_crouch_moving'] is True):
@@ -235,8 +245,8 @@ class PlayerActions:
                                                                playRate=self.base.actor_play_rate)
                         Sequence(crouch_to_stand_seq,
                                  Func(self.state.set_action_state, "is_using", True),
-                                 Parallel(any_action_seq,
-                                          Func(self.seq_pick_item_wrapper, player, action, "Korlan:RightHand")),
+                                 any_action_seq,
+                                 Func(taskMgr.remove, "seq_pick_item_wrapper_task"),
                                  Func(self.state.set_action_state, "is_using", False),
                                  Func(self.state.set_do_once_key, key, False),
                                  ).start()
@@ -247,14 +257,19 @@ class PlayerActions:
                         any_action_seq = player.actor_interval(anims[action],
                                                                playRate=self.base.actor_play_rate)
                         Sequence(Func(self.state.set_action_state, "is_using", True),
-                                 Parallel(any_action_seq,
-                                          Func(self.seq_pick_item_wrapper, player, action, "Korlan:RightHand")),
+                                 any_action_seq,
+                                 Func(taskMgr.remove, "seq_pick_item_wrapper_task"),
                                  Func(self.state.set_action_state, "is_using", False),
                                  Func(self.state.set_do_once_key, key, False),
                                  ).start()
 
                 elif player.get_python_tag("is_item_using"):
                     base.player_states['is_idle'] = False
+
+                    taskMgr.add(self.seq_drop_item_wrapper_task,
+                                "seq_drop_item_wrapper_task",
+                                extraArgs=[player, anims, action],
+                                appendTask=True),
 
                     if (base.player_states['is_using'] is False
                             and crouched_to_standing.is_playing() is False
@@ -267,8 +282,8 @@ class PlayerActions:
                                                                playRate=self.base.actor_play_rate)
                         Sequence(crouch_to_stand_seq,
                                  Func(self.state.set_action_state, "is_using", True),
-                                 Parallel(any_action_seq,
-                                          Func(self.seq_drop_item_wrapper, player, action)),
+                                 any_action_seq,
+                                 Func(taskMgr.remove, "seq_drop_item_wrapper"),
                                  Func(self.state.set_action_state, "is_using", False),
                                  Func(self.state.set_do_once_key, key, False),
                                  ).start()
@@ -279,8 +294,8 @@ class PlayerActions:
                         any_action_seq = player.actor_interval(anims[action],
                                                                playRate=self.base.actor_play_rate)
                         Sequence(Func(self.state.set_action_state, "is_using", True),
-                                 Parallel(any_action_seq,
-                                          Func(self.seq_drop_item_wrapper, player, action)),
+                                 any_action_seq,
+                                 Func(taskMgr.remove, "seq_drop_item_wrapper"),
                                  Func(self.state.set_action_state, "is_using", False),
                                  Func(self.state.set_do_once_key, key, False),
                                  ).start()

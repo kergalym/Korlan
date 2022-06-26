@@ -22,7 +22,7 @@ class SocialQuests:
             self.render_pipeline = self.base.game_instance["renderpipeline_np"]
 
         # Triggers
-        self.trig_range = [0.0, 0.7]
+        self.trig_range = [0.0, 0.5]
         self.item_range = [0.0, 0.7]
 
     def set_level_triggers(self, scene, task):
@@ -68,17 +68,28 @@ class SocialQuests:
         if trigger_np and place and txt_label and actor:
             if trigger_np.find(txt_label):
                 txt_cap = trigger_np.find(txt_label)
-                txt_cap.hide()
 
-                if "txt_use" in txt_label:
-                    if not self.player.get_python_tag("used_item_txt_cap_np"):
-                        self.player.set_python_tag("used_item_txt_cap_np", txt_cap)
+                if self.player_name not in actor.get_name():
+                    txt_cap.hide()
 
                 if self.player_name in actor.get_name():
+
+                    if "txt_use" in txt_label:
+                        self.player.set_python_tag("used_item_txt_cap_np", txt_cap)
+
                     if (not self.base.game_instance['is_player_sitting']
                             or not self.base.game_instance['is_player_laying']):
+                        used_item_txt_cap = self.player.get_python_tag("used_item_txt_cap_np")
                         if txt_cap.is_hidden():
-                            txt_cap.show()
+                            if used_item_txt_cap:
+                                # Show only non-used item txt cap
+                                used_item = self.player.get_python_tag("used_item_np")
+                                if used_item:
+                                    if used_item.get_name() != place.get_name():
+                                        txt_cap.show()
+                                else:
+                                    txt_cap.show()
+
                     elif (self.base.game_instance['is_player_sitting']
                           or self.base.game_instance['is_player_laying']):
                         if not txt_cap.is_hidden():
