@@ -38,7 +38,7 @@ class Archery:
             assets = self.base.assets_collector()
             joint = None
             arrow_count = 0
-            actor_ref = self.base.game_instance['actors_ref'][self.actor_name]
+            actor_ref = self.base.game_instance['actors_ref'].get(self.actor_name)
             if actor_ref:
                 joint = actor_ref.expose_joint(None, "modelRoot", joint_name)
                 arrow_count = actor_ref.get_python_tag("arrow_count")
