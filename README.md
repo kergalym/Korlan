@@ -11,7 +11,7 @@ The Game is dedicated to Tengri and Tengrism.
 <img src="https://i.imgur.com/LtYdSvh.png" />
  Game Overview
 
-<img src="https://i.imgur.com/WyiBJLI.png" />
+<img src="https://i.imgur.com/kjNPyKd.png" />
  Inventory Overview
 
 <img src="https://i.imgur.com/CYPivTC.jpg" />
