@@ -287,11 +287,11 @@ class LevelOne:
                                       task="attach")"""
 
         if self.game_settings['Main']['postprocessing'] == 'off':
-            base.game_instance['render_attr_cls'].set_lighting(name='dlight',
+            base.game_instance['render_attr_cls'].set_lighting(name='alight',
                                                                render=self.render,
-                                                               pos=[0, -40, 10],
+                                                               pos=[0, 8.0, 10],
                                                                hpr=[0, -20, 0],
-                                                               color=[0.7],
+                                                               color=[0.8],
                                                                task="attach")
 
         # assets is a dict containing paths + models

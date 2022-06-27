@@ -686,6 +686,7 @@ class Sheet(Inventory):
                 self.char_sheet_bg.hide()
                 
     def prepare_character(self):
+        self.base.game_instance['inv_mode'] = True
         if self.base.is_inventory_active:
             # Hide world from inventory
             if render.find("**/World"):
@@ -751,6 +752,7 @@ class Sheet(Inventory):
                                                                                task="attach")
 
     def revert_character(self):
+        self.base.game_instance['inv_mode'] = False
         # Revert character view
         player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
         if player_bs:

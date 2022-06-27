@@ -320,6 +320,7 @@ class Main(ShowBase):
         self.game_instance = {
             "menu_mode": False,
             "ui_mode": False,
+            "inv_mode": False,
             "dev_ui_mode": False,
             "esc_mode": False,
             "gameplay_mode": '',

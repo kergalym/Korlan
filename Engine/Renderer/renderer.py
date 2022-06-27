@@ -223,7 +223,7 @@ class RenderAttr:
         return task.again
 
     def set_time_of_day(self, duration):
-        if self.game_settings['Main']['postprocessing'] == 'off':
+        """if self.game_settings['Main']['postprocessing'] == 'off':
             # node for the sun to rotate around and look at.
             if not self.time_of_day_np and duration:
                 self.time_of_day_np = NodePath("TimeOfday")
@@ -256,7 +256,7 @@ class RenderAttr:
             render.set_shader_auto()
 
             self.set_spotlight_shadows(obj=render, light=self.time_of_day_light, shadow_blur=0.2,
-                                       ambient_color=(1.0, 1.0, 1.0))
+                                       ambient_color=(1.0, 1.0, 1.0))"""
 
     def set_time_of_day_clock_task(self, time, duration, task):
         if self.game_settings['Main']['postprocessing'] == 'on':
@@ -268,8 +268,8 @@ class RenderAttr:
                 # 1800 seconds are equal to 30 minutes
                 self.minutes = self.elapsed_seconds // 60
 
-                if self.base.game_instance['ui_mode']:
-                    self.hour = 15
+                if self.base.game_instance['inv_mode']:
+                    self.hour = 00
                 else:
                     hour = time.split(':')
                     hour = int(hour[0])
@@ -806,9 +806,8 @@ class RenderAttr:
                             light_np.set_scale(100)
                             self.render.set_light(light_np)
                             self.base.game_instance['rp_lights']["scene"].append(light)
-                            self.set_spotlight_shadows(obj=self.render, light=light_np, shadow_blur=0.2,
-                                                       ambient_color=(1.0, 1.0, 1.0))
-                            self.gfx_filters.set_volumetric_lighting(caster=light_np)
+                            """self.set_spotlight_shadows(obj=self.render, light=light_np, shadow_blur=0.2,
+                                                       ambient_color=(1.0, 1.0, 1.0))"""
 
                     elif name == 'alight':
                         if self.game_settings['Main']['postprocessing'] == 'off':
@@ -817,8 +816,10 @@ class RenderAttr:
                             light_np = self.render.attach_new_node(light)
                             self.render.set_light(light_np)
                             self.base.game_instance['rp_lights']["scene"].append(light)
-                            self.set_spotlight_shadows(obj=self.render, light=light_np, shadow_blur=0.2,
-                                                       ambient_color=(1.0, 1.0, 1.0))
+                            """self.set_spotlight_shadows(obj=self.render, light=light_np, shadow_blur=0.2,
+                                                       ambient_color=(1.0, 1.0, 1.0))"""
+                            # render.set_shader_auto(True)
+                            # self.gfx_filters.set_volumetric_lighting(caster=light_np)
 
     def clear_lighting(self):
         if self.game_settings['Main']['postprocessing'] == 'on':
@@ -978,8 +979,6 @@ class RenderAttr:
             # shader generation is not enabled. It would be reasonable
             # to enable shader generation for the entire game, using this call:
             # obj.set_shader_auto()
-            base.shaderenable = 1
-
             ready_shaders = self.get_all_shaders(self.base.shader_collector())
             obj.set_shader(ready_shaders['SpotLightShadows'])
             obj.set_shader_input('my_light', light)
@@ -989,11 +988,12 @@ class RenderAttr:
     def set_normal_mapping(self, obj):
         if obj:
             ready_shaders = self.get_all_shaders(self.base.shader_collector())
-            obj.set_shader(ready_shaders['Normalmapping'])
-            """for light in self.base.game_instance['rp_lights']["scene"]:
+            """obj.set_shader(ready_shaders['Normalmapping'])
+            for light in self.base.game_instance['rp_lights']["scene"]:
                 obj.set_shader_input('my_light', light)
                 obj.set_shader_input('shadow_blur', 0.2)  # 0.2
                 obj.set_shader_input('ambient_color', Vec3(1.0, 1.0, 1.0))  # Vec3(1.0, 1.0, 1.0)"""
+            # render.set_shader_auto(True)
 
     def apply_lightmap_to_scene(self, scene, lightmap):
         """
