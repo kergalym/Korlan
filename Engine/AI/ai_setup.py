@@ -68,7 +68,8 @@ class AI:
 
             Return      : None
         """
-        if (self.base.game_instance['physics_is_activated'] == 1
+        if (self.base.game_instance['actors_are_loaded']
+                and self.base.game_instance['physics_is_activated'] == 1
                 and self.base.game_instance['ai_is_activated'] == 0):
             if (assets and isinstance(assets, dict)
                     and npcs_fsm_states

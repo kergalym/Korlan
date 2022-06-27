@@ -18,7 +18,7 @@ gl-debug-object-labels #t
 # ----------------- Misc Settings -----------------
 
 # Disable V-Sync
-sync-video t
+sync-video #t
 
 # Limit the pstats-rate. This causes huge lag on windows 10.
 pstats-max-rate 200
@@ -108,7 +108,7 @@ gl-version 4 3
 
 # Animations on the gpu. The default shader has to get adjusted to support this
 # feature before this option can be turned on.
-hardware-animated-vertices #t
+# hardware-animated-vertices #t
 
 # Try this options for performance
 uniquify-matrix #t
@@ -124,8 +124,8 @@ garbage-collect-states #t
 # driver-compress-textures #t
 
 # Faster animations? (Have to test)
-# matrix-palette #t
-# display-list-animation #t
+matrix-palette #t
+display-list-animation #t
 
 # Better GL performance by not using gl-finish and so on
 gl-finish #f
@@ -167,8 +167,8 @@ rescale-normals #f
 screenshot-extension png
 
 # Required for correct velocity
-always-store-prev-transform #t
-allow-incomplete-render #t
+always-store-prev-transform t
+allow-incomplete-render t
 
 
 no-singular-invert #f

@@ -187,7 +187,7 @@ class SceneOne:
 
             if not render.find("**/Grass").is_empty():
                 grass = render.find("**/Grass")
-                grass.set_two_sided(True)
+                grass.set_two_sided(culling)
 
             # Enable lightmapping for this scene
             base.game_instance['render_attr_cls'].apply_lightmap_to_scene(scene=scene, lightmap="lightmap_scene_one")

@@ -45,8 +45,7 @@ class NpcAILogic:
             actor.get_python_tag("generic_states")['is_idle'] = True
             actor.set_python_tag("arrow_count", 20)
             actor.set_blend(frameBlend=True)
-            name_bs = "{0}:BS".format(name)
-            actor_bs = self.base.game_instance['actors_np'][name_bs]
+            actor_bs = self.ai_chars_bs[name]
             request = self.npcs_fsm_states[name]
 
             if "animal" not in actor.get_python_tag("npc_type"):
@@ -61,9 +60,9 @@ class NpcAILogic:
                     "update_pathfinding_task",
                     appendTask=True)
 
-        """taskMgr.add(self.npc_behavior_init_task,
+        taskMgr.add(self.npc_behavior_init_task,
                     "npc_behavior_init_task",
-                    appendTask=True)"""
+                    appendTask=True)
 
     def update_pathfinding_task(self, task):
         if self.ai_chars_bs and self.ai_world and self.ai_behaviors:

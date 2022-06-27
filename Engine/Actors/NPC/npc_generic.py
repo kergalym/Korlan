@@ -19,7 +19,7 @@ class NpcGeneric:
         self.render = render
         self.npc_state = NpcState()
         self.world_nodepath = render.find("**/World")
-
+        self.ai = None
         self.actor = None
         self.game_settings = base.game_settings
 
@@ -167,3 +167,4 @@ class NpcGeneric:
                     self.npc_state.setup_npc_state(actor=self.actor)
 
         self.base.game_instance['actors_are_loaded'] = True
+

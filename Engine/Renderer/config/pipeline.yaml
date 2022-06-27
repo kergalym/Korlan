@@ -21,7 +21,7 @@ pipeline:
     use_r11_g11_b10: false
 
     # Enables to render at a higher or lower resolution than the window size.
-    # A value of 2.0 for example renders at twice the resolution (supersampling)
+    # A value of 2.0 for example renders at twice the resolution (supoersampling)
     # whereas a value of 0.5 would render at half resolution.
     resolution_scale: 1.0
 
@@ -48,7 +48,7 @@ lighting:
     # size depending on your scene.
     culling_grid_slices: 32
 
-    # This controls the maximum culling distance in render_attr space. After this
+    # This controls the maximum culling distance in world space. After this
     # distance, no lights are rendered anymore. If you choose a lower
     # distance, this *can* positively impact performance, but you should not
     # set it too low, to avoid getting artifacts.
