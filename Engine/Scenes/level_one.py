@@ -247,6 +247,7 @@ class LevelOne:
         self.base.game_instance['lod_np'].reparentTo(world_np)
 
         self.base.game_instance['render_attr_cls'].time_text_ui.show()
+        self.base.game_instance['render_attr_cls'].set_time_of_day(duration=1800)  # 1800 sec == 30 min
         taskMgr.add(self.base.game_instance['render_attr_cls'].set_time_of_day_clock_task,
                     "set_time_of_day_clock_task",
                     extraArgs=["18:00", 1800],  # 1800 sec == 30 min

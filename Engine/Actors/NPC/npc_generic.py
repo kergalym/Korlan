@@ -87,7 +87,7 @@ class NpcGeneric:
                     self.actor.set_transparency(True)
 
                     # Hardware skinning
-                    base.game_instance['render_attr_cls'].set_hardware_skinning(self.actor, False)
+                    self.base.game_instance['render_attr_cls'].set_hardware_skinning(self.actor, True)
 
                     # Make actor global
                     self.base.game_instance['actors_ref'][name] = self.actor

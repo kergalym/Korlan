@@ -150,7 +150,7 @@ overrides:
 
     skin_shading:
         quality: medium
-        blur_scale: 0.12
+        blur_scale: 0.10
 
     sky_ao:
         sample_radius: 17.17
@@ -163,7 +163,7 @@ overrides:
         capture_height: 568.75
 
     smaa:
-        use_reprojection: True
+        use_reprojection: False
         smaa_quality: ultra
         jitter_pattern: halton8
         history_length: 8

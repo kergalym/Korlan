@@ -80,7 +80,7 @@ overrides:
         exposure_scale: 1.0
         brightness_adaption_rate: 3.6
         darkness_adaption_rate: 0.7
-        use_sharpen: True
+        use_sharpen: False
         sharpen_strength: 0.5
         sharpen_twice: False
 
@@ -100,8 +100,8 @@ overrides:
 
     fxaa:
         quality: ultra
-        subpixel_quality: 0.5
-        edge_threshold: 0.166
+        subpixel_quality: 0.9
+        edge_threshold: 0.2
         min_threshold: 0.833
 
     motion_blur:
@@ -120,7 +120,7 @@ overrides:
         split_count: 4
         resolution: 1024
         border_bias: 0.058
-        use_pcf: True
+        use_pcf: False
         filter_sequence: halton_2D_32
         filter_radius: 0.7
         fixed_bias: 0.11429
@@ -150,7 +150,7 @@ overrides:
 
     skin_shading:
         quality: medium
-        blur_scale: 0.12
+        blur_scale: 0.10
 
     sky_ao:
         sample_radius: 17.17
@@ -163,7 +163,7 @@ overrides:
         capture_height: 568.75
 
     smaa:
-        use_reprojection: True
+        use_reprojection: False
         smaa_quality: ultra
         jitter_pattern: halton8
         history_length: 8

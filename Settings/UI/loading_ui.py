@@ -3,7 +3,7 @@ from direct.interval.IntervalGlobal import Parallel
 from direct.interval.IntervalGlobal import Func
 from direct.gui.DirectGui import *
 from direct.showbase.ShowBaseGlobal import aspect2d
-from panda3d.core import FontPool, TextNode
+from panda3d.core import FontPool, TextNode, AntialiasAttrib
 from Engine.Scenes.level_one import LevelOne
 from direct.task.TaskManagerGlobal import taskMgr
 from Settings.UI.rp_lights_manager_ui import RPLightsMgrUI
@@ -121,6 +121,9 @@ class LoadingUI:
         if self.game_settings['Debug']['set_editor_mode'] == 'YES':
             self.editor = Editor()
             self.editor.set_editor()
+
+        if self.game_settings['Main']['postprocessing'] == 'off':
+            render.set_antialias(AntialiasAttrib.MMultisample)
 
         self.base.game_instance['loading_is_done'] = 1
 

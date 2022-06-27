@@ -255,7 +255,7 @@ class Korlan:
                 self.korlan.set_transparency(True)
 
                 # Hardware skinning
-                base.game_instance['render_attr_cls'].set_hardware_skinning(self.korlan, True)
+                self.base.game_instance['render_attr_cls'].set_hardware_skinning(self.korlan, True)
 
                 # Make actor global
                 self.base.game_instance['player_ref'] = self.korlan

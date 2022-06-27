@@ -140,6 +140,7 @@ if game_settings['Main']['fullscreen'] == "on":
 if game_settings['Debug']['want_pstats'] == "YES":
     want_pstats_value = "t"
 
+
 p3d.load_prc_file_data(
     '',
     'fullscreen {0}\n'.format(fscreen)
@@ -176,6 +177,13 @@ p3d.load_prc_file_data(
     'loader-thread-priority normal\n'
     'loader-num-threads 2\n'
 )
+
+if game_settings['Main']['postprocessing'] == 'off':
+    p3d.load_prc_file_data(
+        '',
+        'framebuffer-multisample 1\n'
+        'multisamples 2\n'
+    )
 
 p3d.load_prc_file_data(
     '',

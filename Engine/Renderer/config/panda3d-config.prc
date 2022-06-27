@@ -76,7 +76,7 @@ texture-magfilter linear
 texture-minfilter linear
 texture-quality-level fastest
 
-# Enable seamless cubemap filtering, important for environment filtering
+# Enable seamless cubemap filtering, important for environment filtering
 gl-cube-map-seamless #t
 
 # Disable caching of textures

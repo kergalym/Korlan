@@ -190,7 +190,7 @@ class SceneOne:
                 grass.set_two_sided(culling)
 
             # Enable lightmapping for this scene
-            base.game_instance['render_attr_cls'].apply_lightmap_to_scene(scene=scene, lightmap="lightmap_scene_one")
+            # base.game_instance['render_attr_cls'].apply_lightmap_to_scene(scene=scene, lightmap="lightmap_scene_one")
 
             # Set two sided, since some model may be broken
             scene.set_two_sided(culling)
@@ -205,6 +205,42 @@ class SceneOne:
                 # base.game_instance['render_attr_cls'].set_smoke_hearth(adv_render=True, scene_np=scene, smoke_scale=0.1)
                 # Enable grass
                 # base.game_instance['render_attr_cls'].set_grass(adv_render=True, fogcenter=Vec3(256, 256, 0), uv_offset=Vec2(0, 0))
+            else:
+                # Set Lights and Shadows
+                if render.find("SpotLight_ToD"):
+                    light = render.find("SpotLight_ToD")
+                    base.game_instance['render_attr_cls'].set_spotlight_shadows(obj=scene, light=light, shadow_blur=0.2,
+                                                                                ambient_color=(1.0, 1.0, 1.0))
+                # Enable water
+                assets = self.base.assets_collector()
+                water_mesh = await self.base.loader.load_model(assets['water_mesh'], blocking=False)
+                water_mesh.reparent_to(render)
+                self.base.game_instance['render_attr_cls'].set_water(True, water_lvl=30.0, adv_render=False)
+
+                # Enable flame
+                base.game_instance['render_attr_cls'].set_flame_hearth(adv_render=False, scene_np=scene, flame_scale=0.1)
+
+                # base.game_instance['render_attr_cls'].set_smoke_hearth(adv_render=False, scene_np=scene, smoke_scale=0.1)
+                # Enable grass
+                # base.game_instance['render_attr_cls'].set_grass(adv_render=False, fogcenter=Vec3(256, 256, 0), uv_offset=Vec2(0, 0))
+
+                if self.game_settings['Main']['postprocessing'] == 'off':
+                    # Load the skybox
+                    assets = self.base.assets_collector()
+                    sky = await self.base.loader.load_model(assets['sky'], blocking=False)
+                    sun = await self.base.loader.load_model(assets['sun'], blocking=False)
+                    cloud = await self.base.loader.load_model(assets['cloud'], blocking=False)
+                    sky.set_name("sky")
+                    sky.reparent_to(render)
+                    sun.set_name("sun")
+                    sun.reparent_to(render)
+                    cloud.set_name("cloud")
+                    cloud.reparent_to(render)
+                    base.game_instance['render_attr_cls'].set_sky_and_clouds(cloud_dimensions=[2000, 2000, 100],
+                                                                             cloud_speed=0.3,
+                                                                             cloud_size=20,
+                                                                             cloud_count=20,
+                                                                             cloud_color=(0.6, 0.6, 0.65, 1.0))
 
             self.base.game_instance['scene_is_loaded'] = True
 
