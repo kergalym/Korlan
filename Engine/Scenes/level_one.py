@@ -286,6 +286,14 @@ class LevelOne:
                                       color=[0.8],
                                       task="attach")"""
 
+        if self.game_settings['Main']['postprocessing'] == 'off':
+            base.game_instance['render_attr_cls'].set_lighting(name='dlight',
+                                                               render=self.render,
+                                                               pos=[0, -40, 10],
+                                                               hpr=[0, -20, 0],
+                                                               color=[0.7],
+                                                               task="attach")
+
         # assets is a dict containing paths + models
         # anims is a list containing two dicts.
         # anims[0] is a dict containing names of animations

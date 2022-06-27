@@ -76,6 +76,7 @@ class RenderAttr:
         if self.game_settings['Main']['postprocessing'] == 'off':
             self.gfx_manager = FilterManager(base.win, base.cam)
             self.gfx_filters = CommonFilters(base.win, base.cam)
+            self.gfx_filters.set_ambient_occlusion()
 
         # Time of day
         self.elapsed_seconds = 0
@@ -239,13 +240,13 @@ class RenderAttr:
             self.time_of_day_light = render.attachNewNode(Spotlight("SpotLight_ToD"))
 
             if self.sun:
-                self.time_of_day_light.setPos(self.sun.get_pos())
+                self.time_of_day_light.set_pos(self.sun.get_pos())
             else:
-                self.time_of_day_light.setPos(0, 0, 800)
+                self.time_of_day_light.set_pos(0, 0, 800)
 
-            self.time_of_day_light.lookAt(self.time_of_day_np)
+            self.time_of_day_light.look_at(self.time_of_day_np)
             render.setLight(self.time_of_day_light)
-            self.time_of_day_light.reparentTo(self.time_of_day_np)
+            self.time_of_day_light.reparent_to(self.time_of_day_np)
 
             self.time_of_day_light.node().setShadowCaster(True, 2048, 2048)
             self.time_of_day_light.node().showFrustum()
@@ -805,8 +806,10 @@ class RenderAttr:
                             light_np.set_scale(100)
                             self.render.set_light(light_np)
                             self.base.game_instance['rp_lights']["scene"].append(light)
-                            """self.set_spotlight_shadows(obj=self.render, light=light, shadow_blur=0.2,
-                                                 ambient_color=(1.0, 1.0, 1.0))"""
+                            self.set_spotlight_shadows(obj=self.render, light=light_np, shadow_blur=0.2,
+                                                       ambient_color=(1.0, 1.0, 1.0))
+                            self.gfx_filters.set_volumetric_lighting(caster=light_np)
+
                     elif name == 'alight':
                         if self.game_settings['Main']['postprocessing'] == 'off':
                             light = AmbientLight(name)
@@ -814,8 +817,8 @@ class RenderAttr:
                             light_np = self.render.attach_new_node(light)
                             self.render.set_light(light_np)
                             self.base.game_instance['rp_lights']["scene"].append(light)
-                            """self.set_spotlight_shadows(obj=self.render, light=light, shadow_blur=0.2,
-                                                 ambient_color=(1.0, 1.0, 1.0))"""
+                            self.set_spotlight_shadows(obj=self.render, light=light_np, shadow_blur=0.2,
+                                                       ambient_color=(1.0, 1.0, 1.0))
 
     def clear_lighting(self):
         if self.game_settings['Main']['postprocessing'] == 'on':
@@ -987,9 +990,10 @@ class RenderAttr:
         if obj:
             ready_shaders = self.get_all_shaders(self.base.shader_collector())
             obj.set_shader(ready_shaders['Normalmapping'])
-            """obj.set_shader_input('my_light', light)
-            obj.set_shader_input('shadow_blur', shadow_blur)  # 0.2
-            obj.set_shader_input('ambient_color', ambient_color)  # Vec3(1.0, 1.0, 1.0)"""
+            """for light in self.base.game_instance['rp_lights']["scene"]:
+                obj.set_shader_input('my_light', light)
+                obj.set_shader_input('shadow_blur', 0.2)  # 0.2
+                obj.set_shader_input('ambient_color', Vec3(1.0, 1.0, 1.0))  # Vec3(1.0, 1.0, 1.0)"""
 
     def apply_lightmap_to_scene(self, scene, lightmap):
         """
