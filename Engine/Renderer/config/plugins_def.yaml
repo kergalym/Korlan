@@ -1,9 +1,11 @@
+
+# Render Pipeline Plugin Configuration
+# Instead of editing this file, prefer to use the Plugin Configurator
+# Any formatting and comments will be lost
 disabled:
 - dof
-- fxaa
 - volumetrics
 - vxgi
-- skin_shading
 enabled:
 - ao
 - bloom
@@ -12,7 +14,9 @@ enabled:
 - motion_blur
 - pssm
 - scattering
+- skin_shading
 - sky_ao
+- fxaa
 - smaa
 - ssr
 - clouds
@@ -64,10 +68,10 @@ overrides:
         uc2t_toe_numerator: 0.0029
         uc2t_toe_denumerator: 0.2787
         uc2t_reference_white: 10.05
-        vignette_strength: 0.5
-        film_grain_strength: 0.0
+        vignette_strength: 0.1
+        film_grain_strength: 0.1286
         color_lut: film_luts/default_lut.png
-        use_chromatic_aberration: false
+        use_chromatic_aberration: False
         chromatic_aberration_strength: 0.019
         chromatic_aberration_samples: 2
         manual_camera_parameters: False
@@ -146,7 +150,7 @@ overrides:
 
     skin_shading:
         quality: medium
-        blur_scale: 0.43
+        blur_scale: 0.12
 
     sky_ao:
         sample_radius: 17.17
