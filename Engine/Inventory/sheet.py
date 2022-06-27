@@ -32,6 +32,7 @@ class Sheet(Inventory):
         self.player_state = PlayerState()
         self.menu_font = None
         self.cfg_path = None
+        self.char_sheet_bg = None
 
         """ Frame Positions """
         self.pos_X = 0
@@ -671,6 +672,19 @@ class Sheet(Inventory):
 
         self.base.is_inventory_active = False
 
+    def set_character_sheet_background(self):
+        geoms = self.base.inventory_geoms_collector()
+        if geoms:
+            self.char_sheet_bg = self.base.loader.load_model(geoms["bg_black_char_sheet"])
+            self.char_sheet_bg.set_name("bg_black_char_sheet")
+            player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
+            if player_bs:
+                self.char_sheet_bg.reparent_to(player_bs)
+                # self.char_sheet_bg.set_pos(0, 0, 0)
+                self.char_sheet_bg.set_h(player_bs.get_h())
+                self.char_sheet_bg.set_two_sided(True)
+                self.char_sheet_bg.hide()
+                
     def prepare_character(self):
         if self.base.is_inventory_active:
             # Hide world from inventory
@@ -703,23 +717,8 @@ class Sheet(Inventory):
                 if render.find("**/pivot"):
                     render.find("**/pivot").set_hpr(24.6, -0.999999, 0)
 
-                # set scene
-                bg_black = None
-                if not render.find("**/bg_black_char_sheet"):
-                    geoms = self.base.inventory_geoms_collector()
-                    if geoms:
-                        bg_black = base.loader.loadModel(geoms["bg_black_char_sheet"])
-                        bg_black.set_name("bg_black_char_sheet")
-                        player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
-                        if player_bs:
-                            bg_black.reparent_to(player_bs)
-                            bg_black.set_pos(0, 0, 0)
-                            bg_black.set_h(player_bs.get_h())
-                            bg_black.set_two_sided(True)
-                else:
-                    if render.find("**/bg_black_char_sheet"):
-                        bg_black = render.find("**/bg_black_char_sheet")
-                        bg_black.show()
+                # Show character sheet background
+                self.char_sheet_bg.show()
 
                 if render.find("**/World"):
                     render.find("**/World").hide()
@@ -765,10 +764,8 @@ class Sheet(Inventory):
         if render.find("**/pivot"):
             render.find("**/pivot").set_hpr(pivot_hpr)
 
-        # hide
-        if render.find("**/bg_black_char_sheet"):
-            bg_black = render.find("**/bg_black_char_sheet")
-            bg_black.hide()
+        # Hide character sheet background
+        self.char_sheet_bg.hide()
 
         # Show world again
         if render.find("**/World"):

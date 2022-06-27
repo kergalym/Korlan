@@ -26,7 +26,10 @@ class SocialQuests:
         self.item_range = [0.0, 0.7]
 
     def set_level_triggers(self, scene, task):
-        if self.base.game_instance['player_actions_init_is_activated'] == 1:
+        if (self.base.game_instance['scene_is_loaded']
+                and self.base.game_instance['player_actions_init_is_activated'] == 1
+                and self.base.game_instance['physics_is_activated'] == 1
+                and self.base.game_instance['ai_is_activated'] == 1):
             self.player = self.base.game_instance["player_ref"]
             self.player_bs = render.find("**/{0}".format(self.player.get_name()))
             self.player_name = self.player_bs.get_name()

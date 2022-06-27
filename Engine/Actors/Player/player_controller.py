@@ -270,6 +270,7 @@ class PlayerController:
                 # Accept close_sheet command from close button, because
                 # I suddenly can't do it inside the sheet class
                 # self.sheet = Sheet()
+                self.sheet.set_character_sheet_background()
                 base.accept('i', self.sheet.set_sheet)
                 base.accept('close_sheet', self.sheet.clear_sheet)
 

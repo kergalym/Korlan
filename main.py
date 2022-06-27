@@ -359,7 +359,6 @@ class Main(ShowBase):
             "keymap": None,
             "pause_mode": False,
             "physics_attr_cls": None,
-            "npcs_fsm_states_cls": None,
             "physics_world_np": None,
             "ai_world_np": None,
             "water_trigger_np": None,
