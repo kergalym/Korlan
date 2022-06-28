@@ -247,52 +247,12 @@ class LevelOne:
         self.base.game_instance['lod_np'].reparentTo(world_np)
 
         self.base.game_instance['render_attr_cls'].time_text_ui.show()
-        self.base.game_instance['render_attr_cls'].set_time_of_day(duration=1800)  # 1800 sec == 30 min
         taskMgr.add(self.base.game_instance['render_attr_cls'].set_time_of_day_clock_task,
                     "set_time_of_day_clock_task",
                     extraArgs=["18:00", 1800],  # 1800 sec == 30 min
                     appendTask=True)
 
         """ Assets """
-
-        """base.game_instance['render_attr_cls'].set_lighting(name='plight',
-                                      render=self.render,
-                                      pos=[-7, 8, 8],
-                                      hpr=[180, 130, 0],
-                                      color=[0.4],
-                                      task="attach")
-        base.game_instance['render_attr_cls'].set_lighting(name='plight',
-                                      render=self.render,
-                                      pos=[-12, 8, 8],
-                                      hpr=[180, 130, 0],
-                                      color=[0.4],
-                                      task="attach")
-        base.game_instance['render_attr_cls'].set_lighting(name='slight',
-                                      render=self.render,
-                                      pos=[0, 3, 10],
-                                      hpr=[0, -20, 0],
-                                      color=[0.5],
-                                      task="attach")"""
-        """base.game_instance['render_attr_cls'].set_lighting(name='dlight',
-                                      render=self.render,
-                                      pos=[0, -40, 10],
-                                      hpr=[0, -20, 0],
-                                      color=[0.7],
-                                      task="attach")
-        base.game_instance['render_attr_cls'].set_lighting(name='alight',
-                                      render=self.render,
-                                      pos=[0, 8.0, 10],
-                                      hpr=[0, -20, 0],
-                                      color=[0.8],
-                                      task="attach")"""
-
-        if self.game_settings['Main']['postprocessing'] == 'off':
-            base.game_instance['render_attr_cls'].set_lighting(name='alight',
-                                                               render=self.render,
-                                                               pos=[0, 8.0, 10],
-                                                               hpr=[0, -20, 0],
-                                                               color=[0.8],
-                                                               task="attach")
 
         # assets is a dict containing paths + models
         # anims is a list containing two dicts.
@@ -335,11 +295,8 @@ class LevelOne:
         self.base.game_instance["physics_attr_cls"] = self.physics_attr
 
         """ Async Loading """
-        suffix = ""
-        if self.game_settings['Main']['postprocessing'] == 'on':
-            suffix = "rp"
-        elif self.game_settings['Main']['postprocessing'] == 'off':
-            suffix = "p3d"
+
+        suffix = "rp"
 
         taskMgr.add(self.scene_one.set_level(path=assets['lvl_one_{0}'.format(suffix)],
                                              name="lvl_one",

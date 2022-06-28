@@ -150,8 +150,7 @@ class Korlan:
                 # Make actor global
                 self.base.game_instance['player_ref'] = self.korlan
 
-                if self.game_settings['Main']['postprocessing'] == 'on':
-                    base.game_instance['render_attr_cls'].render_pipeline.prepare_scene(self.korlan)
+                self.base.game_instance['renderpipeline_np'].prepare_scene(self.korlan)
 
                 if self.game_settings['Debug']['set_debug_mode'] == "YES":
                     self.render.analyze()
@@ -260,8 +259,7 @@ class Korlan:
                 # Make actor global
                 self.base.game_instance['player_ref'] = self.korlan
 
-                if self.game_settings['Main']['postprocessing'] == 'on':
-                    base.game_instance['render_attr_cls'].render_pipeline.prepare_scene(self.korlan)
+                self.base.game_instance['renderpipeline_np'].prepare_scene(self.korlan)
 
                 # Set allowed weapons list
                 self.base.game_instance["weapons"] = [

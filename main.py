@@ -70,7 +70,6 @@ game_settings = configparser.ConfigParser()
 game_settings['Main'] = {'disp_res': '1920x1080',
                          'fullscreen': 'off',
                          'antialiasing': 'on',
-                         'postprocessing': 'on',
                          'details': 'high',
                          'texture_compression': 'active',
                          'shadows': 'on',
@@ -177,13 +176,6 @@ p3d.load_prc_file_data(
     'loader-thread-priority normal\n'
     'loader-num-threads 2\n'
 )
-
-if game_settings['Main']['postprocessing'] == 'off':
-    p3d.load_prc_file_data(
-        '',
-        'framebuffer-multisample 1\n'
-        'multisamples 2\n'
-    )
 
 p3d.load_prc_file_data(
     '',
@@ -438,14 +430,13 @@ class Main(ShowBase):
             self.controller.setup()
 
         # Construct and create the pipeline
-        if self.game_settings['Main']['postprocessing'] == 'on':
-            render_bg_tex = self.textures_collector('Engine/Renderer')
-            self.render_pipeline = RenderPipeline()
-            self.render_pipeline.set_loading_screen_image(render_bg_tex['background'])
-            self.render_pipeline.pre_showbase_init()
-            self.render_pipeline.create(self)
-            self.game_instance["renderpipeline_np"] = self.render_pipeline
-            self.accept("reload_render", self.reload_render)
+        render_bg_tex = self.textures_collector('Engine/Renderer')
+        self.render_pipeline = RenderPipeline()
+        self.render_pipeline.set_loading_screen_image(render_bg_tex['background'])
+        self.render_pipeline.pre_showbase_init()
+        self.render_pipeline.create(self)
+        self.game_instance["renderpipeline_np"] = self.render_pipeline
+        self.accept("reload_render", self.reload_render)
 
         """ Menu """
         if self.check_and_do_cfg():
@@ -471,8 +462,7 @@ class Main(ShowBase):
         self.scene_mode = None
 
         # Enable Projected water
-        if self.game_settings['Main']['postprocessing'] == 'on':
-            self.render_attr.set_projected_water(True)
+        self.render_attr.set_projected_water(True)
 
         """ Sounds """
         self.sound.openal_mgr()
@@ -1222,7 +1212,7 @@ class Main(ShowBase):
 
             Return      : False
         """
-        if node and bool and self.game_settings['Main']['postprocessing'] == 'on':
+        if node and bool:
             for tex in node.find_all_textures():
                 if tex.get_num_components() == 4:
                     tex.set_format(Texture.F_srgb_alpha)

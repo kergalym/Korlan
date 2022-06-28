@@ -122,10 +122,6 @@ class LoadingUI:
             self.editor = Editor()
             self.editor.set_editor()
 
-        if self.game_settings['Main']['postprocessing'] == 'off':
-            render.set_antialias(AntialiasAttrib.MMultisample)
-            base.game_instance['render_attr_cls'].set_normal_mapping(render)
-
         self.base.game_instance['loading_is_done'] = 1
 
         self.set_fadeout_screen()
