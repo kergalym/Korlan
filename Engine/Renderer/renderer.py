@@ -269,7 +269,7 @@ class RenderAttr:
                 self.minutes = self.elapsed_seconds // 60
 
                 if self.base.game_instance['inv_mode']:
-                    self.hour = 00
+                    self.hour = 15
                 else:
                     hour = time.split(':')
                     hour = int(hour[0])
