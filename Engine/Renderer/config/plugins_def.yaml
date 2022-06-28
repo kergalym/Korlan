@@ -14,8 +14,8 @@ enabled:
 # - dof
 - env_probes
 - fxaa
-- volumetrics
-- vxgi
+# - volumetrics
+# - vxgi
 overrides:
   ao:
     alchemy_max_distance: 5.86
