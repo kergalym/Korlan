@@ -9,7 +9,7 @@ export PATH=$PROJDIR"/venv3.7/built"/bin:$PATH
 openssl genpkey -algorithm RSA -aes256 -out private.pem
 openssl req -new -x509 -sha256 -days 365 -key private.pem > cert.pem
 
-cp requirements_lin.txt requirements.txt
+cp requirements_android.txt requirements.txt
 #. venv3*/bin/activate
 python3.8 setup_android.py build_apps bdist_apps
 cd $BUILDDIR
