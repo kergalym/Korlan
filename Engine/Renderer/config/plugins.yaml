@@ -1,7 +1,3 @@
-disabled:
-- dof
-- volumetrics
-- vxgi
 enabled:
 - ao
 - bloom
@@ -12,11 +8,14 @@ enabled:
 - scattering
 - skin_shading
 - sky_ao
-- fxaa
 - smaa
 - ssr
 - clouds
+# - dof
 - env_probes
+- fxaa
+- volumetrics
+- vxgi
 overrides:
   ao:
     alchemy_max_distance: 5.86
@@ -73,9 +72,9 @@ overrides:
     uc2t_toe_denumerator: 0.2787
     uc2t_toe_numerator: 0.0029
     uc2t_toe_strength: 0.3919
-    use_chromatic_aberration: false
-    use_sharpen: false
-    vignette_strength: 0.1
+    use_chromatic_aberration: true
+    use_sharpen: true
+    vignette_strength: 0.1286
   dof:
     blur_strength: 0.0
     focal_point: 1000.0
@@ -88,10 +87,10 @@ overrides:
     probe_resolution: 128
   forward_shading: null
   fxaa:
-    edge_threshold: 0.2
+    edge_threshold: 0.166
     min_threshold: 0.833
     quality: ultra
-    subpixel_quality: 0.9
+    subpixel_quality: 0.5
   motion_blur:
     blur_factor: 0.5
     camera_blur_factor: 0.4
@@ -121,7 +120,7 @@ overrides:
     split_count: 4
     sun_distance: 100.0
     use_distant_shadows: true
-    use_pcf: false
+    use_pcf: true
     use_pcss: false
   scattering:
     atmosphere_start: 549.61
@@ -150,7 +149,7 @@ overrides:
     jitter_amount: 0.16143
     jitter_pattern: halton8
     smaa_quality: ultra
-    use_reprojection: false
+    use_reprojection: true
   ssr:
     abort_on_object_infront: true
     border_fade: 0.005

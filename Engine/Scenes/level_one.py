@@ -135,14 +135,7 @@ class LevelOne:
             base.game_instance['render_attr_cls'].clear_flame()
 
             # Remove all lights
-            if self.game_settings['Main']['postprocessing'] == 'off':
-                render.clearLight()
-                if not render.find("**/+Light").is_empty():
-                    render.find("**/+Light").remove_node()
-                    render.find("**/+Light").clear()
-            elif (self.base.game_instance["renderpipeline_np"]
-                  and self.game_settings['Main']['postprocessing'] == 'on'):
-                base.render_attr.clear_lighting()
+            base.render_attr.clear_lighting()
 
             # Remove Collisions
             if not render.find("**/Collisions").is_empty():
