@@ -160,8 +160,8 @@ class SceneOne:
                 # before load into VRAM
                 self.base.toggle_texture_compression(scene)
 
-                # scene.reparent_to(self.base.game_instance['lod_np'])
-                scene.reparent_to(self.world_nodepath)
+                scene.reparent_to(self.base.game_instance['lod_np'])
+                # scene.reparent_to(self.world_nodepath)
 
                 # LOD quality preset
                 for lod_qk in self.base.game_instance["lod_quality"]:
@@ -186,9 +186,11 @@ class SceneOne:
 
             self.base.game_instance['renderpipeline_np'].prepare_scene(scene)
 
-            if not render.find("**/Grass").is_empty():
-                grass = render.find("**/Grass")
-                grass.set_two_sided(True)
+            if render.find("**/Grass"):
+                grass = render.find_all_matches("**/Grass*")
+                for np in grass:
+                    np.flatten_strong()
+                    np.set_two_sided(True)
 
             # Enable lightmapping for this scene
             base.game_instance['render_attr_cls'].apply_lightmap_to_scene(scene=scene,
@@ -212,7 +214,7 @@ class SceneOne:
             # Tree Instancing
             # self.set_tree_instancing(scene=scene, amount=10, offset=7)
             self.set_gpu_instancing_to(scene=scene,
-                                       pattern="tree",
+                                       pattern="tree_rig",
                                        placeholder="tree_empty")
 
             self.base.game_instance['scene_is_loaded'] = True
@@ -356,5 +358,5 @@ class SceneOne:
                 prefab.set_shader_input("InstancingData", buffer_texture)
                 prefab.set_instance_count(len(matrices))
                 # We have do disable culling, so that all instances stay visible
-                prefab.node().set_bounds(OmniBoundingVolume())
-                prefab.node().set_final(True)
+                # prefab.node().set_bounds(OmniBoundingVolume())
+                # prefab.node().set_final(True)

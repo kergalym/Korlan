@@ -67,8 +67,7 @@ class NpcGeneric:
                     # before load into VRAM
                     self.base.toggle_texture_compression(self.actor)
 
-                    # self.actor.reparent_to(self.base.game_instance['lod_np'])
-                    self.actor.reparent_to(self.render)
+                    self.actor.reparent_to(self.base.game_instance['lod_np'])
 
                     # LOD quality preset
                     for lod_qk in self.base.game_instance["lod_quality"]:

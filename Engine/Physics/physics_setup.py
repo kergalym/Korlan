@@ -131,8 +131,7 @@ class PhysicsAttr:
                     # actor_bs_np.node().set_collision_response(True)
 
                     # reparent bullet-shaped actor to LOD node
-                    """actor_bs_np.reparent_to(self.base.game_instance['lod_np'])
-                    self.base.game_instance['lod_np'].node().add_switch(50.0, 0.0)"""
+                    actor_bs_np.reparent_to(self.base.game_instance['lod_np'])
 
                     # attach trigger sphere
                     self.npc_triggers.set_ghost_trigger(actor, self.world)
@@ -170,8 +169,7 @@ class PhysicsAttr:
                     # actor_bs_np.node().set_collision_response(True)
 
                     # reparent bullet-shaped actor to LOD node
-                    """actor_bs_np.reparent_to(self.base.game_instance['lod_np'])
-                    self.base.game_instance['lod_np'].node().add_switch(50.0, 0.0)"""
+                    actor_bs_np.reparent_to(self.base.game_instance['lod_np'])
 
                     if "NPC_Horse" in col_name:
                         # attach mount place nodepath
