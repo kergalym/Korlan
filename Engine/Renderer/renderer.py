@@ -6,7 +6,6 @@ from panda3d.core import FontPool, TextNode
 from Engine.Renderer.rpcore import PointLight as RP_PointLight
 from Engine.Renderer.rpcore import SpotLight as RP_SpotLight
 from direct.particles.ParticleEffect import ParticleEffect
-import struct
 
 
 class WaterOptions:
@@ -537,48 +536,6 @@ class RenderAttr:
             attrib = attrib.set_flag(ShaderAttrib.F_hardware_skinning, bool_)
             actor.set_attrib(attrib)
             self.base.game_instance['hw_skinning'] = True
-
-    def asset_instancing(self, asset, pattern):
-        # Find the prefab object, we are going to in instance this object
-        # multiple times
-        # Collect all instances
-        matrices = []
-        for elem in asset.find_all_matches("**/{0}*".format(pattern)):
-            matrices.append(elem.get_mat(self.render))
-            elem.remove_node()
-
-        print("Loaded", len(matrices), "instances!")
-
-        # Allocate storage for the matrices, each matrix has 16 elements,
-        # but because one pixel has four components, we need amount * 4 pixels.
-        buffer_texture = Texture()
-        buffer_texture.setup_buffer_texture(len(matrices) * 4, Texture.T_float, Texture.F_rgba32, GeomEnums.UH_static)
-
-        floats = []
-
-        # Serialize matrices to floats
-        ram_image = buffer_texture.modify_ram_image()
-
-        for idx, mat in enumerate(matrices):
-            for i in range(4):
-                for j in range(4):
-                    floats.append(mat.get_cell(i, j))
-
-        # Write the floats to the texture
-        data = struct.pack("f" * len(floats), *floats)
-        ram_image.set_subdata(0, len(data), data)
-
-        # Load the effect
-        self.base.game_instance["renderpipeline_np"].set_effect(asset,
-                                                                "{0}/Engine/Renderer/effects/basic_instancing.yaml".format(
-                                                                    self.game_dir), {})
-
-        asset.set_shader_input("InstancingData", buffer_texture)
-        asset.set_instance_count(len(matrices))
-
-        # We have do disable culling, so that all instances stay visible
-        asset.node().set_bounds(OmniBoundingVolume())
-        asset.node().set_final(True)
 
     def apply_lightmap_to_scene(self, scene, lightmap):
         """

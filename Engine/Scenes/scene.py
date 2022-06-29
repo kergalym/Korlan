@@ -7,6 +7,8 @@ from Engine.Quests.social_quests import SocialQuests
 from panda3d.navigation import NavMeshNode, NavMeshQuery
 from panda3d.navmeshgen import NavMeshBuilder
 
+import struct
+
 
 class SceneOne:
 
@@ -186,7 +188,7 @@ class SceneOne:
 
             if not render.find("**/Grass").is_empty():
                 grass = render.find("**/Grass")
-                grass.set_two_sided(culling)
+                grass.set_two_sided(True)
 
             # Enable lightmapping for this scene
             base.game_instance['render_attr_cls'].apply_lightmap_to_scene(scene=scene,
@@ -206,6 +208,12 @@ class SceneOne:
             base.game_instance['render_attr_cls'].set_grass(adv_render=True,
                                                             fogcenter=Vec3(256, 256, 0),
                                                             uv_offset=Vec2(0, 0))
+
+            # Tree Instancing
+            # self.set_tree_instancing(scene=scene, amount=10, offset=7)
+            self.set_gpu_instancing_to(scene=scene,
+                                       pattern="tree",
+                                       placeholder="tree_empty")
 
             self.base.game_instance['scene_is_loaded'] = True
 
@@ -265,3 +273,88 @@ class SceneOne:
             scene.show()
         else:
             scene.hide()
+
+    def set_tree_instancing(self, scene, amount, offset):
+        if (scene and isinstance(scene, NodePath)
+                and isinstance(amount, int)
+                and isinstance(offset, int)):
+            tree = scene.find("**/tree*")
+            if tree:
+                tree_master = scene.attach_new_node('TreeMaster')
+                # We do cruciform offset
+                # x row of trees
+                for i in range(amount):
+                    step = i * offset
+                    placeholder = tree_master.attach_new_node("treeInstance")
+                    placeholder.set_pos(step, 0, 0)
+                    tree.instance_to(placeholder)
+                for i in range(amount):
+                    step = i * offset
+                    placeholder = tree_master.attach_new_node("treeInstance")
+                    placeholder.set_pos(-step, 0, 0)
+                    tree.instance_to(placeholder)
+                # y row of trees
+                for i in range(amount):
+                    step = i * offset
+                    placeholder = tree_master.attach_new_node("treeInstance")
+                    placeholder.set_pos(0, step, 0)
+                    tree.instance_to(placeholder)
+                for i in range(amount):
+                    step = i * offset
+                    placeholder = tree_master.attach_new_node("treeInstance")
+                    placeholder.set_pos(0, -step, 0)
+                    tree.instance_to(placeholder)
+                tree_master.flatten_light()
+
+    def set_gpu_instancing_to(self, scene, pattern, placeholder):
+        if (scene and isinstance(scene, NodePath)
+                and isinstance(pattern, str)
+                and isinstance(placeholder, str)):
+            # Find the asset object, we are going to in instance this object
+            # multiple times
+            # Collect all instances
+            prefab = render.find("**/{0}".format(pattern))
+            if prefab:
+
+                matrices = []
+                floats = []
+
+                for elem in scene.find_all_matches("**/{0}*".format(placeholder)):
+
+                    pos_z = prefab.get_z()
+                    scale = prefab.get_scale()
+                    elem.set_z(pos_z)
+                    elem.set_scale(scale)
+
+                    matrices.append(elem.get_mat(render))
+                    elem.remove_node()
+
+                # Allocate storage for the matrices, each matrix has 16 elements,
+                # but because one pixel has four components, we need amount * 4 pixels.
+                buffer_texture = Texture()
+                buffer_texture.setup_buffer_texture(len(matrices) * 4,
+                                                    Texture.T_float,
+                                                    Texture.F_rgba32,
+                                                    GeomEnums.UH_static)
+
+                # Serialize matrices to floats
+                ram_image = buffer_texture.modify_ram_image()
+                for idx, mat in enumerate(matrices):
+                    for i in range(4):
+                        for j in range(4):
+                            floats.append(mat.get_cell(i, j))
+
+                # Write the floats to the texture
+                data = struct.pack("f" * len(floats), *floats)
+                ram_image.set_subdata(0, len(data), data)
+
+                # Load the effect
+                renderpipeline_np = self.base.game_instance["renderpipeline_np"]
+                renderpipeline_np.set_effect(prefab,
+                                             "{0}/Engine/Renderer/effects/basic_instancing.yaml".format(
+                                                 self.game_dir), {})
+                prefab.set_shader_input("InstancingData", buffer_texture)
+                prefab.set_instance_count(len(matrices))
+                # We have do disable culling, so that all instances stay visible
+                prefab.node().set_bounds(OmniBoundingVolume())
+                prefab.node().set_final(True)
