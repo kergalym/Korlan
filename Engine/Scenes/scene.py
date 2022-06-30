@@ -189,8 +189,8 @@ class SceneOne:
             if render.find("**/Grass"):
                 grass = render.find_all_matches("**/Grass*")
                 for np in grass:
-                    np.flatten_strong()
                     np.set_two_sided(True)
+                    np.flatten_strong()
 
             # Enable lightmapping for this scene
             base.game_instance['render_attr_cls'].apply_lightmap_to_scene(scene=scene,
@@ -358,5 +358,5 @@ class SceneOne:
                 prefab.set_shader_input("InstancingData", buffer_texture)
                 prefab.set_instance_count(len(matrices))
                 # We have do disable culling, so that all instances stay visible
-                # prefab.node().set_bounds(OmniBoundingVolume())
-                # prefab.node().set_final(True)
+                prefab.node().set_bounds(OmniBoundingVolume())
+                prefab.node().set_final(True)

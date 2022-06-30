@@ -71,7 +71,7 @@ multisamples 0
 textures-power-2 none
 
 # Set default texture filters
-texture-anisotropic-degree 16
+texture-anisotropic-degree 4
 texture-magfilter linear
 texture-minfilter linear
 texture-quality-level fastest
@@ -95,7 +95,7 @@ gl-coordinate-system default
 
 # This makes animations smoother, especially if they were exported at 30 FPS
 # and are played at 60 FPS
-interpolate-frames #t
+interpolate-frames t
 
 # Disable workarround in panda which causes our shadow atlas to take twice
 # the amount of vram it should, due to an intel driver bug.
@@ -111,13 +111,13 @@ gl-version 4 3
 # hardware-animated-vertices #t
 
 # Try this options for performance
-uniquify-matrix #t
-uniquify-transforms #t
-uniquify-states #t
-uniquify-attribs #f
+uniquify-matrix t
+uniquify-transforms t
+uniquify-states t
+uniquify-attribs f
 
 # Enable garbarge collection
-garbage-collect-states #t
+garbage-collect-states t
 # garbage-collect-states-rate 0.2
 
 # Compress textures on the drivers?

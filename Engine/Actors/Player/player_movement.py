@@ -209,6 +209,7 @@ class PlayerMovement:
         if (player and isinstance(anims, dict)
                 and not self.base.game_instance['is_aiming']
                 and not base.player_states['is_using']
+                and not base.player_states['is_attacked']
                 and self.is_ready_for_move()
                 and not self.kbd.keymap["attack"]
                 and not self.kbd.keymap["block"]):
@@ -295,6 +296,7 @@ class PlayerMovement:
         if (player and isinstance(anims, dict)
                 and not self.base.game_instance['is_aiming']
                 and not base.player_states['is_using']
+                and not base.player_states['is_attacked']
                 and self.is_ready_for_move()
                 and not self.kbd.keymap["attack"]
                 and not self.kbd.keymap["block"]):
@@ -347,6 +349,7 @@ class PlayerMovement:
         if (isinstance(anims, dict)
                 and not self.base.game_instance['is_aiming']
                 and not base.player_states['is_using']
+                and not base.player_states['is_attacked']
                 and base.player_states['is_mounted']
                 and self.is_ready_for_move()):
 
@@ -426,6 +429,7 @@ class PlayerMovement:
     def horse_riding_run_action(self, anims):
         if (isinstance(anims, dict)
                 and not self.base.game_instance['is_aiming']
+                and not base.player_states['is_attacked']
                 and self.is_ready_for_move()
                 and base.player_states['is_mounted']
                 and not base.player_states['is_crouch_moving']):

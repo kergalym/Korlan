@@ -1,3 +1,4 @@
+import math
 from pathlib import Path
 from direct.gui.DirectGui import OnscreenText
 from direct.task.TaskManagerGlobal import taskMgr
@@ -48,6 +49,15 @@ class RenderAttr:
         self.minutes = 0
         self.hour = 0
         self.day = 0
+
+        # Light Energy
+        self.flame_light_u_energy = 1.0
+        self.flame_light_a_energy = 4.0
+        self.flame_light_u_half_energy = self.flame_light_u_energy / 2
+        self.flame_light_a_half_energy = self.flame_light_a_energy / 2
+
+        # Flame flickering rate
+        self.flame_rate = 5.0
 
         """ Texts & Fonts"""
         # self.menu_font = self.fonts['OpenSans-Regular']
@@ -158,50 +168,22 @@ class RenderAttr:
             self.grass_np.set_shader_input("num_lights", 3)
             self.grass_np.set_pos(0.0, 0.0, 0.0)
 
-    def set_flame(self, adv_render, scene_np, flame_scale):
-        # empty_name is a name of NodePath which we use to attach particles to it
-        # flame name (associated with .ptf name)
-        particles_assets = self.base.particles_collector()
+    def do_flame_light_flicker_task(self, light_a, light_u, task):
+        if self.base.game_instance["menu_mode"]:
+            return task.done
 
-        if scene_np and particles_assets.get("flame"):
-            for node_path in scene_np.get_children():
-                if "flame_empty" in node_path.get_name():
-                    # RP doesn't have nodegraph-like structure to find and remove lights,
-                    # so we check self.rp_light before adding light
-                    light = RP_PointLight()
-                    light.pos = node_path.get_pos() + Vec3(0, 0, 1.5)
-                    light.set_color_from_temperature(2400.0)
-                    light.energy = 5.0
-                    light.ies_profile = self.base.game_instance["renderpipeline_np"].load_ies_profile("x_arrow.ies")
-                    light.casts_shadows = True
-                    light.shadow_map_resolution = 128
-                    light.near_plane = 0.2
-                    light.radius = 1.9
-                    # light.inner_radius = 10.0
-                    self.base.game_instance['rp_lights']["flame"].append(light)
-                    self.base.game_instance["renderpipeline_np"].add_light(light)
+        frame_time = globalClock.get_frame_time()
 
-                    self.base.enable_particles()
-                    particles = ParticleEffect()
-                    particles.load_config(particles_assets["flame"])
-                    # Use empty geom to start
-                    particles.start(node_path)
+        # Sinusoid brightness values
+        brightness = math.sin(self.flame_rate * frame_time)
 
-                    if flame_scale and isinstance(flame_scale, float):
-                        node_path.set_scale(flame_scale)
+        # Lights brightness product
+        light_a_result = self.flame_light_a_half_energy / 2.0 + brightness * self.flame_light_a_energy
+        light_u_result = self.flame_light_u_half_energy / 2.0 + brightness * self.flame_light_u_energy
+        light_a.energy = max(0, light_a_result)
+        light_u.energy = max(0, light_u_result)
 
-                    # Add particles to keep them in list
-                    self.particles[node_path.get_name()] = particles
-
-                    if adv_render:
-                        self.base.game_instance["renderpipeline_np"].set_effect(node_path,
-                                                                                "{0}/Engine/Renderer/effects/flame.yaml".format(
-                                                                                    self.game_dir),
-                                                                                {"render_gbuffer": True,
-                                                                                 "render_forward": False,
-                                                                                 "render_shadow": False,
-                                                                                 "alpha_testing": True,
-                                                                                 "normal_mapping": False})
+        return task.cont
 
     def set_flame_hearth(self, adv_render, scene_np, flame_scale):
         # empty_name is a name of NodePath which we use to attach particles to it
@@ -222,7 +204,7 @@ class RenderAttr:
                         light_a = RP_PointLight()
                         light_a.pos = Vec3(node_path.get_x(), node_path.get_y(), 1.7)
                         light_a.set_color_from_temperature(1000.0)
-                        light_a.energy = 4.0
+                        light_a.energy = self.flame_light_a_energy
                         light_a.ies_profile = self.base.game_instance["renderpipeline_np"].load_ies_profile("pear.ies")
                         light_a.casts_shadows = True
                         light_a.shadow_map_resolution = 512
@@ -236,7 +218,7 @@ class RenderAttr:
                         light_u = RP_PointLight()
                         light_u.pos = Vec3(node_path.get_x(), node_path.get_y(), 0.3)
                         light_u.set_color_from_temperature(1000.0)
-                        light_u.energy = 1.0
+                        light_u.energy = self.flame_light_u_energy
                         light_u.ies_profile = self.base.game_instance["renderpipeline_np"].load_ies_profile("pear.ies")
                         light_u.casts_shadows = True
                         light_u.shadow_map_resolution = 512
@@ -245,24 +227,11 @@ class RenderAttr:
                         # light_u.inner_radius = 0.2
                         self.base.game_instance['rp_lights']["flame"].append(light_u)
                         self.base.game_instance["renderpipeline_np"].add_light(light_u)
-                    else:
-                        # Put second light above hearth
-                        light_a = render.attach_new_node(PointLight("flame_plight"))
-                        light_a.node().set_shadow_caster(True, 512, 512)
-                        light_a.node().set_color((4, 2, 0, 1))
-                        render.setLight(light_a)
-                        light_a.set_pos(Vec3(node_path.get_x(), node_path.get_y(), 1.7))
-                        light_a.node().attenuation = (1, 0, 1)
-                        self.base.game_instance['rp_lights']["flame"].append(light_a)
 
-                        # Put first light under hearth
-                        light_u = render.attach_new_node(PointLight("flame_plight"))
-                        light_u.node().set_shadow_caster(True, 512, 512)
-                        light_u.node().set_color((4, 2, 0, 1))
-                        render.setLight(light_u)
-                        light_u.set_pos(Vec3(node_path.get_x(), node_path.get_y(), 0.3))
-                        light_u.node().attenuation = (1, 0, 1)
-                        self.base.game_instance['rp_lights']["flame"].append(light_u)
+                        taskMgr.add(self.do_flame_light_flicker_task,
+                                    "do_flame_light_flicker_task",
+                                    extraArgs=[light_a, light_u],
+                                    appendTask=True)
 
                 if "flame_empty_hearth" in node_path.get_name():
                     self.base.enable_particles()
