@@ -115,12 +115,8 @@ class PlayerMovement:
             crouch_walking_forward_seq = player.get_anim_control(anims[self.crouch_walking_forward_action])
             if state == 'loop' and crouch_walking_forward_seq.is_playing() is False:
                 player.loop(anims[self.crouch_walking_forward_action])
-                if self.kbd.keymap['backward']:
-                    player.set_play_rate(-self.base.actor_play_rate,
-                                         anims[self.crouch_walking_forward_action])
-                else:
-                    player.set_play_rate(self.base.actor_play_rate,
-                                         anims[self.crouch_walking_forward_action])
+                player.set_play_rate(self.base.actor_play_rate,
+                                     anims[self.crouch_walking_forward_action])
             elif state == 'stop' and crouch_walking_forward_seq.is_playing():
                 player.stop()
                 player.pose(anims[self.crouch_walking_forward_action], 0)
@@ -131,12 +127,8 @@ class PlayerMovement:
             if state == 'loop' and crouch_walking_forward_seq.is_playing() is False:
                 player.stop(self.horse_idle_action)
                 player.loop(anims[self.horse_crouch_walking_forward_action])
-                if self.kbd.keymap['backward']:
-                    player.set_play_rate(-self.base.actor_play_rate,
-                                         anims[self.horse_crouch_walking_forward_action])
-                else:
-                    player.set_play_rate(self.base.actor_play_rate,
-                                         anims[self.horse_crouch_walking_forward_action])
+                player.set_play_rate(self.base.actor_play_rate,
+                                     anims[self.horse_crouch_walking_forward_action])
             elif state == 'stop' and crouch_walking_forward_seq.is_playing():
                 player.stop()
                 player.pose(anims[self.horse_crouch_walking_forward_action], 0)
@@ -221,7 +213,9 @@ class PlayerMovement:
             omega = 0.0
             move_unit = 2
 
-            self.turning_in_place(player, anims, self.seq_turning_wrapper)
+            if (not base.player_states["is_crouch_moving"]
+                    and not base.player_states["is_crouching"]):
+                self.turning_in_place(player, anims, self.seq_turning_wrapper)
 
             # Forward walk
             if (self.kbd.keymap["forward"]
@@ -234,8 +228,7 @@ class PlayerMovement:
             if (self.kbd.keymap["forward"]
                     and not self.kbd.keymap["backward"]
                     and self.kbd.keymap["run"] is False
-                    and base.player_states['is_crouch_moving']
-                    and base.player_states['is_idle']):
+                    and base.player_states['is_crouch_moving']):
                 if base.input_state.is_set('forward'):
                     speed.set_y(-move_unit)
             # Backward
@@ -243,15 +236,6 @@ class PlayerMovement:
                     and self.kbd.keymap["run"] is False
                     and self.kbd.keymap["left"] is False
                     and self.kbd.keymap["right"] is False
-                    and base.player_states['is_idle']):
-                if base.input_state.is_set('reverse'):
-                    speed.set_y(move_unit)
-            # Crouch backward
-            if (self.kbd.keymap["backward"]
-                    and self.kbd.keymap["run"] is False
-                    and self.kbd.keymap["left"] is False
-                    and self.kbd.keymap["right"] is False
-                    and base.player_states['is_crouch_moving']
                     and base.player_states['is_idle']):
                 if base.input_state.is_set('reverse'):
                     speed.set_y(move_unit)
@@ -273,7 +257,7 @@ class PlayerMovement:
                                       Func(self.state.set_action_state, "is_moving", True)),
                              ).start()
                 if (base.player_states['is_crouch_moving']
-                        and base.player_states['is_idle']):
+                        and not base.player_states['is_idle']):
                     Sequence(Func(self.seq_crouch_move_wrapper, player, anims, 'loop')
                              ).start()
             else:

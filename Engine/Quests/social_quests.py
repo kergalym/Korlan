@@ -121,6 +121,7 @@ class SocialQuests:
         txt_cap = render.find("**/txt_sit")
 
         if (self.base.game_instance["is_player_sitting"]
+                and self.base.game_instance["is_indoor"]
                 and self.base.player_states["is_busy"]):
             if txt_cap:
                 txt_cap.hide()
@@ -137,6 +138,7 @@ class SocialQuests:
                      Func(self.set_action_state, actor, False)
                      ).start()
         elif (not self.base.game_instance["is_player_sitting"]
+              and self.base.game_instance["is_indoor"]
               and not self.base.player_states["is_busy"]):
             if self.player_name in actor.get_name():
                 self.base.game_instance["is_player_sitting"] = True
@@ -175,6 +177,7 @@ class SocialQuests:
         txt_cap = render.find("**/txt_rest")
 
         if (self.base.game_instance["is_player_laying"]
+                and self.base.game_instance["is_indoor"]
                 and self.base.player_states["is_busy"]):
             if txt_cap:
                 txt_cap.show()
@@ -200,6 +203,7 @@ class SocialQuests:
                      Func(self.set_do_once_key, "use", False),
                      Func(self.set_action_state, actor, False)).start()
         if (not self.base.game_instance["is_player_laying"]
+                and self.base.game_instance["is_indoor"]
                 and not self.base.player_states["is_busy"]):
             if txt_cap:
                 txt_cap.hide()

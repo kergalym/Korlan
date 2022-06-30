@@ -206,7 +206,8 @@ class Mouse:
             # Limit camera heading while player is sitting or laying
             if (self.base.game_instance["is_player_sitting"]
                     or self.base.game_instance["is_player_laying"]):
-                self.on_limit_camera_in_social_action()
+                if self.base.game_instance["is_indoor"]:
+                    self.on_limit_camera_in_social_action()
             else:
                 # Heading player in the regular way
                 self.pivot.set_h(pv_heading)
