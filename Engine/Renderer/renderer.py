@@ -1,5 +1,6 @@
 import math
 from pathlib import Path
+from random import uniform
 from direct.gui.DirectGui import OnscreenText
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import *
@@ -53,11 +54,11 @@ class RenderAttr:
         # Light Energy
         self.flame_light_u_energy = 1.0
         self.flame_light_a_energy = 4.0
-        self.flame_light_u_half_energy = self.flame_light_u_energy / 2
-        self.flame_light_a_half_energy = self.flame_light_a_energy / 2
+        self.flame_light_u_half_energy = 0.5
+        self.flame_light_a_half_energy = 2.0
 
         # Flame flickering rate
-        self.flame_rate = 5.0
+        self.flame_rate = 8.0
 
         """ Texts & Fonts"""
         # self.menu_font = self.fonts['OpenSans-Regular']
@@ -172,16 +173,17 @@ class RenderAttr:
         if self.base.game_instance["menu_mode"]:
             return task.done
 
-        frame_time = globalClock.get_frame_time()
+        frame_time = globalClock.getDt()
 
         # Sinusoid brightness values
         brightness = math.sin(self.flame_rate * frame_time)
 
-        # Lights brightness product
+        # Lights brightness with flickering speed included
         light_a_result = self.flame_light_a_half_energy / 2.0 + brightness * self.flame_light_a_energy
         light_u_result = self.flame_light_u_half_energy / 2.0 + brightness * self.flame_light_u_energy
-        light_a.energy = max(0, light_a_result)
-        light_u.energy = max(0, light_u_result)
+
+        light_a.energy = uniform(self.flame_light_a_half_energy, light_a_result)
+        light_u.energy = uniform(self.flame_light_u_half_energy, light_u_result)
 
         return task.cont
 
