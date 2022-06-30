@@ -302,11 +302,11 @@ class PlayerController:
                             "ground_water_action_switch_task")
 
                 # Start actions
+                base.player_states['is_idle'] = True
+
                 taskMgr.add(self.player_actions_task, "player_actions_task",
                             extraArgs=[player, anims],
                             appendTask=True)
-
-                base.player_states['is_idle'] = True
 
             self.base.game_instance['player_actions_init_is_activated'] = 1
 
