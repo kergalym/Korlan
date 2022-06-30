@@ -142,7 +142,8 @@ class LoadingUI:
             if alpha > 0:
                 alpha -= 0.1
                 self.fadeout_screen['frameColor'] = (0, 0, 0, alpha)
-            elif alpha == 0.0:
+
+            if self.base.game_instance['loading_is_done'] == 1:
                 self.fadeout_screen.destroy()
                 return task.done
 

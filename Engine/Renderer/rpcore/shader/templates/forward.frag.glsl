@@ -99,14 +99,14 @@ void main() {
             // Do binary alpha testing, but weight it based on the distance to the
             // camera. This prevents alpha tested objects getting too thin when
             // viewed from a high distance.
-            // TODO: Might want to make the alpha testing distance configurable
             vec4 sampled_diffuse = texture(p3d_Texture0, texcoord);
             float dist_to_camera = distance(MainSceneData.camera_pos, vOutput.position);
             float alpha_factor = 0;
-            if (dist_to_camera < 6.0) {
+            if (dist_to_camera < 4.0) {
                 alpha_factor = mix(0.99, 0.1, saturate(dist_to_camera / 2.0));
-            } else {
-                alpha_factor = mix(0.99, 0.1, saturate(dist_to_camera / 12.0));
+            }
+            if (dist_to_camera > 4.0) {
+                alpha_factor = mix(0.99, 0.1, saturate(dist_to_camera / 6.0));
             }
             if (sampled_diffuse.w < alpha_factor) discard;
         #endif

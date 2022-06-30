@@ -212,10 +212,13 @@ class SceneOne:
                                                             uv_offset=Vec2(0, 0))
 
             # Tree Instancing
-            # self.set_tree_instancing(scene=scene, amount=10, offset=7)
-            self.set_gpu_instancing_to(scene=scene,
+            self.set_cpu_instancing_to(scene=scene,
                                        pattern="tree_rig",
                                        placeholder="tree_empty")
+
+            """self.set_gpu_instancing_to(scene=scene,
+                                       pattern="tree_rig",
+                                       placeholder="tree_empty")"""
 
             self.base.game_instance['scene_is_loaded'] = True
 
@@ -276,37 +279,26 @@ class SceneOne:
         else:
             scene.hide()
 
-    def set_tree_instancing(self, scene, amount, offset):
+    def set_cpu_instancing_to(self, scene, pattern, placeholder):
         if (scene and isinstance(scene, NodePath)
-                and isinstance(amount, int)
-                and isinstance(offset, int)):
-            tree = scene.find("**/tree*")
-            if tree:
+                and isinstance(pattern, str)
+                and isinstance(placeholder, str)):
+            # Find the asset object, we are going to in instance this object
+            # multiple times
+            # Collect all instances
+            prefab = scene.find("**/{0}".format(pattern))
+            if prefab:
                 tree_master = scene.attach_new_node('TreeMaster')
-                # We do cruciform offset
-                # x row of trees
-                for i in range(amount):
-                    step = i * offset
-                    placeholder = tree_master.attach_new_node("treeInstance")
-                    placeholder.set_pos(step, 0, 0)
-                    tree.instance_to(placeholder)
-                for i in range(amount):
-                    step = i * offset
-                    placeholder = tree_master.attach_new_node("treeInstance")
-                    placeholder.set_pos(-step, 0, 0)
-                    tree.instance_to(placeholder)
-                # y row of trees
-                for i in range(amount):
-                    step = i * offset
-                    placeholder = tree_master.attach_new_node("treeInstance")
-                    placeholder.set_pos(0, step, 0)
-                    tree.instance_to(placeholder)
-                for i in range(amount):
-                    step = i * offset
-                    placeholder = tree_master.attach_new_node("treeInstance")
-                    placeholder.set_pos(0, -step, 0)
-                    tree.instance_to(placeholder)
-                tree_master.flatten_light()
+                for elem in scene.find_all_matches("**/{0}*".format(placeholder)):
+
+                    pos_z = prefab.get_z()
+                    scale = prefab.get_scale()
+                    elem.set_z(pos_z)
+                    elem.set_scale(scale)
+
+                    cpuinst = tree_master.attach_new_node("treeInstance")
+                    cpuinst.set_pos(elem.get_pos())
+                    prefab.instance_to(cpuinst)
 
     def set_gpu_instancing_to(self, scene, pattern, placeholder):
         if (scene and isinstance(scene, NodePath)
@@ -315,7 +307,7 @@ class SceneOne:
             # Find the asset object, we are going to in instance this object
             # multiple times
             # Collect all instances
-            prefab = render.find("**/{0}".format(pattern))
+            prefab = scene.find("**/{0}".format(pattern))
             if prefab:
 
                 matrices = []

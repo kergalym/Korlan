@@ -251,7 +251,7 @@ class Korlan:
                 self.korlan.set_two_sided(culling)
 
                 # Panda3D 1.10 doesn't enable alpha blending for textures by default
-                self.korlan.set_transparency(True)
+                # self.korlan.set_transparency(True)
 
                 # Hardware skinning
                 self.base.game_instance['render_attr_cls'].set_hardware_skinning(self.korlan, True)

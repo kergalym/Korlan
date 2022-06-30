@@ -173,18 +173,21 @@ class PlayerMovement:
                      ).start()
 
         # Stop turning in place
+
         if (not self.kbd.keymap["forward"]
                 and not self.kbd.keymap["run"]
                 and not self.kbd.keymap["left"]):
-            Sequence(Parallel(Func(seq_turning_wrapper, actor, anims, "left_turn", 'stop'),
-                              Func(self.state.set_action_state, "is_turning", False)),
-                     ).start()
+            if base.player_states["is_turning"]:
+                Sequence(Parallel(Func(seq_turning_wrapper, actor, anims, "left_turn", 'stop'),
+                                  Func(self.state.set_action_state, "is_turning", False)),
+                         ).start()
         if (not self.kbd.keymap["forward"]
                 and not self.kbd.keymap["run"]
                 and not self.kbd.keymap["right"]):
-            Sequence(Parallel(Func(seq_turning_wrapper, actor, anims, "right_turn", 'stop'),
-                              Func(self.state.set_action_state, "is_turning", False)),
-                     ).start()
+            if base.player_states["is_turning"]:
+                Sequence(Parallel(Func(seq_turning_wrapper, actor, anims, "right_turn", 'stop'),
+                                  Func(self.state.set_action_state, "is_turning", False)),
+                         ).start()
 
     def decrement_stamina_while_running(self, player, move_unit):
         # Get the time that elapsed since last frame
@@ -224,7 +227,6 @@ class PlayerMovement:
             if (self.kbd.keymap["forward"]
                     and not self.kbd.keymap["backward"]
                     and self.kbd.keymap["run"] is False
-                    and base.player_states['is_moving']
                     and base.player_states['is_idle']):
                 if base.input_state.is_set('forward'):
                     speed.set_y(-move_unit)
@@ -241,7 +243,6 @@ class PlayerMovement:
                     and self.kbd.keymap["run"] is False
                     and self.kbd.keymap["left"] is False
                     and self.kbd.keymap["right"] is False
-                    and base.player_states['is_moving']
                     and base.player_states['is_idle']):
                 if base.input_state.is_set('reverse'):
                     speed.set_y(move_unit)

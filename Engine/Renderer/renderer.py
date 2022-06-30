@@ -58,7 +58,7 @@ class RenderAttr:
         self.flame_light_a_half_energy = 2.0
 
         # Flame flickering rate
-        self.flame_rate = 8.0
+        self.flame_rate = 3.0
 
         """ Texts & Fonts"""
         # self.menu_font = self.fonts['OpenSans-Regular']
