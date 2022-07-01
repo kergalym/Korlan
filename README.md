@@ -21,6 +21,10 @@ The Game is dedicated to Tengri and Tengrism.
 
 MIT
 
+### Game Asset License ###
+
+CC0
+
 ==================================================================================================
 
 ### CREDIT LINKS FOR A SOFTWARE USED ###
