@@ -1,0 +1,71 @@
+<CoordinateSystem> { Z-up } 
+<Material> Material {
+  <Scalar> baser { 1 }
+  <Scalar> baseg { 1 }
+  <Scalar> baseb { 1 }
+  <Scalar> emitr { 0.0 }
+  <Scalar> emitg { 0 }
+  <Scalar> emitb { 0.0 }
+  <Scalar> emita { 1.0 }
+  <Scalar> shininess { 0.5 }
+  <Scalar> roughness { 0.4000000059604645 }
+  <Scalar> metallic { 0.0 }
+  <Scalar> ior { 1.4500000476837158 }
+  <Scalar> local { 0 }
+}
+
+<Texture> fire_color.png {
+  "./tex/fire_color.png"
+  <Scalar> envtype { modulate }
+  <Scalar> uv-name { UVMap }
+  <Scalar> minfilter { linear_mipmap_linear }
+  <Scalar> magfilter { linear }
+  <Scalar> wrapu { repeat }
+  <Scalar> wrapv { repeat }
+}
+
+  <Group> Cube {
+    <Transform> {
+      <Matrix4> {
+        -0.011417508125305176 0.0 0.0 0.0 
+        0.0 0.031130850315093994 0.0 0.0 
+        0.0 0.0 1.0 0.0 
+        0.0 0.0 0.0 1.0 
+      }
+    }
+    
+    <VertexPool> Cube {
+    
+      <Vertex> 0 {-0.011418 0.031131 -1.000000
+        <RGBA> { 1 1 1 1 }
+        <UV> UVMap {
+          0.997070 1.000000 
+        }
+      }
+      <Vertex> 1 {-0.011418 0.031131 1.000000
+        <RGBA> { 1 1 1 1 }
+        <UV> UVMap {
+          0.000000 1.000000 
+        }
+      }
+      <Vertex> 2 {-0.011418 -0.031131 1.000000
+        <RGBA> { 1 1 1 1 }
+        <UV> UVMap {
+          0.000000 0.000000 
+        }
+      }
+      <Vertex> 3 {-0.011418 -0.031131 -1.000000
+        <RGBA> { 1 1 1 1 }
+        <UV> UVMap {
+          0.997070 0.000000 
+        }
+      }}
+    
+    
+    <Polygon> {
+      <TRef> { fire_color.png }
+      <MRef> { Material }
+      <Normal> {-1.000000 -0.000000 0.000000}
+      <VertexRef> { 0 1 2 3 <Ref> { Cube }} 
+    }
+  }

@@ -1,0 +1,657 @@
+<CoordinateSystem> { Z-up } 
+<Table> {
+  <Bundle> Korlan {
+    <Table> "<skeleton>" {
+      <Table> Korlan:Hips {
+        <Xfm$Anim> xform {
+          <Scalar> order { sprht }
+          <Scalar> fps { 30 }
+          <Scalar> contents { ijkprhxyz }
+          <V> {
+            0.010000 0.010000 0.010000 90.000003 -0.000000 0.000000 0.006336 -0.017811 0.873606
+          }
+        }
+        <Table> Korlan:Spine {
+          <Xfm$Anim> xform {
+            <Scalar> order { sprht }
+            <Scalar> fps { 30 }
+            <Scalar> contents { ijkprhxyz }
+            <V> {
+              1.000000 1.000000 1.000000 -2.475464 -0.000000 0.000000 0.000000 7.497314 -0.324123
+            }
+          }
+          <Table> Korlan:Spine1 {
+            <Xfm$Anim> xform {
+              <Scalar> order { sprht }
+              <Scalar> fps { 30 }
+              <Scalar> contents { ijkprhxyz }
+              <V> {
+                1.000000 1.000000 1.000000 -0.000006 0.000000 -0.000000 0.000000 8.755025 0.000000
+              }
+            }
+            <Table> Korlan:Spine2 {
+              <Xfm$Anim> xform {
+                <Scalar> order { sprht }
+                <Scalar> fps { 30 }
+                <Scalar> contents { ijkprhxyz }
+                <V> {
+                  1.000000 1.000000 1.000000 0.000006 -0.000000 -0.000000 -0.000000 10.005746 0.000000
+                }
+              }
+              <Table> Korlan:Neck {
+                <Xfm$Anim> xform {
+                  <Scalar> order { sprht }
+                  <Scalar> fps { 30 }
+                  <Scalar> contents { ijkprhxyz }
+                  <V> {
+                    1.000000 1.000000 1.000000 2.475477 0.000000 0.000000 0.000000 11.256482 -0.000000
+                  }
+                }
+                <Table> Korlan:Head {
+                  <Xfm$Anim> xform {
+                    <Scalar> order { sprht }
+                    <Scalar> fps { 30 }
+                    <Scalar> contents { ijkprhxyz }
+                    <V> {
+                      1.000000 1.000000 1.000000 -0.000006 0.000000 -0.000000 -0.000000 8.549973 0.362930
+                    }
+                  }
+                  <Table> Korlan:HeadTop_End {
+                    <Xfm$Anim> xform {
+                      <Scalar> order { sprht }
+                      <Scalar> fps { 30 }
+                      <Scalar> contents { ijkprhxyz }
+                      <V> {
+                        1.000000 1.000000 1.000000 -0.000007 -0.000000 -0.000000 -0.000000 15.328735 0.650680
+                      }
+                    }
+                  }
+                }
+              }
+              <Table> Korlan:LeftShoulder {
+                <Xfm$Anim> xform {
+                  <Scalar> order { sprht }
+                  <Scalar> fps { 30 }
+                  <Scalar> contents { ijkprhxyz }
+                  <V> {
+                    1.000000 1.000000 1.000000 104.613841 90.118342 -2.568733 4.204814 9.979119 -0.007760
+                  }
+                }
+                <Table> Korlan:LeftArm {
+                  <Xfm$Anim> xform {
+                    <Scalar> order { sprht }
+                    <Scalar> fps { 30 }
+                    <Scalar> contents { ijkprhxyz }
+                    <V> {
+                      1.000000 1.000000 1.000000 -13.300004 -2.814585 0.428218 0.000000 8.810709 0.000024
+                    }
+                  }
+                  <Table> Korlan:LeftForeArm {
+                    <Xfm$Anim> xform {
+                      <Scalar> order { sprht }
+                      <Scalar> fps { 30 }
+                      <Scalar> contents { ijkprhxyz }
+                      <V> {
+                        1.000000 1.000000 1.000000 -4.893004 17.831307 -3.269011 0.000000 18.869564 -0.000026
+                      }
+                    }
+                    <Table> Korlan:LeftHand {
+                      <Xfm$Anim> xform {
+                        <Scalar> order { sprht }
+                        <Scalar> fps { 30 }
+                        <Scalar> contents { ijkprhxyz }
+                        <V> {
+                          1.000000 1.000000 1.000000 -6.990317 5.371483 6.136290 -0.000002 19.427834 -0.000000
+                        }
+                      }
+                      <Table> Korlan:LeftHandThumb1 {
+                        <Xfm$Anim> xform {
+                          <Scalar> order { sprht }
+                          <Scalar> fps { 30 }
+                          <Scalar> contents { ijkprhxyz }
+                          <V> {
+                            1.000000 1.000000 1.000000 9.827815 0.000331 34.013994 -1.990061 3.261581 0.661176
+                          }
+                        }
+                        <Table> Korlan:LeftHandThumb2 {
+                          <Xfm$Anim> xform {
+                            <Scalar> order { sprht }
+                            <Scalar> fps { 30 }
+                            <Scalar> contents { ijkprhxyz }
+                            <V> {
+                              1.000000 1.000000 1.000000 19.021534 -0.000909 0.000049 0.139927 3.098879 -0.000005
+                            }
+                          }
+                          <Table> Korlan:LeftHandThumb3 {
+                            <Xfm$Anim> xform {
+                              <Scalar> order { sprht }
+                              <Scalar> fps { 30 }
+                              <Scalar> contents { ijkprhxyz }
+                              <V> {
+                                1.000000 1.000000 1.000000 -7.301049 0.000842 -0.000319 -0.179953 2.626384 0.000004
+                              }
+                            }
+                            <Table> Korlan:LeftHandThumb4 {
+                              <Xfm$Anim> xform {
+                                <Scalar> order { sprht }
+                                <Scalar> fps { 30 }
+                                <Scalar> contents { ijkprhxyz }
+                                <V> {
+                                  1.000000 1.000000 1.000000 -0.000199 -0.000665 0.000274 0.040018 2.342832 0.000019
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                      <Table> Korlan:LeftHandIndex1 {
+                        <Xfm$Anim> xform {
+                          <Scalar> order { sprht }
+                          <Scalar> fps { 30 }
+                          <Scalar> contents { ijkprhxyz }
+                          <V> {
+                            1.000000 1.000000 1.000000 9.392824 -0.000246 9.242208 -2.518523 9.434034 -0.098259
+                          }
+                        }
+                        <Table> Korlan:LeftHandIndex2 {
+                          <Xfm$Anim> xform {
+                            <Scalar> order { sprht }
+                            <Scalar> fps { 30 }
+                            <Scalar> contents { ijkprhxyz }
+                            <V> {
+                              1.000000 1.000000 1.000000 13.406948 0.000166 -0.000092 0.018817 2.198977 -0.000013
+                            }
+                          }
+                          <Table> Korlan:LeftHandIndex3 {
+                            <Xfm$Anim> xform {
+                              <Scalar> order { sprht }
+                              <Scalar> fps { 30 }
+                              <Scalar> contents { ijkprhxyz }
+                              <V> {
+                                1.000000 1.000000 1.000000 -3.298449 -0.000186 0.000173 -0.014575 2.195555 -0.000020
+                              }
+                            }
+                            <Table> Korlan:LeftHandIndex4 {
+                              <Xfm$Anim> xform {
+                                <Scalar> order { sprht }
+                                <Scalar> fps { 30 }
+                                <Scalar> contents { ijkprhxyz }
+                                <V> {
+                                  1.000000 1.000000 1.000000 0.000003 -0.000001 0.000001 -0.004245 1.818673 -0.000011
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                      <Table> Korlan:LeftHandMiddle1 {
+                        <Xfm$Anim> xform {
+                          <Scalar> order { sprht }
+                          <Scalar> fps { 30 }
+                          <Scalar> contents { ijkprhxyz }
+                          <V> {
+                            1.000000 1.000000 1.000000 6.324405 0.000048 0.002832 -0.585368 9.654131 -0.092582
+                          }
+                        }
+                        <Table> Korlan:LeftHandMiddle2 {
+                          <Xfm$Anim> xform {
+                            <Scalar> order { sprht }
+                            <Scalar> fps { 30 }
+                            <Scalar> contents { ijkprhxyz }
+                            <V> {
+                              1.000000 1.000000 1.000000 14.743628 -0.000174 -0.000044 0.008605 2.587161 0.000034
+                            }
+                          }
+                          <Table> Korlan:LeftHandMiddle3 {
+                            <Xfm$Anim> xform {
+                              <Scalar> order { sprht }
+                              <Scalar> fps { 30 }
+                              <Scalar> contents { ijkprhxyz }
+                              <V> {
+                                1.000000 1.000000 1.000000 1.514846 0.000145 0.000153 -0.003946 2.381370 -0.000028
+                              }
+                            }
+                            <Table> Korlan:LeftHandMiddle4 {
+                              <Xfm$Anim> xform {
+                                <Scalar> order { sprht }
+                                <Scalar> fps { 30 }
+                                <Scalar> contents { ijkprhxyz }
+                                <V> {
+                                  1.000000 1.000000 1.000000 0.000153 -0.000128 -0.000204 -0.004674 2.116980 0.000017
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                      <Table> Korlan:LeftHandRing1 {
+                        <Xfm$Anim> xform {
+                          <Scalar> order { sprht }
+                          <Scalar> fps { 30 }
+                          <Scalar> contents { ijkprhxyz }
+                          <V> {
+                            1.000000 1.000000 1.000000 8.949909 0.000071 -14.731765 0.845712 9.684424 -0.294997
+                          }
+                        }
+                        <Table> Korlan:LeftHandRing2 {
+                          <Xfm$Anim> xform {
+                            <Scalar> order { sprht }
+                            <Scalar> fps { 30 }
+                            <Scalar> contents { ijkprhxyz }
+                            <V> {
+                              1.000000 1.000000 1.000000 12.537209 -0.000250 -0.000157 -0.014915 2.321501 0.000001
+                            }
+                          }
+                          <Table> Korlan:LeftHandRing3 {
+                            <Xfm$Anim> xform {
+                              <Scalar> order { sprht }
+                              <Scalar> fps { 30 }
+                              <Scalar> contents { ijkprhxyz }
+                              <V> {
+                                1.000000 1.000000 1.000000 -4.862547 -0.000061 0.000128 0.012777 2.194381 0.000008
+                              }
+                            }
+                            <Table> Korlan:LeftHandRing4 {
+                              <Xfm$Anim> xform {
+                                <Scalar> order { sprht }
+                                <Scalar> fps { 30 }
+                                <Scalar> contents { ijkprhxyz }
+                                <V> {
+                                  1.000000 1.000000 1.000000 -0.000197 0.000342 -0.000080 0.002132 1.960230 -0.000006
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                      <Table> Korlan:LeftHandPinky1 {
+                        <Xfm$Anim> xform {
+                          <Scalar> order { sprht }
+                          <Scalar> fps { 30 }
+                          <Scalar> contents { ijkprhxyz }
+                          <V> {
+                            1.000000 1.000000 1.000000 12.969973 -0.000173 -23.255293 2.258191 9.075766 -0.061084
+                          }
+                        }
+                        <Table> Korlan:LeftHandPinky2 {
+                          <Xfm$Anim> xform {
+                            <Scalar> order { sprht }
+                            <Scalar> fps { 30 }
+                            <Scalar> contents { ijkprhxyz }
+                            <V> {
+                              1.000000 1.000000 1.000000 14.345523 0.000208 -0.000098 -0.021481 1.729531 -0.000001
+                            }
+                          }
+                          <Table> Korlan:LeftHandPinky3 {
+                            <Xfm$Anim> xform {
+                              <Scalar> order { sprht }
+                              <Scalar> fps { 30 }
+                              <Scalar> contents { ijkprhxyz }
+                              <V> {
+                                1.000000 1.000000 1.000000 -3.268414 -0.000563 0.000096 0.014760 1.460362 0.000013
+                              }
+                            }
+                            <Table> Korlan:LeftHandPinky4 {
+                              <Xfm$Anim> xform {
+                                <Scalar> order { sprht }
+                                <Scalar> fps { 30 }
+                                <Scalar> contents { ijkprhxyz }
+                                <V> {
+                                  1.000000 1.000000 1.000000 -0.000000 0.000019 0.000001 0.006717 1.308059 -0.000013
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+              <Table> Korlan:RightShoulder {
+                <Xfm$Anim> xform {
+                  <Scalar> order { sprht }
+                  <Scalar> fps { 30 }
+                  <Scalar> contents { ijkprhxyz }
+                  <V> {
+                    1.000000 1.000000 1.000000 106.930675 -91.407991 0.198314 -4.204814 9.983215 -0.102509
+                  }
+                }
+                <Table> Korlan:RightArm {
+                  <Xfm$Anim> xform {
+                    <Scalar> order { sprht }
+                    <Scalar> fps { 30 }
+                    <Scalar> contents { ijkprhxyz }
+                    <V> {
+                      1.000000 1.000000 1.000000 -12.230717 -1.444971 -4.267646 0.000000 8.810712 0.000007
+                    }
+                  }
+                  <Table> Korlan:RightForeArm {
+                    <Xfm$Anim> xform {
+                      <Scalar> order { sprht }
+                      <Scalar> fps { 30 }
+                      <Scalar> contents { ijkprhxyz }
+                      <V> {
+                        1.000000 1.000000 1.000000 -6.546519 -0.351189 3.752917 -0.000000 18.868139 0.000013
+                      }
+                    }
+                    <Table> Korlan:RightHand {
+                      <Xfm$Anim> xform {
+                        <Scalar> order { sprht }
+                        <Scalar> fps { 30 }
+                        <Scalar> contents { ijkprhxyz }
+                        <V> {
+                          1.000000 1.000000 1.000000 -5.931930 -4.641987 3.515754 0.000000 19.725687 0.000000
+                        }
+                      }
+                      <Table> Korlan:RightHandThumb1 {
+                        <Xfm$Anim> xform {
+                          <Scalar> order { sprht }
+                          <Scalar> fps { 30 }
+                          <Scalar> contents { ijkprhxyz }
+                          <V> {
+                            1.000000 1.000000 1.000000 12.913384 -0.000156 -39.332317 1.745411 2.531104 0.702493
+                          }
+                        }
+                        <Table> Korlan:RightHandThumb2 {
+                          <Xfm$Anim> xform {
+                            <Scalar> order { sprht }
+                            <Scalar> fps { 30 }
+                            <Scalar> contents { ijkprhxyz }
+                            <V> {
+                              1.000000 1.000000 1.000000 15.889928 0.000427 -0.000247 -0.203373 2.514821 0.000002
+                            }
+                          }
+                          <Table> Korlan:RightHandThumb3 {
+                            <Xfm$Anim> xform {
+                              <Scalar> order { sprht }
+                              <Scalar> fps { 30 }
+                              <Scalar> contents { ijkprhxyz }
+                              <V> {
+                                1.000000 1.000000 1.000000 -7.678079 -0.000185 0.000217 0.308635 2.576492 0.000013
+                              }
+                            }
+                            <Table> Korlan:RightHandThumb4 {
+                              <Xfm$Anim> xform {
+                                <Scalar> order { sprht }
+                                <Scalar> fps { 30 }
+                                <Scalar> contents { ijkprhxyz }
+                                <V> {
+                                  1.000000 1.000000 1.000000 -0.000002 0.000001 -0.000002 -0.105262 2.294513 0.000002
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                      <Table> Korlan:RightHandIndex1 {
+                        <Xfm$Anim> xform {
+                          <Scalar> order { sprht }
+                          <Scalar> fps { 30 }
+                          <Scalar> contents { ijkprhxyz }
+                          <V> {
+                            1.000000 1.000000 1.000000 6.304869 0.000029 -17.479221 2.561161 8.312924 -0.060100
+                          }
+                        }
+                        <Table> Korlan:RightHandIndex2 {
+                          <Xfm$Anim> xform {
+                            <Scalar> order { sprht }
+                            <Scalar> fps { 30 }
+                            <Scalar> contents { ijkprhxyz }
+                            <V> {
+                              1.000000 1.000000 1.000000 16.263874 0.000132 -0.000042 -0.027551 2.222842 -0.000016
+                            }
+                          }
+                          <Table> Korlan:RightHandIndex3 {
+                            <Xfm$Anim> xform {
+                              <Scalar> order { sprht }
+                              <Scalar> fps { 30 }
+                              <Scalar> contents { ijkprhxyz }
+                              <V> {
+                                1.000000 1.000000 1.000000 -2.679984 -0.000288 -0.000096 0.018624 2.101828 -0.000003
+                              }
+                            }
+                            <Table> Korlan:RightHandIndex4 {
+                              <Xfm$Anim> xform {
+                                <Scalar> order { sprht }
+                                <Scalar> fps { 30 }
+                                <Scalar> contents { ijkprhxyz }
+                                <V> {
+                                  1.000000 1.000000 1.000000 0.000001 -0.000001 0.000004 0.008923 1.857672 -0.000001
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                      <Table> Korlan:RightHandMiddle1 {
+                        <Xfm$Anim> xform {
+                          <Scalar> order { sprht }
+                          <Scalar> fps { 30 }
+                          <Scalar> contents { ijkprhxyz }
+                          <V> {
+                            1.000000 1.000000 1.000000 0.019074 -0.000302 -6.811784 0.585486 8.386662 0.063429
+                          }
+                        }
+                        <Table> Korlan:RightHandMiddle2 {
+                          <Xfm$Anim> xform {
+                            <Scalar> order { sprht }
+                            <Scalar> fps { 30 }
+                            <Scalar> contents { ijkprhxyz }
+                            <V> {
+                              1.000000 1.000000 1.000000 18.660830 0.000343 0.000186 -0.013982 2.548956 -0.000007
+                            }
+                          }
+                          <Table> Korlan:RightHandMiddle3 {
+                            <Xfm$Anim> xform {
+                              <Scalar> order { sprht }
+                              <Scalar> fps { 30 }
+                              <Scalar> contents { ijkprhxyz }
+                              <V> {
+                                1.000000 1.000000 1.000000 -3.668398 0.000080 -0.000062 0.009435 2.481683 0.000011
+                              }
+                            }
+                            <Table> Korlan:RightHandMiddle4 {
+                              <Xfm$Anim> xform {
+                                <Scalar> order { sprht }
+                                <Scalar> fps { 30 }
+                                <Scalar> contents { ijkprhxyz }
+                                <V> {
+                                  1.000000 1.000000 1.000000 -0.000165 -0.000228 -0.000153 0.004553 2.243185 -0.000003
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                      <Table> Korlan:RightHandRing1 {
+                        <Xfm$Anim> xform {
+                          <Scalar> order { sprht }
+                          <Scalar> fps { 30 }
+                          <Scalar> contents { ijkprhxyz }
+                          <V> {
+                            1.000000 1.000000 1.000000 7.195781 0.000262 5.984120 -0.909530 8.737064 -0.288579
+                          }
+                        }
+                        <Table> Korlan:RightHandRing2 {
+                          <Xfm$Anim> xform {
+                            <Scalar> order { sprht }
+                            <Scalar> fps { 30 }
+                            <Scalar> contents { ijkprhxyz }
+                            <V> {
+                              1.000000 1.000000 1.000000 12.867558 -0.000350 -0.000105 0.006696 2.231627 0.000017
+                            }
+                          }
+                          <Table> Korlan:RightHandRing3 {
+                            <Xfm$Anim> xform {
+                              <Scalar> order { sprht }
+                              <Scalar> fps { 30 }
+                              <Scalar> contents { ijkprhxyz }
+                              <V> {
+                                1.000000 1.000000 1.000000 -8.318982 -0.000042 0.000031 -0.007888 2.152202 -0.000019
+                              }
+                            }
+                            <Table> Korlan:RightHandRing4 {
+                              <Xfm$Anim> xform {
+                                <Scalar> order { sprht }
+                                <Scalar> fps { 30 }
+                                <Scalar> contents { ijkprhxyz }
+                                <V> {
+                                  1.000000 1.000000 1.000000 0.000007 -0.000006 -0.000003 0.001192 1.854329 0.000023
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                      <Table> Korlan:RightHandPinky1 {
+                        <Xfm$Anim> xform {
+                          <Scalar> order { sprht }
+                          <Scalar> fps { 30 }
+                          <Scalar> contents { ijkprhxyz }
+                          <V> {
+                            1.000000 1.000000 1.000000 6.826388 -0.000075 14.678548 -2.237102 7.911112 0.032236
+                          }
+                        }
+                        <Table> Korlan:RightHandPinky2 {
+                          <Xfm$Anim> xform {
+                            <Scalar> order { sprht }
+                            <Scalar> fps { 30 }
+                            <Scalar> contents { ijkprhxyz }
+                            <V> {
+                              1.000000 1.000000 1.000000 18.652936 -0.000064 -0.000069 0.019412 1.836279 0.000006
+                            }
+                          }
+                          <Table> Korlan:RightHandPinky3 {
+                            <Xfm$Anim> xform {
+                              <Scalar> order { sprht }
+                              <Scalar> fps { 30 }
+                              <Scalar> contents { ijkprhxyz }
+                              <V> {
+                                1.000000 1.000000 1.000000 -3.511379 -0.000049 -0.000119 -0.013644 1.562229 -0.000006
+                              }
+                            }
+                            <Table> Korlan:RightHandPinky4 {
+                              <Xfm$Anim> xform {
+                                <Scalar> order { sprht }
+                                <Scalar> fps { 30 }
+                                <Scalar> contents { ijkprhxyz }
+                                <V> {
+                                  1.000000 1.000000 1.000000 0.000181 0.000128 0.000142 -0.005785 1.461048 0.000006
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        <Table> Korlan:LeftUpLeg {
+          <Xfm$Anim> xform {
+            <Scalar> order { sprht }
+            <Scalar> fps { 30 }
+            <Scalar> contents { ijkprhxyz }
+            <V> {
+              0.999964 1.000000 0.999999 0.390147 -0.216668 175.756654 8.944416 -4.156937 -0.076756
+            }
+          }
+          <Table> Korlan:LeftLeg {
+            <Xfm$Anim> xform {
+              <Scalar> order { sprht }
+              <Scalar> fps { 30 }
+              <Scalar> contents { ijkprhxyz }
+              <V> {
+                1.000000 1.000000 1.000000 -1.421885 -0.030343 4.099322 0.000001 34.203377 0.000000
+              }
+            }
+            <Table> Korlan:LeftFoot {
+              <Xfm$Anim> xform {
+                <Scalar> order { sprht }
+                <Scalar> fps { 30 }
+                <Scalar> contents { ijkprhxyz }
+                <V> {
+                  1.000000 1.000000 1.000000 54.557369 3.951063 9.819953 -0.022364 39.034481 -1.736335
+                }
+              }
+              <Table> Korlan:LeftToeBase {
+                <Xfm$Anim> xform {
+                  <Scalar> order { sprht }
+                  <Scalar> fps { 30 }
+                  <Scalar> contents { ijkprhxyz }
+                  <V> {
+                    1.000000 1.000000 1.000000 35.434069 -20.015586 -0.000080 -0.000003 13.354990 0.000001
+                  }
+                }
+                <Table> Korlan:LeftToe_End {
+                  <Xfm$Anim> xform {
+                    <Scalar> order { sprht }
+                    <Scalar> fps { 30 }
+                    <Scalar> contents { ijkprhxyz }
+                    <V> {
+                      1.000000 1.000000 1.000000 0.000173 0.001629 -0.000023 0.000000 4.996956 0.000000
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        <Table> Korlan:RightUpLeg {
+          <Xfm$Anim> xform {
+            <Scalar> order { sprht }
+            <Scalar> fps { 30 }
+            <Scalar> contents { ijkprhxyz }
+            <V> {
+              0.999632 0.999998 0.999964 -0.602392 -0.005240 -177.066425 -8.944416 -4.156937 0.808889
+            }
+          }
+          <Table> Korlan:RightLeg {
+            <Xfm$Anim> xform {
+              <Scalar> order { sprht }
+              <Scalar> fps { 30 }
+              <Scalar> contents { ijkprhxyz }
+              <V> {
+                1.000000 1.000000 1.000000 -1.295402 -0.037283 -3.000107 -0.000001 34.254009 -0.000000
+              }
+            }
+            <Table> Korlan:RightFoot {
+              <Xfm$Anim> xform {
+                <Scalar> order { sprht }
+                <Scalar> fps { 30 }
+                <Scalar> contents { ijkprhxyz }
+                <V> {
+                  1.000000 1.000000 1.000000 51.812565 -4.179546 -9.267032 -0.000000 38.956718 -0.000000
+                }
+              }
+              <Table> Korlan:RightToeBase {
+                <Xfm$Anim> xform {
+                  <Scalar> order { sprht }
+                  <Scalar> fps { 30 }
+                  <Scalar> contents { ijkprhxyz }
+                  <V> {
+                    1.000000 1.000000 1.000000 38.624378 19.870777 -0.005004 0.000002 12.426570 -0.000001
+                  }
+                }
+                <Table> Korlan:RightToe_End {
+                  <Xfm$Anim> xform {
+                    <Scalar> order { sprht }
+                    <Scalar> fps { 30 }
+                    <Scalar> contents { ijkprhxyz }
+                    <V> {
+                      1.000000 1.000000 1.000000 -0.000190 0.008849 0.000018 0.000001 4.893599 0.000000
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,71 @@
+<CoordinateSystem> { Z-up } 
+<Material> Material {
+  <Scalar> baser { 1 }
+  <Scalar> baseg { 1 }
+  <Scalar> baseb { 1 }
+  <Scalar> emitr { 0.0 }
+  <Scalar> emitg { 0 }
+  <Scalar> emitb { 0.0 }
+  <Scalar> emita { 1.0 }
+  <Scalar> shininess { 0.5 }
+  <Scalar> roughness { 0.4000000059604645 }
+  <Scalar> metallic { 0.0 }
+  <Scalar> ior { 1.4500000476837158 }
+  <Scalar> local { 0 }
+}
+
+<Texture> sparkle.png {
+  "./tex/sparkle.png"
+  <Scalar> envtype { modulate }
+  <Scalar> uv-name { UVMap }
+  <Scalar> minfilter { linear_mipmap_linear }
+  <Scalar> magfilter { linear }
+  <Scalar> wrapu { repeat }
+  <Scalar> wrapv { repeat }
+}
+
+  <Group> Cube {
+    <Transform> {
+      <Matrix4> {
+        1.0 0.0 0.0 0.0 
+        0.0 1.0 0.0 0.0 
+        0.0 0.0 1.0 0.0 
+        0.0 0.0 0.0 1.0 
+      }
+    }
+    
+    <VertexPool> Cube {
+    
+      <Vertex> 0 {1.000000 -1.000000 -1.000000
+        <RGBA> { 1 1 1 1 }
+        <UV> UVMap {
+          0.992859 -0.007040 
+        }
+      }
+      <Vertex> 1 {1.000000 -1.000000 1.000000
+        <RGBA> { 1 1 1 1 }
+        <UV> UVMap {
+          1.007040 0.992859 
+        }
+      }
+      <Vertex> 2 {-1.000000 -1.000000 1.000000
+        <RGBA> { 1 1 1 1 }
+        <UV> UVMap {
+          0.007141 1.007040 
+        }
+      }
+      <Vertex> 3 {-1.000000 -1.000000 -1.000000
+        <RGBA> { 1 1 1 1 }
+        <UV> UVMap {
+          -0.007040 0.007141 
+        }
+      }}
+    
+    
+    <Polygon> {
+      <TRef> { sparkle.png }
+      <MRef> { Material }
+      <Normal> {0.000000 -1.000000 0.000000}
+      <VertexRef> { 0 1 2 3 <Ref> { Cube }} 
+    }
+  }

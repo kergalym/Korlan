@@ -1,0 +1,191 @@
+<CoordinateSystem> { Z-up } 
+<Material> Material {
+  <Scalar> baser { 1 }
+  <Scalar> baseg { 1 }
+  <Scalar> baseb { 1 }
+  <Scalar> emitr { 0.0 }
+  <Scalar> emitg { 0 }
+  <Scalar> emitb { 0.0 }
+  <Scalar> emita { 1.0 }
+  <Scalar> shininess { 0.5 }
+  <Scalar> roughness { 0.4000000059604645 }
+  <Scalar> metallic { 0.0 }
+  <Scalar> ior { 1.4500000476837158 }
+  <Scalar> local { 0 }
+}
+
+<Texture> ui_bg.png {
+  "./tex/ui_bg.png"
+  <Scalar> envtype { modulate }
+  <Scalar> uv-name { UVMap }
+  <Scalar> minfilter { linear_mipmap_linear }
+  <Scalar> magfilter { linear }
+  <Scalar> wrapu { repeat }
+  <Scalar> wrapv { repeat }
+}
+
+  <Group> Cube {
+    <Transform> {
+      <Matrix4> {
+        2.140984535217285 0.0 0.0 0.0 
+        0.0 1.0 0.0 0.0 
+        0.0 0.0 1.1847809553146362 0.0 
+        0.0 -1.0 0.0 1.0 
+      }
+    }
+    
+    <VertexPool> Cube {
+    
+      <Vertex> 0 {-1.357105 -1.000000 1.056484
+        <RGBA> { 1 1 1 1 }
+        <UV> UVMap {
+          0.609785 0.467965 
+        }
+      }
+      <Vertex> 1 {-1.357105 -1.000000 1.184781
+        <RGBA> { 1 1 1 1 }
+        <UV> UVMap {
+          0.625000 0.467965 
+        }
+      }
+      <Vertex> 2 {-2.140985 -1.000000 1.184781
+        <RGBA> { 1 1 1 1 }
+        <UV> UVMap {
+          0.625000 0.500000 
+        }
+      }
+      <Vertex> 3 {-2.140985 -1.000000 1.056484
+        <RGBA> { 1 1 1 1 }
+        <UV> UVMap {
+          0.609785 0.500000 
+        }
+      }
+      <Vertex> 4 {2.140985 -1.000000 -1.184781
+        <RGBA> { 1 1 1 1 }
+        <UV> UVMap {
+          0.375000 0.250000 
+        }
+      }
+      <Vertex> 5 {2.140985 -1.000000 -0.477731
+        <RGBA> { 1 1 1 1 }
+        <UV> UVMap {
+          0.427841 0.250000 
+        }
+      }
+      <Vertex> 6 {-1.357105 -1.000000 -0.477731
+        <RGBA> { 1 1 1 1 }
+        <UV> UVMap {
+          0.427841 0.467965 
+        }
+      }
+      <Vertex> 7 {-1.357105 -1.000000 -1.184781
+        <RGBA> { 1 1 1 1 }
+        <UV> UVMap {
+          0.375000 0.467965 
+        }
+      }
+      <Vertex> 8 {-1.357105 -1.000000 -1.184781
+        <RGBA> { 1 1 1 1 }
+        <UV> UVMap {
+          0.375000 0.467965 
+        }
+      }
+      <Vertex> 9 {-1.357105 -1.000000 -0.477731
+        <RGBA> { 1 1 1 1 }
+        <UV> UVMap {
+          0.427841 0.467965 
+        }
+      }
+      <Vertex> 10 {-2.140985 -1.000000 -0.477731
+        <RGBA> { 1 1 1 1 }
+        <UV> UVMap {
+          0.427841 0.500000 
+        }
+      }
+      <Vertex> 11 {-2.140985 -1.000000 -1.184781
+        <RGBA> { 1 1 1 1 }
+        <UV> UVMap {
+          0.375000 0.500000 
+        }
+      }
+      <Vertex> 12 {-1.357105 -1.000000 -0.477731
+        <RGBA> { 1 1 1 1 }
+        <UV> UVMap {
+          0.427841 0.467965 
+        }
+      }
+      <Vertex> 13 {-1.357105 -1.000000 1.056484
+        <RGBA> { 1 1 1 1 }
+        <UV> UVMap {
+          0.609785 0.467965 
+        }
+      }
+      <Vertex> 14 {-2.140985 -1.000000 1.056484
+        <RGBA> { 1 1 1 1 }
+        <UV> UVMap {
+          0.609785 0.500000 
+        }
+      }
+      <Vertex> 15 {-2.140985 -1.000000 -0.477731
+        <RGBA> { 1 1 1 1 }
+        <UV> UVMap {
+          0.427841 0.500000 
+        }
+      }
+      <Vertex> 16 {-1.251405 -1.000000 0.931286
+        <RGBA> { 1 1 1 1 }
+        <UV> UVMap {
+          0.625000 0.467965 
+        }
+      }
+      <Vertex> 17 {-1.251405 -1.000000 0.840397
+        <RGBA> { 1 1 1 1 }
+        <UV> UVMap {
+          0.609785 0.467965 
+        }
+      }
+      <Vertex> 18 {-0.640135 -1.000000 0.840397
+        <RGBA> { 1 1 1 1 }
+        <UV> UVMap {
+          0.609785 0.467965 
+        }
+      }
+      <Vertex> 19 {-0.640135 -1.000000 0.931286
+        <RGBA> { 1 1 1 1 }
+        <UV> UVMap {
+          0.625000 0.467965 
+        }
+      }}
+    
+    
+    <Polygon> {
+      <TRef> { ui_bg.png }
+      <MRef> { Material }
+      <Normal> {0.000000 -1.000000 0.000000}
+      <VertexRef> { 0 1 2 3 <Ref> { Cube }} 
+    }
+    <Polygon> {
+      <TRef> { ui_bg.png }
+      <MRef> { Material }
+      <Normal> {0.000000 -1.000000 0.000000}
+      <VertexRef> { 4 5 6 7 <Ref> { Cube }} 
+    }
+    <Polygon> {
+      <TRef> { ui_bg.png }
+      <MRef> { Material }
+      <Normal> {0.000000 -1.000000 0.000000}
+      <VertexRef> { 8 9 10 11 <Ref> { Cube }} 
+    }
+    <Polygon> {
+      <TRef> { ui_bg.png }
+      <MRef> { Material }
+      <Normal> {0.000000 -1.000000 0.000000}
+      <VertexRef> { 12 13 14 15 <Ref> { Cube }} 
+    }
+    <Polygon> {
+      <TRef> { ui_bg.png }
+      <MRef> { Material }
+      <Normal> {0.000000 -1.000000 0.000000}
+      <VertexRef> { 16 17 18 19 <Ref> { Cube }} 
+    }
+  }

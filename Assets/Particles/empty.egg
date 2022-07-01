@@ -1,0 +1,12 @@
+<CoordinateSystem> { Z-up } 
+  <Group> Empty {
+    <Transform> {
+      <Matrix4> {
+        1.0 0.0 0.0 0.0 
+        0.0 1.0 0.0 0.0 
+        0.0 0.0 1.0 0.0 
+        0.0 0.0 0.0 1.0 
+      }
+    }
+    
+  }

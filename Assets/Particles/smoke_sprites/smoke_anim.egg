@@ -1,0 +1,925 @@
+<Comment> {
+  "egg-texture-cards -o smoke_anim.egg -fps 60 tile000.png tile001.png tile002.png tile003.png tile004.png tile005.png tile006.png tile007.png tile008.png tile009.png tile010.png tile011.png tile012.png tile013.png tile014.png tile015.png tile016.png tile017.png tile018.png tile019.png tile020.png tile021.png tile022.png tile023.png tile024.png tile025.png tile026.png tile027.png tile028.png tile029.png tile030.png tile031.png tile032.png tile033.png tile034.png tile035.png tile036.png tile037.png tile038.png tile039.png tile040.png tile041.png tile042.png tile043.png tile044.png tile045.png tile046.png tile047.png tile048.png tile049.png tile050.png tile051.png tile052.png tile053.png tile054.png tile055.png tile056.png tile057.png tile058.png tile059.png tile060.png tile061.png tile062.png tile063.png tile064.png tile065.png tile066.png tile067.png tile068.png tile069.png tile070.png tile071.png tile072.png tile073.png tile074.png tile075.png tile076.png tile077.png tile078.png tile079.png tile080.png tile081.png tile082.png tile083.png tile084.png tile085.png tile086.png tile087.png tile088.png tile089.png"
+}
+<Texture> tile089 {
+  tile089.png
+}
+<Texture> tile088 {
+  tile088.png
+}
+<Texture> tile087 {
+  tile087.png
+}
+<Texture> tile086 {
+  tile086.png
+}
+<Texture> tile085 {
+  tile085.png
+}
+<Texture> tile084 {
+  tile084.png
+}
+<Texture> tile083 {
+  tile083.png
+}
+<Texture> tile082 {
+  tile082.png
+}
+<Texture> tile081 {
+  tile081.png
+}
+<Texture> tile080 {
+  tile080.png
+}
+<Texture> tile079 {
+  tile079.png
+}
+<Texture> tile078 {
+  tile078.png
+}
+<Texture> tile077 {
+  tile077.png
+}
+<Texture> tile076 {
+  tile076.png
+}
+<Texture> tile075 {
+  tile075.png
+}
+<Texture> tile074 {
+  tile074.png
+}
+<Texture> tile073 {
+  tile073.png
+}
+<Texture> tile072 {
+  tile072.png
+}
+<Texture> tile071 {
+  tile071.png
+}
+<Texture> tile070 {
+  tile070.png
+}
+<Texture> tile069 {
+  tile069.png
+}
+<Texture> tile068 {
+  tile068.png
+}
+<Texture> tile067 {
+  tile067.png
+}
+<Texture> tile066 {
+  tile066.png
+}
+<Texture> tile065 {
+  tile065.png
+}
+<Texture> tile064 {
+  tile064.png
+}
+<Texture> tile063 {
+  tile063.png
+}
+<Texture> tile062 {
+  tile062.png
+}
+<Texture> tile061 {
+  tile061.png
+}
+<Texture> tile060 {
+  tile060.png
+}
+<Texture> tile059 {
+  tile059.png
+}
+<Texture> tile058 {
+  tile058.png
+}
+<Texture> tile057 {
+  tile057.png
+}
+<Texture> tile056 {
+  tile056.png
+}
+<Texture> tile055 {
+  tile055.png
+}
+<Texture> tile054 {
+  tile054.png
+}
+<Texture> tile053 {
+  tile053.png
+}
+<Texture> tile052 {
+  tile052.png
+}
+<Texture> tile051 {
+  tile051.png
+}
+<Texture> tile050 {
+  tile050.png
+}
+<Texture> tile049 {
+  tile049.png
+}
+<Texture> tile048 {
+  tile048.png
+}
+<Texture> tile047 {
+  tile047.png
+}
+<Texture> tile046 {
+  tile046.png
+}
+<Texture> tile045 {
+  tile045.png
+}
+<Texture> tile044 {
+  tile044.png
+}
+<Texture> tile043 {
+  tile043.png
+}
+<Texture> tile042 {
+  tile042.png
+}
+<Texture> tile041 {
+  tile041.png
+}
+<Texture> tile040 {
+  tile040.png
+}
+<Texture> tile039 {
+  tile039.png
+}
+<Texture> tile038 {
+  tile038.png
+}
+<Texture> tile037 {
+  tile037.png
+}
+<Texture> tile036 {
+  tile036.png
+}
+<Texture> tile035 {
+  tile035.png
+}
+<Texture> tile034 {
+  tile034.png
+}
+<Texture> tile033 {
+  tile033.png
+}
+<Texture> tile032 {
+  tile032.png
+}
+<Texture> tile031 {
+  tile031.png
+}
+<Texture> tile030 {
+  tile030.png
+}
+<Texture> tile029 {
+  tile029.png
+}
+<Texture> tile028 {
+  tile028.png
+}
+<Texture> tile027 {
+  tile027.png
+}
+<Texture> tile026 {
+  tile026.png
+}
+<Texture> tile025 {
+  tile025.png
+}
+<Texture> tile024 {
+  tile024.png
+}
+<Texture> tile023 {
+  tile023.png
+}
+<Texture> tile022 {
+  tile022.png
+}
+<Texture> tile021 {
+  tile021.png
+}
+<Texture> tile020 {
+  tile020.png
+}
+<Texture> tile019 {
+  tile019.png
+}
+<Texture> tile018 {
+  tile018.png
+}
+<Texture> tile017 {
+  tile017.png
+}
+<Texture> tile016 {
+  tile016.png
+}
+<Texture> tile015 {
+  tile015.png
+}
+<Texture> tile014 {
+  tile014.png
+}
+<Texture> tile013 {
+  tile013.png
+}
+<Texture> tile012 {
+  tile012.png
+}
+<Texture> tile011 {
+  tile011.png
+}
+<Texture> tile010 {
+  tile010.png
+}
+<Texture> tile009 {
+  tile009.png
+}
+<Texture> tile008 {
+  tile008.png
+}
+<Texture> tile007 {
+  tile007.png
+}
+<Texture> tile006 {
+  tile006.png
+}
+<Texture> tile005 {
+  tile005.png
+}
+<Texture> tile004 {
+  tile004.png
+}
+<Texture> tile003 {
+  tile003.png
+}
+<Texture> tile002 {
+  tile002.png
+}
+<Texture> tile001 {
+  tile001.png
+}
+<Texture> tile000 {
+  tile000.png
+}
+<Group> {
+  <Switch> { 1 }
+  <Scalar> fps { 60 }
+  <VertexPool> vpool {
+    <Vertex> 0 {
+      -0.5 0.5 0
+      <UV> { 0 1 }
+    }
+    <Vertex> 1 {
+      -0.5 -0.5 0
+      <UV> { 0 0 }
+    }
+    <Vertex> 2 {
+      0.5 -0.5 0
+      <UV> { 1 0 }
+    }
+    <Vertex> 3 {
+      0.5 0.5 0
+      <UV> { 1 1 }
+    }
+  }
+  <Group> tile000 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile000 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile001 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile001 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile002 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile002 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile003 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile003 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile004 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile004 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile005 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile005 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile006 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile006 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile007 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile007 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile008 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile008 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile009 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile009 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile010 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile010 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile011 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile011 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile012 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile012 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile013 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile013 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile014 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile014 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile015 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile015 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile016 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile016 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile017 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile017 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile018 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile018 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile019 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile019 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile020 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile020 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile021 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile021 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile022 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile022 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile023 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile023 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile024 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile024 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile025 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile025 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile026 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile026 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile027 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile027 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile028 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile028 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile029 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile029 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile030 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile030 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile031 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile031 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile032 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile032 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile033 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile033 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile034 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile034 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile035 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile035 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile036 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile036 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile037 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile037 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile038 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile038 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile039 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile039 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile040 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile040 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile041 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile041 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile042 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile042 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile043 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile043 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile044 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile044 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile045 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile045 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile046 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile046 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile047 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile047 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile048 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile048 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile049 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile049 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile050 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile050 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile051 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile051 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile052 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile052 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile053 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile053 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile054 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile054 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile055 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile055 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile056 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile056 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile057 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile057 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile058 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile058 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile059 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile059 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile060 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile060 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile061 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile061 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile062 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile062 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile063 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile063 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile064 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile064 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile065 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile065 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile066 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile066 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile067 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile067 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile068 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile068 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile069 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile069 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile070 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile070 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile071 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile071 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile072 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile072 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile073 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile073 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile074 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile074 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile075 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile075 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile076 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile076 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile077 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile077 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile078 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile078 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile079 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile079 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile080 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile080 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile081 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile081 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile082 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile082 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile083 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile083 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile084 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile084 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile085 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile085 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile086 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile086 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile087 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile087 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile088 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile088 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+  <Group> tile089 {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { tile089 }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+}
