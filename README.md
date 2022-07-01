@@ -17,9 +17,6 @@ The Game is dedicated to Tengri and Tengrism.
 <img src="https://i.imgur.com/CYPivTC.jpg" />
  Weapons Overview
 
-### Note: there is only Project Code uses the Game Engine API ###
-* No Assets included
-
 ### Game Code License ###
 
 MIT
