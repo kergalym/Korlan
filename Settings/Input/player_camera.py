@@ -9,7 +9,6 @@ class PlayerCamera:
     def __init__(self):
         self.base = base
         self.render = render
-        self.speed = 5
         self.trig_radius = 1.75 - 2 * 0.3
         self.cam_include = "BS"
         self.cam_exclude = "Player"
