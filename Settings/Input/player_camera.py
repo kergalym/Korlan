@@ -9,7 +9,6 @@ class PlayerCamera:
     def __init__(self):
         self.base = base
         self.render = render
-        self._speed = 5
         self._trig_radius = 1.75 - 2 * 0.3
         self._is_close = False
 
