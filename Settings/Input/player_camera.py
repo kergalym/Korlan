@@ -9,14 +9,30 @@ class PlayerCamera:
     def __init__(self):
         self.base = base
         self.render = render
-        self.trig_radius = 1.75 - 2 * 0.3
-        self.cam_include = "BS"
-        self.cam_exclude = "Player"
+        self._speed = 5
+        self._trig_radius = 1.75 - 2 * 0.3
+        self._is_close = False
+
+        self.cam_includes = {}
+
+    def _collect_colliding_objects(self):
+        children = self.render.find_all_matches("**/*:BS")
+
+        if children:
+            for np in children:
+                if "Ground" in np.get_name():
+                    continue
+
+                elif "Player" in np.get_name():
+                    continue
+
+                self.cam_includes[np.get_name()] = True
 
     def set_camera_trigger(self, task):
         if self.base.game_instance["loading_is_done"] == 1:
             if (self.render.find("**/World")
                     and self.base.game_instance["physics_world_np"]):
+
                 ph_world = self.base.game_instance["physics_world_np"]
                 player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
 
@@ -28,7 +44,7 @@ class PlayerCamera:
 
     def _set_ghost_trigger(self, actor, world):
         if actor and world:
-            sphere = BulletSphereShape(self.trig_radius)
+            sphere = BulletSphereShape(self._trig_radius)
             trigger_bg = BulletGhostNode('player_cam_trigger')
             trigger_bg.add_shape(sphere)
             trigger_np = self.render.attach_new_node(trigger_bg)
@@ -36,6 +52,8 @@ class PlayerCamera:
             world.attach_ghost(trigger_bg)
             trigger_np.reparent_to(actor)
             trigger_np.set_pos(0, 0, 1)
+
+            self._collect_colliding_objects()
 
             taskMgr.add(self._camera_collider_task,
                         "camera_collider_task",
@@ -63,21 +81,18 @@ class PlayerCamera:
                             if (round(trigger_np.get_distance(node_np)) >= 1
                                     and round(trigger_np.get_distance(node_np)) < 4):
                                 if not self.base.game_instance["is_indoor"]:
-                                    self.base.game_instance["is_indoor"] = True
-
-                                if round(self.base.camera.get_y()) == round(def_y):
                                     self._interpolate_to(target_y=close_y, start_y=def_y)
+                                    self.base.game_instance["is_indoor"] = True
 
                             elif (round(trigger_np.get_distance(node_np)) >= 4
                                   and round(trigger_np.get_distance(node_np)) < 7):
                                 if self.base.game_instance["is_indoor"]:
+                                    self._interpolate_to(target_y=def_y, start_y=close_y)
                                     self.base.game_instance["is_indoor"] = False
 
-                                if round(self.base.camera.get_y()) == round(close_y):
-                                    self._interpolate_to(target_y=def_y, start_y=close_y)
-
                         # Outdoor triggering
-                        if not self.base.game_instance["is_indoor"]:
+                        if (not self.base.game_instance["is_indoor"]
+                                and not self.base.player_states['is_mounted']):
                             self._camera_raycaster_collision(trigger_np=trigger_np,
                                                              node=node,
                                                              player_bs=player_bs)
@@ -91,8 +106,7 @@ class PlayerCamera:
                         startPos=Point3(0, start_y, 0)).start()
 
     def _camera_raycaster_collision(self, trigger_np, node, player_bs):
-        if (self.cam_exclude not in node.get_name()
-                and self.cam_include in node.get_name()):
+        if self.cam_includes.get(node.get_name()):
             if self.base.game_instance['physics_world_np']:
                 mouse_watch = base.mouseWatcherNode
                 if mouse_watch.has_mouse():
@@ -104,8 +118,11 @@ class PlayerCamera:
                     node_np = render.find("**/{0}".format(node.get_name()))
                     pivot = player_bs.find("**/pivot")
 
-                    close_y = -2.0
                     def_y = self.base.game_instance["mouse_y_cam"]
+                    close_y = -2.0
+
+                    if "Horse" in node_np.get_name():
+                        close_y = def_y
 
                     pos_from = self.render.get_relative_point(base.camera, pos_from)
                     pos_to = self.render.get_relative_point(base.camera, pos_to)
@@ -116,23 +133,26 @@ class PlayerCamera:
                     # and is close to player
                     if raytest_result:
                         if raytest_result.get_node():
-                            if (self.cam_exclude not in raytest_result.get_node().get_name()
-                                    and self.cam_include in raytest_result.get_node().get_name()):
+                            direction = node_np.get_pos() - pivot.get_pos()
+                            direction.normalize()
+                            pos = raytest_result.getHitPos() + direction
 
-                                hit_y = raytest_result.getHitPos()[1]
-                                direction = node_np.get_pos() - pivot.get_pos()
-                                direction.normalize()
-                                pos = hit_y * direction
-                                # print(round(pos[1]))
+                            if abs(round(pos[1])) > 2:
+                                if not self._is_close:
+                                    self._is_close = True
+                            elif abs(round(pos[1])) > 4:
+                                if not self._is_close:
+                                    self._is_close = True
+                            elif abs(round(pos[1])) < 4:
+                                if self._is_close:
+                                    self._is_close = False
 
-                                if round(trigger_np.get_distance(node_np)) <= 1:
-                                    if round(pos[1]) <= 2:
-                                        if round(self.base.camera.get_y()) == round(def_y):
-                                            self._interpolate_to(target_y=close_y, start_y=def_y)
-                                    else:
-                                        if round(self.base.camera.get_y()) == round(close_y):
-                                            self._interpolate_to(target_y=def_y, start_y=close_y)
-
+                    if round(trigger_np.get_distance(node_np)) < 2:
+                        if not self._is_close:
+                            self._interpolate_to(target_y=close_y, start_y=def_y)
+                        if self._is_close:
+                            self._interpolate_to(target_y=def_y, start_y=close_y)
                     # We don't have colliding object, reverting camera view back
                     if round(trigger_np.get_distance(node_np)) > 1:
-                        self._interpolate_to(target_y=def_y, start_y=close_y)
+                        if self._is_close:
+                            self._interpolate_to(target_y=def_y, start_y=close_y)

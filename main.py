@@ -679,103 +679,6 @@ class Main(ShowBase):
 
         return asset_colls
 
-    def asset_nodes_collector(self):
-        """ Function    : asset_nodes_collector
-
-            Description : Collect game asset nodes.
-
-            Input       : None
-
-            Output      : None
-
-            Return      : List
-        """
-        # make pattern list from assets dict
-        pattern = [key for key in self.assets_collector()]
-        # use pattern to get all nodes corresponding to asset names
-        nodes_cleaned = []
-        for node in [render.find("**/{0}".format(node)) for node in pattern]:
-            if not node.is_empty():
-                nodes_cleaned.append(node)
-        return nodes_cleaned
-
-    def asset_nodes_assoc_collector(self):
-        """ Function    : asset_nodes_assoc_collector
-
-            Description : Collect game asset nodes as associated.
-
-            Input       : None
-
-            Output      : None
-
-            Return      : Dictionary
-        """
-        # make pattern list from assets dict
-        pattern = [key for key in self.assets_collector()]
-        parents = {}
-        # use pattern to get all nodes corresponding to associated asset names
-        for node in pattern:
-            value = render.find("**/{0}".format(node))
-            if not value.is_empty():
-                parents[node] = value
-        return parents
-
-    def asset_node_children_collector(self, nodes, assoc_key):
-        """ Function    : asset_node_children_collector
-
-            Description : Collect game asset children nodes.
-
-            Input       : List, Boolean
-
-            Output      : None
-
-            Return      : Dictionary
-        """
-        if nodes and isinstance(nodes, list):
-            if assoc_key:
-                children = {}
-                for node in nodes:
-                    if node.get_num_children() > 0:
-                        for inner in node.get_children():
-                            for num in range(len(inner.get_children())):
-                                parent = inner.get_children().get_path(num).get_parent()
-                                name = inner.get_children().get_path(num).get_name()
-                                node_path = inner.get_children().get_path(num)
-
-                                if name == '':
-                                    if parent.get_name() == '__Actor_modelRoot':
-                                        name = parent.get_parent().get_name()
-                                    else:
-                                        name = parent.get_name()
-
-                                children[name] = node_path
-
-                                self.asset_node_children_collector(inner, assoc_key)
-                    else:
-                        name = node.get_name()
-                        node_path = node
-                        children[name] = node_path
-
-                return children
-
-            if assoc_key is False:
-                children = []
-                for node in nodes:
-                    if node.get_num_children() > 0:
-                        for inner in node.get_children():
-                            for num in range(len(inner.get_children())):
-                                node_path = inner.get_children().get_path(num)
-
-                                children.append(node_path)
-
-                                self.asset_node_children_collector(inner, assoc_key)
-                    else:
-                        name = node.get_name()
-                        node_path = node
-                        children[name] = node_path
-
-                return children
-
     def get_actor_bullet_shape_nodes(self, assets, type):
         if (assets and type
                 and isinstance(assets, dict)
@@ -1067,27 +970,6 @@ class Main(ShowBase):
                         path = str(PurePath("{0}/".format(root), file))
                         sounds[key] = Filename.from_os_specific(path).getFullpath()
             return sounds
-
-    def asset_pos_collector(self):
-        """ Function    : asset_pos_collector
-
-            Description : Collect game asset positions.
-
-            Input       : None
-
-            Output      : None
-
-            Return      : Dictionary
-        """
-        # Get all assets position including their children
-        assets = self.asset_nodes_collector()
-        items = {}
-        assets_children = self.asset_node_children_collector(
-            assets, assoc_key=True)
-        for key in assets_children:
-            parent_node = assets_children[key].get_parent().get_parent()
-            items[key] = (parent_node.get_pos())
-        return items
 
     def navmesh_collector(self):
         """ Function    : navmesh_collector
