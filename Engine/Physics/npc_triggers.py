@@ -50,7 +50,6 @@ class NpcTriggers:
                     if "Player" in node.get_name():
                         # if player close to horse
                         if self.base.game_instance['player_ref'] and player_bs:
-                            print(round(player_bs.get_distance(trigger_np)))
                             if round(player_bs.get_distance(trigger_np)) <= 2 \
                                     and round(player_bs.get_distance(trigger_np)) >= 1:
                                 if (not animal_actor.get_python_tag("is_mounted")
@@ -62,8 +61,10 @@ class NpcTriggers:
                                         base.player_states["horse_is_ready_to_be_used"] = True
                                         base.game_instance['player_using_horse'] = animal_actor.get_name()
 
+                                # Hide Horse HUD if player is mounted
                                 if animal_actor.get_python_tag("npc_hud_np"):
-                                    if not self.base.game_instance['ui_mode']:
+                                    if (not self.base.game_instance['ui_mode']
+                                            and self.base.player_states["is_mounted"]):
                                         animal_actor.get_python_tag("npc_hud_np").hide()
 
                             elif (round(player_bs.get_distance(trigger_np)) >= 2
@@ -74,8 +75,8 @@ class NpcTriggers:
                                 if hasattr(base, "player_states"):
                                     base.player_states["horse_is_ready_to_be_used"] = False
 
-                # keep hide npc hud while inventory or menu is opening
-                if self.base.game_instance['ui_mode'] or self.base.player_states["is_mounted"]:
+                # Hide Horse HUD while Inventory or menu is opening
+                if self.base.game_instance['ui_mode']:
                     animal_actor.get_python_tag("npc_hud_np").hide()
 
                 # keep actor_bs_np height while kinematic is active
