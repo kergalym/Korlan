@@ -47,35 +47,27 @@ class NpcTriggers:
 
                 for node in trigger.get_overlapping_nodes():
                     # ignore trigger itself and ground both
-                    if "NPC" in node.get_name() or "Player" in node.get_name():
+                    if "Player" in node.get_name():
                         # if player close to horse
                         if self.base.game_instance['player_ref'] and player_bs:
-                            if player_bs.get_distance(trigger_np) <= 2 \
-                                    and player_bs.get_distance(trigger_np) >= 1:
+                            print(round(player_bs.get_distance(trigger_np)))
+                            if round(player_bs.get_distance(trigger_np)) <= 2 \
+                                    and round(player_bs.get_distance(trigger_np)) >= 1:
                                 if (not animal_actor.get_python_tag("is_mounted")
-                                        and not player.get_python_tag("is_on_horse")
-                                        and node.get_name() == player_bs.get_name()):
+                                        and not player.get_python_tag("is_on_horse")):
                                     # keep horse name if detected actor is the player
                                     # and player is not on horse and horse is free
                                     animal_actor.set_python_tag("is_ready_to_be_used", True)
                                     if hasattr(base, "player_states"):
                                         base.player_states["horse_is_ready_to_be_used"] = True
                                         base.game_instance['player_using_horse'] = animal_actor.get_name()
-                                elif (not animal_actor.get_python_tag("is_mounted")
-                                      and not player.get_python_tag("is_on_horse")
-                                      and node.get_name() != player_bs.get_name()):
-                                    # clear horse name if player is on horse, horse is not free
-                                    # and detected actor is not player
-                                    animal_actor.set_python_tag("is_ready_to_be_used", False)
-                                    if hasattr(base, "player_states"):
-                                        base.player_states["horse_is_ready_to_be_used"] = False
 
                                 if animal_actor.get_python_tag("npc_hud_np"):
                                     if not self.base.game_instance['ui_mode']:
-                                        animal_actor.get_python_tag("npc_hud_np").show()
+                                        animal_actor.get_python_tag("npc_hud_np").hide()
 
-                            elif (player_bs.get_distance(trigger_np) >= 2
-                                  and player_bs.get_distance(trigger_np) <= 5):
+                            elif (round(player_bs.get_distance(trigger_np)) >= 2
+                                  and round(player_bs.get_distance(trigger_np)) <= 5):
                                 if animal_actor.get_python_tag("npc_hud_np"):
                                     animal_actor.get_python_tag("npc_hud_np").hide()
                                 animal_actor.set_python_tag("is_ready_to_be_used", False)
@@ -83,7 +75,7 @@ class NpcTriggers:
                                     base.player_states["horse_is_ready_to_be_used"] = False
 
                 # keep hide npc hud while inventory or menu is opening
-                if self.base.game_instance['ui_mode']:
+                if self.base.game_instance['ui_mode'] or self.base.player_states["is_mounted"]:
                     animal_actor.get_python_tag("npc_hud_np").hide()
 
                 # keep actor_bs_np height while kinematic is active
@@ -120,7 +112,7 @@ class NpcTriggers:
 
                 for node in trigger.get_overlapping_nodes():
                     # ignore trigger itself and ground both
-                    if "NPC" in node.get_name() or "Player" in node.get_name():
+                    if "Player" in node.get_name():
                         # if player close to horse
                         if player_bs and self.base.game_instance['player_ref']:
                             if player_bs.get_distance(trigger_np) <= 2 \

@@ -208,6 +208,7 @@ class PlayerMovement:
                 and not self.base.game_instance['is_aiming']
                 and not base.player_states['is_using']
                 and not base.player_states['is_attacked']
+                and not base.player_states['is_mounted']
                 and self.is_ready_for_move()
                 and not self.kbd.keymap["attack"]
                 and not self.kbd.keymap["block"]):
@@ -287,6 +288,7 @@ class PlayerMovement:
                 and not self.base.game_instance['is_aiming']
                 and not base.player_states['is_using']
                 and not base.player_states['is_attacked']
+                and not base.player_states['is_mounted']
                 and self.is_ready_for_move()
                 and not self.kbd.keymap["attack"]
                 and not self.kbd.keymap["block"]):
@@ -354,9 +356,9 @@ class PlayerMovement:
                 dt = globalClock.getDt()
 
                 # Turning in place
-                if self.kbd.keymap["left"] and horse_bs:
+                if self.kbd.keymap["left"] and not self.kbd.keymap["right"]:
                     horse_bs.set_h(horse_bs.get_h() + 100 * dt)
-                if self.kbd.keymap["right"] and horse_bs:
+                if self.kbd.keymap["right"] and not self.kbd.keymap["left"]:
                     horse_bs.set_h(horse_bs.get_h() - 100 * dt)
 
                 # todo: uncomment when horse turning anims become ready
