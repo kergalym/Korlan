@@ -61,6 +61,12 @@ class NpcTriggers:
                                         base.player_states["horse_is_ready_to_be_used"] = True
                                         base.game_instance['player_using_horse'] = animal_actor.get_name()
 
+                                # Show Horse HUD
+                                if animal_actor.get_python_tag("npc_hud_np"):
+                                    if (not self.base.game_instance['ui_mode']
+                                            and not self.base.player_states["is_mounted"]):
+                                        animal_actor.get_python_tag("npc_hud_np").show()
+
                                 # Hide Horse HUD if player is mounted
                                 if animal_actor.get_python_tag("npc_hud_np"):
                                     if (not self.base.game_instance['ui_mode']
