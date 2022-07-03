@@ -25,6 +25,7 @@ class PlayerController:
         self.mouse = Mouse()
         self.player_cam = PlayerCamera()
         self.fsm_player = PlayerFSM()
+        self.base.game_instance["player_fsm_cls"] = self.fsm_player
         self.sheet = Sheet()
         self.state = PlayerState()
         self.archery = PlayerArchery()

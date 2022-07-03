@@ -371,9 +371,9 @@ class Main(ShowBase):
             "arrow_count": 0,
             "item_player_access_codes": {},
             "level_assets_np": {},
-            "use_pandai": False,
             "level_navmesh_np": None,
             "navmesh_query": None,
+            "npcs_fsm_states": {},
         }
         self.shared_functions = {}
 

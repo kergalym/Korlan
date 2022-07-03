@@ -1,4 +1,5 @@
 from direct.actor.Actor import Actor
+from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import Vec3
 
 from Engine.Actors.NPC.state import NpcState
@@ -165,4 +166,5 @@ class NpcGeneric:
                     self.npc_state.setup_npc_state(actor=self.actor)
 
         self.base.game_instance['actors_are_loaded'] = True
+
 

@@ -2,9 +2,10 @@ from os.path import exists
 
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import *
+
+from Engine.AI.npc_controller import NpcController
 from Engine.Actors.Player.korlan import Korlan
 from Engine.Actors.Player.state import PlayerState
-from Engine.AI.ai_setup import AI
 from Engine.Scenes.scene import SceneOne
 from Engine.Physics.physics_setup import PhysicsAttr
 from Settings.UI.pause_menu_ui import PauseMenuUI
@@ -62,7 +63,6 @@ class LevelOne:
         self.base.focused_actor = None
         self.actors_for_focus = None
         self.actor_focus_index = 1
-        self.npcs_fsm_states = {}
         self.assets = None
         self.envprobe = None
 
@@ -105,6 +105,18 @@ class LevelOne:
             if self.base.game_instance['loading_is_done'] == 1:
                 if self.base.sound_sfx_nature.status() != self.base.sound_sfx_nature.PLAYING:
                     self.base.sound_sfx_nature.play()
+        return task.cont
+
+    def npc_controller_init(self, task):
+        if (self.base.game_instance["loading_is_done"] == 1
+                and self.base.game_instance['physics_is_activated'] == 1
+                and self.base.game_instance['actors_are_loaded']):
+            for name in self.base.game_instance["actors_ref"]:
+                actor = self.base.game_instance["actors_ref"][name]
+                NpcController(actor)
+
+            return task.done
+
         return task.cont
 
     def unload_game_scene(self):
@@ -268,7 +280,7 @@ class LevelOne:
 
         for actor, npc_fsm_cls in zip(LEVEL_NPC_ASSETS['name'], self.actor_fsm_classes):
             if "NPC" in actor and npc_fsm_cls:
-                self.npcs_fsm_states[actor] = npc_fsm_cls
+                self.base.game_instance["npcs_fsm_states"][actor] = npc_fsm_cls
 
         # Join list values into one shared dict
         level_assets_joined = {}
@@ -283,7 +295,7 @@ class LevelOne:
             self.actors_for_focus[index] = actor
 
         """ Setup Physics """
-        self.physics_attr.set_physics_world(self.npcs_fsm_states)
+        self.physics_attr.set_physics_world(self.base.game_instance["npcs_fsm_states"])
 
         self.base.game_instance["physics_attr_cls"] = self.physics_attr
 
@@ -321,15 +333,9 @@ class LevelOne:
             if hasattr(self, "render_pipeline"):
                 self.base.accept("r", self.render_pipeline.reload_shaders)
 
-        """ Setup AI """
-        if self.game_settings['Debug']['set_editor_mode'] == 'NO':
-            # To avoid nullptr assertion error initialize AI World only if it has not been initialized yet
-
-            if not self.ai:
-                self.ai = AI(world_np)
-            self.ai.set_ai_world(assets=level_assets_joined,
-                                 npcs_fsm_states=self.npcs_fsm_states,
-                                 lvl_name="lvl_one")
+        taskMgr.add(self.npc_controller_init,
+                    "npc_controller_init",
+                    appendTask=True)
 
         taskMgr.add(self.env_probe_task,
                     "env_probe_task",
@@ -351,3 +357,4 @@ class LevelOne:
 
     def load_free_game(self):
         pass
+

@@ -51,55 +51,6 @@ class NpcFSM(FSM):
                 self.archery.arrow_ref.set_python_tag("ready", 1)
                 self.archery.bow_shoot()
 
-    def set_basic_npc_behaviors(self, actor, player, ai_behaviors, behavior, vect):
-        if (actor and player
-                and not actor.is_empty()
-                and not player.is_empty()
-                and behavior
-                and isinstance(behavior, str)
-                and isinstance(vect, dict)
-                and ai_behaviors):
-            if ai_behaviors and vect:
-                # player could be another npc actor instead
-                if behavior == "seek":
-                    ai_behaviors.seek(player)
-                    # if player is static object do flee
-                elif behavior == "flee":
-                    ai_behaviors.flee(player,
-                                      vect['panic_dist'],
-                                      vect['relax_dist'])
-                    # if player is dynamic object do evade
-                elif behavior == "evader":
-                    ai_behaviors.evade(player,
-                                       vect['panic_dist'],
-                                       vect['relax_dist'])
-                elif behavior == "pursuer":
-                    ai_behaviors.pursue(player)
-                elif behavior == "wanderer":
-                    ai_behaviors.path_find_to(player, "addPath")
-                    ai_behaviors.wander(vect["wander_radius"],
-                                        vect["plane_flag"],
-                                        vect["area_of_effect"])
-                elif behavior == "pathfollow":
-                    ai_behaviors.path_follow(1)
-                    ai_behaviors.add_to_path(player)
-                    ai_behaviors.start_follow()
-                elif behavior == "pathfind":
-                    ai_behaviors.path_find_to(player, "addPath")
-
-    def set_pathfollow_static_behavior(self, actor, path, ai_behaviors, behavior):
-        if (actor and path, not actor.is_empty()
-                            and behavior
-                            and isinstance(behavior, str)
-                            and isinstance(path, list)
-                            or isinstance(path, int)
-                            or isinstance(path, float)
-                            and ai_behaviors):
-            if behavior == "pathfollow":
-                ai_behaviors.path_follow(1)
-                ai_behaviors.add_to_path(path)
-                ai_behaviors.start_follow()
-
     def fsm_state_wrapper(self, actor, stack_name, state_name, bool_):
         if actor and stack_name and state_name and isinstance(bool_, bool):
             actor.get_python_tag(stack_name)[state_name] = bool_
@@ -116,8 +67,8 @@ class NpcFSM(FSM):
                     if not any_action.is_playing():
                         actor.loop(action)
 
-    def enterWalk(self, actor, player, ai_chars_bs, ai_behaviors, behavior, action, vect, task):
-        if actor and player and ai_chars_bs and ai_behaviors and behavior and action and task:
+    def enterWalk(self, actor, action, task):
+        if actor and action and task:
             any_action = actor.get_anim_control(action)
 
             if isinstance(task, str):
@@ -128,16 +79,6 @@ class NpcFSM(FSM):
                     if not any_action.is_playing():
                         actor.loop(action)
                 actor.set_play_rate(1.0, action)
-
-            # Get correct NodePath
-            if self.base.game_instance["use_pandai"] and ai_chars_bs:
-                name = actor.get_name()
-                actor_bs = ai_chars_bs[name]
-                self.set_basic_npc_behaviors(actor=actor_bs,
-                                             player=player,
-                                             ai_behaviors=ai_behaviors,
-                                             behavior=behavior,
-                                             vect=vect)
 
     def enterTurn(self, actor, action, task):
         if actor and action and task:

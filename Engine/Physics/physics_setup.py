@@ -3,7 +3,6 @@ from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import Vec3, BitMask32, NodePath
 from panda3d.bullet import BulletWorld, BulletDebugNode, BulletRigidBodyNode, BulletPlaneShape
 
-from Engine.FSM.player_fsm import PlayerFSM
 from Engine.Physics.collision_solids import BulletCollisionSolids
 from Engine.Physics.player_physics import PlayerPhysics
 from Engine.Physics.npc_triggers import NpcTriggers
@@ -30,7 +29,6 @@ class PhysicsAttr:
         self.bullet_solids = BulletCollisionSolids()
         self.player_physics = PlayerPhysics()
         self.npc_triggers = NpcTriggers()
-        self.fsm_player = PlayerFSM()
 
         self.no_mask = BitMask32.allOff()
         self.mask = BitMask32.allOn()
@@ -92,7 +90,7 @@ class PhysicsAttr:
                                                      mask=self.mask0,
                                                      world=self.world)
                     # hitboxes task
-                    request = self.fsm_player
+                    request = self.base.game_instance["player_fsm_cls"]
                     taskMgr.add(self.player_physics.player_hitbox_trace_task,
                                 "{0}_hitboxes_task".format(col_name.lower()),
                                 extraArgs=[actor, request], appendTask=True)
