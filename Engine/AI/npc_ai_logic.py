@@ -1,6 +1,7 @@
-from direct.interval.MetaInterval import Sequence
+from direct.interval.FunctionInterval import Func
+from direct.interval.MetaInterval import Sequence, Parallel
 from direct.task.TaskManagerGlobal import taskMgr
-from panda3d.core import Vec3, Vec2
+from panda3d.core import Vec3, Vec2, Point3
 
 from Engine.Physics.npc_physics import NpcPhysics
 from Engine.AI.npc_behavior import NpcBehavior
@@ -23,8 +24,8 @@ class NpcAILogic:
         self.npc_classes = npc_classes
         self.npc_rotations = {}
         self.activated_npc_count = 0
-        # self.navmesh_query = self.base.game_instance["navmesh_query"]
-        self.navmesh_query = None
+        self.navmesh_query = self.base.game_instance["navmesh_query"]
+        # self.navmesh_query = None
         if not self.navmesh_query:
             self.base.game_instance["use_pandai"] = True
         else:
@@ -40,6 +41,10 @@ class NpcAILogic:
 
         self.npc_behavior = NpcBehavior(self.ai_chars, self.ai_chars_bs)
 
+        # R&D
+        self.npc_walk_seqs = {}
+        self.npc_pos = {}
+
         for name in self.ai_chars_bs:
             actor = self.base.game_instance['actors_ref'][name]
             actor.get_python_tag("generic_states")['is_idle'] = True
@@ -47,6 +52,9 @@ class NpcAILogic:
             actor.set_blend(frameBlend=True)
             actor_bs = self.ai_chars_bs[name]
             request = self.npcs_fsm_states[name]
+            # R&D
+            self.npc_walk_seqs[name] = Sequence()
+            self.npc_pos[name] = Point3(0, 0, 0)
 
             if "animal" not in actor.get_python_tag("npc_type"):
                 self.npc_state = self.base.game_instance["npc_state_cls"]
@@ -84,6 +92,10 @@ class NpcAILogic:
                                 self.ai_world.add_obstacle(self.base.box_np)
 
             return task.done
+
+    def recast_nav_update(self, name, path_point):
+        if name and isinstance(path_point, Point3):
+            self.npc_pos[name] = path_point
 
     def npc_behavior_init_task(self, task):
         if self.base.game_instance['loading_is_done'] == 1:
@@ -262,30 +274,39 @@ class NpcAILogic:
                                 "pursuer", "Walking", self.vect, "loop")
 
             if self.navmesh_query:
-                # Start path from actor's pose
-                pos = actor_npc_bs.get_pos()
                 current_dir = actor_npc_bs.get_hpr()
 
-                self.navmesh_query.nearest_point(pos)
-                # Set last pos from opposite actor's pos
-                last_pos = oppo_npc_bs.get_pos()
+                self.navmesh_query.nearest_point(self.npc_pos[actor_name])
+
+                # Set last pos from opposite actor's world points
+                last_pos = self.render.get_relative_point(actor_npc_bs, oppo_npc_bs.get_pos())
+                last_pos = Point3(last_pos[0], last_pos[1], 0)
 
                 # Find path
-                path = self.navmesh_query.find_path(pos, last_pos)
+                path = self.navmesh_query.find_path(self.npc_pos[actor_name], last_pos)
                 path_points = list(path.points)
 
                 for i in range(len(path_points) - 1):
-                    speed = 5
+                    speed = 2
                     # Rotation
                     new_hpr = Vec3(Vec2(0, -1).signed_angle_deg(path_points[i + 1].xy - path_points[i].xy),
                                    current_dir[1],
                                    current_dir[2])
-                    actor_npc_bs.set_hpr(new_hpr)
+                    self.npc_walk_seqs[actor_name].append(actor_npc_bs.hprInterval(0, new_hpr))
 
                     # Movement
                     dist = (path_points[i + 1] - path_points[i]).length()
-                    # dist / speed
-                    actor_npc_bs.set_pos(path_points[i + speed])
+
+                    posInterval = actor_npc_bs.posInterval(dist / speed, path_points[i + 1], path_points[i])
+                    self.npc_walk_seqs[actor_name].append(posInterval)
+                    self.npc_walk_seqs[actor_name].append(Func(self.recast_nav_update, actor_name, last_pos))
+                    current_dir = new_hpr
+
+                if (not self.npc_walk_seqs[actor_name].is_playing()
+                        and actor_npc_bs.get_pos() != oppo_npc_bs.get_pos() + Vec3(1, 1, 0)):
+                    self.npc_walk_seqs[actor_name].start()
+                elif actor_npc_bs.get_pos() == oppo_npc_bs.get_pos() + Vec3(1, 1, 0):
+                    self.npc_walk_seqs[actor_name].stop()
 
     def npc_in_gathering_logic(self, actor, request):
         pass

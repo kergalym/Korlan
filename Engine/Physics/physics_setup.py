@@ -242,7 +242,7 @@ class PhysicsAttr:
                         if shape:
                             child_bs_name = "{0}:BS".format(child.get_name())
                             child_bs_np = child.attach_new_node(BulletRigidBodyNode(child_bs_name))
-                            child_bs_np.node().set_mass(0.0)
+                            child_bs_np.node().set_mass(2.0)
                             child_bs_np.node().add_shape(shape)
                             child_bs_np.node().set_into_collide_mask(mask)
 

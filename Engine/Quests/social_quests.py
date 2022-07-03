@@ -1,7 +1,7 @@
 from direct.interval.FunctionInterval import Func
 from direct.interval.MetaInterval import Sequence
 from direct.task.TaskManagerGlobal import taskMgr
-from panda3d.bullet import BulletSphereShape, BulletGhostNode
+from panda3d.bullet import BulletSphereShape, BulletGhostNode, BulletRigidBodyNode
 from panda3d.core import BitMask32, Vec3
 
 
@@ -274,6 +274,18 @@ class SocialQuests:
                 for name in self.player.get_python_tag("usable_item_list")["name"]:
                     actor = render.find("**/{0}".format(name))
                     if actor:
+
+                        # Set item collider
+                        """sphere = BulletSphereShape(0.2)
+                        item_bs = BulletRigidBodyNode('{0}:BS'.format(actor.get_name()))
+                        item_bs_np = actor.attach_new_node(item_bs)
+                        item_bs.set_mass(2.0)
+                        item_bs.add_shape(sphere)
+                        item_bs.set_into_collide_mask(BitMask32.allOn())
+                        ph_world.attach(item_bs)
+                        item_bs_np.reparent_to(actor)"""
+
+                        # Set item trigger
                         sphere = BulletSphereShape(radius)
                         trigger_bg = BulletGhostNode('{0}_trigger'.format(actor.get_name()))
                         trigger_bg.add_shape(sphere)

@@ -50,7 +50,6 @@ class PlayerCamera:
             trigger_np.set_collide_mask(BitMask32(0x0f))
             world.attach_ghost(trigger_bg)
             trigger_np.reparent_to(actor)
-            trigger_np.set_pos(0, 0, 1)
 
             self._collect_colliding_objects()
 
