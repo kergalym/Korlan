@@ -162,6 +162,10 @@ class NpcGeneric:
                         # Set NPC Horse Tag
                         self.actor.set_python_tag("mounted_horse", None)
 
+                        # Set NPC which potentially could be enemy
+                        self.actor.set_python_tag("enemy_npc_ref", None)
+                        self.actor.set_python_tag("enemy_npc_bs", None)
+
                     # Set NPC Parameters
                     self.npc_state.setup_npc_state(actor=self.actor)
 

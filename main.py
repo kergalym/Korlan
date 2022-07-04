@@ -374,6 +374,7 @@ class Main(ShowBase):
             "level_navmesh_np": None,
             "navmesh_query": None,
             "npcs_fsm_states": {},
+            "use_pandai": False
         }
         self.shared_functions = {}
 

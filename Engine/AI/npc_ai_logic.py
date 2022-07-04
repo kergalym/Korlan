@@ -1,8 +1,7 @@
 from direct.interval.MetaInterval import Sequence
 from direct.task.TaskManagerGlobal import taskMgr
-from panda3d.core import Vec3, Vec2
+from panda3d.core import Vec3, Vec2, BitMask32
 
-from Engine.Physics.npc_physics import NpcPhysics
 from Engine.AI.npc_behavior import NpcBehavior
 
 
@@ -18,7 +17,6 @@ class NpcAILogic:
         self.ai_chars_bs = ai_chars_bs
         self.player = player
         self.player_fsm = player_fsm
-        self.npc_physics = NpcPhysics()
         self.npcs_fsm_states = npcs_fsm_states
         self.npc_classes = npc_classes
         self.npc_rotations = {}
@@ -52,7 +50,7 @@ class NpcAILogic:
                 self.npc_state = self.base.game_instance["npc_state_cls"]
                 self.npc_state.set_npc_equipment(actor, "Korlan:Spine1")
 
-            taskMgr.add(self.npc_physics.actor_hitbox_trace_task,
+            taskMgr.add(self.actor_hitbox_trace_task,
                         "{0}_hitboxes_task".format(name.lower()),
                         extraArgs=[actor, actor_bs, request], appendTask=True)
 
@@ -96,6 +94,12 @@ class NpcAILogic:
                         continue
 
                     actor = self.base.game_instance['actors_ref'][actor_name]
+                    if actor.get_python_tag("npc_class") == "friend":
+                        actor.get_python_tag("generic_states")['is_alive'] = False
+
+                    if actor.get_python_tag("npc_class") == "neutral":
+                        actor.get_python_tag("generic_states")['is_alive'] = False
+
                     request = self.npcs_fsm_states[actor_name]
 
                     name = actor_name.lower()
@@ -108,18 +112,59 @@ class NpcAILogic:
 
         return task.cont
 
-    def get_enemy_ref(self, actor):
-        if actor:
-            my_cls = actor.get_python_tag("npc_class")
-            for name, type, cls in zip(self.base.game_instance["level_assets_np"]["name"],
-                                       self.base.game_instance["level_assets_np"]["type"],
-                                       self.base.game_instance["level_assets_np"]["class"]):
-                if my_cls != cls and "animal" not in type and "npc" in type:
-                    enemy_npc_ref = self.base.game_instance['actors_ref'][name]
-                    if enemy_npc_ref and enemy_npc_ref.get_python_tag("generic_states")['is_alive']:
-                        return enemy_npc_ref
+    def actor_hitbox_trace_task(self, actor, actor_bs, request, task):
+        if self.base.game_instance['menu_mode']:
+            return task.done
 
-    def get_enemy_bs(self, actor):
+        if actor and actor_bs and actor.find("**/**Hips:HB") and request:
+            parent_node = actor.find("**/**Hips:HB").node()
+            parent_np = actor.find("**/**Hips:HB")
+
+            for node in parent_node.get_overlapping_nodes():
+                damage_weapons = actor.get_python_tag("damage_weapons")
+                for weapon in damage_weapons:
+                    # Exclude our own weapon hits
+                    if (weapon in node.get_name()
+                            and actor.get_name() not in node.get_name()):
+                        hitbox_np = render.find("**/{0}".format(node.get_name()))
+                        if hitbox_np:
+                            # Deactivate enemy weapon if we got hit
+                            if str(hitbox_np.get_collide_mask()) != " 0000 0000 0000 0000 0000 0000 0000 0000\n":
+                                distance = round(hitbox_np.get_distance(parent_np), 1)
+
+                                # Enemy Prediction
+                                if distance >= 0.5 and distance <= 2.5:
+                                    if node:
+                                        name = node.get_name()
+                                        for ref, bs in zip(self.base.game_instance["actors_ref"],
+                                                           self.base.game_instance["actors_np"]):
+                                            if name in ref:
+                                                npc_ref = self.base.game_instance["actors_np"][ref]
+                                                npc_bs = self.base.game_instance["actors_np"][ref]
+                                                if npc_ref:
+                                                    if not actor.get_python_tag("enemy_npc_ref"):
+                                                        actor.set_python_tag("enemy_npc_ref", npc_ref)
+                                                    if not actor.get_python_tag("enemy_npc_bs"):
+                                                        actor.set_python_tag("enemy_npc_bs", npc_bs)
+                                                    self.face_actor_to(actor_bs, npc_bs)
+
+                                if distance >= 0.5 and distance <= 1.8:
+                                    hitbox_np.set_collide_mask(BitMask32.allOff())
+                                    if actor.get_python_tag("health_np"):
+                                        # NPC gets damage if he has health point
+                                        if actor.get_python_tag("health_np")['value'] > 1:
+                                            request.request("Attacked", actor, "HitToBody", "play")
+                                            actor.get_python_tag("health_np")['value'] -= 1
+
+            # NPC dies if he has no health point
+            if actor.get_python_tag("health_np")['value'] == 0:
+                if actor.get_python_tag("generic_states")['is_alive']:
+                    if actor.get_python_tag("generic_states")['is_idle']:
+                        request.request("Death", actor, "Dying", "play")
+
+        return task.cont
+
+    def get_enemy(self, actor):
         if actor:
             my_cls = actor.get_python_tag("npc_class")
             for name, type, cls in zip(self.base.game_instance["level_assets_np"]["name"],
@@ -130,7 +175,10 @@ class NpcAILogic:
                     if enemy_npc_ref and enemy_npc_ref.get_python_tag("generic_states")['is_alive']:
                         name_bs = "{0}:BS".format(name)
                         enemy_npc_bs = self.base.game_instance['actors_np'][name_bs]
-                        return enemy_npc_bs
+                        actor_bs_name = "{0}:BS".format(actor.get_name())
+                        actor_bs = self.base.game_instance["actors_np"][actor_bs_name]
+                        if round(actor_bs.get_distance(enemy_npc_bs)) < 50:
+                            return [enemy_npc_ref, enemy_npc_bs]
 
     def is_ready_for_staying(self, actor):
         if actor.get_python_tag("human_states"):
@@ -221,6 +269,24 @@ class NpcAILogic:
                 elif not actor.get_python_tag("generic_states")['is_crouch_moving']:
                     request.request("Idle", actor, "Standing_idle_male", "loop")
 
+    def npc_in_dying_logic(self, actor, request):
+        if actor and request:
+            if self.base.game_instance["use_pandai"]:
+                if self.is_ready_for_staying(actor):
+                    actor_name = actor.get_name()
+                    if (self.ai_behaviors[actor_name].behavior_status("pursue") == "disabled"
+                            or self.ai_behaviors[actor_name].behavior_status("pursue") == "done"):
+                        if self.ai_behaviors[actor_name].behavior_status("pursue") != "disabled":
+                            self.ai_behaviors[actor_name].remove_ai("pursue")
+
+            actor.get_python_tag("generic_states")['is_moving'] = False
+            actor.get_python_tag("generic_states")['is_alive'] = False
+
+            if not (actor.get_python_tag("generic_states")['is_alive']):
+                if actor.get_python_tag("generic_states")['is_idle']:
+                    request.request("Death", actor, "Dying", "play")
+                    actor.get_python_tag("generic_states")['is_idle'] = False
+
     def npc_in_walking_logic(self, actor, actor_npc_bs, oppo_npc_bs, request):
         if actor and actor_npc_bs and oppo_npc_bs and request:
             actor_name = actor.get_name()
@@ -285,7 +351,7 @@ class NpcAILogic:
                 action = "center_blocking"
             request.request("Block", actor, action, "play")
 
-    def npc_in_attacking_logic(self, actor, actor_npc_bs, dt, request):
+    def npc_in_attacking_logic(self, actor, request):
         if (actor.get_python_tag("generic_states")['is_idle']
                 and not actor.get_python_tag("generic_states")['is_attacked']
                 and not actor.get_python_tag("generic_states")['is_busy']
@@ -300,7 +366,8 @@ class NpcAILogic:
                 action = "Boxing"
                 request.request("Attack", actor, action, "play")
 
-    def npc_in_forwardroll_logic(self, actor, actor_npc_bs, dt, request):
+    def npc_in_forwardroll_logic(self, actor, actor_npc_bs, request):
+        dt = globalClock.getDt()
         if actor_npc_bs.get_x() != actor_npc_bs.get_x() - 2:
             actor_npc_bs.set_x(actor_npc_bs, -2 * dt)
             request.request("ForwardRoll", actor, "forward_roll", "play")

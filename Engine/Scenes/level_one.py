@@ -334,9 +334,10 @@ class LevelOne:
             if hasattr(self, "render_pipeline"):
                 self.base.accept("r", self.render_pipeline.reload_shaders)
 
-            taskMgr.add(self.npc_controller_init,
+            """taskMgr.add(self.npc_controller_init,
                         "npc_controller_init",
-                        appendTask=True)
+                        appendTask=True)"""
+
         """ Setup AI """
         if self.game_settings['Debug']['set_editor_mode'] == 'NO':
             # To avoid nullptr assertion error initialize AI World only if it has not been initialized yet
