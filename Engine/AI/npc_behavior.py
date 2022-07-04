@@ -11,23 +11,15 @@ class NpcBehavior:
                 # Facing to enemy
                 self.npc_ai_logic.face_actor_to(actor_npc_bs, oppo_npc_bs)
                 # Counterattack an enemy or do block
-                if hitbox_dist:
-                    if hitbox_dist >= 0.5 and hitbox_dist <= 1.8:
-                        self.npc_ai_logic.npc_in_blocking_logic(actor, request)
-                        # Test NPC Logic Actions
-                        self.npc_ai_logic.npc_in_forwardroll_logic(actor, actor_npc_bs, request)
-                    else:
-                        self.npc_ai_logic.npc_in_attacking_logic(actor, request)
+                self.npc_ai_logic.do_defensive_prediction(actor, actor_npc_bs, request, hitbox_dist)
+
         if actor.get_python_tag("human_states")["has_sword"]:
             if distance <= 1:
                 # Facing to enemy
                 self.npc_ai_logic.face_actor_to(actor_npc_bs, oppo_npc_bs)
                 # Counterattack an enemy or do block
-                if hitbox_dist:
-                    if hitbox_dist >= 0.5 and hitbox_dist <= 1.8:
-                        self.npc_ai_logic.npc_in_blocking_logic(actor, request)
-                    else:
-                        self.npc_ai_logic.npc_in_attacking_logic(actor, request)
+                self.npc_ai_logic.do_defensive_prediction(actor, actor_npc_bs, request, hitbox_dist)
+
         elif actor.get_python_tag("human_states")["has_bow"]:
             # todo: test npc archery on player first
             if distance <= 5:
@@ -35,7 +27,7 @@ class NpcBehavior:
                 # Facing to enemy
                 self.npc_ai_logic.face_actor_to(actor_npc_bs, oppo_npc_bs)
                 # If enemy is close start attacking
-                self.npc_ai_logic.npc_in_attacking_logic(actor, request)
+                self.npc_ai_logic.do_defensive_prediction(actor, actor_npc_bs, request, hitbox_dist)
 
     def _work_with_player(self, actor, player, actor_npc_bs, request):
         player_dist = int(actor_npc_bs.get_distance(player))

@@ -498,3 +498,11 @@ class NpcAILogic:
                         if hitbox_np:
                             distance = round(hitbox_np.get_distance(parent_np), 1)
                             return distance
+
+    def do_defensive_prediction(self, actor, actor_npc_bs, request, hitbox_dist):
+        if actor and actor_npc_bs and request:
+            if hitbox_dist >= 0.5 and hitbox_dist <= 1.8:
+                self.npc_in_blocking_logic(actor, request)
+                self.npc_in_forwardroll_logic(actor, actor_npc_bs, request)
+            else:
+                self.npc_in_attacking_logic(actor, request)
