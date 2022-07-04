@@ -6,6 +6,7 @@ from panda3d.core import *
 from Engine.AI.npc_controller import NpcController
 from Engine.Actors.Player.korlan import Korlan
 from Engine.Actors.Player.state import PlayerState
+from Engine.AI.ai_setup import AI
 from Engine.Scenes.scene import SceneOne
 from Engine.Physics.physics_setup import PhysicsAttr
 from Settings.UI.pause_menu_ui import PauseMenuUI
@@ -333,9 +334,17 @@ class LevelOne:
             if hasattr(self, "render_pipeline"):
                 self.base.accept("r", self.render_pipeline.reload_shaders)
 
-        taskMgr.add(self.npc_controller_init,
-                    "npc_controller_init",
-                    appendTask=True)
+            taskMgr.add(self.npc_controller_init,
+                        "npc_controller_init",
+                        appendTask=True)
+        """ Setup AI """
+        if self.game_settings['Debug']['set_editor_mode'] == 'NO':
+            # To avoid nullptr assertion error initialize AI World only if it has not been initialized yet
+            if not self.ai:
+                self.ai = AI(world_np)
+            self.ai.set_ai_world(assets=level_assets_joined,
+                                 npcs_fsm_states=self.base.game_instance["npcs_fsm_states"],
+                                 lvl_name="lvl_one")
 
         taskMgr.add(self.env_probe_task,
                     "env_probe_task",
@@ -357,4 +366,3 @@ class LevelOne:
 
     def load_free_game(self):
         pass
-
