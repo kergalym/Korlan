@@ -93,38 +93,34 @@ class NpcState:
                                    range=100,
                                    frameColor=(0, 0.1, 0.1, 1),
                                    barColor=(0.6, 0, 0, 1),
-                                   pos=(-1.32, 0, 1.2),
-                                   scale=(0.3, 0, 1.7),
+                                   pos=(-1.32, 0, 1.31),
+                                   scale=(0.3, 0, 1.2),
                                    parent=npc_hud_ui)
 
-            # todo: add stamina and courage
-            """
             stamina = DirectWaitBar(text="",
                                     value=100,
                                     range=100,
                                     frameColor=(0, 0.1, 0.1, 1),
-                                    barColor=(0.6, 0, 0, 1),
-                                    pos=(-1.32, 0, 1.2),
-                                    scale=(0.3, 0, 1.7),
+                                    barColor=(0.6, 0.5, 0, 1),
+                                    pos=(-1.32, 0, 1.15),
+                                    scale=(0.3, 0, 0.9),
                                     parent=npc_hud_ui)
             courage = DirectWaitBar(text="",
                                     value=100,
                                     range=100,
                                     frameColor=(0, 0.1, 0.1, 1),
-                                    barColor=(0.6, 0, 0, 1),
-                                    pos=(-1.32, 0, 1.2),
-                                    scale=(0.3, 0, 1.7),
+                                    barColor=(0.6, 0.6, 0.7, 1),
+                                    pos=(-1.32, 0, 1.01),
+                                    scale=(0.3, 0, 0.9),
                                     parent=npc_hud_ui)
-            """
             npc_hud_ui.hide()
 
             actor.set_python_tag("npc_hud_np", npc_hud_ui)
             actor.set_python_tag("health_np", health)
             actor.set_python_tag("damage_level", 1)
 
-            # todo: add stamina and courage
-            # actor.set_python_tag("npc_stamina_np", courage)
-            # actor.set_python_tag("npc_courage_np", courage)
+            actor.set_python_tag("stamina_np", stamina)
+            actor.set_python_tag("courage_np", courage)
 
     def clear_npc_hud(self, actor):
         if actor and actor.get_python_tag("npc_hud_np"):

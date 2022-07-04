@@ -122,8 +122,8 @@ class NpcTriggers:
                     if "Player" in node.get_name():
                         # if player close to horse
                         if player_bs and self.base.game_instance['player_ref']:
-                            if player_bs.get_distance(trigger_np) <= 2 \
-                                    and player_bs.get_distance(trigger_np) >= 1:
+                            if (player_bs.get_distance(trigger_np) <= 2
+                                    and player_bs.get_distance(trigger_np) >= 1):
                                 if actor.get_python_tag("npc_hud_np"):
                                     if not self.base.game_instance['ui_mode']:
                                         actor.get_python_tag("npc_hud_np").show()

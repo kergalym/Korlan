@@ -275,6 +275,10 @@ class NpcAILogic:
                 elif not actor.get_python_tag("generic_states")['is_crouch_moving']:
                     request.request("Idle", actor, "Standing_idle_male", "loop")
 
+                if actor.get_python_tag("stamina_np"):
+                    if actor.get_python_tag("stamina_np")['value'] < 100:
+                        actor.get_python_tag("stamina_np")['value'] += 0.5
+
     def npc_in_dying_logic(self, actor, request):
         if actor and request:
             if self.base.game_instance["use_pandai"]:
@@ -287,6 +291,14 @@ class NpcAILogic:
 
             actor.get_python_tag("generic_states")['is_moving'] = False
             actor.get_python_tag("generic_states")['is_alive'] = False
+
+            if actor.get_python_tag("stamina_np"):
+                if actor.get_python_tag("stamina_np")['value'] > 1:
+                    actor.get_python_tag("stamina_np")['value'] -= 100
+
+            if actor.get_python_tag("courage_np"):
+                if actor.get_python_tag("courage_np")['value'] > 1:
+                    actor.get_python_tag("courage_np")['value'] -= 100
 
             if not (actor.get_python_tag("generic_states")['is_alive']):
                 if actor.get_python_tag("generic_states")['is_idle']:
@@ -356,6 +368,11 @@ class NpcAILogic:
 
             if (self.base.game_instance["use_pandai"]
                     and actor.get_python_tag("generic_states")['is_moving']):
+
+                if actor.get_python_tag("stamina_np"):
+                    if actor.get_python_tag("stamina_np")['value'] > 1:
+                        actor.get_python_tag("stamina_np")['value'] -= 1
+
                 request.request("Walk", actor, oppo_npc_bs,
                                 self.ai_chars_bs,
                                 self.ai_behaviors[actor_name],
@@ -363,6 +380,11 @@ class NpcAILogic:
 
             elif (not self.base.game_instance["use_pandai"]
                     and actor.get_python_tag("generic_states")['is_moving']):
+
+                if actor.get_python_tag("stamina_np"):
+                    if actor.get_python_tag("stamina_np")['value'] > 1:
+                        actor.get_python_tag("stamina_np")['value'] -= 1
+
                 request.request("WalkRD", actor, "Walking", "loop")
 
             if self.navmesh_query and not self.base.game_instance["use_pandai"]:
@@ -385,42 +407,70 @@ class NpcAILogic:
                 and not actor.get_python_tag("generic_states")['is_attacked']
                 and not actor.get_python_tag("generic_states")['is_busy']
                 and not actor.get_python_tag("generic_states")['is_moving']):
-            action = ""
-            if actor.get_python_tag("human_states")['has_sword']:
-                action = "great_sword_blocking"
-            else:
-                action = "center_blocking"
-            request.request("Block", actor, action, "play")
+            if actor.get_python_tag("stamina_np"):
+                if actor.get_python_tag("stamina_np")['value'] > 5:
+                    action = ""
+                    if actor.get_python_tag("human_states")['has_sword']:
+                        action = "great_sword_blocking"
+                    else:
+                        action = "center_blocking"
+                    request.request("Block", actor, action, "play")
+
+                    if actor.get_python_tag("stamina_np")['value'] > 1:
+                        actor.get_python_tag("stamina_np")['value'] -= 6
+
+                    if actor.get_python_tag("courage_np"):
+                        if actor.get_python_tag("courage_np")['value'] > 1:
+                            actor.get_python_tag("courage_np")['value'] -= 3
 
     def npc_in_attacking_logic(self, actor, request):
         if (actor.get_python_tag("generic_states")['is_idle']
                 and not actor.get_python_tag("generic_states")['is_attacked']
                 and not actor.get_python_tag("generic_states")['is_busy']
                 and not actor.get_python_tag("generic_states")['is_moving']):
-            if actor.get_python_tag("human_states")["has_sword"]:
-                action = "great_sword_slash"
-                request.request("Attack", actor, action, "play")
-            elif actor.get_python_tag("human_states")["has_bow"]:
-                action = "archer_standing_draw_arrow"
-                request.request("Archery", actor, action, "play")
-            else:
-                action = "Boxing"
-                request.request("Attack", actor, action, "play")
+
+            if actor.get_python_tag("stamina_np"):
+                if actor.get_python_tag("stamina_np")['value'] > 35:
+                    if actor.get_python_tag("human_states")["has_sword"]:
+                        action = "great_sword_slash"
+                        request.request("Attack", actor, action, "play")
+                    elif actor.get_python_tag("human_states")["has_bow"]:
+                        action = "archer_standing_draw_arrow"
+                        request.request("Archery", actor, action, "play")
+                    else:
+                        action = "Boxing"
+                        request.request("Attack", actor, action, "play")
+
+                    if actor.get_python_tag("stamina_np")['value'] > 1:
+                        actor.get_python_tag("stamina_np")['value'] -= 18
+
+                    if actor.get_python_tag("courage_np"):
+                        if actor.get_python_tag("courage_np")['value'] > 1:
+                            actor.get_python_tag("courage_np")['value'] -= 8
 
     def npc_in_forwardroll_logic(self, actor, actor_npc_bs, request):
         dt = globalClock.getDt()
-        if actor_npc_bs.get_x() != actor_npc_bs.get_x() - 2:
-            actor_npc_bs.set_x(actor_npc_bs, -2 * dt)
-            request.request("ForwardRoll", actor, "forward_roll", "play")
-        elif actor_npc_bs.get_x() != actor_npc_bs.get_x() + 2:
-            actor_npc_bs.set_x(actor_npc_bs, 2 * dt)
-            request.request("ForwardRoll", actor, "forward_roll", "play")
-        elif actor_npc_bs.get_y() != actor_npc_bs.get_y() - 2:
-            actor_npc_bs.set_y(actor_npc_bs, -2 * dt)
-            request.request("ForwardRoll", actor, "forward_roll", "play")
-        elif actor_npc_bs.get_y() != actor_npc_bs.get_y() + 2:
-            actor_npc_bs.set_y(actor_npc_bs, 2 * dt)
-            request.request("ForwardRoll", actor, "forward_roll", "play")
+        if actor.get_python_tag("stamina_np"):
+            if actor.get_python_tag("stamina_np")['value'] > 15:
+                if actor_npc_bs.get_x() != actor_npc_bs.get_x() - 2:
+                    actor_npc_bs.set_x(actor_npc_bs, -2 * dt)
+                    request.request("ForwardRoll", actor, "forward_roll", "play")
+                elif actor_npc_bs.get_x() != actor_npc_bs.get_x() + 2:
+                    actor_npc_bs.set_x(actor_npc_bs, 2 * dt)
+                    request.request("ForwardRoll", actor, "forward_roll", "play")
+                elif actor_npc_bs.get_y() != actor_npc_bs.get_y() - 2:
+                    actor_npc_bs.set_y(actor_npc_bs, -2 * dt)
+                    request.request("ForwardRoll", actor, "forward_roll", "play")
+                elif actor_npc_bs.get_y() != actor_npc_bs.get_y() + 2:
+                    actor_npc_bs.set_y(actor_npc_bs, 2 * dt)
+                    request.request("ForwardRoll", actor, "forward_roll", "play")
+
+                if actor.get_python_tag("stamina_np")['value'] > 1:
+                    actor.get_python_tag("stamina_np")['value'] -= 15
+
+                if actor.get_python_tag("courage_np"):
+                    if actor.get_python_tag("courage_np")['value'] > 1:
+                        actor.get_python_tag("courage_np")['value'] -= 7
 
     def npc_in_crouching_logic(self, actor, request):
         if (actor.get_python_tag("generic_states")['is_idle']
@@ -439,6 +489,14 @@ class NpcAILogic:
             if (actor.get_python_tag("generic_states")
                     and not actor.get_python_tag("generic_states")['is_crouch_moving']):
                 request.request("Jump", actor, "Jumping", "play")
+
+            if actor.get_python_tag("stamina_np"):
+                if actor.get_python_tag("stamina_np")['value'] > 1:
+                    actor.get_python_tag("stamina_np")['value'] -= 1
+
+            if actor.get_python_tag("courage_np"):
+                if actor.get_python_tag("courage_np")['value'] > 1:
+                    actor.get_python_tag("courage_np")['value'] -= 1
 
     def npc_in_mounting_logic(self, actor, actor_npc_bs, request):
         if (actor.get_python_tag("human_states")
