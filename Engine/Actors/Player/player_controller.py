@@ -209,7 +209,7 @@ class PlayerController:
 
     """ Prepares the player for scene """
     def player_actions_task(self, player, anims, task):
-        if player and anims:
+        if player and anims and base.player_states["is_alive"]:
             if (not self.base.game_instance["is_player_sitting"]
                     and not self.base.game_instance["is_player_laying"]):
                 # Define player actions

@@ -160,10 +160,19 @@ class NpcAILogic:
                                         # NPC gets damage if he has health point
                                         if actor.get_python_tag("health_np")['value'] > 1:
                                             request.request("Attacked", actor, "HitToBody", "play")
-                                            actor.get_python_tag("health_np")['value'] -= 1
+                                            actor.get_python_tag("health_np")['value'] -= 6
+
+                                        if actor.get_python_tag("stamina_np")['value'] > 1:
+                                            actor.get_python_tag("stamina_np")['value'] -= 3
+
+                                        if actor.get_python_tag("courage_np")['value'] > 1:
+                                            actor.get_python_tag("courage_np")['value'] -= 3
 
             # NPC dies if he has no health point
             if actor.get_python_tag("health_np")['value'] == 0:
+                if actor.get_python_tag("stamina_np")['value'] > 1:
+                    actor.get_python_tag("stamina_np")['value'] = 0
+
                 if actor.get_python_tag("generic_states")['is_alive']:
                     if actor.get_python_tag("generic_states")['is_idle']:
                         request.request("Death", actor, "Dying", "play")
@@ -419,10 +428,6 @@ class NpcAILogic:
                     if actor.get_python_tag("stamina_np")['value'] > 1:
                         actor.get_python_tag("stamina_np")['value'] -= 6
 
-                    if actor.get_python_tag("courage_np"):
-                        if actor.get_python_tag("courage_np")['value'] > 1:
-                            actor.get_python_tag("courage_np")['value'] -= 3
-
     def npc_in_attacking_logic(self, actor, request):
         if (actor.get_python_tag("generic_states")['is_idle']
                 and not actor.get_python_tag("generic_states")['is_attacked']
@@ -444,10 +449,6 @@ class NpcAILogic:
                     if actor.get_python_tag("stamina_np")['value'] > 1:
                         actor.get_python_tag("stamina_np")['value'] -= 18
 
-                    if actor.get_python_tag("courage_np"):
-                        if actor.get_python_tag("courage_np")['value'] > 1:
-                            actor.get_python_tag("courage_np")['value'] -= 8
-
     def npc_in_forwardroll_logic(self, actor, actor_npc_bs, request):
         dt = globalClock.getDt()
         if actor.get_python_tag("stamina_np"):
@@ -467,10 +468,6 @@ class NpcAILogic:
 
                 if actor.get_python_tag("stamina_np")['value'] > 1:
                     actor.get_python_tag("stamina_np")['value'] -= 15
-
-                if actor.get_python_tag("courage_np"):
-                    if actor.get_python_tag("courage_np")['value'] > 1:
-                        actor.get_python_tag("courage_np")['value'] -= 7
 
     def npc_in_crouching_logic(self, actor, request):
         if (actor.get_python_tag("generic_states")['is_idle']
@@ -601,9 +598,13 @@ class NpcAILogic:
     def do_defensive_prediction(self, actor, actor_npc_bs, request, hitbox_dist):
         if actor and actor_npc_bs and request and hitbox_dist:
             if hitbox_dist >= 0.5 and hitbox_dist <= 1.4:
-                self.npc_in_blocking_logic(actor, request)
+                if actor.get_python_tag("stamina_np")['value'] > 5:
+                    self.npc_in_blocking_logic(actor, request)
             elif hitbox_dist >= 0.5 and hitbox_dist <= 1.8:
-                self.npc_in_forwardroll_logic(actor, actor_npc_bs, request)
+                if actor.get_python_tag("stamina_np")['value'] > 15:
+                    self.npc_in_forwardroll_logic(actor, actor_npc_bs, request)
             else:
-                self.npc_in_attacking_logic(actor, request)
-                self.npc_in_blocking_logic(actor, request)
+                if actor.get_python_tag("stamina_np")['value'] > 35:
+                    self.npc_in_attacking_logic(actor, request)
+                if actor.get_python_tag("stamina_np")['value'] > 5:
+                    self.npc_in_blocking_logic(actor, request)
