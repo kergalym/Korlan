@@ -1,6 +1,7 @@
+from direct.interval.FunctionInterval import Func
 from direct.interval.MetaInterval import Sequence
 from direct.task.TaskManagerGlobal import taskMgr
-from panda3d.core import Vec3, Vec2, BitMask32
+from panda3d.core import Vec3, Vec2, BitMask32, Point3
 
 from Engine.AI.npc_behavior import NpcBehavior
 
@@ -21,12 +22,10 @@ class NpcAILogic:
         self.npc_classes = npc_classes
         self.npc_rotations = {}
         self.activated_npc_count = 0
-        # self.navmesh_query = self.base.game_instance["navmesh_query"]
-        self.navmesh_query = None
-        if not self.navmesh_query:
-            self.base.game_instance["use_pandai"] = True
-        else:
-            self.base.game_instance["use_pandai"] = False
+        self.navmesh_query = self.base.game_instance["navmesh_query"]
+
+        self.base.game_instance["use_pandai"] = True
+
         self.vect = {"panic_dist": 5,
                      "relax_dist": 5,
                      "wander_radius": 5,
@@ -38,6 +37,10 @@ class NpcAILogic:
 
         self.npc_behavior = NpcBehavior()
 
+        # R&D
+        self.npc_action_seqs = {}
+        self.npc_pos = {}
+
         for name in self.ai_chars_bs:
             actor = self.base.game_instance['actors_ref'][name]
             actor.get_python_tag("generic_states")['is_idle'] = True
@@ -45,6 +48,9 @@ class NpcAILogic:
             actor.set_blend(frameBlend=True)
             actor_bs = self.ai_chars_bs[name]
             request = self.npcs_fsm_states[name]
+
+            self.npc_action_seqs[name] = Sequence()
+            self.npc_pos[name] = Point3(0, 0, 0)
 
             if "animal" not in actor.get_python_tag("npc_type"):
                 self.npc_state = self.base.game_instance["npc_state_cls"]
@@ -287,6 +293,50 @@ class NpcAILogic:
                     request.request("Death", actor, "Dying", "play")
                     actor.get_python_tag("generic_states")['is_idle'] = False
 
+    def update_pathfinding(self, name, path_point):
+        if name and isinstance(path_point, Point3):
+            self.npc_pos[name] = path_point
+
+    def do_walking_sequence_once(self, actor_npc_bs, oppo_npc_bs, actor_name):
+        if (actor_npc_bs and oppo_npc_bs
+                and actor_name and isinstance(actor_name, str)):
+            current_dir = actor_npc_bs.get_hpr()
+
+            self.navmesh_query.nearest_point(self.npc_pos[actor_name])
+
+            # Set last pos from opposite actor's world points
+            last_pos = self.render.get_relative_point(actor_npc_bs, oppo_npc_bs.get_pos())
+            last_pos = Point3(last_pos[0], last_pos[1], 0)
+
+            # Find path
+            path = self.navmesh_query.find_path(self.npc_pos[actor_name], last_pos)
+            path_points = list(path.points)
+
+            for i in range(len(path_points) - 1):
+                speed = 2
+
+                # Heading
+                new_hpr = Vec3(Vec2(0, -1).signed_angle_deg(path_points[i + 1].xy - path_points[i].xy),
+                               current_dir[1],
+                               current_dir[2])
+                hpr_interval = actor_npc_bs.hprInterval(speed, new_hpr)
+
+                # Movement
+                dist = (path_points[i + 1] - path_points[i]).length()
+                pos_interval = actor_npc_bs.posInterval(dist / speed, path_points[i + 1], path_points[i])
+
+                # Append sequence tasks in that order
+                self.npc_action_seqs[actor_name].append(hpr_interval)
+                self.npc_action_seqs[actor_name].append(pos_interval)
+                self.npc_action_seqs[actor_name].append(Func(self.update_pathfinding, actor_name, last_pos))
+
+                current_dir = new_hpr
+
+            if not self.npc_action_seqs[actor_name].is_playing():
+                self.npc_action_seqs[actor_name].start()
+
+            self.npc_pos[actor_name] = last_pos
+
     def npc_in_walking_logic(self, actor, actor_npc_bs, oppo_npc_bs, request):
         if actor and actor_npc_bs and oppo_npc_bs and request:
             actor_name = actor.get_name()
@@ -304,37 +354,28 @@ class NpcAILogic:
                     actor.get_python_tag("generic_states")['is_idle'] = False
                     actor.get_python_tag("generic_states")['is_moving'] = True
 
-            if actor.get_python_tag("generic_states")['is_moving']:
+            if (self.base.game_instance["use_pandai"]
+                    and actor.get_python_tag("generic_states")['is_moving']):
                 request.request("Walk", actor, oppo_npc_bs,
                                 self.ai_chars_bs,
                                 self.ai_behaviors[actor_name],
                                 "pursuer", "Walking", self.vect, "loop")
 
-            if self.navmesh_query:
-                # Start path from actor's pose
-                pos = actor_npc_bs.get_pos()
-                current_dir = actor_npc_bs.get_hpr()
+            elif (not self.base.game_instance["use_pandai"]
+                    and actor.get_python_tag("generic_states")['is_moving']):
+                request.request("WalkRD", actor, "Walking", "loop")
 
-                self.navmesh_query.nearest_point(pos)
-                # Set last pos from opposite actor's pos
-                last_pos = oppo_npc_bs.get_pos()
+            if self.navmesh_query and not self.base.game_instance["use_pandai"]:
+                self.do_walking_sequence_once(actor_npc_bs, oppo_npc_bs, actor_name)
 
-                # Find path
-                path = self.navmesh_query.find_path(pos, last_pos)
-                path_points = list(path.points)
+                if round(actor_npc_bs.get_distance(oppo_npc_bs)) > 4:
+                    self.base.messenger.send("do_walking_sequence_once")
+                else:
+                    if self.npc_action_seqs[actor_name].is_playing():
+                        self.npc_action_seqs[actor_name].finish()
 
-                for i in range(len(path_points) - 1):
-                    speed = 5
-                    # Rotation
-                    new_hpr = Vec3(Vec2(0, -1).signed_angle_deg(path_points[i + 1].xy - path_points[i].xy),
-                                   current_dir[1],
-                                   current_dir[2])
-                    actor_npc_bs.set_hpr(new_hpr)
-
-                    # Movement
-                    dist = (path_points[i + 1] - path_points[i]).length()
-                    # dist / speed
-                    actor_npc_bs.set_pos(path_points[i + speed])
+                    actor.get_python_tag("generic_states")['is_idle'] = True
+                    actor.get_python_tag("generic_states")['is_moving'] = False
 
     def npc_in_gathering_logic(self, actor, request):
         pass
@@ -501,8 +542,10 @@ class NpcAILogic:
 
     def do_defensive_prediction(self, actor, actor_npc_bs, request, hitbox_dist):
         if actor and actor_npc_bs and request and hitbox_dist:
-            if hitbox_dist >= 0.5 and hitbox_dist <= 1.8:
+            if hitbox_dist >= 0.5 and hitbox_dist <= 1.4:
                 self.npc_in_blocking_logic(actor, request)
+            elif hitbox_dist >= 0.5 and hitbox_dist <= 1.8:
                 self.npc_in_forwardroll_logic(actor, actor_npc_bs, request)
             else:
                 self.npc_in_attacking_logic(actor, request)
+                self.npc_in_blocking_logic(actor, request)

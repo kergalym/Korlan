@@ -1,4 +1,4 @@
-from panda3d.core import Vec3, BitMask32
+from panda3d.core import Vec3, BitMask32, Point3
 
 from direct.interval.IntervalGlobal import *
 from direct.task.TaskManagerGlobal import taskMgr
@@ -41,11 +41,9 @@ class PlayerActions:
         return task.cont
 
     def seq_set_player_pos_wrapper(self, player, pos_y):
-        if (player and pos_y
-                and isinstance(pos_y, float)):
-            player = self.base.get_actor_bullet_shape_node(asset=player.get_name(), type="Player")
-            if player:
-                player.set_y(player, pos_y)
+        if player and isinstance(pos_y, float):
+            dt = globalClock.getDt()
+            player.set_y(player, pos_y * dt)
 
     def player_bullet_jump_helper(self):
         if self.base.game_instance['player_controller_np']:
@@ -425,11 +423,11 @@ class PlayerActions:
                                                                 playRate=self.base.actor_play_rate)
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
-
                     Sequence(crouch_to_stand_seq,
                              Func(self.state.set_action_state, "is_h_kicking", True),
-                             any_action_seq,
-                             Func(self.seq_set_player_pos_wrapper, player_bs, -1.5),
+                             Parallel(any_action_seq,
+                                      Func(self.seq_set_player_pos_wrapper, player_bs, -2.5),
+                                      ),
                              Func(self.state.set_action_state, "is_h_kicking", False),
                              Func(self.state.set_do_once_key, key, False),
                              ).start()
@@ -440,10 +438,10 @@ class PlayerActions:
                     player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
-
                     Sequence(Func(self.state.set_action_state, "is_h_kicking", True),
-                             any_action_seq,
-                             Func(self.seq_set_player_pos_wrapper, player_bs, -1.5),
+                             Parallel(any_action_seq,
+                                      Func(self.seq_set_player_pos_wrapper, player_bs, -2.5),
+                                      ),
                              Func(self.state.set_action_state, "is_h_kicking", False),
                              Func(self.state.set_do_once_key, key, False),
                              ).start()
