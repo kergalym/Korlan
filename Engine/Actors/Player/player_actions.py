@@ -171,6 +171,8 @@ class PlayerActions:
                 and isinstance(action, str)
                 and isinstance(key, str)
                 and not base.player_states['is_using']
+                and not base.player_states['is_attacked']
+                and not base.player_states['is_busy']
                 and not base.player_states['is_moving']
                 and not self.base.game_instance['is_aiming']):
             if self.kbd.keymap[key] and not base.do_key_once[key]:
@@ -216,6 +218,8 @@ class PlayerActions:
                 and not self.base.game_instance['is_player_sitting']
                 and not self.base.game_instance['is_player_laying']
                 and not base.player_states['is_using']
+                and not base.player_states['is_attacked']
+                and not base.player_states['is_busy']
                 and not base.player_states['is_moving']
                 and not self.base.game_instance['is_aiming']):
             if self.kbd.keymap[key] and not base.do_key_once[key]:
@@ -299,6 +303,8 @@ class PlayerActions:
     def player_forwardroll_action(self, player, anims):
         if (player and isinstance(anims, dict)
                 and not base.player_states['is_using']
+                and not base.player_states['is_attacked']
+                and not base.player_states['is_busy']
                 and not self.base.game_instance['is_aiming']):
             crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
 
@@ -338,6 +344,8 @@ class PlayerActions:
         if (player and isinstance(anims, dict)
                 and isinstance(key, str)
                 and not base.player_states['is_using']
+                and not base.player_states['is_attacked']
+                and not base.player_states['is_busy']
                 and not base.player_states['is_moving']
                 and not self.base.game_instance['is_aiming']):
             if self.kbd.keymap[key] and not base.do_key_once[key]:
@@ -372,6 +380,8 @@ class PlayerActions:
         if (player and isinstance(anims, dict)
                 and isinstance(key, str)
                 and not base.player_states['is_using']
+                and not base.player_states['is_attacked']
+                and not base.player_states['is_busy']
                 and not base.player_states['is_moving']
                 and not self.base.game_instance['is_aiming']):
             if self.kbd.keymap[key] and not base.do_key_once[key]:
@@ -407,6 +417,8 @@ class PlayerActions:
                 and isinstance(action, str)
                 and isinstance(key, str)
                 and not base.player_states['is_using']
+                and not base.player_states['is_attacked']
+                and not base.player_states['is_busy']
                 and not base.player_states['is_moving']
                 and not self.base.game_instance['is_aiming']):
             if self.kbd.keymap[key] and not base.do_key_once[key]:
@@ -451,6 +463,8 @@ class PlayerActions:
                 and isinstance(action, str)
                 and isinstance(key, str)
                 and not base.player_states['is_using']
+                and not base.player_states['is_attacked']
+                and not base.player_states['is_busy']
                 and not base.player_states['is_moving']
                 and not self.base.game_instance['is_aiming']):
             if self.kbd.keymap[key] and not base.do_key_once[key]:
@@ -476,6 +490,8 @@ class PlayerActions:
                 and isinstance(action, str)
                 and isinstance(key, str)
                 and not base.player_states['is_using']
+                and not base.player_states['is_attacked']
+                and not base.player_states['is_busy']
                 and not base.player_states['is_moving']
                 and not self.base.game_instance['is_aiming']):
             if self.kbd.keymap[key] and not base.do_key_once[key]:
@@ -501,6 +517,8 @@ class PlayerActions:
                 and isinstance(action, str)
                 and isinstance(key, str)
                 and not base.player_states['is_using']
+                and not base.player_states['is_attacked']
+                and not base.player_states['is_busy']
                 and not self.base.game_instance['is_aiming']):
             if self.kbd.keymap[key] and not base.do_key_once[key]:
                 crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
@@ -577,6 +595,8 @@ class PlayerActions:
     def player_get_bow_action(self, player, key, anims, action):
         if (player and isinstance(anims, dict)
                 and not base.player_states['is_using']
+                and not base.player_states['is_attacked']
+                and not base.player_states['is_busy']
                 and isinstance(action, str)
                 and isinstance(key, str)):
             if self.kbd.keymap[key] and not base.do_key_once[key]:
@@ -666,6 +686,8 @@ class PlayerActions:
                 and isinstance(action, str)
                 and isinstance(key, str)
                 and not base.player_states['is_using']
+                and not base.player_states['is_attacked']
+                and not base.player_states['is_busy']
                 and not self.base.game_instance['is_aiming']):
             if self.kbd.keymap[key] and not base.do_key_once[key]:
                 crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
@@ -706,6 +728,8 @@ class PlayerActions:
     def player_horse_riding_get_bow_action(self, player, key, anims, action):
         if (player and isinstance(anims, dict)
                 and not base.player_states['is_using']
+                and not base.player_states['is_attacked']
+                and not base.player_states['is_busy']
                 and isinstance(action, str)
                 and isinstance(key, str)):
             if self.kbd.keymap[key] and not base.do_key_once[key]:
@@ -753,6 +777,8 @@ class PlayerActions:
                 and isinstance(action, str)
                 and isinstance(key, str)
                 and not base.player_states['is_using']
+                and not base.player_states['is_attacked']
+                and not base.player_states['is_busy']
                 and not base.player_states['is_moving']):
             if self.kbd.keymap[key] and not base.do_key_once[key]:
                 self.state.set_do_once_key(key, True)
@@ -777,6 +803,8 @@ class PlayerActions:
                 and isinstance(action, str)
                 and isinstance(key, str)
                 and not base.player_states['is_using']
+                and not base.player_states['is_attacked']
+                and not base.player_states['is_busy']
                 and not base.player_states['is_moving']):
             if self.kbd.keymap[key] and not base.do_key_once[key]:
                 self.state.set_do_once_key(key, True)

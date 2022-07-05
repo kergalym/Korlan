@@ -158,18 +158,21 @@ class NpcAILogic:
                                     hitbox_np.set_collide_mask(BitMask32.allOff())
                                     if actor.get_python_tag("health_np"):
                                         # NPC gets damage if he has health point
-                                        if actor.get_python_tag("health_np")['value'] > 1:
-                                            request.request("Attacked", actor, "HitToBody", "play")
-                                            actor.get_python_tag("health_np")['value'] -= 6
+                                        if (not actor.get_python_tag("generic_states")['is_busy']
+                                                and not actor.get_python_tag("generic_states")['is_using']):
+                                            if actor.get_python_tag("health_np")['value'] > 1:
+                                                request.request("Attacked", actor, "HitToBody", "play")
+                                                actor.get_python_tag("health_np")['value'] -= 6
 
-                                        if actor.get_python_tag("stamina_np")['value'] > 1:
-                                            actor.get_python_tag("stamina_np")['value'] -= 3
+                                            if actor.get_python_tag("stamina_np")['value'] > 1:
+                                                actor.get_python_tag("stamina_np")['value'] -= 3
 
-                                        if actor.get_python_tag("courage_np")['value'] > 1:
-                                            actor.get_python_tag("courage_np")['value'] -= 3
+                                            if actor.get_python_tag("courage_np")['value'] > 1:
+                                                actor.get_python_tag("courage_np")['value'] -= 3
 
             # NPC dies if he has no health point
-            if actor.get_python_tag("health_np")['value'] == 0:
+            if (actor.get_python_tag("health_np")['value'] < 2
+                    or actor.get_python_tag("health_np")['value'] < 1):
                 if actor.get_python_tag("stamina_np")['value'] > 1:
                     actor.get_python_tag("stamina_np")['value'] = 0
 
@@ -597,14 +600,16 @@ class NpcAILogic:
 
     def do_defensive_prediction(self, actor, actor_npc_bs, request, hitbox_dist):
         if actor and actor_npc_bs and request and hitbox_dist:
-            if hitbox_dist >= 0.5 and hitbox_dist <= 1.4:
-                if actor.get_python_tag("stamina_np")['value'] > 5:
-                    self.npc_in_blocking_logic(actor, request)
-            elif hitbox_dist >= 0.5 and hitbox_dist <= 1.8:
-                if actor.get_python_tag("stamina_np")['value'] > 15:
-                    self.npc_in_forwardroll_logic(actor, actor_npc_bs, request)
-            else:
-                if actor.get_python_tag("stamina_np")['value'] > 35:
-                    self.npc_in_attacking_logic(actor, request)
-                if actor.get_python_tag("stamina_np")['value'] > 5:
-                    self.npc_in_blocking_logic(actor, request)
+            if (not actor.get_python_tag("generic_states")["is_attacked"]
+                    or not actor.get_python_tag("generic_states")["is_busy"]):
+                if hitbox_dist >= 0.5 and hitbox_dist <= 2.2:
+                    if actor.get_python_tag("stamina_np")['value'] > 5:
+                        self.npc_in_blocking_logic(actor, request)
+                elif hitbox_dist >= 0.5 and hitbox_dist <= 1.8:
+                    if actor.get_python_tag("stamina_np")['value'] > 15:
+                        self.npc_in_forwardroll_logic(actor, actor_npc_bs, request)
+                else:
+                    if actor.get_python_tag("stamina_np")['value'] > 35:
+                        self.npc_in_attacking_logic(actor, request)
+                    if actor.get_python_tag("stamina_np")['value'] > 5:
+                        self.npc_in_blocking_logic(actor, request)
