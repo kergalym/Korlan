@@ -16,7 +16,7 @@ fragment:
     material: |
         vec3 m_base = vec3(0);
         m_base = texture(cloak_tex,  texcoord).xyz;
-        m.basecolor = m_base * mInput.color;
+        m.basecolor = vec3(0.23301556706428528, 0.07399103790521622, 0.029046401381492615 );
         m.shading_model =  mInput.shading_model;
         m.specular_ior = 1.0;
         m.metallic = 0.0;

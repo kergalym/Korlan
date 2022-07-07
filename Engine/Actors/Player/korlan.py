@@ -101,6 +101,9 @@ class Korlan:
                 }
 
                 # load player parts separately
+                cloak = await self.base.loader.load_model(assets["Korlan_cloak"], blocking=False)
+                self.base.game_instance["actors_clothes"][name] = cloak
+
                 empty = await self.base.loader.load_model(assets[asset_names[0]], blocking=False)
                 body = await self.base.loader.load_model(assets[asset_names[1]], blocking=False)
                 helmet = await self.base.loader.load_model(assets[asset_names[2]], blocking=False)
@@ -205,6 +208,9 @@ class Korlan:
                 }
 
                 # load player parts separately
+                cloak = await self.base.loader.load_model(assets["Korlan_cloak"], blocking=False)
+                self.base.game_instance["actors_clothes"][name] = [cloak]
+
                 empty = await self.base.loader.load_model(assets[asset_names[0]], blocking=False)
                 body = await self.base.loader.load_model(assets[asset_names[1]], blocking=False)
                 helmet = await self.base.loader.load_model(assets[asset_names[2]], blocking=False)

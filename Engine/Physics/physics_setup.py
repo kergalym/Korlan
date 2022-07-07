@@ -1,6 +1,6 @@
-from panda3d.bullet import BulletCharacterControllerNode, BulletBoxShape
+from panda3d.bullet import BulletCharacterControllerNode, BulletBoxShape, BulletSoftBodyConfig, BulletSoftBodyNode
 from direct.task.TaskManagerGlobal import taskMgr
-from panda3d.core import Vec3, BitMask32, NodePath
+from panda3d.core import Vec3, BitMask32, NodePath, GeomNode
 from panda3d.bullet import BulletWorld, BulletDebugNode, BulletRigidBodyNode, BulletPlaneShape
 
 from Engine.Physics.collision_solids import BulletCollisionSolids
@@ -13,8 +13,10 @@ class PhysicsAttr:
     def __init__(self):
         self.base = base
         self.world = None
+        self.soft_world = None
         self.world_nodepath = render.find("**/World")
         self.debug_nodepath = None
+        self.soft_debug_nodepath = None
         self.render = render
         self.game_settings = base.game_settings
         self.game_dir = base.game_dir
@@ -40,6 +42,9 @@ class PhysicsAttr:
         self.ghost_mask = BitMask32.bit(1)
         self.npcs_fsm_states = None
         self.coll_collection = None
+        self.cloth_pins = {}
+        self.spine_bones = {}
+        self.info = None
 
     def set_actor_collider(self, actor, col_name, shape, mask, type):
         if (actor
@@ -84,6 +89,9 @@ class PhysicsAttr:
                     actor.set_y(0)
                     actor.set_x(0)
 
+                    # Setup for soft bodies
+                    self._set_cloth_physics(actor)
+
                     # attach hitboxes and weapons
                     self.bullet_solids.get_bs_hitbox(actor=actor,
                                                      joints=["LeftHand", "RightHand", "Hips"],
@@ -118,6 +126,9 @@ class PhysicsAttr:
                     # It should not get own position values.
                     actor.set_y(0)
                     actor.set_x(0)
+
+                    # Setup for soft bodies
+                    self._set_cloth_physics(actor)
 
                     # attach hitboxes and weapons
                     self.bullet_solids.get_bs_hitbox(actor=actor,
@@ -256,10 +267,18 @@ class PhysicsAttr:
                 self.debug_nodepath.hide()
                 # self.debug_nodepath.node().showBoundingBoxes(False)
 
-    def update_physics_task(self, task):
-        """ Function    : update_physics_task
+        if self.soft_debug_nodepath:
+            if self.soft_debug_nodepath.is_hidden():
+                self.soft_debug_nodepath.show()
+                # self.soft_debug_nodepath.node().showBoundingBoxes(True)
+            else:
+                self.soft_debug_nodepath.hide()
+                # self.soft_debug_nodepath.node().showBoundingBoxes(False)
 
-            Description : Update Physics
+    def update_rigid_physics_task(self, task):
+        """ Function    : update_rigid_physics_task
+
+            Description : Update Rigid Body Physics
 
             Input       : Task
 
@@ -280,6 +299,31 @@ class PhysicsAttr:
                         item = render.find("**/{0}".format(name))
                         if 'BS' in item.get_parent().get_name():
                             item.get_parent().node().set_transform_dirty()
+        return task.cont
+
+    def update_soft_physics_task(self, task):
+        """ Function    : update_soft_physics_task
+
+            Description : Update Soft Body Physics
+
+            Input       : Task
+
+            Output      : None
+
+            Return      : Task event
+        """
+        if self.base.game_instance["physics_is_activated"] == 1:
+            if self.soft_world:
+                # Get the time that elapsed since last frame.
+                dt = globalClock.getDt()
+                self.soft_world.do_physics(dt, 10, 0.004)
+
+                # Update clothes pin
+                if self.cloth_pins:
+                    for name in self.cloth_pins:
+                        if self.cloth_pins.get(name) and self.spine_bones.get(name):
+                            self.cloth_pins[name].set_pos(render, self.spine_bones[name].get_pos(render))
+                            self.cloth_pins[name].set_hpr(render, self.spine_bones[name].get_hpr(render))
         return task.cont
 
     def set_physics_world(self, npcs_fsm_states):
@@ -339,9 +383,148 @@ class PhysicsAttr:
             self.world.set_group_collision_flag(0, 1, True)
             self.world.set_group_collision_flag(0, 2, True)
 
-            taskMgr.add(self.update_physics_task,
-                        "update_physics_task",
+            self.npcs_fsm_states = npcs_fsm_states
+
+            self.base.game_instance['physics_is_activated'] = 1
+
+            taskMgr.add(self.update_rigid_physics_task,
+                        "update_rigid_physics_task",
                         appendTask=True)
 
-            self.npcs_fsm_states = npcs_fsm_states
+    def set_soft_physics_world(self, _bool):
+        if _bool and isinstance(_bool, bool):
+            # Cloth Physics Setup
+            self.soft_world = BulletWorld()
+            self.soft_world.set_gravity(Vec3(0, 0, -9.81))
+    
+            # Show a visual representation of the collisions occuring
+            self.soft_debug_nodepath = render.attachNewNode(BulletDebugNode('SoftDebug'))
+            self.soft_debug_nodepath.hide()
+            # self.soft_debug_nodepath.node().showWireframe(True)
+            # self.soft_debug_nodepath.node().showConstraints(True)
+            # self.soft_debug_nodepath.node().showBoundingBoxes(False)
+            # self.soft_debug_nodepath.node().showNormals(True)
+    
+            if self.game_settings['Debug']['set_debug_mode'] == "YES":
+                self.soft_world.set_debug_node(self.soft_debug_nodepath.node())
+    
+            # Get Soft body world information
+            self.info = self.soft_world.getWorldInfo()
+            self.info.setAirDensity(0.2)
+            self.info.setWaterDensity(0)
+            self.info.setWaterOffset(0)
+            self.info.setWaterNormal(Vec3(0, 0, 0))
+    
             self.base.game_instance['physics_is_activated'] = 1
+    
+            taskMgr.add(self.update_soft_physics_task,
+                        "update_soft_physics_task",
+                        appendTask=True)
+
+    def _set_cloth_physics(self, actor):
+        if self.soft_world and actor:
+            for name in self.base.game_instance["actors_clothes"]:
+                clothes = self.base.game_instance["actors_clothes"][name]
+                for cloth in clothes:
+                    if cloth:
+                        geom = cloth.find_all_matches('**/+GeomNode').getPath(0).node().modifyGeom(0)
+                        geom_node = GeomNode('')
+                        geom_node.addGeom(geom)
+                        node = BulletSoftBodyNode.makeTriMesh(self.info, geom)
+                        node.linkGeom(geom_node.modifyGeom(0))
+
+                        # material and properties setup
+                        node.getMaterial(0).setAngularStiffness(0.5)
+                        node.getMaterial(0).setLinearStiffness(0.5)
+                        # node.getMaterial(0).setVolumePreservation(0.001)
+
+                        # node.generateBendingConstraints(10)
+
+                        # node.getCfg().setAeroModel(BulletSoftBodyConfig.AMFaceTwoSided  )
+                        node.getCfg().setDampingCoefficient(0.1)
+                        # node.getCfg().setDragCoefficient(0.0)
+                        # node.getCfg().setDriftSolverIterations(0.2)
+                        # node.getCfg().setDynamicFrictionCoefficient(0.002)
+                        # node.getCfg().setKineticContactsHardness(0.2)
+                        # node.getCfg().setLiftCoefficient(0.0)
+                        # node.getCfg().setMaxvolume(0.2)
+                        node.getCfg().setPoseMatchingCoefficient(0.2)
+                        # node.getCfg().setPositionsSolverIterations(0.2)
+                        # node.getCfg().setPressureCoefficient(0)
+                        # node.getCfg().setRigidContactsHardness(0.2)
+                        # node.getCfg().setSoftContactsHardness(0.2)
+                        # node.getCfg().setSoftVsKineticHardness(0.2)
+                        # node.getCfg().setSoftVsKineticImpulseSplit(0.2)
+                        # node.getCfg().setSoftVsRigidHardness(0.2)
+                        # node.getCfg().setSoftVsRigidImpulseSplit(0.2)
+                        # node.getCfg().setSoftVsSoftHardness(0.2)
+                        # node.getCfg().setSoftVsSoftImpulseSplit(0.2)
+                        # node.getCfg().setTimescale(0.2)
+                        # node.getCfg().setVelocitiesCorrectionFactor(0.1)
+                        # node.getCfg().setVelocitiesSolverIterations(0.2)
+                        # node.getCfg().setVolumeConversationCoefficient(0.1)
+                        # node.getCfg().setCollisionFlag(BulletSoftBodyConfig.CFVertexFaceSoftSoft, True)
+                        node.setPose(True, True)
+                        # node.setTotalDensity(1.0)
+                        node.setTotalMass(1, True)
+                        node.getShape(0).setMargin(0.5)
+                        # node.setVolumeDensity(1.0)
+                        # node.setVolumeMass(100)
+
+                        soft_np = render.attachNewNode(node)
+                        self.soft_world.attachSoftBody(node)
+                        geom_np = soft_np.attachNewNode(geom_node)
+                        geom_np.set_two_sided(True)
+
+                        geom_tex = base.loader.load_texture(
+                            '{0}/Assets/Actors/Korlan/tex/Korlan_cloak.png'.format(self.game_dir))
+
+                        self.base.game_instance['renderpipeline_np'].set_effect(soft_np,
+                                                                                "{0}/Engine/Renderer/effects/cloth.yaml".format(
+                                                                                    self.game_dir),
+                                                                                {"render_gbuffer": True,
+                                                                                 "render_shadow": False,
+                                                                                 "alpha_testing": True,
+                                                                                 "normal_mapping": True})
+                        soft_np.set_shader_input("cloak_tex", geom_tex)
+
+                        # pin it down
+                        spine_bone = actor.expose_joint(None, 'modelRoot', 'Korlan:Spine2')
+                        self.spine_bones[name] = spine_bone
+
+                        pin = spine_bone.attachNewNode(BulletRigidBodyNode('pin'))
+                        self.cloth_pins[name] = pin
+
+                        # The position of the cloak get's shifted, fix it
+                        pin.set_z(0)
+
+                        raw_txt = cloth.find('**/=ClothPin').getTag('ClothPin')
+                        raw_list = raw_txt.strip().split()
+                        vtx_list = []
+                        # vec3_list = []
+
+                        # Make nested list with 3-indexed inner list to use as Vec3 component
+                        """for elem in raw_list:
+                            if len(vec3_list) < 3:
+                                vec3_list.append(int(elem))
+                            elif len(vec3_list) == 3:
+                                vtx_list.append(vec3_list)
+                                vec3_list = []"""
+
+                        for elem in raw_list:
+                            vtx_list.append(int(elem))
+
+                        for idx in range(300):
+                            soft_np.node().append_anchor(idx, pin.node())
+                            # soft_np.node().append_anchor(soft_np.node().get_closest_node_index(Vec3(*idx), True),
+                            # self.pin.node())
+
+                        # collisions
+                        """bone = self.korlan.exposeJoint(None, 'modelRoot', 'Korlan:Spine2')
+                        shape = BulletCapsuleShape(3.0, 8.0, ZUp)
+                        np = bone.attachNewNode(BulletRigidBodyNode('Capsule'))
+                        np.node().addShape(shape)
+                        np.set_hpr(self.korlan.get_hpr())
+                        np.set_pos(self.korlan.get_pos())
+                        np.setCollideMask(BitMask32.allOn())
+                        self.world.attachRigidBody(np.node())"""

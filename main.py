@@ -334,6 +334,7 @@ class Main(ShowBase):
             "player_ref": None,
             "actors_ref": {},
             "actors_np": {},
+            "actors_clothes": {},
             "player_parts": [],
             "player_using_horse": '',
             "is_indoor": False,

@@ -159,7 +159,10 @@ class LevelOne:
 
             # Unload Physics
             if self.physics_attr and self.physics_attr.world:
-                taskMgr.remove("update_physics_task")
+                taskMgr.remove("update_rigid_physics_task")
+
+            if self.physics_attr and self.physics_attr.soft_world:
+                taskMgr.remove("update_soft_physics_task")
 
             # Unload AI
             if self.ai and self.ai.ai_world:
@@ -297,6 +300,8 @@ class LevelOne:
 
         """ Setup Physics """
         self.physics_attr.set_physics_world(self.base.game_instance["npcs_fsm_states"])
+
+        self.physics_attr.set_soft_physics_world(True)
 
         self.base.game_instance["physics_attr_cls"] = self.physics_attr
 
