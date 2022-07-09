@@ -450,12 +450,46 @@ class NpcFSM(FSM):
                                  Func(self.fsm_state_wrapper, actor, "generic_states", "is_crouch_moving",
                                       False)).start()
 
+    def _player_jump_move_task(self, actor, actor_bs_npc, action, task):
+        if actor.getCurrentFrame(action):
+            if (actor.getCurrentFrame(action) > 24
+                    and actor.getCurrentFrame(action) < 27):
+                current_pos = actor_bs_npc.get_pos()
+                delta_offset = current_pos + Vec3(0, -2.0, 0)
+                pos_interval_seq = actor_bs_npc.posInterval(1.0, delta_offset,
+                                                            startPos=current_pos)
+                seq = Sequence(pos_interval_seq)
+                if not seq.is_playing():
+                    seq.start()
+
+                return task.done
+
+        return task.cont
+
+    def _player_bullet_jump_helper(self, actor, action):
+        name = "{0}:BS".format(actor.get_name())
+        if self.base.game_instance['actors_np'].get(name):
+            actor_bs_npc = self.base.game_instance['actors_np'][name]
+            # if self.base.game_instance['actor_controllers_np'][name].is_on_ground():
+            #    self.base.game_instance['actor_controllers_np'][name].set_max_jump_height(3.0)
+            #    self.base.game_instance['actor_controllers_np'][name].set_jump_speed(8.0)
+            #    self.base.game_instance['actor_controllers_np'][name].do_jump()
+
+            if taskMgr.hasTaskNamed("player_jump_move_task"):
+                taskMgr.remove("player_jump_move_task")
+
+            taskMgr.add(self._player_jump_move_task,
+                        "player_jump_move_task",
+                        extraArgs=[actor, actor_bs_npc, action],
+                        appendTask=True)
+
     def enterJump(self, actor, action, task):
         if actor and action and task and isinstance(action, str):
             if isinstance(task, str):
                 if task == "play":
                     any_action_seq = actor.actor_interval(action)
                     Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_jumping", True),
+                             Func(self._player_bullet_jump_helper, actor, action),
                              any_action_seq,
                              Func(self.fsm_state_wrapper, actor, "generic_states", "is_jumping", False)).start()
 
