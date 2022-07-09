@@ -45,20 +45,51 @@ class PlayerActions:
             dt = globalClock.getDt()
             player.set_y(player, pos_y * dt)
 
-    def player_bullet_jump_helper(self):
+    def _player_jump_move_task(self, action, task):
+        player = self.base.game_instance["player_ref"]
+
+        if player.getCurrentFrame(action):
+            if (player.getCurrentFrame(action) > 24
+                    and player.getCurrentFrame(action) < 27):
+                player_bs = self.base.game_instance["player_np"]
+                current_pos = player_bs.get_pos()
+                delta_offset = current_pos + Vec3(0, -2.0, 0)
+                pos_interval_seq = player_bs.posInterval(1.0, delta_offset,
+                                                         startPos=current_pos)
+                seq = Sequence(pos_interval_seq)
+                if not seq.is_playing():
+                    seq.start()
+
+                return task.done
+
+        return task.cont
+
+    def _player_bullet_jump_helper(self, action):
         if self.base.game_instance['player_controller_np']:
-            # TODO: Implement player_bullet_jump_helper
-            # self.base.game_instance['player_controller_np'].get_shape().set_local_scale(Vec3(1, 1, 1))
-            if not self.base.game_instance['player_controller_np'].is_on_ground():
-                self.base.game_instance['player_controller_np'].set_max_jump_height(2.0)
-                self.base.game_instance['player_controller_np'].set_jump_speed(self.base.actor_play_rate)
+            if self.base.game_instance['player_controller_np'].is_on_ground():
+                self.base.game_instance['player_controller_np'].set_max_jump_height(3.0)
+                self.base.game_instance['player_controller_np'].set_jump_speed(8.0)
+                self.base.game_instance['player_controller_np'].do_jump()
+
+                if taskMgr.hasTaskNamed("player_jump_move_task"):
+                    taskMgr.remove("player_jump_move_task")
+
+                taskMgr.add(self._player_jump_move_task,
+                            "player_jump_move_task",
+                            extraArgs=[action],
+                            appendTask=True)
 
     def player_bullet_crouch_helper(self):
-        if self.base.game_instance['player_controller_np']:
-            # TODO: Implement player_bullet_crouch_helper
-            """size = 0.6
-            print(self.base.game_instance['player_controller_np'].get_shape().get_local_scale())
-            self.base.game_instance['player_controller_np'].get_shape().set_local_scale(Vec3(1, 1, size))"""
+        crouch_bs_mask = BitMask32.allOff()
+        capsule_bs_mask = BitMask32.allOff()
+        if base.player_states["is_crouch_moving"]:
+            crouch_bs_mask = self.base.game_instance['player_crouch_bs_np_mask']
+            capsule_bs_mask = BitMask32.allOff()
+        elif not base.player_states["is_crouch_moving"]:
+            crouch_bs_mask = BitMask32.allOff()
+            capsule_bs_mask = self.base.game_instance["player_np_mask"]
+        self.base.game_instance['player_crouch_bs_np'].set_collide_mask(crouch_bs_mask)
+        self.base.game_instance['player_np'].set_collide_mask(capsule_bs_mask)
 
     def ground_water_action_switch_task(self, task):
         if self.base.game_instance['menu_mode']:
@@ -192,7 +223,7 @@ class PlayerActions:
                                                            playRate=self.base.actor_play_rate)
                     Sequence(crouch_to_stand_seq,
                              Func(self.state.set_action_state, "is_jumping", True),
-                             Func(self.player_bullet_jump_helper),
+                             Func(self._player_bullet_jump_helper, action),
                              any_action_seq,
                              Func(self.state.set_action_state, "is_jumping", False),
                              Func(self.state.set_do_once_key, key, False),
@@ -205,7 +236,7 @@ class PlayerActions:
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
                     Sequence(Func(self.state.set_action_state, "is_jumping", True),
-                             Func(self.player_bullet_jump_helper),
+                             Func(self._player_bullet_jump_helper, action),
                              any_action_seq,
                              Func(self.state.set_action_state, "is_jumping", False),
                              Func(self.state.set_do_once_key, key, False),

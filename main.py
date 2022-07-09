@@ -303,6 +303,8 @@ class Main(ShowBase):
             "inventory": None
         }
         self.game_instance = {
+            "render_attr_cls": None,
+            "renderpipeline_np": None,
             "menu_mode": False,
             "ui_mode": False,
             "inv_mode": False,
@@ -328,12 +330,17 @@ class Main(ShowBase):
             "rp_lights": rp_lights,
             "scene_np": None,
             "player_controller_np": None,
+            "player_np": None,
+            "player_np_mask": None,
+            "player_crouch_bs_np": None,
+            "player_crouch_bs_np_mask": None,
             "actor_controllers_np": {},
-            "render_attr_cls": None,
-            "renderpipeline_np": None,
+            "actors_crouch_bs_np": {},
+            "actors_crouch_bs_np_mask": {},
             "player_ref": None,
             "actors_ref": {},
             "actors_np": {},
+            "actors_np_mask": {},
             "actors_clothes": {},
             "player_parts": [],
             "player_using_horse": '',

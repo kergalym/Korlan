@@ -54,6 +54,9 @@ class NpcGeneric:
                     self.scale_y = scale[1]
                     self.scale_z = scale[2]
 
+                    cloak = await self.base.loader.load_model(assets["Korlan_cloak"], blocking=False)
+                    self.base.game_instance["actors_clothes"][name] = [cloak]
+
                     self.actor = await self.base.loader.load_model(path, blocking=False)
                     self.actor = Actor(self.actor, animation[1])
 
