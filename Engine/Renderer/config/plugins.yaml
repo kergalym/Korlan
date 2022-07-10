@@ -1,7 +1,9 @@
 enabled:
 - ao
+- bloom
 - color_correction
 - forward_shading
+# - motion_blur
 - pssm
 - scattering
 - skin_shading
@@ -9,8 +11,11 @@ enabled:
 - smaa
 - ssr
 - clouds
+# - dof
 - env_probes
 - fxaa
+# - volumetrics
+# - vxgi
 overrides:
   ao:
     alchemy_max_distance: 5.86

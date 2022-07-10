@@ -203,10 +203,10 @@ class Error(ShowBase):
         ShowBase.__init__(self)
         self.build_info = OnscreenText(text=build_info_txt, pos=(1.6, -0.95),
                                        fg=(255, 255, 255, 1), scale=.025)
-        self.props = WindowProperties()
-        self.props.setIconFilename("icon-16.ico")
-        self.props.set_cursor_hidden(True)
-        self.win.request_properties(self.props)
+        self.win_props = WindowProperties()
+        self.win_props.setIconFilename("icon-16.ico")
+        self.win_props.set_cursor_hidden(True)
+        self.win.request_properties(self.win_props)
         self.game_dir = str(Path.cwd())
         self.images = self.textures_collector(path="Settings/UI")
         self.fonts = self.fonts_collector()
@@ -311,6 +311,7 @@ class Main(ShowBase):
             "dev_ui_mode": False,
             "esc_mode": False,
             "gameplay_mode": '',
+            "item_menu_mode": False,
             "game_overlay_np": None,
             "camera_pivot_np": None,
             "free_camera": False,
@@ -321,6 +322,7 @@ class Main(ShowBase):
             "cutscene_is_active": False,
             "current_active_frame": None,
             "hud_np": None,
+            "item_menu_np": None,
             "lod_np": None,
             "lod_quality": {
                 "low": Vec2(999999.0, 100.0),
@@ -391,10 +393,10 @@ class Main(ShowBase):
         self.build_info = OnscreenText(text=build_info_txt, pos=(1.6, -0.95),
                                        fg=(255, 255, 255, 1), scale=.025)
 
-        self.props = WindowProperties()
-        self.props.setIconFilename("icon-16.ico")
-        self.props.set_cursor_hidden(True)
-        self.win.request_properties(self.props)
+        self.win_props = WindowProperties()
+        self.win_props.setIconFilename("icon-16.ico")
+        self.win_props.set_cursor_hidden(True)
+        self.win.request_properties(self.win_props)
 
         self.backface_culling_on()
         self.logging = logging
@@ -1153,9 +1155,8 @@ class Main(ShowBase):
                 self.menu.load_main_menu()
                 # Disable the camera trackball controls.
                 self.disable_mouse()
-                props = WindowProperties()
-                props.set_cursor_hidden(False)
-                self.win.request_properties(props)
+                self.win_props.set_cursor_hidden(False)
+                self.win.request_properties(self.win_props)
                 self.load_video(file="MENU_SCENE_VID", type="menu_scene")
                 return task.done
 

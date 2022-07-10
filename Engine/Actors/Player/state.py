@@ -122,9 +122,8 @@ class PlayerState:
         for key in assets:
             self.loader.unload_model(assets[key])
 
-        wp = WindowProperties()
-        wp.set_cursor_hidden(False)
-        self.base.win.request_properties(wp)
+        self.base.win_props.set_cursor_hidden(False)
+        self.base.win.request_properties(self.base.win_props)
 
         # Disable the camera trackball controls.
         self.base.disable_mouse()
@@ -403,32 +402,33 @@ class PlayerState:
     def drop_item(self, player):
         if player and not render.find('**/World').is_empty():
             item = player.get_python_tag("used_item_np")
-            player_bs = self.base.get_actor_bullet_shape_node(asset=player.get_name(), type="Player")
-            world = render.find('**/World')
-            item.reparent_to(world)
+            if item:
+                player_bs = self.base.get_actor_bullet_shape_node(asset=player.get_name(), type="Player")
+                world = render.find('**/World')
+                item.reparent_to(world)
 
-            # Show txt cap while item is not in use
-            item_trigger = item.find("**/{0}_trigger".format(item.get_name()))
-            txt_cap = item_trigger.find("**/txt_use")
-            txt_cap.show()
+                # Show txt cap while item is not in use
+                item_trigger = item.find("**/{0}_trigger".format(item.get_name()))
+                txt_cap = item_trigger.find("**/txt_use")
+                txt_cap.show()
 
-            if hasattr(item, "get_python_tag"):
-                scale = item.get_python_tag("orig_scale")
-                item.set_scale(scale)
-                item.set_hpr(0, 0, 0)
+                if hasattr(item, "get_python_tag"):
+                    scale = item.get_python_tag("orig_scale")
+                    item.set_scale(scale)
+                    item.set_hpr(0, 0, 0)
 
-            # Put the item near player
-            # If player has the bullet shape
-            if player_bs:
-                pos = Vec3(player_bs.get_x(), player_bs.get_y(), 0.2)
-                item.set_pos(pos)
+                # Put the item near player
+                # If player has the bullet shape
+                if player_bs:
+                    pos = Vec3(player_bs.get_x(), player_bs.get_y(), 0.2)
+                    item.set_pos(pos)
 
-            if hasattr(item.node(), "set_kinematic"):
-                item.node().set_kinematic(False)
+                if hasattr(item.node(), "set_kinematic"):
+                    item.node().set_kinematic(False)
 
-            player.set_python_tag("is_item_using", False)
-            player.set_python_tag("used_item_np", None)
-            player.set_python_tag("is_item_ready", False)
-            self.base.game_instance['item_state'] = {}
+                player.set_python_tag("is_item_using", False)
+                player.set_python_tag("used_item_np", None)
+                player.set_python_tag("is_item_ready", False)
+                self.base.game_instance['item_state'] = {}
 
 

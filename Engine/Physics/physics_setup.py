@@ -433,7 +433,7 @@ class PhysicsAttr:
             # Cloth Physics Setup
             self.soft_world = BulletWorld()
             self.soft_world.set_gravity(Vec3(0, 0, -9.81))
-    
+
             # Show a visual representation of the collisions occuring
             self.soft_debug_nodepath = self.world_nodepath.attachNewNode(BulletDebugNode('SoftDebug'))
             self.soft_debug_nodepath.hide()
@@ -441,10 +441,10 @@ class PhysicsAttr:
             # self.soft_debug_nodepath.node().showConstraints(True)
             # self.soft_debug_nodepath.node().showBoundingBoxes(False)
             # self.soft_debug_nodepath.node().showNormals(True)
-    
+
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
                 self.soft_world.set_debug_node(self.soft_debug_nodepath.node())
-    
+
             # Get Soft body world information
             self.info = self.soft_world.getWorldInfo()
             self.info.setAirDensity(0.2)
@@ -455,7 +455,7 @@ class PhysicsAttr:
             self.soft_world.set_group_collision_flag(0, 0, False)
 
             self.base.game_instance['physics_is_activated'] = 1
-    
+
             taskMgr.add(self.update_soft_physics_task,
                         "update_soft_physics_task",
                         appendTask=True)
@@ -517,17 +517,15 @@ class PhysicsAttr:
                                 geom_np = soft_np.attachNewNode(geom_node)
                                 geom_np.set_two_sided(True)
 
-                                geom_tex = base.loader.load_texture(
-                                    '{0}/Assets/Actors/Korlan/tex/Korlan_cloak.png'.format(self.game_dir))
-
-                                self.base.game_instance['renderpipeline_np'].set_effect(soft_np,
-                                                                                        "{0}/Engine/Renderer/effects/cloth.yaml".format(
-                                                                                            self.game_dir),
+                                for tex in cloth.find_all_textures():
+                                    rp = self.base.game_instance['renderpipeline_np']
+                                    rp.set_effect(soft_np, "{0}/Engine/Renderer"
+                                                           "/effects/cloth.yaml".format(self.game_dir),
                                                                                         {"render_gbuffer": True,
                                                                                          "render_shadow": False,
                                                                                          "alpha_testing": True,
                                                                                          "normal_mapping": True})
-                                soft_np.set_shader_input("cloak_tex", geom_tex)
+                                    soft_np.set_shader_input("cloak_tex", tex)
 
                                 # pin it down
                                 spine_bone = actor.expose_joint(None, 'modelRoot', 'Korlan:Spine2')
@@ -560,4 +558,3 @@ class PhysicsAttr:
                                     # soft_np.node().append_anchor(soft_np.node().get_closest_node_index(Vec3(*idx),
                                     # True),
                                     # self.pin.node())
-

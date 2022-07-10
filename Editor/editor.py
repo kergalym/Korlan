@@ -189,8 +189,6 @@ class Editor:
         self.gizmo_mesh.reparent_to(render)
         self.gizmo_mesh.hide()
 
-        self.winprops = WindowProperties()
-
     def get_asset_nodes_task(self, task):
         for node in render.findAllMatches("**/*:BS"):
             if not node.is_empty():
@@ -377,7 +375,7 @@ class Editor:
 
     def unselect(self):
         self.is_look_around_mouse_pressed = False
-        self.winprops.set_cursor_hidden(False)
+        self.base.win_props.set_cursor_hidden(False)
 
         if self.is_asset_selected_from_list:
             self.active_asset_from_list = None
@@ -389,7 +387,7 @@ class Editor:
     def look_around_mouse(self):
         if not self.is_asset_selected_from_list:
             self.is_look_around_mouse_pressed = True
-            self.winprops.set_cursor_hidden(True)
+            self.base.win_props.set_cursor_hidden(True)
 
     def input_wheel_up(self):
         if self.asset_manipulation_modes["Positioning"]:

@@ -5,6 +5,8 @@ from panda3d.core import NodePath
 
 class Mouse:
     def __init__(self):
+        self.win_prop = WindowProperties()
+        self.cursor_is_hidden = False
         self.game_settings = base.game_settings
         self.base = base
         self.d_object = DirectObject.DirectObject()
@@ -311,6 +313,7 @@ class Mouse:
         """
         # Figure out how much the mouse has moved (in pixels)
         if (not self.base.game_instance['ui_mode']
+                and not self.base.game_instance["item_menu_mode"]
                 and not self.base.game_instance['menu_mode']):
             self.mouse_control()
         return task.cont
@@ -318,7 +321,7 @@ class Mouse:
     def set_mouse_mode(self, mode):
         """ Function    : set_mouse_mode
 
-            Description : Set mouse mode.
+            Description : Set mouse centering mode.
 
             Input       : Object
 
@@ -327,11 +330,11 @@ class Mouse:
             Return      : None
         """
         if isinstance(mode, str):
-            wp = WindowProperties()
             if mode == "absolute":
-                wp.set_mouse_mode(WindowProperties.M_absolute)
+                self.win_prop.set_mouse_mode(WindowProperties.M_absolute)
             if mode == "relative":
-                wp.set_mouse_mode(WindowProperties.M_relative)
+                self.win_prop.set_mouse_mode(WindowProperties.M_relative)
             self.base.game_instance['mouse_mode'] = mode
-            wp.set_cursor_hidden(True)
-            self.base.win.request_properties(wp)
+            self.base.win_props.set_cursor_hidden(True)
+            self.cursor_is_hidden = True
+            self.base.win.request_properties(self.base.win_props)

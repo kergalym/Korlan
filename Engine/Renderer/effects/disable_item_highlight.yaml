@@ -1,20 +1,23 @@
-
-# Cloth texture
+# Highlight effect
 
 vertex:
     transform: |
-        // vOutput.position.xy += MainSceneData.camera_pos.xy;
 
 fragment:
     inout: |
-        uniform sampler2D cloak_tex;
+        uniform vec3 baseColor;
+        uniform float specularIor;
+        uniform sampler2D itemTex;
+
+    includes: |
+        #pragma include "Engine/Shaders/particles_func.inc.glsl"
 
     defines: |
         #define DONT_FETCH_DEFAULT_TEXTURES 1
         #define DONT_SET_MATERIAL_PROPERTIES 1
 
     material: |
-        vec4 m_base = texture(cloak_tex, texcoord);
+        vec4 m_base = texture(itemTex, texcoord);
         m.basecolor = m_base.rgb;
         m.shading_model = mInput.shading_model;
         m.specular_ior = specularIor;

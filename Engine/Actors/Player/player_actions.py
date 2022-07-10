@@ -256,9 +256,17 @@ class PlayerActions:
             if self.kbd.keymap[key] and not base.do_key_once[key]:
                 self.state.set_do_once_key(key, True)
                 crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
-                if (not player.get_python_tag("is_item_using")
-                        and player.get_python_tag("is_item_ready")):
+                if not player.get_python_tag("is_item_using"):
                     base.player_states['is_idle'] = False
+
+                    # Show item menu here
+                    if self.base.game_instance['item_menu_np'].item_menu_ui:
+                        if self.base.game_instance['item_menu_np'].item_menu_ui.is_hidden():
+                            self.base.game_instance['item_menu_np'].item_menu_ui.show()
+                            self.base.game_instance['item_menu_np'].set_item_menu()
+                        else:
+                            self.base.game_instance['item_menu_np'].item_menu_ui.hide()
+                            self.base.game_instance['item_menu_np'].clear_item_menu()
 
                     taskMgr.add(self.seq_pick_item_wrapper_task,
                                 "seq_pick_item_wrapper_task",
@@ -296,6 +304,15 @@ class PlayerActions:
 
                 elif player.get_python_tag("is_item_using"):
                     base.player_states['is_idle'] = False
+
+                    # Show item menu here
+                    if self.base.game_instance['item_menu_np'].item_menu_ui:
+                        if self.base.game_instance['item_menu_np'].item_menu_ui.is_hidden():
+                            self.base.game_instance['item_menu_np'].item_menu_ui.show()
+                            self.base.game_instance['item_menu_np'].set_item_menu()
+                        else:
+                            self.base.game_instance['item_menu_np'].item_menu_ui.hide()
+                            self.base.game_instance['item_menu_np'].clear_item_menu()
 
                     taskMgr.add(self.seq_drop_item_wrapper_task,
                                 "seq_drop_item_wrapper_task",

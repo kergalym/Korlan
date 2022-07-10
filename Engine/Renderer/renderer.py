@@ -159,12 +159,12 @@ class RenderAttr:
                                                                         "{0}/Engine/Renderer/effects/grass.yaml".format(
                                                                             self.game_dir),
                                                                         {})
-            self.grass_np.setShaderInput('height', self.base.loader.load_texture(textures["heightmap"]))
-            self.grass_np.setShaderInput('grass', self.base.loader.load_texture(textures["grass"]))
-            self.grass_np.setShaderInput('uv_offset', uv_offset)
-            self.grass_np.setShaderInput('fogcenter', fogcenter)
+            self.grass_np.set_shader_input('height', self.base.loader.load_texture(textures["heightmap"]))
+            self.grass_np.set_shader_input('grass', self.base.loader.load_texture(textures["grass"]))
+            self.grass_np.set_shader_input('uv_offset', uv_offset)
+            self.grass_np.set_shader_input('fogcenter', fogcenter)
             # fixme add light
-            self.grass_np.setShaderInput('light_color', Vec3(0, 0, 0))
+            self.grass_np.set_shader_input('light_color', Vec3(0, 0, 0))
             self.grass_np.set_shader_input("light_pos", Vec3(0, 0, 0))
             self.grass_np.set_shader_input("num_lights", 3)
             self.grass_np.set_pos(0.0, 0.0, 0.0)

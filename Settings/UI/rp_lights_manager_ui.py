@@ -78,9 +78,8 @@ class RPLightsMgrUI:
 
     def set_ui_rpmgr(self):
         if not base.game_instance['menu_mode']:
-            props = WindowProperties()
-            props.set_cursor_hidden(False)
-            self.base.win.request_properties(props)
+            self.base.win_props.set_cursor_hidden(False)
+            self.base.win.request_properties(self.base.win_props)
             self.base.enable_mouse()
             base.game_instance['ui_mode'] = True
             base.game_instance['dev_ui_mode'] = True
@@ -199,10 +198,9 @@ class RPLightsMgrUI:
 
     def clear_ui_rpmgr(self):
         self.base.build_info.reparent_to(aspect2d)
-        props = WindowProperties()
-        props.set_cursor_hidden(True)
+        self.base.win_props.set_cursor_hidden(True)
         self.base.disable_mouse()
-        self.base.win.request_properties(props)
+        self.base.win.request_properties(self.base.win_props)
 
         base.game_instance['ui_mode'] = False
         base.game_instance['dev_ui_mode'] = False

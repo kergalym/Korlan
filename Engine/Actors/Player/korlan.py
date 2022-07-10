@@ -54,9 +54,8 @@ class Korlan:
         if mode == 'menu':
             # Disable the camera trackball controls.
             self.base.disable_mouse()
-            props = WindowProperties()
-            props.set_cursor_hidden(False)
-            self.base.win.request_properties(props)
+            self.base.win_props.set_cursor_hidden(False)
+            self.base.win.request_properties(self.base.win_props)
 
             if (isinstance(name, str)
                     and isinstance(axis, list)

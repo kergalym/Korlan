@@ -164,7 +164,9 @@ class Sheet(Inventory):
                                                     command=self.show_journal,
                                                     pos=(0.06, 0, 0.3))
 
+        self.base.btn_select_inv.set_transparency(True)
         self.base.btn_select_inv.hide()
+        self.base.btn_select_journal.set_transparency(True)
         self.base.btn_select_journal.hide()
 
         """ QUESTS """
@@ -621,8 +623,8 @@ class Sheet(Inventory):
                         self.base.btn_select_inv["state"] = DGG.DISABLED
                         self.base.btn_select_journal["state"] = DGG.NORMAL
 
-                        self.props.set_cursor_hidden(False)
-                        self.base.win.request_properties(self.props)
+                        self.base.win_props.set_cursor_hidden(False)
+                        self.base.win.request_properties(self.base.win_props)
 
                         self.base.game_instance['ui_mode'] = True
                         self.base.is_inventory_active = True
@@ -657,9 +659,8 @@ class Sheet(Inventory):
 
         self.toggle()
 
-        props = WindowProperties()
-        props.set_cursor_hidden(True)
-        self.base.win.request_properties(props)
+        self.base.win_props.set_cursor_hidden(True)
+        self.base.win.request_properties(self.base.win_props)
         self.base.game_instance['ui_mode'] = False
 
         self.revert_character()

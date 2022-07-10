@@ -129,9 +129,8 @@ class PauseMenuUI(MenuSettings):
             self.base.game_instance['ui_mode'] = True
             self.pause_mode = 1
             self.base.game_instance['esc_mode'] = True
-            win_props = WindowProperties()
-            win_props.set_cursor_hidden(False)
-            self.base.win.request_properties(win_props)
+            self.base.win_props.set_cursor_hidden(False)
+            self.base.win.request_properties(self.base.win_props)
 
             self.logo = OnscreenImage(image=self.images['korlan_logo_tengri'],
                                       pos=self.logo_pos)
@@ -267,17 +266,16 @@ class PauseMenuUI(MenuSettings):
         self.ornament_left.destroy()
         self.ornament_right.destroy()
 
-        win_props = WindowProperties()
-        win_props.set_cursor_hidden(True)
-        self.base.win.request_properties(win_props)
+        self.base.win_props.set_cursor_hidden(True)
+        self.base.win.request_properties(self.base.win_props)
 
         if self.base.game_instance['dev_ui_mode']:
-            win_props.set_cursor_hidden(False)
-            self.base.win.request_properties(win_props)
+            self.base.win_props.set_cursor_hidden(False)
+            self.base.win.request_properties(self.base.win_props)
             self.base.game_instance['ui_mode'] = True
         else:
-            win_props.set_cursor_hidden(True)
-            self.base.win.request_properties(win_props)
+            self.base.win_props.set_cursor_hidden(True)
+            self.base.win.request_properties(self.base.win_props)
             self.base.game_instance['ui_mode'] = False
 
         self.pause_mode = 0

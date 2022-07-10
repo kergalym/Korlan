@@ -299,27 +299,28 @@ class NpcState:
     def drop_item(self, actor):
         if actor and not render.find('**/World').is_empty():
             item = actor.get_python_tag("used_item_np")
-            actor_bs = self.base.get_actor_bullet_shape_node(asset=actor.get_name(), type="NPC")
-            world = render.find('**/World')
-            item.reparent_to(world)
+            if item:
+                actor_bs = self.base.get_actor_bullet_shape_node(asset=actor.get_name(), type="NPC")
+                world = render.find('**/World')
+                item.reparent_to(world)
 
-            if hasattr(item, "get_python_tag"):
-                scale = item.get_python_tag("orig_scale")
-                item.set_scale(scale)
-                item.set_hpr(0, 0, 0)
+                if hasattr(item, "get_python_tag"):
+                    scale = item.get_python_tag("orig_scale")
+                    item.set_scale(scale)
+                    item.set_hpr(0, 0, 0)
 
-            # Put the item near actor
-            # If actor has the bullet shape
-            if actor_bs:
-                pos = Vec3(actor_bs.get_x(), actor_bs.get_y(), 0.2)
-                item.set_pos(pos)
+                # Put the item near actor
+                # If actor has the bullet shape
+                if actor_bs:
+                    pos = Vec3(actor_bs.get_x(), actor_bs.get_y(), 0.2)
+                    item.set_pos(pos)
 
-            if hasattr(item.node(), "set_kinematic"):
-                item.node().set_kinematic(False)
+                if hasattr(item.node(), "set_kinematic"):
+                    item.node().set_kinematic(False)
 
-            actor.set_python_tag("is_item_using", False)
-            actor.set_python_tag("used_item_np", None)
-            actor.set_python_tag("is_item_ready", False)
+                actor.set_python_tag("is_item_using", False)
+                actor.set_python_tag("used_item_np", None)
+                actor.set_python_tag("is_item_ready", False)
 
 
 

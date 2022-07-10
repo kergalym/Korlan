@@ -59,9 +59,8 @@ class CmdDialogusUI:
 
     def set_ui_dialog(self, dialog, txt_interval, behaviors, behavior_name):
         if not self.base.game_instance['menu_mode']:
-            props = WindowProperties()
-            props.set_cursor_hidden(False)
-            self.base.win.request_properties(props)
+            self.base.win_props.set_cursor_hidden(False)
+            self.base.win.request_properties(self.base.win_props)
             self.base.game_instance['ui_mode'] = True
             self.base.game_instance['is_dialog_active'] = False
             if not self.base.frame_dlg:
@@ -105,9 +104,8 @@ class CmdDialogusUI:
 
     def clear_ui_dialog(self):
         self.base.build_info.reparent_to(aspect2d)
-        props = WindowProperties()
-        props.set_cursor_hidden(True)
-        self.base.win.request_properties(props)
+        self.base.win_props.set_cursor_hidden(True)
+        self.base.win.request_properties(self.base.win_props)
         base.game_instance['ui_mode'] = False
 
         if self.base.frame_dlg:
