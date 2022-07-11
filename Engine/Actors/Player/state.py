@@ -80,6 +80,7 @@ class PlayerState:
         base.is_item_in_use_long = False
         base.in_use_item_name = None
 
+        self.base.game_instance['player_state_cls'] = self
         self.base.game_instance['player_props'] = self.player_props
 
     def set_state(self, actor):

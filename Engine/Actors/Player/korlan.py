@@ -300,6 +300,7 @@ class Korlan:
                 self.korlan.set_python_tag("used_item_np", None)
                 self.korlan.set_python_tag("is_item_ready", False)
                 self.korlan.set_python_tag("is_item_using", False)
+                self.korlan.set_python_tag("is_close_to_use_item", False)
                 self.korlan.set_python_tag("current_item_prop", None)
 
                 # Set Player Parameters

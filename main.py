@@ -366,6 +366,8 @@ class Main(ShowBase):
             "physics_world_np": None,
             "ai_world_np": None,
             "water_trigger_np": None,
+            "player_actions_cls": None,
+            "player_state_cls": None,
             "npc_ai_logic_cls": None,
             "physics_is_activated": 0,
             "ai_is_activated": 0,

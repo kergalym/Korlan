@@ -554,8 +554,15 @@ class SocialQuests:
                                                         place=actor, actor=node)
                 if self.player_name in node.get_name():
                     if not self.player.get_python_tag("is_item_using"):
-                        if (round(self.player_bs.get_distance(actor), 1) >= self.item_range[0]
-                                and round(self.player_bs.get_distance(actor), 1) <= self.item_range[1]):
+
+                        if self.player.get_python_tag("is_close_to_use_item"):
+                            self.player.set_python_tag("is_close_to_use_item", False)
+
+                        if round(self.player_bs.get_distance(actor)) < 2:
+
+                            if not self.player.get_python_tag("is_close_to_use_item"):
+                                self.player.set_python_tag("is_close_to_use_item", True)
+
                             item_np = self.player.get_python_tag("used_item_np")
 
                             # Construct the item properties only once

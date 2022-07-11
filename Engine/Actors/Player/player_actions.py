@@ -22,6 +22,7 @@ class PlayerActions:
         self.horse_standing_to_crouch_action = ""
         self.kbd = kbd
         self.archery = archery
+        self.base.game_instance["player_actions_cls"] = self
 
     def seq_pick_item_wrapper_task(self, player, anims, action, joint_name, task):
         if player and anims and action and joint_name:
@@ -37,7 +38,6 @@ class PlayerActions:
                 if (player.getCurrentFrame(action) > 70
                         and player.getCurrentFrame(action) < 72):
                     self.state.drop_item(player)
-
         return task.cont
 
     def seq_set_player_pos_wrapper(self, player, pos_y):
@@ -260,18 +260,19 @@ class PlayerActions:
                     base.player_states['is_idle'] = False
 
                     # Show item menu here
-                    if self.base.game_instance['item_menu_np'].item_menu_ui:
-                        if self.base.game_instance['item_menu_np'].item_menu_ui.is_hidden():
-                            self.base.game_instance['item_menu_np'].item_menu_ui.show()
-                            self.base.game_instance['item_menu_np'].set_item_menu()
-                        else:
-                            self.base.game_instance['item_menu_np'].item_menu_ui.hide()
-                            self.base.game_instance['item_menu_np'].clear_item_menu()
-
-                    taskMgr.add(self.seq_pick_item_wrapper_task,
-                                "seq_pick_item_wrapper_task",
-                                extraArgs=[player, anims, action, "Korlan:RightHand"],
-                                appendTask=True),
+                    if player.get_python_tag("is_close_to_use_item"):
+                        if self.base.game_instance['item_menu_np'].item_menu_ui:
+                            if self.base.game_instance['item_menu_np'].item_menu_ui.is_hidden():
+                                self.base.game_instance['item_menu_np'].item_menu_ui.show()
+                                self.base.game_instance['item_menu_np'].set_item_menu(anims, action)
+                            else:
+                                self.base.game_instance['item_menu_np'].item_menu_ui.hide()
+                                self.base.game_instance['item_menu_np'].clear_item_menu()
+                    else:
+                        taskMgr.add(self.seq_pick_item_wrapper_task,
+                                    "seq_pick_item_wrapper_task",
+                                    extraArgs=[player, anims, action, "Korlan:RightHand"],
+                                    appendTask=True),
 
                     if (base.player_states['is_using'] is False
                             and crouched_to_standing.is_playing() is False
@@ -306,18 +307,19 @@ class PlayerActions:
                     base.player_states['is_idle'] = False
 
                     # Show item menu here
-                    if self.base.game_instance['item_menu_np'].item_menu_ui:
-                        if self.base.game_instance['item_menu_np'].item_menu_ui.is_hidden():
-                            self.base.game_instance['item_menu_np'].item_menu_ui.show()
-                            self.base.game_instance['item_menu_np'].set_item_menu()
-                        else:
-                            self.base.game_instance['item_menu_np'].item_menu_ui.hide()
-                            self.base.game_instance['item_menu_np'].clear_item_menu()
-
-                    taskMgr.add(self.seq_drop_item_wrapper_task,
-                                "seq_drop_item_wrapper_task",
-                                extraArgs=[player, anims, action],
-                                appendTask=True),
+                    if player.get_python_tag("is_close_to_use_item"):
+                        if self.base.game_instance['item_menu_np'].item_menu_ui:
+                            if self.base.game_instance['item_menu_np'].item_menu_ui.is_hidden():
+                                self.base.game_instance['item_menu_np'].item_menu_ui.show()
+                                self.base.game_instance['item_menu_np'].set_item_menu(anims, action)
+                            else:
+                                self.base.game_instance['item_menu_np'].item_menu_ui.hide()
+                                self.base.game_instance['item_menu_np'].clear_item_menu()
+                    else:
+                        taskMgr.add(self.seq_drop_item_wrapper_task,
+                                    "seq_drop_item_wrapper_task",
+                                    extraArgs=[player, anims, action],
+                                    appendTask=True),
 
                     if (base.player_states['is_using'] is False
                             and crouched_to_standing.is_playing() is False
