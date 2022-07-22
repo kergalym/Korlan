@@ -81,7 +81,7 @@ class Sheet(Inventory):
         self.base.frame_journal.hide()
 
         ui_geoms = base.ui_geom_collector()
-        maps = base.loader.loadModel(ui_geoms['btn_t_close_icon'])
+        maps = base.loader.load_model(ui_geoms['btn_t_close_icon'])
         geoms = (maps.find('**/button_close_ready'),
                  maps.find('**/button_close_clicked'),
                  maps.find('**/button_close_rollover'))
@@ -111,17 +111,17 @@ class Sheet(Inventory):
                                               parent=self.base.frame_journal)
 
         # quest selector geoms
-        q_maps_scrolled_dbtn = base.loader.loadModel(ui_geoms['btn_t_icon'])
+        q_maps_scrolled_dbtn = base.loader.load_model(ui_geoms['btn_t_icon'])
         q_geoms_scrolled_dbtn = (q_maps_scrolled_dbtn.find('**/button_any'),
                                  q_maps_scrolled_dbtn.find('**/button_pressed'),
                                  q_maps_scrolled_dbtn.find('**/button_rollover'))
 
-        q_maps_scrolled_dec = base.loader.loadModel(ui_geoms['btn_t_icon_dec'])
+        q_maps_scrolled_dec = base.loader.load_model(ui_geoms['btn_t_icon_dec'])
         q_geoms_scrolled_dec = (q_maps_scrolled_dec.find('**/button_any_dec'),
                                 q_maps_scrolled_dec.find('**/button_pressed_dec'),
                                 q_maps_scrolled_dec.find('**/button_rollover_dec'))
 
-        q_maps_scrolled_inc = base.loader.loadModel(ui_geoms['btn_t_icon_inc'])
+        q_maps_scrolled_inc = base.loader.load_model(ui_geoms['btn_t_icon_inc'])
         q_geoms_scrolled_inc = (q_maps_scrolled_inc.find('**/button_any_inc'),
                                 q_maps_scrolled_inc.find('**/button_pressed_inc'),
                                 q_maps_scrolled_inc.find('**/button_rollover_inc'))
@@ -129,13 +129,13 @@ class Sheet(Inventory):
         q_maps_scrolled_inc.set_transparency(TransparencyAttrib.MAlpha)
 
         # inventory & journal geoms
-        inv_maps_scrolled_dec = base.loader.loadModel(ui_geoms['btn_inv_icon_dec'])
+        inv_maps_scrolled_dec = base.loader.load_model(ui_geoms['btn_inv_icon_dec'])
         inv_geoms_scrolled_dec = (inv_maps_scrolled_dec.find('**/button_any_dec'),
                                   inv_maps_scrolled_dec.find('**/button_pressed_dec'),
                                   inv_maps_scrolled_dec.find('**/button_rollover_dec'),
                                   inv_maps_scrolled_dec.find('**/button_disabled_dec'))
 
-        inv_maps_scrolled_inc = base.loader.loadModel(ui_geoms['btn_inv_icon_inc'])
+        inv_maps_scrolled_inc = base.loader.load_model(ui_geoms['btn_inv_icon_inc'])
         inv_geoms_scrolled_inc = (inv_maps_scrolled_inc.find('**/button_any_inc'),
                                   inv_maps_scrolled_inc.find('**/button_pressed_inc'),
                                   inv_maps_scrolled_inc.find('**/button_rollover_inc'),

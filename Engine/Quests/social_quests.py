@@ -25,18 +25,26 @@ class SocialQuests:
         self.trig_range = [0.0, 0.5]
         self.item_range = [0.0, 0.7]
 
+        # Items lists and boolean
+        self._is_items_info_collected = False
+        self._usable_items = []
+        self._usable_item_pos = []
+        self._usable_item_hpr = []
+        self._last_used_items = None
+
     def set_level_triggers(self, scene, task):
         if (self.base.game_instance['scene_is_loaded']
                 and self.base.game_instance['player_actions_init_is_activated'] == 1
                 and self.base.game_instance['physics_is_activated'] == 1
                 and self.base.game_instance['ai_is_activated'] == 1):
             self.player = self.base.game_instance["player_ref"]
-            self.player_bs = render.find("**/{0}".format(self.player.get_name()))
+            self.player_bs = self.base.game_instance["player_np"]
             self.player_name = self.player_bs.get_name()
 
-            # Add item triggers
-            taskMgr.add(self.set_item_trigger,
-                        "set_item_trigger")
+            # Add round table trigger.
+            # We take list of usable items as children of round table node
+            taskMgr.add(self.round_table_trigger_task,
+                        "round_table_trigger_task")
 
             # Add quest triggers
             taskMgr.add(self.set_quest_trigger,
@@ -270,21 +278,9 @@ class SocialQuests:
                 world_np = self.render.find("**/World")
                 ph_world = self.base.game_instance["physics_world_np"]
                 radius = 0.3
-
                 for name in self.player.get_python_tag("usable_item_list")["name"]:
                     actor = render.find("**/{0}".format(name))
                     if actor:
-
-                        # Set item collider
-                        """sphere = BulletSphereShape(0.2)
-                        item_bs = BulletRigidBodyNode('{0}:BS'.format(actor.get_name()))
-                        item_bs_np = actor.attach_new_node(item_bs)
-                        item_bs.set_mass(2.0)
-                        item_bs.add_shape(sphere)
-                        item_bs.set_into_collide_mask(BitMask32.allOn())
-                        ph_world.attach(item_bs)
-                        item_bs_np.reparent_to(actor)"""
-
                         # Set item trigger
                         sphere = BulletSphereShape(radius)
                         trigger_bg = BulletGhostNode('{0}_trigger'.format(actor.get_name()))
@@ -294,8 +290,6 @@ class SocialQuests:
                         ph_world.attach_ghost(trigger_bg)
                         trigger_np.reparent_to(actor)
                         trigger_np.set_pos(0, 0, 1)
-
-                        self._set_dimensional_text(txt_cap="txt_use", obj=trigger_np)
 
                         taskMgr.add(self.item_trigger_task,
                                     "{0}_trigger_task".format(actor.get_name()),
@@ -542,6 +536,80 @@ class SocialQuests:
             player.set_python_tag("is_item_ready", True)
             item_prop = self.base.game_instance['item_state']
             player.set_python_tag("current_item_prop", item_prop)
+
+    def _construct_usable_item_list(self, round_table):
+        if round_table:
+            for child in round_table.get_children():
+                usable_item_list = self.player.get_python_tag("usable_item_list")
+                name = child.get_name()
+                # Exclude round table itself
+                if round_table.get_name() not in name:
+                    # Check if we didn't get any items yet which are same as we got
+                    # when we come close to round table
+                    if self._is_items_info_collected and len(usable_item_list["name"]) > 0:
+                        if self._usable_items != self._last_used_items:
+                            if self._is_items_info_collected:
+                                # clean item lists first
+                                if len(self._usable_items) > 0:
+                                    self._usable_items = []
+                                elif len(self._usable_item_pos) > 0:
+                                    self._usable_item_pos = []
+                                elif len(self._usable_item_hpr) > 0:
+                                    self._usable_item_hpr = []
+
+                                for i in range(len(usable_item_list["name"])-1):
+                                    if name not in usable_item_list["name"][i]:
+                                        # Eclude nodes with empty names
+                                        if child.get_name():
+                                            self._usable_items.append(name)
+                                            self._usable_item_pos.append(child.get_pos())
+                                            self._usable_item_hpr.append(child.get_hpr())
+
+                                self._is_items_info_collected = False
+                    else:
+                        if not self._is_items_info_collected:
+                            # Exclude nodes with empty names
+                            if child.get_name():
+                                # we didn't get any items yet for the first time, so, get the data about them
+                                self._usable_items.append(name)
+                                self._usable_item_pos.append(child.get_pos())
+                                self._usable_item_hpr.append(child.get_hpr())
+                                self._last_used_items = self._usable_items
+
+            # Construct usable items list after they were collected
+            if not self._is_items_info_collected:
+                usable_item_list = {
+                    "name": self._usable_items,
+                    "pos": self._usable_item_pos,
+                    "hpr": self._usable_item_hpr
+                }
+
+                # print(usable_item_list["name"], len(usable_item_list["name"]))
+                self.player.set_python_tag("usable_item_list", usable_item_list)
+
+                # Add item triggers
+                taskMgr.add(self.set_item_trigger,
+                            "set_item_trigger")
+
+                self._is_items_info_collected = True
+
+    def round_table_trigger_task(self, task):
+        if self.base.game_instance['menu_mode']:
+            return task.done
+
+        if self.base.game_instance["loading_is_done"] == 1:
+            if not self.player.get_python_tag("is_on_horse"):
+                player_cam_trigger_np = self.player_bs.find("**/player_cam_trigger")
+                if player_cam_trigger_np:
+                    for trigger_node in player_cam_trigger_np.node().get_overlapping_nodes():
+                        if "indoor_empty_trigger" in trigger_node.get_name():
+                            round_table = render.find("**/round_table")
+                            if round_table:
+                                for node in trigger_node.get_overlapping_nodes():
+                                    if self.player_name in node.get_name():
+                                        if round(self.player_bs.get_distance(round_table)) < 2:
+                                            self._construct_usable_item_list(round_table)
+        return task.cont
 
     def item_trigger_task(self, trigger_np, actor, task):
         if self.base.game_instance['menu_mode']:

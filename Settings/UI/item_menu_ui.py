@@ -9,6 +9,7 @@ from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import TransparencyAttrib, TextNode, FontPool, Point3, Vec3
 from direct.gui.DirectGui import DirectWaitBar
 from direct.gui.DirectGui import DirectFrame
+from Engine.Renderer.rpcore import PointLight as RP_PointLight
 
 
 class ItemMenu:
@@ -41,19 +42,26 @@ class ItemMenu:
         self.text = TextNode("TextNode")
 
         ui_geoms = base.ui_geom_collector()
-        maps = base.loader.loadModel(ui_geoms['btn_t_close_icon'])
-        geoms = (maps.find('**/button_close_ready'),
-                 maps.find('**/button_close_clicked'),
-                 maps.find('**/button_close_rollover'))
+
+        close_btn_maps = base.loader.load_model(ui_geoms['btn_t_close_icon'])
+        close_btn_geoms = (close_btn_maps.find('**/button_close_ready'),
+                           close_btn_maps.find('**/button_close_clicked'),
+                           close_btn_maps.find('**/button_close_rollover'))
+
+        select_btn_maps = base.loader.load_model(ui_geoms['btn_t_select_icon'])
+        select_btn_geoms = (select_btn_maps.find('**/button_select_ready'),
+                            select_btn_maps.find('**/button_select_clicked'),
+                            select_btn_maps.find('**/button_select_rollover'))
+
         sounds = self.base.sounds_collector()
         self.sound_gui_click = self.base.loader.load_sfx(sounds.get('zapsplat_button_click'))
 
         self.btn_close = DirectButton(text="",
                                       text_fg=(255, 255, 255, 0.9),
                                       text_font=self.font.load_font(self.menu_font),
-                                      frameColor=(0, 0, 0, self.frm_opacity),
+                                      frameColor=(0, 0, 0, 0),
                                       scale=self.btn_scale, borderWidth=(0, 0),
-                                      geom=geoms, geom_scale=(0.13, 0, 0.16),
+                                      geom=close_btn_geoms, geom_scale=(0.13, 0, 0.16),
                                       clickSound=self.sound_gui_click,
                                       command=self.clear_item_menu,
                                       pos=(-1.8, 0, 0.9),
@@ -62,29 +70,29 @@ class ItemMenu:
         self.btn_select = DirectButton(text="",
                                        text_fg=(255, 255, 255, 0.9),
                                        text_font=self.font.load_font(self.menu_font),
-                                       frameColor=(0, 0, 0, self.frm_opacity),
-                                       scale=self.btn_scale, borderWidth=(0, 0),
-                                       geom=geoms, geom_scale=(0.13, 0, 0.16),
+                                       frameColor=(0, 0, 0, 0),
+                                       scale=0.05, borderWidth=(0, 0),
+                                       geom=select_btn_geoms, geom_scale=(0.13, 0, 0.16),
                                        clickSound=self.sound_gui_click,
                                        command=self._select_item,
                                        pos=(0, 0, -0.7),
                                        parent=self.item_menu_ui)
 
         # quest selector geoms
-        q_maps_scrolled_dec = base.loader.loadModel(ui_geoms['btn_t_icon_dec'])
+        q_maps_scrolled_dec = base.loader.load_model(ui_geoms['btn_t_icon_dec'])
 
-        q_maps_scrolled_inc = base.loader.loadModel(ui_geoms['btn_t_icon_inc'])
+        q_maps_scrolled_inc = base.loader.load_model(ui_geoms['btn_t_icon_inc'])
         q_maps_scrolled_dec.set_transparency(TransparencyAttrib.MAlpha)
         q_maps_scrolled_inc.set_transparency(TransparencyAttrib.MAlpha)
 
         # inventory & journal geoms
-        iui_maps_scrolled_dec = base.loader.loadModel(ui_geoms['btn_inv_icon_dec'])
+        iui_maps_scrolled_dec = base.loader.load_model(ui_geoms['btn_inv_icon_dec'])
         iui_geoms_scrolled_dec = (iui_maps_scrolled_dec.find('**/button_any_dec'),
                                   iui_maps_scrolled_dec.find('**/button_pressed_dec'),
                                   iui_maps_scrolled_dec.find('**/button_rollover_dec'),
                                   iui_maps_scrolled_dec.find('**/button_disabled_dec'))
 
-        iui_maps_scrolled_inc = base.loader.loadModel(ui_geoms['btn_inv_icon_inc'])
+        iui_maps_scrolled_inc = base.loader.load_model(ui_geoms['btn_inv_icon_inc'])
         iui_geoms_scrolled_inc = (iui_maps_scrolled_inc.find('**/button_any_inc'),
                                   iui_maps_scrolled_inc.find('**/button_pressed_inc'),
                                   iui_maps_scrolled_inc.find('**/button_rollover_inc'),
@@ -95,7 +103,7 @@ class ItemMenu:
         self.btn_select_dec = DirectButton(text="<|",
                                            text_fg=(0.7, 0.7, 0.7, 1),
                                            text_font=self.font.load_font(self.menu_font),
-                                           frameColor=(0, 0, 0, 1),
+                                           frameColor=(0, 0, 0, 0),
                                            scale=.03, borderWidth=(0, 0),
                                            geom=iui_geoms_scrolled_dec, geom_scale=(15.3, 0, 2),
                                            hpr=(0, 0, -90),
@@ -106,7 +114,7 @@ class ItemMenu:
         self.btn_select_inc = DirectButton(text="|>",
                                            text_fg=(0.7, 0.7, 0.7, 1),
                                            text_font=self.font.load_font(self.menu_font),
-                                           frameColor=(0, 0, 0, 1),
+                                           frameColor=(0, 0, 0, 0),
                                            scale=.03, borderWidth=(0, 0),
                                            geom=iui_geoms_scrolled_inc, geom_scale=(15.3, 0, 2),
                                            hpr=(0, 0, -90),
@@ -115,12 +123,9 @@ class ItemMenu:
                                            pos=(1.2, 0, -0.5),
                                            parent=self.item_menu_ui)
 
-        self.btn_select_inc.set_transparency(True)
-        self.btn_select_dec.set_transparency(True)
-
         self.close_y = -0.0
         self.def_y = self.base.game_instance["mouse_y_cam"]
-        self.def_y_indoor = self.close_y
+        self.def_y_indoor = -2.0
 
         self.active_item_materials = {}
         self.active_item_textures = {}
@@ -129,10 +134,11 @@ class ItemMenu:
         self.active_item = None
         self.usable_item_list_count = 0
         self.usable_item_list_indices = 0
-        self.pivot_pos = Vec3(0)
-        self.pivot_hpr = Vec3(0)
         self.anims = None
         self.current_action = None
+        self.current_light = None
+        self.light_energy = 30
+        self.light_color = (0.030531512498855596, 0.004492279797792435, 0.000447507366538048)
 
     def _interpolate_to(self, target, start):
         LerpPosInterval(self.base.camera,
@@ -144,29 +150,42 @@ class ItemMenu:
         if not self.base.game_instance["item_menu_mode"]:
             if self.base.game_instance["is_indoor"]:
                 self._interpolate_to(target=(-0.1, self.close_y, -0.7), start=(0, self.def_y_indoor, 0))
-
-            self._interpolate_to(target=(-0.1, self.close_y, -0.7), start=(0, self.def_y, 0))
+            elif not self.base.game_instance["is_indoor"]:
+                self._interpolate_to(target=(-0.1, self.close_y, -0.7), start=(0, self.def_y, 0))
 
             pivot = render.find("**/pivot")
             if pivot:
-                pivot.set_pos(0.1, 0.3, 1.1)
+                pivot.set_pos(-0.1, 0.3, 1.1)
                 pivot.set_hpr(180, -41.4, 0)
 
     def _camera_zoom_out(self):
         if self.base.game_instance["item_menu_mode"]:
             if self.base.game_instance["is_indoor"]:
                 self._interpolate_to(target=(0, self.def_y_indoor, 0), start=(-0.1, self.close_y, -0.7))
-
-            self._interpolate_to(target=(0, self.def_y, 0), start=(-0.1, self.close_y, -0.7))
+            elif not self.base.game_instance["is_indoor"]:
+                self._interpolate_to(target=(0, self.def_y, 0), start=(-0.1, self.close_y, -0.7))
 
             pivot = render.find("**/pivot")
             if pivot:
-                pivot.set_pos(self.pivot_pos)
-                pivot.set_hpr(self.pivot_hpr)
+                pivot.set_pos(0, 0, 0.5)
+                pivot.set_hpr(0, 0, 0)
+
+    def _set_item_lighting(self, item_np, pos, player):
+        if item_np and pos and player:
+            world_pos = render.get_relative_point(item_np.get_parent(), pos)
+            self.current_light = RP_PointLight()
+            self.current_light.pos = (world_pos[0], world_pos[1], 0.6)
+            self.current_light.color = self.light_color
+            self.current_light.energy = self.light_energy
+            self.current_light.ies_profile = self.base.game_instance["renderpipeline_np"].load_ies_profile("pear.ies")
+            self.current_light.casts_shadows = True
+            self.current_light.shadow_map_resolution = 512
+            self.current_light.near_plane = 0.2
+            self.current_light.radius = 0.38
+            self.base.game_instance["renderpipeline_np"].add_light(self.current_light)
 
     def _decrement_carousel_item(self):
         player = self.base.game_instance["player_ref"]
-        rp = self.base.game_instance["renderpipeline_np"]
 
         # Step backward to the next item
         if (self.current_indices_offset > 0
@@ -179,40 +198,15 @@ class ItemMenu:
 
             nodepath = render.find("**/{0}".format(name))
             if nodepath:
-                self._collect_item_materials(nodepath)
-                self._collect_item_textures(nodepath)
-                rp.set_effect(nodepath,
-                              "{0}/Engine/Renderer/effects/enable_item_highlight.yaml".format(
-                                  self.game_dir),
-                              {})
+                pos = nodepath.get_pos()
+                world_pos = render.get_relative_point(nodepath.get_parent(), pos)
+                self.current_light.pos = (world_pos[0], world_pos[1], 0.6)
                 self.active_item = nodepath
-
-            # Disable highlighting for the previous item
-            if (self.current_indices_offset + 1) < self.usable_item_list_count:
-                name = items[self.current_indices_offset + 1]
-                nodepath = render.find("**/{0}".format(name))
-                if nodepath:
-                    self._collect_item_materials(nodepath)
-                    self._collect_item_textures(nodepath)
-                    rp.set_effect(nodepath,
-                                  "{0}/Engine/Renderer/effects/disable_item_highlight.yaml".format(
-                                      self.game_dir),
-                                  {})
-                    if self.active_item_materials.get(name):
-                        for mat in self.active_item_materials[name]:
-                            nodepath.set_material(mat)
-                            nodepath.set_shader_input('baseColor', Vec3(1, 1, 1))
-                            nodepath.set_shader_input('specularIor', 0.5)
-
-                    if self.active_item_textures.get(name):
-                        for tex in self.active_item_textures[name]:
-                            nodepath.set_shader_input('itemTex', tex)
 
         # self.btn_select_dec["state"] = DGG.DISABLED
 
     def _increment_carousel_item(self):
         player = self.base.game_instance["player_ref"]
-        rp = self.base.game_instance["renderpipeline_np"]
 
         # Step forward to the next item
         if self.current_indices_offset < self.usable_item_list_indices:
@@ -221,42 +215,20 @@ class ItemMenu:
             # Enable highlighting for the next item
             items = player.get_python_tag("usable_item_list")["name"]
             name = items[self.current_indices_offset]
+
             nodepath = render.find("**/{0}".format(name))
             if nodepath:
-                self._collect_item_materials(nodepath)
-                self._collect_item_textures(nodepath)
-                rp.set_effect(nodepath,
-                              "{0}/Engine/Renderer/effects/enable_item_highlight.yaml".format(
-                                  self.game_dir),
-                              {})
+                pos = nodepath.get_pos()
+                world_pos = render.get_relative_point(nodepath.get_parent(), pos)
+                self.current_light.pos = (world_pos[0], world_pos[1], 0.6)
                 self.active_item = nodepath
-
-            # Disable highlighting for the previous item
-            if (self.current_indices_offset - 1) > 0:
-                name = items[self.current_indices_offset - 1]
-                nodepath = render.find("**/{0}".format(name))
-                if nodepath:
-                    self._collect_item_materials(nodepath)
-                    self._collect_item_textures(nodepath)
-                    rp.set_effect(nodepath,
-                                  "{0}/Engine/Renderer/effects/disable_item_highlight.yaml".format(
-                                      self.game_dir),
-                                  {})
-                    if self.active_item_materials.get(name):
-                        for mat in self.active_item_materials[name]:
-                            nodepath.set_material(mat)
-                            nodepath.set_shader_input('baseColor', Vec3(1, 1, 1))
-                            nodepath.set_shader_input('specularIor', 0.5)
-
-                    if self.active_item_textures.get(name):
-                        for tex in self.active_item_textures[name]:
-                            nodepath.set_shader_input('itemTex', tex)
 
         # self.btn_select_inc["state"] = DGG.DISABLED
 
     def _select_item(self):
         player = self.base.game_instance["player_ref"]
-        player.set_python_tag("used_item_np", self.active_item)
+        if not player.get_python_tag("used_item_np"):
+            player.set_python_tag("used_item_np", self.active_item)
 
     def set_item_menu(self, anims, action):
         # Keep anims list and action
@@ -278,11 +250,10 @@ class ItemMenu:
         self.current_indices_offset = self.usable_item_list_count - 1
         self.usable_item_list_indices = self.usable_item_list_count - 1
 
-        # Keep pivot properties
-        pivot = render.find("**/pivot")
-        if pivot:
-            self.pivot_pos = pivot.get_pos()
-            self.pivot_hpr = pivot.get_hpr()
+        # Highlight the last item
+        name = player.get_python_tag("usable_item_list")["name"][self.usable_item_list_indices]
+        item_np = render.find("**/{0}".format(name))
+        self._set_item_lighting(item_np, item_np.get_pos(), player)
 
     def clear_item_menu(self):
         # Zoom out the camera and hide item menu
@@ -296,72 +267,52 @@ class ItemMenu:
         player = self.base.game_instance["player_ref"]
         player.show()
 
-        # Restore original material properties of the item. Stop highlighting
-        item_np = player.get_python_tag("used_item_np")
-        rp = self.base.game_instance["renderpipeline_np"]
-        for name in player.get_python_tag("usable_item_list")["name"]:
-            nodepath = render.find("**/{0}".format(name))
-            if nodepath and item_np:
-                if nodepath.get_name() == item_np.get_name():
+        # Turn light off
+        if self.current_light:
+            self.base.game_instance["renderpipeline_np"].remove_light(self.current_light)
 
-                    rp.set_effect(nodepath,
-                                  "{0}/Engine/Renderer/effects/disable_item_highlight.yaml".format(
-                                      self.game_dir),
-                                  {})
+        if player.get_python_tag("used_item_np"):
+            player.set_python_tag("is_item_ready", True)
+        elif not player.get_python_tag("used_item_np"):
+            player.set_python_tag("is_item_ready", False)
 
-                    name = item_np.get_name()
-                    if self.active_item_materials.get(name):
-                        for mat in self.active_item_materials[name]:
-                            # item_np.set_material(mat)
-                            nodepath.set_shader_input('baseColor', Vec3(1, 1, 1))
-                            nodepath.set_shader_input('specularIor', 0.5)
+        # Pickup or drop the item from this menu
+        if player.get_python_tag("is_item_ready"):
+            if self.anims and self.current_action:
+                player_actions_cls = self.base.game_instance["player_actions_cls"]
+                player_state_cls = self.base.game_instance['player_state_cls']
 
-                    if self.active_item_textures.get(name):
-                        for tex in self.active_item_textures[name]:
-                            nodepath.set_shader_input('itemTex', tex)
+                if (not player.get_python_tag("is_item_using")
+                        and player.get_python_tag("is_close_to_use_item")):
+                    taskMgr.add(player_actions_cls.seq_pick_item_wrapper_task,
+                                "seq_pick_item_wrapper_task",
+                                extraArgs=[player, self.anims,
+                                           self.current_action,
+                                           "Korlan:RightHand"],
+                                appendTask=True),
+                    any_action_seq = player.actor_interval(self.anims[self.current_action],
+                                                           playRate=self.base.actor_play_rate)
+                    Sequence(Func(player_state_cls.set_action_state, "is_using", True),
+                             any_action_seq,
+                             Func(taskMgr.remove, "seq_pick_item_wrapper_task"),
+                             Func(player_state_cls.set_action_state, "is_using", False),
+                             Func(player_state_cls.set_do_once_key, "use", False),
+                             ).start()
 
-        # Keep pivot properties
-        pivot = render.find("**/pivot")
-        if pivot:
-            pivot.set_pos(self.pivot_pos)
-            pivot.set_hpr(self.pivot_hpr)
-
-        player.set_python_tag("is_item_ready", True)
-
-        if self.anims and self.current_action:
-            # Pickup or drop the item from this menu
-            player_actions_cls = self.base.game_instance["player_actions_cls"]
-            player_state_cls = self.base.game_instance['player_state_cls']
-            if (not player.get_python_tag("is_item_using")
-                    and player.get_python_tag("is_close_to_use_item")):
-                taskMgr.add(player_actions_cls.seq_pick_item_wrapper_task,
-                            "seq_pick_item_wrapper_task",
-                            extraArgs=[player, self.anims,
-                                       self.current_action,
-                                       "Korlan:RightHand"],
-                            appendTask=True),
-                any_action_seq = player.actor_interval(self.anims[self.current_action],
-                                                       playRate=self.base.actor_play_rate)
-                Sequence(Func(player_state_cls.set_action_state, "is_using", True),
-                         any_action_seq,
-                         Func(taskMgr.remove, "seq_pick_item_wrapper_task"),
-                         Func(player_state_cls.set_action_state, "is_using", False),
-                         Func(player_state_cls.set_do_once_key, "use", False),
-                         ).start()
-            elif (player.get_python_tag("is_item_using")
-                  and player.get_python_tag("is_close_to_use_iem")):
-                taskMgr.add(player_actions_cls.seq_drop_item_wrapper_task,
-                            "seq_drop_item_wrapper_task",
-                            extraArgs=[player, self.anims, self.current_action],
-                            appendTask=True),
-                any_action_seq = player.actor_interval(self.anims[self.current_action],
-                                                       playRate=self.base.actor_play_rate)
-                Sequence(Func(player_state_cls.set_action_state, "is_using", True),
-                         any_action_seq,
-                         Func(taskMgr.remove, "seq_drop_item_wrapper"),
-                         Func(player_state_cls.set_action_state, "is_using", False),
-                         Func(player_state_cls.set_do_once_key, "use", False),
-                         ).start()
+                elif (player.get_python_tag("is_item_using")
+                      and player.get_python_tag("is_close_to_use_iem")):
+                    taskMgr.add(player_actions_cls.seq_drop_item_wrapper_task,
+                                "seq_drop_item_wrapper_task",
+                                extraArgs=[player, self.anims, self.current_action],
+                                appendTask=True),
+                    any_action_seq = player.actor_interval(self.anims[self.current_action],
+                                                           playRate=self.base.actor_play_rate)
+                    Sequence(Func(player_state_cls.set_action_state, "is_using", True),
+                             any_action_seq,
+                             Func(taskMgr.remove, "seq_drop_item_wrapper"),
+                             Func(player_state_cls.set_action_state, "is_using", False),
+                             Func(player_state_cls.set_do_once_key, "use", False),
+                             ).start()
 
     def _collect_item_materials(self, item_np):
         if item_np:

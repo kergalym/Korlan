@@ -261,10 +261,10 @@ class RenderAttr:
 
                     if adv_render:
                         self.base.game_instance["renderpipeline_np"].set_effect(node_path,
-                                                                                "{0}/Engine/Renderer/effects/flame_emission.yaml".format(
+                                                                                "{0}/Engine/Renderer/effects/flame.yaml".format(
                                                                                     self.game_dir),
-                                                                                {"render_gbuffer": True,
-                                                                                 "render_forward": False,
+                                                                                {"render_gbuffer": False,
+                                                                                 "render_forward": True,
                                                                                  "render_shadow": False,
                                                                                  "alpha_testing": True,
                                                                                  "normal_mapping": False})
