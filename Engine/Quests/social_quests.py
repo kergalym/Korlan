@@ -586,6 +586,7 @@ class SocialQuests:
 
                 # print(usable_item_list["name"], len(usable_item_list["name"]))
                 self.player.set_python_tag("usable_item_list", usable_item_list)
+                self.base.game_instance["round_table_np"] = round_table
 
                 # Add item triggers
                 taskMgr.add(self.set_item_trigger,

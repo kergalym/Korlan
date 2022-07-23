@@ -132,6 +132,10 @@ class ItemMenu:
 
         self.current_indices_offset = 0
         self.active_item = None
+        self.active_item_text = None
+        self.active_item_text_scale = 0.08
+        self.active_item_text_pos = (0, -0.55)
+        self.active_item_text_color = (255, 255, 255, 0.9)
         self.usable_item_list_count = 0
         self.usable_item_list_indices = 0
         self.anims = None
@@ -181,7 +185,7 @@ class ItemMenu:
             self.current_light.casts_shadows = True
             self.current_light.shadow_map_resolution = 512
             self.current_light.near_plane = 0.2
-            self.current_light.radius = 0.38
+            self.current_light.radius = 0.41
             self.base.game_instance["renderpipeline_np"].add_light(self.current_light)
 
     def _decrement_carousel_item(self):
@@ -203,6 +207,12 @@ class ItemMenu:
                 self.current_light.pos = (world_pos[0], world_pos[1], 0.6)
                 self.active_item = nodepath
 
+                # Change item name
+                if self.active_item_text:
+                    self.active_item_text.setText("")
+                    name = self._construct_item_name(name)
+                    self.active_item_text.setText(name)
+
         # self.btn_select_dec["state"] = DGG.DISABLED
 
     def _increment_carousel_item(self):
@@ -223,12 +233,32 @@ class ItemMenu:
                 self.current_light.pos = (world_pos[0], world_pos[1], 0.6)
                 self.active_item = nodepath
 
+                # Change item name
+                if self.active_item_text:
+                    self.active_item_text.setText("")
+                    name = self._construct_item_name(name)
+                    self.active_item_text.setText(name)
+
         # self.btn_select_inc["state"] = DGG.DISABLED
 
     def _select_item(self):
         player = self.base.game_instance["player_ref"]
         if not player.get_python_tag("used_item_np"):
             player.set_python_tag("used_item_np", self.active_item)
+
+    def _construct_item_name(self, name):
+        if name:
+            name = name.capitalize()
+            if "." in name:
+                name = name.replace(".", " ")
+            if "000" in name:
+                name = name.replace(" 000", "")
+            if "00" in name:
+                name = name.replace(" 00", " ")
+            if "0" in name:
+                name = name.replace(" 0", " ")
+
+            return name
 
     def set_item_menu(self, anims, action):
         # Keep anims list and action
@@ -255,6 +285,28 @@ class ItemMenu:
         item_np = render.find("**/{0}".format(name))
         self._set_item_lighting(item_np, item_np.get_pos(), player)
 
+        # Set text
+        if not self.active_item_text:
+            name = self._construct_item_name(name)
+            self.active_item_text = OnscreenText(text="{0}".format(name),
+                                                 pos=self.active_item_text_pos,
+                                                 scale=self.active_item_text_scale,
+                                                 fg=self.active_item_text_color,
+                                                 font=self.font.load_font(self.menu_font),
+                                                 align=TextNode.A_center,
+                                                 mayChange=True)
+
+        # Set player close to round table with predefined position
+        if self.base.game_instance["round_table_np"]:
+            round_table = self.base.game_instance["round_table_np"]
+            world_pos = render.get_relative_point(round_table.get_parent(), round_table.get_pos())
+            margin_x = world_pos[0] - 0.6
+            margin_y = world_pos[1] - 0.6
+            self.base.game_instance["player_np"].set_x(margin_x)
+            self.base.game_instance["player_np"].set_y(margin_y)
+            self.base.game_instance["player_np"].look_at(round_table.get_pos())
+            self.base.game_instance["player_np"].set_h(138)
+
     def clear_item_menu(self):
         # Zoom out the camera and hide item menu
         self.item_menu_ui.hide()
@@ -270,6 +322,11 @@ class ItemMenu:
         # Turn light off
         if self.current_light:
             self.base.game_instance["renderpipeline_np"].remove_light(self.current_light)
+
+        # Remove text
+        if self.active_item_text:
+            self.active_item_text.setText("")
+            self.active_item_text.destroy()
 
         if player.get_python_tag("used_item_np"):
             player.set_python_tag("is_item_ready", True)
@@ -313,27 +370,3 @@ class ItemMenu:
                              Func(player_state_cls.set_action_state, "is_using", False),
                              Func(player_state_cls.set_do_once_key, "use", False),
                              ).start()
-
-    def _collect_item_materials(self, item_np):
-        if item_np:
-            materials = []
-
-            for mat in item_np.find_all_materials():
-                materials.append(mat)
-
-            name = item_np.get_name()
-            self.active_item_materials[name] = materials
-
-            return self.active_item_materials
-
-    def _collect_item_textures(self, item_np):
-        if item_np:
-            textures = []
-
-            for tex in item_np.find_all_textures():
-                textures.append(tex)
-
-            name = item_np.get_name()
-            self.active_item_textures[name] = textures
-
-            return self.active_item_textures

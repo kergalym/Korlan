@@ -331,6 +331,7 @@ class Main(ShowBase):
             },
             "rp_lights": rp_lights,
             "scene_np": None,
+            "round_table_np": None,
             "player_controller_np": None,
             "player_np": None,
             "player_np_mask": None,

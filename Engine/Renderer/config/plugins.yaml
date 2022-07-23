@@ -50,7 +50,7 @@ overrides:
   clouds:
     raymarch_steps: 160
   color_correction:
-    brightness_adaption_rate: 3.6
+    brightness_adaption_rate: 4.6
     chromatic_aberration_samples: 2
     chromatic_aberration_strength: 0.019
     color_lut: film_luts/default_lut.png
@@ -72,7 +72,7 @@ overrides:
     uc2t_toe_denumerator: 0.2787
     uc2t_toe_numerator: 0.0029
     uc2t_toe_strength: 0.3919
-    use_chromatic_aberration: true
+    use_chromatic_aberration: false
     use_sharpen: true
     vignette_strength: 0.1286
   dof:
