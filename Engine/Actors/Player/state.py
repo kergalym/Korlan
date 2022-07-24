@@ -355,7 +355,8 @@ class PlayerState:
                 # Hide txt cap while item is in use
                 item_trigger = item.find("**/{0}_trigger".format(item.get_name()))
                 txt_cap = item_trigger.find("**/txt_use")
-                txt_cap.hide()
+                if txt_cap:
+                    txt_cap.hide()
 
                 item.wrt_reparent_to(exposed_joint)
 

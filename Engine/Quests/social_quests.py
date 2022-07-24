@@ -291,6 +291,8 @@ class SocialQuests:
                         trigger_np.reparent_to(actor)
                         trigger_np.set_pos(0, 0, 1)
 
+                        self._set_dimensional_text(txt_cap="txt_use", obj=trigger_np)
+
                         taskMgr.add(self.item_trigger_task,
                                     "{0}_trigger_task".format(actor.get_name()),
                                     extraArgs=[trigger_np, actor],
