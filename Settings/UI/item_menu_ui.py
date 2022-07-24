@@ -246,6 +246,9 @@ class ItemMenu:
         if not player.get_python_tag("used_item_np"):
             player.set_python_tag("used_item_np", self.active_item)
 
+            if self.base.game_instance['hud_np']:
+                self.base.game_instance['hud_np'].toggle_weapon_state(weapon_name="busy_hands")
+
     def _construct_item_name(self, name):
         if name:
             name = name.capitalize()
