@@ -389,6 +389,13 @@ class PlayerState:
                 if self.base.game_instance['hud_np']:
                     self.base.game_instance['hud_np'].toggle_weapon_state(weapon_name="busy_hands")
 
+                # Update usable items current count
+                if self.base.game_instance["is_indoor"]:
+                    name = item.get_name()
+                    for _name in player.get_python_tag("usable_item_list")["name"]:
+                        if _name == name:
+                            player.get_python_tag("usable_item_list")["name"].remove(name)
+
                 # TODO: Uncomment after pick_up_item() is debugged
                 """
                 add_item_to_inventory = self.base.shared_functions['add_item_to_inventory']
@@ -420,7 +427,7 @@ class PlayerState:
 
                 if hasattr(item, "get_python_tag"):
                     scale = item.get_python_tag("orig_scale")
-                    item.set_scale(scale)
+                    item.set_scale(1)
                     item.set_hpr(0, 0, 0)
 
                 # Put the item near player
@@ -441,4 +448,8 @@ class PlayerState:
                 if self.base.game_instance['hud_np']:
                     self.base.game_instance['hud_np'].toggle_weapon_state(weapon_name="hands")
 
+                # Update usable items current count
+                if self.base.game_instance["is_indoor"]:
+                    name = item.get_name()
+                    player.get_python_tag("usable_item_list")["name"].append(name)
 

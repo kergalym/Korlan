@@ -27,7 +27,7 @@ class PlayerActions:
     def seq_pick_item_wrapper_task(self, player, anims, action, joint_name, task):
         if player and anims and action and joint_name:
             if player.getCurrentFrame(action):
-                if (player.getCurrentFrame(action) > 70
+                if (player.getCurrentFrame(action) > 67
                         and player.getCurrentFrame(action) < 72):
                     self.state.pick_up_item(player, joint_name)
         return task.cont
@@ -35,10 +35,16 @@ class PlayerActions:
     def seq_drop_item_wrapper_task(self, player, anims, action, task):
         if player and anims and action:
             if player.getCurrentFrame(action):
-                if (player.getCurrentFrame(action) > 70
+                if (player.getCurrentFrame(action) > 67
                         and player.getCurrentFrame(action) < 72):
                     self.state.drop_item(player)
         return task.cont
+
+    def remove_seq_pick_item_wrapper_task(self):
+        taskMgr.remove("seq_pick_item_wrapper_task")
+
+    def remove_seq_drop_item_wrapper_task(self):
+        taskMgr.remove("seq_drop_item_wrapper_task")
 
     def seq_set_player_pos_wrapper(self, player, pos_y):
         if player and isinstance(pos_y, float):
@@ -259,8 +265,9 @@ class PlayerActions:
                 if not player.get_python_tag("is_item_using"):
                     base.player_states['is_idle'] = False
 
-                    # Show item menu here
+                    # Take item
                     if player.get_python_tag("is_close_to_use_item"):
+                        # Show item menu here if indoor
                         if self.base.game_instance["is_indoor"]:
                             if self.base.game_instance['item_menu_np'].item_menu_ui:
                                 if self.base.game_instance['item_menu_np'].item_menu_ui.is_hidden():
@@ -269,11 +276,12 @@ class PlayerActions:
                                 else:
                                     self.base.game_instance['item_menu_np'].item_menu_ui.hide()
                                     self.base.game_instance['item_menu_np'].clear_item_menu()
-                    else:
-                        taskMgr.add(self.seq_pick_item_wrapper_task,
-                                    "seq_pick_item_wrapper_task",
-                                    extraArgs=[player, anims, action, "Korlan:RightHand"],
-                                    appendTask=True),
+                        else:
+                            # just take item if not indoor
+                            taskMgr.add(self.seq_pick_item_wrapper_task,
+                                        "seq_pick_item_wrapper_task",
+                                        extraArgs=[player, anims, action, "Korlan:RightHand"],
+                                        appendTask=True)
 
                     if (base.player_states['is_using'] is False
                             and crouched_to_standing.is_playing() is False
@@ -287,7 +295,7 @@ class PlayerActions:
                         Sequence(crouch_to_stand_seq,
                                  Func(self.state.set_action_state, "is_using", True),
                                  any_action_seq,
-                                 Func(taskMgr.remove, "seq_pick_item_wrapper_task"),
+                                 Func(self.remove_seq_pick_item_wrapper_task),
                                  Func(self.state.set_action_state, "is_using", False),
                                  Func(self.state.set_do_once_key, key, False),
                                  ).start()
@@ -299,17 +307,30 @@ class PlayerActions:
                                                                playRate=self.base.actor_play_rate)
                         Sequence(Func(self.state.set_action_state, "is_using", True),
                                  any_action_seq,
-                                 Func(taskMgr.remove, "seq_pick_item_wrapper_task"),
+                                 Func(self.remove_seq_pick_item_wrapper_task),
                                  Func(self.state.set_action_state, "is_using", False),
                                  Func(self.state.set_do_once_key, key, False),
                                  ).start()
 
                 elif player.get_python_tag("is_item_using"):
                     base.player_states['is_idle'] = False
-                    taskMgr.add(self.seq_drop_item_wrapper_task,
-                                "seq_drop_item_wrapper_task",
-                                extraArgs=[player, anims, action],
-                                appendTask=True),
+
+                    # Drop item if is using
+                    if self.base.game_instance["is_indoor"]:
+                        # Show item menu here if indoor
+                        if self.base.game_instance['item_menu_np'].item_menu_ui:
+                            if self.base.game_instance['item_menu_np'].item_menu_ui.is_hidden():
+                                self.base.game_instance['item_menu_np'].item_menu_ui.show()
+                                self.base.game_instance['item_menu_np'].set_item_menu(anims, action)
+                            else:
+                                self.base.game_instance['item_menu_np'].item_menu_ui.hide()
+                                self.base.game_instance['item_menu_np'].clear_item_menu()
+                    else:
+                        # Just drop item if not indoor
+                        taskMgr.add(self.seq_drop_item_wrapper_task,
+                                    "seq_drop_item_wrapper_task",
+                                    extraArgs=[player, anims, action],
+                                    appendTask=True)
 
                     if (base.player_states['is_using'] is False
                             and crouched_to_standing.is_playing() is False
@@ -323,7 +344,7 @@ class PlayerActions:
                         Sequence(crouch_to_stand_seq,
                                  Func(self.state.set_action_state, "is_using", True),
                                  any_action_seq,
-                                 Func(taskMgr.remove, "seq_drop_item_wrapper"),
+                                 Func(self.remove_seq_drop_item_wrapper_task),
                                  Func(self.state.set_action_state, "is_using", False),
                                  Func(self.state.set_do_once_key, key, False),
                                  ).start()
@@ -335,7 +356,7 @@ class PlayerActions:
                                                                playRate=self.base.actor_play_rate)
                         Sequence(Func(self.state.set_action_state, "is_using", True),
                                  any_action_seq,
-                                 Func(taskMgr.remove, "seq_drop_item_wrapper"),
+                                 Func(self.remove_seq_drop_item_wrapper_task),
                                  Func(self.state.set_action_state, "is_using", False),
                                  Func(self.state.set_do_once_key, key, False),
                                  ).start()
@@ -372,8 +393,8 @@ class PlayerActions:
                         player.set_play_rate(self.base.actor_play_rate,
                                              anims[self.walking_forward_action])
                 elif (base.player_states['is_busy'] is False
-                        and crouched_to_standing.is_playing()
-                        and base.player_states['is_crouch_moving']):
+                      and crouched_to_standing.is_playing()
+                      and base.player_states['is_crouch_moving']):
                     crouch_move_forward_seq = player.get_anim_control(anims[self.crouch_walking_forward_action])
                     if crouch_move_forward_seq.is_playing() is False:
                         player.loop(anims[self.crouch_walking_forward_action])

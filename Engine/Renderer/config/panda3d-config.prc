@@ -116,7 +116,7 @@ uniquify-transforms t
 uniquify-states t
 uniquify-attribs f
 
-# Enable garbarge collection
+# Enable garbage collection
 garbage-collect-states t
 # garbage-collect-states-rate 0.2
 

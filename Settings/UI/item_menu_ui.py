@@ -344,6 +344,7 @@ class ItemMenu:
 
                 if (not player.get_python_tag("is_item_using")
                         and player.get_python_tag("is_close_to_use_item")):
+
                     taskMgr.add(player_actions_cls.seq_pick_item_wrapper_task,
                                 "seq_pick_item_wrapper_task",
                                 extraArgs=[player, self.anims,
@@ -354,7 +355,7 @@ class ItemMenu:
                                                            playRate=self.base.actor_play_rate)
                     Sequence(Func(player_state_cls.set_action_state, "is_using", True),
                              any_action_seq,
-                             Func(taskMgr.remove, "seq_pick_item_wrapper_task"),
+                             Func(player_actions_cls.remove_seq_pick_item_wrapper_task),
                              Func(player_state_cls.set_action_state, "is_using", False),
                              Func(player_state_cls.set_do_once_key, "use", False),
                              ).start()
@@ -369,7 +370,7 @@ class ItemMenu:
                                                            playRate=self.base.actor_play_rate)
                     Sequence(Func(player_state_cls.set_action_state, "is_using", True),
                              any_action_seq,
-                             Func(taskMgr.remove, "seq_drop_item_wrapper"),
+                             Func(player_actions_cls.remove_seq_drop_item_wrapper_task),
                              Func(player_state_cls.set_action_state, "is_using", False),
                              Func(player_state_cls.set_do_once_key, "use", False),
                              ).start()
