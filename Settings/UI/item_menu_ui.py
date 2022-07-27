@@ -32,6 +32,7 @@ class ItemMenu:
         self.item_menu_ui = None
         self.btn_select_item = None
         self.btn_return_item = None
+        self.btn_deselect_item = None
         self.btn_close = None
         self.btn_select_inc = None
         self.btn_select_dec = None
@@ -159,30 +160,43 @@ class ItemMenu:
                     self.active_item_text.setText(name)
 
     def _select_item(self):
-        player = self.base.game_instance["player_ref"]
+        if self.active_item:
+            player = self.base.game_instance["player_ref"]
 
-        # Discard the item which is not a part of round table (player was close to item outdoor)
-        item_np = player.get_python_tag("used_item_np")
-        if item_np:
-            if item_np.get_name() != self.active_item.get_name():
-                player.set_python_tag("used_item_np", None)
+            # Discard the item which is not a part of round table (player was close to item outdoor)
+            item_np = player.get_python_tag("used_item_np")
+            if item_np:
+                if item_np.get_name() != self.active_item.get_name():
+                    player.set_python_tag("used_item_np", None)
 
-        # Construct item properties and make item ready to pickup if it not was taken yet
-        if not player.get_python_tag("used_item_np"):
-            player.set_python_tag("used_item_np", self.active_item)
+            # Construct item properties and make item ready to pickup if it not was taken yet
+            if not player.get_python_tag("used_item_np"):
+                player.set_python_tag("used_item_np", self.active_item)
 
-            self.base.game_instance['item_state'] = {
-                'type': 'item',
-                'name': '{0}'.format(self.active_item.get_name()),
-                'weight': '{0}'.format(1),
-                'in-use': False,
-            }
-            player.set_python_tag("is_item_ready", True)
-            item_prop = self.base.game_instance['item_state']
-            player.set_python_tag("current_item_prop", item_prop)
+                self.base.game_instance['item_state'] = {
+                    'type': 'item',
+                    'name': '{0}'.format(self.active_item.get_name()),
+                    'weight': '{0}'.format(1),
+                    'in-use': False,
+                }
+                player.set_python_tag("is_item_ready", True)
+                item_prop = self.base.game_instance['item_state']
+                player.set_python_tag("current_item_prop", item_prop)
 
+                if self.base.game_instance['hud_np']:
+                    self.base.game_instance['hud_np'].toggle_weapon_state(weapon_name="busy_hands")
+
+    def _deselect_item(self):
+        if self.active_item:
+            player = self.base.game_instance["player_ref"]
+            player.set_python_tag("is_item_using", False)
+            player.set_python_tag("used_item_np", None)
+            player.set_python_tag("is_item_ready", False)
+            self.base.game_instance['item_state'].clear()
+
+            # Set hands icon to free back
             if self.base.game_instance['hud_np']:
-                self.base.game_instance['hud_np'].toggle_weapon_state(weapon_name="busy_hands")
+                self.base.game_instance['hud_np'].toggle_weapon_state(weapon_name="hands")
 
     def _return_item(self):
         player = self.base.game_instance["player_ref"]
@@ -235,6 +249,11 @@ class ItemMenu:
                                     select_btn_maps.find('**/button_select_clicked'),
                                     select_btn_maps.find('**/button_select_rollover'))
 
+                deselect_btn_maps = base.loader.load_model(ui_geoms['btn_t_deselect_icon'])
+                deselect_btn_geoms = (deselect_btn_maps.find('**/button_deselect_ready'),
+                                      deselect_btn_maps.find('**/button_deselect_clicked'),
+                                      deselect_btn_maps.find('**/button_deselect_rollover'))
+
                 self.btn_select_item = DirectButton(text="",
                                                     text_fg=(255, 255, 255, 0.9),
                                                     text_font=self.font.load_font(self.menu_font),
@@ -243,8 +262,18 @@ class ItemMenu:
                                                     geom=select_btn_geoms, geom_scale=(0.13, 0, 0.16),
                                                     clickSound=self.sound_gui_click,
                                                     command=self._select_item,
-                                                    pos=(0, 0, -0.7),
+                                                    pos=(-0.3, 0, -0.7),
                                                     parent=self.item_menu_ui)
+                self.btn_deselect_item = DirectButton(text="",
+                                                      text_fg=(255, 255, 255, 0.9),
+                                                      text_font=self.font.load_font(self.menu_font),
+                                                      frameColor=(0, 0, 0, 0),
+                                                      scale=0.05, borderWidth=(0, 0),
+                                                      geom=deselect_btn_geoms, geom_scale=(0.13, 0, 0.16),
+                                                      clickSound=self.sound_gui_click,
+                                                      command=self._deselect_item,
+                                                      pos=(0.3, 0, -0.7),
+                                                      parent=self.item_menu_ui)
                 self.btn_select_dec["state"] = DGG.NORMAL
                 self.btn_select_inc["state"] = DGG.NORMAL
 
@@ -279,6 +308,11 @@ class ItemMenu:
         select_btn_geoms = (select_btn_maps.find('**/button_select_ready'),
                             select_btn_maps.find('**/button_select_clicked'),
                             select_btn_maps.find('**/button_select_rollover'))
+
+        deselect_btn_maps = base.loader.load_model(ui_geoms['btn_t_deselect_icon'])
+        deselect_btn_geoms = (deselect_btn_maps.find('**/button_deselect_ready'),
+                              deselect_btn_maps.find('**/button_deselect_clicked'),
+                              deselect_btn_maps.find('**/button_deselect_rollover'))
 
         return_btn_maps = base.loader.load_model(ui_geoms['btn_t_return_icon'])
         return_btn_geoms = (return_btn_maps.find('**/button_return_ready'),
@@ -351,8 +385,18 @@ class ItemMenu:
                                                 geom=select_btn_geoms, geom_scale=(0.13, 0, 0.16),
                                                 clickSound=self.sound_gui_click,
                                                 command=self._select_item,
-                                                pos=(0, 0, -0.7),
+                                                pos=(-0.3, 0, -0.7),
                                                 parent=self.item_menu_ui)
+            self.btn_deselect_item = DirectButton(text="",
+                                                  text_fg=(255, 255, 255, 0.9),
+                                                  text_font=self.font.load_font(self.menu_font),
+                                                  frameColor=(0, 0, 0, 0),
+                                                  scale=0.05, borderWidth=(0, 0),
+                                                  geom=deselect_btn_geoms, geom_scale=(0.13, 0, 0.16),
+                                                  clickSound=self.sound_gui_click,
+                                                  command=self._deselect_item,
+                                                  pos=(0.3, 0, -0.7),
+                                                  parent=self.item_menu_ui)
             self.btn_select_dec["state"] = DGG.NORMAL
             self.btn_select_inc["state"] = DGG.NORMAL
         else:
@@ -391,6 +435,7 @@ class ItemMenu:
         # Highlight the last item
         name = player.get_python_tag("usable_item_list")["name"][self.usable_item_list_indices]
         item_np = render.find("**/{0}".format(name))
+        self.active_item = item_np
         self._set_item_lighting(item_np, item_np.get_pos(), player)
 
         # Set text
@@ -423,6 +468,7 @@ class ItemMenu:
 
             self.item_menu_ui = None
             self.btn_select_item = None
+            self.btn_deselect_item = None
             self.btn_return_item = None
             self.btn_close = None
             self.btn_select_inc = None
