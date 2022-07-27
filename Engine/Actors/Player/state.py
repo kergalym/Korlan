@@ -442,14 +442,15 @@ class PlayerState:
                 player.set_python_tag("is_item_using", False)
                 player.set_python_tag("used_item_np", None)
                 player.set_python_tag("is_item_ready", False)
-                self.base.game_instance['item_state'] = {}
+                self.base.game_instance['item_state'].clear()
 
                 # Set hands icon to free back
                 if self.base.game_instance['hud_np']:
                     self.base.game_instance['hud_np'].toggle_weapon_state(weapon_name="hands")
 
                 # Update usable items current count
-                if self.base.game_instance["is_indoor"]:
+                # TODO:Uncomment this after "return item back" is implemented in the item menu
+                """if self.base.game_instance["is_indoor"]:
                     name = item.get_name()
-                    player.get_python_tag("usable_item_list")["name"].append(name)
+                    player.get_python_tag("usable_item_list")["name"].append(name)"""
 

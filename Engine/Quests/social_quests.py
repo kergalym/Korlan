@@ -610,8 +610,16 @@ class SocialQuests:
                             if round_table:
                                 for node in trigger_node.get_overlapping_nodes():
                                     if self.player_name in node.get_name():
+
+                                        if self.player.get_python_tag("is_close_to_use_item"):
+                                            self.player.set_python_tag("is_close_to_use_item", False)
+
                                         if round(self.player_bs.get_distance(round_table)) < 2:
+
                                             self._construct_usable_item_list(round_table)
+
+                                            if not self.player.get_python_tag("is_close_to_use_item"):
+                                                self.player.set_python_tag("is_close_to_use_item", True)
         return task.cont
 
     def item_trigger_task(self, trigger_np, actor, task):
@@ -624,30 +632,33 @@ class SocialQuests:
                 self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_use",
                                                         place=actor, actor=node)
                 if self.player_name in node.get_name():
-                    if not self.player.get_python_tag("is_item_using"):
+                    # This logic is dedicated only for picking up the outdoor items
+                    if not self.base.game_instance["is_indoor"]:
 
-                        if self.player.get_python_tag("is_close_to_use_item"):
-                            self.player.set_python_tag("is_close_to_use_item", False)
+                        if not self.player.get_python_tag("is_item_using"):
 
-                        if round(self.player_bs.get_distance(actor)) < 2:
+                            if self.player.get_python_tag("is_close_to_use_item"):
+                                self.player.set_python_tag("is_close_to_use_item", False)
 
-                            if not self.player.get_python_tag("is_close_to_use_item"):
-                                self.player.set_python_tag("is_close_to_use_item", True)
+                            # Construct the item properties which is near of the player
+                            if round(self.player_bs.get_distance(actor)) < 2:
 
-                            item_np = self.player.get_python_tag("used_item_np")
+                                if not self.player.get_python_tag("is_close_to_use_item"):
+                                    self.player.set_python_tag("is_close_to_use_item", True)
 
-                            # Construct the item properties only once
-                            # if we didn't move closer to item yet
-                            # or we moved closer to different item
-
-                            # Get item for first time, we didn't pick it up
-                            if item_np and not self.player.get_python_tag("used_item_np"):
-                                self._construct_item_property(self.player, item_np)
-                            # Get item for second time, we had picked up previous item,
-                            # but we alter it with picking another one
-                            elif (item_np and self.player.get_python_tag("used_item_np")
-                                  and self.player.get_python_tag("used_item_np").get_name() != item_np.get_name()):
-                                self._construct_item_property(self.player, item_np)
+                                # Construct the item properties only once
+                                item_np = self.player.get_python_tag("used_item_np")
+                                if not item_np:
+                                    self._construct_item_property(self.player, actor)
+                            else:
+                                # Wipe item properties if we didn't take item yet
+                                item_prop = self.player.get_python_tag("current_item_prop")
+                                if item_prop:
+                                    if not item_prop['in-use']:
+                                        if self.base.game_instance['item_state']:
+                                            self.base.game_instance['item_state'].clear()
+                                        if self.player.get_python_tag("used_item_np"):
+                                            self.player.set_python_tag("used_item_np", None)
 
                 # TODO: Uncomment first to debug
                 """

@@ -243,8 +243,26 @@ class ItemMenu:
 
     def _select_item(self):
         player = self.base.game_instance["player_ref"]
+
+        # Discard the item which is not a part of round table (player was close to item outdoor)
+        item_np = player.get_python_tag("used_item_np")
+        if item_np:
+            if item_np.get_name() != self.active_item.get_name():
+                player.set_python_tag("used_item_np", None)
+
+        # Construct item properties and make item ready to pickup if it not was taken yet
         if not player.get_python_tag("used_item_np"):
             player.set_python_tag("used_item_np", self.active_item)
+
+            self.base.game_instance['item_state'] = {
+                'type': 'item',
+                'name': '{0}'.format(self.active_item.get_name()),
+                'weight': '{0}'.format(1),
+                'in-use': False,
+            }
+            player.set_python_tag("is_item_ready", True)
+            item_prop = self.base.game_instance['item_state']
+            player.set_python_tag("current_item_prop", item_prop)
 
             if self.base.game_instance['hud_np']:
                 self.base.game_instance['hud_np'].toggle_weapon_state(weapon_name="busy_hands")
