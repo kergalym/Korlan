@@ -269,13 +269,7 @@ class PlayerActions:
                     if player.get_python_tag("is_close_to_use_item"):
                         # Show item menu here if indoor
                         if self.base.game_instance["is_indoor"]:
-                            if self.base.game_instance['item_menu_np'].item_menu_ui:
-                                if self.base.game_instance['item_menu_np'].item_menu_ui.is_hidden():
-                                    self.base.game_instance['item_menu_np'].item_menu_ui.show()
-                                    self.base.game_instance['item_menu_np'].set_item_menu(anims, action)
-                                else:
-                                    self.base.game_instance['item_menu_np'].item_menu_ui.hide()
-                                    self.base.game_instance['item_menu_np'].clear_item_menu()
+                            self.base.game_instance['item_menu_np'].set_item_menu(anims, action)
                         else:
                             # just take item if not indoor
                             taskMgr.add(self.seq_pick_item_wrapper_task,
@@ -318,13 +312,7 @@ class PlayerActions:
                     # Drop item if is using
                     if self.base.game_instance["is_indoor"]:
                         # Show item menu here if indoor
-                        if self.base.game_instance['item_menu_np'].item_menu_ui:
-                            if self.base.game_instance['item_menu_np'].item_menu_ui.is_hidden():
-                                self.base.game_instance['item_menu_np'].item_menu_ui.show()
-                                self.base.game_instance['item_menu_np'].set_item_menu(anims, action)
-                            else:
-                                self.base.game_instance['item_menu_np'].item_menu_ui.hide()
-                                self.base.game_instance['item_menu_np'].clear_item_menu()
+                        self.base.game_instance['item_menu_np'].set_item_menu(anims, action)
                     else:
                         # Just drop item if not indoor
                         taskMgr.add(self.seq_drop_item_wrapper_task,

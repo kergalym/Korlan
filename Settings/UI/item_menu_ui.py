@@ -1,15 +1,13 @@
 from direct.gui.DirectButton import DirectButton
-from direct.gui.DirectLabel import DirectLabel
-from direct.gui.OnscreenImage import OnscreenImage
 from direct.gui.OnscreenText import OnscreenText
 from direct.interval.FunctionInterval import Func
 from direct.interval.LerpInterval import LerpPosInterval
 from direct.interval.MetaInterval import Sequence
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import TransparencyAttrib, TextNode, FontPool, Point3, Vec3
-from direct.gui.DirectGui import DirectWaitBar
 from direct.gui.DirectGui import DirectFrame
 from Engine.Renderer.rpcore import PointLight as RP_PointLight
+from direct.gui.DirectGui import DGG
 
 
 class ItemMenu:
@@ -31,97 +29,20 @@ class ItemMenu:
         self.btn_scale = .03
 
         # Menu attributes
-        self.item_menu_ui = DirectFrame(frameColor=(0, 0, 0, 0.0),
-                                        frameSize=self.item_menu_ui_frame_size,
-                                        pos=(0, 0, 0))
-        self.item_menu_ui.hide()
+        self.item_menu_ui = None
+        self.btn_select_item = None
+        self.btn_return_item = None
+        self.btn_close = None
+        self.btn_select_inc = None
+        self.btn_select_dec = None
 
         self.menu_font = self.fonts['OpenSans-Regular']
         # instance of the abstract class
         self.font = FontPool
         self.text = TextNode("TextNode")
 
-        ui_geoms = base.ui_geom_collector()
-
-        close_btn_maps = base.loader.load_model(ui_geoms['btn_t_close_icon'])
-        close_btn_geoms = (close_btn_maps.find('**/button_close_ready'),
-                           close_btn_maps.find('**/button_close_clicked'),
-                           close_btn_maps.find('**/button_close_rollover'))
-
-        select_btn_maps = base.loader.load_model(ui_geoms['btn_t_select_icon'])
-        select_btn_geoms = (select_btn_maps.find('**/button_select_ready'),
-                            select_btn_maps.find('**/button_select_clicked'),
-                            select_btn_maps.find('**/button_select_rollover'))
-
         sounds = self.base.sounds_collector()
         self.sound_gui_click = self.base.loader.load_sfx(sounds.get('zapsplat_button_click'))
-
-        self.btn_close = DirectButton(text="",
-                                      text_fg=(255, 255, 255, 0.9),
-                                      text_font=self.font.load_font(self.menu_font),
-                                      frameColor=(0, 0, 0, 0),
-                                      scale=self.btn_scale, borderWidth=(0, 0),
-                                      geom=close_btn_geoms, geom_scale=(0.13, 0, 0.16),
-                                      clickSound=self.sound_gui_click,
-                                      command=self.clear_item_menu,
-                                      pos=(-1.8, 0, 0.9),
-                                      parent=self.item_menu_ui)
-
-        self.btn_select = DirectButton(text="",
-                                       text_fg=(255, 255, 255, 0.9),
-                                       text_font=self.font.load_font(self.menu_font),
-                                       frameColor=(0, 0, 0, 0),
-                                       scale=0.05, borderWidth=(0, 0),
-                                       geom=select_btn_geoms, geom_scale=(0.13, 0, 0.16),
-                                       clickSound=self.sound_gui_click,
-                                       command=self._select_item,
-                                       pos=(0, 0, -0.7),
-                                       parent=self.item_menu_ui)
-
-        # quest selector geoms
-        q_maps_scrolled_dec = base.loader.load_model(ui_geoms['btn_t_icon_dec'])
-
-        q_maps_scrolled_inc = base.loader.load_model(ui_geoms['btn_t_icon_inc'])
-        q_maps_scrolled_dec.set_transparency(TransparencyAttrib.MAlpha)
-        q_maps_scrolled_inc.set_transparency(TransparencyAttrib.MAlpha)
-
-        # inventory & journal geoms
-        iui_maps_scrolled_dec = base.loader.load_model(ui_geoms['btn_inv_icon_dec'])
-        iui_geoms_scrolled_dec = (iui_maps_scrolled_dec.find('**/button_any_dec'),
-                                  iui_maps_scrolled_dec.find('**/button_pressed_dec'),
-                                  iui_maps_scrolled_dec.find('**/button_rollover_dec'),
-                                  iui_maps_scrolled_dec.find('**/button_disabled_dec'))
-
-        iui_maps_scrolled_inc = base.loader.load_model(ui_geoms['btn_inv_icon_inc'])
-        iui_geoms_scrolled_inc = (iui_maps_scrolled_inc.find('**/button_any_inc'),
-                                  iui_maps_scrolled_inc.find('**/button_pressed_inc'),
-                                  iui_maps_scrolled_inc.find('**/button_rollover_inc'),
-                                  iui_maps_scrolled_inc.find('**/button_disabled_inc'))
-        iui_maps_scrolled_inc.set_transparency(TransparencyAttrib.MAlpha)
-        iui_maps_scrolled_dec.set_transparency(TransparencyAttrib.MAlpha)
-
-        self.btn_select_dec = DirectButton(text="<|",
-                                           text_fg=(0.7, 0.7, 0.7, 1),
-                                           text_font=self.font.load_font(self.menu_font),
-                                           frameColor=(0, 0, 0, 0),
-                                           scale=.03, borderWidth=(0, 0),
-                                           geom=iui_geoms_scrolled_dec, geom_scale=(15.3, 0, 2),
-                                           hpr=(0, 0, -90),
-                                           clickSound=self.sound_gui_click,
-                                           command=self._decrement_carousel_item,
-                                           pos=(-1.2, 0, -0.5),
-                                           parent=self.item_menu_ui)
-        self.btn_select_inc = DirectButton(text="|>",
-                                           text_fg=(0.7, 0.7, 0.7, 1),
-                                           text_font=self.font.load_font(self.menu_font),
-                                           frameColor=(0, 0, 0, 0),
-                                           scale=.03, borderWidth=(0, 0),
-                                           geom=iui_geoms_scrolled_inc, geom_scale=(15.3, 0, 2),
-                                           hpr=(0, 0, -90),
-                                           clickSound=self.sound_gui_click,
-                                           command=self._increment_carousel_item,
-                                           pos=(1.2, 0, -0.5),
-                                           parent=self.item_menu_ui)
 
         self.close_y = -0.0
         self.def_y = self.base.game_instance["mouse_y_cam"]
@@ -213,8 +134,6 @@ class ItemMenu:
                     name = self._construct_item_name(name)
                     self.active_item_text.setText(name)
 
-        # self.btn_select_dec["state"] = DGG.DISABLED
-
     def _increment_carousel_item(self):
         player = self.base.game_instance["player_ref"]
 
@@ -238,8 +157,6 @@ class ItemMenu:
                     self.active_item_text.setText("")
                     name = self._construct_item_name(name)
                     self.active_item_text.setText(name)
-
-        # self.btn_select_inc["state"] = DGG.DISABLED
 
     def _select_item(self):
         player = self.base.game_instance["player_ref"]
@@ -267,6 +184,70 @@ class ItemMenu:
             if self.base.game_instance['hud_np']:
                 self.base.game_instance['hud_np'].toggle_weapon_state(weapon_name="busy_hands")
 
+    def _return_item(self):
+        player = self.base.game_instance["player_ref"]
+
+        # Discard the item which is not a part of round table (player was close to item outdoor)
+        item_np = player.get_python_tag("used_item_np")
+        if item_np:
+            name = item_np.get_name()
+
+            player.get_python_tag("usable_item_list")["name"].append(name)
+            # Update usable items current count
+            self.usable_item_list_count = len(player.get_python_tag("usable_item_list")["name"])
+            self.current_indices_offset = self.usable_item_list_count - 1
+            self.usable_item_list_indices = self.usable_item_list_count - 1
+
+            self.btn_return_item.destroy()
+
+            # Return item back to round table
+            if self.base.game_instance["round_table_np"]:
+
+                if hasattr(item_np.node(), "set_kinematic"):
+                    item_np.node().set_kinematic(False)
+
+                player.set_python_tag("is_item_using", False)
+                player.set_python_tag("used_item_np", None)
+                player.set_python_tag("is_item_ready", False)
+                self.base.game_instance['item_state'].clear()
+
+                round_table = self.base.game_instance["round_table_np"]
+                item_np.reparent_to(round_table)
+
+                # Set item position and rotation
+                for name, pos, hpr in zip(player.get_python_tag("usable_item_list")["name"],
+                                          player.get_python_tag("usable_item_list")["pos"],
+                                          player.get_python_tag("usable_item_list")["hpr"]):
+                    if name in item_np.get_name():
+                        item_np.set_hpr(hpr)
+                        item_np.set_pos(pos)
+                        item_np.set_scale(1)
+
+                # Set hands icon to free back
+                if self.base.game_instance['hud_np']:
+                    self.base.game_instance['hud_np'].toggle_weapon_state(weapon_name="hands")
+
+                # Show select item button instead of return item button
+                ui_geoms = base.ui_geom_collector()
+
+                select_btn_maps = base.loader.load_model(ui_geoms['btn_t_select_icon'])
+                select_btn_geoms = (select_btn_maps.find('**/button_select_ready'),
+                                    select_btn_maps.find('**/button_select_clicked'),
+                                    select_btn_maps.find('**/button_select_rollover'))
+
+                self.btn_select_item = DirectButton(text="",
+                                                    text_fg=(255, 255, 255, 0.9),
+                                                    text_font=self.font.load_font(self.menu_font),
+                                                    frameColor=(0, 0, 0, 0),
+                                                    scale=0.05, borderWidth=(0, 0),
+                                                    geom=select_btn_geoms, geom_scale=(0.13, 0, 0.16),
+                                                    clickSound=self.sound_gui_click,
+                                                    command=self._select_item,
+                                                    pos=(0, 0, -0.7),
+                                                    parent=self.item_menu_ui)
+                self.btn_select_dec["state"] = DGG.NORMAL
+                self.btn_select_inc["state"] = DGG.NORMAL
+
     def _construct_item_name(self, name):
         if name:
             name = name.capitalize()
@@ -282,6 +263,112 @@ class ItemMenu:
             return name
 
     def set_item_menu(self, anims, action):
+        # Menu attributes
+        self.item_menu_ui = DirectFrame(frameColor=(0, 0, 0, 0.0),
+                                        frameSize=self.item_menu_ui_frame_size,
+                                        pos=(0, 0, 0))
+
+        ui_geoms = base.ui_geom_collector()
+
+        close_btn_maps = base.loader.load_model(ui_geoms['btn_t_close_icon'])
+        close_btn_geoms = (close_btn_maps.find('**/button_close_ready'),
+                           close_btn_maps.find('**/button_close_clicked'),
+                           close_btn_maps.find('**/button_close_rollover'))
+
+        select_btn_maps = base.loader.load_model(ui_geoms['btn_t_select_icon'])
+        select_btn_geoms = (select_btn_maps.find('**/button_select_ready'),
+                            select_btn_maps.find('**/button_select_clicked'),
+                            select_btn_maps.find('**/button_select_rollover'))
+
+        return_btn_maps = base.loader.load_model(ui_geoms['btn_t_return_icon'])
+        return_btn_geoms = (return_btn_maps.find('**/button_return_ready'),
+                            return_btn_maps.find('**/button_return_clicked'),
+                            return_btn_maps.find('**/button_return_rollover'))
+
+        self.btn_close = DirectButton(text="",
+                                      text_fg=(255, 255, 255, 0.9),
+                                      text_font=self.font.load_font(self.menu_font),
+                                      frameColor=(0, 0, 0, 0),
+                                      scale=self.btn_scale, borderWidth=(0, 0),
+                                      geom=close_btn_geoms, geom_scale=(0.13, 0, 0.16),
+                                      clickSound=self.sound_gui_click,
+                                      command=self.clear_item_menu,
+                                      pos=(-1.8, 0, 0.9),
+                                      parent=self.item_menu_ui)
+
+        # quest selector geoms
+        q_maps_scrolled_dec = base.loader.load_model(ui_geoms['btn_t_icon_dec'])
+
+        q_maps_scrolled_inc = base.loader.load_model(ui_geoms['btn_t_icon_inc'])
+        q_maps_scrolled_dec.set_transparency(TransparencyAttrib.MAlpha)
+        q_maps_scrolled_inc.set_transparency(TransparencyAttrib.MAlpha)
+
+        # inventory & journal geoms
+        iui_maps_scrolled_dec = base.loader.load_model(ui_geoms['btn_inv_icon_dec'])
+        iui_geoms_scrolled_dec = (iui_maps_scrolled_dec.find('**/button_any_dec'),
+                                  iui_maps_scrolled_dec.find('**/button_pressed_dec'),
+                                  iui_maps_scrolled_dec.find('**/button_rollover_dec'),
+                                  iui_maps_scrolled_dec.find('**/button_disabled_dec'))
+
+        iui_maps_scrolled_inc = base.loader.load_model(ui_geoms['btn_inv_icon_inc'])
+        iui_geoms_scrolled_inc = (iui_maps_scrolled_inc.find('**/button_any_inc'),
+                                  iui_maps_scrolled_inc.find('**/button_pressed_inc'),
+                                  iui_maps_scrolled_inc.find('**/button_rollover_inc'),
+                                  iui_maps_scrolled_inc.find('**/button_disabled_inc'))
+        iui_maps_scrolled_inc.set_transparency(TransparencyAttrib.MAlpha)
+        iui_maps_scrolled_dec.set_transparency(TransparencyAttrib.MAlpha)
+
+        self.btn_select_dec = DirectButton(text="<|",
+                                           text_fg=(0.7, 0.7, 0.7, 1),
+                                           text_font=self.font.load_font(self.menu_font),
+                                           frameColor=(0, 0, 0, 0),
+                                           scale=.03, borderWidth=(0, 0),
+                                           geom=iui_geoms_scrolled_dec, geom_scale=(15.3, 0, 2),
+                                           hpr=(0, 0, -90),
+                                           clickSound=self.sound_gui_click,
+                                           command=self._decrement_carousel_item,
+                                           pos=(-1.2, 0, -0.5),
+                                           parent=self.item_menu_ui)
+        self.btn_select_inc = DirectButton(text="|>",
+                                           text_fg=(0.7, 0.7, 0.7, 1),
+                                           text_font=self.font.load_font(self.menu_font),
+                                           frameColor=(0, 0, 0, 0),
+                                           scale=.03, borderWidth=(0, 0),
+                                           geom=iui_geoms_scrolled_inc, geom_scale=(15.3, 0, 2),
+                                           hpr=(0, 0, -90),
+                                           clickSound=self.sound_gui_click,
+                                           command=self._increment_carousel_item,
+                                           pos=(1.2, 0, -0.5),
+                                           parent=self.item_menu_ui)
+
+        player = self.base.game_instance["player_ref"]
+        if not player.get_python_tag("used_item_np"):
+            self.btn_select_item = DirectButton(text="",
+                                                text_fg=(255, 255, 255, 0.9),
+                                                text_font=self.font.load_font(self.menu_font),
+                                                frameColor=(0, 0, 0, 0),
+                                                scale=0.05, borderWidth=(0, 0),
+                                                geom=select_btn_geoms, geom_scale=(0.13, 0, 0.16),
+                                                clickSound=self.sound_gui_click,
+                                                command=self._select_item,
+                                                pos=(0, 0, -0.7),
+                                                parent=self.item_menu_ui)
+            self.btn_select_dec["state"] = DGG.NORMAL
+            self.btn_select_inc["state"] = DGG.NORMAL
+        else:
+            self.btn_return_item = DirectButton(text="",
+                                                text_fg=(255, 255, 255, 0.9),
+                                                text_font=self.font.load_font(self.menu_font),
+                                                frameColor=(0, 0, 0, 0),
+                                                scale=0.05, borderWidth=(0, 0),
+                                                geom=return_btn_geoms, geom_scale=(0.13, 0, 0.16),
+                                                clickSound=self.sound_gui_click,
+                                                command=self._return_item,
+                                                pos=(0, 0, -0.7),
+                                                parent=self.item_menu_ui)
+            self.btn_select_dec["state"] = DGG.DISABLED
+            self.btn_select_inc["state"] = DGG.DISABLED
+
         # Keep anims list and action
         self.anims = anims
         self.current_action = action
@@ -330,7 +417,17 @@ class ItemMenu:
 
     def clear_item_menu(self):
         # Zoom out the camera and hide item menu
-        self.item_menu_ui.hide()
+        if self.item_menu_ui:
+            self.item_menu_ui.hide()
+            self.item_menu_ui.destroy()
+
+            self.item_menu_ui = None
+            self.btn_select_item = None
+            self.btn_return_item = None
+            self.btn_close = None
+            self.btn_select_inc = None
+            self.btn_select_dec = None
+
         self._camera_zoom_out()
         self.base.game_instance["item_menu_mode"] = False
         self.base.win_props.set_cursor_hidden(True)

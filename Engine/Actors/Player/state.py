@@ -448,9 +448,3 @@ class PlayerState:
                 if self.base.game_instance['hud_np']:
                     self.base.game_instance['hud_np'].toggle_weapon_state(weapon_name="hands")
 
-                # Update usable items current count
-                # TODO:Uncomment this after "return item back" is implemented in the item menu
-                """if self.base.game_instance["is_indoor"]:
-                    name = item.get_name()
-                    player.get_python_tag("usable_item_list")["name"].append(name)"""
-
