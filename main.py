@@ -385,9 +385,12 @@ class Main(ShowBase):
             "item_player_access_codes": {},
             "level_assets_np": {},
             "level_navmesh_np": None,
+            "navmesh": None,
             "navmesh_query": None,
             "npcs_fsm_states": {},
-            "use_pandai": False
+            "use_pandai": None,
+            "static_indoor_targets": None,
+            "npc_state_cls": None
         }
         self.shared_functions = {}
 

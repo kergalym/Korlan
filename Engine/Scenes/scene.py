@@ -3,9 +3,9 @@ from panda3d.bullet import BulletSphereShape, BulletGhostNode
 from panda3d.core import *
 from Engine.Quests.social_quests import SocialQuests
 
-# TODO UNCOMMENT WHEN R&D BECOMES PRODUCTION-READY
-from panda3d.navigation import NavMeshNode, NavMeshQuery
-from panda3d.navmeshgen import NavMeshBuilder
+from panda3d.navigation import NavMeshNode
+from panda3d.navigation import NavMeshQuery
+from panda3d.navigation import NavMeshBuilder
 
 import struct
 
@@ -62,10 +62,17 @@ class SceneOne:
 
             self.builder.from_coll_node_path(navmesh_scene_np)
 
-            self.builder.actor_height = 10
-            self.builder.actor_radius = 4
-            self.builder.actor_max_climb = 2
+            self.builder.params.actor_height = 1
+            self.builder.params.actor_radius = 0.6
+            self.builder.params.actor_max_climb = 2
+            self.builder.params.tile_size = 32
+            self.builder.params.cell_size = 0.3
             self.navmesh = self.builder.build()
+
+            # Add an untracked collision mesh.
+            self.navmesh.add_coll_node_path(navmesh_scene_np, tracked=False)
+
+            self.navmesh.update()
 
             self.navmeshnode = NavMeshNode("scene", self.navmesh)
             self.navmeshnodepath: NodePath = navmesh_scene_np.attach_new_node(self.navmeshnode)
@@ -75,13 +82,14 @@ class SceneOne:
 
             # Uncomment the following section to read the generated navmesh from file.
             # self.navmeshnodepath.remove_node()
-            # self.navmeshnodepath = self.loader.loadModel("scene_navmesh.bam")
+            # self.navmeshnodepath = self.loader.load_model("scene_navmesh.bam")
             # self.navmeshnodepath.reparent_to(self.scene)
             # self.navmeshnode: NavMeshNode = self.navmeshnodepath.node()
             # self.navmesh = self.navmeshnode.get_nav_mesh()
 
             # Initialize the NavMeshQuery that we will use.
             self.navmesh_query = NavMeshQuery(self.navmesh)
+            self.base.game_instance["navmesh"] = self.navmesh
             self.base.game_instance["navmesh_query"] = self.navmesh_query
 
     def set_water_trigger(self, scene, radius, task):

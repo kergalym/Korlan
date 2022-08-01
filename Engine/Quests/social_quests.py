@@ -32,6 +32,15 @@ class SocialQuests:
         self._usable_item_hpr = []
         self._last_used_items = None
 
+        self.static_indoor_targets = [render.find("**/yurt"),
+                                      render.find("**/quest_empty_campfire"),
+                                      render.find("**/quest_empty_rest_place"),
+                                      render.find("**/quest_empty_hearth"),
+                                      render.find("**/quest_empty_spring_water"),
+                                      render.find("**/round_table"),
+                                      ]
+        self.base.game_instance["static_indoor_targets"] = self.static_indoor_targets
+
     def set_level_triggers(self, scene, task):
         if (self.base.game_instance['scene_is_loaded']
                 and self.base.game_instance['player_actions_init_is_activated'] == 1
@@ -373,9 +382,9 @@ class SocialQuests:
                                                        "standing_to_sit_turkic",
                                                        "sitting_turkic",
                                                        "loop")
+
                 # TODO: Uncomment first to debug
-                """
-                elif ("NPC" in node.get_name()
+                """elif ("NPC" in node.get_name()
                       and "trigger" not in node.get_name()
                       and "Hips" not in node.get_name()):
                     name = node.get_name()
@@ -383,15 +392,14 @@ class SocialQuests:
                     name_bs = node.get_name()
                     actor = self.base.game_instance["actors_ref"][name]
                     actor_bs = self.base.game_instance["actors_np"][name_bs]
-                    if (round(place.get_distance(actor_bs), 1) >= self.trig_range[0]
-                            and round(place.get_distance(actor_bs), 1) <= self.trig_range[1]):
+                    if (round(actor_bs.get_distance(place), 1) >= self.trig_range[0]
+                            and round(actor_bs.get_distance(place), 1) <= self.trig_range[1]):
                         if not actor.get_python_tag('is_sitting'):
                             self._toggle_laying_state(actor,
                                                       place,
                                                       "standing_to_sit_turkic",
                                                       "sitting_turkic",
-                                                      "loop")
-                """
+                                                      "loop")"""
 
         return task.cont
 
@@ -405,6 +413,7 @@ class SocialQuests:
                 # Show 3d text
                 self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_rest",
                                                         place=place, actor=node)
+
                 if self.player_name in node.get_name():
                     if (round(self.player_bs.get_distance(place), 1) >= self.trig_range[0]
                             and round(self.player_bs.get_distance(place), 1) <= self.trig_range[1]):
@@ -412,13 +421,13 @@ class SocialQuests:
                                 and not base.player_states['is_using']
                                 and not base.player_states['is_moving']
                                 and not self.base.game_instance['is_aiming']):
+                            # todo: change to suitable standing_to_laying anim
                             self._toggle_laying_state(self.player,
                                                       place,
                                                       "standing_to_sit_turkic",
                                                       "sleeping_idle",
                                                       "loop")
-                # TODO: Uncomment first to debug
-                """
+
                 elif ("NPC" in node.get_name()
                       and "trigger" not in node.get_name()
                       and "Hips" not in node.get_name()):
@@ -427,8 +436,8 @@ class SocialQuests:
                     name_bs = node.get_name()
                     actor = self.base.game_instance["actors_ref"][name]
                     actor_bs = self.base.game_instance["actors_np"][name_bs]
-                    if (round(place.get_distance(actor_bs), 1) >= self.trig_range[0]
-                            and round(place.get_distance(actor_bs), 1) <= self.trig_range[1]):
+                    if (round(actor_bs.get_distance(place), 1) >= self.trig_range[0]
+                            and round(actor_bs.get_distance(place), 1) <= self.trig_range[1]):
                         if not actor.get_python_tag('generic_states')["is_laying"]:
                             # todo: change to suitable standing_to_laying anim
                             self._toggle_laying_state(actor,
@@ -436,7 +445,6 @@ class SocialQuests:
                                                       "standing_to_sit_turkic",
                                                       "sleeping_idle",
                                                       "loop")
-                """
 
         return task.cont
 
@@ -515,15 +523,6 @@ class SocialQuests:
                 """
 
         return task.cont
-
-    def _items_by_distance_sort(self):
-        for name in self.player.get_python_tag("usable_item_list")["name"]:
-            nodepath = render.find("**/{0}".format(name))
-            # todo: sort items for trigger_np attached to item, not empty shit!!!
-            if nodepath:
-                if (round(self.player_bs.get_distance(nodepath), 1) >= self.item_range[0]
-                        and round(self.player_bs.get_distance(nodepath), 1) <= self.item_range[1]):
-                    return nodepath
 
     def _construct_item_property(self, player, item_np):
         if player and item_np:
@@ -661,7 +660,6 @@ class SocialQuests:
                                             self.player.set_python_tag("used_item_np", None)
 
                 # TODO: Uncomment first to debug
-                """
                 elif ("NPC" in node.get_name()
                       and "trigger" not in node.get_name()
                       and "Hips" not in node.get_name()):
@@ -671,24 +669,21 @@ class SocialQuests:
                     actor_npc = self.base.game_instance["actors_ref"][name]
                     actor_npc_bs = self.base.game_instance["actors_np"][name_bs]
                     if not actor_npc.get_python_tag("is_item_using"):
-                        if (round(actor.get_distance(actor_npc_bs), 1) >= self.trig_range[0]
-                                and round(actor.get_distance(actor_npc_bs), 1) <= self.trig_range[1]):
+                        if round(actor_npc_bs.get_distance(actor)) < 2:
                             actor_bs = actor.find("**/{0}:BS".format(actor.get_name()))
                             # Currently close item parameters
-                            self.base.game_instance['item_state'] = {
+                            item_prop = {
                                 'type': 'item',
                                 'name': '{0}'.format(actor.get_name()),
                                 'weight': '{0}'.format(1),
                                 'in-use': False,
                             }
+                            actor_npc.set_python_tag("current_item_prop", item_prop)
                             actor_npc.set_python_tag("used_item_np", actor_bs)
                             actor_npc.set_python_tag("is_item_ready", True)
                         else:
                             actor_npc.set_python_tag("used_item_np", None)
                             actor_npc.set_python_tag("is_item_ready", False)
-                    else:
-                        item_prop = self.base.game_instance['item_state']
-                        actor_npc.set_python_tag("current_item_prop", item_prop)
-                """
+                            actor_npc.set_python_tag("current_item_prop", None)
 
         return task.cont

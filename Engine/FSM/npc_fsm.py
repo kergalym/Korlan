@@ -139,7 +139,6 @@ class NpcFSM(FSM):
                                              behavior=behavior,
                                              vect=vect)
 
-    # TODO: Use for recastnav only
     def enterWalkRD(self, actor, action, task):
         if actor and action and task:
             any_action = actor.get_anim_control(action)

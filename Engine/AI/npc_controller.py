@@ -16,6 +16,7 @@ class NpcController:
         self.npcs_fsm_states = self.base.game_instance["npcs_fsm_states"]
         self.npc_rotations = {}
         self.activated_npc_count = 0
+        self.navmesh = self.base.game_instance["navmesh"]
         self.navmesh_query = self.base.game_instance["navmesh_query"]
 
         # Keep this class instance for further usage in NpcBehavior class only
@@ -49,9 +50,10 @@ class NpcController:
             # TODO KEEP HERE UNTILL HORSE ANIMS BECOME READY
         if actor:
             if "Horse" not in actor.get_name():
+                # FIXME: Test the directives. Tempo set passive to True
                 taskMgr.add(self.npc_behavior.npc_generic_logic,
                             "{0}_npc_generic_logic_task".format(name),
-                            extraArgs=[actor, self.player, request, False],
+                            extraArgs=[actor, self.player, request, True],
                             appendTask=True)
 
     def actor_hitbox_trace_task(self, actor, actor_bs, request, task):
@@ -195,49 +197,53 @@ class NpcController:
                     request.request("Death", actor, "Dying", "play")
                     actor.get_python_tag("generic_states")['is_idle'] = False
 
-    def update_pathfinding(self, name, path_point):
-        if name and isinstance(path_point, Point3):
-            self.npc_pos[name] = path_point
-
     def do_walking_sequence_once(self, actor_npc_bs, oppo_npc_bs, actor_name):
-        if (actor_npc_bs and oppo_npc_bs
-                and actor_name and isinstance(actor_name, str)):
-            current_dir = actor_npc_bs.get_hpr()
+        if not self.npc_action_seqs[actor_name].is_playing():
+            if (actor_npc_bs and oppo_npc_bs
+                    and actor_name and isinstance(actor_name, str)):
 
-            self.navmesh_query.nearest_point(self.npc_pos[actor_name])
+                self.navmesh_query.nearest_point(self.npc_pos[actor_name])
 
-            # Set last pos from opposite actor's world points
-            last_pos = self.render.get_relative_point(actor_npc_bs, oppo_npc_bs.get_pos())
-            last_pos = Point3(last_pos[0], last_pos[1], 0)
+                # Set last pos from opposite actor's world points
+                last_pos = self.render.get_relative_vector(oppo_npc_bs.get_parent(),
+                                                           oppo_npc_bs.get_pos())
+                last_pos = Point3(last_pos[0], last_pos[1], 0)
 
-            # Find path
-            path = self.navmesh_query.find_path(self.npc_pos[actor_name], last_pos)
-            path_points = list(path.points)
+                self.navmesh.update()
 
-            for i in range(len(path_points) - 1):
-                speed = 2
+                # Find path
+                path = self.navmesh_query.find_path(self.npc_pos[actor_name], last_pos)
+                path_points = list(path.points)
+                current_dir = actor_npc_bs.get_hpr()
 
-                # Heading
-                new_hpr = Vec3(Vec2(0, -1).signed_angle_deg(path_points[i + 1].xy - path_points[i].xy),
-                               current_dir[1],
-                               current_dir[2])
-                hpr_interval = actor_npc_bs.hprInterval(speed, new_hpr)
+                self.npc_action_seqs[actor_name] = Sequence()
 
-                # Movement
-                dist = (path_points[i + 1] - path_points[i]).length()
-                pos_interval = actor_npc_bs.posInterval(dist / speed, path_points[i + 1], path_points[i])
+                for i in range(len(path_points) - 1):
+                    speed = 2
 
-                # Append sequence tasks in that order
-                self.npc_action_seqs[actor_name].append(hpr_interval)
-                self.npc_action_seqs[actor_name].append(pos_interval)
-                self.npc_action_seqs[actor_name].append(Func(self.update_pathfinding, actor_name, last_pos))
+                    # Heading
+                    new_hpr = Vec3(Vec2(0, -1).signed_angle_deg(path_points[i + 1].xy - path_points[i].xy),
+                                   current_dir[1],
+                                   current_dir[2])
+                    hpr_interval = actor_npc_bs.hprInterval(0, new_hpr)
 
-                current_dir = new_hpr
+                    # Movement
+                    dist = (path_points[i + 1] - path_points[i]).length()
 
-            if not self.npc_action_seqs[actor_name].is_playing():
+                    # Workaround for shifted down actor's rigid body nodepath z pos,
+                    # which in posInterval interpreted like -1, not 0
+                    pp = Point3(path_points[i + 1][0], path_points[i + 1][1], 1)
+                    pp_start = Point3(path_points[i][0], path_points[i][1], 1)
+                    pos_interval = actor_npc_bs.posInterval(dist / speed, pp, pp_start)
+
+                    # Append sequence tasks in that order
+                    self.npc_action_seqs[actor_name].append(hpr_interval)
+                    self.npc_action_seqs[actor_name].append(pos_interval)
+
+                    current_dir = new_hpr
+
                 self.npc_action_seqs[actor_name].start()
-
-            self.npc_pos[actor_name] = last_pos
+                self.npc_pos[actor_name] = last_pos
 
     def npc_in_walking_logic(self, actor, actor_npc_bs, oppo_npc_bs, request):
         if actor and actor_npc_bs and oppo_npc_bs and request:

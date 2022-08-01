@@ -133,10 +133,7 @@ class NpcGeneric:
                         self.actor.set_python_tag("arrow_count", 0)
 
                         # Usable Items List
-                        _items = ["big_plate",
-                                  "piala",
-                                  "dombra",
-                                  "torsyk"]
+                        _items = []
 
                         _pos = [Vec3(0.4, 8.0, 5.2),
                                 Vec3(0.4, 8.0, 5.2),
