@@ -492,10 +492,9 @@ class ItemMenu:
             self.active_item_text.setText("")
             self.active_item_text.destroy()
 
-        if player.get_python_tag("used_item_np"):
-            player.set_python_tag("is_item_ready", True)
-        elif not player.get_python_tag("used_item_np"):
-            player.set_python_tag("is_item_ready", False)
+        if not player.get_python_tag("is_item_ready"):
+            player_state_cls = self.base.game_instance['player_state_cls']
+            player_state_cls.set_do_once_key("use", False)
 
         # Pickup or drop the item from this menu
         if player.get_python_tag("is_item_ready"):
@@ -504,7 +503,9 @@ class ItemMenu:
                 player_state_cls = self.base.game_instance['player_state_cls']
 
                 if (not player.get_python_tag("is_item_using")
+                        and player.get_python_tag("used_item_np")
                         and player.get_python_tag("is_close_to_use_item")):
+                    base.player_states['is_idle'] = False
 
                     taskMgr.add(player_actions_cls.seq_pick_item_wrapper_task,
                                 "seq_pick_item_wrapper_task",
@@ -521,7 +522,8 @@ class ItemMenu:
                              Func(player_state_cls.set_do_once_key, "use", False),
                              ).start()
 
-                elif (player.get_python_tag("is_item_using")
+                """elif (player.get_python_tag("is_item_using")
+                      and player.get_python_tag("used_item_np")
                       and player.get_python_tag("is_close_to_use_iem")):
                     taskMgr.add(player_actions_cls.seq_drop_item_wrapper_task,
                                 "seq_drop_item_wrapper_task",
@@ -534,4 +536,4 @@ class ItemMenu:
                              Func(player_actions_cls.remove_seq_drop_item_wrapper_task),
                              Func(player_state_cls.set_action_state, "is_using", False),
                              Func(player_state_cls.set_do_once_key, "use", False),
-                             ).start()
+                             ).start()"""

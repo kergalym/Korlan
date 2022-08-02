@@ -413,7 +413,7 @@ class SocialQuests:
                 # Show 3d text
                 self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_rest",
                                                         place=place, actor=node)
-
+                # print(node.get_name())
                 if self.player_name in node.get_name():
                     if (round(self.player_bs.get_distance(place), 1) >= self.trig_range[0]
                             and round(self.player_bs.get_distance(place), 1) <= self.trig_range[1]):
@@ -427,7 +427,6 @@ class SocialQuests:
                                                       "standing_to_sit_turkic",
                                                       "sleeping_idle",
                                                       "loop")
-
                 elif ("NPC" in node.get_name()
                       and "trigger" not in node.get_name()
                       and "Hips" not in node.get_name()):

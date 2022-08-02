@@ -262,92 +262,97 @@ class PlayerActions:
             if self.kbd.keymap[key] and not base.do_key_once[key]:
                 self.state.set_do_once_key(key, True)
                 crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
+
                 if not player.get_python_tag("is_item_using"):
-                    base.player_states['is_idle'] = False
+                    # No item near player, reset key
+                    if not player.get_python_tag("is_close_to_use_item"):
+                        self.state.set_do_once_key(key, False)
 
                     # Take item
                     if player.get_python_tag("is_close_to_use_item"):
                         # Show item menu here if indoor
                         if self.base.game_instance["is_indoor"]:
-                            self.base.game_instance['item_menu_np'].set_item_menu(anims, action)
+                            if not self.base.game_instance['item_menu_np'].item_menu_ui:
+                                self.base.game_instance['item_menu_np'].set_item_menu(anims, action)
                         else:
+                            base.player_states['is_idle'] = False
                             # just take item if not indoor
                             taskMgr.add(self.seq_pick_item_wrapper_task,
                                         "seq_pick_item_wrapper_task",
                                         extraArgs=[player, anims, action, "Korlan:RightHand"],
                                         appendTask=True)
 
-                    if (base.player_states['is_using'] is False
-                            and crouched_to_standing.is_playing() is False
-                            and base.player_states['is_crouch_moving'] is True):
-                        # TODO: Use blending for smooth transition between animations
-                        # Do an animation sequence if player is crouched.
-                        crouch_to_stand_seq = player.actor_interval(anims[self.crouched_to_standing_action],
-                                                                    playRate=self.base.actor_play_rate)
-                        any_action_seq = player.actor_interval(anims[action],
-                                                               playRate=self.base.actor_play_rate)
-                        Sequence(crouch_to_stand_seq,
-                                 Func(self.state.set_action_state, "is_using", True),
-                                 any_action_seq,
-                                 Func(self.remove_seq_pick_item_wrapper_task),
-                                 Func(self.state.set_action_state, "is_using", False),
-                                 Func(self.state.set_do_once_key, key, False),
-                                 ).start()
+                            if (base.player_states['is_using'] is False
+                                    and crouched_to_standing.is_playing() is False
+                                    and base.player_states['is_crouch_moving'] is True):
+                                # TODO: Use blending for smooth transition between animations
+                                # Do an animation sequence if player is crouched.
+                                crouch_to_stand_seq = player.actor_interval(anims[self.crouched_to_standing_action],
+                                                                            playRate=self.base.actor_play_rate)
+                                any_action_seq = player.actor_interval(anims[action],
+                                                                       playRate=self.base.actor_play_rate)
+                                Sequence(crouch_to_stand_seq,
+                                         Func(self.state.set_action_state, "is_using", True),
+                                         any_action_seq,
+                                         Func(self.remove_seq_pick_item_wrapper_task),
+                                         Func(self.state.set_action_state, "is_using", False),
+                                         Func(self.state.set_do_once_key, key, False),
+                                         ).start()
 
-                    elif (base.player_states['is_using'] is False
-                          and crouched_to_standing.is_playing() is False
-                          and base.player_states['is_crouch_moving'] is False):
-                        any_action_seq = player.actor_interval(anims[action],
-                                                               playRate=self.base.actor_play_rate)
-                        Sequence(Func(self.state.set_action_state, "is_using", True),
-                                 any_action_seq,
-                                 Func(self.remove_seq_pick_item_wrapper_task),
-                                 Func(self.state.set_action_state, "is_using", False),
-                                 Func(self.state.set_do_once_key, key, False),
-                                 ).start()
+                            elif (base.player_states['is_using'] is False
+                                  and crouched_to_standing.is_playing() is False
+                                  and base.player_states['is_crouch_moving'] is False):
+                                any_action_seq = player.actor_interval(anims[action],
+                                                                       playRate=self.base.actor_play_rate)
+                                Sequence(Func(self.state.set_action_state, "is_using", True),
+                                         any_action_seq,
+                                         Func(self.remove_seq_pick_item_wrapper_task),
+                                         Func(self.state.set_action_state, "is_using", False),
+                                         Func(self.state.set_do_once_key, key, False),
+                                         ).start()
 
                 elif player.get_python_tag("is_item_using"):
-                    base.player_states['is_idle'] = False
-
                     # Drop item if is using
                     if self.base.game_instance["is_indoor"]:
                         # Show item menu here if indoor
-                        self.base.game_instance['item_menu_np'].set_item_menu(anims, action)
+                        if not self.base.game_instance['item_menu_np'].item_menu_ui:
+                            self.base.game_instance['item_menu_np'].set_item_menu(anims, action)
                     else:
+                        base.player_states['is_idle'] = False
                         # Just drop item if not indoor
                         taskMgr.add(self.seq_drop_item_wrapper_task,
                                     "seq_drop_item_wrapper_task",
                                     extraArgs=[player, anims, action],
                                     appendTask=True)
 
-                    if (base.player_states['is_using'] is False
-                            and crouched_to_standing.is_playing() is False
-                            and base.player_states['is_crouching'] is True):
-                        # TODO: Use blending for smooth transition between animations
-                        # Do an animation sequence if player is crouched.
-                        crouch_to_stand_seq = player.actor_interval(anims[self.crouched_to_standing_action],
-                                                                    playRate=self.base.actor_play_rate)
-                        any_action_seq = player.actor_interval(anims[action],
-                                                               playRate=self.base.actor_play_rate)
-                        Sequence(crouch_to_stand_seq,
-                                 Func(self.state.set_action_state, "is_using", True),
-                                 any_action_seq,
-                                 Func(self.remove_seq_drop_item_wrapper_task),
-                                 Func(self.state.set_action_state, "is_using", False),
-                                 Func(self.state.set_do_once_key, key, False),
-                                 ).start()
+                        if (base.player_states['is_using'] is False
+                                and crouched_to_standing.is_playing() is False
+                                and base.player_states['is_crouching'] is True):
+                            # TODO: Use blending for smooth transition between animations
+                            # Do an animation sequence if player is crouched.
+                            crouch_to_stand_seq = player.actor_interval(anims[self.crouched_to_standing_action],
+                                                                        playRate=self.base.actor_play_rate)
+                            any_action_seq = player.actor_interval(anims[action],
+                                                                   playRate=self.base.actor_play_rate)
+                            Sequence(crouch_to_stand_seq,
+                                     Func(self.state.set_action_state, "is_using", True),
+                                     any_action_seq,
+                                     Func(self.remove_seq_drop_item_wrapper_task),
+                                     Func(self.state.set_action_state, "is_using", False),
+                                     Func(self.state.set_do_once_key, key, False),
+                                     ).start()
 
-                    elif (base.player_states['is_using'] is False
-                          and crouched_to_standing.is_playing() is False
-                          and base.player_states['is_crouching'] is False):
-                        any_action_seq = player.actor_interval(anims[action],
-                                                               playRate=self.base.actor_play_rate)
-                        Sequence(Func(self.state.set_action_state, "is_using", True),
-                                 any_action_seq,
-                                 Func(self.remove_seq_drop_item_wrapper_task),
-                                 Func(self.state.set_action_state, "is_using", False),
-                                 Func(self.state.set_do_once_key, key, False),
-                                 ).start()
+                        elif (base.player_states['is_using'] is False
+                              and crouched_to_standing.is_playing() is False
+                              and base.player_states['is_crouching'] is False):
+                            any_action_seq = player.actor_interval(anims[action],
+                                                                   playRate=self.base.actor_play_rate)
+                            Sequence(Func(self.state.set_action_state, "is_using", True),
+                                     any_action_seq,
+                                     Func(self.remove_seq_drop_item_wrapper_task),
+                                     Func(self.state.set_action_state, "is_using", False),
+                                     Func(self.state.set_do_once_key, key, False),
+                                     ).start()
 
     def player_forwardroll_action(self, player, anims):
         if (player and isinstance(anims, dict)

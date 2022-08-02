@@ -125,11 +125,17 @@ class NpcBehavior:
             self.npc_ai_logic.npc_in_staying_logic(actor, request)
 
     def _work_with_indoor_directives_queue(self, actor, request):
-        # Get required data about enemy to deal with it
+        # Get required data about directives
+        # 0 yurt
+        # 1 quest_empty_campfire
+        # 2 quest_empty_rest_place
+        # 3 quest_empty_hearth
+        # 4 quest_empty_spring_water
+        # 5 round_table
         actor_name = "{0}:BS".format(actor.get_name())
         actor_npc_bs = self.base.game_instance["actors_np"][actor_name]
         directive_one_np = self.base.game_instance["static_indoor_targets"][0]
-        directive_two_np = self.base.game_instance["static_indoor_targets"][1]
+        directive_two_np = self.base.game_instance["static_indoor_targets"][2]
         directive_one_dist = int(actor_npc_bs.get_distance(directive_one_np))
         directive_two_dist = int(actor_npc_bs.get_distance(directive_two_np))
 
@@ -167,10 +173,10 @@ class NpcBehavior:
                 if passive:
                     # FIXME: TEST the directives
                     # self._work_with_indoor_directives_queue(actor, request)
-                    self._work_with_outdoor_directive(actor=actor, target="yurt", request=request)
+                    # self._work_with_outdoor_directive(actor=actor, target="yurt", request=request)
 
                     # Just stay
-                    # self.npc_ai_logic.npc_in_staying_logic(actor, request)
+                    self.npc_ai_logic.npc_in_staying_logic(actor, request)
 
                 if not passive:
 
