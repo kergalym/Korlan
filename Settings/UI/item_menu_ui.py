@@ -522,18 +522,3 @@ class ItemMenu:
                              Func(player_state_cls.set_do_once_key, "use", False),
                              ).start()
 
-                """elif (player.get_python_tag("is_item_using")
-                      and player.get_python_tag("used_item_np")
-                      and player.get_python_tag("is_close_to_use_iem")):
-                    taskMgr.add(player_actions_cls.seq_drop_item_wrapper_task,
-                                "seq_drop_item_wrapper_task",
-                                extraArgs=[player, self.anims, self.current_action],
-                                appendTask=True),
-                    any_action_seq = player.actor_interval(self.anims[self.current_action],
-                                                           playRate=self.base.actor_play_rate)
-                    Sequence(Func(player_state_cls.set_action_state, "is_using", True),
-                             any_action_seq,
-                             Func(player_actions_cls.remove_seq_drop_item_wrapper_task),
-                             Func(player_state_cls.set_action_state, "is_using", False),
-                             Func(player_state_cls.set_do_once_key, "use", False),
-                             ).start()"""
