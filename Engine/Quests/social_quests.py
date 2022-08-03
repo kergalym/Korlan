@@ -21,10 +21,6 @@ class SocialQuests:
         if self.base.game_instance["renderpipeline_np"]:
             self.render_pipeline = self.base.game_instance["renderpipeline_np"]
 
-        # Triggers
-        self.trig_range = [0.0, 0.5]
-        self.item_range = [0.0, 0.7]
-
         # Items lists and boolean
         self._is_items_info_collected = False
         self._usable_items = []
@@ -111,7 +107,7 @@ class SocialQuests:
 
     def set_action_state(self, actor, bool_):
         if actor and isinstance(bool_, bool):
-            if self.player_name in actor.get_name():
+            if "Player" in actor.get_name():
                 self.base.player_states["is_busy"] = bool_
             if "NPC" in actor.get_name():
                 actor.get_python_tag("generic_states")["is_busy"] = bool_
@@ -142,7 +138,7 @@ class SocialQuests:
                 and self.base.player_states["is_busy"]):
             if txt_cap:
                 txt_cap.hide()
-            if self.player_name in actor.get_name():
+            if "Player" in actor.get_name():
                 self.base.game_instance["is_player_sitting"] = False
                 self.base.camera.set_z(0.0)
                 self.base.camera.set_y(-1)
@@ -157,7 +153,7 @@ class SocialQuests:
         elif (not self.base.game_instance["is_player_sitting"]
               and self.base.game_instance["is_indoor"]
               and not self.base.player_states["is_busy"]):
-            if self.player_name in actor.get_name():
+            if "Player" in actor.get_name():
                 self.base.game_instance["is_player_sitting"] = True
                 self.base.camera.set_z(-0.5)
                 self.base.camera.set_y(-3.0)
@@ -200,7 +196,7 @@ class SocialQuests:
                 txt_cap.show()
             # Stop having rest
             actor_bs = None
-            if self.player_name in actor.get_name():
+            if "Player" in actor.get_name():
                 self.base.game_instance["is_player_laying"] = False
                 self.base.camera.set_z(0.0)
                 self.base.camera.set_p(self.cam_p)
@@ -226,7 +222,7 @@ class SocialQuests:
                 txt_cap.hide()
             # Start having rest
             actor_bs = None
-            if self.player_name in actor.get_name():
+            if "Player" in actor.get_name():
                 self.base.game_instance["is_player_laying"] = True
                 self.base.camera.set_z(-1.3)
                 self.base.camera.set_y(-4.2)
@@ -371,8 +367,7 @@ class SocialQuests:
                 self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_sit",
                                                         place=place, actor=node)
                 if self.player_name in node.get_name():
-                    if (round(self.player_bs.get_distance(place), 1) >= self.trig_range[0]
-                            and round(self.player_bs.get_distance(place), 1) <= self.trig_range[1]):
+                    if round(self.player_bs.get_distance(place), 1) <= 1:
                         if (self.base.game_instance["kbd_np"].keymap["use"]
                                 and not base.player_states['is_using']
                                 and not base.player_states['is_moving']
@@ -413,10 +408,8 @@ class SocialQuests:
                 # Show 3d text
                 self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_rest",
                                                         place=place, actor=node)
-                # print(node.get_name())
                 if self.player_name in node.get_name():
-                    if (round(self.player_bs.get_distance(place), 1) >= self.trig_range[0]
-                            and round(self.player_bs.get_distance(place), 1) <= self.trig_range[1]):
+                    if round(self.player_bs.get_distance(place), 1) <= 1:
                         if (self.base.game_instance["kbd_np"].keymap["use"]
                                 and not base.player_states['is_using']
                                 and not base.player_states['is_moving']
@@ -435,8 +428,7 @@ class SocialQuests:
                     name_bs = node.get_name()
                     actor = self.base.game_instance["actors_ref"][name]
                     actor_bs = self.base.game_instance["actors_np"][name_bs]
-                    if (round(actor_bs.get_distance(place), 1) >= self.trig_range[0]
-                            and round(actor_bs.get_distance(place), 1) <= self.trig_range[1]):
+                    if round(actor_bs.get_distance(place)) <= 1:
                         if not actor.get_python_tag('generic_states')["is_laying"]:
                             # todo: change to suitable standing_to_laying anim
                             self._toggle_laying_state(actor,
@@ -457,8 +449,7 @@ class SocialQuests:
                 self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_use",
                                                         place=place, actor=node)
                 if self.player_name in node.get_name():
-                    if (round(self.player_bs.get_distance(place), 1) >= self.trig_range[0]
-                            and round(self.player_bs.get_distance(place), 1) <= self.trig_range[1]):
+                    if round(self.player_bs.get_distance(place), 1) <= 1:
                         if (self.base.game_instance["kbd_np"].keymap["use"]
                                 and not base.player_states['is_using']
                                 and not base.player_states['is_moving']
@@ -492,8 +483,7 @@ class SocialQuests:
                 self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_use",
                                                         place=place, actor=node)
                 if self.player_name in node.get_name():
-                    if (round(self.player_bs.get_distance(place), 1) >= self.trig_range[0]
-                            and round(self.player_bs.get_distance(place), 1) <= self.trig_range[1]):
+                    if round(self.player_bs.get_distance(place), 1) <= 1:
 
                         """
                         if (round(place.get_distance(player_bs), 1) >= self.trig_range[0]

@@ -183,7 +183,7 @@ class PlayerState:
                     for key in base.player_states:
                         if key != action and key != "is_alive":
                             base.player_states[key] = False
-                        if "idle" not in action:
+                        if "idle" not in action and key != "is_alive":
                             base.player_states[key] = False
 
                 base.player_states["is_idle"] = True
