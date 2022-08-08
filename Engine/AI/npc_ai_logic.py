@@ -378,17 +378,21 @@ class NpcAILogic:
             actor_name = actor.get_name()
 
             # Crouch collision states
-            crouch_bs_mask = BitMask32.allOff()
-            capsule_bs_mask = BitMask32.allOff()
-            actor_name_bs = "{0}:BS".format(actor_name)
             if not actor.get_python_tag("generic_states")['is_crouch_moving']:
-                crouch_bs_mask = self.base.game_instance['actors_crouch_bs_np_mask'][actor_name_bs]
-                capsule_bs_mask = BitMask32.allOff()
-            elif actor.get_python_tag("generic_states")['is_crouch_moving']:
+                actor_name_bs = "{0}:BS".format(actor_name)
                 crouch_bs_mask = BitMask32.allOff()
                 capsule_bs_mask = self.base.game_instance["actors_np_mask"][actor_name_bs]
-            self.base.game_instance['actors_crouch_bs_np'][actor_name_bs].setCollideMask(crouch_bs_mask)
-            self.base.game_instance['actors_np'][actor_name_bs].setCollideMask(capsule_bs_mask)
+
+                self.base.game_instance['actors_crouch_bs_np'][actor_name_bs].setCollideMask(crouch_bs_mask)
+                self.base.game_instance['actors_np'][actor_name_bs].setCollideMask(capsule_bs_mask)
+
+            elif actor.get_python_tag("generic_states")['is_crouch_moving']:
+                actor_name_bs = "{0}:BS".format(actor_name)
+                crouch_bs_mask = self.base.game_instance['actors_crouch_bs_np_mask'][actor_name_bs]
+                capsule_bs_mask = BitMask32.allOff()
+
+                self.base.game_instance['actors_crouch_bs_np'][actor_name_bs].setCollideMask(crouch_bs_mask)
+                self.base.game_instance['actors_np'][actor_name_bs].setCollideMask(capsule_bs_mask)
 
             if self.base.game_instance["use_pandai"]:
                 if self.is_ready_for_walking(actor):

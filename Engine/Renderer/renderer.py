@@ -120,6 +120,8 @@ class RenderAttr:
                 self.base.game_instance["renderpipeline_np"].daytime_mgr.time = "{0}:{1}".format(self.hour,
                                                                                                  self.minutes)
 
+            self.base.game_instance["world_time"] = "{0}:{1}".format(self.hour, self.minutes)
+
             if not self.base.game_instance['ui_mode']:
                 if 7 <= self.hour < 19:
                     if self.base.game_instance['hud_np']:

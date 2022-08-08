@@ -390,7 +390,8 @@ class Main(ShowBase):
             "npcs_fsm_states": {},
             "use_pandai": None,
             "static_indoor_targets": None,
-            "npc_state_cls": None
+            "npc_state_cls": None,
+            "world_time": None
         }
         self.shared_functions = {}
 

@@ -172,11 +172,11 @@ class NpcBehavior:
 
                 if passive:
                     # FIXME: TEST the directives
-                    # self._work_with_indoor_directives_queue(actor, request)
+                    self._work_with_indoor_directives_queue(actor, request)
                     # self._work_with_outdoor_directive(actor=actor, target="yurt", request=request)
 
                     # Just stay
-                    self.npc_ai_logic.npc_in_staying_logic(actor, request)
+                    # self.npc_ai_logic.npc_in_staying_logic(actor, request)
 
                 if not passive:
 

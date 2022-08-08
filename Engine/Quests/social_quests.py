@@ -1,8 +1,7 @@
-from direct.interval.FunctionInterval import Func
-from direct.interval.MetaInterval import Sequence
 from direct.task.TaskManagerGlobal import taskMgr
-from panda3d.bullet import BulletSphereShape, BulletGhostNode, BulletRigidBodyNode
-from panda3d.core import BitMask32, Vec3
+from panda3d.bullet import BulletSphereShape, BulletGhostNode
+from panda3d.core import BitMask32
+from Engine.Quests.quest_logic import QuestLogic
 
 
 class SocialQuests:
@@ -13,8 +12,6 @@ class SocialQuests:
         self.player_bs = None
         self.player_name = ''
         self.rest_place_np = None
-        self.actor_geom_pos_z = 0
-        self.cam_p = 0
         self.game_dir = base.game_dir
         self.text_caps = self.base.ui_txt_geom_collector()
         self.render_pipeline = None
@@ -36,6 +33,78 @@ class SocialQuests:
                                       render.find("**/round_table"),
                                       ]
         self.base.game_instance["static_indoor_targets"] = self.static_indoor_targets
+        self.quest_logic = QuestLogic()
+
+    def _construct_item_property(self, player, item_np):
+        if player and item_np:
+            # Currently close item parameters
+            self.base.game_instance['item_state'] = {
+                'type': 'item',
+                'name': '{0}'.format(item_np.get_name()),
+                'weight': '{0}'.format(1),
+                'in-use': False,
+            }
+            player.set_python_tag("used_item_np", item_np)
+            player.set_python_tag("is_item_ready", True)
+            item_prop = self.base.game_instance['item_state']
+            player.set_python_tag("current_item_prop", item_prop)
+
+    def _construct_usable_item_list(self, round_table):
+        if round_table:
+            for child in round_table.get_children():
+                usable_item_list = self.player.get_python_tag("usable_item_list")
+                name = child.get_name()
+                # Exclude round table itself
+                if round_table.get_name() not in name:
+                    # Check if we didn't get any items yet which are same as we got
+                    # when we come close to round table
+                    if self._is_items_info_collected and len(usable_item_list["name"]) > 0:
+                        if self._usable_items != self._last_used_items:
+                            if self._is_items_info_collected:
+                                # clean item lists first
+                                if len(self._usable_items) > 0:
+                                    self._usable_items = []
+                                elif len(self._usable_item_pos) > 0:
+                                    self._usable_item_pos = []
+                                elif len(self._usable_item_hpr) > 0:
+                                    self._usable_item_hpr = []
+
+                                for i in range(len(usable_item_list["name"]) - 1):
+                                    if name not in usable_item_list["name"][i]:
+                                        # Eclude nodes with empty names
+                                        if child.get_name():
+                                            self._usable_items.append(name)
+                                            self._usable_item_pos.append(child.get_pos())
+                                            self._usable_item_hpr.append(child.get_hpr())
+
+                                self._is_items_info_collected = False
+                    else:
+                        if not self._is_items_info_collected:
+                            # Exclude nodes with empty names
+                            if child.get_name():
+                                # we didn't get any items yet for the first time, so, get the data about them
+                                self._usable_items.append(name)
+                                self._usable_item_pos.append(child.get_pos())
+                                self._usable_item_hpr.append(child.get_hpr())
+                                self._last_used_items = self._usable_items
+
+            # Construct usable items list after they were collected
+            if not self._is_items_info_collected:
+                usable_item_list = {
+                    "name": self._usable_items,
+                    "pos": self._usable_item_pos,
+                    "hpr": self._usable_item_hpr
+                }
+
+                # print(usable_item_list["name"], len(usable_item_list["name"]))
+                self.player.set_python_tag("usable_item_list", usable_item_list)
+                self.base.game_instance["round_table_np"] = round_table
+
+                # Add item triggers
+                taskMgr.add(self.set_item_trigger,
+                            "set_item_trigger")
+
+                self._is_items_info_collected = True
 
     def set_level_triggers(self, scene, task):
         if (self.base.game_instance['scene_is_loaded']
@@ -104,177 +173,6 @@ class SocialQuests:
                           or self.base.game_instance['is_player_laying']):
                         if not txt_cap.is_hidden():
                             txt_cap.hide()
-
-    def set_action_state(self, actor, bool_):
-        if actor and isinstance(bool_, bool):
-            if "Player" in actor.get_name():
-                self.base.player_states["is_busy"] = bool_
-            if "NPC" in actor.get_name():
-                actor.get_python_tag("generic_states")["is_busy"] = bool_
-
-    def set_do_once_key(self, key, value):
-        """ Function    : set_do_once_key
-
-            Description : Set the state of the do once keys
-
-            Input       : String, Boolean
-
-            Output      : None
-
-            Return      : None
-        """
-        if (key and isinstance(key, str)
-                and isinstance(value, bool)):
-            base.do_key_once[key] = value
-
-    def _toggle_sitting_state(self, actor, place, anim, anim_next, task):
-        any_action_seq = actor.actor_interval(anim, loop=0)
-        any_action_next_seq = actor.actor_interval(anim_next, loop=1)
-
-        txt_cap = render.find("**/txt_sit")
-
-        if (self.base.game_instance["is_player_sitting"]
-                and self.base.game_instance["is_indoor"]
-                and self.base.player_states["is_busy"]):
-            if txt_cap:
-                txt_cap.hide()
-            if "Player" in actor.get_name():
-                self.base.game_instance["is_player_sitting"] = False
-                self.base.camera.set_z(0.0)
-                self.base.camera.set_y(-1)
-            elif "NPC" in actor.get_name():
-                actor.set_python_tag("is_sitting", False)
-            # Reverse play for standing_to_sit animation
-            any_action_seq = actor.actor_interval(anim, loop=0, playRate=-1.0)
-            Sequence(any_action_seq,
-                     Func(self.set_do_once_key, "use", False),
-                     Func(self.set_action_state, actor, False)
-                     ).start()
-        elif (not self.base.game_instance["is_player_sitting"]
-              and self.base.game_instance["is_indoor"]
-              and not self.base.player_states["is_busy"]):
-            if "Player" in actor.get_name():
-                self.base.game_instance["is_player_sitting"] = True
-                self.base.camera.set_z(-0.5)
-                self.base.camera.set_y(-3.0)
-                actor_name = actor.get_name()
-                actor_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="Player")
-                heading = place.get_h() - 180
-                actor_bs.set_h(heading)
-                place_pos = place.get_pos()
-                actor_bs.set_x(place_pos[0])
-                actor_bs.set_y(place_pos[1])
-            elif "NPC" in actor.get_name():
-                actor.set_python_tag("is_sitting", True)
-                actor_name = actor.get_name()
-                actor_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
-                heading = place.get_h() - 180
-                actor_bs.set_h(heading)
-                place_pos = place.get_pos()
-                actor_bs.set_x(place_pos[0])
-                actor_bs.set_y(place_pos[1])
-
-            if task == "loop":
-                Sequence(any_action_seq,
-                         Func(self.set_action_state, actor, True),
-                         any_action_next_seq,
-                         ).start()
-            elif task == "play":
-                Sequence(any_action_seq,
-                         Func(self.set_action_state, actor, True)).start()
-
-    def _toggle_laying_state(self, actor, place, anim, anim_next, task):
-        any_action_seq = actor.actor_interval(anim, loop=0)
-        any_action_next_seq = actor.actor_interval(anim_next, loop=1)
-
-        txt_cap = render.find("**/txt_rest")
-
-        if (self.base.game_instance["is_player_laying"]
-                and self.base.game_instance["is_indoor"]
-                and self.base.player_states["is_busy"]):
-            if txt_cap:
-                txt_cap.show()
-            # Stop having rest
-            actor_bs = None
-            if "Player" in actor.get_name():
-                self.base.game_instance["is_player_laying"] = False
-                self.base.camera.set_z(0.0)
-                self.base.camera.set_p(self.cam_p)
-                self.base.camera.set_y(-1)
-                actor.set_z(self.actor_geom_pos_z)
-                actor_name = actor.get_name()
-                actor_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="Player")
-            elif "NPC" in actor.get_name():
-                actor.set_python_tag("is_laying", False)
-                actor.set_z(self.actor_geom_pos_z)
-                actor_name = actor.get_name()
-                actor_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
-            # Reverse play for standing_to_sit animation
-            any_action_seq = actor.actor_interval(anim, loop=0, playRate=-1.0)
-            Sequence(Func(actor_bs.set_z, 0),
-                     any_action_seq,
-                     Func(self.set_do_once_key, "use", False),
-                     Func(self.set_action_state, actor, False)).start()
-        if (not self.base.game_instance["is_player_laying"]
-                and self.base.game_instance["is_indoor"]
-                and not self.base.player_states["is_busy"]):
-            if txt_cap:
-                txt_cap.hide()
-            # Start having rest
-            actor_bs = None
-            if "Player" in actor.get_name():
-                self.base.game_instance["is_player_laying"] = True
-                self.base.camera.set_z(-1.3)
-                self.base.camera.set_y(-4.2)
-                self.base.camera.set_h(0)
-                self.cam_p = self.base.camera.get_p()
-                self.base.camera.set_p(10)
-                actor_name = actor.get_name()
-                actor_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="Player")
-                self.actor_geom_pos_z = actor.get_z()
-                actor.set_z(-0.75)
-                heading = place.get_h() - 170
-                pos = actor_bs.get_pos() - Vec3(-0.3, -0.1, 0)
-                actor_bs.set_h(heading)
-                actor_bs.set_pos(pos)
-                place_pos = place.get_pos()
-                actor_bs.set_x(place_pos[0])
-                actor_bs.set_y(place_pos[1])
-            elif "NPC" in actor.get_name():
-                actor.set_python_tag("is_laying", True)
-                actor_name = actor.get_name()
-                actor_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
-                heading = place.get_h() - 170
-                pos = actor_bs.get_pos() - Vec3(-0.3, -0.1, 0)
-                actor_bs.set_h(heading)
-                actor_bs.set_pos(pos)
-                place_pos = place.get_pos()
-                actor_bs.set_x(place_pos[0])
-                actor_bs.set_y(place_pos[1])
-
-            if task == "loop":
-                Sequence(any_action_seq,
-                         Func(self.set_action_state, actor, True),
-                         any_action_next_seq,
-                         ).start()
-            elif task == "play":
-                Sequence(any_action_seq,
-                         Func(self.set_action_state, actor, True)).start()
-
-    def play_action_state(self, actor, anim, task):
-        if actor and anim and task:
-            any_action = actor.get_anim_control(anim)
-            any_action_seq = actor.actor_interval(anim, loop=0)
-
-            if any_action.is_playing():
-                actor.stop(anim)
-                self.set_action_state(actor, False)
-            else:
-                if task == "loop":
-                    Sequence(Func(self.set_action_state, actor, True),
-                             any_action_seq).start()
-                elif task == "play":
-                    Sequence(Func(self.set_action_state, actor, True), any_action_seq).start()
 
     def set_item_trigger(self, task):
         if self.base.game_instance["loading_is_done"] == 1:
@@ -372,29 +270,27 @@ class SocialQuests:
                                 and not base.player_states['is_using']
                                 and not base.player_states['is_moving']
                                 and not self.base.game_instance['is_aiming']):
-                            self._toggle_sitting_state(self.player,
-                                                       place,
-                                                       "standing_to_sit_turkic",
-                                                       "sitting_turkic",
-                                                       "loop")
+                            self.quest_logic.toggle_sitting_state(self.player,
+                                                                  place,
+                                                                  "standing_to_sit_turkic",
+                                                                  "sitting_turkic",
+                                                                  "loop")
 
-                # TODO: Uncomment first to debug
-                """elif ("NPC" in node.get_name()
-                      and "trigger" not in node.get_name()
-                      and "Hips" not in node.get_name()):
+                if ("NPC" in node.get_name()
+                        and "trigger" not in node.get_name()
+                        and "Hips" not in node.get_name()
+                        and "Hand" not in node.get_name()):
                     name = node.get_name()
                     name = name.split(":")[0]
                     name_bs = node.get_name()
                     actor = self.base.game_instance["actors_ref"][name]
                     actor_bs = self.base.game_instance["actors_np"][name_bs]
-                    if (round(actor_bs.get_distance(place), 1) >= self.trig_range[0]
-                            and round(actor_bs.get_distance(place), 1) <= self.trig_range[1]):
-                        if not actor.get_python_tag('is_sitting'):
-                            self._toggle_laying_state(actor,
-                                                      place,
-                                                      "standing_to_sit_turkic",
-                                                      "sitting_turkic",
-                                                      "loop")"""
+                    if round(actor_bs.get_distance(place)) <= 1:
+                        self.quest_logic.toggle_npc_sitting_state(actor,
+                                                                  place,
+                                                                  "standing_to_sit_turkic",
+                                                                  "sitting_turkic",
+                                                                  "loop")
 
         return task.cont
 
@@ -403,39 +299,39 @@ class SocialQuests:
             self.base.game_instance['is_player_laying'] = False
             return task.done
 
-        if not self.player.get_python_tag("is_on_horse"):
-            for node in trigger_np.node().get_overlapping_nodes():
-                # Show 3d text
-                self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_rest",
-                                                        place=place, actor=node)
-                if self.player_name in node.get_name():
-                    if round(self.player_bs.get_distance(place), 1) <= 1:
+        for node in trigger_np.node().get_overlapping_nodes():
+            # Show 3d text
+            self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_rest",
+                                                    place=place, actor=node)
+            if self.player_name in node.get_name():
+                if not self.player.get_python_tag("is_on_horse"):
+                    if round(self.player_bs.get_distance(place)) <= 1:
                         if (self.base.game_instance["kbd_np"].keymap["use"]
                                 and not base.player_states['is_using']
                                 and not base.player_states['is_moving']
                                 and not self.base.game_instance['is_aiming']):
                             # todo: change to suitable standing_to_laying anim
-                            self._toggle_laying_state(self.player,
-                                                      place,
-                                                      "standing_to_sit_turkic",
-                                                      "sleeping_idle",
-                                                      "loop")
-                elif ("NPC" in node.get_name()
-                      and "trigger" not in node.get_name()
-                      and "Hips" not in node.get_name()):
-                    name = node.get_name()
-                    name = name.split(":")[0]
-                    name_bs = node.get_name()
-                    actor = self.base.game_instance["actors_ref"][name]
-                    actor_bs = self.base.game_instance["actors_np"][name_bs]
-                    if round(actor_bs.get_distance(place)) <= 1:
-                        if not actor.get_python_tag('generic_states')["is_laying"]:
-                            # todo: change to suitable standing_to_laying anim
-                            self._toggle_laying_state(actor,
-                                                      place,
-                                                      "standing_to_sit_turkic",
-                                                      "sleeping_idle",
-                                                      "loop")
+                            self.quest_logic.toggle_laying_state(self.player,
+                                                                 place,
+                                                                 "standing_to_sit_turkic",
+                                                                 "sleeping_idle",
+                                                                 "loop")
+            if ("NPC" in node.get_name()
+                    and ":BS" in node.get_name()
+                    and "Hips" not in node.get_name()
+                    and "Hand" not in node.get_name()):
+                name = node.get_name()
+                name = name.split(":")[0]
+                name_bs = node.get_name()
+                actor = self.base.game_instance["actors_ref"][name]
+                actor_bs = self.base.game_instance["actors_np"][name_bs]
+                if round(actor_bs.get_distance(place)) <= 1:
+                    # todo: change to suitable standing_to_laying anim
+                    self.quest_logic.toggle_npc_laying_state(actor,
+                                                             place,
+                                                             "standing_to_sit_turkic",
+                                                             "sleeping_idle",
+                                                             "loop")
 
         return task.cont
 
@@ -454,21 +350,19 @@ class SocialQuests:
                                 and not base.player_states['is_using']
                                 and not base.player_states['is_moving']
                                 and not self.base.game_instance['is_aiming']):
-                            self.play_action_state(self.player, "spring_water", "play")
-                # TODO: Uncomment first to debug
-                """
-                elif ("NPC" in node.get_name()
-                      and "trigger" not in node.get_name()
-                      and "Hips" not in node.get_name()):
+                            self.quest_logic.play_action_state(self.player, "spring_water", "play")
+
+                if ("NPC" in node.get_name()
+                        and "trigger" not in node.get_name()
+                        and "Hips" not in node.get_name()
+                        and "Hand" not in node.get_name()):
                     name = node.get_name()
                     name = name.split(":")[0]
                     name_bs = node.get_name()
                     actor = self.base.game_instance["actors_ref"][name]
                     actor_bs = self.base.game_instance["actors_np"][name_bs]
-                    if (round(place.get_distance(actor_bs), 1) >= self.trig_range[0]
-                            and round(place.get_distance(actor_bs), 1) <= self.trig_range[1]):
-                        self.play_action_state(actor, "spring_water", "play")
-                """
+                    if round(actor_bs.get_distance(place)) <= 1:
+                        self.quest_logic.play_action_state(actor, "spring_water", "play")
 
         return task.cont
 
@@ -484,7 +378,6 @@ class SocialQuests:
                                                         place=place, actor=node)
                 if self.player_name in node.get_name():
                     if round(self.player_bs.get_distance(place), 1) <= 1:
-
                         """
                         if (round(place.get_distance(player_bs), 1) >= self.trig_range[0]
                                 and round(place.get_distance(player_bs), 1) <= self.trig_range[1]):
@@ -492,7 +385,7 @@ class SocialQuests:
                                     and not base.player_states['is_using']
                                     and not base.player_states['is_moving']
                                     and not self.base.game_instance['is_aiming']):
-                            self.base.accept("e", self.play_action_state, [player,
+                            self.base.accept("e", self.quest_logic.play_action_state, [player,
                                                                            "cook_food",
                                                                            "loop"])
                         """
@@ -508,81 +401,10 @@ class SocialQuests:
                     actor_bs = self.base.game_instance["actors_np"][name_bs]
                     if (round(place.get_distance(actor_bs), 1) >= self.trig_range[0]
                             and round(place.get_distance(actor_bs), 1) <= self.trig_range[1]):
-                        self.play_action_state(actor, "cook_food", "loop")
+                        self.quest_logic.play_action_state(actor, "cook_food", "loop")
                 """
 
         return task.cont
-
-    def _construct_item_property(self, player, item_np):
-        if player and item_np:
-            # Currently close item parameters
-            self.base.game_instance['item_state'] = {
-                'type': 'item',
-                'name': '{0}'.format(item_np.get_name()),
-                'weight': '{0}'.format(1),
-                'in-use': False,
-            }
-            player.set_python_tag("used_item_np", item_np)
-            player.set_python_tag("is_item_ready", True)
-            item_prop = self.base.game_instance['item_state']
-            player.set_python_tag("current_item_prop", item_prop)
-
-    def _construct_usable_item_list(self, round_table):
-        if round_table:
-            for child in round_table.get_children():
-                usable_item_list = self.player.get_python_tag("usable_item_list")
-                name = child.get_name()
-                # Exclude round table itself
-                if round_table.get_name() not in name:
-                    # Check if we didn't get any items yet which are same as we got
-                    # when we come close to round table
-                    if self._is_items_info_collected and len(usable_item_list["name"]) > 0:
-                        if self._usable_items != self._last_used_items:
-                            if self._is_items_info_collected:
-                                # clean item lists first
-                                if len(self._usable_items) > 0:
-                                    self._usable_items = []
-                                elif len(self._usable_item_pos) > 0:
-                                    self._usable_item_pos = []
-                                elif len(self._usable_item_hpr) > 0:
-                                    self._usable_item_hpr = []
-
-                                for i in range(len(usable_item_list["name"])-1):
-                                    if name not in usable_item_list["name"][i]:
-                                        # Eclude nodes with empty names
-                                        if child.get_name():
-                                            self._usable_items.append(name)
-                                            self._usable_item_pos.append(child.get_pos())
-                                            self._usable_item_hpr.append(child.get_hpr())
-
-                                self._is_items_info_collected = False
-                    else:
-                        if not self._is_items_info_collected:
-                            # Exclude nodes with empty names
-                            if child.get_name():
-                                # we didn't get any items yet for the first time, so, get the data about them
-                                self._usable_items.append(name)
-                                self._usable_item_pos.append(child.get_pos())
-                                self._usable_item_hpr.append(child.get_hpr())
-                                self._last_used_items = self._usable_items
-
-            # Construct usable items list after they were collected
-            if not self._is_items_info_collected:
-                usable_item_list = {
-                    "name": self._usable_items,
-                    "pos": self._usable_item_pos,
-                    "hpr": self._usable_item_hpr
-                }
-
-                # print(usable_item_list["name"], len(usable_item_list["name"]))
-                self.player.set_python_tag("usable_item_list", usable_item_list)
-                self.base.game_instance["round_table_np"] = round_table
-
-                # Add item triggers
-                taskMgr.add(self.set_item_trigger,
-                            "set_item_trigger")
-
-                self._is_items_info_collected = True
 
     def round_table_trigger_task(self, task):
         if self.base.game_instance['menu_mode']:
@@ -648,7 +470,7 @@ class SocialQuests:
                                         if self.player.get_python_tag("used_item_np"):
                                             self.player.set_python_tag("used_item_np", None)
 
-                # TODO: Uncomment first to debug
+                # Fixme! Check the code
                 elif ("NPC" in node.get_name()
                       and "trigger" not in node.get_name()
                       and "Hips" not in node.get_name()):
