@@ -124,7 +124,7 @@ class NpcBehavior:
                 self.base.game_instance["use_pandai"] = True
             self.npc_ai_logic.npc_in_staying_logic(actor, request)
 
-    def _work_with_indoor_directives_queue(self, actor, request):
+    def _work_with_indoor_directives_queue(self, actor, num, request):
         # Get required data about directives
         # 0 yurt
         # 1 quest_empty_campfire
@@ -135,7 +135,7 @@ class NpcBehavior:
         actor_name = "{0}:BS".format(actor.get_name())
         actor_npc_bs = self.base.game_instance["actors_np"][actor_name]
         directive_one_np = self.base.game_instance["static_indoor_targets"][0]
-        directive_two_np = self.base.game_instance["static_indoor_targets"][2]
+        directive_two_np = self.base.game_instance["static_indoor_targets"][num]
         directive_one_dist = int(actor_npc_bs.get_distance(directive_one_np))
         directive_two_dist = int(actor_npc_bs.get_distance(directive_two_np))
 
@@ -150,9 +150,10 @@ class NpcBehavior:
                                                    request)
         # Got the first directive? Go to the second directive
         elif directive_one_dist < 2 and directive_two_dist > 1:
-            self.npc_ai_logic.npc_in_walking_logic(actor, actor_npc_bs,
-                                                   directive_two_np,
-                                                   request)
+            if not directive_two_np.get_python_tag("place_is_busy"):
+                self.npc_ai_logic.npc_in_walking_logic(actor, actor_npc_bs,
+                                                       directive_two_np,
+                                                       request)
         # Got the second directive? Stop walking
         # elif directive_two_dist < 2 and directive_one_dist > 1:
         else:
@@ -172,8 +173,17 @@ class NpcBehavior:
 
                 if passive:
                     # FIXME: TEST the directives
-                    self._work_with_indoor_directives_queue(actor, request)
-                    # self._work_with_outdoor_directive(actor=actor, target="yurt", request=request)
+                    if (not actor.get_python_tag("generic_states")['is_sitting']
+                            or not actor.get_python_tag("generic_states")['is_laying']):
+                        # Get required data about directives
+                        # 0 yurt
+                        # 1 quest_empty_campfire
+                        # 2 quest_empty_rest_place
+                        # 3 quest_empty_hearth
+                        # 4 quest_empty_spring_water
+                        # 5 round_table
+                        self._work_with_indoor_directives_queue(actor=actor, num=1, request=request)
+                        # self._work_with_outdoor_directive(actor=actor, target="yurt", request=request)
 
                     # Just stay
                     # self.npc_ai_logic.npc_in_staying_logic(actor, request)

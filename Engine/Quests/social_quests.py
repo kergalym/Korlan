@@ -223,6 +223,10 @@ class SocialQuests:
                         ph_world.attach_ghost(trigger_bg)
                         trigger_np.reparent_to(actor)
                         trigger_np.set_pos(0, 0, 1)
+
+                        # Set place state to check if it's free or busy
+                        actor.set_python_tag("place_is_busy", False)
+
                         if "campfire" in actor.get_name():
                             self._set_dimensional_text(txt_cap="txt_sit", obj=trigger_np)
                             taskMgr.add(self.quest_yurt_campfire_task,
@@ -377,11 +381,9 @@ class SocialQuests:
                 self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_use",
                                                         place=place, actor=node)
                 if self.player_name in node.get_name():
-                    if round(self.player_bs.get_distance(place), 1) <= 1:
+                    if round(self.player_bs.get_distance(place)) <= 1:
                         """
-                        if (round(place.get_distance(player_bs), 1) >= self.trig_range[0]
-                                and round(place.get_distance(player_bs), 1) <= self.trig_range[1]):
-                            if (self.base.game_instance["kbd_np"].keymap["use"]
+                        if (self.base.game_instance["kbd_np"].keymap["use"]
                                     and not base.player_states['is_using']
                                     and not base.player_states['is_moving']
                                     and not self.base.game_instance['is_aiming']):
@@ -399,8 +401,7 @@ class SocialQuests:
                     name_bs = node.get_name()
                     actor = self.base.game_instance["actors_ref"][name]
                     actor_bs = self.base.game_instance["actors_np"][name_bs]
-                    if (round(place.get_distance(actor_bs), 1) >= self.trig_range[0]
-                            and round(place.get_distance(actor_bs), 1) <= self.trig_range[1]):
+                    if round(actor_bs.get_distance(place)) <= 1:
                         self.quest_logic.play_action_state(actor, "cook_food", "loop")
                 """
 
