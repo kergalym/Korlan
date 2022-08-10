@@ -16,14 +16,31 @@ class NpcBehavior:
                 # Facing to enemy
                 self.npc_ai_logic.face_actor_to(actor_npc_bs, oppo_npc_bs)
                 # Counterattack an enemy or do block
-                self.npc_ai_logic.do_defensive_prediction(actor, actor_npc_bs, request, hitbox_dist)
+                # Do attack only if enemy has weapon
+                name = oppo_npc_bs.get_name()
+                oppo_npc_ref = self.base.game_instance["actors_ref"].get(name)
+                if not oppo_npc_ref:
+                    # Enemy is the player
+                    if (base.player_states["has_sword"]
+                            or base.player_states["has_bow"]):
+                        self.npc_ai_logic.do_defensive_prediction(actor, actor_npc_bs,
+                                                                  request, hitbox_dist)
+                if oppo_npc_ref:
+                    # Enemy is NPC
+                    if (oppo_npc_ref.has_tag("human_states")
+                            and oppo_npc_ref.get_python_tag("human_states")):
+                        if (oppo_npc_ref.get_python_tag("human_states")["has_sword"]
+                                or oppo_npc_ref.get_python_tag("human_states")["has_bow"]):
+                            self.npc_ai_logic.do_defensive_prediction(actor, actor_npc_bs,
+                                                                      request, hitbox_dist)
 
         if actor.get_python_tag("human_states")["has_sword"]:
             if distance <= 1:
                 # Facing to enemy
                 self.npc_ai_logic.face_actor_to(actor_npc_bs, oppo_npc_bs)
                 # Counterattack an enemy or do block
-                self.npc_ai_logic.do_defensive_prediction(actor, actor_npc_bs, request, hitbox_dist)
+                self.npc_ai_logic.do_defensive_prediction(actor, actor_npc_bs,
+                                                          request, hitbox_dist)
 
         elif actor.get_python_tag("human_states")["has_bow"]:
             # todo: test npc archery on player first
@@ -32,7 +49,8 @@ class NpcBehavior:
                 # Facing to enemy
                 self.npc_ai_logic.face_actor_to(actor_npc_bs, oppo_npc_bs)
                 # If enemy is close start attacking
-                self.npc_ai_logic.do_defensive_prediction(actor, actor_npc_bs, request, hitbox_dist)
+                self.npc_ai_logic.do_defensive_prediction(actor, actor_npc_bs,
+                                                          request, hitbox_dist)
 
     def _work_with_player(self, actor, player, actor_npc_bs, request):
         player_dist = int(actor_npc_bs.get_distance(player))
@@ -59,7 +77,8 @@ class NpcBehavior:
             if (not actor.get_python_tag("human_states")["has_sword"]
                     or not actor.get_python_tag("human_states")["has_bow"]):
                 if player_dist > 1:
-                    self.npc_ai_logic.npc_in_walking_logic(actor, actor_npc_bs, player, request)
+                    self.npc_ai_logic.npc_in_walking_logic(actor, actor_npc_bs,
+                                                           player, request)
                 elif player_dist <= 1:
                     self.npc_ai_logic.npc_in_staying_logic(actor, request)
                     # If enemy is close start attacking
@@ -67,11 +86,13 @@ class NpcBehavior:
                                            hitbox_dist, request)
             if actor.get_python_tag("human_states")["has_sword"]:
                 if player_dist > 1:
-                    self.npc_ai_logic.npc_in_walking_logic(actor, actor_npc_bs, player, request)
+                    self.npc_ai_logic.npc_in_walking_logic(actor, actor_npc_bs,
+                                                           player, request)
                 elif player_dist <= 1:
                     self.npc_ai_logic.npc_in_staying_logic(actor, request)
                     # If enemy is close start attacking
-                    self._attack_directive(actor, actor_npc_bs, player, player_dist,
+                    self._attack_directive(actor, actor_npc_bs,
+                                           player, player_dist,
                                            hitbox_dist, request)
             elif actor.get_python_tag("human_states")["has_bow"]:
                 # todo: test npc archery on player first
@@ -82,7 +103,8 @@ class NpcBehavior:
                     self._attack_directive(actor, actor_npc_bs, player, player_dist,
                                            hitbox_dist, request)
 
-    def _work_with_enemy(self, actor, player, actor_npc_bs, enemy_npc_bs, enemy_dist, hitbox_dist, request):
+    def _work_with_enemy(self, actor, player, actor_npc_bs,
+                         enemy_npc_bs, enemy_dist, hitbox_dist, request):
         # Friendly NPC starts attacking
         # the opponent when player first starts attacking it
         if enemy_dist > 1:
@@ -172,60 +194,90 @@ class NpcBehavior:
                 actor_name = actor.get_name()
 
                 if passive:
+                    # Just stay
+                    self.npc_ai_logic.npc_in_staying_logic(actor, request)
+
+                if not passive:
                     # FIXME: TEST the directives
                     if (not actor.get_python_tag("generic_states")['is_sitting']
                             or not actor.get_python_tag("generic_states")['is_laying']):
-                        # Get required data about directives
-                        # 0 yurt
-                        # 1 quest_empty_campfire
-                        # 2 quest_empty_rest_place
-                        # 3 quest_empty_hearth
-                        # 4 quest_empty_spring_water
-                        # 5 round_table
-                        self._work_with_indoor_directives_queue(actor=actor, num=1, request=request)
-                        # self._work_with_outdoor_directive(actor=actor, target="yurt", request=request)
+                        if self.base.game_instance["sit_time_start"]:
+                            hour, minutes = self.base.game_instance["world_time"].split(":")
+                            if (int(hour) == self.base.game_instance["sit_time_start"][0]
+                                    and int(minutes) >= self.base.game_instance["sit_time_start"][1]
+                                    and int(minutes) < self.base.game_instance["sit_time_stop"][1]):
 
-                    # Just stay
-                    # self.npc_ai_logic.npc_in_staying_logic(actor, request)
+                                if self.base.game_instance["use_pandai"]:
+                                    self.base.game_instance["use_pandai"] = False
 
-                if not passive:
+                                # Get required data about directives
+                                # 0 yurt
+                                # 1 quest_empty_campfire
+                                # 2 quest_empty_rest_place
+                                # 3 quest_empty_hearth
+                                # 4 quest_empty_spring_water
+                                # 5 round_table
+                                self._work_with_indoor_directives_queue(actor=actor, num=1, request=request)
+                                # self._work_with_outdoor_directive(actor=actor, target="yurt", request=request)
 
-                    # Get required data about enemy to deal with it
-                    actor_npc_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
+                    elif (not actor.get_python_tag("generic_states")['is_sitting']
+                            or not actor.get_python_tag("generic_states")['is_laying']):
+                        if self.base.game_instance["rest_time_start"]:
+                            hour, minutes = self.base.game_instance["world_time"].split(":")
+                            if (int(hour) == self.base.game_instance["rest_time_start"][0]
+                                    and int(minutes) >= self.base.game_instance["rest_time_start"][1]
+                                    and int(minutes) < self.base.game_instance["rest_time_stop"][1]):
 
-                    # No alive enemy around, just stay tuned
-                    if not self.npc_ai_logic.get_enemy(actor=actor):
-                        if not base.player_states['is_alive']:
-                            self.npc_ai_logic.npc_in_staying_logic(actor, request)
+                                if self.base.game_instance["use_pandai"]:
+                                    self.base.game_instance["use_pandai"] = False
 
-                        if base.player_states['is_alive']:
-                            self._work_with_player(actor, player, actor_npc_bs, request)
+                                # Get required data about directives
+                                # 0 yurt
+                                # 1 quest_empty_campfire
+                                # 2 quest_empty_rest_place
+                                # 3 quest_empty_hearth
+                                # 4 quest_empty_spring_water
+                                # 5 round_table
+                                self._work_with_indoor_directives_queue(actor=actor, num=2, request=request)
+                                # self._work_with_outdoor_directive(actor=actor, target="yurt", request=request)
 
-                    # Check if we have alive someone around us
-                    if self.npc_ai_logic.get_enemy(actor=actor):
-                        enemy_npc_ref, enemy_npc_bs = self.npc_ai_logic.get_enemy(actor=actor)
+                    if self.base.game_instance["use_pandai"]:
+                        # Get required data about enemy to deal with it
+                        actor_npc_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
 
-                        if actor_npc_bs and enemy_npc_ref and enemy_npc_bs:
-                            player_dist = int(actor_npc_bs.get_distance(player))
-                            enemy_dist = int(actor_npc_bs.get_distance(enemy_npc_bs))
-                            hitbox_dist = self.npc_ai_logic.get_hit_distance(actor)
+                        # No alive enemy around, just stay tuned
+                        if not self.npc_ai_logic.get_enemy(actor=actor):
+                            if not base.player_states['is_alive']:
+                                self.npc_ai_logic.npc_in_staying_logic(actor, request)
 
-                            # PLAYER
                             if base.player_states['is_alive']:
                                 self._work_with_player(actor, player, actor_npc_bs, request)
-                            elif not base.player_states['is_alive']:
-                                if player_dist <= 1:
-                                    self.npc_ai_logic.npc_in_staying_logic(actor, request)
 
-                            # ENEMY
-                            if enemy_npc_ref.get_python_tag("generic_states")['is_alive']:
-                                if enemy_npc_ref.get_python_tag("generic_states")['is_alive']:
-                                    self._work_with_enemy(actor, player, actor_npc_bs,
-                                                          enemy_npc_bs, enemy_dist,
-                                                          hitbox_dist, request)
-                                else:
-                                    if enemy_dist <= 1:
+                        # Check if we have alive someone around us
+                        if self.npc_ai_logic.get_enemy(actor=actor):
+                            enemy_npc_ref, enemy_npc_bs = self.npc_ai_logic.get_enemy(actor=actor)
+
+                            if actor_npc_bs and enemy_npc_ref and enemy_npc_bs:
+                                player_dist = int(actor_npc_bs.get_distance(player))
+                                enemy_dist = int(actor_npc_bs.get_distance(enemy_npc_bs))
+                                hitbox_dist = self.npc_ai_logic.get_hit_distance(actor)
+
+                                # PLAYER
+                                if base.player_states['is_alive']:
+                                    self._work_with_player(actor, player, actor_npc_bs, request)
+                                elif not base.player_states['is_alive']:
+                                    if player_dist <= 1:
                                         self.npc_ai_logic.npc_in_staying_logic(actor, request)
+
+                                # ENEMY
+                                if enemy_npc_ref.get_python_tag("generic_states")['is_alive']:
+                                    if enemy_npc_ref.get_python_tag("generic_states")['is_alive']:
+                                        self._work_with_enemy(actor, player, actor_npc_bs,
+                                                              enemy_npc_bs, enemy_dist,
+                                                              hitbox_dist, request)
+                                    else:
+                                        if enemy_dist <= 1:
+                                            self.npc_ai_logic.npc_in_staying_logic(actor, request)
             # If me is dead
             else:
                 self.npc_ai_logic.npc_in_dying_logic(actor, request)

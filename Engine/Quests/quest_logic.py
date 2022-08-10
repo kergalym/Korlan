@@ -16,6 +16,12 @@ class QuestLogic:
         self.npc_rest_time_start = [23, 1]
         self.npc_rest_time_stop = [6, 15]
 
+        self.base.game_instance["sit_time_start"] = self.npc_sit_time_start
+        self.base.game_instance["sit_time_stop"] = self.npc_sit_time_stop
+
+        self.base.game_instance["rest_time_start"] = self.npc_rest_time_start
+        self.base.game_instance["rest_time_stop"] = self.npc_rest_time_stop
+
         self.current_seq = None
 
     def set_action_state(self, actor, action, bool_):

@@ -61,34 +61,9 @@ class NpcAILogic:
                         "{0}_hitboxes_task".format(name.lower()),
                         extraArgs=[actor, actor_bs, request], appendTask=True)
 
-        taskMgr.add(self.update_pathfinding_task,
-                    "update_pathfinding_task",
-                    appendTask=True)
-
         taskMgr.add(self.npc_behavior_init_task,
                     "npc_behavior_init_task",
                     appendTask=True)
-
-    def update_pathfinding_task(self, task):
-        if self.ai_chars_bs and self.ai_world and self.ai_behaviors:
-            for actor_name in self.ai_behaviors:
-                self.ai_chars[actor_name].set_max_force(5)
-
-                for name in self.ai_chars_bs:
-                    if "Horse" not in name:
-                        # Add actors as obstacles except actor that avoids them
-                        if name != actor_name and "Ernar" in name:
-                            ai_char_bs = self.ai_chars_bs[name]
-                            if ai_char_bs:
-                                # self.ai_behaviors[actor_name].path_find_to(ai_char_bs, "addPath")
-                                self.ai_behaviors[actor_name].add_dynamic_obstacle(ai_char_bs)
-                                # self.ai_behaviors[actor_name].path_find_to(self.player, "addPath")
-                                self.ai_behaviors[actor_name].add_dynamic_obstacle(self.player)
-                                # Obstacle avoidance behavior
-                                self.ai_behaviors[actor_name].obstacle_avoidance(1.0)
-                                self.ai_world.add_obstacle(self.base.box_np)
-
-            return task.done
 
     def npc_behavior_init_task(self, task):
         if self.base.game_instance['loading_is_done'] == 1:
@@ -116,10 +91,9 @@ class NpcAILogic:
                     self.navmesh.update()"""
 
                     name = actor_name.lower()
-                    # FIXME: Test the directives. Tempo set passive to True
                     taskMgr.add(self.npc_behavior.npc_generic_logic,
                                 "{0}_npc_friend_logic_task".format(name),
-                                extraArgs=[actor, self.player, request, True],
+                                extraArgs=[actor, self.player, request, False],
                                 appendTask=True)
 
                 return task.done
@@ -588,18 +562,9 @@ class NpcAILogic:
                     request.request("RemoveWeapon", actor, "archer_standing_disarm_bow",
                                     weapon_name, bone_name, "play")
 
-    def actor_rotate(self, actor_npc_bs, path_points):
-        current_dir = actor_npc_bs.get_hpr()
-
-        for i in range(len(path_points) - 1):
-            new_hpr = Vec3(Vec2(0, -1).signed_angle_deg(path_points[i + 1].xy - path_points[i].xy), current_dir[1],
-                           current_dir[2])
-            actor_npc_bs.set_hpr(new_hpr)
-            # actor_npc_bs.hprInterval(0, new_hpr)
-
     def face_actor_to(self, actor, target_np):
         if actor and target_np:
-            actor.look_at(target_np.get_pos())
+            """actor.look_at(target_np.get_pos())
             actor.set_h(target_np, -180)
 
             # keep target once
@@ -608,7 +573,13 @@ class NpcAILogic:
                 actor.set_python_tag("target_np", target_np)
             elif saved_target_np:
                 if saved_target_np.get_name() != target_np.get_name():
-                    actor.set_python_tag("target_np", target_np)
+                    actor.set_python_tag("target_np", target_np)"""
+
+            rot_vector = Vec3(actor.get_pos() - target_np.get_pos())
+            rot_vector_2d = rot_vector.get_xy()
+            rot_vector_2d.normalize()
+            new_hpr = Vec3(Vec2(0, -1).signed_angle_deg(rot_vector_2d), 0)
+            actor.set_h(new_hpr[0])
 
     def get_hit_distance(self, actor):
         if actor and actor.find("**/**Hips:HB"):
@@ -631,12 +602,10 @@ class NpcAILogic:
             if (not actor.get_python_tag("generic_states")["is_attacked"]
                     or not actor.get_python_tag("generic_states")["is_busy"]):
                 if hitbox_dist >= 0.5 and hitbox_dist <= 2.2:
-                    if actor.get_python_tag("stamina_np")['value'] > 5:
+                    if actor.get_python_tag("stamina_np")['value'] < 50:
                         self.npc_in_blocking_logic(actor, request)
-                elif hitbox_dist >= 0.5 and hitbox_dist <= 1.8:
                     if actor.get_python_tag("stamina_np")['value'] > 15:
                         self.npc_in_forwardroll_logic(actor, actor_npc_bs, request)
-                else:
                     if actor.get_python_tag("stamina_np")['value'] > 35:
                         self.npc_in_attacking_logic(actor, request)
                     if actor.get_python_tag("stamina_np")['value'] > 5:

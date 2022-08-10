@@ -391,7 +391,11 @@ class Main(ShowBase):
             "use_pandai": None,
             "static_indoor_targets": None,
             "npc_state_cls": None,
-            "world_time": None
+            "world_time": None,
+            "sit_time_start": None,
+            "sit_time_stop": None,
+            "rest_time_start": None,
+            "rest_time_stop": None,
         }
         self.shared_functions = {}
 
