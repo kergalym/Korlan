@@ -16,23 +16,11 @@ class NpcBehavior:
                 # Facing to enemy
                 self.npc_ai_logic.face_actor_to(actor_npc_bs, oppo_npc_bs)
                 # Counterattack an enemy or do block
-                # Do attack only if enemy has weapon
-                name = oppo_npc_bs.get_name()
-                oppo_npc_ref = self.base.game_instance["actors_ref"].get(name)
-                if not oppo_npc_ref:
-                    # Enemy is the player
-                    if (base.player_states["has_sword"]
-                            or base.player_states["has_bow"]):
-                        self.npc_ai_logic.do_defensive_prediction(actor, actor_npc_bs,
-                                                                  request, hitbox_dist)
-                if oppo_npc_ref:
-                    # Enemy is NPC
-                    if (oppo_npc_ref.has_tag("human_states")
-                            and oppo_npc_ref.get_python_tag("human_states")):
-                        if (oppo_npc_ref.get_python_tag("human_states")["has_sword"]
-                                or oppo_npc_ref.get_python_tag("human_states")["has_bow"]):
-                            self.npc_ai_logic.do_defensive_prediction(actor, actor_npc_bs,
-                                                                      request, hitbox_dist)
+                # Do attack only if play did first attack
+                player = self.base.game_instance["player_ref"]
+                if player.get_python_tag("first_attack"):
+                    self.npc_ai_logic.do_defensive_prediction(actor, actor_npc_bs,
+                                                              request, hitbox_dist)
 
         if actor.get_python_tag("human_states")["has_sword"]:
             if distance <= 1:

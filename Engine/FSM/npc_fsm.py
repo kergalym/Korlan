@@ -152,6 +152,18 @@ class NpcFSM(FSM):
                         actor.loop(action)
                 actor.set_play_rate(1.0, action)
 
+    def enterWalkReverseRD(self, actor, action, task):
+        if actor and action and task:
+            any_action = actor.get_anim_control(action)
+            actor.set_play_rate(-1.0, action)
+            if isinstance(task, str):
+                if task == "play":
+                    if not any_action.is_playing():
+                        actor.play(action)
+                elif task == "loop":
+                    if not any_action.is_playing():
+                        actor.loop(action)
+
     def enterTurn(self, actor, action, task):
         if actor and action and task:
             if isinstance(task, str):

@@ -476,8 +476,13 @@ class StatUI:
         if actor_name and isinstance(actor_name, str):
             for k in base.game_instance["actors_ref"]:
                 actor = base.game_instance["actors_ref"][k]
-                if actor_name in actor.get_name():
-                    return actor.get_python_tag("generic_states")
+                if actor:
+                    is_alive = actor.get_python_tag("generic_states")['is_alive']
+                    if actor_name in actor.get_name() and is_alive:
+                        return actor.get_python_tag("generic_states")
+                    # If not alive actor which has actor_name, get another alive actor
+                    elif actor_name not in actor.get_name() and is_alive:
+                        return actor.get_python_tag("generic_states")
 
     def draw_npc_actions_list(self):
         if len(self.npc_actions_ui_np) > 0:

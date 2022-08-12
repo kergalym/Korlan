@@ -120,7 +120,7 @@ class NpcAILogic:
                             if str(hitbox_np.get_collide_mask()) != " 0000 0000 0000 0000 0000 0000 0000 0000\n":
                                 distance = round(hitbox_np.get_distance(parent_np), 1)
 
-                                # Enemy Prediction
+                                # Enemy Prediction for facing
                                 if distance >= 0.5 and distance <= 2.5:
                                     if node:
                                         name = node.get_name()
@@ -140,17 +140,15 @@ class NpcAILogic:
                                     hitbox_np.set_collide_mask(BitMask32.allOff())
                                     if actor.get_python_tag("health_np"):
                                         # NPC gets damage if he has health point
-                                        if (not actor.get_python_tag("generic_states")['is_busy']
-                                                and not actor.get_python_tag("generic_states")['is_using']):
-                                            if actor.get_python_tag("health_np")['value'] > 1:
-                                                request.request("Attacked", actor, "HitToBody", "play")
-                                                actor.get_python_tag("health_np")['value'] -= 6
+                                        if actor.get_python_tag("health_np")['value'] > 1:
+                                            request.request("Attacked", actor, "HitToBody", "play")
+                                            actor.get_python_tag("health_np")['value'] -= 6
 
-                                            if actor.get_python_tag("stamina_np")['value'] > 1:
-                                                actor.get_python_tag("stamina_np")['value'] -= 3
+                                        if actor.get_python_tag("stamina_np")['value'] > 1:
+                                            actor.get_python_tag("stamina_np")['value'] -= 3
 
-                                            if actor.get_python_tag("courage_np")['value'] > 1:
-                                                actor.get_python_tag("courage_np")['value'] -= 3
+                                        if actor.get_python_tag("courage_np")['value'] > 1:
+                                            actor.get_python_tag("courage_np")['value'] -= 3
 
             # NPC dies if he has no health point
             if (actor.get_python_tag("health_np")['value'] < 2
@@ -439,20 +437,19 @@ class NpcAILogic:
                 and not actor.get_python_tag("generic_states")['is_busy']
                 and not actor.get_python_tag("generic_states")['is_moving']):
 
-            if actor.get_python_tag("stamina_np"):
-                if actor.get_python_tag("stamina_np")['value'] > 35:
-                    if actor.get_python_tag("human_states")["has_sword"]:
-                        action = "great_sword_slash"
-                        request.request("Attack", actor, action, "play")
-                    elif actor.get_python_tag("human_states")["has_bow"]:
-                        action = "archer_standing_draw_arrow"
-                        request.request("Archery", actor, action, "play")
-                    else:
-                        action = "Boxing"
-                        request.request("Attack", actor, action, "play")
+            if actor.get_python_tag("human_states")["has_sword"]:
+                action = "great_sword_slash"
+                request.request("Attack", actor, action, "play")
+            elif actor.get_python_tag("human_states")["has_bow"]:
+                action = "archer_standing_draw_arrow"
+                request.request("Archery", actor, action, "play")
+            elif (not actor.get_python_tag("human_states")["has_sword"]
+                  and not actor.get_python_tag("human_states")["has_bow"]):
+                action = "Boxing"
+                request.request("Attack", actor, action, "play")
 
-                    if actor.get_python_tag("stamina_np")['value'] > 1:
-                        actor.get_python_tag("stamina_np")['value'] -= 18
+            if actor.get_python_tag("stamina_np")['value'] > 1:
+                actor.get_python_tag("stamina_np")['value'] -= 18
 
     def npc_in_forwardroll_logic(self, actor, actor_npc_bs, request):
         dt = globalClock.getDt()
@@ -473,6 +470,21 @@ class NpcAILogic:
 
                 if actor.get_python_tag("stamina_np")['value'] > 1:
                     actor.get_python_tag("stamina_np")['value'] -= 15
+
+    def npc_in_step_back_logic(self, actor, actor_npc_bs, request):
+        dt = globalClock.getDt()
+        if self.is_ready_for_walking(actor):
+            actor.get_python_tag("generic_states")['is_idle'] = False
+            actor.get_python_tag("generic_states")['is_moving'] = True
+
+            if actor.get_python_tag("generic_states")['is_moving']:
+                if actor.get_python_tag("stamina_np"):
+                    if actor.get_python_tag("stamina_np")['value'] > 1:
+                        actor.get_python_tag("stamina_np")['value'] -= 1
+
+                if int(actor_npc_bs.get_y()) != int(actor_npc_bs.get_y()) + 1:
+                    actor_npc_bs.set_y(actor_npc_bs, 2 * dt)
+                    request.request("WalkReverseRD", actor, "Walking", "loop")
 
     def npc_in_crouching_logic(self, actor, request):
         if (actor.get_python_tag("generic_states")['is_idle']
@@ -564,22 +576,24 @@ class NpcAILogic:
 
     def face_actor_to(self, actor, target_np):
         if actor and target_np:
-            """actor.look_at(target_np.get_pos())
-            actor.set_h(target_np, -180)
-
-            # keep target once
-            saved_target_np = actor.get_python_tag("target_np")
-            if not saved_target_np:
-                actor.set_python_tag("target_np", target_np)
-            elif saved_target_np:
-                if saved_target_np.get_name() != target_np.get_name():
-                    actor.set_python_tag("target_np", target_np)"""
-
+            # Calculate NPC rotation vector
             rot_vector = Vec3(actor.get_pos() - target_np.get_pos())
             rot_vector_2d = rot_vector.get_xy()
             rot_vector_2d.normalize()
             new_hpr = Vec3(Vec2(0, -1).signed_angle_deg(rot_vector_2d), 0)
-            actor.set_h(new_hpr[0])
+            target_heading = target_np.get_h()
+            heading = actor.get_h()
+
+            # If NPC faced to target actor and target actor is faced to NPC,
+            # then continue heading
+            # If NPC is not faced to target actor and target actor is not faced to NPC,
+            # then do reversed heading
+            if int(heading) < 0 and int(target_heading) > 0:
+                actor.set_h(-new_hpr[0])
+            # If NPC is not faced to target actor and target actor is faced to NPC,
+            # then do reversed heading 3
+            elif int(heading) < 0 and int(target_heading) < 0:
+                actor.set_h(-new_hpr[0])
 
     def get_hit_distance(self, actor):
         if actor and actor.find("**/**Hips:HB"):
@@ -599,14 +613,14 @@ class NpcAILogic:
 
     def do_defensive_prediction(self, actor, actor_npc_bs, request, hitbox_dist):
         if actor and actor_npc_bs and request and hitbox_dist:
-            if (not actor.get_python_tag("generic_states")["is_attacked"]
-                    or not actor.get_python_tag("generic_states")["is_busy"]):
-                if hitbox_dist >= 0.5 and hitbox_dist <= 2.2:
-                    if actor.get_python_tag("stamina_np")['value'] < 50:
-                        self.npc_in_blocking_logic(actor, request)
-                    if actor.get_python_tag("stamina_np")['value'] > 15:
-                        self.npc_in_forwardroll_logic(actor, actor_npc_bs, request)
-                    if actor.get_python_tag("stamina_np")['value'] > 35:
-                        self.npc_in_attacking_logic(actor, request)
-                    if actor.get_python_tag("stamina_np")['value'] > 5:
-                        self.npc_in_blocking_logic(actor, request)
+            if hitbox_dist >= 0.5 and hitbox_dist <= 1.8:
+                if actor.get_python_tag("stamina_np")['value'] > 5:
+                    self.npc_in_step_back_logic(actor, actor_npc_bs, request)
+                if actor.get_python_tag("stamina_np")['value'] > 50:
+                    self.npc_in_blocking_logic(actor, request)
+                if (actor.get_python_tag("stamina_np")['value'] > 5
+                        and actor.get_python_tag("stamina_np")['value'] < 50):
+                    self.npc_in_forwardroll_logic(actor, actor_npc_bs, request)
+
+            if actor.get_python_tag("stamina_np")['value'] > 10:
+                self.npc_in_attacking_logic(actor, request)

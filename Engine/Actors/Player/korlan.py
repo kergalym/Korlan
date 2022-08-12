@@ -300,6 +300,8 @@ class Korlan:
                 self.korlan.set_python_tag("is_close_to_use_item", False)
                 self.korlan.set_python_tag("current_item_prop", None)
 
+                self.korlan.set_python_tag("first_attack", False)
+
                 # Set Player Parameters
                 self.state.set_state(actor=self.korlan)
 

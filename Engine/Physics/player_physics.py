@@ -32,17 +32,16 @@ class PlayerPhysics:
                                     if self.base.game_instance['hud_np']:
                                         # Player gets damage if he has health point
                                         if self.base.game_instance['hud_np'].player_bar_ui_health['value'] > 1:
-                                            if (not base.player_states['is_busy']
-                                                    and not base.player_states['is_using']):
-                                                request.request("Attacked", actor_ref, "HitToBody", "play")
-                                                self.base.game_instance['hud_np'].player_bar_ui_health['value'] -= 5
-                                                if actor.get_python_tag("health") > 1:
-                                                    health = actor.get_python_tag("health")
-                                                    health -= 5
-                                                    actor.set_python_tag("health", health)
+                                            request.request("Attacked", actor_ref, "HitToBody", "play")
+                                            self.base.game_instance['hud_np'].player_bar_ui_health['value'] -= 5
+                                            if actor.get_python_tag("health") > 1:
+                                                health = actor.get_python_tag("health")
+                                                health -= 5
+                                                actor.set_python_tag("health", health)
 
             # Player dies if he has no health point
             if actor.get_python_tag("health") == 0:
+                actor.set_python_tag("first_attack", False)
                 if base.player_states['is_alive']:
                     if base.player_states['is_idle']:
                         request.request("Death", actor_ref, "Dying", "play")

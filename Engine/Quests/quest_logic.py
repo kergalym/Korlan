@@ -10,8 +10,8 @@ class QuestLogic:
         self.actor_geom_pos_z = 0
         self.cam_p = 0
 
-        self.npc_sit_time_start = [18, 1]
-        self.npc_sit_time_stop = [18, 15]
+        self.npc_sit_time_start = [19, 1]
+        self.npc_sit_time_stop = [19, 15]
 
         self.npc_rest_time_start = [23, 1]
         self.npc_rest_time_stop = [6, 15]

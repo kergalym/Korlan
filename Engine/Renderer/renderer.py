@@ -73,65 +73,66 @@ class RenderAttr:
                                          mayChange=True)
 
     def set_time_of_day_clock_task(self, time, duration, task):
-        if self.base.game_instance["renderpipeline_np"] and time and duration:
-            self.base.game_instance["renderpipeline_np"].daytime_mgr.time = time
-            self.elapsed_seconds = round(globalClock.getRealTime())
-
-            # seconds floor divided by 60 are equal to 1 minute
-            # 1800 seconds are equal to 30 minutes
-            self.minutes = self.elapsed_seconds // 60
-
-            if self.base.game_instance['inv_mode']:
-                self.hour = 15
-            else:
-                hour = time.split(':')
-                hour = int(hour[0])
-                self.hour = hour
-
-            # 30 minutes of duration
-            if duration == 1800:
-                if self.hour == 23:
-                    self.hour = 0
+        if self.base.game_instance['loading_is_done'] == 1:
+            if self.base.game_instance["renderpipeline_np"] and time and duration:
+                self.base.game_instance["renderpipeline_np"].daytime_mgr.time = time
+                self.elapsed_seconds = round(globalClock.getRealTime())
+    
+                # seconds floor divided by 60 are equal to 1 minute
+                # 1800 seconds are equal to 30 minutes
+                self.minutes = self.elapsed_seconds // 60
+    
+                if self.base.game_instance['inv_mode']:
+                    self.hour = 15
                 else:
-                    self.hour += self.minutes // 60
-                    if self.minutes > 59:
-                        self.minutes = 00
-            # Seconds of duration
-            elif duration < 1800:
-                if self.hour == 23:
-                    self.hour = 0
+                    hour = time.split(':')
+                    hour = int(hour[0])
+                    self.hour = hour
+    
+                # 30 minutes of duration
+                if duration == 1800:
+                    if self.hour == 23:
+                        self.hour = 0
+                    else:
+                        self.hour += self.minutes // 60
+                        if self.minutes > 59:
+                            self.minutes = 00
+                # Seconds of duration
+                elif duration < 1800:
+                    if self.hour == 23:
+                        self.hour = 0
+                    else:
+                        self.hour += self.minutes
+                        if self.elapsed_seconds > 59:
+                            self.minutes = 00
+    
+                # Day counting
+                if self.hour == 23 and self.elapsed_seconds > 59:
+                    self.day += 1
+    
+                if self.minutes < 10:
+                    text = "Day {0}    {1}:0{2}".format(self.day, self.hour, self.minutes)
+                    self.time_text_ui.setText(text)
+                    self.base.game_instance["renderpipeline_np"].daytime_mgr.time = "{0}:0{1}".format(self.hour,
+                                                                                                      self.minutes)
+                elif self.minutes > 9:
+                    text = "Day {0}    {1}:{2}".format(self.day, self.hour, self.minutes)
+                    self.time_text_ui.setText(text)
+                    self.base.game_instance["renderpipeline_np"].daytime_mgr.time = "{0}:{1}".format(self.hour,
+                                                                                                     self.minutes)
+    
+                self.base.game_instance["world_time"] = "{0}:{1}".format(self.hour, self.minutes)
+    
+                if not self.base.game_instance['ui_mode']:
+                    if 7 <= self.hour < 19:
+                        if self.base.game_instance['hud_np']:
+                            self.base.game_instance['hud_np'].toggle_day_hud(time="light")
+                    elif self.hour >= 19:
+                        if self.base.game_instance['hud_np']:
+                            self.base.game_instance['hud_np'].toggle_day_hud(time="night")
                 else:
-                    self.hour += self.minutes
-                    if self.elapsed_seconds > 59:
-                        self.minutes = 00
-
-            # Day counting
-            if self.hour == 23 and self.elapsed_seconds > 59:
-                self.day += 1
-
-            if self.minutes < 10:
-                text = "Day {0}    {1}:0{2}".format(self.day, self.hour, self.minutes)
-                self.time_text_ui.setText(text)
-                self.base.game_instance["renderpipeline_np"].daytime_mgr.time = "{0}:0{1}".format(self.hour,
-                                                                                                  self.minutes)
-            elif self.minutes > 9:
-                text = "Day {0}    {1}:{2}".format(self.day, self.hour, self.minutes)
-                self.time_text_ui.setText(text)
-                self.base.game_instance["renderpipeline_np"].daytime_mgr.time = "{0}:{1}".format(self.hour,
-                                                                                                 self.minutes)
-
-            self.base.game_instance["world_time"] = "{0}:{1}".format(self.hour, self.minutes)
-
-            if not self.base.game_instance['ui_mode']:
-                if 7 <= self.hour < 19:
                     if self.base.game_instance['hud_np']:
-                        self.base.game_instance['hud_np'].toggle_day_hud(time="light")
-                elif self.hour >= 19:
-                    if self.base.game_instance['hud_np']:
-                        self.base.game_instance['hud_np'].toggle_day_hud(time="night")
-            else:
-                if self.base.game_instance['hud_np']:
-                    self.base.game_instance['hud_np'].toggle_day_hud(time="off")
+                        self.base.game_instance['hud_np'].toggle_day_hud(time="off")
 
         return task.cont
 

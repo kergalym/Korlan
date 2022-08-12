@@ -404,6 +404,10 @@ class PlayerActions:
                 and not self.base.game_instance['is_aiming']):
             if self.kbd.keymap[key] and not base.do_key_once[key]:
                 self.state.set_do_once_key(key, True)
+
+                if not player.get_python_tag("first_attack"):
+                    player.set_python_tag("first_attack", True)
+
                 crouched_to_standing = player.get_anim_control(anims[self.crouched_to_standing_action])
                 base.player_states['is_idle'] = False
 
@@ -955,6 +959,10 @@ class PlayerActions:
                         and len(self.archery.arrows) > 0):
                     self.archery.arrow_ref.set_python_tag("ready", 1)
                     self.archery.bow_shoot()
+
+                    if not player.get_python_tag("first_attack"):
+                        player.set_python_tag("first_attack", True)
+
                     if self.base.game_instance['hud_np'].charge_arrow_bar_ui:
                         self.base.game_instance['hud_np'].charge_arrow_bar_ui['value'] = 0
                     self.base.game_instance['free_camera'] = False
@@ -1051,6 +1059,10 @@ class PlayerActions:
                         and len(self.archery.arrows) > 0):
                     self.archery.arrow_ref.set_python_tag("ready", 1)
                     self.archery.bow_shoot()
+
+                    if not player.get_python_tag("first_attack"):
+                        player.set_python_tag("first_attack", True)
+
                     if self.base.game_instance['hud_np'].charge_arrow_bar_ui:
                         self.base.game_instance['hud_np'].charge_arrow_bar_ui['value'] = 0
 
