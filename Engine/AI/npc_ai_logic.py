@@ -1,4 +1,4 @@
-from direct.interval.FunctionInterval import Func
+from direct.interval.FunctionInterval import Func, Wait
 from direct.interval.MetaInterval import Sequence
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import Vec3, Vec2, BitMask32, Point3
@@ -22,6 +22,7 @@ class NpcAILogic:
         self.npc_classes = npc_classes
         self.npc_rotations = {}
         self.activated_npc_count = 0
+        self.current_seq = None
         self.navmesh = self.base.game_instance["navmesh"]
         self.navmesh_query = self.base.game_instance["navmesh_query"]
 
@@ -116,9 +117,11 @@ class NpcAILogic:
                             and actor.get_name() not in node.get_name()):
                         hitbox_np = render.find("**/{0}".format(node.get_name()))
                         if hitbox_np:
+                            actor.set_python_tag("enemy_hitbox_distance", 0)
                             # Deactivate enemy weapon if we got hit
                             if str(hitbox_np.get_collide_mask()) != " 0000 0000 0000 0000 0000 0000 0000 0000\n":
                                 distance = round(hitbox_np.get_distance(parent_np), 1)
+                                actor.set_python_tag("enemy_hitbox_distance", distance)
 
                                 # Enemy Prediction for facing
                                 if distance >= 0.5 and distance <= 2.5:
@@ -161,6 +164,10 @@ class NpcAILogic:
                         request.request("Death", actor, "Dying", "play")
 
         return task.cont
+
+    def _reset_current_sequence(self):
+        if self.current_seq:
+            self.current_seq = None
 
     def get_enemy(self, actor):
         if actor:
@@ -482,9 +489,24 @@ class NpcAILogic:
                     if actor.get_python_tag("stamina_np")['value'] > 1:
                         actor.get_python_tag("stamina_np")['value'] -= 1
 
-                if int(actor_npc_bs.get_y()) != int(actor_npc_bs.get_y()) + 1:
-                    actor_npc_bs.set_y(actor_npc_bs, 2 * dt)
+                if int(actor_npc_bs.get_y()) != int(actor_npc_bs.get_y()) + 2:
+                    actor_npc_bs.set_y(actor_npc_bs, 2*dt)
                     request.request("WalkReverseRD", actor, "Walking", "loop")
+
+    def npc_in_step_forward_logic(self, actor, actor_npc_bs, request):
+        dt = globalClock.getDt()
+        if self.is_ready_for_walking(actor):
+            actor.get_python_tag("generic_states")['is_idle'] = False
+            actor.get_python_tag("generic_states")['is_moving'] = True
+
+            if actor.get_python_tag("generic_states")['is_moving']:
+                if actor.get_python_tag("stamina_np"):
+                    if actor.get_python_tag("stamina_np")['value'] > 1:
+                        actor.get_python_tag("stamina_np")['value'] -= 1
+
+                if int(actor_npc_bs.get_y()) != int(actor_npc_bs.get_y()) - 2:
+                    actor_npc_bs.set_y(actor_npc_bs, -2*dt)
+                    request.request("WalkRD", actor, "Walking", "loop")
 
     def npc_in_crouching_logic(self, actor, request):
         if (actor.get_python_tag("generic_states")['is_idle']
@@ -595,32 +617,33 @@ class NpcAILogic:
             elif int(heading) < 0 and int(target_heading) < 0:
                 actor.set_h(-new_hpr[0])
 
-    def get_hit_distance(self, actor):
-        if actor and actor.find("**/**Hips:HB"):
-            parent_node = actor.find("**/**Hips:HB").node()
-            parent_np = actor.find("**/**Hips:HB")
-
-            for node in parent_node.get_overlapping_nodes():
-                damage_weapons = actor.get_python_tag("damage_weapons")
-                for weapon in damage_weapons:
-                    # Exclude our own weapon hits
-                    if (weapon in node.get_name()
-                            and actor.get_name() not in node.get_name()):
-                        hitbox_np = self.render.find("**/{0}".format(node.get_name()))
-                        if hitbox_np:
-                            distance = round(hitbox_np.get_distance(parent_np), 1)
-                            return distance
-
     def do_defensive_prediction(self, actor, actor_npc_bs, request, hitbox_dist):
         if actor and actor_npc_bs and request and hitbox_dist:
             if hitbox_dist >= 0.5 and hitbox_dist <= 1.8:
                 if actor.get_python_tag("stamina_np")['value'] > 5:
-                    self.npc_in_step_back_logic(actor, actor_npc_bs, request)
-                if actor.get_python_tag("stamina_np")['value'] > 50:
-                    self.npc_in_blocking_logic(actor, request)
+                    if not self.current_seq:
+                        self.current_seq = Sequence(
+                                                    Func(self.npc_in_step_back_logic, actor, actor_npc_bs, request),
+                                                    Wait(1),
+                                                    Func(self.npc_in_step_forward_logic, actor, actor_npc_bs, request),
+                                                    Func(self.npc_in_blocking_logic, actor, request),
+                                                    Func(self._reset_current_sequence)
+                                                    )
+                    if self.current_seq and not self.current_seq.is_playing():
+                        self.current_seq.start()
+
                 if (actor.get_python_tag("stamina_np")['value'] > 5
                         and actor.get_python_tag("stamina_np")['value'] < 50):
-                    self.npc_in_forwardroll_logic(actor, actor_npc_bs, request)
+                    if not self.current_seq:
+                        self.current_seq = Sequence(
+                            Func(self.npc_in_step_back_logic, actor, actor_npc_bs, request),
+                            Wait(1),
+                            Func(self.npc_in_step_forward_logic, actor, actor_npc_bs, request),
+                            Func(self.npc_in_forwardroll_logic, actor, actor_npc_bs, request),
+                            Func(self._reset_current_sequence)
+                        )
+                    if self.current_seq and not self.current_seq.is_playing():
+                        self.current_seq.start()
 
             if actor.get_python_tag("stamina_np")['value'] > 10:
                 self.npc_in_attacking_logic(actor, request)

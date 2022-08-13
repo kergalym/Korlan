@@ -42,7 +42,7 @@ class NpcBehavior:
 
     def _work_with_player(self, actor, player, actor_npc_bs, request):
         player_dist = int(actor_npc_bs.get_distance(player))
-        hitbox_dist = self.npc_ai_logic.get_hit_distance(actor)
+        hitbox_dist = actor.get_python_tag("enemy_hitbox_distance")
 
         # Mount if player mounts
         if base.player_states['is_mounted']:
@@ -248,7 +248,7 @@ class NpcBehavior:
                             if actor_npc_bs and enemy_npc_ref and enemy_npc_bs:
                                 player_dist = int(actor_npc_bs.get_distance(player))
                                 enemy_dist = int(actor_npc_bs.get_distance(enemy_npc_bs))
-                                hitbox_dist = self.npc_ai_logic.get_hit_distance(actor)
+                                hitbox_dist = actor.get_python_tag("enemy_hitbox_distance")
 
                                 # PLAYER
                                 if base.player_states['is_alive']:

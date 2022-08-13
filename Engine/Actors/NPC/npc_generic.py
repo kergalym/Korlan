@@ -118,6 +118,9 @@ class NpcGeneric:
                     # Set NPC class
                     self.actor.set_python_tag("npc_class", _class)
 
+                    # Keep enemy hitbox distance here
+                    self.actor.set_python_tag("enemy_hitbox_distance", None)
+
                     # Set Target Nodepath
                     self.actor.set_python_tag("target_np", None)
 
