@@ -199,7 +199,6 @@ class NpcBehavior:
                     self.npc_ai_logic.npc_in_staying_logic(actor, request)
 
                 if not passive:
-                    # FIXME: TEST the directives
                     if (not actor.get_python_tag("generic_states")['is_sitting']
                             or not actor.get_python_tag("generic_states")['is_laying']):
                         if self.base.game_instance["sit_time_start"]:

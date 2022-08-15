@@ -53,7 +53,6 @@ class NpcAILogic:
             request = self.npcs_fsm_states[name]
 
             self.npc_action_seqs[name] = Sequence()
-            self.npc_pos[name] = Point3(0, 0, 0)
 
             if "animal" not in actor.get_python_tag("npc_type"):
                 self.npc_state = self.base.game_instance["npc_state_cls"]
@@ -336,7 +335,7 @@ class NpcAILogic:
             if (actor_npc_bs and oppo_npc_bs
                     and actor_name and isinstance(actor_name, str)):
 
-                self.navmesh_query.nearest_point(self.npc_pos[actor_name])
+                self.navmesh_query.nearest_point(actor_npc_bs.get_pos())
 
                 # Set last pos from opposite actor's world points
                 last_pos = self.render.get_relative_vector(oppo_npc_bs.get_parent(),
@@ -346,7 +345,7 @@ class NpcAILogic:
                 self.navmesh.update()
 
                 # Find path
-                path = self.navmesh_query.find_path(self.npc_pos[actor_name], last_pos)
+                path = self.navmesh_query.find_path(actor_npc_bs.get_pos(), last_pos)
                 path_points = list(path.points)
                 current_dir = actor_npc_bs.get_hpr()
 
@@ -377,7 +376,6 @@ class NpcAILogic:
                     current_dir = new_hpr
 
                 self.npc_action_seqs[actor_name].start()
-                self.npc_pos[actor_name] = last_pos
 
     def npc_in_walking_logic(self, actor, actor_npc_bs, oppo_npc_bs, request):
         if actor and actor_npc_bs and oppo_npc_bs and request:
