@@ -42,7 +42,7 @@ class NpcBehavior:
 
     def _work_with_player(self, actor, player, actor_npc_bs, request):
         actor.set_python_tag("target_np", player)
-        player_dist = round(actor_npc_bs.get_distance(self.base.game_instance["player_ref"]))
+        player_dist = int(actor_npc_bs.get_distance(self.base.game_instance["player_ref"]))
         actor.set_python_tag("enemy_distance", player_dist)
         hitbox_dist = actor.get_python_tag("enemy_hitbox_distance")
 
@@ -123,7 +123,7 @@ class NpcBehavior:
         actor_name = "{0}:BS".format(actor.get_name())
         actor_npc_bs = self.base.game_instance["actors_np"][actor_name]
         directive_np = render.find("**/{0}".format(target))
-        directive_one_dist = round(actor_npc_bs.get_distance(directive_np))
+        directive_one_dist = int(actor_npc_bs.get_distance(directive_np))
 
         # Go to the first directive
         if directive_one_dist > 1:
@@ -150,8 +150,8 @@ class NpcBehavior:
         actor_npc_bs = self.base.game_instance["actors_np"][actor_name]
         directive_one_np = self.base.game_instance["static_indoor_targets"][0]
         directive_two_np = self.base.game_instance["static_indoor_targets"][num]
-        directive_one_dist = round(actor_npc_bs.get_distance(directive_one_np))
-        directive_two_dist = round(actor_npc_bs.get_distance(directive_two_np))
+        directive_one_dist = int(actor_npc_bs.get_distance(directive_one_np))
+        directive_two_dist = int(actor_npc_bs.get_distance(directive_two_np))
 
         # print(directive_one_dist, directive_two_dist)
 
@@ -177,7 +177,12 @@ class NpcBehavior:
             self.npc_ai_logic.npc_in_staying_logic(actor, request)
 
             if num == 5:
-                self.npc_ai_logic.npc_in_gathering_logic(actor=actor, request=request, item="Dombra")
+                self.npc_ai_logic.face_actor_to(actor_npc_bs, directive_two_np)
+                self.npc_ai_logic.npc_in_gathering_logic(actor=actor, request=request,
+                                                         action="PickingUp",
+                                                         parent=directive_two_np, item="dombra")
+                """self.npc_ai_logic.npc_in_dropping_logic(actor=actor, request=request,
+                                                        action="PickingUp")"""
 
     def npc_generic_logic(self, actor, player, request, passive, task):
         if self.base.game_instance['menu_mode']:
@@ -218,7 +223,7 @@ class NpcBehavior:
                                 # 3 quest_empty_hearth
                                 # 4 quest_empty_spring_water
                                 # 5 round_table
-                                self._work_with_indoor_directives_queue(actor=actor, num=1, request=request)
+                                self._work_with_indoor_directives_queue(actor=actor, num=5, request=request)
                                 # self._work_with_outdoor_directive(actor=actor, target="yurt", request=request)
 
                     elif (not actor.get_python_tag("generic_states")['is_sitting']
@@ -264,8 +269,8 @@ class NpcBehavior:
                             enemy_npc_ref, enemy_npc_bs = self.npc_ai_logic.get_enemy(actor=actor)
 
                             if actor_npc_bs and enemy_npc_ref and enemy_npc_bs:
-                                player_dist = round(actor_npc_bs.get_distance(player))
-                                enemy_dist = round(actor_npc_bs.get_distance(enemy_npc_bs))
+                                player_dist = int(actor_npc_bs.get_distance(player))
+                                enemy_dist = int(actor_npc_bs.get_distance(enemy_npc_bs))
                                 hitbox_dist = actor.get_python_tag("enemy_hitbox_distance")
 
                                 # PLAYER

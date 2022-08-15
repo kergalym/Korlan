@@ -94,20 +94,15 @@ class RenderAttr:
     
                 # 30 minutes of duration
                 if duration == 1800:
-                    if self.hour == 23:
-                        self.hour = 0
-                    else:
-                        self.hour += self.minutes // 60
-                        if self.minutes > 59:
-                            self.minutes = 00
+                    self.hour += self.minutes // 60
+                    if self.minutes > 59:
+                        self.minutes = 00
+
                 # Seconds of duration
                 elif duration < 1800:
-                    if self.hour == 23:
-                        self.hour = 0
-                    else:
-                        self.hour += self.minutes
-                        if self.elapsed_seconds > 59:
-                            self.minutes = 00
+                    self.hour += self.minutes
+                    if self.elapsed_seconds > 59:
+                        self.minutes = 00
     
                 # Day counting
                 if self.hour == 23 and self.elapsed_seconds > 59:
@@ -131,6 +126,9 @@ class RenderAttr:
                         if self.base.game_instance['hud_np']:
                             self.base.game_instance['hud_np'].toggle_day_hud(time="light")
                     elif self.hour >= 19:
+                        if self.base.game_instance['hud_np']:
+                            self.base.game_instance['hud_np'].toggle_day_hud(time="night")
+                    elif self.hour > 1 and self.hour < 7:
                         if self.base.game_instance['hud_np']:
                             self.base.game_instance['hud_np'].toggle_day_hud(time="night")
                 else:

@@ -440,19 +440,82 @@ class NpcAILogic:
                         actor.get_python_tag("generic_states")['is_idle'] = True
                         actor.get_python_tag("generic_states")['is_moving'] = False
 
-    def npc_in_gathering_logic(self, actor, request, item):
-        if actor and request and item and isinstance(item, str):
+    def seq_pick_item_wrapper_task(self, actor, action, joint_name, task):
+        if actor and action and joint_name:
+            npc_state_cls = self.base.game_instance["npc_state_cls"]
+            if actor.getCurrentFrame(action):
+                if (actor.getCurrentFrame(action) > 67
+                        and actor.getCurrentFrame(action) < 72):
+                    npc_state_cls.pick_up_item(actor, joint_name)
+        return task.cont
+
+    def seq_drop_item_wrapper_task(self, actor, action, task):
+        if actor and action:
+            npc_state_cls = self.base.game_instance["npc_state_cls"]
+            if actor.getCurrentFrame(action):
+                if (actor.getCurrentFrame(action) > 67
+                        and actor.getCurrentFrame(action) < 72):
+                    npc_state_cls.drop_item(actor)
+        return task.cont
+
+    def remove_seq_pick_item_wrapper_task(self):
+        taskMgr.remove("seq_pick_item_wrapper_task")
+
+    def remove_seq_drop_item_wrapper_task(self):
+        taskMgr.remove("seq_drop_item_wrapper_task")
+
+    def npc_in_gathering_logic(self, actor, action, request, parent, item):
+        if actor and action and request and parent and item and isinstance(item, str):
             if not actor.get_python_tag("used_item_np"):
-                # FIXME!
-                item_np = render.find("**/{0}".format(item))
+                item_np = parent.find("**/{0}".format(item))
                 if item_np:
                     actor.set_python_tag("used_item_np", item_np)
 
-            npc_state_cls = self.base.game_instance["npc_state_cls"]
+                    # Usable Items List
+                    _items = []
+                    _pos = []
+                    _hpr = []
+
+                    for child in parent.get_children():
+                        _items.append(child.get_name())
+                        _pos.append(child.get_pos())
+                        _hpr.append(child.get_hpr())
+
+                    usable_item_list = {
+                        "name": _items,
+                        "pos": _pos,
+                        "hpr": _hpr
+                    }
+
+                    actor.set_python_tag("usable_item_list", usable_item_list)
+
+                if not actor.get_python_tag("is_item_using"):
+                    # just take item
+                    taskMgr.add(self.seq_pick_item_wrapper_task,
+                                "seq_pick_item_wrapper_task",
+                                extraArgs=[actor, action, "Korlan:RightHand"],
+                                appendTask=True)
+
+                    any_action_seq = actor.actor_interval(action,
+                                                          playRate=self.base.actor_play_rate)
+                    Sequence(any_action_seq,
+                             Func(self.remove_seq_pick_item_wrapper_task),
+                             ).start()
+
+    def npc_in_dropping_logic(self, actor, action, request):
+        if actor and action and request:
             if actor.get_python_tag("used_item_np"):
-                npc_state_cls.drop_item(actor)
-            else:
-                npc_state_cls.pick_up_item(actor, "Korlan:RightHand")
+                if actor.get_python_tag("is_item_using"):
+                    # Just drop item
+                    taskMgr.add(self.seq_drop_item_wrapper_task,
+                                "seq_drop_item_wrapper_task",
+                                extraArgs=[actor, action],
+                                appendTask=True)
+                    any_action_seq = actor.actor_interval(action,
+                                                          playRate=self.base.actor_play_rate)
+                    Sequence(any_action_seq,
+                             Func(self.remove_seq_drop_item_wrapper_task),
+                             ).start()
 
     def npc_in_blocking_logic(self, actor, request):
         if not actor.get_python_tag("generic_states")['is_moving']:

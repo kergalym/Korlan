@@ -256,6 +256,7 @@ class NpcState:
                     item.set_python_tag("orig_scale", item.get_scale())
 
                 item.wrt_reparent_to(exposed_joint)
+                item.set_scale(100)
 
                 # Set kinematics to make item follow actor joint
                 if hasattr(item.node(), "set_kinematic"):
@@ -279,7 +280,8 @@ class NpcState:
                 actor.set_python_tag("is_item_ready", False)
 
                 item_prop = actor.get_python_tag("current_item_prop")
-                item_prop['in-use'] = True
+                if item_prop:
+                    item_prop['in-use'] = True
 
                 # TODO: Uncomment after pick_up_item() is debugged
                 """
