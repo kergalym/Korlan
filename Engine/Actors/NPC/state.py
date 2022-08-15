@@ -35,6 +35,7 @@ class NpcState:
                 "is_jumping": False,
                 "is_attacked": False,
                 "is_busy": False,
+                "is_blocking": False,
                 "is_using": False,
                 "is_turning": False,
                 "is_sitting": False,

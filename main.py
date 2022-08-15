@@ -50,6 +50,7 @@ from direct.task.TaskManagerGlobal import taskMgr
 from Engine.Renderer.rpcore.render_pipeline import RenderPipeline
 from Engine.Renderer.rpcore.util.movement_controller import MovementController
 import importlib
+from panda3d.core import PStatClient
 import psutil
 
 sys.dont_write_bytecode = True
@@ -139,7 +140,6 @@ if game_settings['Main']['fullscreen'] == "on":
 if game_settings['Debug']['want_pstats'] == "YES":
     want_pstats_value = "t"
 
-
 p3d.load_prc_file_data(
     '',
     'fullscreen {0}\n'.format(fscreen)
@@ -174,6 +174,9 @@ p3d.load_prc_file_data(
     '',
     'want-pstats {0}\n'.format(want_pstats_value)
 )
+
+if want_pstats_value == "t":
+    PStatClient.connect(hostname="localhost", port=58597)
 
 cfg_name = None
 if not vfs_exists('Engine/Renderer/config/plugins_def.yaml'):

@@ -73,6 +73,9 @@ class RenderAttr:
                                          mayChange=True)
 
     def set_time_of_day_clock_task(self, time, duration, task):
+        if time and self.base.game_instance['loading_is_done'] == 0:
+            self.base.game_instance["renderpipeline_np"].daytime_mgr.time = time
+
         if self.base.game_instance['loading_is_done'] == 1:
             if self.base.game_instance["renderpipeline_np"] and time and duration:
                 self.base.game_instance["renderpipeline_np"].daytime_mgr.time = time

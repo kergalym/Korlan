@@ -289,7 +289,8 @@ class SocialQuests:
                     name_bs = node.get_name()
                     actor = self.base.game_instance["actors_ref"][name]
                     actor_bs = self.base.game_instance["actors_np"][name_bs]
-                    if round(actor_bs.get_distance(place)) <= 1:
+                    if (round(actor_bs.get_distance(place)) <= 1
+                            and actor.get_python_tag("directive_num") == 1):
                         self.quest_logic.toggle_npc_sitting_state(actor,
                                                                   place,
                                                                   "standing_to_sit_turkic",
@@ -329,7 +330,8 @@ class SocialQuests:
                 name_bs = node.get_name()
                 actor = self.base.game_instance["actors_ref"][name]
                 actor_bs = self.base.game_instance["actors_np"][name_bs]
-                if round(actor_bs.get_distance(place)) <= 1:
+                if (round(actor_bs.get_distance(place)) <= 1
+                        and actor.get_python_tag("directive_num") == 2):
                     # todo: change to suitable standing_to_laying anim
                     self.quest_logic.toggle_npc_laying_state(actor,
                                                              place,
@@ -365,7 +367,8 @@ class SocialQuests:
                     name_bs = node.get_name()
                     actor = self.base.game_instance["actors_ref"][name]
                     actor_bs = self.base.game_instance["actors_np"][name_bs]
-                    if round(actor_bs.get_distance(place)) <= 1:
+                    if (round(actor_bs.get_distance(place)) <= 1
+                            and actor.get_python_tag("directive_num") == 4):
                         self.quest_logic.play_action_state(actor, "spring_water", "play")
 
         return task.cont
@@ -401,7 +404,8 @@ class SocialQuests:
                     name_bs = node.get_name()
                     actor = self.base.game_instance["actors_ref"][name]
                     actor_bs = self.base.game_instance["actors_np"][name_bs]
-                    if round(actor_bs.get_distance(place)) <= 1:
+                    if (round(actor_bs.get_distance(place)) <= 1 
+                       and actor.get_python_tag("directive_num") == 3):
                         self.quest_logic.play_action_state(actor, "cook_food", "loop")
                 """
 
@@ -481,7 +485,8 @@ class SocialQuests:
                     actor_npc = self.base.game_instance["actors_ref"][name]
                     actor_npc_bs = self.base.game_instance["actors_np"][name_bs]
                     if not actor_npc.get_python_tag("is_item_using"):
-                        if round(actor_npc_bs.get_distance(actor)) < 2:
+                        if (round(actor_npc_bs.get_distance(actor)) < 2
+                                and actor.get_python_tag("directive_num") == 5):
                             actor_bs = actor.find("**/{0}:BS".format(actor.get_name()))
                             # Currently close item parameters
                             item_prop = {

@@ -1,5 +1,5 @@
 from direct.interval.FunctionInterval import Func, Wait
-from direct.interval.MetaInterval import Sequence
+from direct.interval.MetaInterval import Sequence, Parallel
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import Vec3, Vec2, BitMask32, Point3
 
@@ -23,6 +23,7 @@ class NpcAILogic:
         self.npc_rotations = {}
         self.activated_npc_count = 0
         self.current_seq = None
+        self.current_step_action = None
         self.navmesh = self.base.game_instance["navmesh"]
         self.navmesh_query = self.base.game_instance["navmesh_query"]
 
@@ -141,7 +142,8 @@ class NpcAILogic:
 
                                 if distance >= 0.5 and distance <= 1.8:
                                     hitbox_np.set_collide_mask(BitMask32.allOff())
-                                    if actor.get_python_tag("health_np"):
+                                    if (actor.get_python_tag("health_np")
+                                            and not actor.get_python_tag("generic_states")['is_blocking']):
                                         # NPC gets damage if he has health point
                                         if actor.get_python_tag("health_np")['value'] > 1:
                                             request.request("Attacked", actor, "HitToBody", "play")
@@ -195,6 +197,7 @@ class NpcAILogic:
                     and not actor.get_python_tag("generic_states")['is_jumping']
                     and not actor.get_python_tag("generic_states")['is_attacked']
                     and not actor.get_python_tag("generic_states")['is_busy']
+                    and not actor.get_python_tag("generic_states")['is_blocking']
                     and not actor.get_python_tag("generic_states")['is_using']
                     and not actor.get_python_tag("generic_states")['is_turning']
                     and not actor.get_python_tag("human_states")['horse_riding']
@@ -228,6 +231,7 @@ class NpcAILogic:
                     and not actor.get_python_tag("generic_states")['is_jumping']
                     and not actor.get_python_tag("generic_states")['is_attacked']
                     and not actor.get_python_tag("generic_states")['is_busy']
+                    and not actor.get_python_tag("generic_states")['is_blocking']
                     and not actor.get_python_tag("generic_states")['is_using']
                     and not actor.get_python_tag("generic_states")['is_turning']
                     and not actor.get_python_tag("generic_states")['is_laying']
@@ -263,6 +267,29 @@ class NpcAILogic:
                             self.ai_behaviors[actor_name].remove_ai("pursue")
                         actor.get_python_tag("generic_states")['is_moving'] = False
                         actor.get_python_tag("generic_states")['is_idle'] = True
+            else:
+                if self.is_ready_for_staying(actor):
+                    actor.get_python_tag("generic_states")['is_moving'] = False
+                    actor.get_python_tag("generic_states")['is_idle'] = True
+
+            if actor.get_python_tag("generic_states")['is_idle']:
+                if actor.get_python_tag("generic_states")['is_crouch_moving']:
+                    request.request("Idle", actor, "standing_to_crouch", "loop")
+                elif not actor.get_python_tag("generic_states")['is_crouch_moving']:
+                    request.request("Idle", actor, "Standing_idle_male", "loop")
+
+                if actor.get_python_tag("stamina_np"):
+                    if actor.get_python_tag("stamina_np")['value'] < 100:
+                        actor.get_python_tag("stamina_np")['value'] += 0.5
+
+    def npc_in_forced_staying_logic(self, actor, request):
+        if actor and request:
+            if self.base.game_instance["use_pandai"]:
+                if self.is_ready_for_staying(actor):
+                    actor_name = actor.get_name()
+                    self.ai_behaviors[actor_name].remove_ai("pursue")
+                    actor.get_python_tag("generic_states")['is_moving'] = False
+                    actor.get_python_tag("generic_states")['is_idle'] = True
             else:
                 if self.is_ready_for_staying(actor):
                     actor.get_python_tag("generic_states")['is_moving'] = False
@@ -413,8 +440,14 @@ class NpcAILogic:
                         actor.get_python_tag("generic_states")['is_idle'] = True
                         actor.get_python_tag("generic_states")['is_moving'] = False
 
-    def npc_in_gathering_logic(self, actor, request):
-        if actor and request:
+    def npc_in_gathering_logic(self, actor, request, item):
+        if actor and request and item and isinstance(item, str):
+            if not actor.get_python_tag("used_item_np"):
+                # FIXME!
+                item_np = render.find("**/{0}".format(item))
+                if item_np:
+                    actor.set_python_tag("used_item_np", item_np)
+
             npc_state_cls = self.base.game_instance["npc_state_cls"]
             if actor.get_python_tag("used_item_np"):
                 npc_state_cls.drop_item(actor)
@@ -422,10 +455,7 @@ class NpcAILogic:
                 npc_state_cls.pick_up_item(actor, "Korlan:RightHand")
 
     def npc_in_blocking_logic(self, actor, request):
-        if (actor.get_python_tag("generic_states")['is_idle']
-                and not actor.get_python_tag("generic_states")['is_attacked']
-                and not actor.get_python_tag("generic_states")['is_busy']
-                and not actor.get_python_tag("generic_states")['is_moving']):
+        if not actor.get_python_tag("generic_states")['is_moving']:
             if actor.get_python_tag("stamina_np"):
                 if actor.get_python_tag("stamina_np")['value'] > 5:
                     action = ""
@@ -438,9 +468,9 @@ class NpcAILogic:
                     if actor.get_python_tag("stamina_np")['value'] > 1:
                         actor.get_python_tag("stamina_np")['value'] -= 6
 
-    def npc_in_attacking_logic(self, actor, request):
+    def _npc_in_attacking_logic(self, actor, actor_npc_bs, request):
+        dt = globalClock.getDt()
         if (actor.get_python_tag("generic_states")['is_idle']
-                and not actor.get_python_tag("generic_states")['is_attacked']
                 and not actor.get_python_tag("generic_states")['is_busy']
                 and not actor.get_python_tag("generic_states")['is_moving']):
 
@@ -455,6 +485,11 @@ class NpcAILogic:
                 action = "Boxing"
                 request.request("Attack", actor, action, "play")
 
+            if (actor.get_python_tag("stamina_np")['value'] > 3
+                    and actor.get_python_tag("enemy_distance") >= 1):
+                if actor_npc_bs.get_y() != actor_npc_bs.get_y() - 2:
+                    actor_npc_bs.set_y(actor_npc_bs, -2 * dt)
+
             if actor.get_python_tag("stamina_np")['value'] > 1:
                 actor.get_python_tag("stamina_np")['value'] -= 18
 
@@ -462,51 +497,47 @@ class NpcAILogic:
         dt = globalClock.getDt()
         if actor.get_python_tag("stamina_np"):
             if actor.get_python_tag("stamina_np")['value'] > 15:
-                if actor_npc_bs.get_x() != actor_npc_bs.get_x() - 2:
-                    actor_npc_bs.set_x(actor_npc_bs, -2 * dt)
-                    request.request("ForwardRoll", actor, "forward_roll", "play")
-                elif actor_npc_bs.get_x() != actor_npc_bs.get_x() + 2:
-                    actor_npc_bs.set_x(actor_npc_bs, 2 * dt)
-                    request.request("ForwardRoll", actor, "forward_roll", "play")
-                elif actor_npc_bs.get_y() != actor_npc_bs.get_y() - 2:
+                if actor_npc_bs.get_y() != actor_npc_bs.get_y() - 2:
                     actor_npc_bs.set_y(actor_npc_bs, -2 * dt)
-                    request.request("ForwardRoll", actor, "forward_roll", "play")
-                elif actor_npc_bs.get_y() != actor_npc_bs.get_y() + 2:
-                    actor_npc_bs.set_y(actor_npc_bs, 2 * dt)
                     request.request("ForwardRoll", actor, "forward_roll", "play")
 
                 if actor.get_python_tag("stamina_np")['value'] > 1:
                     actor.get_python_tag("stamina_np")['value'] -= 15
 
-    def npc_in_step_back_logic(self, actor, actor_npc_bs, request):
+    def npc_in_backwardroll_logic(self, actor, actor_npc_bs, request):
         dt = globalClock.getDt()
-        if self.is_ready_for_walking(actor):
-            actor.get_python_tag("generic_states")['is_idle'] = False
-            actor.get_python_tag("generic_states")['is_moving'] = True
+        if actor.get_python_tag("stamina_np"):
+            if actor.get_python_tag("stamina_np")['value'] > 15:
+                if actor_npc_bs.get_y() != actor_npc_bs.get_y() + 2:
+                    actor_npc_bs.set_y(actor_npc_bs, 2 * dt)
+                    request.request("BackwardRoll", actor, "forward_roll", "play")
 
-            if actor.get_python_tag("generic_states")['is_moving']:
-                if actor.get_python_tag("stamina_np"):
-                    if actor.get_python_tag("stamina_np")['value'] > 1:
-                        actor.get_python_tag("stamina_np")['value'] -= 1
+                if actor.get_python_tag("stamina_np")['value'] > 1:
+                    actor.get_python_tag("stamina_np")['value'] -= 15
 
-                if int(actor_npc_bs.get_y()) != int(actor_npc_bs.get_y()) + 2:
-                    actor_npc_bs.set_y(actor_npc_bs, 2*dt)
-                    request.request("WalkReverseRD", actor, "Walking", "loop")
-
-    def npc_in_step_forward_logic(self, actor, actor_npc_bs, request):
+    def npc_in_forwardstep_logic(self, actor, actor_npc_bs, request):
         dt = globalClock.getDt()
-        if self.is_ready_for_walking(actor):
-            actor.get_python_tag("generic_states")['is_idle'] = False
-            actor.get_python_tag("generic_states")['is_moving'] = True
+        if actor.get_python_tag("stamina_np"):
+            if (actor.get_python_tag("stamina_np")['value'] > 3
+                    and actor.get_python_tag("enemy_distance") >= 2):
+                if actor_npc_bs.get_y() != actor_npc_bs.get_y() - 2:
+                    actor_npc_bs.set_y(actor_npc_bs, -2 * dt)
+                    request.request("ForwardStep", actor, "Walking", "play")
 
-            if actor.get_python_tag("generic_states")['is_moving']:
-                if actor.get_python_tag("stamina_np"):
-                    if actor.get_python_tag("stamina_np")['value'] > 1:
-                        actor.get_python_tag("stamina_np")['value'] -= 1
+                if actor.get_python_tag("stamina_np")['value'] > 1:
+                    actor.get_python_tag("stamina_np")['value'] -= 3
 
-                if int(actor_npc_bs.get_y()) != int(actor_npc_bs.get_y()) - 2:
-                    actor_npc_bs.set_y(actor_npc_bs, -2*dt)
-                    request.request("WalkRD", actor, "Walking", "loop")
+    def npc_in_backwardstep_logic(self, actor, actor_npc_bs, request):
+        dt = globalClock.getDt()
+        if actor.get_python_tag("stamina_np"):
+            if (actor.get_python_tag("stamina_np")['value'] > 3
+                    and actor.get_python_tag("enemy_distance") <= 1):
+                if actor_npc_bs.get_y() != actor_npc_bs.get_y() + 2:
+                    actor_npc_bs.set_y(actor_npc_bs, 2 * dt)
+                    request.request("BackwardStep", actor, "Walking", "play")
+
+                if actor.get_python_tag("stamina_np")['value'] > 1:
+                    actor.get_python_tag("stamina_np")['value'] -= 3
 
     def npc_in_crouching_logic(self, actor, request):
         if (actor.get_python_tag("generic_states")['is_idle']
@@ -618,32 +649,37 @@ class NpcAILogic:
                 actor.set_h(-new_hpr[0])
 
     def do_defensive_prediction(self, actor, actor_npc_bs, request, hitbox_dist):
-        if actor and actor_npc_bs and request and hitbox_dist:
+        if actor and actor_npc_bs and request:
             if hitbox_dist >= 0.5 and hitbox_dist <= 1.8:
                 if actor.get_python_tag("stamina_np")['value'] > 5:
                     if not self.current_seq:
                         self.current_seq = Sequence(
-                                                    Func(self.npc_in_step_back_logic, actor, actor_npc_bs, request),
-                                                    Wait(1),
-                                                    Func(self.npc_in_step_forward_logic, actor, actor_npc_bs, request),
-                                                    Func(self.npc_in_blocking_logic, actor, request),
-                                                    Func(self._reset_current_sequence)
-                                                    )
-                    if self.current_seq and not self.current_seq.is_playing():
-                        self.current_seq.start()
-
-                if (actor.get_python_tag("stamina_np")['value'] > 5
-                        and actor.get_python_tag("stamina_np")['value'] < 50):
-                    if not self.current_seq:
-                        self.current_seq = Sequence(
-                            Func(self.npc_in_step_back_logic, actor, actor_npc_bs, request),
-                            Wait(1),
-                            Func(self.npc_in_step_forward_logic, actor, actor_npc_bs, request),
-                            Func(self.npc_in_forwardroll_logic, actor, actor_npc_bs, request),
+                            Parallel(
+                                Wait(1),
+                                Func(self.npc_in_backwardstep_logic, actor,
+                                     actor_npc_bs, request)),
+                            Parallel(
+                                Wait(1),
+                                Func(self.npc_in_forwardstep_logic, actor,
+                                     actor_npc_bs, request)),
+                            Parallel(
+                                Wait(1),
+                                Func(self.npc_in_backwardroll_logic, actor,
+                                     actor_npc_bs, request)),
+                            Parallel(
+                                Wait(1),
+                                Func(self.npc_in_blocking_logic, actor, request)),
                             Func(self._reset_current_sequence)
                         )
+                        self.current_seq.sort()
                     if self.current_seq and not self.current_seq.is_playing():
                         self.current_seq.start()
 
-            if actor.get_python_tag("stamina_np")['value'] > 10:
-                self.npc_in_attacking_logic(actor, request)
+            if actor.get_python_tag("stamina_np")['value'] > 50:
+                if actor.get_python_tag("enemy_distance") <= 1:
+                    target_np = actor.get_python_tag("target_np")
+                    self.face_actor_to(actor_npc_bs, target_np)
+                    self._npc_in_attacking_logic(actor, actor_npc_bs, request)
+                elif (actor.get_python_tag("enemy_distance") > 1
+                      and actor.get_python_tag("enemy_distance") < 3):
+                    self.npc_in_forwardstep_logic(actor, actor_npc_bs, request)

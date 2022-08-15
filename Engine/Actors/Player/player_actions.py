@@ -395,6 +395,7 @@ class PlayerActions:
                                              anims[self.crouch_walking_forward_action])
 
     def player_attack_action(self, player, key, anims, action):
+        dt = globalClock.getDt()
         if (player and isinstance(anims, dict)
                 and isinstance(key, str)
                 and not base.player_states['is_using']
@@ -426,6 +427,11 @@ class PlayerActions:
                         and base.player_states['is_crouching'] is False):
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
+
+                    player_bs = self.base.game_instance["player_np"]
+                    if player_bs.get_y() != player_bs.get_y() - 2:
+                        player_bs.set_y(player_bs, -1.0 * dt)
+
                     Sequence(Func(self.state.set_action_state, "is_hitting", True),
                              Func(hitbox_np.set_collide_mask, BitMask32.bit(0)),
                              any_action_seq,

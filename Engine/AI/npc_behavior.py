@@ -41,7 +41,9 @@ class NpcBehavior:
                                                           request, hitbox_dist)
 
     def _work_with_player(self, actor, player, actor_npc_bs, request):
-        player_dist = int(actor_npc_bs.get_distance(player))
+        actor.set_python_tag("target_np", player)
+        player_dist = round(actor_npc_bs.get_distance(self.base.game_instance["player_ref"]))
+        actor.set_python_tag("enemy_distance", player_dist)
         hitbox_dist = actor.get_python_tag("enemy_hitbox_distance")
 
         # Mount if player mounts
@@ -95,6 +97,8 @@ class NpcBehavior:
                          enemy_npc_bs, enemy_dist, hitbox_dist, request):
         # Friendly NPC starts attacking
         # the opponent when player first starts attacking it
+        actor.set_python_tag("target_np", enemy_npc_bs)
+        actor.set_python_tag("enemy_distance", enemy_dist)
         if enemy_dist > 1:
             self.npc_ai_logic.npc_in_walking_logic(actor, actor_npc_bs,
                                                    enemy_npc_bs, request)
@@ -119,7 +123,7 @@ class NpcBehavior:
         actor_name = "{0}:BS".format(actor.get_name())
         actor_npc_bs = self.base.game_instance["actors_np"][actor_name]
         directive_np = render.find("**/{0}".format(target))
-        directive_one_dist = int(actor_npc_bs.get_distance(directive_np))
+        directive_one_dist = round(actor_npc_bs.get_distance(directive_np))
 
         # Go to the first directive
         if directive_one_dist > 1:
@@ -146,8 +150,8 @@ class NpcBehavior:
         actor_npc_bs = self.base.game_instance["actors_np"][actor_name]
         directive_one_np = self.base.game_instance["static_indoor_targets"][0]
         directive_two_np = self.base.game_instance["static_indoor_targets"][num]
-        directive_one_dist = int(actor_npc_bs.get_distance(directive_one_np))
-        directive_two_dist = int(actor_npc_bs.get_distance(directive_two_np))
+        directive_one_dist = round(actor_npc_bs.get_distance(directive_one_np))
+        directive_two_dist = round(actor_npc_bs.get_distance(directive_two_np))
 
         # print(directive_one_dist, directive_two_dist)
 
@@ -169,7 +173,11 @@ class NpcBehavior:
         else:
             if not self.base.game_instance["use_pandai"]:
                 self.base.game_instance["use_pandai"] = True
+            actor.set_python_tag("directive_num", num)
             self.npc_ai_logic.npc_in_staying_logic(actor, request)
+
+            if num == 5:
+                self.npc_ai_logic.npc_in_gathering_logic(actor=actor, request=request, item="Dombra")
 
     def npc_generic_logic(self, actor, player, request, passive, task):
         if self.base.game_instance['menu_mode']:
@@ -196,6 +204,11 @@ class NpcBehavior:
                                     and int(minutes) < self.base.game_instance["sit_time_stop"][1]):
 
                                 if self.base.game_instance["use_pandai"]:
+                                    self.npc_ai_logic.npc_in_forced_staying_logic(actor, request)
+                                    if self.base.game_instance["navmesh_query"]:
+                                        actor_name = "{0}:BS".format(actor.get_name())
+                                        actor_npc_bs = self.base.game_instance["actors_np"][actor_name]
+                                        self.base.game_instance["navmesh_query"].nearest_point(actor_npc_bs.get_pos())
                                     self.base.game_instance["use_pandai"] = False
 
                                 # Get required data about directives
@@ -217,6 +230,11 @@ class NpcBehavior:
                                     and int(minutes) < self.base.game_instance["rest_time_stop"][1]):
 
                                 if self.base.game_instance["use_pandai"]:
+                                    self.npc_ai_logic.npc_in_forced_staying_logic(actor, request)
+                                    if self.base.game_instance["navmesh_query"]:
+                                        actor_name = "{0}:BS".format(actor.get_name())
+                                        actor_npc_bs = self.base.game_instance["actors_np"][actor_name]
+                                        self.base.game_instance["navmesh_query"].nearest_point(actor_npc_bs.get_pos())
                                     self.base.game_instance["use_pandai"] = False
 
                                 # Get required data about directives
@@ -234,7 +252,7 @@ class NpcBehavior:
                         actor_npc_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
 
                         # No alive enemy around, just stay tuned
-                        if not self.npc_ai_logic.get_enemy(actor=actor):
+                        if not self.npc_ai_logic.get_enemy(actor=actor) and actor_npc_bs:
                             if not base.player_states['is_alive']:
                                 self.npc_ai_logic.npc_in_staying_logic(actor, request)
 
@@ -246,8 +264,8 @@ class NpcBehavior:
                             enemy_npc_ref, enemy_npc_bs = self.npc_ai_logic.get_enemy(actor=actor)
 
                             if actor_npc_bs and enemy_npc_ref and enemy_npc_bs:
-                                player_dist = int(actor_npc_bs.get_distance(player))
-                                enemy_dist = int(actor_npc_bs.get_distance(enemy_npc_bs))
+                                player_dist = round(actor_npc_bs.get_distance(player))
+                                enemy_dist = round(actor_npc_bs.get_distance(enemy_npc_bs))
                                 hitbox_dist = actor.get_python_tag("enemy_hitbox_distance")
 
                                 # PLAYER

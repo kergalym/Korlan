@@ -152,18 +152,6 @@ class NpcFSM(FSM):
                         actor.loop(action)
                 actor.set_play_rate(1.0, action)
 
-    def enterWalkReverseRD(self, actor, action, task):
-        if actor and action and task:
-            any_action = actor.get_anim_control(action)
-            actor.set_play_rate(-1.0, action)
-            if isinstance(task, str):
-                if task == "play":
-                    if not any_action.is_playing():
-                        actor.play(action)
-                elif task == "loop":
-                    if not any_action.is_playing():
-                        actor.loop(action)
-
     def enterTurn(self, actor, action, task):
         if actor and action and task:
             if isinstance(task, str):
@@ -346,6 +334,37 @@ class NpcFSM(FSM):
         if actor and action and task:
             if isinstance(task, str):
                 if task == "play":
+                    actor.set_play_rate(1.0, action)
+                    any_action_seq = actor.actor_interval(action)
+                    Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", True),
+                             any_action_seq,
+                             Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", False)).start()
+
+    def enterBackwardRoll(self, actor, action, task):
+        if actor and action and task:
+            if isinstance(task, str):
+                if task == "play":
+                    actor.set_play_rate(-1.0, action)
+                    any_action_seq = actor.actor_interval(action)
+                    Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", True),
+                             any_action_seq,
+                             Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", False)).start()
+
+    def enterForwardStep(self, actor, action, task):
+        if actor and action and task:
+            if isinstance(task, str):
+                if task == "play":
+                    actor.set_play_rate(1.0, action)
+                    any_action_seq = actor.actor_interval(action)
+                    Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", True),
+                             any_action_seq,
+                             Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", False)).start()
+
+    def enterBackwardStep(self, actor, action, task):
+        if actor and action and task:
+            if isinstance(task, str):
+                if task == "play":
+                    actor.set_play_rate(-1.0, action)
                     any_action_seq = actor.actor_interval(action)
                     Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", True),
                              any_action_seq,
@@ -385,11 +404,11 @@ class NpcFSM(FSM):
                 if task == "play":
                     if not any_action.is_playing():
                         any_action_seq = actor.actor_interval(action)
-                        Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", True),
+                        Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_blocking", True),
                                  Func(hitbox_np.set_collide_mask, BitMask32.bit(1)),
                                  any_action_seq,
                                  Func(hitbox_np.set_collide_mask, BitMask32.allOff()),
-                                 Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", False)).start()
+                                 Func(self.fsm_state_wrapper, actor, "generic_states", "is_blocking", False)).start()
 
     def enterDodge(self, actor, action, task):
         if actor and action and task and isinstance(action, str):
