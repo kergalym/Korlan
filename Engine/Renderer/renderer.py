@@ -105,7 +105,7 @@ class RenderAttr:
                         self.minutes = 00
     
                 # Day counting
-                if self.hour == 23 and self.elapsed_seconds > 59:
+                if self.hour == 0 and self.elapsed_seconds == 00:
                     self.day += 1
     
                 if self.minutes < 10:

@@ -71,7 +71,7 @@ class SocialQuests:
 
                                 for i in range(len(usable_item_list["name"]) - 1):
                                     if name not in usable_item_list["name"][i]:
-                                        # Eclude nodes with empty names
+                                        # Exclude nodes with empty names
                                         if child.get_name():
                                             self._usable_items.append(name)
                                             self._usable_item_pos.append(child.get_pos())

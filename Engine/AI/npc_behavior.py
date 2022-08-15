@@ -223,10 +223,10 @@ class NpcBehavior:
                                 # 3 quest_empty_hearth
                                 # 4 quest_empty_spring_water
                                 # 5 round_table
-                                self._work_with_indoor_directives_queue(actor=actor, num=5, request=request)
+                                self._work_with_indoor_directives_queue(actor=actor, num=1, request=request)
                                 # self._work_with_outdoor_directive(actor=actor, target="yurt", request=request)
 
-                    elif (not actor.get_python_tag("generic_states")['is_sitting']
+                    if (not actor.get_python_tag("generic_states")['is_sitting']
                             or not actor.get_python_tag("generic_states")['is_laying']):
                         if self.base.game_instance["rest_time_start"]:
                             hour, minutes = self.base.game_instance["world_time"].split(":")
