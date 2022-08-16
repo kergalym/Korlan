@@ -1,6 +1,6 @@
 enabled:
 - ao
-# - bloom
+- bloom
 - color_correction
 - forward_shading
 # - motion_blur

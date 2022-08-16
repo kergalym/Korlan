@@ -6,7 +6,6 @@ from panda3d.core import *
 from Engine.AI.npc_controller import NpcController
 from Engine.Actors.Player.korlan import Korlan
 from Engine.Actors.Player.state import PlayerState
-from Engine.AI.ai_setup import AI
 from Engine.Scenes.scene import SceneOne
 from Engine.Physics.physics_setup import PhysicsAttr
 from Settings.UI.pause_menu_ui import PauseMenuUI
@@ -60,7 +59,6 @@ class LevelOne:
         self.pause_game_ui = PauseMenuUI()
         self.player_state = PlayerState()
         self.physics_attr = PhysicsAttr()
-        self.ai = None
         self.base.focused_actor = None
         self.actors_for_focus = None
         self.actor_focus_index = 1
@@ -171,19 +169,6 @@ class LevelOne:
             if self.physics_attr and self.physics_attr.soft_world:
                 taskMgr.remove("update_soft_physics_task")
 
-            # Unload AI
-            if self.ai and self.ai.ai_world:
-                taskMgr.remove("npc_distance_calculate_task")
-                taskMgr.remove("npc_behavior_init_task")
-                taskMgr.remove("update_pathfinding_task")
-                taskMgr.remove("update_ai_world")
-
-                for key in LEVEL_NPC_ASSETS['class']:
-                    self.ai.ai_world.removeAiChar(key)
-
-                self.ai.ai_char = None
-                self.ai.ai_chars = {}
-
             # Player and actors cleanup
             if self.korlan.korlan:
                 # Remove all remained nodes
@@ -265,7 +250,7 @@ class LevelOne:
         self.base.game_instance['render_attr_cls'].time_text_ui.show()
         taskMgr.add(self.base.game_instance['render_attr_cls'].set_time_of_day_clock_task,
                     "set_time_of_day_clock_task",
-                    extraArgs=["18:00", 1800],  # 1800 sec == 30 min
+                    extraArgs=["19:00", 1800],  # 1800 sec == 30 min
                     appendTask=True)
 
         """ Assets """
@@ -347,14 +332,7 @@ class LevelOne:
                 self.base.accept("r", self.render_pipeline.reload_shaders)
 
         """ Setup AI """
-        if self.game_settings['Debug']['panda_ai'] == 'YES':
-            # To avoid nullptr assertion error initialize AI World only if it has not been initialized yet
-            if not self.ai:
-                self.ai = AI(world_np)
-            self.ai.set_ai_world(assets=level_assets_joined,
-                                 npcs_fsm_states=self.base.game_instance["npcs_fsm_states"],
-                                 lvl_name="lvl_one")
-        else:
+        if self.game_settings['Debug']['set_editor_mode'] == 'NO':
             taskMgr.add(self.npc_controller_init,
                         "npc_controller_init",
                         appendTask=True)

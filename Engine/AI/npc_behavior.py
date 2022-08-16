@@ -128,15 +128,11 @@ class NpcBehavior:
 
         # Go to the first directive
         if directive_one_dist > 1:
-            if self.base.game_instance["use_pandai"]:
-                self.base.game_instance["use_pandai"] = False
             self.npc_ai_logic.npc_in_walking_logic(actor, actor_npc_bs,
                                                    directive_np,
                                                    request)
         # elif directive_two_dist < 2:
         else:
-            if not self.base.game_instance["use_pandai"]:
-                self.base.game_instance["use_pandai"] = True
             self.npc_ai_logic.npc_in_staying_logic(actor, request)
 
     def _work_with_indoor_directives_queue(self, actor, num, request):
@@ -156,8 +152,6 @@ class NpcBehavior:
 
         # Go to the first directive
         if directive_one_dist > 1 and directive_two_dist > 1:
-            if self.base.game_instance["use_pandai"]:
-                self.base.game_instance["use_pandai"] = False
             self.npc_ai_logic.npc_in_walking_logic(actor, actor_npc_bs,
                                                    directive_one_np,
                                                    request)
@@ -169,8 +163,6 @@ class NpcBehavior:
                                                        request)
         # Got the second directive? Stop walking
         else:
-            if not self.base.game_instance["use_pandai"]:
-                self.base.game_instance["use_pandai"] = True
             actor.set_python_tag("directive_num", num)
             # self.npc_ai_logic.npc_in_staying_logic(actor, request)
 
@@ -208,14 +200,6 @@ class NpcBehavior:
                                 if not self._directive_is_executing:
                                     self._directive_is_executing = True
 
-                                if self.base.game_instance["use_pandai"]:
-                                    self.npc_ai_logic.npc_in_forced_staying_logic(actor, request)
-                                    if self.base.game_instance["navmesh_query"]:
-                                        actor_name = "{0}:BS".format(actor.get_name())
-                                        actor_npc_bs = self.base.game_instance["actors_np"][actor_name]
-                                        self.base.game_instance["navmesh_query"].nearest_point(actor_npc_bs.get_pos())
-                                    self.base.game_instance["use_pandai"] = False
-
                                 # Get required data about directives
                                 # 0 yurt
                                 # 1 quest_empty_campfire
@@ -226,8 +210,10 @@ class NpcBehavior:
                                 self._work_with_indoor_directives_queue(actor=actor, num=1, request=request)
                                 # self._work_with_outdoor_directive(actor=actor, target="yurt", request=request)
                             else:
-                                if self._directive_is_executing:
-                                    self._directive_is_executing = False
+                                if (int(hour) == self.base.game_instance["sit_time_stop"][0]
+                                        and int(minutes) == self.base.game_instance["sit_time_stop"][1]):
+                                    if self._directive_is_executing:
+                                        self._directive_is_executing = False
 
                     if (not actor.get_python_tag("generic_states")['is_sitting']
                             or not actor.get_python_tag("generic_states")['is_laying']):
@@ -240,14 +226,6 @@ class NpcBehavior:
                                 if not self._directive_is_executing:
                                     self._directive_is_executing = True
 
-                                if self.base.game_instance["use_pandai"]:
-                                    self.npc_ai_logic.npc_in_forced_staying_logic(actor, request)
-                                    if self.base.game_instance["navmesh_query"]:
-                                        actor_name = "{0}:BS".format(actor.get_name())
-                                        actor_npc_bs = self.base.game_instance["actors_np"][actor_name]
-                                        self.base.game_instance["navmesh_query"].nearest_point(actor_npc_bs.get_pos())
-                                    self.base.game_instance["use_pandai"] = False
-
                                 # Get required data about directives
                                 # 0 yurt
                                 # 1 quest_empty_campfire
@@ -258,8 +236,10 @@ class NpcBehavior:
                                 self._work_with_indoor_directives_queue(actor=actor, num=2, request=request)
                                 # self._work_with_outdoor_directive(actor=actor, target="yurt", request=request)
                             else:
-                                if self._directive_is_executing:
-                                    self._directive_is_executing = False
+                                if (int(hour) == self.base.game_instance["rest_time_stop"][0]
+                                        and int(minutes) == self.base.game_instance["rest_time_stop"][1]):
+                                    if self._directive_is_executing:
+                                        self._directive_is_executing = False
 
                     if not self._directive_is_executing:
                         # Get required data about enemy to deal with it
