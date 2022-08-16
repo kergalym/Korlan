@@ -146,7 +146,7 @@ class NpcController:
                         enemy_npc_bs = self.base.game_instance['actors_np'][name_bs]
                         actor_bs_name = "{0}:BS".format(actor.get_name())
                         actor_bs = self.base.game_instance["actors_np"][actor_bs_name]
-                        if round(actor_bs.get_distance(enemy_npc_bs)) < 50:
+                        if int(actor_bs.get_distance(enemy_npc_bs)) < 50:
                             return [enemy_npc_ref, enemy_npc_bs]
 
     def is_ready_for_staying(self, actor):

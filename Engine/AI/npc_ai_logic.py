@@ -184,7 +184,7 @@ class NpcAILogic:
                         enemy_npc_bs = self.base.game_instance['actors_np'][name_bs]
                         actor_bs_name = "{0}:BS".format(actor.get_name())
                         actor_bs = self.base.game_instance["actors_np"][actor_bs_name]
-                        if round(actor_bs.get_distance(enemy_npc_bs)) < 50:
+                        if int(actor_bs.get_distance(enemy_npc_bs)) < 50:
                             return [enemy_npc_ref, enemy_npc_bs]
 
     def is_ready_for_staying(self, actor):
@@ -431,8 +431,7 @@ class NpcAILogic:
 
                     request.request("WalkRD", actor, "Walking", "loop")
 
-                    if "NPC" not in target.get_name() and "Player" not in target.get_name():
-                        self.do_walking_sequence_once(actor_npc_bs, target, actor_name)
+                    self.do_walking_sequence_once(actor_npc_bs, target, actor_name)
 
     def seq_pick_item_wrapper_task(self, actor, action, joint_name, task):
         if actor and action and joint_name:

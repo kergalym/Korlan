@@ -168,12 +168,11 @@ class NpcBehavior:
                                                        directive_two_np,
                                                        request)
         # Got the second directive? Stop walking
-        # elif directive_two_dist < 2 and directive_one_dist > 1:
         else:
             if not self.base.game_instance["use_pandai"]:
                 self.base.game_instance["use_pandai"] = True
             actor.set_python_tag("directive_num", num)
-            self.npc_ai_logic.npc_in_staying_logic(actor, request)
+            # self.npc_ai_logic.npc_in_staying_logic(actor, request)
 
             if num == 5:
                 self.npc_ai_logic.face_actor_to(actor_npc_bs, directive_two_np)
