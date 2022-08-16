@@ -17,6 +17,7 @@ class NpcAILogic:
         self.ai_chars = ai_chars
         self.ai_chars_bs = ai_chars_bs
         self.player = player
+        self.player_bs = self.base.game_instance["player_np"]
         self.player_fsm = player_fsm
         self.npcs_fsm_states = npcs_fsm_states
         self.npc_classes = npc_classes
@@ -42,7 +43,6 @@ class NpcAILogic:
 
         # R&D
         self.npc_action_seqs = {}
-        self.npc_pos = {}
 
         for name in self.ai_chars_bs:
             actor = self.base.game_instance['actors_ref'][name]
@@ -77,9 +77,10 @@ class NpcAILogic:
                         continue
 
                     actor = self.base.game_instance['actors_ref'][actor_name]
+
+                    # TODO: Keep it tempo!
                     if actor.get_python_tag("npc_class") == "friend":
                         actor.get_python_tag("generic_states")['is_alive'] = False
-
                     if actor.get_python_tag("npc_class") == "neutral":
                         actor.get_python_tag("generic_states")['is_alive'] = False
 
@@ -94,7 +95,7 @@ class NpcAILogic:
                     name = actor_name.lower()
                     taskMgr.add(self.npc_behavior.npc_generic_logic,
                                 "{0}_npc_friend_logic_task".format(name),
-                                extraArgs=[actor, self.player, request, False],
+                                extraArgs=[actor, self.player_bs, request, False],
                                 appendTask=True)
 
                 return task.done
@@ -330,16 +331,16 @@ class NpcAILogic:
                     request.request("Death", actor, "Dying", "play")
                     actor.get_python_tag("generic_states")['is_idle'] = False
 
-    def do_walking_sequence_once(self, actor_npc_bs, oppo_npc_bs, actor_name):
+    def do_walking_sequence_once(self, actor_npc_bs, target, actor_name):
         if not self.npc_action_seqs[actor_name].is_playing():
-            if (actor_npc_bs and oppo_npc_bs
+            if (actor_npc_bs and target
                     and actor_name and isinstance(actor_name, str)):
 
                 self.navmesh_query.nearest_point(actor_npc_bs.get_pos())
 
                 # Set last pos from opposite actor's world points
-                last_pos = self.render.get_relative_vector(oppo_npc_bs.get_parent(),
-                                                           oppo_npc_bs.get_pos())
+                last_pos = self.render.get_relative_vector(target.get_parent(),
+                                                           target.get_pos())
                 last_pos = Point3(last_pos[0], last_pos[1], 0)
 
                 self.navmesh.update()
@@ -377,8 +378,8 @@ class NpcAILogic:
 
                 self.npc_action_seqs[actor_name].start()
 
-    def npc_in_walking_logic(self, actor, actor_npc_bs, oppo_npc_bs, request):
-        if actor and actor_npc_bs and oppo_npc_bs and request:
+    def npc_in_walking_logic(self, actor, actor_npc_bs, target, request):
+        if actor and actor_npc_bs and target and request:
             actor_name = actor.get_name()
 
             # Crouch collision states
@@ -413,7 +414,7 @@ class NpcAILogic:
                         if actor.get_python_tag("stamina_np")['value'] > 1:
                             actor.get_python_tag("stamina_np")['value'] -= 1
 
-                    request.request("Walk", actor, oppo_npc_bs,
+                    request.request("Walk", actor, target,
                                     self.ai_chars_bs,
                                     self.ai_behaviors[actor_name],
                                     "pursuer", "Walking", self.vect, "loop")
@@ -430,13 +431,8 @@ class NpcAILogic:
 
                     request.request("WalkRD", actor, "Walking", "loop")
 
-                    if round(actor_npc_bs.get_distance(oppo_npc_bs)) > 1:
-                        self.do_walking_sequence_once(actor_npc_bs, oppo_npc_bs, actor_name)
-                    else:
-                        self.npc_action_seqs[actor_name].finish()
-
-                        actor.get_python_tag("generic_states")['is_idle'] = True
-                        actor.get_python_tag("generic_states")['is_moving'] = False
+                    if "NPC" not in target.get_name() and "Player" not in target.get_name():
+                        self.do_walking_sequence_once(actor_npc_bs, target, actor_name)
 
     def seq_pick_item_wrapper_task(self, actor, action, joint_name, task):
         if actor and action and joint_name:

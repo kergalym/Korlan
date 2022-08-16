@@ -114,6 +114,13 @@ class LevelOne:
                 and self.base.game_instance['actors_are_loaded']):
             for name in self.base.game_instance["actors_ref"]:
                 actor = self.base.game_instance["actors_ref"][name]
+
+                # TODO: Keep it tempo!
+                if actor.get_python_tag("npc_class") == "friend":
+                    actor.get_python_tag("generic_states")['is_alive'] = False
+                if actor.get_python_tag("npc_class") == "neutral":
+                    actor.get_python_tag("generic_states")['is_alive'] = False
+
                 NpcController(actor)
 
             return task.done
@@ -340,17 +347,17 @@ class LevelOne:
                 self.base.accept("r", self.render_pipeline.reload_shaders)
 
         """ Setup AI """
-        if self.game_settings['Debug']['set_editor_mode'] == 'NO':
+        if self.game_settings['Debug']['panda_ai'] == 'YES':
             # To avoid nullptr assertion error initialize AI World only if it has not been initialized yet
             if not self.ai:
                 self.ai = AI(world_np)
             self.ai.set_ai_world(assets=level_assets_joined,
                                  npcs_fsm_states=self.base.game_instance["npcs_fsm_states"],
                                  lvl_name="lvl_one")
-
-            """taskMgr.add(self.npc_controller_init,
+        else:
+            taskMgr.add(self.npc_controller_init,
                         "npc_controller_init",
-                        appendTask=True)"""
+                        appendTask=True)
 
         taskMgr.add(self.env_probe_task,
                     "env_probe_task",

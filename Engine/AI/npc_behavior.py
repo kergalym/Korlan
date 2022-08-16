@@ -8,6 +8,7 @@ class NpcBehavior:
         # Keep this class instance for further usage in NpcBehavior class only
         self.npc_ai_logic = self.base.game_instance['npc_ai_logic_cls']
         self.seq = Sequence()
+        self._directive_is_executing = False
 
     def _attack_directive(self, actor, actor_npc_bs, oppo_npc_bs, distance, hitbox_dist, request):
         if (not actor.get_python_tag("human_states")["has_sword"]
@@ -153,8 +154,6 @@ class NpcBehavior:
         directive_one_dist = int(actor_npc_bs.get_distance(directive_one_np))
         directive_two_dist = int(actor_npc_bs.get_distance(directive_two_np))
 
-        # print(directive_one_dist, directive_two_dist)
-
         # Go to the first directive
         if directive_one_dist > 1 and directive_two_dist > 1:
             if self.base.game_instance["use_pandai"]:
@@ -207,6 +206,9 @@ class NpcBehavior:
                                     and int(minutes) >= self.base.game_instance["sit_time_start"][1]
                                     and int(minutes) < self.base.game_instance["sit_time_stop"][1]):
 
+                                if not self._directive_is_executing:
+                                    self._directive_is_executing = True
+
                                 if self.base.game_instance["use_pandai"]:
                                     self.npc_ai_logic.npc_in_forced_staying_logic(actor, request)
                                     if self.base.game_instance["navmesh_query"]:
@@ -224,6 +226,9 @@ class NpcBehavior:
                                 # 5 round_table
                                 self._work_with_indoor_directives_queue(actor=actor, num=1, request=request)
                                 # self._work_with_outdoor_directive(actor=actor, target="yurt", request=request)
+                            else:
+                                if self._directive_is_executing:
+                                    self._directive_is_executing = False
 
                     if (not actor.get_python_tag("generic_states")['is_sitting']
                             or not actor.get_python_tag("generic_states")['is_laying']):
@@ -232,6 +237,9 @@ class NpcBehavior:
                             if (int(hour) == self.base.game_instance["rest_time_start"][0]
                                     and int(minutes) >= self.base.game_instance["rest_time_start"][1]
                                     and int(minutes) < self.base.game_instance["rest_time_stop"][1]):
+
+                                if not self._directive_is_executing:
+                                    self._directive_is_executing = True
 
                                 if self.base.game_instance["use_pandai"]:
                                     self.npc_ai_logic.npc_in_forced_staying_logic(actor, request)
@@ -250,8 +258,11 @@ class NpcBehavior:
                                 # 5 round_table
                                 self._work_with_indoor_directives_queue(actor=actor, num=2, request=request)
                                 # self._work_with_outdoor_directive(actor=actor, target="yurt", request=request)
+                            else:
+                                if self._directive_is_executing:
+                                    self._directive_is_executing = False
 
-                    if self.base.game_instance["use_pandai"]:
+                    if not self._directive_is_executing:
                         # Get required data about enemy to deal with it
                         actor_npc_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
 

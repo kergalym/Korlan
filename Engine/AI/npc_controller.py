@@ -1,4 +1,4 @@
-from direct.interval.FunctionInterval import Func
+from direct.interval.FunctionInterval import Func, Wait
 from direct.interval.MetaInterval import Sequence, Parallel
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import Vec3, Vec2, Point3, BitMask32
@@ -12,6 +12,7 @@ class NpcController:
         self.base = base
         self.render = render
         self.player = self.base.game_instance["player_ref"]
+        self.player_bs = self.base.game_instance["player_np"]
         self.player_fsm = self.base.game_instance["player_fsm_cls"]
         self.npcs_fsm_states = self.base.game_instance["npcs_fsm_states"]
         self.npc_rotations = {}
@@ -34,10 +35,8 @@ class NpcController:
 
         # R&D
         self.npc_action_seqs = {}
-        self.npc_pos = {}
 
         self.npc_action_seqs[name] = Sequence()
-        self.npc_pos[name] = Point3(0, 0, 0)
 
         if "animal" not in actor.get_python_tag("npc_type"):
             self.npc_state = self.base.game_instance["npc_state_cls"]
@@ -51,9 +50,16 @@ class NpcController:
         if actor:
             if "Horse" not in actor.get_name():
                 # FIXME: Test the directives. Tempo set passive to True
+
+                # Add a tracked obstacle which is NPC.
+                """actor_name = "{0}:BS".format(actor_name)
+                actor_npc_bs = self.base.game_instance["actors_np"][actor_name]
+                self.navmesh.add_node_path(actor_npc_bs)
+                self.navmesh.update()"""
+
                 taskMgr.add(self.npc_behavior.npc_generic_logic,
                             "{0}_npc_generic_logic_task".format(name),
-                            extraArgs=[actor, self.player, request, True],
+                            extraArgs=[actor, self.player_bs, request, False],
                             appendTask=True)
 
     def actor_hitbox_trace_task(self, actor, actor_bs, request, task):
@@ -72,25 +78,58 @@ class NpcController:
                             and actor.get_name() not in node.get_name()):
                         hitbox_np = render.find("**/{0}".format(node.get_name()))
                         if hitbox_np:
+                            actor.set_python_tag("enemy_hitbox_distance", 0)
                             # Deactivate enemy weapon if we got hit
                             if str(hitbox_np.get_collide_mask()) != " 0000 0000 0000 0000 0000 0000 0000 0000\n":
                                 distance = round(hitbox_np.get_distance(parent_np), 1)
+                                actor.set_python_tag("enemy_hitbox_distance", distance)
+
+                                # Enemy Prediction for facing
+                                if distance >= 0.5 and distance <= 2.5:
+                                    if node:
+                                        name = node.get_name()
+                                        for ref, bs in zip(self.base.game_instance["actors_ref"],
+                                                           self.base.game_instance["actors_np"]):
+                                            if name in ref:
+                                                npc_ref = self.base.game_instance["actors_np"][ref]
+                                                npc_bs = self.base.game_instance["actors_np"][ref]
+                                                if npc_ref:
+                                                    if not actor.get_python_tag("enemy_npc_ref"):
+                                                        actor.set_python_tag("enemy_npc_ref", npc_ref)
+                                                    if not actor.get_python_tag("enemy_npc_bs"):
+                                                        actor.set_python_tag("enemy_npc_bs", npc_bs)
+                                                    self.face_actor_to(actor_bs, npc_bs)
 
                                 if distance >= 0.5 and distance <= 1.8:
                                     hitbox_np.set_collide_mask(BitMask32.allOff())
-                                    if actor.get_python_tag("health_np"):
+                                    if (actor.get_python_tag("health_np")
+                                            and not actor.get_python_tag("generic_states")['is_blocking']):
                                         # NPC gets damage if he has health point
                                         if actor.get_python_tag("health_np")['value'] > 1:
                                             request.request("Attacked", actor, "HitToBody", "play")
-                                            actor.get_python_tag("health_np")['value'] -= 1
+                                            actor.get_python_tag("health_np")['value'] -= 6
+
+                                        if actor.get_python_tag("stamina_np")['value'] > 1:
+                                            actor.get_python_tag("stamina_np")['value'] -= 3
+
+                                        if actor.get_python_tag("courage_np")['value'] > 1:
+                                            actor.get_python_tag("courage_np")['value'] -= 3
 
             # NPC dies if he has no health point
-            if actor.get_python_tag("health_np")['value'] == 0:
+            if (actor.get_python_tag("health_np")['value'] < 2
+                    or actor.get_python_tag("health_np")['value'] < 1):
+                if actor.get_python_tag("stamina_np")['value'] > 1:
+                    actor.get_python_tag("stamina_np")['value'] = 0
+
                 if actor.get_python_tag("generic_states")['is_alive']:
                     if actor.get_python_tag("generic_states")['is_idle']:
                         request.request("Death", actor, "Dying", "play")
 
         return task.cont
+
+    def _reset_current_sequence(self):
+        if self.current_seq:
+            self.current_seq = None
 
     def get_enemy(self, actor):
         if actor:
@@ -118,6 +157,7 @@ class NpcController:
                     and not actor.get_python_tag("generic_states")['is_jumping']
                     and not actor.get_python_tag("generic_states")['is_attacked']
                     and not actor.get_python_tag("generic_states")['is_busy']
+                    and not actor.get_python_tag("generic_states")['is_blocking']
                     and not actor.get_python_tag("generic_states")['is_using']
                     and not actor.get_python_tag("generic_states")['is_turning']
                     and not actor.get_python_tag("human_states")['horse_riding']
@@ -151,6 +191,7 @@ class NpcController:
                     and not actor.get_python_tag("generic_states")['is_jumping']
                     and not actor.get_python_tag("generic_states")['is_attacked']
                     and not actor.get_python_tag("generic_states")['is_busy']
+                    and not actor.get_python_tag("generic_states")['is_blocking']
                     and not actor.get_python_tag("generic_states")['is_using']
                     and not actor.get_python_tag("generic_states")['is_turning']
                     and not actor.get_python_tag("generic_states")['is_laying']
@@ -187,32 +228,60 @@ class NpcController:
                 elif not actor.get_python_tag("generic_states")['is_crouch_moving']:
                     request.request("Idle", actor, "Standing_idle_male", "loop")
 
+                if actor.get_python_tag("stamina_np"):
+                    if actor.get_python_tag("stamina_np")['value'] < 100:
+                        actor.get_python_tag("stamina_np")['value'] += 0.5
+
+    def npc_in_forced_staying_logic(self, actor, request):
+        if actor and request:
+            if self.is_ready_for_staying(actor):
+                actor.get_python_tag("generic_states")['is_moving'] = False
+                actor.get_python_tag("generic_states")['is_idle'] = True
+
+            if actor.get_python_tag("generic_states")['is_idle']:
+                if actor.get_python_tag("generic_states")['is_crouch_moving']:
+                    request.request("Idle", actor, "standing_to_crouch", "loop")
+                elif not actor.get_python_tag("generic_states")['is_crouch_moving']:
+                    request.request("Idle", actor, "Standing_idle_male", "loop")
+
+                if actor.get_python_tag("stamina_np"):
+                    if actor.get_python_tag("stamina_np")['value'] < 100:
+                        actor.get_python_tag("stamina_np")['value'] += 0.5
+
     def npc_in_dying_logic(self, actor, request):
         if actor and request:
             actor.get_python_tag("generic_states")['is_moving'] = False
             actor.get_python_tag("generic_states")['is_alive'] = False
+
+            if actor.get_python_tag("stamina_np"):
+                if actor.get_python_tag("stamina_np")['value'] > 1:
+                    actor.get_python_tag("stamina_np")['value'] -= 100
+
+            if actor.get_python_tag("courage_np"):
+                if actor.get_python_tag("courage_np")['value'] > 1:
+                    actor.get_python_tag("courage_np")['value'] -= 100
 
             if not (actor.get_python_tag("generic_states")['is_alive']):
                 if actor.get_python_tag("generic_states")['is_idle']:
                     request.request("Death", actor, "Dying", "play")
                     actor.get_python_tag("generic_states")['is_idle'] = False
 
-    def do_walking_sequence_once(self, actor_npc_bs, oppo_npc_bs, actor_name):
+    def do_walking_sequence_once(self, actor_npc_bs, target, actor_name):
         if not self.npc_action_seqs[actor_name].is_playing():
-            if (actor_npc_bs and oppo_npc_bs
+            if (actor_npc_bs and target
                     and actor_name and isinstance(actor_name, str)):
 
-                self.navmesh_query.nearest_point(self.npc_pos[actor_name])
+                self.navmesh_query.nearest_point(actor_npc_bs.get_pos())
 
                 # Set last pos from opposite actor's world points
-                last_pos = self.render.get_relative_vector(oppo_npc_bs.get_parent(),
-                                                           oppo_npc_bs.get_pos())
+                last_pos = self.render.get_relative_vector(target.get_parent(),
+                                                           target.get_pos())
                 last_pos = Point3(last_pos[0], last_pos[1], 0)
 
                 self.navmesh.update()
 
                 # Find path
-                path = self.navmesh_query.find_path(self.npc_pos[actor_name], last_pos)
+                path = self.navmesh_query.find_path(actor_npc_bs.get_pos(), last_pos)
                 path_points = list(path.points)
                 current_dir = actor_npc_bs.get_hpr()
 
@@ -243,34 +312,117 @@ class NpcController:
                     current_dir = new_hpr
 
                 self.npc_action_seqs[actor_name].start()
-                self.npc_pos[actor_name] = last_pos
 
-    def npc_in_walking_logic(self, actor, actor_npc_bs, oppo_npc_bs, request):
-        if actor and actor_npc_bs and oppo_npc_bs and request:
+    def npc_in_walking_logic(self, actor, actor_npc_bs, target, request):
+        if actor and actor_npc_bs and target and request:
             actor_name = actor.get_name()
 
-            if self.is_ready_for_walking(actor):
-                actor.get_python_tag("generic_states")['is_idle'] = False
-                actor.get_python_tag("generic_states")['is_moving'] = True
+            # Crouch collision states
+            if not actor.get_python_tag("generic_states")['is_crouch_moving']:
+                actor_name_bs = "{0}:BS".format(actor_name)
+                crouch_bs_mask = BitMask32.allOff()
+                capsule_bs_mask = self.base.game_instance["actors_np_mask"][actor_name_bs]
 
-            if actor.get_python_tag("generic_states")['is_moving']:
-                request.request("WalkRD", actor, "Walking", "loop")
+                self.base.game_instance['actors_crouch_bs_np'][actor_name_bs].setCollideMask(crouch_bs_mask)
+                self.base.game_instance['actors_np'][actor_name_bs].setCollideMask(capsule_bs_mask)
+
+            elif actor.get_python_tag("generic_states")['is_crouch_moving']:
+                actor_name_bs = "{0}:BS".format(actor_name)
+                crouch_bs_mask = self.base.game_instance['actors_crouch_bs_np_mask'][actor_name_bs]
+                capsule_bs_mask = BitMask32.allOff()
+
+                self.base.game_instance['actors_crouch_bs_np'][actor_name_bs].setCollideMask(crouch_bs_mask)
+                self.base.game_instance['actors_np'][actor_name_bs].setCollideMask(capsule_bs_mask)
 
             if self.navmesh_query:
+                if self.is_ready_for_walking(actor):
+                    actor.get_python_tag("generic_states")['is_idle'] = False
+                    actor.get_python_tag("generic_states")['is_moving'] = True
 
-                self.do_walking_sequence_once(actor_npc_bs, oppo_npc_bs, actor_name)
+                if actor.get_python_tag("stamina_np"):
+                    if actor.get_python_tag("stamina_np")['value'] > 1:
+                        actor.get_python_tag("stamina_np")['value'] -= 1
 
-                if round(actor_npc_bs.get_distance(oppo_npc_bs)) > 4:
-                    self.base.messenger.send("do_walking_sequence_once")
-                else:
-                    if self.npc_action_seqs[actor_name].is_playing():
-                        self.npc_action_seqs[actor_name].finish()
+                request.request("WalkRD", actor, "Walking", "loop")
 
-                    actor.get_python_tag("generic_states")['is_idle'] = True
-                    actor.get_python_tag("generic_states")['is_moving'] = False
+                self.do_walking_sequence_once(actor_npc_bs, target, actor_name)
 
-    def npc_in_gathering_logic(self, actor, request):
-        pass
+    def seq_pick_item_wrapper_task(self, actor, action, joint_name, task):
+        if actor and action and joint_name:
+            npc_state_cls = self.base.game_instance["npc_state_cls"]
+            if actor.getCurrentFrame(action):
+                if (actor.getCurrentFrame(action) > 67
+                        and actor.getCurrentFrame(action) < 72):
+                    npc_state_cls.pick_up_item(actor, joint_name)
+        return task.cont
+
+    def seq_drop_item_wrapper_task(self, actor, action, task):
+        if actor and action:
+            npc_state_cls = self.base.game_instance["npc_state_cls"]
+            if actor.getCurrentFrame(action):
+                if (actor.getCurrentFrame(action) > 67
+                        and actor.getCurrentFrame(action) < 72):
+                    npc_state_cls.drop_item(actor)
+        return task.cont
+
+    def remove_seq_pick_item_wrapper_task(self):
+        taskMgr.remove("seq_pick_item_wrapper_task")
+
+    def remove_seq_drop_item_wrapper_task(self):
+        taskMgr.remove("seq_drop_item_wrapper_task")
+
+    def npc_in_gathering_logic(self, actor, action, request, parent, item):
+        if actor and action and request and parent and item and isinstance(item, str):
+            if not actor.get_python_tag("used_item_np"):
+                item_np = parent.find("**/{0}".format(item))
+                if item_np:
+                    actor.set_python_tag("used_item_np", item_np)
+
+                    # Usable Items List
+                    _items = []
+                    _pos = []
+                    _hpr = []
+
+                    for child in parent.get_children():
+                        _items.append(child.get_name())
+                        _pos.append(child.get_pos())
+                        _hpr.append(child.get_hpr())
+
+                    usable_item_list = {
+                        "name": _items,
+                        "pos": _pos,
+                        "hpr": _hpr
+                    }
+
+                    actor.set_python_tag("usable_item_list", usable_item_list)
+
+                if not actor.get_python_tag("is_item_using"):
+                    # just take item
+                    taskMgr.add(self.seq_pick_item_wrapper_task,
+                                "seq_pick_item_wrapper_task",
+                                extraArgs=[actor, action, "Korlan:RightHand"],
+                                appendTask=True)
+
+                    any_action_seq = actor.actor_interval(action,
+                                                          playRate=self.base.actor_play_rate)
+                    Sequence(any_action_seq,
+                             Func(self.remove_seq_pick_item_wrapper_task),
+                             ).start()
+
+    def npc_in_dropping_logic(self, actor, action, request):
+        if actor and action and request:
+            if actor.get_python_tag("used_item_np"):
+                if actor.get_python_tag("is_item_using"):
+                    # Just drop item
+                    taskMgr.add(self.seq_drop_item_wrapper_task,
+                                "seq_drop_item_wrapper_task",
+                                extraArgs=[actor, action],
+                                appendTask=True)
+                    any_action_seq = actor.actor_interval(action,
+                                                          playRate=self.base.actor_play_rate)
+                    Sequence(any_action_seq,
+                             Func(self.remove_seq_drop_item_wrapper_task),
+                             ).start()
 
     def npc_in_blocking_logic(self, actor, request):
         if (actor.get_python_tag("generic_states")['is_idle']
@@ -284,35 +436,76 @@ class NpcController:
                 action = "center_blocking"
             request.request("Block", actor, action, "play")
 
-    def npc_in_attacking_logic(self, actor, request):
+    def _npc_in_attacking_logic(self, actor, actor_npc_bs, request):
+        dt = globalClock.getDt()
         if (actor.get_python_tag("generic_states")['is_idle']
-                and not actor.get_python_tag("generic_states")['is_attacked']
                 and not actor.get_python_tag("generic_states")['is_busy']
                 and not actor.get_python_tag("generic_states")['is_moving']):
+
             if actor.get_python_tag("human_states")["has_sword"]:
                 action = "great_sword_slash"
                 request.request("Attack", actor, action, "play")
             elif actor.get_python_tag("human_states")["has_bow"]:
                 action = "archer_standing_draw_arrow"
                 request.request("Archery", actor, action, "play")
-            else:
+            elif (not actor.get_python_tag("human_states")["has_sword"]
+                  and not actor.get_python_tag("human_states")["has_bow"]):
                 action = "Boxing"
                 request.request("Attack", actor, action, "play")
 
+            if (actor.get_python_tag("stamina_np")['value'] > 3
+                    and actor.get_python_tag("enemy_distance") >= 1):
+                if actor_npc_bs.get_y() != actor_npc_bs.get_y() - 2:
+                    actor_npc_bs.set_y(actor_npc_bs, -2 * dt)
+
+            if actor.get_python_tag("stamina_np")['value'] > 1:
+                actor.get_python_tag("stamina_np")['value'] -= 18
+
     def npc_in_forwardroll_logic(self, actor, actor_npc_bs, request):
         dt = globalClock.getDt()
-        if actor_npc_bs.get_x() != actor_npc_bs.get_x() - 2:
-            actor_npc_bs.set_x(actor_npc_bs, -2 * dt)
-            request.request("ForwardRoll", actor, "forward_roll", "play")
-        elif actor_npc_bs.get_x() != actor_npc_bs.get_x() + 2:
-            actor_npc_bs.set_x(actor_npc_bs, 2 * dt)
-            request.request("ForwardRoll", actor, "forward_roll", "play")
-        elif actor_npc_bs.get_y() != actor_npc_bs.get_y() - 2:
-            actor_npc_bs.set_y(actor_npc_bs, -2 * dt)
-            request.request("ForwardRoll", actor, "forward_roll", "play")
-        elif actor_npc_bs.get_y() != actor_npc_bs.get_y() + 2:
-            actor_npc_bs.set_y(actor_npc_bs, 2 * dt)
-            request.request("ForwardRoll", actor, "forward_roll", "play")
+        if actor.get_python_tag("stamina_np"):
+            if actor.get_python_tag("stamina_np")['value'] > 15:
+                if actor_npc_bs.get_y() != actor_npc_bs.get_y() - 2:
+                    actor_npc_bs.set_y(actor_npc_bs, -2 * dt)
+                    request.request("ForwardRoll", actor, "forward_roll", "play")
+
+                if actor.get_python_tag("stamina_np")['value'] > 1:
+                    actor.get_python_tag("stamina_np")['value'] -= 15
+
+    def npc_in_backwardroll_logic(self, actor, actor_npc_bs, request):
+        dt = globalClock.getDt()
+        if actor.get_python_tag("stamina_np"):
+            if actor.get_python_tag("stamina_np")['value'] > 15:
+                if actor_npc_bs.get_y() != actor_npc_bs.get_y() + 2:
+                    actor_npc_bs.set_y(actor_npc_bs, 2 * dt)
+                    request.request("BackwardRoll", actor, "forward_roll", "play")
+
+                if actor.get_python_tag("stamina_np")['value'] > 1:
+                    actor.get_python_tag("stamina_np")['value'] -= 15
+
+    def npc_in_forwardstep_logic(self, actor, actor_npc_bs, request):
+        dt = globalClock.getDt()
+        if actor.get_python_tag("stamina_np"):
+            if (actor.get_python_tag("stamina_np")['value'] > 3
+                    and actor.get_python_tag("enemy_distance") >= 2):
+                if actor_npc_bs.get_y() != actor_npc_bs.get_y() - 2:
+                    actor_npc_bs.set_y(actor_npc_bs, -2 * dt)
+                    request.request("ForwardStep", actor, "Walking", "play")
+
+                if actor.get_python_tag("stamina_np")['value'] > 1:
+                    actor.get_python_tag("stamina_np")['value'] -= 3
+
+    def npc_in_backwardstep_logic(self, actor, actor_npc_bs, request):
+        dt = globalClock.getDt()
+        if actor.get_python_tag("stamina_np"):
+            if (actor.get_python_tag("stamina_np")['value'] > 3
+                    and actor.get_python_tag("enemy_distance") <= 1):
+                if actor_npc_bs.get_y() != actor_npc_bs.get_y() + 2:
+                    actor_npc_bs.set_y(actor_npc_bs, 2 * dt)
+                    request.request("BackwardStep", actor, "Walking", "play")
+
+                if actor.get_python_tag("stamina_np")['value'] > 1:
+                    actor.get_python_tag("stamina_np")['value'] -= 3
 
     def npc_in_crouching_logic(self, actor, request):
         if (actor.get_python_tag("generic_states")['is_idle']
@@ -331,6 +524,14 @@ class NpcController:
             if (actor.get_python_tag("generic_states")
                     and not actor.get_python_tag("generic_states")['is_crouch_moving']):
                 request.request("Jump", actor, "Jumping", "play")
+
+            if actor.get_python_tag("stamina_np"):
+                if actor.get_python_tag("stamina_np")['value'] > 1:
+                    actor.get_python_tag("stamina_np")['value'] -= 1
+
+            if actor.get_python_tag("courage_np"):
+                if actor.get_python_tag("courage_np")['value'] > 1:
+                    actor.get_python_tag("courage_np")['value'] -= 1
 
     def npc_in_mounting_logic(self, actor, actor_npc_bs, request):
         if (actor.get_python_tag("human_states")
@@ -394,40 +595,59 @@ class NpcController:
                     request.request("RemoveWeapon", actor, "archer_standing_disarm_bow",
                                     weapon_name, bone_name, "play")
 
-    def actor_rotate(self, actor_npc_bs, path_points):
-        current_dir = actor_npc_bs.get_hpr()
-
-        for i in range(len(path_points) - 1):
-            new_hpr = Vec3(Vec2(0, -1).signed_angle_deg(path_points[i + 1].xy - path_points[i].xy), current_dir[1],
-                           current_dir[2])
-            actor_npc_bs.set_hpr(new_hpr)
-            # actor_npc_bs.hprInterval(0, new_hpr)
-
     def face_actor_to(self, actor, target_np):
         if actor and target_np:
-            actor.look_at(target_np.get_pos())
-            actor.set_h(target_np, -180)
+            # Calculate NPC rotation vector
+            rot_vector = Vec3(actor.get_pos() - target_np.get_pos())
+            rot_vector_2d = rot_vector.get_xy()
+            rot_vector_2d.normalize()
+            new_hpr = Vec3(Vec2(0, -1).signed_angle_deg(rot_vector_2d), 0)
+            target_heading = target_np.get_h()
+            heading = actor.get_h()
 
-            # keep target once
-            saved_target_np = actor.get_python_tag("target_np")
-            if not saved_target_np:
-                actor.set_python_tag("target_np", target_np)
-            elif saved_target_np:
-                if saved_target_np.get_name() != target_np.get_name():
-                    actor.set_python_tag("target_np", target_np)
+            # If NPC faced to target actor and target actor is faced to NPC,
+            # then continue heading
+            # If NPC is not faced to target actor and target actor is not faced to NPC,
+            # then do reversed heading
+            if int(heading) < 0 and int(target_heading) > 0:
+                actor.set_h(-new_hpr[0])
+            # If NPC is not faced to target actor and target actor is faced to NPC,
+            # then do reversed heading 3
+            elif int(heading) < 0 and int(target_heading) < 0:
+                actor.set_h(-new_hpr[0])
 
-    def get_hit_distance(self, actor):
-        if actor and actor.find("**/**Hips:HB"):
-            parent_node = actor.find("**/**Hips:HB").node()
-            parent_np = actor.find("**/**Hips:HB")
+    def do_defensive_prediction(self, actor, actor_npc_bs, request, hitbox_dist):
+        if actor and actor_npc_bs and request:
+            if hitbox_dist >= 0.5 and hitbox_dist <= 1.8:
+                if actor.get_python_tag("stamina_np")['value'] > 5:
+                    if not self.current_seq:
+                        self.current_seq = Sequence(
+                            Parallel(
+                                Wait(1),
+                                Func(self.npc_in_backwardstep_logic, actor,
+                                     actor_npc_bs, request)),
+                            Parallel(
+                                Wait(1),
+                                Func(self.npc_in_forwardstep_logic, actor,
+                                     actor_npc_bs, request)),
+                            Parallel(
+                                Wait(1),
+                                Func(self.npc_in_backwardroll_logic, actor,
+                                     actor_npc_bs, request)),
+                            Parallel(
+                                Wait(1),
+                                Func(self.npc_in_blocking_logic, actor, request)),
+                            Func(self._reset_current_sequence)
+                        )
+                        self.current_seq.sort()
+                    if self.current_seq and not self.current_seq.is_playing():
+                        self.current_seq.start()
 
-            for node in parent_node.get_overlapping_nodes():
-                damage_weapons = actor.get_python_tag("damage_weapons")
-                for weapon in damage_weapons:
-                    # Exclude our own weapon hits
-                    if (weapon in node.get_name()
-                            and actor.get_name() not in node.get_name()):
-                        hitbox_np = self.render.find("**/{0}".format(node.get_name()))
-                        if hitbox_np:
-                            distance = round(hitbox_np.get_distance(parent_np), 1)
-                            return distance
+            if actor.get_python_tag("stamina_np")['value'] > 50:
+                if actor.get_python_tag("enemy_distance") <= 1:
+                    target_np = actor.get_python_tag("target_np")
+                    self.face_actor_to(actor_npc_bs, target_np)
+                    self._npc_in_attacking_logic(actor, actor_npc_bs, request)
+                elif (actor.get_python_tag("enemy_distance") > 1
+                      and actor.get_python_tag("enemy_distance") < 3):
+                    self.npc_in_forwardstep_logic(actor, actor_npc_bs, request)
