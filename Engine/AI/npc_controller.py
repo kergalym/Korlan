@@ -17,6 +17,8 @@ class NpcController:
         self.npcs_fsm_states = self.base.game_instance["npcs_fsm_states"]
         self.npc_rotations = {}
         self.activated_npc_count = 0
+        self.current_seq = None
+        self.current_step_action = None
         self.navmesh = self.base.game_instance["navmesh"]
         self.navmesh_query = self.base.game_instance["navmesh_query"]
 
