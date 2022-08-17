@@ -121,6 +121,7 @@ class LevelOne:
 
                 NpcController(actor)
 
+            self.base.game_instance["ai_is_activated"] = 1
             return task.done
 
         return task.cont
