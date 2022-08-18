@@ -47,9 +47,6 @@ class SceneOne:
 
     def set_level_nav(self, scene_name):
         if scene_name and isinstance(scene_name, str):
-            # TODO DROP THIS LINE WHEN R&D BECOMES PRODUCTION-READY
-            # NavMeshBuilder is a class that is responsible
-            # for building the polygon meshes and navigation meshes.
             self.builder = NavMeshBuilder()
             # Take NodePath as input. This method only uses
             # the collision nodes that are under this node.
@@ -192,7 +189,8 @@ class SceneOne:
                 # Make scene global
                 self.base.game_instance['scene_np'] = scene
 
-            self.base.game_instance['renderpipeline_np'].prepare_scene(scene)
+            if self.base.game_instance["renderpipeline_np"]:
+                self.base.game_instance['renderpipeline_np'].prepare_scene(scene)
 
             if render.find("**/Grass"):
                 grass = render.find_all_matches("**/Grass*")

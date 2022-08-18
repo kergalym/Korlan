@@ -568,7 +568,7 @@ class NpcController:
                 actor.set_h(-new_hpr[0])
             # If NPC is not faced to target actor and target actor is faced to NPC,
             # then do reversed heading 3
-            elif int(heading) < 0 and int(target_heading) < 0:
+            elif int(heading) > 0 and int(target_heading) < 0:
                 actor.set_h(-new_hpr[0])
 
     def do_defensive_prediction(self, actor, actor_npc_bs, request, hitbox_dist):

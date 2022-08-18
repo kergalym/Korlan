@@ -68,7 +68,9 @@ else:
 build_info_txt = "Build 0.6. 04/2022"
 
 game_settings = configparser.ConfigParser()
-game_settings['Main'] = {'disp_res': '1920x1080',
+game_settings['Main'] = {
+                         'pbr_renderer': 'on',
+                         'disp_res': '1920x1080',
                          'fullscreen': 'off',
                          'antialiasing': 'on',
                          'details': 'high',
@@ -85,7 +87,8 @@ game_settings['Main'] = {'disp_res': '1920x1080',
                          'camera_distance': '4',
                          }
 
-game_settings['Keymap'] = {'forward': 'W',
+game_settings['Keymap'] = {
+                           'forward': 'W',
                            'backward': 'S',
                            'left': 'A',
                            'right': 'D',
@@ -107,7 +110,8 @@ game_settings['Keymap'] = {'forward': 'W',
                            'umai': '4'
                            }
 
-game_settings['Debug'] = {'set_debug_mode': 'NO',
+game_settings['Debug'] = {
+                          'set_debug_mode': 'NO',
                           'set_interactive_cli': "NO",
                           'set_editor_mode': 'NO',
                           'set_light_editor_mode': 'NO',
@@ -446,13 +450,16 @@ class Main(ShowBase):
             self.controller.setup()
 
         # Construct and create the pipeline
-        render_bg_tex = self.textures_collector('Engine/Renderer')
-        self.render_pipeline = RenderPipeline()
-        self.render_pipeline.set_loading_screen_image(render_bg_tex['background'])
-        self.render_pipeline.pre_showbase_init()
-        self.render_pipeline.create(self)
-        self.game_instance["renderpipeline_np"] = self.render_pipeline
-        self.accept("reload_render", self.reload_render)
+        self.render_pipeline = None
+        if self.game_settings['Main']['pbr_renderer'] == 'on':
+            render_bg_tex = self.textures_collector('Engine/Renderer')
+            self.render_pipeline = RenderPipeline()
+            self.render_pipeline.set_loading_screen_image(render_bg_tex['background'])
+            self.render_pipeline.pre_showbase_init()
+            self.render_pipeline.create(self)
+
+            self.game_instance["renderpipeline_np"] = self.render_pipeline
+            self.accept("reload_render", self.reload_render)
 
         """ Menu """
         if self.check_and_do_cfg():
@@ -477,7 +484,7 @@ class Main(ShowBase):
         self.rotateX = 0
         self.scene_mode = None
 
-        # Enable Projected water
+        # Enable PBR-dependent projected water
         self.render_attr.set_projected_water(True)
 
         """ Sounds """

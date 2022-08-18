@@ -95,7 +95,8 @@ class NpcGeneric:
                     # Make actor global
                     self.base.game_instance['actors_ref'][name] = self.actor
 
-                    self.base.game_instance['renderpipeline_np'].prepare_scene(self.actor)
+                    if self.base.game_instance["renderpipeline_np"]:
+                        self.base.game_instance['renderpipeline_np'].prepare_scene(self.actor)
 
                     # Add Bullet collider for this actor
                     physics_attr = self.base.game_instance["physics_attr_cls"]

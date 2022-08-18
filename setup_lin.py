@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="Korlan",
-    version='0.1.1',
+    version='0.2.1',
     include_package_data=True,
     options={
         'build_apps': {

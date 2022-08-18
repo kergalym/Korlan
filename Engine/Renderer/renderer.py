@@ -73,7 +73,8 @@ class RenderAttr:
                                          mayChange=True)
 
     def set_time_of_day_clock_task(self, time, duration, task):
-        if time and self.base.game_instance['loading_is_done'] == 0:
+        if (time and self.base.game_instance['loading_is_done'] == 0
+                and self.base.game_instance["renderpipeline_np"]):
             self.base.game_instance["renderpipeline_np"].daytime_mgr.time = time
 
         if self.base.game_instance['loading_is_done'] == 1:
@@ -138,7 +139,7 @@ class RenderAttr:
         return task.cont
 
     def set_projected_water(self, bool_):
-        if bool_:
+        if self.base.game_instance["renderpipeline_np"] and bool_:
             from Engine.Renderer.rpcore.water.projected_water import ProjectedWater
             self.proj_water = ProjectedWater(WaterOptions)
             self.proj_water.setup_water(pipeline=self.base.game_instance["renderpipeline_np"],
@@ -151,7 +152,7 @@ class RenderAttr:
 
     def set_grass(self, uv_offset, fogcenter=Vec3(0, 0, 0), adv_render=False):
         textures = self.base.textures_collector("{0}/Engine/Shaders/".format(self.game_dir))
-        if textures:
+        if self.base.game_instance["renderpipeline_np"] and textures:
             self.grass_np = render.find("**/Grass")
             self.grass_np.setTransparency(TransparencyAttrib.MBinary, 1)
             self.grass_np.reparent_to(self.grass_np.get_parent())
@@ -205,7 +206,7 @@ class RenderAttr:
                     # RP doesn't have nodegraph-like structure to find and remove lights,
                     # so we check self.rp_light before adding light
 
-                    if adv_render:
+                    if self.base.game_instance["renderpipeline_np"] and adv_render:
                         # Put second light above hearth
                         light_a = RP_PointLight()
                         light_a.pos = Vec3(node_path.get_x(), node_path.get_y(), 1.7)
@@ -263,7 +264,7 @@ class RenderAttr:
                     # Add particles to keep them in list
                     self.particles[node_path.get_name()] = particles_r
 
-                    if adv_render:
+                    if self.base.game_instance["renderpipeline_np"] and adv_render:
                         self.base.game_instance["renderpipeline_np"].set_effect(node_path,
                                                                                 "{0}/Engine/Renderer/effects/flame.yaml".format(
                                                                                     self.game_dir),
@@ -310,7 +311,7 @@ class RenderAttr:
                     # Add particles to keep them in list
                     self.particles[node_path.get_name()] = particles
 
-                    if adv_render:
+                    if self.base.game_instance["renderpipeline_np"] and adv_render:
                         self.base.game_instance["renderpipeline_np"].set_effect(node_path,
                                                                                 "{0}/Engine/Renderer/effects/flame.yaml".format(
                                                                                     self.game_dir),
@@ -356,7 +357,7 @@ class RenderAttr:
                     # Add particles to keep them in list
                     self.particles[node_path.get_name()] = particles_r
 
-                    if adv_render:
+                    if self.base.game_instance["renderpipeline_np"] and adv_render:
                         self.base.game_instance["renderpipeline_np"].set_effect(node_path,
                                                                                 "{0}/Engine/Renderer/effects/smoke.yaml".format(
                                                                                     self.game_dir),
@@ -374,7 +375,8 @@ class RenderAttr:
         self.base.disable_particles()
 
     def set_lighting(self, name, render, pos, hpr, color, task):
-        if (render
+        if (self.base.game_instance["renderpipeline_np"]
+                and render
                 and name
                 and isinstance(name, str)
                 and isinstance(pos, list)
@@ -427,7 +429,8 @@ class RenderAttr:
                         self.base.game_instance['rp_lights']['scene'].remove(light)
 
     def set_inv_lighting(self, name, render, pos, hpr, color, task):
-        if (render
+        if (self.base.game_instance["renderpipeline_np"]
+                and render
                 and name
                 and isinstance(name, str)
                 and isinstance(pos, list)
@@ -479,7 +482,7 @@ class RenderAttr:
                     self.base.game_instance["renderpipeline_np"].add_light(light)
 
     def clear_inv_lighting(self):
-        if (self.base.game_instance['rp_lights']
+        if (self.base.game_instance["renderpipeline_np"] and self.base.game_instance['rp_lights']
                 and self.base.game_instance["renderpipeline_np"].light_mgr.num_lights > 0):
             if self.base.game_instance['rp_lights']['inventory']:
                 light = self.base.game_instance['rp_lights']['inventory']
@@ -501,7 +504,7 @@ class RenderAttr:
 
     def set_hardware_skinning(self, actor, bool_):
         # Perform hardware skinning on GPU.
-        if actor and isinstance(bool_, bool):
+        if actor and isinstance(bool_, bool) and self.base.game_instance["renderpipeline_np"]:
             self.base.game_instance['hw_skinning'] = False
             self.base.game_instance["renderpipeline_np"].set_effect(actor,
                                                                     "{0}/Engine/Renderer/effects/hardware_skinning.yaml".format(

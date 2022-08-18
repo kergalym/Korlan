@@ -201,7 +201,8 @@ class NpcBehavior:
                 if not passive:
                     if (not actor.get_python_tag("generic_states")['is_sitting']
                             or not actor.get_python_tag("generic_states")['is_laying']):
-                        if self.base.game_instance["sit_time_start"]:
+                        if (self.base.game_instance["world_time"]
+                                and self.base.game_instance["sit_time_start"]):
                             hour, minutes = self.base.game_instance["world_time"].split(":")
                             if (int(hour) == self.base.game_instance["sit_time_start"][0]
                                     and int(minutes) >= self.base.game_instance["sit_time_start"][1]
@@ -227,7 +228,8 @@ class NpcBehavior:
 
                     if (not actor.get_python_tag("generic_states")['is_sitting']
                             or not actor.get_python_tag("generic_states")['is_laying']):
-                        if self.base.game_instance["rest_time_start"]:
+                        if (self.base.game_instance["world_time"]
+                                and self.base.game_instance["rest_time_start"]):
                             hour, minutes = self.base.game_instance["world_time"].split(":")
                             if (int(hour) == self.base.game_instance["rest_time_start"][0]
                                     and int(minutes) >= self.base.game_instance["rest_time_start"][1]

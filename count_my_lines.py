@@ -48,7 +48,6 @@ def count_my_lines():
                 f_str = str(file)
                 if (f_str.endswith(".py") and not f_str.startswith("start_")
                         and f_str != "lightmap_test.py"
-                        and f_str != "korlan_test.py"
                         and f_str != "count_my_lines.py"
                         and f_str != "main_test.py"):
                     path = "{0}/{1}".format(root, file)
