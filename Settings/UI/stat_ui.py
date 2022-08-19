@@ -36,6 +36,7 @@ class StatUI:
             # NPC State
             self.title_dbg_mode_npc_state = None
             self.text_npc_action_stat_p = None
+            self.current_npc = None
 
     def set_stat_ui(self):
         self.stat_overlay = DirectFrame(frameColor=(0, 0, 0, 0.5),
@@ -353,7 +354,8 @@ class StatUI:
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
                 if (not base.game_instance['menu_mode']
                         and set_mode == 'show'):
-                    self.title_dbg_mode_player_state.setText("DEBUG MODE: Player State")
+                    if not self.title_dbg_mode_player_state.getText():
+                        self.title_dbg_mode_player_state.setText("DEBUG MODE: Player State")
 
                     if hasattr(base, "player_states"):
                         for key, node in zip(base.player_states, self.player_actions_ui_np):
@@ -365,13 +367,17 @@ class StatUI:
                             node.setText(item)
                             node['fg'] = color
 
-                    self.title_dbg_mode_player_state.show()
-                    self.text_player_action_stat_p.show()
+                    if self.title_dbg_mode_player_state.is_hidden():
+                        self.title_dbg_mode_player_state.show()
+                    if self.text_player_action_stat_p.is_hidden():
+                        self.text_player_action_stat_p.show()
 
                 elif (base.game_instance['menu_mode']
                       and set_mode == 'hide'):
-                    self.title_dbg_mode_player_state.hide()
-                    self.text_player_action_stat_p.hide()
+                    if not self.title_dbg_mode_player_state.is_hidden():
+                        self.title_dbg_mode_player_state.hide()
+                    if not self.text_player_action_stat_p.is_hidden():
+                        self.text_player_action_stat_p.hide()
 
     def set_npc_action_stat_text(self, set_mode):
         """ Function    : set_npc_action_stat_text
@@ -388,7 +394,8 @@ class StatUI:
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
                 if (not base.game_instance['menu_mode']
                         and set_mode == 'show'):
-                    self.title_dbg_mode_npc_state.setText("DEBUG MODE: Friendly NPC State")
+                    if not self.title_dbg_mode_npc_state.getText():
+                        self.title_dbg_mode_npc_state.setText("DEBUG MODE: Friendly NPC State")
 
                     if hasattr(base, "player_states"):
                         npc_actions = self.get_npc_actions_list("Ernar")
@@ -402,13 +409,17 @@ class StatUI:
                                 node.setText(item)
                                 node['fg'] = color
 
-                    self.title_dbg_mode_npc_state.show()
-                    self.text_npc_action_stat_p.show()
+                    if self.title_dbg_mode_npc_state.is_hidden():
+                        self.title_dbg_mode_npc_state.show()
+                    if self.text_npc_action_stat_p.is_hidden():
+                        self.text_npc_action_stat_p.show()
 
                 elif (base.game_instance['menu_mode']
                       and set_mode == 'hide'):
-                    self.title_dbg_mode_npc_state.hide()
-                    self.text_npc_action_stat_p.hide()
+                    if not self.title_dbg_mode_npc_state.is_hidden():
+                        self.title_dbg_mode_npc_state.hide()
+                    if not self.text_npc_action_stat_p.is_hidden():
+                        self.text_npc_action_stat_p.hide()
 
     def get_actors_distance(self):
         actors = base.game_instance['actors_np']
@@ -444,8 +455,9 @@ class StatUI:
             self.set_obj_stat_text(stat_obj_fmt_h, stat_obj_fmt_p, set_mode='show')
             self.set_player_action_stat_text(set_mode='show')
             self.set_npc_action_stat_text(set_mode='show')
-            self.text_toggle_col.show()
-
+            if self.text_toggle_col.is_hidden():
+                self.text_toggle_col.show()
+                
         elif base.game_instance['menu_mode']:
             self.clear_game_stat()
             return task.done
@@ -473,16 +485,20 @@ class StatUI:
                 self.player_actions_ui_np.append(item)
 
     def get_npc_actions_list(self, actor_name):
-        if actor_name and isinstance(actor_name, str):
-            for k in base.game_instance["actors_ref"]:
-                actor = base.game_instance["actors_ref"][k]
-                if actor:
-                    is_alive = actor.get_python_tag("generic_states")['is_alive']
-                    if actor_name in actor.get_name() and is_alive:
-                        return actor.get_python_tag("generic_states")
-                    # If not alive actor which has actor_name, get another alive actor
-                    elif actor_name not in actor.get_name() and is_alive:
-                        return actor.get_python_tag("generic_states")
+        if not self.current_npc:
+            if actor_name and isinstance(actor_name, str):
+                for k in base.game_instance["actors_ref"]:
+                    actor = base.game_instance["actors_ref"][k]
+                    if actor:
+                        is_alive = actor.get_python_tag("generic_states")['is_alive']
+                        if actor_name in actor.get_name() and is_alive:
+                            return actor.get_python_tag("generic_states")
+                        # If not alive actor which has actor_name, get another alive actor
+                        elif actor_name not in actor.get_name() and is_alive:
+                            self.current_npc = actor
+                            return actor.get_python_tag("generic_states")
+        else:
+            return self.current_npc.get_python_tag("generic_states")
 
     def draw_npc_actions_list(self):
         if len(self.npc_actions_ui_np) > 0:
