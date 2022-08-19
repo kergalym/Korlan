@@ -150,6 +150,86 @@ class AsyncLevelLoad:
 
         return task.cont
 
+    def scene_toggle(self, scene):
+        if scene.is_hidden():
+            scene.show()
+        else:
+            scene.hide()
+
+    def set_cpu_instancing_to(self, scene, pattern, placeholder):
+        if (scene and isinstance(scene, NodePath)
+                and isinstance(pattern, str)
+                and isinstance(placeholder, str)):
+            # Find the asset object, we are going to in instance this object
+            # multiple times
+            # Collect all instances
+            prefab = scene.find("**/{0}".format(pattern))
+            if prefab:
+                tree_master = scene.attach_new_node('TreeMaster')
+                for elem in scene.find_all_matches("**/{0}*".format(placeholder)):
+
+                    pos_z = prefab.get_z()
+                    scale = prefab.get_scale()
+                    elem.set_z(pos_z)
+                    elem.set_scale(scale)
+
+                    cpuinst = tree_master.attach_new_node("treeInstance")
+                    cpuinst.set_pos(elem.get_pos())
+                    prefab.instance_to(cpuinst)
+
+    def set_gpu_instancing_to(self, scene, pattern, placeholder):
+        if (scene and isinstance(scene, NodePath)
+                and isinstance(pattern, str)
+                and isinstance(placeholder, str)):
+            # Find the asset object, we are going to in instance this object
+            # multiple times
+            # Collect all instances
+            prefab = scene.find("**/{0}".format(pattern))
+            if prefab:
+
+                matrices = []
+                floats = []
+
+                for elem in scene.find_all_matches("**/{0}*".format(placeholder)):
+
+                    pos_z = prefab.get_z()
+                    scale = prefab.get_scale()
+                    elem.set_z(pos_z)
+                    elem.set_scale(scale)
+
+                    matrices.append(elem.get_mat(render))
+                    elem.remove_node()
+
+                # Allocate storage for the matrices, each matrix has 16 elements,
+                # but because one pixel has four components, we need amount * 4 pixels.
+                buffer_texture = Texture()
+                buffer_texture.setup_buffer_texture(len(matrices) * 4,
+                                                    Texture.T_float,
+                                                    Texture.F_rgba32,
+                                                    GeomEnums.UH_static)
+
+                # Serialize matrices to floats
+                ram_image = buffer_texture.modify_ram_image()
+                for idx, mat in enumerate(matrices):
+                    for i in range(4):
+                        for j in range(4):
+                            floats.append(mat.get_cell(i, j))
+
+                # Write the floats to the texture
+                data = struct.pack("f" * len(floats), *floats)
+                ram_image.set_subdata(0, len(data), data)
+
+                # Load the effect
+                renderpipeline_np = self.base.game_instance["renderpipeline_np"]
+                renderpipeline_np.set_effect(prefab,
+                                             "{0}/Engine/Renderer/effects/basic_instancing.yaml".format(
+                                                 self.game_dir), {})
+                prefab.set_shader_input("InstancingData", buffer_texture)
+                prefab.set_instance_count(len(matrices))
+                # We have do disable culling, so that all instances stay visible
+                prefab.node().set_bounds(OmniBoundingVolume())
+                prefab.node().set_final(True)
+
     def save_player_parts(self, parts):
         if self.korlan and isinstance(self.base.game_instance["player_parts"], list):
             for name in parts:
@@ -568,83 +648,3 @@ class AsyncLevelLoad:
                         self.npc_state.setup_npc_state(actor=self.actor)
 
             self.base.game_instance['actors_are_loaded'] = True
-
-    def scene_toggle(self, scene):
-        if scene.is_hidden():
-            scene.show()
-        else:
-            scene.hide()
-
-    def set_cpu_instancing_to(self, scene, pattern, placeholder):
-        if (scene and isinstance(scene, NodePath)
-                and isinstance(pattern, str)
-                and isinstance(placeholder, str)):
-            # Find the asset object, we are going to in instance this object
-            # multiple times
-            # Collect all instances
-            prefab = scene.find("**/{0}".format(pattern))
-            if prefab:
-                tree_master = scene.attach_new_node('TreeMaster')
-                for elem in scene.find_all_matches("**/{0}*".format(placeholder)):
-
-                    pos_z = prefab.get_z()
-                    scale = prefab.get_scale()
-                    elem.set_z(pos_z)
-                    elem.set_scale(scale)
-
-                    cpuinst = tree_master.attach_new_node("treeInstance")
-                    cpuinst.set_pos(elem.get_pos())
-                    prefab.instance_to(cpuinst)
-
-    def set_gpu_instancing_to(self, scene, pattern, placeholder):
-        if (scene and isinstance(scene, NodePath)
-                and isinstance(pattern, str)
-                and isinstance(placeholder, str)):
-            # Find the asset object, we are going to in instance this object
-            # multiple times
-            # Collect all instances
-            prefab = scene.find("**/{0}".format(pattern))
-            if prefab:
-
-                matrices = []
-                floats = []
-
-                for elem in scene.find_all_matches("**/{0}*".format(placeholder)):
-
-                    pos_z = prefab.get_z()
-                    scale = prefab.get_scale()
-                    elem.set_z(pos_z)
-                    elem.set_scale(scale)
-
-                    matrices.append(elem.get_mat(render))
-                    elem.remove_node()
-
-                # Allocate storage for the matrices, each matrix has 16 elements,
-                # but because one pixel has four components, we need amount * 4 pixels.
-                buffer_texture = Texture()
-                buffer_texture.setup_buffer_texture(len(matrices) * 4,
-                                                    Texture.T_float,
-                                                    Texture.F_rgba32,
-                                                    GeomEnums.UH_static)
-
-                # Serialize matrices to floats
-                ram_image = buffer_texture.modify_ram_image()
-                for idx, mat in enumerate(matrices):
-                    for i in range(4):
-                        for j in range(4):
-                            floats.append(mat.get_cell(i, j))
-
-                # Write the floats to the texture
-                data = struct.pack("f" * len(floats), *floats)
-                ram_image.set_subdata(0, len(data), data)
-
-                # Load the effect
-                renderpipeline_np = self.base.game_instance["renderpipeline_np"]
-                renderpipeline_np.set_effect(prefab,
-                                             "{0}/Engine/Renderer/effects/basic_instancing.yaml".format(
-                                                 self.game_dir), {})
-                prefab.set_shader_input("InstancingData", buffer_texture)
-                prefab.set_instance_count(len(matrices))
-                # We have do disable culling, so that all instances stay visible
-                prefab.node().set_bounds(OmniBoundingVolume())
-                prefab.node().set_final(True)
