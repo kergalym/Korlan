@@ -457,7 +457,7 @@ class StatUI:
             self.set_npc_action_stat_text(set_mode='show')
             if self.text_toggle_col.is_hidden():
                 self.text_toggle_col.show()
-                
+
         elif base.game_instance['menu_mode']:
             self.clear_game_stat()
             return task.done

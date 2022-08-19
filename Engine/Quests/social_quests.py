@@ -108,6 +108,7 @@ class SocialQuests:
 
     def set_level_triggers(self, scene, task):
         if (self.base.game_instance['scene_is_loaded']
+                and self.base.game_settings['Debug']['set_editor_mode'] == 'NO'
                 and self.base.game_instance['player_actions_init_is_activated'] == 1
                 and self.base.game_instance['physics_is_activated'] == 1):
             self.player = self.base.game_instance["player_ref"]
