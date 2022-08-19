@@ -163,7 +163,7 @@ class MovementController(object):
         # disable pandas builtin mouse control
         self.showbase.disableMouse()
 
-        # add ourself as an update task which gets executed very early before
+        # add itself as an update task which gets executed very early before
         # the rendering
         self.update_task = self.showbase.addTask(
             self.update, "RP_UpdateMovementController", sort=-40)

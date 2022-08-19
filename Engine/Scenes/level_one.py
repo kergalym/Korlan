@@ -4,13 +4,11 @@ from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import *
 
 from Engine.AI.npc_controller import NpcController
-from Engine.Actors.Player.korlan import Korlan
 from Engine.Actors.Player.state import PlayerState
-from Engine.Scenes.scene import SceneOne
+from Engine.async_level_load import AsyncLevelLoad
 from Engine.Physics.physics_setup import PhysicsAttr
 from Settings.UI.pause_menu_ui import PauseMenuUI
 
-from Engine.Actors.NPC.npc_generic import NpcGeneric
 from Engine.FSM.npc_fsm import NpcFSM
 
 py_npc_fsm_classes = []
@@ -51,9 +49,7 @@ class LevelOne:
         self.render = render
         self.loader = base.loader
         self.node_path = NodePath()
-        self.scene_one = SceneOne()
-        self.korlan = Korlan()
-        self.npc_generic = NpcGeneric()
+        self.async_level_load = AsyncLevelLoad()
         self.pos_z = 0
         self.actor_fsm_classes = []
         self.pause_game_ui = PauseMenuUI()
@@ -170,8 +166,8 @@ class LevelOne:
             if self.physics_attr and self.physics_attr.soft_world:
                 taskMgr.remove("update_soft_physics_task")
 
-            # Player and actors cleanup
-            if self.korlan.korlan:
+            # Player and NPC cleanup
+            if self.async_level_load.korlan:
                 # Remove all remained nodes
                 if not render.find('**/Player:BS').is_empty():
                     render.find('**/Player:BS').remove_node()
@@ -185,12 +181,13 @@ class LevelOne:
                 taskMgr.remove("mouse_control_task")
                 taskMgr.remove("collect_actors_health_task")
                 taskMgr.remove("update_horse_trigger_task")
-                self.korlan.korlan.delete()
-                self.korlan.korlan.cleanup()
+                self.async_level_load.korlan.delete()
+                self.async_level_load.korlan.cleanup()
 
-            if self.npc_generic.actor:
-                self.npc_generic.actor.delete()
-                self.npc_generic.actor.cleanup()
+            for name in self.base.game_instance['actors_np']:
+                if self.base.game_instance['actors_np'].get(name):
+                    self.base.game_instance['actors_np'][name].remove_node()
+                    self.base.game_instance['actors_np'][name].clear()
 
             # Clean Level World
             if render.find("**/World"):
@@ -302,30 +299,17 @@ class LevelOne:
 
         suffix = "rp"
 
-        taskMgr.add(self.scene_one.set_level(path=assets['lvl_one_{0}'.format(suffix)],
-                                             name="lvl_one",
-                                             axis=[0.0, 0.0, self.pos_z],
-                                             rotation=[0, 0, 0],
-                                             scale=[1.0, 1.0, 1.0],
-                                             culling=False))
-
-        taskMgr.add(self.korlan.set_actor(mode="game",
-                                          name="Player",
-                                          animation=anims,
-                                          axis=[-8, 15.0, self.pos_z],
-                                          rotation=[0, 0, 0],
-                                          scale=[1.0, 1.0, 1.0],
-                                          culling=False))
-
-        taskMgr.add(self.npc_generic.set_actor(level_npc_assets=LEVEL_NPC_ASSETS,
-                                               level_npc_axis=LEVEL_NPC_AXIS,
-                                               mode="game",
-                                               assets=assets,
-                                               suffix=suffix,
-                                               animation=anims,
-                                               rotation=[0, 0, 0],
-                                               scale=[1.0, 1.0, 1.0],
-                                               culling=True))
+        # Combined async loading of the scene, player and non-playable_characters
+        taskMgr.add(self.async_level_load.async_load_level(scene_name="lvl_one",
+                                                           player_name="Player",
+                                                           player_pos=[-8, 15, 0],
+                                                           scale=1.0,
+                                                           culling=False,
+                                                           level_npc_assets=LEVEL_NPC_ASSETS,
+                                                           level_npc_axis=LEVEL_NPC_AXIS,
+                                                           assets=assets,
+                                                           suffix=suffix,
+                                                           animation=anims))
 
         """ Task for Debug mode """
         if self.game_settings['Debug']['set_debug_mode'] == 'YES':

@@ -52,6 +52,9 @@ class LoadingUI:
         self.stat_ui = StatUI()
 
     def set_loading_bar(self):
+        self.base.win_props.set_cursor_hidden(True)
+        self.base.win.request_properties(self.base.win_props)
+
         # Enable game overlay
         if self.game_settings['Debug']['set_debug_mode'] == 'NO':
             game_overlay = DirectFrame(frameColor=(0, 0, 0, 0.1),

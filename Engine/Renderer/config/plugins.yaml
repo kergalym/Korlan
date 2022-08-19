@@ -89,7 +89,7 @@ overrides:
   fxaa:
     edge_threshold: 0.166
     min_threshold: 0.833
-    quality: ultra
+    quality: low
     subpixel_quality: 0.5
   motion_blur:
     blur_factor: 0.5
@@ -134,7 +134,7 @@ overrides:
     scattering_method: eric_bruneton
   skin_shading:
     blur_scale: 0.1
-    quality: medium
+    quality: low
   sky_ao:
     ao_bias: 0.0
     ao_multiplier: 0.83
@@ -148,7 +148,7 @@ overrides:
     history_length: 8
     jitter_amount: 0.16143
     jitter_pattern: halton8
-    smaa_quality: ultra
+    smaa_quality: low
     use_reprojection: true
   ssr:
     abort_on_object_infront: true

@@ -526,7 +526,7 @@ class RenderPipeline(RPObject):
         """ Task which repeatedly clears the state cache to avoid storing
         unused states. While running once a while, this task prevents over-polluting
         the state-cache with unused states. This complements Panda3D's internal
-        state garbarge collector, which does a great job, but still cannot clear
+        state garbage collector, which does a great job, but still cannot clear
         up all states. """
         task.delayTime = 2.0
         TransformState.clear_cache()
@@ -549,7 +549,7 @@ class RenderPipeline(RPObject):
         return task.cont
 
     def _update_inputs_and_stages(self, task):
-        """ Updates the commonly used inputs each frame. This is a seperate
+        """ Updates the commonly used inputs each frame. This is a separate
         task to be able view detailed performance information in pstats, since
         a lot of matrix calculations are involved here. """
         self.common_resources.update()

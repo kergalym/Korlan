@@ -37,8 +37,6 @@ from panda3d.core import VirtualFileSystem
 from panda3d.core import Multifile
 from panda3d.core import Filename
 
-from Engine.Actors.Player.korlan import Korlan
-from Engine.Scenes.scene import SceneOne
 from Engine.Renderer.renderer import RenderAttr
 from Settings.Sound.sound import Sound
 from Settings.UI.menu_ui import MenuUI
@@ -385,6 +383,7 @@ class Main(ShowBase):
 
     def __init__(self):
         ShowBase.__init__(self)
+        self.disable_mouse()
         self.default_background_color = self.get_background_color()
         # Set background color black to make it more consistent with RP's black screen
         self.set_background_color(0, 0, 0)
@@ -553,10 +552,8 @@ class Main(ShowBase):
         self.menu = MenuUI()
         self.load_video(file="REDSTUDIO_FHD", type="main_menu")
 
-        self.scene_one = SceneOne()
         self.render_attr = RenderAttr()
         self.game_instance["render_attr_cls"] = self.render_attr
-        self.korlan = Korlan()
         self.text = TextNode("TextNode")
 
         self.render_type = "menu"
@@ -1177,7 +1174,6 @@ class Main(ShowBase):
                 self.game_instance['menu_mode'] = True
                 self.menu.load_main_menu()
                 # Disable the camera trackball controls.
-                self.disable_mouse()
                 self.win_props.set_cursor_hidden(False)
                 self.win.request_properties(self.win_props)
                 self.load_video(file="MENU_SCENE_VID", type="menu_scene")
