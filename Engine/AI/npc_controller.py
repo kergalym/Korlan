@@ -558,20 +558,8 @@ class NpcController:
             rot_vector = Vec3(actor.get_pos() - target_np.get_pos())
             rot_vector_2d = rot_vector.get_xy()
             rot_vector_2d.normalize()
-            new_hpr = Vec3(Vec2(0, -1).signed_angle_deg(rot_vector_2d), 0)
-            target_heading = target_np.get_h()
-            heading = actor.get_h()
-
-            # If NPC faced to target actor and target actor is faced to NPC,
-            # then continue heading
-            # If NPC is not faced to target actor and target actor is not faced to NPC,
-            # then do reversed heading
-            if int(heading) < 0 and int(target_heading) > 0:
-                actor.set_h(-new_hpr[0])
-            # If NPC is not faced to target actor and target actor is faced to NPC,
-            # then do reversed heading 3
-            elif int(heading) > 0 and int(target_heading) < 0:
-                actor.set_h(-new_hpr[0])
+            heading = Vec3(Vec2(0, 1).signed_angle_deg(rot_vector_2d), 0).x
+            actor.set_h(heading)
 
     def do_defensive_prediction(self, actor, actor_npc_bs, request, hitbox_dist):
         if actor and actor_npc_bs and request:
