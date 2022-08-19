@@ -255,7 +255,8 @@ class NpcBehavior:
 
                     if not self._directive_is_executing:
                         # Get required data about enemy to deal with it
-                        actor_npc_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
+                        actor_name_bs = "{0}:BS".format(actor_name)
+                        actor_npc_bs = self.base.game_instance["actors_np"][actor_name_bs]
 
                         # No alive enemy around, just stay tuned
                         if not self.npc_controller.get_enemy(actor=actor) and actor_npc_bs:

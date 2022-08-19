@@ -182,8 +182,6 @@ p3d.load_prc_file_data(
     'want-pstats {0}\n'.format(want_pstats_value)
 )
 
-if want_pstats_value == "t":
-    PStatClient.connect(hostname="localhost", port=58597)
 
 def check_and_do_cfg():
     """ Function    : check_and_do_cfg

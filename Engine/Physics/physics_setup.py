@@ -118,8 +118,9 @@ class PhysicsAttr:
                                                      world=self.world)
                     # hitboxes task
                     request = self.base.game_instance["player_fsm_cls"]
+                    self.player_physics.player_hips[actor.get_name()] = actor.find("**/**Hips:HB")
                     taskMgr.add(self.player_physics.player_hitbox_trace_task,
-                                "{0}_hitboxes_task".format(col_name.lower()),
+                                "player_hitbox_trace_task",
                                 extraArgs=[actor, request], appendTask=True)
 
                 elif type == 'npc':
@@ -327,7 +328,7 @@ class PhysicsAttr:
             if self.world:
                 # Get the time that elapsed since last frame.
                 dt = globalClock.getDt()
-                self.world.do_physics(dt, 10, 1. / 30)
+                self.world.do_physics(dt, 20, 1. / 30)
 
                 # Do update RigidBodyNode parent node's position for every frame
                 if hasattr(base, "close_item_name"):
@@ -353,7 +354,7 @@ class PhysicsAttr:
             if self.soft_world:
                 # Get the time that elapsed since last frame.
                 dt = globalClock.getDt()
-                self.soft_world.do_physics(dt, 10, 0.004)
+                self.soft_world.do_physics(dt, 5, 0.004)
 
                 # Update clothes pin
                 if self.cloth_pins:
@@ -461,100 +462,102 @@ class PhysicsAttr:
                         appendTask=True)
 
     def _set_cloth_physics(self, actor):
-        if self.soft_world and actor:
-            for name in self.base.game_instance["actors_clothes"]:
-                if name in actor.get_name():
-                    clothes = self.base.game_instance["actors_clothes"][name]
-                    for cloth in clothes:
-                        if cloth:
-                            geom = cloth.find_all_matches('**/+GeomNode').getPath(0).node().modifyGeom(0)
-                            geom_node = GeomNode('')
-                            geom_node.addGeom(geom)
-                            node = BulletSoftBodyNode.makeTriMesh(self.info, geom)
-                            node.linkGeom(geom_node.modifyGeom(0))
+        # TODO: TEST
+        if self.game_settings['Debug']['set_debug_mode'] == 'YES':
+            if self.soft_world and actor:
+                for name in self.base.game_instance["actors_clothes"]:
+                    if name in actor.get_name():
+                        clothes = self.base.game_instance["actors_clothes"][name]
+                        for cloth in clothes:
+                            if cloth:
+                                geom = cloth.find_all_matches('**/+GeomNode').getPath(0).node().modifyGeom(0)
+                                geom_node = GeomNode('')
+                                geom_node.addGeom(geom)
+                                node = BulletSoftBodyNode.makeTriMesh(self.info, geom)
+                                node.linkGeom(geom_node.modifyGeom(0))
 
-                            # material and properties setup
-                            node.getMaterial(0).setAngularStiffness(0.5)
-                            node.getMaterial(0).setLinearStiffness(0.5)
-                            # node.getMaterial(0).setVolumePreservation(0.001)
+                                # material and properties setup
+                                node.getMaterial(0).setAngularStiffness(0.5)
+                                node.getMaterial(0).setLinearStiffness(0.5)
+                                # node.getMaterial(0).setVolumePreservation(0.001)
 
-                            # node.generateBendingConstraints(10)
+                                # node.generateBendingConstraints(10)
 
-                            # node.getCfg().setAeroModel(BulletSoftBodyConfig.AMFaceTwoSided  )
-                            node.getCfg().setDampingCoefficient(0.1)
-                            # node.getCfg().setDragCoefficient(0.0)
-                            # node.getCfg().setDriftSolverIterations(0.2)
-                            # node.getCfg().setDynamicFrictionCoefficient(0.002)
-                            # node.getCfg().setKineticContactsHardness(0.2)
-                            # node.getCfg().setLiftCoefficient(0.0)
-                            # node.getCfg().setMaxvolume(0.2)
-                            node.getCfg().setPoseMatchingCoefficient(0.2)
-                            # node.getCfg().setPositionsSolverIterations(0.2)
-                            # node.getCfg().setPressureCoefficient(0)
-                            # node.getCfg().setRigidContactsHardness(0.2)
-                            # node.getCfg().setSoftContactsHardness(0.2)
-                            # node.getCfg().setSoftVsKineticHardness(0.2)
-                            # node.getCfg().setSoftVsKineticImpulseSplit(0.2)
-                            # node.getCfg().setSoftVsRigidHardness(0.2)
-                            # node.getCfg().setSoftVsRigidImpulseSplit(0.2)
-                            # node.getCfg().setSoftVsSoftHardness(0.2)
-                            # node.getCfg().setSoftVsSoftImpulseSplit(0.2)
-                            # node.getCfg().setTimescale(0.2)
-                            # node.getCfg().setVelocitiesCorrectionFactor(0.1)
-                            # node.getCfg().setVelocitiesSolverIterations(0.2)
-                            # node.getCfg().setVolumeConversationCoefficient(0.1)
-                            # node.getCfg().setCollisionFlag(BulletSoftBodyConfig.CFVertexFaceSoftSoft, True)
-                            node.setPose(True, True)
-                            # node.setTotalDensity(1.0)
-                            node.setTotalMass(1, True)
-                            node.getShape(0).setMargin(0.5)
-                            # node.setVolumeDensity(1.0)
-                            # node.setVolumeMass(100)
-                            soft_np = self.world_nodepath.attachNewNode(node)
-                            soft_np.setCollideMask(BitMask32.bit(0))
-                            self.soft_world.attachSoftBody(node)
-                            geom_np = soft_np.attachNewNode(geom_node)
-                            geom_np.set_two_sided(True)
+                                # node.getCfg().setAeroModel(BulletSoftBodyConfig.AMFaceTwoSided  )
+                                node.getCfg().setDampingCoefficient(0.1)
+                                # node.getCfg().setDragCoefficient(0.0)
+                                # node.getCfg().setDriftSolverIterations(0.2)
+                                # node.getCfg().setDynamicFrictionCoefficient(0.002)
+                                # node.getCfg().setKineticContactsHardness(0.2)
+                                # node.getCfg().setLiftCoefficient(0.0)
+                                # node.getCfg().setMaxvolume(0.2)
+                                node.getCfg().setPoseMatchingCoefficient(0.2)
+                                # node.getCfg().setPositionsSolverIterations(0.2)
+                                # node.getCfg().setPressureCoefficient(0)
+                                # node.getCfg().setRigidContactsHardness(0.2)
+                                # node.getCfg().setSoftContactsHardness(0.2)
+                                # node.getCfg().setSoftVsKineticHardness(0.2)
+                                # node.getCfg().setSoftVsKineticImpulseSplit(0.2)
+                                # node.getCfg().setSoftVsRigidHardness(0.2)
+                                # node.getCfg().setSoftVsRigidImpulseSplit(0.2)
+                                # node.getCfg().setSoftVsSoftHardness(0.2)
+                                # node.getCfg().setSoftVsSoftImpulseSplit(0.2)
+                                # node.getCfg().setTimescale(0.2)
+                                # node.getCfg().setVelocitiesCorrectionFactor(0.1)
+                                # node.getCfg().setVelocitiesSolverIterations(0.2)
+                                # node.getCfg().setVolumeConversationCoefficient(0.1)
+                                # node.getCfg().setCollisionFlag(BulletSoftBodyConfig.CFVertexFaceSoftSoft, True)
+                                node.setPose(True, True)
+                                # node.setTotalDensity(1.0)
+                                node.setTotalMass(1, True)
+                                node.getShape(0).setMargin(0.5)
+                                # node.setVolumeDensity(1.0)
+                                # node.setVolumeMass(100)
+                                soft_np = self.world_nodepath.attachNewNode(node)
+                                soft_np.setCollideMask(BitMask32.bit(0))
+                                self.soft_world.attachSoftBody(node)
+                                geom_np = soft_np.attachNewNode(geom_node)
+                                geom_np.set_two_sided(True)
 
-                            for tex in cloth.find_all_textures():
-                                rp = self.base.game_instance['renderpipeline_np']
-                                if rp:
-                                    rp.set_effect(soft_np, "{0}/Engine/Renderer"
-                                                           "/effects/cloth.yaml".format(self.game_dir),
-                                                  {"render_gbuffer": True,
-                                                   "render_shadow": False,
-                                                   "alpha_testing": True,
-                                                   "normal_mapping": True})
-                                    soft_np.set_shader_input("cloak_tex", tex)
+                                for tex in cloth.find_all_textures():
+                                    rp = self.base.game_instance['renderpipeline_np']
+                                    if rp:
+                                        rp.set_effect(soft_np, "{0}/Engine/Renderer"
+                                                               "/effects/cloth.yaml".format(self.game_dir),
+                                                      {"render_gbuffer": True,
+                                                       "render_shadow": False,
+                                                       "alpha_testing": True,
+                                                       "normal_mapping": True})
+                                        soft_np.set_shader_input("cloak_tex", tex)
 
-                            # pin it down
-                            spine_bone = actor.expose_joint(None, 'modelRoot', 'Korlan:Spine2')
-                            self.spine_bones[name] = spine_bone
+                                # pin it down
+                                spine_bone = actor.expose_joint(None, 'modelRoot', 'Korlan:Spine2')
+                                self.spine_bones[name] = spine_bone
 
-                            pin = spine_bone.attachNewNode(BulletRigidBodyNode('pin'))
-                            self.cloth_pins[name] = pin
+                                pin = spine_bone.attachNewNode(BulletRigidBodyNode('pin'))
+                                self.cloth_pins[name] = pin
 
-                            # The position of the cloak get's shifted, fix it
-                            pin.set_z(0)
+                                # The position of the cloak get's shifted, fix it
+                                pin.set_z(0)
 
-                            raw_txt = cloth.find('**/=ClothPin').getTag('ClothPin')
-                            raw_list = raw_txt.strip().split()
-                            vtx_list = []
-                            # vec3_list = []
+                                raw_txt = cloth.find('**/=ClothPin').getTag('ClothPin')
+                                raw_list = raw_txt.strip().split()
+                                vtx_list = []
+                                # vec3_list = []
 
-                            # Make nested list with 3-indexed inner list to use as Vec3 component
-                            """for elem in raw_list:
-                                    if len(vec3_list) < 3:
-                                        vec3_list.append(int(elem))
-                                    elif len(vec3_list) == 3:
-                                        vtx_list.append(vec3_list)
-                                        vec3_list = []"""
+                                # Make nested list with 3-indexed inner list to use as Vec3 component
+                                """for elem in raw_list:
+                                        if len(vec3_list) < 3:
+                                            vec3_list.append(int(elem))
+                                        elif len(vec3_list) == 3:
+                                            vtx_list.append(vec3_list)
+                                            vec3_list = []"""
 
-                            for elem in raw_list:
-                                vtx_list.append(int(elem))
+                                for elem in raw_list:
+                                    vtx_list.append(int(elem))
 
-                            for idx in range(300):
-                                soft_np.node().append_anchor(idx, pin.node())
-                                # soft_np.node().append_anchor(soft_np.node().get_closest_node_index(Vec3(*idx),
-                                # True),
-                                # self.pin.node())
+                                for idx in range(300):
+                                    soft_np.node().append_anchor(idx, pin.node())
+                                    # soft_np.node().append_anchor(soft_np.node().get_closest_node_index(Vec3(*idx),
+                                    # True),
+                                    # self.pin.node())

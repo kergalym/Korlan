@@ -420,7 +420,8 @@ class RenderAttr:
                     self.base.game_instance["renderpipeline_np"].add_light(light)
 
     def clear_lighting(self):
-        if (self.base.game_instance['rp_lights']
+        if (self.base.game_instance["renderpipeline_np"]
+                and self.base.game_instance['rp_lights']
                 and self.base.game_instance["renderpipeline_np"].light_mgr.num_lights > 0):
             for i in range(self.base.game_instance["renderpipeline_np"].light_mgr.num_lights):
                 for light in self.base.game_instance['rp_lights']['scene']:

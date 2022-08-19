@@ -251,7 +251,7 @@ class LevelOne:
         self.base.game_instance['render_attr_cls'].time_text_ui.show()
         taskMgr.add(self.base.game_instance['render_attr_cls'].set_time_of_day_clock_task,
                     "set_time_of_day_clock_task",
-                    extraArgs=["19:00", 1800],  # 1800 sec == 30 min
+                    extraArgs=["18:00", 1800],  # 1800 sec == 30 min
                     appendTask=True)
 
         """ Assets """
