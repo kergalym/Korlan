@@ -47,6 +47,7 @@ class LoadingUI:
         self.title_loading_text = None
         self.base.game_instance['loading_is_done'] = 0
         self.base.game_instance['unloading_is_done'] = 0
+        self.base.game_instance["projected_water_is_ready"] = 0
 
         self.stat_ui = StatUI()
 
@@ -192,6 +193,8 @@ class LoadingUI:
                             self.title_loading_text.setText(txt)
                             self.title_loading_text['align'] = TextNode.A_center
                             self.title_loading_text['pos'] = (0.0, -0.8)
+
+                            self.base.game_instance["projected_water_is_ready"] = 1
 
                             self.base.accept('enter', self.prepare_to_game)
 

@@ -462,6 +462,7 @@ class Main(ShowBase):
             "npc_controller_cls": None,
             "physics_is_activated": 0,
             "ai_is_activated": 0,
+            "projected_water_is_ready": 0,
             "is_dialog_active": False,
             "hw_skinning": False,
             "player_state": {},
@@ -564,7 +565,14 @@ class Main(ShowBase):
         self.scene_mode = None
 
         # Enable PBR-dependent projected water
-        self.render_attr.set_projected_water(True)
+        taskMgr.add(self.projected_water_init_waiting_task,
+                    "projected_water_init_waiting_task")
+
+    def projected_water_init_waiting_task(self, task):
+        if self.game_instance["projected_water_is_ready"] == 1:
+            self.render_attr.set_projected_water(True)
+            return task.done
+        return task.cont
 
     def reload_render(self):
         from Engine.Renderer import rpcore
