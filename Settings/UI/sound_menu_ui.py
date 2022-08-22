@@ -48,16 +48,16 @@ class SoundMenuUI(Sound):
         self.logo = None
         self.ornament_left = None
         self.ornament_right = None
-        self.logo_scale = (0.33, 0.30, 0.30)
+        self.logo_scale = (0.33, 1, 0.30)
         self.logo_pos = (-0.3, 0, 0.6)
-        self.ornament_scale = (1.40, 0.05, 0.05)
+        self.ornament_scale = (1.40, 1, 0.05)
         self.ornament_r_pos = (1.8, 0, -0.1)
 
         self.ornament_r_snd_pos = (1.8, 0, -0.1)
 
         """ Buttons, Label Scaling """
         self.lbl_scale = .04
-        self.sli_scale = (.4, 0, .2)
+        self.sli_scale = (.4, 1, .2)
         self.btn_scale = .04
 
         """ Misc """
@@ -213,7 +213,7 @@ class SoundMenuUI(Sound):
                                              command=self.unload_sound_menu)
 
         self.logo.reparent_to(self.base.frame_int_snd)
-        self.logo.set_scale(0.35, 0.20, 0.20)
+        self.logo.set_scale(0.35, 1, 0.20)
 
         self.ornament_right.reparent_to(self.base.frame_int_snd)
         self.ornament_right.set_scale(self.ornament_scale)
@@ -232,11 +232,11 @@ class SoundMenuUI(Sound):
         self.slider_effects.set_pos(0.6, 0, -0.2)
 
         OnscreenImage(image=self.images['ui_slider_button'],
-                      scale=(.07, .07, .08)).reparent_to(self.slider_sound.thumb)
+                      scale=(.07, 1, .08)).reparent_to(self.slider_sound.thumb)
         OnscreenImage(image=self.images['ui_slider_button'],
-                      scale=(.07, .07, .08)).reparent_to(self.slider_music.thumb)
+                      scale=(.07, 1, .08)).reparent_to(self.slider_music.thumb)
         OnscreenImage(image=self.images['ui_slider_button'],
-                      scale=(.07, .07, .08)).reparent_to(self.slider_effects.thumb)
+                      scale=(.07, 1, .08)).reparent_to(self.slider_effects.thumb)
 
         self.lbl_perc_sound.set_pos(1.3, 0, 0)
         self.lbl_perc_music.set_pos(1.3, 0, -0.1)

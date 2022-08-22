@@ -11,7 +11,7 @@ class PlayerCamera:
         self.render = render
         self._trig_radius = 1.75 - 2 * 0.3
         self._is_close = False
-
+        self.cam_lerp = None
         self.cam_includes = {}
 
     def _collect_colliding_objects(self):
@@ -33,8 +33,7 @@ class PlayerCamera:
                     and self.base.game_instance["physics_world_np"]):
 
                 ph_world = self.base.game_instance["physics_world_np"]
-                player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
-
+                player_bs = self.base.game_instance["player_np"]
                 self._set_ghost_trigger(actor=player_bs, world=ph_world)
 
                 return task.done
@@ -63,7 +62,8 @@ class PlayerCamera:
             self.base.camera.set_z(0.0)
             return task.done
 
-        if not self.base.game_instance["ui_mode"]:
+        if (not self.base.game_instance["ui_mode"]
+                and not self.base.game_instance["inv_mode"]):
             if not self.base.game_instance['is_aiming']:
                 trigger = player_bs.find("**/player_cam_trigger").node()
                 if trigger:
@@ -76,14 +76,14 @@ class PlayerCamera:
                             def_y = self.base.game_instance["mouse_y_cam"]
 
                             node_np = render.find("**/{0}".format(node.get_name()))
-                            if (round(trigger_np.get_distance(node_np)) >= 1
-                                    and round(trigger_np.get_distance(node_np)) < 4):
+                            if (int(trigger_np.get_distance(node_np)) >= 1
+                                    and int(trigger_np.get_distance(node_np)) < 4):
                                 if not self.base.game_instance["is_indoor"]:
                                     self._interpolate_to(target_y=close_y, start_y=def_y)
                                     self.base.game_instance["is_indoor"] = True
 
-                            elif (round(trigger_np.get_distance(node_np)) >= 4
-                                  and round(trigger_np.get_distance(node_np)) < 7):
+                            elif (int(trigger_np.get_distance(node_np)) >= 4
+                                  and int(trigger_np.get_distance(node_np)) < 7):
                                 if self.base.game_instance["is_indoor"]:
                                     self._interpolate_to(target_y=def_y, start_y=close_y)
                                     self.base.game_instance["is_indoor"] = False
@@ -96,12 +96,6 @@ class PlayerCamera:
                                                              player_bs=player_bs)
 
         return task.cont
-
-    def _interpolate_to(self, target_y, start_y):
-        LerpPosInterval(self.base.camera,
-                        duration=1.0,
-                        pos=Point3(0, target_y, 0),
-                        startPos=Point3(0, start_y, 0)).start()
 
     def _camera_raycaster_collision(self, trigger_np, node, player_bs):
         if self.cam_includes.get(node.get_name()):
@@ -135,22 +129,35 @@ class PlayerCamera:
                             direction.normalize()
                             pos = raytest_result.getHitPos() + direction
 
-                            if abs(round(pos[1])) > 2:
+                            if abs(int(pos[1])) > 2:
                                 if not self._is_close:
                                     self._is_close = True
-                            elif abs(round(pos[1])) > 4:
+                            elif abs(int(pos[1])) > 4:
                                 if not self._is_close:
                                     self._is_close = True
-                            elif abs(round(pos[1])) < 4:
+                            elif abs(int(pos[1])) < 4:
                                 if self._is_close:
                                     self._is_close = False
 
-                    if round(trigger_np.get_distance(node_np)) < 2:
+                    if int(trigger_np.get_distance(node_np)) < 2:
                         if not self._is_close:
                             self._interpolate_to(target_y=close_y, start_y=def_y)
                         if self._is_close:
                             self._interpolate_to(target_y=def_y, start_y=close_y)
                     # We don't have colliding object, reverting camera view back
-                    if round(trigger_np.get_distance(node_np)) > 1:
+                    if int(trigger_np.get_distance(node_np)) > 1:
                         if self._is_close:
                             self._interpolate_to(target_y=def_y, start_y=close_y)
+
+    def _interpolate_to(self, target_y, start_y):
+        self.cam_lerp = LerpPosInterval(self.base.camera,
+                                        duration=1.0,
+                                        pos=Point3(0, target_y, 0),
+                                        startPos=Point3(0, start_y, 0))
+        if not self.cam_lerp.is_playing():
+            self.cam_lerp.start()
+
+        if self.base.game_instance["inv_mode"]:
+            if self.cam_lerp:
+                print(self.cam_lerp.is_playing())
+                self.cam_lerp.finish()

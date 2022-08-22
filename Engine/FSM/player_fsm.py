@@ -73,7 +73,7 @@ class PlayerFSM(FSM):
         if actor and action and task:
             if isinstance(task, str):
                 if task == "play":
-                    actor_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
+                    actor_bs = self.base.game_instance["player_np"]
                     if actor_bs:
                         if hasattr(actor_bs, "set_collision_response"):
                             actor_bs.node().set_collision_response(False)

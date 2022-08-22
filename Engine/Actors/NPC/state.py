@@ -303,7 +303,8 @@ class NpcState:
         if actor and not render.find('**/World').is_empty():
             item = actor.get_python_tag("used_item_np")
             if item:
-                actor_bs = self.base.get_actor_bullet_shape_node(asset=actor.get_name(), type="NPC")
+                name = "{0}:BS".format(actor.get_name())
+                actor_bs = self.base.game_instance["actors_np"][name]
                 world = render.find('**/World')
                 item.reparent_to(world)
 

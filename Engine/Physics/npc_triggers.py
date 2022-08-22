@@ -33,7 +33,7 @@ class NpcTriggers:
                 trigger = animal_actor.find("**/{0}_trigger".format(animal_actor.get_name())).node()
                 trigger_np = animal_actor.find("**/{0}_trigger".format(animal_actor.get_name()))
                 player = self.base.game_instance['player_ref']
-                player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
+                player_bs = self.base.game_instance["player_np"]
                 actor_bs_np = self.base.game_instance['actors_np']["{0}:BS".format(animal_actor.get_name())]
 
                 # Fix me: Dirty hack for path finding issue
@@ -105,7 +105,7 @@ class NpcTriggers:
             if actor.find("**/{0}_trigger".format(actor.get_name())):
                 trigger = actor.find("**/{0}_trigger".format(actor.get_name())).node()
                 trigger_np = actor.find("**/{0}_trigger".format(actor.get_name()))
-                player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
+                player_bs = self.base.game_instance["player_np"]
                 actor_bs_np = self.base.game_instance['actors_np']["{0}:BS".format(actor.get_name())]
 
                 # Fix me: Dirty hack for path finding issue

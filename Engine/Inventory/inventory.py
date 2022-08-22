@@ -9,6 +9,7 @@ from direct.showbase.ShowBaseGlobal import globalClock
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import TextNode, FontPool, TransparencyAttrib
 
+from Engine.Inventory.item import Item
 from Engine.Inventory.slot import Slot
 from Engine.Inventory.popup import Popup
 from Engine.Inventory.equip import Equip
@@ -20,11 +21,10 @@ class Inventory:
     def __init__(self):
         self.base = base
         self.game_dir = base.game_dir
+        self.ui_geoms = base.ui_geom_collector()
         self.images = base.textures_collector(path="Settings/UI")
-        self.inv_images = base.textures_collector(path="Assets")
         self.fonts = base.fonts_collector()
         self.lng_configs = base.cfg_collector(path="{0}/Configs/Language/".format(self.game_dir))
-        self.json = json
         # instance of the abstract class
         self.font = FontPool
         self.text = TextNode("TextNode")
@@ -36,11 +36,28 @@ class Inventory:
             with open(self.lng_configs['lg_{0}'.format(lng_to_load)], 'r') as json_file:
                 self.language = json.load(json_file)
 
+        """ Global Border Width """
+        self.w = 0
+        self.h = 0
+
         """ Frame Sizes """
         # Left, right, bottom, top
-        self.base.frame_inv_black_bg_size = [-3, 0.7, -1, 3]
+        self.frame_inv_size = [-3, 3, -1, 3]
+        self.frame_inv_black_bg_size = [-3, 0.7, -1, 3]
 
-        """ Buttons & Fonts"""
+        """ Frames, Buttons & Fonts"""
+        # Transparent background
+        self.frame_inv = DirectFrame(frameColor=(0, 0, 0, 0.0),
+                                     frameSize=self.frame_inv_size,
+                                     pos=(0, 0, 0))
+        self.frame_inv.hide()
+
+        self.sheet_items = None
+
+        self.inv_misc_grid_cap = None
+        self.inv_weapons_grid_cap = None
+        self.inv_magic_grid_cap = None
+
         self.menu_font = self.fonts['OpenSans-Regular']
 
         """ Inventory attributes"""
@@ -89,6 +106,173 @@ class Inventory:
 
         self.is_inventory_items_loaded = False
 
+    def set_inventory(self):
+        """ DEFINE INVENTORY """
+        sheet_slot_info = [('HAND_L', (0.9, 0, -0.01), u'Hand', self.images['hand_l_slot']),
+                           ('HAND_R', (1.7, 0, -0.01), u'Hand', self.images['hand_r_slot']),
+                           ('TENGRI_PWR', (1.7, 0, -0.35), u'Hand', self.images['magic_tengri_slot']),
+                           ('UMAI_PWR', (1.7, 0, -0.67), u'Hand', self.images['magic_umai_slot']),
+                           ('HEAD', (0.9, 0, 0.7), u'Head', self.images['head_slot']),
+                           ('BODY', (1.7, 0, 0.32), u'Body', self.images['body_slot']),
+                           ('FEET', (0.9, 0, -0.43), u'Feet', self.images['feet_slot']),
+                           ('LEGS', (0.9, 0, -0.76), u'Legs', self.images['toe_slot']),
+                           ('TRASH', (0.4, 0, -0.6), u'Trash', self.images['trash_slot'])]
+
+        # styled frames for these sheet slots
+        sheet_slot_frame_img = self.images['sheet_default_slot']
+        sheet_slot_frame_scale = (0.21, 0, 0.21)
+        hand_l_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
+                                            pos=(0.9, 0, -0.01),
+                                            scale=sheet_slot_frame_scale,
+                                            parent=self.frame_inv)
+        hand_l_styled_frame.set_transparency(TransparencyAttrib.MAlpha)
+
+        hand_r_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
+                                            pos=(1.7, 0, -0.01),
+                                            scale=sheet_slot_frame_scale,
+                                            parent=self.frame_inv)
+        hand_r_styled_frame.set_transparency(TransparencyAttrib.MAlpha)
+
+        tengri_pwr_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
+                                                pos=(1.7, 0, -0.35),
+                                                scale=sheet_slot_frame_scale,
+                                                parent=self.frame_inv)
+        tengri_pwr_styled_frame.set_transparency(TransparencyAttrib.MAlpha)
+
+        umai_pwr_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
+                                              pos=(1.7, 0, -0.67),
+                                              scale=sheet_slot_frame_scale,
+                                              parent=self.frame_inv)
+        umai_pwr_styled_frame.set_transparency(TransparencyAttrib.MAlpha)
+
+        head_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
+                                          pos=(0.9, 0, 0.7),
+                                          scale=sheet_slot_frame_scale,
+                                          parent=self.frame_inv)
+        head_styled_frame.set_transparency(TransparencyAttrib.MAlpha)
+
+        body_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
+                                          pos=(1.7, 0, 0.32),
+                                          scale=sheet_slot_frame_scale,
+                                          parent=self.frame_inv)
+        body_styled_frame.set_transparency(TransparencyAttrib.MAlpha)
+
+        feet_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
+                                          pos=(0.9, 0, -0.43),
+                                          scale=sheet_slot_frame_scale,
+                                          parent=self.frame_inv)
+        feet_styled_frame.set_transparency(TransparencyAttrib.MAlpha)
+
+        legs_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
+                                          pos=(0.9, 0, -0.76),
+                                          scale=sheet_slot_frame_scale,
+                                          parent=self.frame_inv)
+        legs_styled_frame.set_transparency(TransparencyAttrib.MAlpha)
+
+        trash_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
+                                           pos=(0.4, 0, -0.6),
+                                           scale=sheet_slot_frame_scale,
+                                           parent=self.frame_inv)
+        trash_styled_frame.set_transparency(TransparencyAttrib.MAlpha)
+
+        """(('INVENTORY_1', 'TRASH'), 'item',
+            self.images['slot_item_qymyran'], 'Qymyran', 1, 1, 0, 8),
+           (('INVENTORY_1', 'TRASH'), 'item',
+            self.images['slot_item_torsyk'], 'Torsyk', 1, 1, 0, 8),"""
+
+        # Inventory row, slots, inventory_type, icon, txt_pieces, int_pieces, 0, damage
+        self.sheet_items = [
+            [['INVENTORY_2', 'TRASH', 'HAND_L'], 'weapon',
+             self.images['slot_item_sword'], 'Sword', 1, 1, 0, 38],
+            [['INVENTORY_2', 'TRASH', 'HAND_R'], 'weapon',
+             self.images['slot_item_bow'], 'Bow', 1, 1, 0, 9],
+            [['INVENTORY_2', 'TRASH', 'BODY'], 'armor',
+             self.images['slot_item_armor'], 'Light armor', 1, 1, 10],
+            [['INVENTORY_2', 'TRASH', 'HEAD'], 'armor',
+             self.images['slot_item_helmet'], 'Helmet', 1, 1, 5],
+            [['INVENTORY_2', 'TRASH', 'FEET'], 'armor',
+             self.images['slot_item_feet'], 'Pants', 1, 1, 2],
+            [['INVENTORY_2', 'TRASH', 'LEGS'], 'armor',
+             self.images['slot_item_boots'], 'Boots', 1, 1, 2],
+            [['INVENTORY_3', 'TENGRI_PWR'], 'weapon',
+             self.images['slot_item_tengri'], 'Tengri Power', 1, 1, 0, 8],
+            [['INVENTORY_3', 'UMAI_PWR'], 'weapon',
+             self.images['slot_item_umai'], 'Umai Power', 1, 1, 0, 8]
+        ]
+
+        # sheet slots init
+        self.custom_inv_slots(sheet_slot_info)
+
+        # Field of slots 3х5,        positions: x, y
+        self.fill_up_inv_slots(3, 5, -1.55, 0.66, 'INVENTORY_1')
+        self.fill_up_inv_slots(3, 5, -1.0, 0.66, 'INVENTORY_2')
+        self.fill_up_inv_slots(3, 5, -0.45, 0.66, 'INVENTORY_3')
+
+        for item in self.sheet_items:
+            inventory_type = item[0][0]
+            self.add_item(Item(item), inventory_type)
+
+        # Inventory init
+        self.init()
+
+        self.inv_misc_grid_cap = OnscreenImage(image=self.images['misc_grid_cap'],
+                                               pos=(-1.4, 0, -0.25),
+                                               scale=(0.32, 0, 0.1),
+                                               parent=self.frame_inv)
+        self.inv_misc_grid_cap.set_transparency(TransparencyAttrib.MAlpha)
+        self.inv_weapons_grid_cap = OnscreenImage(image=self.images['weapons_grid_cap'],
+                                                  pos=(-0.82, 0, -0.25),
+                                                  scale=(0.32, 0, 0.1),
+                                                  parent=self.frame_inv)
+        self.inv_weapons_grid_cap.set_transparency(TransparencyAttrib.MAlpha)
+        self.inv_magic_grid_cap = OnscreenImage(image=self.images['magic_grid_cap'],
+                                                pos=(-0.24, 0, -0.25),
+                                                scale=(0.32, 0, 0.1),
+                                                parent=self.frame_inv)
+        self.inv_magic_grid_cap.set_transparency(TransparencyAttrib.MAlpha)
+
+        # left is item index, right is slot index
+        self.on_start_assign_item_to_sheet_slot(3, 4)  # helmet
+        self.on_start_assign_item_to_sheet_slot(2, 5)  # armor
+        self.on_start_assign_item_to_sheet_slot(4, 6)  # pants
+        self.on_start_assign_item_to_sheet_slot(5, 7)  # boots
+        self.on_start_assign_item_to_sheet_slot(0, 0)  # sword
+        self.on_start_assign_item_to_sheet_slot(1, 1)  # bow
+
+    def add_item_to_inventory(self, item, count, inventory, inventory_type):
+        if (item and isinstance(item, str)
+                and inventory and isinstance(inventory, str)
+                and inventory_type and isinstance(inventory_type, str)
+                and count and isinstance(count, int)):
+            item_is_matched = 0
+            matched_item = None
+            for sheet_item in self.sheet_items:
+                if item == sheet_item[3]:
+                    item_is_matched = 1
+                    matched_item = sheet_item
+
+            if item_is_matched == 0:
+                item_row = [[inventory, 'TRASH'], inventory_type,
+                            self.images['slot_item_{0}'.format(item.lower())],
+                            item, count, count, 0, 5
+                            ]
+                inventory_type = item_row[0][0]
+                self.sheet_items.append(item_row)
+                self.add_item(Item(item_row), inventory_type)
+                self.refresh_items()
+                self.base.game_instance['arrow_count'] = count
+            elif item_is_matched == 1:
+                new_count = matched_item[4] + count
+                item_row = [[inventory, 'TRASH'], inventory_type,
+                            self.images['slot_item_{0}'.format(item.lower())],
+                            item, new_count, new_count, 0, 5
+                            ]
+                inventory_type = item_row[0][0]
+                self.sheet_items.append(item_row)
+                self.add_item(Item(item_row), inventory_type)
+                self.refresh_items()
+                self.base.game_instance['arrow_count'] = new_count
+
     def init(self):
         self._visualize_slots()
         self._visualize_items()
@@ -98,7 +282,6 @@ class Inventory:
     def show(self):
         """ Show inventory
         """
-        self.black_frame.show()
         taskMgr.add(self.drag_task, 'Drag task')
         taskMgr.add(self.popup_task, 'Inventory popup task')
         self.current_state = self.states["VISIBLE"]
@@ -107,7 +290,6 @@ class Inventory:
         """ Hide all and stop tasks
         """
         self.stop_drag()
-        self.black_frame.hide()
         taskMgr.remove('Drag task')
         taskMgr.remove('Inventory popup task')
         self.current_state = self.states["HIDDEN"]
@@ -123,19 +305,15 @@ class Inventory:
     def _visualize_slots(self):
         """ Make background and slots visualization from prepared data
         """
-        self.black_frame = DirectFrame(frameColor=(0, 0, 0, 1.0),
-                                       frameSize=self.base.frame_inv_black_bg_size,
-                                       pos=(0, 0, 0))
         self.inv_grid_frame = OnscreenImage(image=self.images['grid_frame'],
                                             pos=(-0.82, 0, 0.30),
                                             scale=(0.86, 0, 0.48),
-                                            parent=self.black_frame)
+                                            parent=self.frame_inv)
         self.inv_grid_cap = OnscreenImage(image=self.images['grid_cap_i'],
                                           pos=(-0.82, 0, 0.82),
                                           scale=(0.92, 0, 0.08),
-                                          parent=self.black_frame)
+                                          parent=self.frame_inv)
         if self.use_transparency:
-            self.black_frame.set_transparency(TransparencyAttrib.MAlpha)
             self.inv_grid_cap.set_transparency(TransparencyAttrib.MAlpha)
             self.inv_grid_frame.set_transparency(TransparencyAttrib.MAlpha)
 
@@ -150,9 +328,9 @@ class Inventory:
                                                 extraArgs=[id]))
             self._slots_vis[id].bind(DGG.ENTER, self.on_slot_enter, [id])
             self._slots_vis[id].bind(DGG.EXIT, self.on_slot_exit, [id])
-            self._slots_vis[id].reparentTo(self.black_frame)
+            self._slots_vis[id].reparent_to(self.frame_inv)
             if self.use_transparency:
-                self._slots_vis[id].setTransparency(TransparencyAttrib.MAlpha)
+                self._slots_vis[id].set_transparency(TransparencyAttrib.MAlpha)
 
     def _visualize_items(self):
         """ Inventory items visualization
@@ -171,9 +349,9 @@ class Inventory:
                                                 extraArgs=[id]))
             self._items_vis[id].bind(DGG.ENTER, self.on_item_enter, [id])
             self._items_vis[id].bind(DGG.EXIT, self.on_item_exit, [id])
-            self._items_vis[id].reparentTo(self.black_frame)
+            self._items_vis[id].reparent_to(self.frame_inv)
             if self.use_transparency:
-                self._items_vis[id].setTransparency(TransparencyAttrib.MAlpha)
+                self._items_vis[id].set_transparency(TransparencyAttrib.MAlpha)
 
     def _make_counters(self):
         """ Make counter text for multiple items
@@ -185,7 +363,7 @@ class Inventory:
                                                   fg=(1, 0.2, 0.2, 1),
                                                   scale=0.04,
                                                   mayChange=True)
-                self._counters[id].reparentTo(self._items_vis[id])
+                self._counters[id].reparent_to(self._items_vis[id])
                 self._counters[id].setPos(self.item_half_size_x * 0.5,
                                           -self.item_half_size_x * 0.8)
 

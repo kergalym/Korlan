@@ -1,56 +1,31 @@
 import json
 from os.path import exists
 
+from direct.interval.FunctionInterval import Func
+from direct.interval.LerpInterval import LerpPosInterval
+from direct.interval.MetaInterval import Sequence
 from direct.showbase.ShowBaseGlobal import aspect2d
 from direct.gui.DirectGui import *
 from direct.gui.OnscreenImage import OnscreenImage
 from direct.gui.OnscreenImage import TransparencyAttrib
-from panda3d.core import FontPool, Vec3, PGButton, MouseButton
+from panda3d.core import Vec3, PGButton, MouseButton, Point3
 
-from Engine.Actors.Player.state import PlayerState
 from Engine.Inventory.inventory import Inventory
-from Engine.Inventory.item import Item
 from panda3d.core import TextNode
-from panda3d.core import WindowProperties
 
 
 class Sheet(Inventory):
 
     def __init__(self):
         Inventory.__init__(self)
-        self.props = WindowProperties()
-        self.base = base
-        self.game_settings = base.game_settings
-        self.game_dir = base.game_dir
-        self.fonts = base.fonts_collector()
-        self.configs = base.cfg_collector(path="{0}/Settings/UI".format(self.game_dir))
-        self.lng_configs = base.cfg_collector(path="{0}/Configs/Language/".format(self.game_dir))
-        self.json = json
-        # instance of the abstract class
-        self.font = FontPool
-        self.text = TextNode("TextNode")
-        self.player_state = PlayerState()
-        self.menu_font = None
-        self.cfg_path = None
         self.char_sheet_bg = None
-
-        """ Frame Positions """
-        self.pos_X = 0
-        self.pos_Y = 0
-        self.pos_Z = 0
-        self.pos_int_X = -0.5
-        self.pos_int_Y = 0
-        self.pos_int_Z = 0.5
-        self.w = 0
-        self.h = 0
 
         """ Frame Sizes """
         # Left, right, bottom, top
-        self.base.frame_inv_size = [-3, 3, -1, 3]
-        self.base.frame_scrolled_size = [0.0, 0.7, -0.05, 0.40]
-        self.base.frame_scrolled_inner_size = [-0.2, 0.2, -0.00, 0.00]
-        self.base.frame_journal_size = [-3, 0.7, -1, 3]
-        self.base.frame_player_prop_size = [-1.15, 0.5, -0.7, 0]
+        self.frame_scrolled_size = [0.0, 0.7, -0.05, 0.40]
+        self.frame_scrolled_inner_size = [-0.2, 0.2, -0.00, 0.00]
+        self.frame_journal_size = [-3, 0.7, -1, 3]
+        self.frame_player_prop_size = [-1.15, 0.5, -0.7, 0]
 
         """ Frame Colors """
         self.frm_opacity = 1
@@ -59,29 +34,52 @@ class Sheet(Inventory):
         self.lbl_scale = .03
         self.btn_scale = .03
 
-        self.cfg_path = self.base.game_cfg
-        if exists(self.cfg_path):
-            lng_to_load = self.m_settings.input_validate(self.cfg_path, 'lng')
-            with open(self.lng_configs['lg_{0}'.format(lng_to_load)], 'r') as json_file:
-                self.language = json.load(json_file)
+        self.frame_journal = None
 
-        """ Frames, Buttons & Fonts"""
-        self.menu_font = self.fonts['OpenSans-Regular']
+        """ Sheet Params """
+        self.sound_gui_click = None
 
-        # Transparent background
-        self.base.frame_inv = DirectFrame(frameColor=(0, 0, 0, 0.0),
-                                          frameSize=self.base.frame_inv_size,
-                                          pos=(0, 0, 0))
-        self.base.build_info.reparent_to(self.base.frame_inv)
-        self.base.frame_inv.hide()
+        self.btn_select_inv = None
+        self.btn_select_journal = None
 
-        self.base.frame_journal = DirectFrame(frameColor=(0, 0, 0, 1.0),
-                                              frameSize=self.base.frame_journal_size,
-                                              pos=(0, 0, 0))
-        self.base.frame_journal.hide()
+        self.btn_close_inv = None
+        self.btn_close_journal = None
 
-        ui_geoms = base.ui_geom_collector()
-        maps = base.loader.load_model(ui_geoms['btn_t_close_icon'])
+        self.quests_selector = None
+
+        self.journal_grid_frame = None
+        self.journal_grid_cap = None
+
+        self.quest_desc_frame = None
+        self.quest_desc_frame_img = None
+
+        self.quest_frame_map_img = None
+
+        self.player_camera_default = None
+        self.player_hpr_saved = None
+
+        self.frame_player_prop = None
+        self.frame_player_prop_img = None
+
+        # object click n move
+        self.base.is_inventory_active = False
+        self.is_inventory_items_loaded = False
+        self.player_camera_default = {
+            "pos": Vec3(0, 0, 0),
+            "hpr": Vec3(0, 0, 0),
+            "pivot_hpr": Vec3(0, 0, 0)
+        }
+        self.player_hpr_saved = Vec3(0, 0, 0)
+
+    def sheet_init(self):
+        self.base.build_info.reparent_to(self.frame_inv)
+
+        self.frame_journal = DirectFrame(frameColor=(0, 0, 0, 1.0),
+                                         frameSize=self.frame_journal_size,
+                                         pos=(0, 0, 0))
+        self.frame_journal.hide()
+
+        maps = base.loader.load_model(self.ui_geoms['btn_t_close_icon'])
         geoms = (maps.find('**/button_close_ready'),
                  maps.find('**/button_close_clicked'),
                  maps.find('**/button_close_rollover'))
@@ -97,7 +95,7 @@ class Sheet(Inventory):
                                           command=base.messenger.send,
                                           extraArgs=["close_sheet"],
                                           pos=(-1.8, 0, 0.9),
-                                          parent=self.base.frame_inv)
+                                          parent=self.frame_inv)
         self.btn_close_journal = DirectButton(text="",
                                               text_fg=(255, 255, 255, 0.9),
                                               text_font=self.font.load_font(self.menu_font),
@@ -108,34 +106,16 @@ class Sheet(Inventory):
                                               command=base.messenger.send,
                                               extraArgs=["close_sheet"],
                                               pos=(-1.8, 0, 0.9),
-                                              parent=self.base.frame_journal)
-
-        # quest selector geoms
-        q_maps_scrolled_dbtn = base.loader.load_model(ui_geoms['btn_t_icon'])
-        q_geoms_scrolled_dbtn = (q_maps_scrolled_dbtn.find('**/button_any'),
-                                 q_maps_scrolled_dbtn.find('**/button_pressed'),
-                                 q_maps_scrolled_dbtn.find('**/button_rollover'))
-
-        q_maps_scrolled_dec = base.loader.load_model(ui_geoms['btn_t_icon_dec'])
-        q_geoms_scrolled_dec = (q_maps_scrolled_dec.find('**/button_any_dec'),
-                                q_maps_scrolled_dec.find('**/button_pressed_dec'),
-                                q_maps_scrolled_dec.find('**/button_rollover_dec'))
-
-        q_maps_scrolled_inc = base.loader.load_model(ui_geoms['btn_t_icon_inc'])
-        q_geoms_scrolled_inc = (q_maps_scrolled_inc.find('**/button_any_inc'),
-                                q_maps_scrolled_inc.find('**/button_pressed_inc'),
-                                q_maps_scrolled_inc.find('**/button_rollover_inc'))
-        q_maps_scrolled_dec.set_transparency(TransparencyAttrib.MAlpha)
-        q_maps_scrolled_inc.set_transparency(TransparencyAttrib.MAlpha)
+                                              parent=self.frame_journal)
 
         # inventory & journal geoms
-        inv_maps_scrolled_dec = base.loader.load_model(ui_geoms['btn_inv_icon_dec'])
+        inv_maps_scrolled_dec = base.loader.load_model(self.ui_geoms['btn_inv_icon_dec'])
         inv_geoms_scrolled_dec = (inv_maps_scrolled_dec.find('**/button_any_dec'),
                                   inv_maps_scrolled_dec.find('**/button_pressed_dec'),
                                   inv_maps_scrolled_dec.find('**/button_rollover_dec'),
                                   inv_maps_scrolled_dec.find('**/button_disabled_dec'))
 
-        inv_maps_scrolled_inc = base.loader.load_model(ui_geoms['btn_inv_icon_inc'])
+        inv_maps_scrolled_inc = base.loader.load_model(self.ui_geoms['btn_inv_icon_inc'])
         inv_geoms_scrolled_inc = (inv_maps_scrolled_inc.find('**/button_any_inc'),
                                   inv_maps_scrolled_inc.find('**/button_pressed_inc'),
                                   inv_maps_scrolled_inc.find('**/button_rollover_inc'),
@@ -143,36 +123,59 @@ class Sheet(Inventory):
         inv_maps_scrolled_inc.set_transparency(TransparencyAttrib.MAlpha)
         inv_maps_scrolled_dec.set_transparency(TransparencyAttrib.MAlpha)
 
-        self.base.btn_select_inv = DirectButton(text="<|",
-                                                text_fg=(0.7, 0.7, 0.7, 1),
-                                                text_font=self.font.load_font(self.menu_font),
-                                                frameColor=(0, 0, 0, 1),
-                                                scale=.03, borderWidth=(self.w, self.h),
-                                                geom=inv_geoms_scrolled_dec, geom_scale=(15.3, 0, 2),
-                                                hpr=(0, 0, -90),
-                                                clickSound=self.sound_gui_click,
-                                                command=self.hide_journal,
-                                                pos=(-1.70, 0, 0.3))
-        self.base.btn_select_journal = DirectButton(text="|>",
-                                                    text_fg=(0.7, 0.7, 0.7, 1),
-                                                    text_font=self.font.load_font(self.menu_font),
-                                                    frameColor=(0, 0, 0, 1),
-                                                    scale=.03, borderWidth=(self.w, self.h),
-                                                    geom=inv_geoms_scrolled_inc, geom_scale=(15.3, 0, 2),
-                                                    hpr=(0, 0, -90),
-                                                    clickSound=self.sound_gui_click,
-                                                    command=self.show_journal,
-                                                    pos=(0.06, 0, 0.3))
+        self.btn_select_inv = DirectButton(text="<|",
+                                           text_fg=(0.7, 0.7, 0.7, 1),
+                                           text_font=self.font.load_font(self.menu_font),
+                                           frameColor=(0, 0, 0, 1),
+                                           scale=.03, borderWidth=(self.w, self.h),
+                                           geom=inv_geoms_scrolled_dec, geom_scale=(15.3, 0, 2),
+                                           hpr=(0, 0, -90),
+                                           clickSound=self.sound_gui_click,
+                                           command=self.hide_journal,
+                                           pos=(-1.70, 0, 0.3))
+        self.btn_select_journal = DirectButton(text="|>",
+                                               text_fg=(0.7, 0.7, 0.7, 1),
+                                               text_font=self.font.load_font(self.menu_font),
+                                               frameColor=(0, 0, 0, 1),
+                                               scale=.03, borderWidth=(self.w, self.h),
+                                               geom=inv_geoms_scrolled_inc, geom_scale=(15.3, 0, 2),
+                                               hpr=(0, 0, -90),
+                                               clickSound=self.sound_gui_click,
+                                               command=self.show_journal,
+                                               pos=(0.06, 0, 0.3))
 
-        self.base.btn_select_inv.set_transparency(True)
-        self.base.btn_select_inv.hide()
-        self.base.btn_select_journal.set_transparency(True)
-        self.base.btn_select_journal.hide()
+        self.btn_select_inv.set_transparency(True)
+        self.btn_select_inv.hide()
+        self.btn_select_journal.set_transparency(True)
+        self.btn_select_journal.hide()
 
+        """ Set Inventory Modules """
+        self.set_quest_journal()
+        self.set_inventory()
+        self.set_player_properties()
+        self.set_character_sheet_background()
+
+    def set_quest_journal(self):
         """ QUESTS """
+        # quest selector geoms
+        q_maps_scrolled_dbtn = base.loader.load_model(self.ui_geoms['btn_t_icon'])
+        q_geoms_scrolled_dbtn = (q_maps_scrolled_dbtn.find('**/button_any'),
+                                 q_maps_scrolled_dbtn.find('**/button_pressed'),
+                                 q_maps_scrolled_dbtn.find('**/button_rollover'))
+
+        q_maps_scrolled_dec = base.loader.load_model(self.ui_geoms['btn_t_icon_dec'])
+        q_geoms_scrolled_dec = (q_maps_scrolled_dec.find('**/button_any_dec'),
+                                q_maps_scrolled_dec.find('**/button_pressed_dec'),
+                                q_maps_scrolled_dec.find('**/button_rollover_dec'))
+
+        q_maps_scrolled_inc = base.loader.load_model(self.ui_geoms['btn_t_icon_inc'])
+        q_geoms_scrolled_inc = (q_maps_scrolled_inc.find('**/button_any_inc'),
+                                q_maps_scrolled_inc.find('**/button_pressed_inc'),
+                                q_maps_scrolled_inc.find('**/button_rollover_inc'))
+        q_maps_scrolled_dec.set_transparency(TransparencyAttrib.MAlpha)
+        q_maps_scrolled_inc.set_transparency(TransparencyAttrib.MAlpha)
 
         quests_btn_list = []
-
         btn_inc_pos = 0.49
         for i in range(9):
             btn_quest = DirectButton(text="Quest {0}".format(i),
@@ -182,7 +185,7 @@ class Sheet(Inventory):
                                      scale=.03, borderWidth=(self.w, self.h),
                                      geom=q_geoms_scrolled_dbtn, geom_scale=(15.3, 0, 2),
                                      clickSound=self.sound_gui_click,
-                                     command=self.base.frame_journal.show)
+                                     command=self.frame_journal.show)
             btn_inc_pos += -0.12
             quests_btn_list.append(btn_quest)
 
@@ -203,27 +206,27 @@ class Sheet(Inventory):
             incButton_geom=q_geoms_scrolled_inc,
             incButton_geom_scale=0.09,
 
-            frameSize=self.base.frame_scrolled_size,
+            frameSize=self.frame_scrolled_size,
             frameColor=(0, 0, 0, 0),
             numItemsVisible=9,
             forceHeight=0.11,
             items=quests_btn_list,
-            itemFrame_frameSize=self.base.frame_scrolled_inner_size,
+            itemFrame_frameSize=self.frame_scrolled_inner_size,
             itemFrame_pos=(0.35, 0, 0.4),
 
             pos=(0.0, 0, 0.32),
-            parent=self.base.frame_journal
+            parent=self.frame_journal
 
         )
 
         self.journal_grid_frame = OnscreenImage(image=self.images['grid_frame'],
                                                 pos=(-0.82, 0, 0.37),
                                                 scale=(0.86, 0, 0.40),
-                                                parent=self.base.frame_journal)
+                                                parent=self.frame_journal)
         self.journal_grid_cap = OnscreenImage(image=self.images['grid_cap_j'],
                                               pos=(-0.82, 0, 0.82),
                                               scale=(0.92, 0, 0.08),
-                                              parent=self.base.frame_journal)
+                                              parent=self.frame_journal)
         self.journal_grid_cap.set_transparency(TransparencyAttrib.MAlpha)
         self.journal_grid_frame.set_transparency(TransparencyAttrib.MAlpha)
 
@@ -242,175 +245,33 @@ class Sheet(Inventory):
                                                     horizontalScroll_decButton_frameColor=(0, 0, 0, 1.0),
                                                     verticalScroll_thumb_frameColor=(0.4, 0.3, 0.2, 1.0),
                                                     horizontalScroll_thumb_frameColor=(0.4, 0.3, 0.2, 1.0),
-                                                    parent=self.base.frame_journal)
+                                                    parent=self.frame_journal)
 
         self.quest_desc_frame_img = OnscreenImage(image=self.images['journal_quest_desc'],
-                                                  scale=(0.7, 0, 0.4),
+                                                  scale=(0.7, 1, 0.4),
                                                   pos=(0.2, 0, -0.1),
                                                   parent=self.quest_desc_frame.getCanvas())
-        self.quest_desc_frame_img.setTransparency(TransparencyAttrib.MAlpha)
+        self.quest_desc_frame_img.set_transparency(TransparencyAttrib.MAlpha)
 
         self.quest_frame_map_img = OnscreenImage(image=self.images['journal_ancient_map_sm'],
                                                  scale=(0.7, 0, 0.4),
                                                  pos=(-0.82, 0, -0.45),
-                                                 parent=self.base.frame_journal)
-        self.quest_frame_map_img.setTransparency(TransparencyAttrib.MAlpha)
+                                                 parent=self.frame_journal)
+        self.quest_frame_map_img.set_transparency(TransparencyAttrib.MAlpha)
 
-        # object click n move
-        self.base.is_inventory_active = False
-        self.is_inventory_items_loaded = False
-        self.player_camera_default = {
-            "pos": Vec3(0, 0, 0),
-            "hpr": Vec3(0, 0, 0),
-            "pivot_hpr": Vec3(0, 0, 0)
-        }
-        self.player_hpr_saved = Vec3(0, 0, 0)
-
-        """ DEFINE INVENTORY """
-        sheet_slot_info = [('HAND_L', (0.9, 0, -0.01), u'Hand', self.images['hand_l_slot']),
-                           ('HAND_R', (1.7, 0, -0.01), u'Hand', self.images['hand_r_slot']),
-                           ('TENGRI_PWR', (1.7, 0, -0.35), u'Hand', self.images['magic_tengri_slot']),
-                           ('UMAI_PWR', (1.7, 0, -0.67), u'Hand', self.images['magic_umai_slot']),
-                           ('HEAD', (0.9, 0, 0.7), u'Head', self.images['head_slot']),
-                           ('BODY', (1.7, 0, 0.32), u'Body', self.images['body_slot']),
-                           ('FEET', (0.9, 0, -0.43), u'Feet', self.images['feet_slot']),
-                           ('LEGS', (0.9, 0, -0.76), u'Legs', self.images['toe_slot']),
-                           ('TRASH', (0.4, 0, -0.6), u'Trash', self.images['trash_slot'])]
-
-        # styled frames for these sheet slots
-        sheet_slot_frame_img = self.images['sheet_default_slot']
-        sheet_slot_frame_scale = (0.21, 0, 0.21)
-        hand_l_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
-                                            pos=(0.9, 0, -0.01),
-                                            scale=sheet_slot_frame_scale,
-                                            parent=self.base.frame_inv)
-        hand_l_styled_frame.setTransparency(TransparencyAttrib.MAlpha)
-
-        hand_r_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
-                                            pos=(1.7, 0, -0.01),
-                                            scale=sheet_slot_frame_scale,
-                                            parent=self.base.frame_inv)
-        hand_r_styled_frame.setTransparency(TransparencyAttrib.MAlpha)
-
-        tengri_pwr_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
-                                                pos=(1.7, 0, -0.35),
-                                                scale=sheet_slot_frame_scale,
-                                                parent=self.base.frame_inv)
-        tengri_pwr_styled_frame.setTransparency(TransparencyAttrib.MAlpha)
-
-        umai_pwr_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
-                                              pos=(1.7, 0, -0.67),
-                                              scale=sheet_slot_frame_scale,
-                                              parent=self.base.frame_inv)
-        umai_pwr_styled_frame.setTransparency(TransparencyAttrib.MAlpha)
-
-        head_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
-                                          pos=(0.9, 0, 0.7),
-                                          scale=sheet_slot_frame_scale,
-                                          parent=self.base.frame_inv)
-        head_styled_frame.setTransparency(TransparencyAttrib.MAlpha)
-
-        body_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
-                                          pos=(1.7, 0, 0.32),
-                                          scale=sheet_slot_frame_scale,
-                                          parent=self.base.frame_inv)
-        body_styled_frame.setTransparency(TransparencyAttrib.MAlpha)
-
-        feet_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
-                                          pos=(0.9, 0, -0.43),
-                                          scale=sheet_slot_frame_scale,
-                                          parent=self.base.frame_inv)
-        feet_styled_frame.setTransparency(TransparencyAttrib.MAlpha)
-
-        legs_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
-                                          pos=(0.9, 0, -0.76),
-                                          scale=sheet_slot_frame_scale,
-                                          parent=self.base.frame_inv)
-        legs_styled_frame.setTransparency(TransparencyAttrib.MAlpha)
-
-        trash_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
-                                           pos=(0.4, 0, -0.6),
-                                           scale=sheet_slot_frame_scale,
-                                           parent=self.base.frame_inv)
-        trash_styled_frame.setTransparency(TransparencyAttrib.MAlpha)
-
-        """(('INVENTORY_1', 'TRASH'), 'item',
-            self.images['slot_item_qymyran'], 'Qymyran', 1, 1, 0, 8),
-           (('INVENTORY_1', 'TRASH'), 'item',
-            self.images['slot_item_torsyk'], 'Torsyk', 1, 1, 0, 8),"""
-
-        # Inventory row, slots, inventory_type, icon, txt_pieces, int_pieces, 0, damage
-        self.sheet_items = [
-            [['INVENTORY_2', 'TRASH', 'HAND_L'], 'weapon',
-             self.images['slot_item_sword'], 'Sword', 1, 1, 0, 38],
-            [['INVENTORY_2', 'TRASH', 'HAND_R'], 'weapon',
-             self.images['slot_item_bow'], 'Bow', 1, 1, 0, 9],
-            [['INVENTORY_2', 'TRASH', 'BODY'], 'armor',
-             self.images['slot_item_armor'], 'Light armor', 1, 1, 10],
-            [['INVENTORY_2', 'TRASH', 'HEAD'], 'armor',
-             self.images['slot_item_helmet'], 'Helmet', 1, 1, 5],
-            [['INVENTORY_2', 'TRASH', 'FEET'], 'armor',
-             self.images['slot_item_feet'], 'Pants', 1, 1, 2],
-            [['INVENTORY_2', 'TRASH', 'LEGS'], 'armor',
-             self.images['slot_item_boots'], 'Boots', 1, 1, 2],
-            [['INVENTORY_3', 'TENGRI_PWR'], 'weapon',
-             self.images['slot_item_tengri'], 'Tengri Power', 1, 1, 0, 8],
-            [['INVENTORY_3', 'UMAI_PWR'], 'weapon',
-             self.images['slot_item_umai'], 'Umai Power', 1, 1, 0, 8]
-        ]
-
-        # sheet slots init
-        self.custom_inv_slots(sheet_slot_info)
-
-        # Field of slots 3х5,        positions: x, y
-        self.fill_up_inv_slots(3, 5, -1.55, 0.66, 'INVENTORY_1')
-        self.fill_up_inv_slots(3, 5, -1.0, 0.66, 'INVENTORY_2')
-        self.fill_up_inv_slots(3, 5, -0.45, 0.66, 'INVENTORY_3')
-
-        for item in self.sheet_items:
-            inventory_type = item[0][0]
-            self.add_item(Item(item), inventory_type)
-
-        # Inventory init
-        self.init()
-
-        self.inv_misc_grid_cap = OnscreenImage(image=self.images['misc_grid_cap'],
-                                               pos=(-1.4, 0, -0.25),
-                                               scale=(0.32, 0, 0.1),
-                                               parent=self.base.frame_inv)
-        self.inv_misc_grid_cap.setTransparency(TransparencyAttrib.MAlpha)
-        self.inv_weapons_grid_cap = OnscreenImage(image=self.images['weapons_grid_cap'],
-                                                  pos=(-0.82, 0, -0.25),
-                                                  scale=(0.32, 0, 0.1),
-                                                  parent=self.base.frame_inv)
-        self.inv_weapons_grid_cap.setTransparency(TransparencyAttrib.MAlpha)
-        self.inv_magic_grid_cap = OnscreenImage(image=self.images['magic_grid_cap'],
-                                                pos=(-0.24, 0, -0.25),
-                                                scale=(0.32, 0, 0.1),
-                                                parent=self.base.frame_inv)
-        self.inv_magic_grid_cap.setTransparency(TransparencyAttrib.MAlpha)
-
-        # left is item index, right is slot index
-        self.on_start_assign_item_to_sheet_slot(3, 4)  # helmet
-        self.on_start_assign_item_to_sheet_slot(2, 5)  # armor
-        self.on_start_assign_item_to_sheet_slot(4, 6)  # pants
-        self.on_start_assign_item_to_sheet_slot(5, 7)  # boots
-        self.on_start_assign_item_to_sheet_slot(0, 0)  # sword
-        self.on_start_assign_item_to_sheet_slot(1, 1)  # bow
-
+    def set_player_properties(self):
         """ DEFINE PLAYER PROPERTIES """
-
         # player properties (health, stamina, etc)
         self.frame_player_prop = DirectFrame(frameColor=(0.0, 0.0, 0.0, 0.0),
-                                             frameSize=self.base.frame_player_prop_size,
+                                             frameSize=self.frame_player_prop_size,
                                              pos=(-0.5, 0, -0.31),
-                                             parent=self.base.frame_inv)
+                                             parent=self.frame_inv)
         self.frame_player_prop_img = OnscreenImage(image=self.images['inv_frm_player_props'],
                                                    pos=(-0.3, 0, -0.34),
                                                    scale=(0.9, 0, 0.3),
                                                    parent=self.frame_player_prop)
 
-        self.frame_player_prop_img.setTransparency(TransparencyAttrib.MAlpha)
+        self.frame_player_prop_img.set_transparency(TransparencyAttrib.MAlpha)
         player_props_icons = [
             self.images['prop_name'],
             self.images['prop_age'],
@@ -443,7 +304,7 @@ class Sheet(Inventory):
                                       pos=(prop_icon_pos_x, 0, pos_z + 0.01),
                                       scale=.03,
                                       parent=self.frame_player_prop)
-            prop_icon.setTransparency(TransparencyAttrib.MAlpha)
+            prop_icon.set_transparency(TransparencyAttrib.MAlpha)
 
             DirectLabel(text="{0}:".format(key),
                         text_fg=(0.1, 0.1, 0.1, 1),
@@ -468,15 +329,15 @@ class Sheet(Inventory):
 
             # player properties (health, stamina, etc)
             self.frame_player_prop = DirectFrame(frameColor=(0.0, 0.0, 0.0, 0.0),
-                                                 frameSize=self.base.frame_player_prop_size,
+                                                 frameSize=self.frame_player_prop_size,
                                                  pos=(-0.5, 0, -0.31),
-                                                 parent=self.base.frame_inv)
+                                                 parent=self.frame_inv)
             self.frame_player_prop_img = OnscreenImage(image=self.images['inv_frm_player_props'],
                                                        pos=(-0.3, 0, -0.34),
                                                        scale=(0.9, 0, 0.3),
                                                        parent=self.frame_player_prop)
 
-            self.frame_player_prop_img.setTransparency(TransparencyAttrib.MAlpha)
+            self.frame_player_prop_img.set_transparency(TransparencyAttrib.MAlpha)
             player_props_icons = [
                 self.images['prop_name'],
                 self.images['prop_age'],
@@ -509,7 +370,7 @@ class Sheet(Inventory):
                                           pos=(prop_icon_pos_x, 0, pos_z + 0.01),
                                           scale=.03,
                                           parent=self.frame_player_prop)
-                prop_icon.setTransparency(TransparencyAttrib.MAlpha)
+                prop_icon.set_transparency(TransparencyAttrib.MAlpha)
 
                 DirectLabel(text="{0}:".format(key),
                             text_fg=(0.1, 0.1, 0.1, 1),
@@ -528,40 +389,6 @@ class Sheet(Inventory):
                             pos=(value_label_pos_x, 0, pos_z),
                             parent=self.frame_player_prop)
 
-    def add_item_to_inventory(self, item, count, inventory, inventory_type):
-        if (item and isinstance(item, str)
-                and inventory and isinstance(inventory, str)
-                and inventory_type and isinstance(inventory_type, str)
-                and count and isinstance(count, int)):
-            item_is_matched = 0
-            matched_item = None
-            for sheet_item in self.sheet_items:
-                if item == sheet_item[3]:
-                    item_is_matched = 1
-                    matched_item = sheet_item
-
-            if item_is_matched == 0:
-                item_row = [[inventory, 'TRASH'], inventory_type,
-                            self.images['slot_item_{0}'.format(item.lower())],
-                            item, count, count, 0, 5
-                            ]
-                inventory_type = item_row[0][0]
-                self.sheet_items.append(item_row)
-                self.add_item(Item(item_row), inventory_type)
-                self.refresh_items()
-                self.base.game_instance['arrow_count'] = count
-            elif item_is_matched == 1:
-                new_count = matched_item[4] + count
-                item_row = [[inventory, 'TRASH'], inventory_type,
-                            self.images['slot_item_{0}'.format(item.lower())],
-                            item, new_count, new_count, 0, 5
-                            ]
-                inventory_type = item_row[0][0]
-                self.sheet_items.append(item_row)
-                self.add_item(Item(item_row), inventory_type)
-                self.refresh_items()
-                self.base.game_instance['arrow_count'] = new_count
-
     @staticmethod
     def _handle_mouse_scroll(obj, direction):
         if (isinstance(obj, DirectSlider)
@@ -570,7 +397,7 @@ class Sheet(Inventory):
             obj.setValue(obj.getValue() + direction * obj["pageSize"])
 
     def show_journal(self):
-        self.base.frame_journal.show()
+        self.frame_journal.show()
         WHEEL_UP = PGButton.get_release_prefix() + MouseButton.wheel_up().get_name() + "-"
         WHEEL_DOWN = PGButton.get_release_prefix() + MouseButton.wheel_down().get_name() + "-"
         self.quest_desc_frame.bind(WHEEL_UP, self._handle_mouse_scroll, [self.quest_desc_frame, 1])
@@ -580,14 +407,14 @@ class Sheet(Inventory):
         self.quest_desc_frame.horizontalScroll.thumb.bind(WHEEL_DOWN, self._handle_mouse_scroll,
                                                           [self.quest_desc_frame, -1])
 
-        self.base.btn_select_inv.set_pos(-1.70, 0, 0.3)
-        self.base.btn_select_journal.set_pos(0.06, 0, 0.3)
+        self.btn_select_inv.set_pos(-1.70, 0, 0.3)
+        self.btn_select_journal.set_pos(0.06, 0, 0.3)
 
-        self.base.btn_select_inv["state"] = DGG.NORMAL
-        self.base.btn_select_journal["state"] = DGG.DISABLED
+        self.btn_select_inv["state"] = DGG.NORMAL
+        self.btn_select_journal["state"] = DGG.DISABLED
 
     def hide_journal(self):
-        self.base.frame_journal.hide()
+        self.frame_journal.hide()
         WHEEL_UP = PGButton.get_release_prefix() + MouseButton.wheel_up().get_name() + "-"
         WHEEL_DOWN = PGButton.get_release_prefix() + MouseButton.wheel_down().get_name() + "-"
         self.quest_desc_frame.unbind(WHEEL_UP)
@@ -595,11 +422,11 @@ class Sheet(Inventory):
         self.quest_desc_frame.horizontalScroll.thumb.unbind(WHEEL_UP)
         self.quest_desc_frame.horizontalScroll.thumb.unbind(WHEEL_DOWN)
 
-        self.base.btn_select_inv.set_pos(-1.70, 0, 0.3)
-        self.base.btn_select_journal.set_pos(0.06, 0, 0.3)
+        self.btn_select_inv.set_pos(-1.70, 0, 0.3)
+        self.btn_select_journal.set_pos(0.06, 0, 0.3)
 
-        self.base.btn_select_journal["state"] = DGG.NORMAL
-        self.base.btn_select_inv["state"] = DGG.DISABLED
+        self.btn_select_journal["state"] = DGG.NORMAL
+        self.btn_select_inv["state"] = DGG.DISABLED
 
     def set_sheet(self):
         """ Sets inventory ui """
@@ -609,20 +436,21 @@ class Sheet(Inventory):
                 and not self.base.game_instance["is_player_sitting"]):
             player = self.base.game_instance['player_ref']
             if not player.get_python_tag("is_on_horse"):
-                if self.base.frame_inv:
-                    if self.base.frame_inv.is_hidden():
+                if self.frame_inv:
+                    if self.frame_inv.is_hidden():
 
                         if self.base.game_instance['hud_np']:
                             self.base.game_instance['hud_np'].toggle_all_hud(state="hidden")
                         base.game_instance['render_attr_cls'].time_text_ui.hide()
 
-                        self.base.frame_inv.show()
-                        # self.base.menu_selector.show()
-                        self.base.btn_select_inv.show()
-                        self.base.btn_select_journal.show()
+                        self.reset_camera_params()
 
-                        self.base.btn_select_inv["state"] = DGG.DISABLED
-                        self.base.btn_select_journal["state"] = DGG.NORMAL
+                        self.frame_inv.show()
+                        self.btn_select_inv.show()
+                        self.btn_select_journal.show()
+
+                        self.btn_select_inv["state"] = DGG.DISABLED
+                        self.btn_select_journal["state"] = DGG.NORMAL
 
                         self.base.win_props.set_cursor_hidden(False)
                         self.base.win.request_properties(self.base.win_props)
@@ -647,12 +475,12 @@ class Sheet(Inventory):
 
     def clear_sheet(self):
         self.base.build_info.reparent_to(aspect2d)
-        self.base.frame_inv.hide()
+        self.frame_inv.hide()
 
-        self.base.btn_select_inv.hide()
-        self.base.btn_select_journal.hide()
+        self.btn_select_inv.hide()
+        self.btn_select_journal.hide()
 
-        self.base.frame_journal.hide()
+        self.frame_journal.hide()
 
         if self.base.game_instance['hud_np']:
             self.base.game_instance['hud_np'].toggle_all_hud(state="visible")
@@ -674,12 +502,33 @@ class Sheet(Inventory):
 
         self.base.is_inventory_active = False
 
+    def reset_camera_params(self):
+        player = self.base.game_instance["player_ref"]
+
+        player_pos = player.get_pos()
+        target_x = player_pos[0] + -1.05
+        target_y = player_pos[1] + -4.5
+        target_z = player_pos[2] + 0.25
+
+        player.hide()
+
+        lerp_pos_inv = LerpPosInterval(base.camera,
+                                       duration=1.1,
+                                       pos=Point3(target_x, target_y, target_z),
+                                       startPos=base.camera.get_pos()
+                                       )
+        Sequence(lerp_pos_inv,
+                 Func(player.show)
+                 ).start()
+
+        base.camera.set_hpr(0, 0, 0)
+
     def set_character_sheet_background(self):
         geoms = self.base.inventory_geoms_collector()
         if geoms:
             self.char_sheet_bg = self.base.loader.load_model(geoms["bg_black_char_sheet"])
             self.char_sheet_bg.set_name("bg_black_char_sheet")
-            player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
+            player_bs = self.base.game_instance["player_np"]
             if player_bs:
                 self.char_sheet_bg.reparent_to(player_bs)
                 # self.char_sheet_bg.set_pos(0, 0, 0)
@@ -701,7 +550,7 @@ class Sheet(Inventory):
             if render.find("**/pivot"):
                 self.player_camera_default["pivot_hpr"] = render.find("**/pivot").get_hpr()
 
-            player = render.find("**/Player")
+            player = self.base.game_instance["player_ref"]
             if player:
                 # set character view
                 player_pos = player.get_pos()
@@ -720,7 +569,7 @@ class Sheet(Inventory):
                     render.find("**/World").hide()
 
                 # set light
-                player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
+                player_bs = self.base.game_instance["player_np"]
                 if player_bs:
                     # keep previous player hpr states
                     self.player_hpr_saved = player_bs.get_hpr()
@@ -739,7 +588,7 @@ class Sheet(Inventory):
     def revert_character(self):
         self.base.game_instance['inv_mode'] = False
         # Revert character view
-        player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
+        player_bs = self.base.game_instance["player_np"]
         if player_bs:
             player_bs.set_hpr(self.player_hpr_saved)
 

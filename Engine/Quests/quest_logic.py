@@ -104,8 +104,7 @@ class QuestLogic:
                 self.base.game_instance["is_player_sitting"] = True
                 self.base.camera.set_z(-0.5)
                 self.base.camera.set_y(-3.0)
-                actor_name = actor.get_name()
-                actor_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="Player")
+                actor_bs = self.base.game_instance["player_np"]
                 heading = place.get_h() - 180
                 actor_bs.set_h(heading)
                 place_pos = place.get_pos()
@@ -129,8 +128,8 @@ class QuestLogic:
             if (int(hour) == self.npc_sit_time_stop[0]
                     and int(minutes) == self.npc_sit_time_stop[1]):
                 if "NPC" in actor.get_name():
-                    actor_name = actor.get_name()
-                    actor_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
+                    name = "{0}:BS".format(actor.get_name())
+                    actor_bs = self.base.game_instance["actors_np"][name]
                     # Reverse play for standing_to_sit animation
                     any_action_seq = actor.actor_interval(anim, loop=0, playRate=-1.0)
 
@@ -151,8 +150,8 @@ class QuestLogic:
                     and int(minutes) >= self.npc_sit_time_start[1]
                     and int(minutes) < self.npc_sit_time_stop[1]):
                 if "NPC" in actor.get_name():
-                    actor_name = actor.get_name()
-                    actor_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
+                    name = "{0}:BS".format(actor.get_name())
+                    actor_bs = self.base.game_instance["actors_np"][name]
                     heading = place.get_h() - 170
                     pos = actor_bs.get_pos() - Vec3(-0.3, -0.1, 0)
                     actor_bs.set_h(heading)
@@ -183,8 +182,8 @@ class QuestLogic:
             if (int(hour) == self.npc_sit_time_start[0]
                     and int(minutes) >= self.npc_sit_time_start[1]):
                 if "NPC" in actor.get_name():
-                    actor_name = actor.get_name()
-                    actor_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
+                    name = "{0}:BS".format(actor.get_name())
+                    actor_bs = self.base.game_instance["actors_np"][name]
                     heading = place.get_h() - 170
                     pos = actor_bs.get_pos() - Vec3(-0.3, -0.1, 0)
                     actor_bs.set_h(heading)
@@ -222,8 +221,7 @@ class QuestLogic:
                 self.base.camera.set_p(self.cam_p)
                 self.base.camera.set_y(-1)
                 actor.set_z(self.actor_geom_pos_z)
-                actor_name = actor.get_name()
-                actor_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="Player")
+                actor_bs = self.base.game_instance["player_np"]
                 # Reverse play for standing_to_sit animation
                 any_action_seq = actor.actor_interval(anim, loop=0, playRate=-1.0)
 
@@ -246,8 +244,7 @@ class QuestLogic:
                 self.base.camera.set_h(0)
                 self.cam_p = self.base.camera.get_p()
                 self.base.camera.set_p(10)
-                actor_name = actor.get_name()
-                actor_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="Player")
+                actor_bs = self.base.game_instance["player_np"]
                 self.actor_geom_pos_z = actor.get_z()
                 actor.set_z(-0.75)
                 heading = place.get_h() - 170
@@ -275,8 +272,8 @@ class QuestLogic:
                     and int(minutes) == self.npc_rest_time_stop[1]):
                 if "NPC" in actor.get_name():
                     actor.set_z(-1)
-                    actor_name = actor.get_name()
-                    actor_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
+                    name = "{0}:BS".format(actor.get_name())
+                    actor_bs = self.base.game_instance["actors_np"][name]
                     # Reverse play for standing_to_sit animation
                     any_action_seq = actor.actor_interval(anim, loop=0, playRate=-1.0)
 
@@ -297,8 +294,8 @@ class QuestLogic:
                     and int(minutes) >= self.npc_rest_time_start[1]
                     and int(minutes) < self.npc_rest_time_stop[1]):
                 if "NPC" in actor.get_name():
-                    actor_name = actor.get_name()
-                    actor_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
+                    name = "{0}:BS".format(actor.get_name())
+                    actor_bs = self.base.game_instance["actors_np"][name]
                     actor.set_z(-0.75)
                     heading = place.get_h() - 170
                     pos = actor_bs.get_pos() - Vec3(-0.3, -0.1, 0)
@@ -330,8 +327,8 @@ class QuestLogic:
             if (int(hour) == self.npc_rest_time_start[0]
                     and int(minutes) >= self.npc_rest_time_start[1]):
                 if "NPC" in actor.get_name():
-                    actor_name = actor.get_name()
-                    actor_bs = self.base.get_actor_bullet_shape_node(asset=actor_name, type="NPC")
+                    name = "{0}:BS".format(actor.get_name())
+                    actor_bs = self.base.game_instance["actors_np"][name]
                     heading = place.get_h() - 170
                     pos = actor_bs.get_pos() - Vec3(-0.3, -0.1, 0)
                     actor_bs.set_h(heading)

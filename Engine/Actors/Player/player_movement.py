@@ -10,7 +10,6 @@ class PlayerMovement:
         self.render = render
         self.kbd = kbd
         self.state = state
-        self.actor_bs = None
         self.actor_play_rate = None
 
         self.idle_action = "Standing_idle_female"
@@ -139,17 +138,23 @@ class PlayerMovement:
         dt = globalClock.getDt()
 
         if "Player" in actor.get_name():
-            if not self.actor_bs:
-                self.actor_bs = self.base.get_actor_bullet_shape_node(asset=actor.get_name(), type="Player")
-        elif "Horse" in actor.get_name():
-            if not self.actor_bs:
-                self.actor_bs = self.base.get_actor_bullet_shape_node(asset=actor.get_name(), type="NPC")
+            actor_bs = self.base.game_instance["player_np"]
 
-        # Turning in place
-        if self.kbd.keymap["left"] and self.actor_bs:
-            self.actor_bs.set_h(self.actor_bs.get_h() + 100 * dt)
-        if self.kbd.keymap["right"] and self.actor_bs:
-            self.actor_bs.set_h(self.actor_bs.get_h() - 100 * dt)
+            # Turning in place
+            if self.kbd.keymap["left"] and actor_bs:
+                actor_bs.set_h(actor_bs.get_h() + 100 * dt)
+            if self.kbd.keymap["right"] and actor_bs:
+                actor_bs.set_h(actor_bs.get_h() - 100 * dt)
+
+        elif "Horse" in actor.get_name():
+            name = "{0}:BS".format(actor.get_name())
+            actor_bs = self.base.game_instance["actors_np"][name]
+
+            # Turning in place
+            if self.kbd.keymap["left"] and actor_bs:
+                actor_bs.set_h(actor_bs.get_h() + 100 * dt)
+            if self.kbd.keymap["right"] and actor_bs:
+                actor_bs.set_h(actor_bs.get_h() - 100 * dt)
 
         # TODO: Add turning in place when player is crouched
         if (not base.player_states["is_crouch_moving"]

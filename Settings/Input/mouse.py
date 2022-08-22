@@ -150,8 +150,7 @@ class Mouse:
         """
         # Do world heading in aiming
         # and rotate player's last spine bone before hips
-        player_bs = self.base.get_actor_bullet_shape_node(asset="Player",
-                                                          type="Player")
+        player_bs = self.base.game_instance["player_np"]
         if player_bs:
             heading = player_bs.get_h() - (x - int(base.win.get_x_size() / 2)) * self.mouse_sens
             pv_heading = self.pivot.get_h() - (y - int(base.win.get_x_size() / 2)) * self.mouse_sens
@@ -171,15 +170,13 @@ class Mouse:
 
     def on_limit_camera_in_social_action(self):
         if self.base.game_instance["is_player_laying"]:
-            player_bs = self.base.get_actor_bullet_shape_node(asset="Player",
-                                                              type="Player")
+            player_bs = self.base.game_instance["player_np"]
             self.pivot.look_at(player_bs.get_pos())
             self.pivot.set_h(player_bs, 180)
             self.pivot.set_p(-35)
 
         elif self.base.game_instance["is_player_sitting"]:
-            player_bs = self.base.get_actor_bullet_shape_node(asset="Player",
-                                                              type="Player")
+            player_bs = self.base.game_instance["player_np"]
             self.pivot.look_at(player_bs.get_pos())
             self.pivot.set_h(player_bs, -360)
             self.pivot.set_p(-25)
@@ -233,8 +230,7 @@ class Mouse:
                 and not self.base.game_instance["kbd_np"].keymap["backward"]
                 or self.base.game_instance["kbd_np"].keymap["backward"]
                 and not self.base.game_instance["kbd_np"].keymap["forward"]):
-            player_bs = self.base.get_actor_bullet_shape_node(asset="Player",
-                                                              type="Player")
+            player_bs = self.base.game_instance["player_np"]
             horse_name = self.base.game_instance['player_using_horse']
             horse_bs = render.find("**/{0}:BS".format(horse_name))
 

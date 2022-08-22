@@ -416,7 +416,7 @@ class PlayerState:
         if player and not render.find('**/World').is_empty():
             item = player.get_python_tag("used_item_np")
             if item:
-                player_bs = self.base.get_actor_bullet_shape_node(asset=player.get_name(), type="Player")
+                player_bs = self.base.game_instance["player_np"]
                 world = render.find('**/World')
                 item.reparent_to(world)
 

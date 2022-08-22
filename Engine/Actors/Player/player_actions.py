@@ -26,17 +26,17 @@ class PlayerActions:
 
     def seq_pick_item_wrapper_task(self, player, anims, action, joint_name, task):
         if player and anims and action and joint_name:
-            if player.getCurrentFrame(action):
-                if (player.getCurrentFrame(action) > 67
-                        and player.getCurrentFrame(action) < 72):
+            if player.get_current_frame(action):
+                if (player.get_current_frame(action) > 67
+                        and player.get_current_frame(action) < 72):
                     self.state.pick_up_item(player, joint_name)
         return task.cont
 
     def seq_drop_item_wrapper_task(self, player, anims, action, task):
         if player and anims and action:
-            if player.getCurrentFrame(action):
-                if (player.getCurrentFrame(action) > 67
-                        and player.getCurrentFrame(action) < 72):
+            if player.get_current_frame(action):
+                if (player.get_current_frame(action) > 67
+                        and player.get_current_frame(action) < 72):
                     self.state.drop_item(player)
         return task.cont
 
@@ -54,9 +54,9 @@ class PlayerActions:
     def _player_jump_move_task(self, action, task):
         player = self.base.game_instance["player_ref"]
 
-        if player.getCurrentFrame(action):
-            if (player.getCurrentFrame(action) > 24
-                    and player.getCurrentFrame(action) < 27):
+        if player.get_current_frame(action):
+            if (player.get_current_frame(action) > 24
+                    and player.get_current_frame(action) < 27):
                 player_bs = self.base.game_instance["player_np"]
                 current_pos = player_bs.get_pos()
                 delta_offset = current_pos + Vec3(0, -2.0, 0)
@@ -492,7 +492,7 @@ class PlayerActions:
                 if (base.player_states['is_h_kicking'] is False
                         and crouched_to_standing.is_playing() is False
                         and base.player_states['is_crouch_moving'] is True):
-                    player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
+                    player_bs = self.base.game_instance["player_np"]
                     # TODO: Use blending for smooth transition between animations
                     # Do an animation sequence if player is crouched.
                     crouch_to_stand_seq = player.actor_interval(anims[self.crouched_to_standing_action],
@@ -511,7 +511,7 @@ class PlayerActions:
                 elif (base.player_states['is_h_kicking'] is False
                       and crouched_to_standing.is_playing() is False
                       and base.player_states['is_crouch_moving'] is False):
-                    player_bs = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
+                    player_bs = self.base.game_instance["player_np"]
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
                     Sequence(Func(self.state.set_action_state, "is_h_kicking", True),
@@ -1123,7 +1123,7 @@ class PlayerActions:
             self.state.set_do_once_key("use", True)
             horse_name = base.game_instance['player_using_horse']
             parent = render.find("**/{0}".format(horse_name))
-            child = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
+            child = self.base.game_instance["player_np"]
             player = self.base.game_instance['player_ref']
             if parent and child and anims and not self.base.game_instance['is_aiming']:
                 if (self.base.game_instance['player_ref'].get_python_tag("is_on_horse")
@@ -1175,7 +1175,7 @@ class PlayerActions:
         horse_name = base.game_instance['player_using_horse']
         parent = render.find("**/{0}".format(horse_name))
         parent_bs = render.find("**/{0}:BS".format(horse_name))
-        child = self.base.get_actor_bullet_shape_node(asset="Player", type="Player")
+        child = self.base.game_instance["player_np"]
         player = self.base.game_instance['player_ref']
         if parent and child and anims and not self.base.game_instance['is_aiming']:
             # with inverted Z -0.7 stands for Up

@@ -51,7 +51,7 @@ text-flatten 0
 text-dynamic-merge 1
 
 # For smoother animations
-# even-animation #t
+even-animation #t
 
 # Threading, really buggy!
 #threading-model App/Cull/Draw
@@ -95,7 +95,7 @@ gl-coordinate-system default
 
 # This makes animations smoother, especially if they were exported at 30 FPS
 # and are played at 60 FPS
-interpolate-frames t
+# interpolate-frames #f
 
 # Disable workarround in panda which causes our shadow atlas to take twice
 # the amount of vram it should, due to an intel driver bug.

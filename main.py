@@ -48,8 +48,6 @@ from direct.task.TaskManagerGlobal import taskMgr
 from Engine.Renderer.rpcore.render_pipeline import RenderPipeline
 from Engine.Renderer.rpcore.util.movement_controller import MovementController
 import importlib
-from panda3d.core import PStatClient
-import psutil
 
 sys.dont_write_bytecode = True
 
@@ -709,50 +707,6 @@ class Main(ShowBase):
                     asset_colls[key] = Filename.from_os_specific(path).getFullpath()
 
         return asset_colls
-
-    def get_actor_bullet_shape_nodes(self, assets, type):
-        if (assets and type
-                and isinstance(assets, dict)
-                and isinstance(type, str)):
-            lvl_npcs = []
-            for k in assets:
-                if k == 'name':
-                    if type == "NPC":
-                        if "NPC" in assets[k]:
-                            name = assets[k]
-                            if not render.find("**/{0}:BS".format(name)).is_empty():
-                                lvl_npcs = render.find("**/{0}:BS".format(name))
-
-                    elif type == "Player":
-                        if "Player" in assets[k]:
-                            name = assets[k]
-                            if not render.find("**/{0}:BS".format(name)).is_empty():
-                                lvl_npcs = render.find("**/{0}:BS".format(name))
-            if lvl_npcs:
-                return lvl_npcs
-
-    def get_actor_bullet_shape_node(self, asset, type):
-        if (asset and type
-                and isinstance(asset, str)
-                and isinstance(type, str)):
-            if type == "NPC":
-                if "NPC" in asset:
-                    name = asset
-
-                    if not render.find("**/{0}:BS".format(name)).is_empty():
-                        return render.find("**/{0}:BS".format(name))
-
-            elif type == "Player":
-                if "Player" in asset:
-                    name = asset
-                    if not render.find("**/{0}:BS".format(name)).is_empty():
-                        return render.find("**/{0}:BS".format(name))
-
-    def get_static_bullet_shape_node(self, asset):
-        if asset and isinstance(asset, str):
-            if "BS" not in asset:
-                if not render.find("**/{0}:BS".format(asset)).is_empty():
-                    return render.find("**/{0}:BS".format(asset))
 
     def cfg_collector(self, path):
         """ Function    : cfg_collector
