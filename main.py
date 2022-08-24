@@ -445,6 +445,7 @@ class Main(ShowBase):
             "unloading_is_done": 0,
             "player_actions_init_is_activated": 0,
             "mouse_control_is_activated": 0,
+            "cam_obstacle_is_close": False,
             "mouse_mode": None,
             "mouse_y_cam": 0,
             "cursor_ui": None,
@@ -483,6 +484,7 @@ class Main(ShowBase):
             "sit_time_stop": None,
             "rest_time_start": None,
             "rest_time_stop": None,
+            "cam_coll_dist_stat": None,
         }
         self.shared_functions = {}
 

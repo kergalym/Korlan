@@ -3,7 +3,7 @@ from Engine.FSM.player_fsm import PlayerFSM
 from direct.task.TaskManagerGlobal import taskMgr
 from Settings.Input.keyboard import Keyboard
 from Settings.Input.mouse import Mouse
-from Settings.Input.player_camera import PlayerCamera
+from Settings.Input.camera_collider import CameraCollider
 from Engine.Inventory.sheet import Sheet
 from Engine.Actors.Player.player_archery import PlayerArchery
 from Engine.Actors.Player.player_movement import PlayerMovement
@@ -23,7 +23,7 @@ class PlayerController:
         self.taskMgr = taskMgr
         self.kbd = Keyboard()
         self.mouse = Mouse()
-        self.player_cam = PlayerCamera()
+        self.camera_collider = CameraCollider()
         self.fsm_player = PlayerFSM()
         self.base.game_instance["player_fsm_cls"] = self.fsm_player
         self.sheet = Sheet()
@@ -274,7 +274,7 @@ class PlayerController:
                             appendTask=True)
 
                 # Set Camera System
-                taskMgr.add(self.player_cam.set_camera_trigger,
+                taskMgr.add(self.camera_collider.set_camera_trigger,
                             "set_camera_trigger",
                             appendTask=True)
 
