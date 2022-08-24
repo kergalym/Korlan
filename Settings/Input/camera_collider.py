@@ -116,7 +116,7 @@ class CameraCollider:
                                     if self.base.game_settings['Debug']['set_debug_mode'] == "YES":
                                         self._set_camera_collider_stat(player_bs, node_np, None)
 
-                                    # If obstacle is far to camera 2 unit
+                                    # zoom out If obstacle is not in the field of view
                                     if int(base.camera.get_distance(node_np)) > 1:
                                         if (int(base.camera.get_distance(player_bs)) < 3
                                                 and int(base.camera.get_distance(player_bs)) > 1):
@@ -151,10 +151,9 @@ class CameraCollider:
                 if raytest_all_result:
                     for hit in raytest_all_result.get_hits():
                         if hit.get_node():
+                            # Filtering for rigid bodies
                             if ("BS" in hit.get_node().get_name()
                                     and "Player:BS" not in hit.get_node().get_name()):
-                                # Check if collided object at the center of the screen
-                                # and is close to player
                                 name = hit.get_node().get_name()
                                 node_np = render.find("**/{0}".format(name))
                                 if node_np:
@@ -163,7 +162,7 @@ class CameraCollider:
                                         self._set_camera_collider_stat(player_bs, node_np, node)
 
                                     if int(player_bs.get_distance(node_np)) < 2:
-                                        # If obstacle is close to camera 1 unit
+                                        # zoom in If obstacle is close and is in the field of view
                                         if (int(base.camera.get_distance(node_np)) > 1
                                                 and int(base.camera.get_distance(node_np)) < 4):
                                             if not self.base.game_instance["cam_obstacle_is_close"]:
@@ -173,7 +172,7 @@ class CameraCollider:
                 node_np = render.find("**/{0}".format(name))
                 if node_np:
                     if int(player_bs.get_distance(node_np)) > 1:
-                        # if obstacle is far from player
+                        # zoom out if obstacle is far from the player
                         if (int(base.camera.get_distance(player_bs)) < 4
                                 and int(base.camera.get_distance(player_bs)) > 0):
                             self._interpolate_to(target_y=def_y, start_y=close_y)
