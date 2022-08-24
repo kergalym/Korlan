@@ -116,7 +116,7 @@ class CameraCollider:
                                     if self.base.game_settings['Debug']['set_debug_mode'] == "YES":
                                         self._set_camera_collider_stat(player_bs, node_np, None)
 
-                                    # zoom out If obstacle is not in the field of view
+                                    # zoom in If obstacle is close and is not in the field of view
                                     if int(base.camera.get_distance(node_np)) > 1:
                                         if (int(base.camera.get_distance(player_bs)) < 3
                                                 and int(base.camera.get_distance(player_bs)) > 1):
