@@ -254,7 +254,7 @@ class AsyncLevelLoad:
 
             # Load the scene.
             path = assets['{0}_{1}'.format(scene_name, suffix)]
-            scene = await self.base.loader.load_model(path, blocking=False)
+            scene = await self.base.loader.load_model(path, blocking=False, noCache=True)
             self.world_nodepath = render.find("**/World")
             if self.world_nodepath:
 
@@ -329,7 +329,7 @@ class AsyncLevelLoad:
             colliders_dict = base.assets_collider_collector()
             coll_scene_name = '{0}_coll'.format(scene_name)
             coll_path = colliders_dict[coll_scene_name]
-            coll_scene = await self.base.loader.load_model(coll_path, blocking=False)
+            coll_scene = await self.base.loader.load_model(coll_path, blocking=False, noCache=True)
             coll_scene.set_name(coll_scene_name)
             coll_scene_np = NodePath("Collisions")
             coll_scene_np.reparent_to(self.world_nodepath)
@@ -525,10 +525,10 @@ class AsyncLevelLoad:
                         pos_y = axis[1]
                         pos_z = axis[2]
 
-                        cloak = await self.base.loader.load_model(assets["Korlan_cloak"], blocking=False)
+                        cloak = await self.base.loader.load_model(assets["Korlan_cloak"], blocking=False, noCache=True)
                         self.base.game_instance["actors_clothes"][name] = [cloak]
 
-                        self.actor = await self.base.loader.load_model(path, blocking=False)
+                        self.actor = await self.base.loader.load_model(path, blocking=False, noCache=True)
                         self.actor = Actor(self.actor, animation[1])
 
                         self.actor.set_name(name)
