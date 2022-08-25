@@ -66,6 +66,21 @@ class CameraCollider:
             def_y = self.base.game_instance["mouse_y_cam"]
 
             if not self.base.game_instance['is_aiming']:
+
+                # Self collision
+                player = self.base.game_instance['player_ref']
+                if (not self.base.game_instance["is_indoor"]
+                        and not player.get_python_tag("is_on_horse")):
+                    pv_pitch = self.base.game_instance["player_pivot"].get_p()
+                    if not self.base.game_instance["cam_obstacle_is_close"]:
+                        if pv_pitch > 6.0:
+                            self._interpolate_to(target_y=close_y, start_y=def_y,
+                                                 target_z=-0.3, start_z=0)
+                    if self.base.game_instance["cam_obstacle_is_close"]:
+                        if pv_pitch < -49.0:
+                            self._interpolate_to(target_y=def_y, start_y=close_y,
+                                                 target_z=0, start_z=-0.3)
+
                 trigger = player_bs.find("**/player_cam_trigger").node()
                 if trigger:
                     for node in trigger.get_overlapping_nodes():
@@ -77,13 +92,15 @@ class CameraCollider:
                             if (int(trigger_np.get_distance(node_np)) >= 1
                                     and int(trigger_np.get_distance(node_np)) < 4):
                                 if not self.base.game_instance["is_indoor"]:
-                                    self._interpolate_to(target_y=close_y, start_y=def_y)
+                                    self._interpolate_to(target_y=close_y, start_y=def_y,
+                                                         target_z=0, start_z=0)
                                     self.base.game_instance["is_indoor"] = True
 
                             elif (int(trigger_np.get_distance(node_np)) >= 4
                                   and int(trigger_np.get_distance(node_np)) < 7):
                                 if self.base.game_instance["is_indoor"]:
-                                    self._interpolate_to(target_y=def_y, start_y=close_y)
+                                    self._interpolate_to(target_y=def_y, start_y=close_y,
+                                                         target_z=0, start_z=0)
                                     self.base.game_instance["is_indoor"] = False
 
                         # Outdoor triggering
@@ -121,7 +138,8 @@ class CameraCollider:
                                         if (int(base.camera.get_distance(player_bs)) < 3
                                                 and int(base.camera.get_distance(player_bs)) > 1):
                                             if self.base.game_instance["cam_obstacle_is_close"]:
-                                                self._interpolate_to(target_y=def_y, start_y=close_y)
+                                                self._interpolate_to(target_y=def_y, start_y=close_y,
+                                                                     target_z=0, start_z=0)
 
                                 self._camera_raycaster_collision(node=node,
                                                                  player_bs=player_bs)
@@ -166,7 +184,8 @@ class CameraCollider:
                                         if (int(base.camera.get_distance(node_np)) > 1
                                                 and int(base.camera.get_distance(node_np)) < 4):
                                             if not self.base.game_instance["cam_obstacle_is_close"]:
-                                                self._interpolate_to(target_y=close_y, start_y=def_y)
+                                                self._interpolate_to(target_y=close_y, start_y=def_y,
+                                                                     target_z=0, start_z=0)
 
                 name = node.get_name()
                 node_np = render.find("**/{0}".format(name))
@@ -175,7 +194,8 @@ class CameraCollider:
                         # zoom out if obstacle is far from the player
                         if (int(base.camera.get_distance(player_bs)) < 4
                                 and int(base.camera.get_distance(player_bs)) > 0):
-                            self._interpolate_to(target_y=def_y, start_y=close_y)
+                            self._interpolate_to(target_y=def_y, start_y=close_y,
+                                                 target_z=0, start_z=0)
 
     def _toggle_camera_zooming_state(self):
         if not self.base.game_instance["cam_obstacle_is_close"]:
@@ -183,13 +203,13 @@ class CameraCollider:
         elif self.base.game_instance["cam_obstacle_is_close"]:
             self.base.game_instance["cam_obstacle_is_close"] = False
 
-    def _interpolate_to(self, target_y, start_y):
+    def _interpolate_to(self, target_y, target_z, start_y, start_z):
         if not self.cam_lerp.is_playing():
             self.cam_lerp = Sequence()
-            lerp = LerpPosInterval(self.base.camera,
-                                   duration=1.0,
-                                   pos=Point3(0, target_y, 0),
-                                   startPos=Point3(0, start_y, 0))
+            lerp = LerpPosInterval(base.camera,
+                                   duration=0.3,
+                                   pos=Point3(0, target_y, target_z),
+                                   startPos=Point3(0, start_y, start_z))
             func = Func(self._toggle_camera_zooming_state)
             self.cam_lerp.append(lerp)
             self.cam_lerp.append(func)

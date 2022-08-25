@@ -75,6 +75,7 @@ class Mouse:
             self.pivot = NodePath('pivot')
             self.pivot.reparent_to(self.floater)
             self.pivot.set_z(0.5)
+            self.base.game_instance["player_pivot"] = self.pivot
 
             self.attach_floater(player)
 

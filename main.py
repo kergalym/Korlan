@@ -429,6 +429,7 @@ class Main(ShowBase):
             "actors_crouch_bs_np": {},
             "actors_crouch_bs_np_mask": {},
             "player_ref": None,
+            "player_pivot": None,
             "actors_ref": {},
             "actors_np": {},
             "actors_np_mask": {},
