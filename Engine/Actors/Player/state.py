@@ -21,7 +21,7 @@ class PlayerState:
             'stamina': 100,
             'courage': 100,
         }
-        self.damage_weapons = ['LeftHand', 'RightHand', 'sword', 'arrow', 'spear', 'fireballs']
+        self.damage_weapons = ['sword_BGN', 'arrow', 'spear_BGN', 'fireballs_BGN']
         base.player_states = {
             "is_alive": True,
             "is_idle": True,

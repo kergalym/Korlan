@@ -3,6 +3,7 @@ from direct.interval.MetaInterval import Sequence, Parallel
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import Vec3, Vec2, Point3, BitMask32
 
+from Engine.Physics.npc_physics import NpcPhysics
 from Engine.AI.npc_behavior import NpcBehavior
 
 
@@ -26,6 +27,7 @@ class NpcController:
         # Keep this class instance for further usage in NpcBehavior class only
         self.base.game_instance["npc_controller_cls"] = self
 
+        self.npc_physics = NpcPhysics()
         self.npc_behavior = NpcBehavior()
 
         name = actor.get_name()
@@ -35,8 +37,8 @@ class NpcController:
         # actor.set_blend(frameBlend=True)
         actor_bs = self.base.game_instance["actors_np"][name_bs]
         request = self.npcs_fsm_states[name]
-
         self.npc_hips[name] = actor.find("**/**Hips:HB")
+        hips = self.npc_hips[name]
 
         # R&D
         self.npc_action_seqs = {}
@@ -47,9 +49,10 @@ class NpcController:
             self.npc_state = self.base.game_instance["npc_state_cls"]
             self.npc_state.set_npc_equipment(actor, "Korlan:Spine1")
 
-            taskMgr.add(self._actor_hitbox_trace_task,
+            taskMgr.add(self.npc_physics.actor_hitbox_trace_task,
                         "{0}_hitbox_trace_task".format(name.lower()),
-                        extraArgs=[actor, actor_bs, request], appendTask=True)
+                        extraArgs=[actor, actor_bs, hips, request],
+                        appendTask=True)
 
             # TODO KEEP HERE UNTILL HORSE ANIMS BECOME READY
         if actor:
@@ -66,70 +69,6 @@ class NpcController:
                             "{0}_npc_generic_logic_task".format(name),
                             extraArgs=[actor, self.player_bs, request, False],
                             appendTask=True)
-
-    def _actor_hitbox_trace_task(self, actor, actor_bs, request, task):
-        if self.base.game_instance['menu_mode']:
-            return task.done
-
-        name = actor.get_name()
-        parent_node = self.npc_hips[name].node()
-        parent_np = self.npc_hips[name]
-
-        for node in parent_node.get_overlapping_nodes():
-            damage_weapons = actor.get_python_tag("damage_weapons")
-            for weapon in damage_weapons:
-                # Exclude our own weapon hits
-                if (weapon in node.get_name()
-                        and actor.get_name() not in node.get_name()):
-                    hitbox_np = render.find("**/{0}".format(node.get_name()))
-                    if hitbox_np:
-                        if actor.get_python_tag("enemy_hitbox_distance") != 0:
-                            actor.set_python_tag("enemy_hitbox_distance", 0)
-                        # Deactivate enemy weapon if we got hit
-                        if str(hitbox_np.get_collide_mask()) != " 0000 0000 0000 0000 0000 0000 0000 0000\n":
-                            distance = round(hitbox_np.get_distance(parent_np), 1)
-                            actor.set_python_tag("enemy_hitbox_distance", distance)
-
-                            if distance >= 0.5 and distance <= 1.8:
-                                # Enemy Prediction for facing
-                                if node:
-                                    name = node.get_name()
-                                    name_bs = "{0}:BS".format(name)
-                                    if name in actor.get_name():
-                                        npc_ref = self.base.game_instance["actors_np"][name]
-                                        npc_bs = self.base.game_instance["actors_np"][name_bs]
-                                        if npc_ref:
-                                            if not actor.get_python_tag("enemy_npc_ref"):
-                                                actor.set_python_tag("enemy_npc_ref", npc_ref)
-                                            if not actor.get_python_tag("enemy_npc_bs"):
-                                                actor.set_python_tag("enemy_npc_bs", npc_bs)
-                                            self.face_actor_to(actor_bs, npc_bs)
-
-                                hitbox_np.set_collide_mask(BitMask32.allOff())
-                                if (actor.get_python_tag("health_np")
-                                        and not actor.get_python_tag("generic_states")['is_blocking']):
-                                    # NPC gets damage if he has health point
-                                    if actor.get_python_tag("health_np")['value'] > 1:
-                                        request.request("Attacked", actor, "HitToBody", "play")
-                                        actor.get_python_tag("health_np")['value'] -= 6
-
-                                    if actor.get_python_tag("stamina_np")['value'] > 1:
-                                        actor.get_python_tag("stamina_np")['value'] -= 3
-
-                                    if actor.get_python_tag("courage_np")['value'] > 1:
-                                        actor.get_python_tag("courage_np")['value'] -= 3
-
-        # NPC dies if he has no health point
-        if (actor.get_python_tag("health_np")['value'] < 2
-                or actor.get_python_tag("health_np")['value'] < 1):
-            if actor.get_python_tag("stamina_np")['value'] > 1:
-                actor.get_python_tag("stamina_np")['value'] = 0
-
-            if actor.get_python_tag("generic_states")['is_alive']:
-                if actor.get_python_tag("generic_states")['is_idle']:
-                    request.request("Death", actor, "Dying", "play")
-
-        return task.cont
 
     def _reset_current_sequence(self):
         if self.current_seq:

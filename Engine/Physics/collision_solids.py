@@ -20,6 +20,8 @@ class BulletCollisionSolids:
         if (actor and joints and mask and world
                 and isinstance(joints, list)):
 
+            hitboxes = {}
+
             for joint in joints:
                 shape = BulletBoxShape(Vec3(1, 1, 1))
                 name_hb = "{0}_{1}:HB".format(actor.get_name(), joint)
@@ -39,21 +41,28 @@ class BulletCollisionSolids:
                     ghost_np.set_scale(6, 6, 6)
                     # Actor and its hitboxes won't collide with each other
                     ghost_np.set_collide_mask(BitMask32.allOff())
+                    hitboxes[joint] = ghost_np
 
                 ghost_np.set_tag(key=name_hb, value=joint)
 
+                # Attach hitbox ghosts to actor
                 if "Player" in name and self.base.game_instance['player_ref']:
                     char_joint = self.base.game_instance['player_ref'].get_part_bundle('modelRoot').get_name()
                     joint = "{0}:{1}".format(char_joint, joint)
                     exp_joint = self.base.game_instance['player_ref'].expose_joint(None, "modelRoot", joint)
                     ghost_np.reparent_to(exp_joint)
                     world.attach_ghost(ghost)
+                    # Keep hitboxes in the tag as dict
+                    self.base.game_instance['player_ref'].set_python_tag("actor_hitboxes", hitboxes)
+
                 elif "NPC" in name and self.base.game_instance['actors_ref']:
                     char_joint = self.base.game_instance['actors_ref'][name].get_part_bundle('modelRoot').get_name()
                     joint = "{0}:{1}".format(char_joint, joint)
                     exp_joint = self.base.game_instance['actors_ref'][name].expose_joint(None, "modelRoot", joint)
                     ghost_np.reparent_to(exp_joint)
                     world.attach_ghost(ghost)
+                    # Keep hitboxes in the tag as dict
+                    self.base.game_instance['actors_ref'][name].set_python_tag("actor_hitboxes", hitboxes)
 
     def get_bs_sphere(self):
         radius = 0.6

@@ -498,6 +498,9 @@ class AsyncLevelLoad:
 
             self.korlan.set_python_tag("first_attack", False)
 
+            # Keep my hitboxes here
+            self.korlan.set_python_tag("actor_hitboxes", None)
+
             # Set Player Parameters
             self.state.set_state(actor=self.korlan)
 
@@ -565,6 +568,9 @@ class AsyncLevelLoad:
 
                         if self.base.game_instance["renderpipeline_np"]:
                             self.base.game_instance['renderpipeline_np'].prepare_scene(self.actor)
+
+                        # Keep my hitboxes here
+                        self.actor.set_python_tag("actor_hitboxes", None)
 
                         # Add Bullet collider for this actor
                         physics_attr = self.base.game_instance["physics_attr_cls"]
