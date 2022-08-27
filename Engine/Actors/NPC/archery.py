@@ -99,7 +99,7 @@ class Archery:
 
                         # Create arrow collider
                         shape = BulletBoxShape(Vec3(0.05, 0.05, 0.05))
-                        body = BulletRigidBodyNode('Arrow_BRB')
+                        body = BulletRigidBodyNode('Arrow_BRB_{0}'.format(actor.get_name()))
                         arrow_rb_np = NodePath(body)
                         arrow_rb_np.wrt_reparent_to(bow)
                         arrow_rb_np.set_pos(-0.16, -0.01, -0.02)

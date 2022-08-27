@@ -121,7 +121,7 @@ class PhysicsAttr:
                     self.player_physics.player_hips[actor.get_name()] = actor.find("**/**Hips:HB")
                     taskMgr.add(self.player_physics.player_hitbox_trace_task,
                                 "player_hitbox_trace_task",
-                                extraArgs=[actor, request], appendTask=True)
+                                extraArgs=[actor, actor_bs_np, request], appendTask=True)
 
                 elif type == 'npc':
                     actor_node = BulletRigidBodyNode(col_name)

@@ -502,36 +502,37 @@ class NpcController:
 
     def do_defensive_prediction(self, actor, actor_npc_bs, request, hitbox_dist):
         if actor and actor_npc_bs and request:
-            if hitbox_dist >= 0.5 and hitbox_dist <= 1.8:
-                if actor.get_python_tag("stamina_np")['value'] > 5:
-                    if not self.current_seq:
-                        self.current_seq = Sequence(
-                            Parallel(
-                                Wait(1),
-                                Func(self.npc_in_backwardstep_logic, actor,
-                                     actor_npc_bs, request)),
-                            Parallel(
-                                Wait(1),
-                                Func(self.npc_in_forwardstep_logic, actor,
-                                     actor_npc_bs, request)),
-                            Parallel(
-                                Wait(1),
-                                Func(self.npc_in_backwardroll_logic, actor,
-                                     actor_npc_bs, request)),
-                            Parallel(
-                                Wait(1),
-                                Func(self.npc_in_blocking_logic, actor, request)),
-                            Func(self._reset_current_sequence)
-                        )
-                        self.current_seq.sort()
-                    if self.current_seq and not self.current_seq.is_playing():
-                        self.current_seq.start()
+            if hitbox_dist is not None:
+                if hitbox_dist >= 0.5 and hitbox_dist <= 1.8:
+                    if actor.get_python_tag("stamina_np")['value'] > 5:
+                        if not self.current_seq:
+                            self.current_seq = Sequence(
+                                Parallel(
+                                    Wait(1),
+                                    Func(self.npc_in_backwardstep_logic, actor,
+                                         actor_npc_bs, request)),
+                                Parallel(
+                                    Wait(1),
+                                    Func(self.npc_in_forwardstep_logic, actor,
+                                         actor_npc_bs, request)),
+                                Parallel(
+                                    Wait(1),
+                                    Func(self.npc_in_backwardroll_logic, actor,
+                                         actor_npc_bs, request)),
+                                Parallel(
+                                    Wait(1),
+                                    Func(self.npc_in_blocking_logic, actor, request)),
+                                Func(self._reset_current_sequence)
+                            )
+                            self.current_seq.sort()
+                        if self.current_seq and not self.current_seq.is_playing():
+                            self.current_seq.start()
 
-            if actor.get_python_tag("stamina_np")['value'] > 50:
-                if actor.get_python_tag("enemy_distance") <= 1:
-                    target_np = actor.get_python_tag("target_np")
-                    self.face_actor_to(actor_npc_bs, target_np)
-                    self._npc_in_attacking_logic(actor, actor_npc_bs, request)
-                elif (actor.get_python_tag("enemy_distance") > 1
-                      and actor.get_python_tag("enemy_distance") < 3):
-                    self.npc_in_forwardstep_logic(actor, actor_npc_bs, request)
+                if actor.get_python_tag("stamina_np")['value'] > 50:
+                    if actor.get_python_tag("enemy_distance") <= 1:
+                        target_np = actor.get_python_tag("target_np")
+                        self.face_actor_to(actor_npc_bs, target_np)
+                        self._npc_in_attacking_logic(actor, actor_npc_bs, request)
+                    elif (actor.get_python_tag("enemy_distance") > 1
+                          and actor.get_python_tag("enemy_distance") < 3):
+                        self.npc_in_forwardstep_logic(actor, actor_npc_bs, request)
