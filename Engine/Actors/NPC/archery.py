@@ -72,6 +72,7 @@ class Archery:
                     self.arrow_ref.set_python_tag("ready", 0)
                     self.arrow_ref.set_python_tag("shot", 0)
                     self.arrows.append(self.arrow_ref)
+                    actor_ref.set_python_tag("arrow_count", len(self.arrows))
 
         if self.base.game_instance['physics_world_np'] and self.arrow_brb_in_use:
             self.base.game_instance['physics_world_np'].remove_rigid_body(self.arrow_brb_in_use.node())
@@ -92,6 +93,7 @@ class Archery:
                     if self.base.game_instance['physics_world_np']:
                         # Remove arrow from inv and prepare it for use
                         arrow = self.arrows.pop(0)
+                        actor.set_python_tag("arrow_count", len(self.arrows))
                         arrow.reparent_to(bow)
                         arrow.set_pos(0.04, 0.0, -0.01)
                         arrow.set_hpr(6.0, 2.86, 0)

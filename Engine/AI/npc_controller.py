@@ -349,10 +349,12 @@ class NpcController:
                 action = "Boxing"
                 request.request("Attack", actor, action, "play")
 
-            if (actor.get_python_tag("stamina_np")['value'] > 3
-                    and actor.get_python_tag("enemy_distance") >= 1):
-                if actor_npc_bs.get_y() != actor_npc_bs.get_y() - 2:
-                    actor_npc_bs.set_y(actor_npc_bs, -2 * dt)
+            # Slightly move for closer attack
+            if not actor.get_python_tag("human_states")["has_bow"]:
+                if (actor.get_python_tag("stamina_np")['value'] > 3
+                        and actor.get_python_tag("enemy_distance") >= 1):
+                    if actor_npc_bs.get_y() != actor_npc_bs.get_y() - 2:
+                        actor_npc_bs.set_y(actor_npc_bs, -2 * dt)
 
             if actor.get_python_tag("stamina_np")['value'] > 1:
                 actor.get_python_tag("stamina_np")['value'] -= 18
@@ -505,34 +507,41 @@ class NpcController:
             if hitbox_dist is not None:
                 if hitbox_dist >= 0.5 and hitbox_dist <= 1.8:
                     if actor.get_python_tag("stamina_np")['value'] > 5:
-                        if not self.current_seq:
-                            self.current_seq = Sequence(
-                                Parallel(
-                                    Wait(1),
-                                    Func(self.npc_in_backwardstep_logic, actor,
-                                         actor_npc_bs, request)),
-                                Parallel(
-                                    Wait(1),
-                                    Func(self.npc_in_forwardstep_logic, actor,
-                                         actor_npc_bs, request)),
-                                Parallel(
-                                    Wait(1),
-                                    Func(self.npc_in_backwardroll_logic, actor,
-                                         actor_npc_bs, request)),
-                                Parallel(
-                                    Wait(1),
-                                    Func(self.npc_in_blocking_logic, actor, request)),
-                                Func(self._reset_current_sequence)
-                            )
-                            self.current_seq.sort()
-                        if self.current_seq and not self.current_seq.is_playing():
-                            self.current_seq.start()
+                        if not actor.get_python_tag("human_states")["has_bow"]:
+                            if not self.current_seq:
+                                self.current_seq = Sequence(
+                                    Parallel(
+                                        Wait(1),
+                                        Func(self.npc_in_backwardstep_logic, actor,
+                                             actor_npc_bs, request)),
+                                    Parallel(
+                                        Wait(1),
+                                        Func(self.npc_in_forwardstep_logic, actor,
+                                             actor_npc_bs, request)),
+                                    Parallel(
+                                        Wait(1),
+                                        Func(self.npc_in_backwardroll_logic, actor,
+                                             actor_npc_bs, request)),
+                                    Parallel(
+                                        Wait(1),
+                                        Func(self.npc_in_blocking_logic, actor, request)),
+                                    Func(self._reset_current_sequence)
+                                )
+                                self.current_seq.sort()
+                            if self.current_seq and not self.current_seq.is_playing():
+                                self.current_seq.start()
 
                 if actor.get_python_tag("stamina_np")['value'] > 50:
-                    if actor.get_python_tag("enemy_distance") <= 1:
-                        target_np = actor.get_python_tag("target_np")
-                        self.face_actor_to(actor_npc_bs, target_np)
-                        self._npc_in_attacking_logic(actor, actor_npc_bs, request)
-                    elif (actor.get_python_tag("enemy_distance") > 1
-                          and actor.get_python_tag("enemy_distance") < 3):
-                        self.npc_in_forwardstep_logic(actor, actor_npc_bs, request)
+                    if not actor.get_python_tag("human_states")["has_bow"]:
+                        if actor.get_python_tag("enemy_distance") <= 1:
+                            target_np = actor.get_python_tag("target_np")
+                            self.face_actor_to(actor_npc_bs, target_np)
+                            self._npc_in_attacking_logic(actor, actor_npc_bs, request)
+                        elif (actor.get_python_tag("enemy_distance") > 1
+                              and actor.get_python_tag("enemy_distance") < 3):
+                            self.npc_in_forwardstep_logic(actor, actor_npc_bs, request)
+
+            if actor.get_python_tag("human_states")["has_bow"]:
+                target_np = actor.get_python_tag("target_np")
+                self.face_actor_to(actor_npc_bs, target_np)
+                self._npc_in_attacking_logic(actor, actor_npc_bs, request)
