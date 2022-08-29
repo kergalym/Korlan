@@ -9,6 +9,9 @@ from Engine.Actors.Player.player_archery import PlayerArchery
 from Engine.Actors.Player.player_movement import PlayerMovement
 from Engine.Actors.Player.player_actions import PlayerActions
 
+""" ANIMATIONS"""
+from Engine import anim_names
+
 
 class PlayerController:
 
@@ -26,7 +29,7 @@ class PlayerController:
         self.camera_collider = CameraCollider()
         self.fsm_player = PlayerFSM()
         self.base.game_instance["player_fsm_cls"] = self.fsm_player
-        self.sheet = Sheet()
+        self.sheet = None
         self.state = PlayerState()
         self.archery = PlayerArchery()
         self.mov_actions = None
@@ -35,7 +38,7 @@ class PlayerController:
 
     """ Player Anim States Tracking """
     def _regular_anim_state_tracker(self, player, anims):
-        any_action = player.get_anim_control(anims[self.mov_actions.idle_action])
+        any_action = player.get_anim_control(anims[anim_names.a_anim_idle_player])
         if (any_action.is_playing() is False
                 # and base.player_states['is_idle']
                 and base.player_states['is_attacked'] is False
@@ -50,7 +53,7 @@ class PlayerController:
                 and base.player_states['horse_riding'] is False):
 
             self.fsm_player.request("Idle", player,
-                                    anims[self.mov_actions.idle_action],
+                                    anims[anim_names.a_anim_idle_player],
                                     "play")
             if self.base.game_instance['player_props']['stamina'] < 100:
                 self.base.game_instance['player_props']['stamina'] += 5
@@ -90,7 +93,7 @@ class PlayerController:
 
     """ Rider Anim States Tracking """
     def _rider_anim_state_tracker(self, player, anims):
-        any_action = player.get_anim_control(anims['horse_riding_idle'])
+        any_action = player.get_anim_control(anims[anim_names.a_anim_horse_rider_idle])
         if (any_action.is_playing() is False
                 # and base.player_states['is_idle']
                 and base.player_states['is_attacked'] is False
@@ -104,7 +107,7 @@ class PlayerController:
                 and base.player_states['is_mounted']
                 and base.player_states['horse_riding']):
             self.fsm_player.request("Idle", player,
-                                    anims['horse_riding_idle'],
+                                    anims[anim_names.a_anim_horse_rider_idle],
                                     "play")
             if self.base.game_instance['player_props']['stamina'] < 100:
                 self.base.game_instance['player_props']['stamina'] += 5
@@ -150,32 +153,32 @@ class PlayerController:
 
     def _regular_actions(self, player, anims):
         self.actions.player_crouch_action(player, 'crouch', anims)
-        self.actions.player_jump_action(player, "jump", anims, "Jumping")
+        self.actions.player_jump_action(player, "jump", anims, anim_names.a_anim_jumping)
 
         if (not base.player_states['has_sword']
                 and not base.player_states['has_bow']):
-            self.actions.player_use_action(player, "use", anims, "PickingUp")
+            self.actions.player_use_action(player, "use", anims, anim_names.a_anim_picking)
     
-            self.actions.player_attack_action(player, "attack", anims, "Boxing")
-            self.actions.player_h_kick_action(player, "h_attack", anims, "Kicking_3")
-            self.actions.player_f_kick_action(player, "f_attack", anims, "Kicking_5")
-            self.actions.player_block_action(player, "block", anims, "center_blocking")
+            self.actions.player_attack_action(player, "attack", anims, anim_names.a_anim_attack)
+            self.actions.player_h_kick_action(player, "h_attack", anims, anim_names.a_anim_h_attack)
+            self.actions.player_f_kick_action(player, "f_attack", anims, anim_names.a_anim_f_attack)
+            self.actions.player_block_action(player, "block", anims, anim_names.a_anim_blocking)
 
     def _regular_equip_actions(self, player, anims):
         self.actions.player_get_sword_action(player, "sword", anims,
-                                             "sword_disarm_over_shoulder")
-        self.actions.player_get_bow_action(player, "bow", anims, "archer_standing_disarm_bow")
+                                             anim_names.a_anim_arm_sword)
+        self.actions.player_get_bow_action(player, "bow", anims, anim_names.a_anim_arm_bow)
 
     def _battle_actions(self, player, anims):
         if base.player_states['has_sword'] and not base.player_states['has_bow']:
-            self.actions.player_attack_action(player, "attack", anims, "great_sword_slash")
-            self.actions.player_block_action(player, "block", anims, "great_sword_blocking")
+            self.actions.player_attack_action(player, "attack", anims, anim_names.a_anim_melee_attack)
+            self.actions.player_block_action(player, "block", anims, anim_names.a_anim_parring)
         elif not base.player_states['has_sword'] and base.player_states['has_bow']:
-            self.actions.player_bow_shoot_action(player, anims, "archer_standing_draw_arrow")
+            self.actions.player_bow_shoot_action(player, anims, anim_names.a_anim_archery)
 
     def _battle_magic_actions(self, player, anims):
-        self.actions.player_tengri_action(player, "tengri", anims, "PickingUp")
-        self.actions.player_umai_action(player, "umai", anims, "PickingUp")
+        self.actions.player_tengri_action(player, "tengri", anims, anim_names.a_anim_get_tengri)
+        self.actions.player_umai_action(player, "umai", anims, anim_names.a_anim_get_umai)
 
     """ Rider Player Actions """
     def _rider_movement(self, anims):
@@ -186,26 +189,27 @@ class PlayerController:
         # TODO: add crouch and jump actions for the rider
         pass
         # self.actions.player_crouch_action(player, 'crouch', anims)
-        # self.actions.player_jump_action(player, "jump", anims, "Jumping")
+        # self.actions.player_jump_action(player, "jump", anims,
+        # anim_names.a_anim_horse_rider_jumping)
 
     def _rider_equip_actions(self, player, anims):
         self.actions.player_horse_riding_get_sword_action(player, "sword", anims,
-                                                          "horse_riding_arm_sword")
+                                                          anim_names.a_anim_horse_rider_arm_sword)
         self.actions.player_horse_riding_get_bow_action(player, "bow", anims,
-                                                        "horse_riding_arm_bow")
+                                                        anim_names.a_anim_horse_rider_arm_bow)
 
     def _rider_battle_actions(self, player, anims):
         if base.player_states['has_sword'] and not base.player_states['has_bow']:
             self.actions.player_horse_riding_swing_action(player, "attack", anims,
-                                                          "horse_riding_swing")
+                                                          anim_names.a_anim_horse_rider_swing)
         elif not base.player_states['has_sword'] and base.player_states['has_bow']:
             self.actions.player_horse_riding_bow_shoot_action(player, anims,
-                                                              "horse_riding_draw_arrow")
+                                                              anim_names.a_anim_horse_rider_archery)
 
     def _rider_battle_magic_actions(self, player, anims):
         # TODO: add magic actions for the rider
-        self.actions.player_tengri_action(player, "tengri", anims, "PickingUp")
-        self.actions.player_umai_action(player, "umai", anims, "PickingUp")
+        self.actions.player_tengri_action(player, "tengri", anims, anim_names.a_anim_horse_riger_get_tengri)
+        self.actions.player_umai_action(player, "umai", anims, anim_names.a_anim_horse_riger_get_umai)
 
     """ Prepares the player for scene """
     def player_actions_task(self, player, anims, task):
@@ -282,6 +286,7 @@ class PlayerController:
                 # Open and close sheet
                 # Accept close_sheet command from close button, because
                 # I suddenly can't do it inside the sheet class
+                self.sheet = Sheet()
                 self.sheet.sheet_init()
                 base.accept('i', self.sheet.set_sheet)
                 base.accept('close_sheet', self.sheet.clear_sheet)

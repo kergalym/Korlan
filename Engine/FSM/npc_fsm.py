@@ -5,6 +5,9 @@ from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import BitMask32, Vec3
 from Engine.Actors.NPC.archery import Archery
 
+""" ANIMATIONS"""
+from Engine import anim_names
+
 
 class NpcFSM(FSM):
     def __init__(self, npc_name):
@@ -127,20 +130,19 @@ class NpcFSM(FSM):
                                  Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", False),
                                  Func(self.fsm_state_wrapper, actor, "human_states", has_weapon, False)).start()
 
-    def enterHorseMount(self, actor, child, horse_name):
-        parent = render.find("**/{0}".format(horse_name))
-        if parent and child:
+    def enterHorseMount(self, actor, child, parent):
+        if actor and parent and child:
             # with inverted Z -0.5 stands for Up
             # Our horse (un)mounting animations have been made with imperfect positions,
             # so, I had to change child positions to get more satisfactory result
             # with these animations in my game.
             mounting_pos = Vec3(0.5, -0.15, -0.45)
             saddle_pos = Vec3(0, -0.32, 0.16)
-            mount_action_seq = actor.actor_interval("horse_mounting",
+            mount_action_seq = actor.actor_interval(anim_names.a_anim_horse_mounting,
                                                     playRate=self.base.actor_play_rate)
-            horse_riding_action_seq = actor.actor_interval("horse_riding_idle",
+            horse_riding_action_seq = actor.actor_interval(anim_names.a_anim_horse_rider_idle,
                                                            playRate=self.base.actor_play_rate)
-            actor.set_python_tag("mounted_horse", horse_name)
+            actor.set_python_tag("mounted_horse", parent)
 
             Sequence(Func(child.set_collide_mask, BitMask32.allOff()),
                      Func(self.fsm_state_wrapper, actor, "generic_states", "is_using", True),
@@ -163,17 +165,16 @@ class NpcFSM(FSM):
                      ).start()
 
     def enterHorseUnmount(self, actor, child):
-        horse_name = actor.get_python_tag("mounted_horse")
-        parent = render.find("**/{0}".format(horse_name))
-        parent_bs = render.find("**/{0}:BS".format(horse_name))
-        if parent and child:
+        parent = actor.get_python_tag("mounted_horse")
+        parent_bs = parent.get_parent()
+        if parent_bs and parent and child:
             # with inverted Z -0.7 stands for Up
             # Our horse (un)mounting animations have been made with imperfect positions,
             # so, I had to change child positions to get more satisfactory result
             # with these animations in my game.
             unmounting_pos = Vec3(0.5, -0.15, -0.45)
             # Reparent parent/child node back to its BulletCharacterControllerNode
-            unmount_action_seq = actor.actor_interval("horse_unmounting",
+            unmount_action_seq = actor.actor_interval(anim_names.a_anim_horse_unmounting,
                                                       playRate=self.base.actor_play_rate)
             horse_near_pos = Vec3(parent_bs.get_x(), parent_bs.get_y(), child.get_z()) + Vec3(1, 0, 0)
 
@@ -220,7 +221,7 @@ class NpcFSM(FSM):
         if actor and action and task:
             if isinstance(task, str) and len(self.archery.arrows) > 0:
                 if task == "play":
-                    crouched_to_standing = actor.get_anim_control('crouched_to_standing')
+                    crouched_to_standing = actor.get_anim_control(anim_names.a_anim_crouching_stand)
 
                     if self.archery.arrow_ref:
                         if self.archery.arrow_ref.get_python_tag("power") > 0:
@@ -230,7 +231,7 @@ class NpcFSM(FSM):
                             and base.player_states['is_crouching'] is True):
                         # TODO: Use blending for smooth transition between animations
                         # Do an animation sequence if player is crouched.
-                        crouch_to_stand_seq = actor.actor_interval('crouched_to_standing',
+                        crouch_to_stand_seq = actor.actor_interval(anim_names.a_anim_crouching_stand,
                                                                    playRate=self.base.actor_play_rate)
                         any_action_seq = actor.actor_interval(action,
                                                               playRate=self.base.actor_play_rate)
@@ -394,14 +395,14 @@ class NpcFSM(FSM):
             if isinstance(task, str):
                 if task == "play":
                     if not actor.get_python_tag("generic_states")["is_crouch_moving"]:
-                        any_action_seq = actor.actor_interval("standing_to_crouch")
+                        any_action_seq = actor.actor_interval(anim_names.a_anim_standing_crouch)
                         Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_crouching", True),
                                  any_action_seq,
                                  Func(self.fsm_state_wrapper, actor, "generic_states", "is_crouching", False),
                                  Func(self.fsm_state_wrapper, actor, "generic_states", "is_crouch_moving",
                                       True)).start()
                     elif actor.get_python_tag("generic_states")["is_crouch_moving"]:
-                        any_action_seq = actor.actor_interval("crouched_to_standing")
+                        any_action_seq = actor.actor_interval(anim_names.a_anim_crouching_stand)
                         Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_crouching", True),
                                  any_action_seq,
                                  Func(self.fsm_state_wrapper, actor, "generic_states", "is_crouching", False),

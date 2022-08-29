@@ -6,6 +6,9 @@ from panda3d.core import Vec3, Vec2, Point3, BitMask32
 from Engine.Physics.npc_physics import NpcPhysics
 from Engine.AI.npc_behavior import NpcBehavior
 
+""" ANIMATIONS"""
+from Engine import anim_names
+
 
 class NpcController:
 
@@ -127,14 +130,25 @@ class NpcController:
 
     def npc_in_staying_logic(self, actor, request):
         if actor and request:
+
+            # Change animation
+            if actor.get_python_tag("human_states")['is_on_horse']:
+                anim_action = anim_names.a_anim_horse_idle
+                if actor.get_python_tag("generic_states")['is_crouch_moving']:
+                    anim_action = anim_names.a_anim_horse_crouch_idle
+            else:
+                anim_action = anim_names.a_anim_idle
+                if actor.get_python_tag("generic_states")['is_crouch_moving']:
+                    anim_action = anim_names.a_anim_crouch_idle
+
             actor.get_python_tag("generic_states")['is_moving'] = False
             actor.get_python_tag("generic_states")['is_idle'] = True
 
             if actor.get_python_tag("generic_states")['is_idle']:
                 if actor.get_python_tag("generic_states")['is_crouch_moving']:
-                    request.request("Idle", actor, "standing_to_crouch", "loop")
+                    request.request("Idle", actor, anim_action, "loop")
                 elif not actor.get_python_tag("generic_states")['is_crouch_moving']:
-                    request.request("Idle", actor, "Standing_idle_male", "loop")
+                    request.request("Idle", actor, anim_action, "loop")
 
                 if actor.get_python_tag("stamina_np"):
                     if actor.get_python_tag("stamina_np")['value'] < 100:
@@ -142,6 +156,13 @@ class NpcController:
 
     def npc_in_dying_logic(self, actor, request):
         if actor and request:
+
+            # Change animation
+            if actor.get_python_tag("human_states")['is_on_horse']:
+                anim_action = anim_names.a_anim_horse_dying
+            else:
+                anim_action = anim_names.a_anim_dying
+
             actor.get_python_tag("generic_states")['is_moving'] = False
             actor.get_python_tag("generic_states")['is_alive'] = False
 
@@ -155,7 +176,7 @@ class NpcController:
 
             if not (actor.get_python_tag("generic_states")['is_alive']):
                 if actor.get_python_tag("generic_states")['is_idle']:
-                    request.request("Death", actor, "Dying", "play")
+                    request.request("Death", actor, anim_action, "play")
                     actor.get_python_tag("generic_states")['is_idle'] = False
 
     def do_walking_sequence_once(self, actor, actor_npc_bs, target, actor_name, request):
@@ -181,7 +202,13 @@ class NpcController:
 
                 self.npc_action_seqs[actor_name] = Sequence()
 
-                func_interval = Func(request.request, "Walk", actor, "Walking", "loop")
+                # Change animation
+                if actor.get_python_tag("human_states")['is_on_horse']:
+                    walk_anim = anim_names.a_anim_horse_walking
+                else:
+                    walk_anim = anim_names.a_anim_walking
+
+                func_interval = Func(request.request, "Walk", actor, walk_anim, "loop")
                 self.npc_action_seqs[actor_name].append(func_interval)
 
                 for i in range(len(path_points) - 1):
@@ -214,8 +241,16 @@ class NpcController:
 
     def npc_in_walking_logic(self, actor, actor_npc_bs, target, request):
         if actor and actor_npc_bs and target and request:
+
+            actor_name = actor.get_name()
+
+            # Reload actor to horse
+            if actor.get_python_tag("human_states")['is_on_horse']:
+                if "Horse" not in actor_name:
+                    actor = actor.get_python_tag("mounted_horse")
+                    actor_npc_bs = actor.get_parent()
+
             if self.is_ready_for_walking(actor):
-                actor_name = actor.get_name()
 
                 # Crouch collision states
                 if not actor.get_python_tag("generic_states")['is_crouch_moving']:
@@ -325,11 +360,12 @@ class NpcController:
                 and not actor.get_python_tag("generic_states")['is_attacked']
                 and not actor.get_python_tag("generic_states")['is_busy']
                 and not actor.get_python_tag("generic_states")['is_moving']):
+            # Change animation
             action = ""
             if actor.get_python_tag("human_states")['has_sword']:
-                action = "great_sword_blocking"
+                action = anim_names.a_anim_parring
             else:
-                action = "center_blocking"
+                action = anim_names.a_anim_blocking
             request.request("Block", actor, action, "play")
 
     def _npc_in_attacking_logic(self, actor, actor_npc_bs, request):
@@ -338,15 +374,16 @@ class NpcController:
                 and not actor.get_python_tag("generic_states")['is_busy']
                 and not actor.get_python_tag("generic_states")['is_moving']):
 
+            # Change animation
             if actor.get_python_tag("human_states")["has_sword"]:
-                action = "great_sword_slash"
+                action = anim_names.a_anim_melee_attack
                 request.request("Attack", actor, action, "play")
             elif actor.get_python_tag("human_states")["has_bow"]:
-                action = "archer_standing_draw_arrow"
+                action = anim_names.a_anim_archery
                 request.request("Archery", actor, action, "play")
             elif (not actor.get_python_tag("human_states")["has_sword"]
                   and not actor.get_python_tag("human_states")["has_bow"]):
-                action = "Boxing"
+                action = anim_names.a_anim_attack
                 request.request("Attack", actor, action, "play")
 
             # Slightly move for closer attack
@@ -365,7 +402,8 @@ class NpcController:
             if actor.get_python_tag("stamina_np")['value'] > 15:
                 if actor_npc_bs.get_y() != actor_npc_bs.get_y() - 2:
                     actor_npc_bs.set_y(actor_npc_bs, -2 * dt)
-                    request.request("ForwardRoll", actor, "forward_roll", "play")
+                    request.request("ForwardRoll", actor,
+                                    anim_names.a_anim_rolling, "play")
 
                 if actor.get_python_tag("stamina_np")['value'] > 1:
                     actor.get_python_tag("stamina_np")['value'] -= 15
@@ -376,7 +414,8 @@ class NpcController:
             if actor.get_python_tag("stamina_np")['value'] > 15:
                 if actor_npc_bs.get_y() != actor_npc_bs.get_y() + 2:
                     actor_npc_bs.set_y(actor_npc_bs, 2 * dt)
-                    request.request("BackwardRoll", actor, "forward_roll", "play")
+                    request.request("BackwardRoll", actor,
+                                    anim_names.a_anim_rolling, "play")
 
                 if actor.get_python_tag("stamina_np")['value'] > 1:
                     actor.get_python_tag("stamina_np")['value'] -= 15
@@ -388,7 +427,8 @@ class NpcController:
                     and actor.get_python_tag("enemy_distance") >= 2):
                 if actor_npc_bs.get_y() != actor_npc_bs.get_y() - 2:
                     actor_npc_bs.set_y(actor_npc_bs, -2 * dt)
-                    request.request("ForwardStep", actor, "Walking", "play")
+                    request.request("ForwardStep", actor,
+                                    anim_names.a_anim_walking, "play")
 
                 if actor.get_python_tag("stamina_np")['value'] > 1:
                     actor.get_python_tag("stamina_np")['value'] -= 3
@@ -400,7 +440,8 @@ class NpcController:
                     and actor.get_python_tag("enemy_distance") <= 1):
                 if actor_npc_bs.get_y() != actor_npc_bs.get_y() + 2:
                     actor_npc_bs.set_y(actor_npc_bs, 2 * dt)
-                    request.request("BackwardStep", actor, "Walking", "play")
+                    request.request("BackwardStep", actor,
+                                    anim_names.a_anim_walking, "play")
 
                 if actor.get_python_tag("stamina_np")['value'] > 1:
                     actor.get_python_tag("stamina_np")['value'] -= 3
@@ -421,7 +462,7 @@ class NpcController:
                 and not actor.get_python_tag("generic_states")['is_moving']):
             if (actor.get_python_tag("generic_states")
                     and not actor.get_python_tag("generic_states")['is_crouch_moving']):
-                request.request("Jump", actor, "Jumping", "play")
+                request.request("Jump", actor, anim_names.a_anim_jumping, "play")
 
             if actor.get_python_tag("stamina_np"):
                 if actor.get_python_tag("stamina_np")['value'] > 1:
@@ -434,23 +475,24 @@ class NpcController:
     def npc_in_mounting_logic(self, actor, actor_npc_bs, request):
         if (actor.get_python_tag("human_states")
                 and not actor.get_python_tag("human_states")['is_on_horse']):
-            horse = render.find("**/NPC_Horse")
-            if horse:
-                if not horse.get_python_tag("horse_spec_states")["is_mounted"]:
-                    horse_bs = render.find("**/NPC_Horse:BS")
-                    mountplace = horse.get_python_tag("mount_place")
-                    if mountplace:
-                        horse_dist = int(actor_npc_bs.get_distance(mountplace))
-                        if horse_dist > 1:
-                            self.npc_in_walking_logic(actor, actor_npc_bs, mountplace, request)
-                        elif horse_dist <= 1:
-                            self.npc_in_staying_logic(actor, request)
-                            if (actor.get_python_tag("generic_states")['is_idle']
-                                    and not actor.get_python_tag("generic_states")['is_attacked']
-                                    and not actor.get_python_tag("generic_states")['is_busy']
-                                    and not actor.get_python_tag("generic_states")['is_moving']):
-                                horse_name = horse.get_name()
-                                request.request("HorseMount", actor, actor_npc_bs, horse_name)
+            horses = render.find_all_matches("**/NPC_Horse")
+            if horses:
+                for horse in horses:
+                    if not horse.get_python_tag("horse_spec_states")["is_mounted"]:
+                        horse_bs = horse.get_parent()
+                        mountplace = horse.get_python_tag("mount_place")
+                        if mountplace:
+                            # fixme: mountplace path
+                            horse_dist = int(actor_npc_bs.get_distance(horse_bs))
+                            if horse_dist > 1:
+                                self.npc_in_walking_logic(actor, actor_npc_bs, mountplace, request)
+                            elif horse_dist <= 1:
+                                self.npc_in_staying_logic(actor, request)
+                                if (actor.get_python_tag("generic_states")['is_idle']
+                                        and not actor.get_python_tag("generic_states")['is_attacked']
+                                        and not actor.get_python_tag("generic_states")['is_busy']
+                                        and not actor.get_python_tag("generic_states")['is_moving']):
+                                    request.request("HorseMount", actor, actor_npc_bs, horse)
 
     def npc_in_unmounting_logic(self, actor, actor_npc_bs, request):
         if (actor.get_python_tag("human_states")
@@ -469,12 +511,12 @@ class NpcController:
             if "sword" in weapon_name:
                 if (actor.get_python_tag("human_states")
                         and not actor.get_python_tag("human_states")['has_sword']):
-                    request.request("GetWeapon", actor, "sword_disarm_over_shoulder",
+                    request.request("GetWeapon", actor, anim_names.a_anim_arm_sword,
                                     weapon_name, bone_name, "play")
             elif "bow" in weapon_name:
                 if (actor.get_python_tag("human_states")
                         and not actor.get_python_tag("human_states")['has_bow']):
-                    request.request("GetWeapon", actor, "archer_standing_disarm_bow",
+                    request.request("GetWeapon", actor, anim_names.a_anim_arm_bow,
                                     weapon_name, bone_name, "play")
 
     def npc_remove_weapon(self, actor, request, weapon_name, bone_name):
@@ -485,12 +527,12 @@ class NpcController:
             if "sword" in weapon_name:
                 if (actor.get_python_tag("human_states")
                         and actor.get_python_tag("human_states")['has_sword']):
-                    request.request("RemoveWeapon", actor, "sword_disarm_over_shoulder",
+                    request.request("RemoveWeapon", actor, anim_names.a_anim_disarm_sword,
                                     weapon_name, bone_name, "play")
             elif "bow" in weapon_name:
                 if (actor.get_python_tag("human_states")
                         and actor.get_python_tag("human_states")['has_bow']):
-                    request.request("RemoveWeapon", actor, "archer_standing_disarm_bow",
+                    request.request("RemoveWeapon", actor, anim_names.a_anim_disarm_bow,
                                     weapon_name, bone_name, "play")
 
     def face_actor_to(self, actor, target_np):

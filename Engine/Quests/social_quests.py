@@ -3,6 +3,9 @@ from panda3d.bullet import BulletSphereShape, BulletGhostNode
 from panda3d.core import BitMask32
 from Engine.Quests.quest_logic import QuestLogic
 
+""" ANIMATIONS"""
+from Engine import anim_names
+
 
 class SocialQuests:
     def __init__(self):
@@ -276,8 +279,8 @@ class SocialQuests:
                                 and not self.base.game_instance['is_aiming']):
                             self.quest_logic.toggle_sitting_state(self.player,
                                                                   place,
-                                                                  "standing_to_sit_turkic",
-                                                                  "sitting_turkic",
+                                                                  anim_names.a_anim_stand_sit,
+                                                                  anim_names.a_anim_sitting_turkic,
                                                                   "loop")
 
                 if ("NPC" in node.get_name()
@@ -293,8 +296,8 @@ class SocialQuests:
                             and actor.get_python_tag("directive_num") == 1):
                         self.quest_logic.toggle_npc_sitting_state(actor,
                                                                   place,
-                                                                  "standing_to_sit_turkic",
-                                                                  "sitting_turkic",
+                                                                  anim_names.a_anim_stand_sit,
+                                                                  anim_names.a_anim_sitting_turkic,
                                                                   "loop")
 
         return task.cont
@@ -318,8 +321,8 @@ class SocialQuests:
                             # todo: change to suitable standing_to_laying anim
                             self.quest_logic.toggle_laying_state(self.player,
                                                                  place,
-                                                                 "standing_to_sit_turkic",
-                                                                 "sleeping_idle",
+                                                                 anim_names.a_anim_stand_lay,
+                                                                 anim_names.a_anim_sleeping,
                                                                  "loop")
             if ("NPC" in node.get_name()
                     and ":BS" in node.get_name()
@@ -335,8 +338,8 @@ class SocialQuests:
                     # todo: change to suitable standing_to_laying anim
                     self.quest_logic.toggle_npc_laying_state(actor,
                                                              place,
-                                                             "standing_to_sit_turkic",
-                                                             "sleeping_idle",
+                                                             anim_names.a_anim_stand_lay,
+                                                             anim_names.a_anim_sleeping,
                                                              "loop")
 
         return task.cont
@@ -356,7 +359,8 @@ class SocialQuests:
                                 and not base.player_states['is_using']
                                 and not base.player_states['is_moving']
                                 and not self.base.game_instance['is_aiming']):
-                            self.quest_logic.play_action_state(self.player, "spring_water", "play")
+                            self.quest_logic.play_action_state(self.player,
+                                                               anim_names.a_anim_spring_water, "play")
 
                 if ("NPC" in node.get_name()
                         and "trigger" not in node.get_name()
@@ -369,7 +373,7 @@ class SocialQuests:
                     actor_bs = self.base.game_instance["actors_np"][name_bs]
                     if (int(actor_bs.get_distance(place)) <= 1
                             and actor.get_python_tag("directive_num") == 4):
-                        self.quest_logic.play_action_state(actor, "spring_water", "play")
+                        self.quest_logic.play_action_state(actor, anim_names.a_anim_spring_water, "play")
 
         return task.cont
 
@@ -391,7 +395,7 @@ class SocialQuests:
                                     and not base.player_states['is_moving']
                                     and not self.base.game_instance['is_aiming']):
                             self.base.accept("e", self.quest_logic.play_action_state, [player,
-                                                                           "cook_food",
+                                                                           anim_names.a_anim_cooking_food,
                                                                            "loop"])
                         """
                 # TODO: Uncomment first to debug
@@ -406,7 +410,7 @@ class SocialQuests:
                     actor_bs = self.base.game_instance["actors_np"][name_bs]
                     if (int(actor_bs.get_distance(place)) <= 1 
                        and actor.get_python_tag("directive_num") == 3):
-                        self.quest_logic.play_action_state(actor, "cook_food", "loop")
+                        self.quest_logic.play_action_state(actor, anim_names.a_anim_cooking_food, "loop")
                 """
 
         return task.cont

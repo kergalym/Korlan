@@ -1,6 +1,9 @@
 from panda3d.core import Vec3
 from direct.interval.IntervalGlobal import *
 
+""" ANIMATIONS"""
+from Engine import anim_names
+
 
 class PlayerMovement:
 
@@ -11,15 +14,6 @@ class PlayerMovement:
         self.kbd = kbd
         self.state = state
         self.actor_play_rate = None
-
-        self.idle_action = "Standing_idle_female"
-        self.walking_forward_action = "Walking"
-        self.run_forward_action = "Running"
-        self.crouch_walking_forward_action = 'crouch_walking_forward'
-        self.horse_idle_action = "horse_idle"
-        self.horse_walking_forward_action = "horse_walking"
-        self.horse_run_forward_action = "horse_running"
-        self.horse_crouch_walking_forward_action = ""
 
         self.exclude_while_move = dict(base.player_states)
         self.exclude_while_move.pop("is_alive")
@@ -44,7 +38,7 @@ class PlayerMovement:
                 base.player_states["idle"] = False
                 player.loop(anims[action])
                 player.set_play_rate(self.base.actor_play_rate,
-                                     anims[self.walking_forward_action])
+                                     anims[anim_names.a_anim_walking])
             elif state == 'stop' and turning_seq.is_playing():
                 player.stop()
                 player.pose(anims[action], 0)
@@ -56,82 +50,82 @@ class PlayerMovement:
                 base.player_states["idle"] = False
                 player.loop(anims[action])
                 player.set_play_rate(self.base.actor_play_rate,
-                                     anims[self.horse_walking_forward_action])
+                                     anims[anim_names.a_anim_horse_walking])
             elif state == 'stop' and turning_seq.is_playing():
                 player.stop()
                 player.pose(anims[action], 0)
 
     def seq_move_wrapper(self, player, anims, state):
         if player and anims and isinstance(state, str):
-            walking_forward_seq = player.get_anim_control(anims[self.walking_forward_action])
+            walking_forward_seq = player.get_anim_control(anims[anim_names.a_anim_walking])
             if state == 'loop' and walking_forward_seq.is_playing() is False:
-                player.loop(anims[self.walking_forward_action])
+                player.loop(anims[anim_names.a_anim_walking])
                 player.set_play_rate(self.base.actor_play_rate,
-                                     anims[self.walking_forward_action])
+                                     anims[anim_names.a_anim_walking])
             elif state == 'stop' and walking_forward_seq.is_playing():
                 player.stop()
-                player.pose(anims[self.walking_forward_action], 0)
+                player.pose(anims[anim_names.a_anim_walking], 0)
 
     def seq_run_wrapper(self, player, anims, state):
         if player and anims and isinstance(state, str):
-            run_forward_seq = player.get_anim_control(anims[self.run_forward_action])
+            run_forward_seq = player.get_anim_control(anims[anim_names.a_anim_run])
             if state == 'loop' and run_forward_seq.is_playing() is False:
-                player.loop(anims[self.run_forward_action])
+                player.loop(anims[anim_names.a_anim_run])
                 player.set_play_rate(2.2,
-                                     anims[self.run_forward_action])
+                                     anims[anim_names.a_anim_run])
             elif state == 'stop' and run_forward_seq.is_playing():
                 player.stop()
-                player.pose(anims[self.run_forward_action], 0)
+                player.pose(anims[anim_names.a_anim_run], 0)
 
     def seq_horse_move_wrapper(self, player, anims, state):
         if player and anims and isinstance(state, str):
-            walking_forward_seq = player.get_anim_control(anims[self.horse_walking_forward_action])
+            walking_forward_seq = player.get_anim_control(anims[anim_names.a_anim_horse_walking])
             if state == 'loop' and walking_forward_seq.is_playing() is False:
-                player.stop(self.horse_idle_action)
-                player.loop(anims[self.horse_walking_forward_action])
+                player.stop(anim_names.a_anim_horse_idle)
+                player.loop(anims[anim_names.a_anim_horse_walking])
                 player.set_play_rate(self.base.actor_play_rate,
-                                     anims[self.horse_walking_forward_action])
+                                     anims[anim_names.a_anim_horse_walking])
             elif state == 'stop' and walking_forward_seq.is_playing():
-                player.stop(self.horse_walking_forward_action)
-                player.pose(anims[self.horse_walking_forward_action], 0)
-                player.loop(self.horse_idle_action)
+                player.stop(anim_names.a_anim_horse_walking)
+                player.pose(anims[anim_names.a_anim_horse_walking], 0)
+                player.loop(anim_names.a_anim_horse_idle)
 
     def seq_horse_run_wrapper(self, player, anims, state):
         if player and anims and isinstance(state, str):
-            run_forward_seq = player.get_anim_control(anims[self.horse_run_forward_action])
+            run_forward_seq = player.get_anim_control(anims[anim_names.a_anim_horse_run])
             if state == 'loop' and run_forward_seq.is_playing() is False:
-                player.stop(self.horse_idle_action)
-                player.loop(anims[self.horse_run_forward_action])
+                player.stop(anim_names.a_anim_horse_idle)
+                player.loop(anims[anim_names.a_anim_horse_run])
                 player.set_play_rate(2.2,
-                                     anims[self.horse_run_forward_action])
+                                     anims[anim_names.a_anim_horse_run])
             elif state == 'stop' and run_forward_seq.is_playing():
-                player.stop(self.horse_run_forward_action)
-                player.pose(anims[self.horse_run_forward_action], 0)
-                player.loop(self.horse_idle_action)
+                player.stop(anim_names.a_anim_horse_run)
+                player.pose(anims[anim_names.a_anim_horse_run], 0)
+                player.loop(anim_names.a_anim_horse_idle)
 
     def seq_crouch_move_wrapper(self, player, anims, state):
         if player and anims and isinstance(state, str):
-            crouch_walking_forward_seq = player.get_anim_control(anims[self.crouch_walking_forward_action])
+            crouch_walking_forward_seq = player.get_anim_control(anims[anim_names.a_anim_crouch_walking])
             if state == 'loop' and crouch_walking_forward_seq.is_playing() is False:
-                player.loop(anims[self.crouch_walking_forward_action])
+                player.loop(anims[anim_names.a_anim_crouch_walking])
                 player.set_play_rate(self.base.actor_play_rate,
-                                     anims[self.crouch_walking_forward_action])
+                                     anims[anim_names.a_anim_crouch_walking])
             elif state == 'stop' and crouch_walking_forward_seq.is_playing():
                 player.stop()
-                player.pose(anims[self.crouch_walking_forward_action], 0)
+                player.pose(anims[anim_names.a_anim_crouch_walking], 0)
 
     def seq_horse_crouch_move_wrapper(self, player, anims, state):
         if player and anims and isinstance(state, str):
-            crouch_walking_forward_seq = player.get_anim_control(anims[self.horse_crouch_walking_forward_action])
+            crouch_walking_forward_seq = player.get_anim_control(anims[anim_names.a_anim_horse_crouch_walking])
             if state == 'loop' and crouch_walking_forward_seq.is_playing() is False:
-                player.stop(self.horse_idle_action)
-                player.loop(anims[self.horse_crouch_walking_forward_action])
+                player.stop(anim_names.a_anim_horse_idle)
+                player.loop(anims[anim_names.a_anim_horse_crouch_walking])
                 player.set_play_rate(self.base.actor_play_rate,
-                                     anims[self.horse_crouch_walking_forward_action])
+                                     anims[anim_names.a_anim_horse_crouch_walking])
             elif state == 'stop' and crouch_walking_forward_seq.is_playing():
                 player.stop()
-                player.pose(anims[self.horse_crouch_walking_forward_action], 0)
-                player.loop(self.horse_idle_action)
+                player.pose(anims[anim_names.a_anim_horse_crouch_walking], 0)
+                player.loop(anim_names.a_anim_horse_idle)
 
     def turning_in_place(self, actor, anims, seq_turning_wrapper):
         # Get the time that elapsed since last frame
@@ -239,7 +233,7 @@ class PlayerMovement:
                     and self.kbd.keymap["right"] is False
                     and not base.player_states['is_crouch_moving']):
                 player.set_play_rate(-1.0,
-                                     anims[self.walking_forward_action])
+                                     anims[anim_names.a_anim_walking])
                 if base.input_state.is_set('reverse'):
                     speed.set_y(move_unit)
 
@@ -421,7 +415,7 @@ class PlayerMovement:
                         and self.kbd.keymap["run"] is False
                         and base.player_states["is_running"] is False):
                     player.set_play_rate(-1.0,
-                                         anims[self.horse_walking_forward_action])
+                                         anims[anim_names.a_anim_horse_walking])
 
     def horse_riding_run_action(self, anims):
         if (isinstance(anims, dict)

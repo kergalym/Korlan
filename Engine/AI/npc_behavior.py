@@ -58,112 +58,57 @@ class NpcBehavior:
                 self.npc_controller.npc_remove_weapon(actor, request, "bow", "Korlan:Spine")
 
         # Pursue and attack!!!!
-        if not base.player_states['is_mounted']:
-            if not actor.get_python_tag("human_states")["has_bow"]:
+        if not actor.get_python_tag("human_states")["has_bow"]:
+            if player_dist > 1:
+                self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
+                                                         player, request)
+            elif player_dist <= 1:
+                # If enemy is close start attacking
+                if (not actor.get_python_tag("generic_states")['is_moving']
+                        and not actor.get_python_tag("generic_states")['is_crouch_moving']):
+                    self.npc_controller.npc_in_staying_logic(actor, request)
+
+                self._attack_directive(actor, actor_npc_bs,
+                                       player,
+                                       hitbox_dist, request)
+
+        elif actor.get_python_tag("human_states")["has_bow"]:
+            if actor.get_python_tag("arrow_count") > 1:
+                if player_dist > self.archery_distance:
+                    self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
+                                                             player, request)
+                elif player_dist < 2:
+                    archery = NodePath("archery_position")
+                    player_pos = player.get_pos() + Vec3(0, self.archery_distance, 0)
+                    archery.set_pos(player_pos)
+                    self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
+                                                             archery, request)
+
+                if (not actor.get_python_tag("generic_states")['is_moving']
+                        and not actor.get_python_tag("generic_states")['is_crouch_moving']):
+                    self.npc_controller.npc_in_staying_logic(actor, request)
+                    self._attack_directive(actor, actor_npc_bs,
+                                           player,
+                                           hitbox_dist, request)
+
+            elif actor.get_python_tag("arrow_count") <= 1:
+                if (not actor.get_python_tag("generic_states")['is_moving']
+                        and not actor.get_python_tag("generic_states")['is_crouch_moving']):
+                    self.npc_controller.npc_in_staying_logic(actor, request)
                 if player_dist > 1:
                     self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
                                                              player, request)
-                elif player_dist <= 1:
-                    # If enemy is close start attacking
-                    if (not actor.get_python_tag("generic_states")['is_moving']
-                            and not actor.get_python_tag("generic_states")['is_crouch_moving']):
-                        self.npc_controller.npc_in_staying_logic(actor, request)
+                else:
+                    if actor.get_python_tag("human_states")['has_bow']:
+                        self.npc_controller.npc_remove_weapon(actor, request, "bow", "Korlan:Spine")
+                    if not actor.get_python_tag("human_states")['has_sword']:
+                        self.npc_controller.npc_get_weapon(actor, request, "sword", "Korlan:LeftHand")
 
-                    self._attack_directive(actor, actor_npc_bs,
-                                           player,
-                                           hitbox_dist, request)
-
-            elif actor.get_python_tag("human_states")["has_bow"]:
-                if actor.get_python_tag("arrow_count") > 1:
-                    if player_dist > self.archery_distance:
-                        self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                                 player, request)
-                    elif player_dist < 2:
-                        archery = NodePath("archery_position")
-                        player_pos = player.get_pos() + Vec3(0, self.archery_distance, 0)
-                        archery.set_pos(player_pos)
-                        self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                                 archery, request)
-
-                    if (not actor.get_python_tag("generic_states")['is_moving']
-                            and not actor.get_python_tag("generic_states")['is_crouch_moving']):
+                    if actor.get_python_tag("human_states")['has_sword']:
                         self.npc_controller.npc_in_staying_logic(actor, request)
                         self._attack_directive(actor, actor_npc_bs,
                                                player,
                                                hitbox_dist, request)
-
-                elif actor.get_python_tag("arrow_count") <= 1:
-                    if (not actor.get_python_tag("generic_states")['is_moving']
-                            and not actor.get_python_tag("generic_states")['is_crouch_moving']):
-                        self.npc_controller.npc_in_staying_logic(actor, request)
-                    if player_dist > 1:
-                        self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                                 player, request)
-                    else:
-                        if actor.get_python_tag("human_states")['has_bow']:
-                            self.npc_controller.npc_remove_weapon(actor, request, "bow", "Korlan:Spine")
-                        if not actor.get_python_tag("human_states")['has_sword']:
-                            self.npc_controller.npc_get_weapon(actor, request, "sword", "Korlan:LeftHand")
-
-                        if actor.get_python_tag("human_states")['has_sword']:
-                            self.npc_controller.npc_in_staying_logic(actor, request)
-                            self._attack_directive(actor, actor_npc_bs,
-                                                   player,
-                                                   hitbox_dist, request)
-
-        elif base.player_states['is_mounted']:
-            # todo: test npc horsery and archery on player first
-            if not actor.get_python_tag("human_states")["has_bow"]:
-                if player_dist > 2:
-                    self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                             player, request)
-                elif player_dist <= 2:
-                    # If enemy is close start attacking
-                    if (not actor.get_python_tag("generic_states")['is_moving']
-                            and not actor.get_python_tag("generic_states")['is_crouch_moving']):
-                        self.npc_controller.npc_in_staying_logic(actor, request)
-
-                    self._attack_directive(actor, actor_npc_bs,
-                                           player,
-                                           hitbox_dist, request)
-
-            elif actor.get_python_tag("human_states")["has_bow"]:
-                if actor.get_python_tag("arrow_count") > 1:
-                    if player_dist > self.horse_archery_distance:
-                        self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                                 player, request)
-                    elif player_dist < 4:
-                        archery = NodePath("archery_position")
-                        player_pos = player.get_pos() + Vec3(0, self.horse_archery_distance, 0)
-                        archery.set_pos(player_pos)
-                        self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                                 archery, request)
-
-                    if (not actor.get_python_tag("generic_states")['is_moving']
-                            and not actor.get_python_tag("generic_states")['is_crouch_moving']):
-                        self.npc_controller.npc_in_staying_logic(actor, request)
-                        self._attack_directive(actor, actor_npc_bs,
-                                               player,
-                                               hitbox_dist, request)
-
-                elif actor.get_python_tag("arrow_count") <= 1:
-                    if (not actor.get_python_tag("generic_states")['is_moving']
-                            and not actor.get_python_tag("generic_states")['is_crouch_moving']):
-                        self.npc_controller.npc_in_staying_logic(actor, request)
-                    if player_dist > 2:
-                        self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                                 player, request)
-                    else:
-                        if actor.get_python_tag("human_states")['has_bow']:
-                            self.npc_controller.npc_remove_weapon(actor, request, "bow", "Korlan:Spine")
-                        if not actor.get_python_tag("human_states")['has_sword']:
-                            self.npc_controller.npc_get_weapon(actor, request, "sword", "Korlan:LeftHand")
-
-                        if actor.get_python_tag("human_states")['has_sword']:
-                            self.npc_controller.npc_in_staying_logic(actor, request)
-                            self._attack_directive(actor, actor_npc_bs,
-                                                   player,
-                                                   hitbox_dist, request)
 
     def _work_with_enemy(self, actor, actor_npc_bs, enemy_npc_ref,
                          enemy_npc_bs, enemy_dist, hitbox_dist, request):
@@ -190,113 +135,58 @@ class NpcBehavior:
                 self.npc_controller.npc_remove_weapon(actor, request, "bow", "Korlan:Spine")
 
         # Pursue and attack!!!!
-        if not actor.get_python_tag("human_states")['is_on_horse']:
-            if not actor.get_python_tag("human_states")["has_bow"]:
+        if not actor.get_python_tag("human_states")["has_bow"]:
+            if enemy_dist > 1:
+                self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
+                                                         enemy_npc_bs, request)
+            elif enemy_dist <= 1:
+                if (not actor.get_python_tag("generic_states")['is_moving']
+                        and not actor.get_python_tag("generic_states")['is_crouch_moving']):
+                    self.npc_controller.npc_in_staying_logic(actor, request)
+
+                self._attack_directive(actor, actor_npc_bs,
+                                       enemy_npc_bs,
+                                       hitbox_dist, request)
+
+        elif actor.get_python_tag("human_states")["has_bow"]:
+            if actor.get_python_tag("arrow_count") > 1:
+                if enemy_dist > self.archery_distance:
+                    self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
+                                                             enemy_npc_bs,
+                                                             request)
+                elif enemy_dist < 2:
+                    archery = NodePath("archery_position")
+                    enemy_pos = enemy_npc_bs.get_pos() + Vec3(0, self.archery_distance, 0)
+                    archery.set_pos(enemy_pos)
+                    self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
+                                                             archery,
+                                                             request)
+                if (not actor.get_python_tag("generic_states")['is_moving']
+                        and not actor.get_python_tag("generic_states")['is_crouch_moving']):
+                    self.npc_controller.npc_in_staying_logic(actor, request)
+                    # Facing to enemy
+                    self._attack_directive(actor, actor_npc_bs,
+                                           enemy_npc_bs,
+                                           hitbox_dist, request)
+
+            elif actor.get_python_tag("arrow_count") <= 1:
+                if (not actor.get_python_tag("generic_states")['is_moving']
+                        and not actor.get_python_tag("generic_states")['is_crouch_moving']):
+                    self.npc_controller.npc_in_staying_logic(actor, request)
                 if enemy_dist > 1:
                     self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
                                                              enemy_npc_bs, request)
-                elif enemy_dist <= 1:
-                    if (not actor.get_python_tag("generic_states")['is_moving']
-                            and not actor.get_python_tag("generic_states")['is_crouch_moving']):
-                        self.npc_controller.npc_in_staying_logic(actor, request)
+                else:
+                    if actor.get_python_tag("human_states")['has_bow']:
+                        self.npc_controller.npc_remove_weapon(actor, request, "bow", "Korlan:Spine")
+                    elif not actor.get_python_tag("human_states")['has_sword']:
+                        self.npc_controller.npc_get_weapon(actor, request, "sword", "Korlan:LeftHand")
 
-                    self._attack_directive(actor, actor_npc_bs,
-                                           enemy_npc_bs,
-                                           hitbox_dist, request)
-
-            elif actor.get_python_tag("human_states")["has_bow"]:
-                if actor.get_python_tag("arrow_count") > 1:
-                    if enemy_dist > self.archery_distance:
-                        self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                                 enemy_npc_bs,
-                                                                 request)
-                    elif enemy_dist < 2:
-                        archery = NodePath("archery_position")
-                        enemy_pos = enemy_npc_bs.get_pos() + Vec3(0, self.archery_distance, 0)
-                        archery.set_pos(enemy_pos)
-                        self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                                 archery,
-                                                                 request)
-                    if (not actor.get_python_tag("generic_states")['is_moving']
-                            and not actor.get_python_tag("generic_states")['is_crouch_moving']):
+                    if actor.get_python_tag("human_states")['has_sword']:
                         self.npc_controller.npc_in_staying_logic(actor, request)
-                        # Facing to enemy
                         self._attack_directive(actor, actor_npc_bs,
                                                enemy_npc_bs,
                                                hitbox_dist, request)
-
-                elif actor.get_python_tag("arrow_count") <= 1:
-                    if (not actor.get_python_tag("generic_states")['is_moving']
-                            and not actor.get_python_tag("generic_states")['is_crouch_moving']):
-                        self.npc_controller.npc_in_staying_logic(actor, request)
-                    if enemy_dist > 1:
-                        self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                                 enemy_npc_bs, request)
-                    else:
-                        if actor.get_python_tag("human_states")['has_bow']:
-                            self.npc_controller.npc_remove_weapon(actor, request, "bow", "Korlan:Spine")
-                        elif not actor.get_python_tag("human_states")['has_sword']:
-                            self.npc_controller.npc_get_weapon(actor, request, "sword", "Korlan:LeftHand")
-
-                        if actor.get_python_tag("human_states")['has_sword']:
-                            self.npc_controller.npc_in_staying_logic(actor, request)
-                            self._attack_directive(actor, actor_npc_bs,
-                                                   enemy_npc_bs,
-                                                   hitbox_dist, request)
-
-        if actor.get_python_tag("human_states")['is_on_horse']:
-            if not actor.get_python_tag("human_states")["has_bow"]:
-                if enemy_dist > 2:
-                    self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                             enemy_npc_bs, request)
-                elif enemy_dist <= 2:
-                    if (not actor.get_python_tag("generic_states")['is_moving']
-                            and not actor.get_python_tag("generic_states")['is_crouch_moving']):
-                        self.npc_controller.npc_in_staying_logic(actor, request)
-
-                    self._attack_directive(actor, actor_npc_bs,
-                                           enemy_npc_bs,
-                                           hitbox_dist, request)
-
-            elif actor.get_python_tag("human_states")["has_bow"]:
-                if actor.get_python_tag("arrow_count") > 1:
-                    if enemy_dist > self.horse_archery_distance:
-                        self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                                 enemy_npc_bs,
-                                                                 request)
-                    elif enemy_dist < 4:
-                        archery = NodePath("archery_position")
-                        enemy_pos = enemy_npc_bs.get_pos() + Vec3(0, self.horse_archery_distance, 0)
-                        archery.set_pos(enemy_pos)
-                        self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                                 archery,
-                                                                 request)
-                    if (not actor.get_python_tag("generic_states")['is_moving']
-                            and not actor.get_python_tag("generic_states")['is_crouch_moving']):
-                        self.npc_controller.npc_in_staying_logic(actor, request)
-                        # Facing to enemy
-                        self._attack_directive(actor, actor_npc_bs,
-                                               enemy_npc_bs,
-                                               hitbox_dist, request)
-
-                elif actor.get_python_tag("arrow_count") <= 1:
-                    if (not actor.get_python_tag("generic_states")['is_moving']
-                            and not actor.get_python_tag("generic_states")['is_crouch_moving']):
-                        self.npc_controller.npc_in_staying_logic(actor, request)
-                    if enemy_dist > 2:
-                        self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                                 enemy_npc_bs, request)
-                    else:
-                        if actor.get_python_tag("human_states")['has_bow']:
-                            self.npc_controller.npc_remove_weapon(actor, request, "bow", "Korlan:Spine")
-                        elif not actor.get_python_tag("human_states")['has_sword']:
-                            self.npc_controller.npc_get_weapon(actor, request, "sword", "Korlan:LeftHand")
-
-                        if actor.get_python_tag("human_states")['has_sword']:
-                            self.npc_controller.npc_in_staying_logic(actor, request)
-                            self._attack_directive(actor, actor_npc_bs,
-                                                   enemy_npc_bs,
-                                                   hitbox_dist, request)
 
     def _work_with_outdoor_directive(self, actor, target, request):
         # Get required data about enemy to deal with it
@@ -365,7 +255,7 @@ class NpcBehavior:
 
                 if not passive:
                     if (not actor.get_python_tag("generic_states")['is_sitting']
-                            or not actor.get_python_tag("generic_states")['is_laying']):
+                            and not actor.get_python_tag("generic_states")['is_laying']):
                         if (self.base.game_instance["world_time"]
                                 and self.base.game_instance["sit_time_start"]):
                             hour, minutes = self.base.game_instance["world_time"].split(":")
@@ -392,7 +282,7 @@ class NpcBehavior:
                                         self._directive_is_executing = False
 
                     if (not actor.get_python_tag("generic_states")['is_sitting']
-                            or not actor.get_python_tag("generic_states")['is_laying']):
+                            and not actor.get_python_tag("generic_states")['is_laying']):
                         if (self.base.game_instance["world_time"]
                                 and self.base.game_instance["rest_time_start"]):
                             hour, minutes = self.base.game_instance["world_time"].split(":")
