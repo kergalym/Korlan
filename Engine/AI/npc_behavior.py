@@ -1,6 +1,4 @@
-from direct.interval.FunctionInterval import Func
-from direct.interval.MetaInterval import Sequence
-from panda3d.core import NodePath, Vec3
+from Engine.AI.npc_directives import NpcDirectives
 
 
 class NpcBehavior:
@@ -8,236 +6,8 @@ class NpcBehavior:
         self.base = base
         # Keep this class instance for further usage in NpcBehavior class only
         self.npc_controller = self.base.game_instance['npc_controller_cls']
-        self.seq = Sequence()
         self._directive_is_executing = False
-        self.archery_distance = 4
-        self.horse_archery_distance = 10
-
-    def _attack_directive(self, actor, actor_npc_bs, oppo_npc_bs, hitbox_dist, request):
-        if not actor.get_python_tag("human_states")["has_bow"]:
-            # Facing to enemy
-            self.npc_controller.face_actor_to(actor_npc_bs, oppo_npc_bs)
-            # Counterattack an enemy or do block
-            # Do attack only if play did first attack
-            player = self.base.game_instance["player_ref"]
-            if player.get_python_tag("first_attack"):
-                self.npc_controller.do_defensive_prediction(actor, actor_npc_bs,
-                                                            request, hitbox_dist)
-
-        elif actor.get_python_tag("human_states")["has_bow"]:
-            self.npc_controller.npc_in_staying_logic(actor, request)
-            # Facing to enemy
-            self.npc_controller.face_actor_to(actor_npc_bs, oppo_npc_bs)
-            # If enemy is close start attacking
-            # Do attack only if play did first attack
-            player = self.base.game_instance["player_ref"]
-            if player.get_python_tag("first_attack"):
-                self.npc_controller.do_defensive_prediction(actor, actor_npc_bs,
-                                                            request, hitbox_dist)
-
-    def _work_with_player(self, actor, player, actor_npc_bs, player_dist, request):
-        actor.set_python_tag("target_np", player)
-        actor.set_python_tag("enemy_distance", player_dist)
-        hitbox_dist = actor.get_python_tag("enemy_hitbox_distance")
-
-        # Mount if player mounts
-        if base.player_states['is_mounted']:
-            self.npc_controller.npc_in_mounting_logic(actor, actor_npc_bs, request)
-        elif not base.player_states['is_mounted']:
-            self.npc_controller.npc_in_unmounting_logic(actor, actor_npc_bs, request)
-
-        # Equip/Unequip weapon if player does same
-        if actor.get_python_tag("arrow_count") > 1:
-            if base.player_states['has_sword']:
-                self.npc_controller.npc_get_weapon(actor, request, "sword", "Korlan:LeftHand")
-            elif not base.player_states['has_sword']:
-                self.npc_controller.npc_remove_weapon(actor, request, "sword", "Korlan:Spine")
-            if base.player_states['has_bow']:
-                self.npc_controller.npc_get_weapon(actor, request, "bow", "Korlan:LeftHand")
-            elif not base.player_states['has_bow']:
-                self.npc_controller.npc_remove_weapon(actor, request, "bow", "Korlan:Spine")
-
-        # Pursue and attack!!!!
-        if not actor.get_python_tag("human_states")["has_bow"]:
-            if player_dist > 1:
-                self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                         player, request)
-            elif player_dist <= 1:
-                # If enemy is close start attacking
-                if (not actor.get_python_tag("generic_states")['is_moving']
-                        and not actor.get_python_tag("generic_states")['is_crouch_moving']):
-                    self.npc_controller.npc_in_staying_logic(actor, request)
-
-                self._attack_directive(actor, actor_npc_bs,
-                                       player,
-                                       hitbox_dist, request)
-
-        elif actor.get_python_tag("human_states")["has_bow"]:
-            if actor.get_python_tag("arrow_count") > 1:
-                if player_dist > self.archery_distance:
-                    self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                             player, request)
-                elif player_dist < 2:
-                    archery = NodePath("archery_position")
-                    player_pos = player.get_pos() + Vec3(0, self.archery_distance, 0)
-                    archery.set_pos(player_pos)
-                    self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                             archery, request)
-
-                if (not actor.get_python_tag("generic_states")['is_moving']
-                        and not actor.get_python_tag("generic_states")['is_crouch_moving']):
-                    self.npc_controller.npc_in_staying_logic(actor, request)
-                    self._attack_directive(actor, actor_npc_bs,
-                                           player,
-                                           hitbox_dist, request)
-
-            elif actor.get_python_tag("arrow_count") <= 1:
-                if (not actor.get_python_tag("generic_states")['is_moving']
-                        and not actor.get_python_tag("generic_states")['is_crouch_moving']):
-                    self.npc_controller.npc_in_staying_logic(actor, request)
-                if player_dist > 1:
-                    self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                             player, request)
-                else:
-                    if actor.get_python_tag("human_states")['has_bow']:
-                        self.npc_controller.npc_remove_weapon(actor, request, "bow", "Korlan:Spine")
-                    if not actor.get_python_tag("human_states")['has_sword']:
-                        self.npc_controller.npc_get_weapon(actor, request, "sword", "Korlan:LeftHand")
-
-                    if actor.get_python_tag("human_states")['has_sword']:
-                        self.npc_controller.npc_in_staying_logic(actor, request)
-                        self._attack_directive(actor, actor_npc_bs,
-                                               player,
-                                               hitbox_dist, request)
-
-    def _work_with_enemy(self, actor, actor_npc_bs, enemy_npc_ref,
-                         enemy_npc_bs, enemy_dist, hitbox_dist, request):
-        # Friendly NPC starts attacking
-        # the opponent when player first starts attacking it
-        actor.set_python_tag("target_np", enemy_npc_bs)
-        actor.set_python_tag("enemy_distance", enemy_dist)
-
-        # Mount if enemy mounts
-        if enemy_npc_ref.get_python_tag("human_states")['is_on_horse']:
-            self.npc_controller.npc_in_mounting_logic(actor, actor_npc_bs, request)
-        elif not enemy_npc_ref.get_python_tag("human_states")['is_on_horse']:
-            self.npc_controller.npc_in_unmounting_logic(actor, actor_npc_bs, request)
-
-        # Equip/Unequip weapon if enemy does same
-        if actor.get_python_tag("arrow_count") > 1:
-            if enemy_npc_ref.get_python_tag("human_states")['has_sword']:
-                self.npc_controller.npc_get_weapon(actor, request, "sword", "Korlan:LeftHand")
-            elif not enemy_npc_ref.get_python_tag("human_states")['has_sword']:
-                self.npc_controller.npc_remove_weapon(actor, request, "sword", "Korlan:Spine")
-            if enemy_npc_ref.get_python_tag("human_states")["has_bow"]:
-                self.npc_controller.npc_get_weapon(actor, request, "bow", "Korlan:LeftHand")
-            elif not enemy_npc_ref.get_python_tag("human_states")["has_bow"]:
-                self.npc_controller.npc_remove_weapon(actor, request, "bow", "Korlan:Spine")
-
-        # Pursue and attack!!!!
-        if not actor.get_python_tag("human_states")["has_bow"]:
-            if enemy_dist > 1:
-                self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                         enemy_npc_bs, request)
-            elif enemy_dist <= 1:
-                if (not actor.get_python_tag("generic_states")['is_moving']
-                        and not actor.get_python_tag("generic_states")['is_crouch_moving']):
-                    self.npc_controller.npc_in_staying_logic(actor, request)
-
-                self._attack_directive(actor, actor_npc_bs,
-                                       enemy_npc_bs,
-                                       hitbox_dist, request)
-
-        elif actor.get_python_tag("human_states")["has_bow"]:
-            if actor.get_python_tag("arrow_count") > 1:
-                if enemy_dist > self.archery_distance:
-                    self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                             enemy_npc_bs,
-                                                             request)
-                elif enemy_dist < 2:
-                    archery = NodePath("archery_position")
-                    enemy_pos = enemy_npc_bs.get_pos() + Vec3(0, self.archery_distance, 0)
-                    archery.set_pos(enemy_pos)
-                    self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                             archery,
-                                                             request)
-                if (not actor.get_python_tag("generic_states")['is_moving']
-                        and not actor.get_python_tag("generic_states")['is_crouch_moving']):
-                    self.npc_controller.npc_in_staying_logic(actor, request)
-                    # Facing to enemy
-                    self._attack_directive(actor, actor_npc_bs,
-                                           enemy_npc_bs,
-                                           hitbox_dist, request)
-
-            elif actor.get_python_tag("arrow_count") <= 1:
-                if (not actor.get_python_tag("generic_states")['is_moving']
-                        and not actor.get_python_tag("generic_states")['is_crouch_moving']):
-                    self.npc_controller.npc_in_staying_logic(actor, request)
-                if enemy_dist > 1:
-                    self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                             enemy_npc_bs, request)
-                else:
-                    if actor.get_python_tag("human_states")['has_bow']:
-                        self.npc_controller.npc_remove_weapon(actor, request, "bow", "Korlan:Spine")
-                    elif not actor.get_python_tag("human_states")['has_sword']:
-                        self.npc_controller.npc_get_weapon(actor, request, "sword", "Korlan:LeftHand")
-
-                    if actor.get_python_tag("human_states")['has_sword']:
-                        self.npc_controller.npc_in_staying_logic(actor, request)
-                        self._attack_directive(actor, actor_npc_bs,
-                                               enemy_npc_bs,
-                                               hitbox_dist, request)
-
-    def _work_with_outdoor_directive(self, actor, target, request):
-        # Get required data about enemy to deal with it
-        actor_name = "{0}:BS".format(actor.get_name())
-        actor_npc_bs = self.base.game_instance["actors_np"][actor_name]
-        directive_np = render.find("**/{0}".format(target))
-        directive_one_dist = int(actor_npc_bs.get_distance(directive_np))
-
-        # Go to the first directive
-        if directive_one_dist > 1:
-            self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                     directive_np,
-                                                     request)
-
-    def _work_with_indoor_directives_queue(self, actor, num, request):
-        # Get required data about directives
-        # 0 yurt
-        # 1 quest_empty_campfire
-        # 2 quest_empty_rest_place
-        # 3 quest_empty_hearth
-        # 4 quest_empty_spring_water
-        # 5 round_table
-        actor_name = "{0}:BS".format(actor.get_name())
-        actor_npc_bs = self.base.game_instance["actors_np"][actor_name]
-        directive_one_np = self.base.game_instance["static_indoor_targets"][0]
-        directive_two_np = self.base.game_instance["static_indoor_targets"][num]
-        directive_one_dist = int(actor_npc_bs.get_distance(directive_one_np))
-        directive_two_dist = int(actor_npc_bs.get_distance(directive_two_np))
-
-        # Go to the first directive
-        if directive_one_dist > 1 and directive_two_dist > 1:
-            self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                     directive_one_np,
-                                                     request)
-        # Got the first directive? Go to the second directive
-        elif directive_one_dist < 2 and directive_two_dist > 1:
-            if not directive_two_np.get_python_tag("place_is_busy"):
-                self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                         directive_two_np,
-                                                         request)
-        # Got the second directive? Stop walking
-        else:
-            actor.set_python_tag("directive_num", num)
-
-            if num == 5:
-                self.npc_controller.face_actor_to(actor_npc_bs, directive_two_np)
-                self.npc_controller.npc_in_gathering_logic(actor=actor, request=request,
-                                                           action="PickingUp",
-                                                           parent=directive_two_np, item="dombra")
-                """self.npc_controller.npc_in_dropping_logic(actor=actor, request=request,
-                                                        action="PickingUp")"""
+        self.npc_directives = NpcDirectives()
 
     def npc_generic_logic(self, actor, player, request, passive, task):
         if self.base.game_instance['menu_mode']:
@@ -273,7 +43,8 @@ class NpcBehavior:
                                 # 3 quest_empty_hearth
                                 # 4 quest_empty_spring_water
                                 # 5 round_table
-                                self._work_with_indoor_directives_queue(actor=actor, num=1, request=request)
+                                self.npc_directives.work_with_indoor_directives_queue(actor=actor, num=1,
+                                                                                      request=request)
                                 # self._work_with_outdoor_directive(actor=actor, target="yurt", request=request)
                             else:
                                 if (int(hour) == self.base.game_instance["sit_time_stop"][0]
@@ -300,8 +71,10 @@ class NpcBehavior:
                                 # 3 quest_empty_hearth
                                 # 4 quest_empty_spring_water
                                 # 5 round_table
-                                self._work_with_indoor_directives_queue(actor=actor, num=2, request=request)
-                                # self._work_with_outdoor_directive(actor=actor, target="yurt", request=request)
+                                self.npc_directives.work_with_indoor_directives_queue(actor=actor, num=2,
+                                                                                      request=request)
+                                # self.npc_directives.work_with_outdoor_directive(actor=actor, target="yurt",
+                                #                                                  request=request)
                             else:
                                 if (int(hour) == self.base.game_instance["rest_time_stop"][0]
                                         and int(minutes) == self.base.game_instance["rest_time_stop"][1]):
@@ -309,6 +82,7 @@ class NpcBehavior:
                                         self._directive_is_executing = False
 
                     if not self._directive_is_executing:
+
                         # Get required data about enemy to deal with it
                         actor_name_bs = "{0}:BS".format(actor_name)
                         actor_npc_bs = self.base.game_instance["actors_np"][actor_name_bs]
@@ -320,7 +94,9 @@ class NpcBehavior:
 
                             if base.player_states['is_alive']:
                                 player_dist = int(actor_npc_bs.get_distance(player))
-                                self._work_with_player(actor, player, actor_npc_bs, player_dist, request)
+                                self.npc_directives.work_with_player(actor, actor_npc_bs,
+                                                                     player,
+                                                                     player_dist, request)
 
                         # Check if we have alive someone around us
                         if self.npc_controller.get_enemy(actor=actor):
@@ -333,7 +109,9 @@ class NpcBehavior:
 
                                 # PLAYER
                                 if base.player_states['is_alive']:
-                                    self._work_with_player(actor, player, actor_npc_bs, player_dist, request)
+                                    self.npc_directives.work_with_player(actor, actor_npc_bs,
+                                                                         player,
+                                                                         player_dist, request)
                                 elif not base.player_states['is_alive']:
                                     if player_dist <= 1:
                                         self.npc_controller.npc_in_staying_logic(actor, request)
@@ -341,10 +119,10 @@ class NpcBehavior:
                                 # ENEMY
                                 if enemy_npc_ref.get_python_tag("generic_states")['is_alive']:
                                     if enemy_npc_ref.get_python_tag("generic_states")['is_alive']:
-                                        self._work_with_enemy(actor, actor_npc_bs,
-                                                              enemy_npc_ref,
-                                                              enemy_npc_bs, enemy_dist,
-                                                              hitbox_dist, request)
+                                        self.npc_directives.work_with_enemy(actor, actor_npc_bs,
+                                                                            enemy_npc_ref,
+                                                                            enemy_npc_bs, enemy_dist,
+                                                                            hitbox_dist, request)
                                     else:
                                         if enemy_dist <= 1:
                                             self.npc_controller.npc_in_staying_logic(actor, request)

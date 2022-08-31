@@ -69,3 +69,4 @@ a_anim_horse_crouch_walking = ""  # todo: add
 # action
 a_anim_horse_standing_crouch = ""  # todo: add
 a_anim_horse_crouching_stand = ""  # todo: add
+a_anim_horse_jumping = ""  # todo: add
