@@ -340,7 +340,7 @@ class NpcController:
                 npc_bs = npc.get_parent()
 
                 if self.is_ready_for_walking(npc):
-                    actor_name = npc.get_name()
+                    actor_name = actor.get_name()
 
                     # Crouch collision states
                     if not npc.get_python_tag("generic_states")['is_crouch_moving']:
