@@ -229,7 +229,7 @@ class NpcFSM(FSM):
                              Func(actor.set_z, unmounting_pos[2])
                              )
                 # revert player geom height
-                c = Func(child.reparent_to, render),
+                c = Func(child.reparent_to, render)
                 d = Func(child.set_x, horse_near_pos[0])
                 e = Func(child.set_y, horse_near_pos[1])
                 f = Func(actor.set_z, -1)
