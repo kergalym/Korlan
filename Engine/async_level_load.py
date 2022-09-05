@@ -124,7 +124,7 @@ class AsyncLevelLoad:
                             trigger_np.set_pos(0, 0, 1)
                             self.base.game_instance['water_trigger_np'] = trigger_np
 
-                            return task.done
+                return task.done
 
         return task.cont
 

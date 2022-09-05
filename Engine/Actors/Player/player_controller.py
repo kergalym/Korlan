@@ -226,7 +226,7 @@ class PlayerController:
                 if not self.base.game_instance['ui_mode']:
 
                     if base.player_states["horse_is_ready_to_be_used"]:
-                        self.actions.mount_action(anims)
+                        self.actions.mount_action()
 
                     if not base.player_states['is_mounted']:
                         self._regular_actions_set(player, anims)

@@ -1,7 +1,7 @@
 from direct.interval.FunctionInterval import Func, Wait
 from direct.interval.MetaInterval import Sequence, Parallel
 from direct.task.TaskManagerGlobal import taskMgr
-from panda3d.core import Vec3, Vec2, Point3, BitMask32
+from panda3d.core import Vec3, Vec2, Point3, BitMask32, NodePath
 
 from Engine.Physics.npc_physics import NpcPhysics
 from Engine.AI.npc_behavior import NpcBehavior
@@ -44,9 +44,13 @@ class NpcController:
         hips = self.npc_hips[name]
 
         # R&D
-        self.npc_action_seqs = {}
+        self.walking_sequence = {}
+        self.mounting_sequence = {}
+        self.unmounting_sequence = {}
 
-        self.npc_action_seqs[name] = Sequence()
+        self.walking_sequence[name] = Sequence()
+        self.mounting_sequence[name] = Sequence()
+        self.unmounting_sequence[name] = Sequence()
 
         if actor and actor_bs and request and "animal" not in actor.get_python_tag("npc_type"):
             self.npc_state = self.base.game_instance["npc_state_cls"]
@@ -57,17 +61,18 @@ class NpcController:
                         extraArgs=[actor, actor_bs, hips, request],
                         appendTask=True)
 
-            # TODO KEEP HERE UNTILL HORSE ANIMS BECOME READY
         if actor:
+            """"
+            # Add a tracked obstacle which is NPC.
+            for actor_name in self.base.game_instance["actors_np"]:
+                if actor.get_name() in actor_name:
+                    print(actor_name)
+                    actor_npc_bs = self.base.game_instance["actors_np"][actor_name]
+                    self.navmesh.add_node_path(actor_npc_bs)
+                    self.navmesh.update()"""
+
+            # TODO KEEP HERE UNTILL HORSE ANIMS BECOME READY
             if "Horse" not in actor.get_name():
-                # FIXME: Test the directives. Tempo set passive to True
-
-                # Add a tracked obstacle which is NPC.
-                """actor_name = "{0}:BS".format(actor_name)
-                actor_npc_bs = self.base.game_instance["actors_np"][actor_name]
-                self.navmesh.add_node_path(actor_npc_bs)
-                self.navmesh.update()"""
-
                 taskMgr.add(self.npc_behavior.npc_generic_logic,
                             "{0}_npc_generic_logic_task".format(name),
                             extraArgs=[actor, self.player_bs, request, False],
@@ -168,15 +173,16 @@ class NpcController:
                                 actor.get_python_tag("stamina_np")['value'] += 0.5
                 else:
                     npc = actor.get_python_tag("mounted_horse")
+                    npc_ref = self.base.game_instance["actors_ref"][npc.get_name()]
                     anim_action = anim_names.a_anim_horse_idle
                     if npc.get_python_tag("generic_states")['is_crouch_moving']:
                         anim_action = anim_names.a_anim_horse_crouch_idle
 
                     if npc.get_python_tag("generic_states")['is_idle']:
                         if npc.get_python_tag("generic_states")['is_crouch_moving']:
-                            request.request("Idle", npc, anim_action, "loop")
+                            request.request("Idle", npc_ref, anim_action, "loop")
                         elif not npc.get_python_tag("generic_states")['is_crouch_moving']:
-                            request.request("Idle", npc, anim_action, "loop")
+                            request.request("Idle", npc_ref, anim_action, "loop")
 
                         if actor.get_python_tag("stamina_np"):
                             if actor.get_python_tag("stamina_np")['value'] < 100:
@@ -213,9 +219,10 @@ class NpcController:
                 else:
                     anim_action = anim_names.a_anim_horse_dying
                     npc = actor.get_python_tag("mounted_horse")
+                    npc_ref = self.base.game_instance["actors_ref"][npc.get_name()]
                     if not (actor.get_python_tag("generic_states")['is_alive']):
                         if actor.get_python_tag("generic_states")['is_idle']:
-                            request.request("Death", npc, anim_action, "play")
+                            request.request("Death", npc_ref, anim_action, "play")
                             actor.get_python_tag("generic_states")['is_idle'] = False
 
             elif actor.get_python_tag("npc_type") == "npc_animal":
@@ -237,7 +244,7 @@ class NpcController:
                     actor.get_python_tag("courage_np")['value'] -= 100
 
     def do_walking_sequence_once(self, actor, actor_npc_bs, target, actor_name, request):
-        if not self.npc_action_seqs[actor_name].is_playing():
+        if not self.walking_sequence[actor_name].is_playing():
             if (actor, actor_npc_bs and target
                        and actor_name
                        and isinstance(actor_name, str)
@@ -257,24 +264,19 @@ class NpcController:
                 path_points = list(path.points)
                 current_dir = actor_npc_bs.get_hpr()
 
-                self.npc_action_seqs[actor_name] = Sequence()
+                self.walking_sequence[actor_name] = Sequence()
 
                 # Change animation
                 if actor.get_python_tag("npc_type") == "npc":
-                    if not actor.get_python_tag("human_states")['is_on_horse']:
-                        walk_anim = anim_names.a_anim_walking
-                        func_interval = Func(request.request, "Walk", actor, walk_anim, "loop")
-                        self.npc_action_seqs[actor_name].append(func_interval)
-                    else:
-                        npc = actor.get_python_tag("mounted_horse")
-                        walk_anim = anim_names.a_anim_horse_walking
-                        func_interval = Func(request.request, "Walk", npc, walk_anim, "loop")
-                        self.npc_action_seqs[actor_name].append(func_interval)
+                    walk_anim = anim_names.a_anim_walking
+                    func_interval = Func(request.request, "Walk", actor, walk_anim, "loop")
+                    self.walking_sequence[actor_name].append(func_interval)
 
                 elif actor.get_python_tag("npc_type") == "npc_animal":
                     walk_anim = anim_names.a_anim_horse_walking
-                    func_interval = Func(request.request, "Walk", actor, walk_anim, "loop")
-                    self.npc_action_seqs[actor_name].append(func_interval)
+                    npc_ref = self.base.game_instance["actors_ref"][actor.get_name()]
+                    func_interval = Func(request.request, "Walk", npc_ref, walk_anim, "loop")
+                    self.walking_sequence[actor_name].append(func_interval)
 
                 for i in range(len(path_points) - 1):
                     speed = 2
@@ -295,14 +297,14 @@ class NpcController:
                     pos_interval = actor_npc_bs.posInterval(dist / speed, pp, pp_start)
 
                     # Append sequence tasks in that order
-                    self.npc_action_seqs[actor_name].append(hpr_interval)
-                    self.npc_action_seqs[actor_name].append(pos_interval)
+                    self.walking_sequence[actor_name].append(hpr_interval)
+                    self.walking_sequence[actor_name].append(pos_interval)
 
                     current_dir = new_hpr
 
                 func_interval = Func(self.npc_in_staying_logic, actor, request)
-                self.npc_action_seqs[actor_name].append(func_interval)
-                self.npc_action_seqs[actor_name].start()
+                self.walking_sequence[actor_name].append(func_interval)
+                self.walking_sequence[actor_name].start()
 
     def npc_in_walking_logic(self, actor, actor_npc_bs, target, request):
         if actor and actor_npc_bs and target and request:
@@ -336,37 +338,38 @@ class NpcController:
 
                     self.do_walking_sequence_once(actor, actor_npc_bs, target, actor_name, request)
             else:
-                npc = actor.get_python_tag("mounted_horse")
-                npc_bs = npc.get_parent()
+                if actor.get_python_tag("human_states")['is_on_horse']:
+                    npc = actor.get_python_tag("mounted_horse")
+                    npc_bs = npc.get_parent()
 
-                if self.is_ready_for_walking(npc):
-                    actor_name = actor.get_name()
+                    if self.is_ready_for_walking(npc):
+                        actor_name = actor.get_name()
 
-                    # Crouch collision states
-                    if not npc.get_python_tag("generic_states")['is_crouch_moving']:
-                        actor_name_bs = "{0}:BS".format(actor_name)
-                        crouch_bs_mask = BitMask32.allOff()
-                        capsule_bs_mask = self.base.game_instance["actors_np_mask"][actor_name_bs]
+                        # Crouch collision states
+                        if not npc.get_python_tag("generic_states")['is_crouch_moving']:
+                            actor_name_bs = "{0}:BS".format(actor_name)
+                            crouch_bs_mask = BitMask32.allOff()
+                            capsule_bs_mask = self.base.game_instance["actors_np_mask"][actor_name_bs]
 
-                        self.base.game_instance['actors_crouch_bs_np'][actor_name_bs].setCollideMask(crouch_bs_mask)
-                        self.base.game_instance['actors_np'][actor_name_bs].setCollideMask(capsule_bs_mask)
+                            self.base.game_instance['actors_crouch_bs_np'][actor_name_bs].setCollideMask(crouch_bs_mask)
+                            self.base.game_instance['actors_np'][actor_name_bs].setCollideMask(capsule_bs_mask)
 
-                    elif npc.get_python_tag("generic_states")['is_crouch_moving']:
-                        actor_name_bs = "{0}:BS".format(actor_name)
-                        crouch_bs_mask = self.base.game_instance['actors_crouch_bs_np_mask'][actor_name_bs]
-                        capsule_bs_mask = BitMask32.allOff()
+                        elif npc.get_python_tag("generic_states")['is_crouch_moving']:
+                            actor_name_bs = "{0}:BS".format(actor_name)
+                            crouch_bs_mask = self.base.game_instance['actors_crouch_bs_np_mask'][actor_name_bs]
+                            capsule_bs_mask = BitMask32.allOff()
 
-                        self.base.game_instance['actors_crouch_bs_np'][actor_name_bs].setCollideMask(crouch_bs_mask)
-                        self.base.game_instance['actors_np'][actor_name_bs].setCollideMask(capsule_bs_mask)
+                            self.base.game_instance['actors_crouch_bs_np'][actor_name_bs].setCollideMask(crouch_bs_mask)
+                            self.base.game_instance['actors_np'][actor_name_bs].setCollideMask(capsule_bs_mask)
 
-                    npc.get_python_tag("generic_states")['is_idle'] = False
-                    npc.get_python_tag("generic_states")['is_moving'] = True
+                        npc.get_python_tag("generic_states")['is_idle'] = False
+                        npc.get_python_tag("generic_states")['is_moving'] = True
 
-                    if npc.get_python_tag("stamina_np"):
-                        if npc.get_python_tag("stamina_np")['value'] > 1:
-                            npc.get_python_tag("stamina_np")['value'] -= 1
+                        if npc.get_python_tag("stamina_np"):
+                            if npc.get_python_tag("stamina_np")['value'] > 1:
+                                npc.get_python_tag("stamina_np")['value'] -= 1
 
-                    self.do_walking_sequence_once(npc, npc_bs, target, actor_name, request)
+                        self.do_walking_sequence_once(npc, npc_bs, target, actor_name, request)
 
     def seq_pick_item_wrapper_task(self, actor, action, joint_name, task):
         if actor and action and joint_name:
@@ -569,6 +572,7 @@ class NpcController:
 
     def npc_in_mounting_logic(self, actor, actor_npc_bs, request):
         if (actor.get_python_tag("human_states")
+                and not actor.get_python_tag("generic_states")['is_busy']
                 and not actor.get_python_tag("human_states")['is_on_horse']):
             horses = render.find_all_matches("**/NPC_Horse")
             if horses:
@@ -577,17 +581,26 @@ class NpcController:
                         horse_bs = horse.get_parent()
                         mountplace = horse.get_python_tag("mount_place")
                         if mountplace:
-                            # fixme: mountplace path
-                            horse_dist = int(actor_npc_bs.get_distance(horse_bs))
+                            horse_dist_margin = horse_bs.get_pos() + Vec3(1, 1, 0)
+                            horse_bs_margin = NodePath("horse_margin")
+                            horse_bs_margin.set_pos(horse_dist_margin)
+                            horse_dist = int(actor_npc_bs.get_distance(horse_bs_margin))
                             if horse_dist > 1:
-                                self.npc_in_walking_logic(actor, actor_npc_bs, mountplace, request)
+                                self.npc_in_walking_logic(actor, actor_npc_bs,
+                                                          horse_bs_margin, request)
                             elif horse_dist <= 1:
                                 self.npc_in_staying_logic(actor, request)
                                 if (actor.get_python_tag("generic_states")['is_idle']
                                         and not actor.get_python_tag("generic_states")['is_attacked']
-                                        and not actor.get_python_tag("generic_states")['is_busy']
                                         and not actor.get_python_tag("generic_states")['is_moving']):
-                                    request.request("HorseMount", actor, actor_npc_bs, horse)
+                                    name = actor.get_name()
+                                    if not self.mounting_sequence[name].is_playing():
+                                        self.mounting_sequence[name] = Sequence()
+                                        wait = Wait(2)
+                                        mount_func = Func(request.request, "HorseMount", actor, actor_npc_bs, horse)
+                                        self.mounting_sequence[name].append(wait)
+                                        self.mounting_sequence[name].append(mount_func)
+                                        self.mounting_sequence[name].start()
 
     def npc_in_unmounting_logic(self, actor, actor_npc_bs, request):
         if (actor.get_python_tag("human_states")
@@ -596,7 +609,14 @@ class NpcController:
                     and not actor.get_python_tag("generic_states")['is_attacked']
                     and not actor.get_python_tag("generic_states")['is_busy']
                     and not actor.get_python_tag("generic_states")['is_moving']):
-                request.request("HorseUnmount", actor, actor_npc_bs)
+                name = actor.get_name()
+                if not self.unmounting_sequence[name].is_playing():
+                    self.unmounting_sequence[name] = Sequence()
+                    wait = Wait(2)
+                    unmount_func = Func(request.request, "HorseUnmount", actor, actor_npc_bs)
+                    self.unmounting_sequence[name].append(wait)
+                    self.unmounting_sequence[name].append(unmount_func)
+                    self.unmounting_sequence[name].start()
 
     def npc_get_weapon(self, actor, request, weapon_name, bone_name):
         if (actor.get_python_tag("generic_states")['is_idle']

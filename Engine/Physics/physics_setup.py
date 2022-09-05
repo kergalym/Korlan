@@ -403,7 +403,7 @@ class PhysicsAttr:
             node.set_mass(50.0)
             node.add_shape(shape)
             np = render.attach_new_node(node)
-            np.set_pos(4, 2, 0)
+            np.set_pos(3, 2, 0)
             self.world.attach_rigid_body(node)
             assets = self.base.assets_collector()
             model = base.loader.load_model(assets['Box'])

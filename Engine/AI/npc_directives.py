@@ -16,18 +16,27 @@ class NpcDirectives:
         self.horse_archery_distance = 10
 
     def _melee_attack(self, actor, actor_npc_bs, target, target_dist, hitbox_dist, request):
-        if target_dist > 1:
-            self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                     target, request)
-        elif target_dist <= 1:
-            # If enemy is close start attacking
-            if (not actor.get_python_tag("generic_states")['is_moving']
-                    and not actor.get_python_tag("generic_states")['is_crouch_moving']):
-                self.npc_controller.npc_in_staying_logic(actor, request)
+        if not actor.get_python_tag("human_states")['is_on_horse']:
+            if target_dist <= 1:
+                # If enemy is close start attacking
+                if (not actor.get_python_tag("generic_states")['is_moving']
+                        and not actor.get_python_tag("generic_states")['is_crouch_moving']):
+                    self.npc_controller.npc_in_staying_logic(actor, request)
 
-            self.attack_directive(actor, actor_npc_bs,
-                                  target,
-                                  hitbox_dist, request)
+                self.attack_directive(actor, actor_npc_bs,
+                                      target,
+                                      hitbox_dist, request)
+
+        elif actor.get_python_tag("human_states")['is_on_horse']:
+            if target_dist <= 2:
+                # If enemy is close start attacking
+                if (not actor.get_python_tag("generic_states")['is_moving']
+                        and not actor.get_python_tag("generic_states")['is_crouch_moving']):
+                    self.npc_controller.npc_in_staying_logic(actor, request)
+
+                self.attack_directive(actor, actor_npc_bs,
+                                      target,
+                                      hitbox_dist, request)
 
     def _archery_attack(self, actor, actor_npc_bs, target, target_dist, hitbox_dist, request):
         if actor.get_python_tag("arrow_count") > 1:
@@ -93,10 +102,21 @@ class NpcDirectives:
 
         # Pursue and attack!!!!
         if actor.get_python_tag("npc_type") == "npc":
+            if not actor.get_python_tag("human_states")['is_on_horse']:
+                if player_dist > 1:
+                    self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
+                                                             player, request)
+            elif actor.get_python_tag("human_states")['is_on_horse']:
+                if player_dist > 2:
+                    self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
+                                                             player, request)
+
             if not actor.get_python_tag("human_states")["has_bow"]:
-                self._melee_attack(actor, actor_npc_bs, player, player_dist, hitbox_dist, request)
+                self._melee_attack(actor, actor_npc_bs, player,
+                                   player_dist, hitbox_dist, request)
             elif actor.get_python_tag("human_states")["has_bow"]:
-                self._archery_attack(actor, actor_npc_bs, player, player_dist, hitbox_dist, request)
+                self._archery_attack(actor, actor_npc_bs, player,
+                                     player_dist, hitbox_dist, request)
 
     def work_with_enemy(self, actor, actor_npc_bs, enemy_npc_ref,
                         enemy_npc_bs, enemy_dist, hitbox_dist, request):
@@ -126,10 +146,21 @@ class NpcDirectives:
 
         # Pursue and attack!!!!
         if actor.get_python_tag("npc_type") == "npc":
+            if not actor.get_python_tag("human_states")['is_on_horse']:
+                if enemy_dist > 1:
+                    self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
+                                                             enemy_npc_bs, request)
+            elif actor.get_python_tag("human_states")['is_on_horse']:
+                if enemy_dist > 2:
+                    self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
+                                                             enemy_npc_bs, request)
+
             if not actor.get_python_tag("human_states")["has_bow"]:
-                self._melee_attack(actor, actor_npc_bs, enemy_npc_bs, enemy_dist, hitbox_dist, request)
+                self._melee_attack(actor, actor_npc_bs, enemy_npc_bs,
+                                   enemy_dist, hitbox_dist, request)
             elif actor.get_python_tag("human_states")["has_bow"]:
-                self._archery_attack(actor, actor_npc_bs, enemy_npc_bs, enemy_dist, hitbox_dist, request)
+                self._archery_attack(actor, actor_npc_bs, enemy_npc_bs,
+                                     enemy_dist, hitbox_dist, request)
 
     def attack_directive(self, actor, actor_npc_bs, oppo_npc_bs, hitbox_dist, request):
         # Facing to enemy

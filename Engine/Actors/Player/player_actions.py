@@ -1113,17 +1113,17 @@ class PlayerActions:
                 self.base.camera.set_z(0)
         return task.cont
 
-    def mount_action(self, anims):
+    def mount_action(self):
         if self.kbd.keymap["use"] and not base.do_key_once["use"]:
             self.state.set_do_once_key("use", True)
             horse_name = base.game_instance['player_using_horse']
-            parent = render.find("**/{0}".format(horse_name))
+            parent = self.base.game_instance['actors_ref'][horse_name]
             child = self.base.game_instance["player_np"]
             player = self.base.game_instance['player_ref']
-            if parent and child and anims and not self.base.game_instance['is_aiming']:
+            if parent and child and not self.base.game_instance['is_aiming']:
                 if (self.base.game_instance['player_ref'].get_python_tag("is_on_horse")
                         and parent.get_python_tag("is_mounted")):
-                    self.unmount_action(anims)
+                    self.unmount_action()
                 else:
                     # with inverted Z -0.5 stands for Up
                     # Our horse (un)mounting animations have been made with imperfect positions,
@@ -1131,9 +1131,9 @@ class PlayerActions:
                     # with these animations in my game.
                     mounting_pos = Vec3(0.5, -0.15, -0.45)
                     saddle_pos = Vec3(0, -0.32, 0.16)
-                    mount_action_seq = player.actor_interval(anims["horse_mounting"],
+                    mount_action_seq = player.actor_interval(anim_names.a_anim_horse_mounting,
                                                              playRate=self.base.actor_play_rate)
-                    horse_riding_action_seq = player.actor_interval(anims["horse_riding_idle"],
+                    horse_riding_action_seq = player.actor_interval(anim_names.a_anim_horse_rider_idle,
                                                                     playRate=self.base.actor_play_rate)
                     horse_np = self.base.game_instance['actors_np']["{0}:BS".format(horse_name)]
 
@@ -1166,20 +1166,20 @@ class PlayerActions:
                              horse_riding_action_seq
                              ).start()
 
-    def unmount_action(self, anims):
+    def unmount_action(self):
         horse_name = base.game_instance['player_using_horse']
         parent = render.find("**/{0}".format(horse_name))
         parent_bs = render.find("**/{0}:BS".format(horse_name))
         child = self.base.game_instance["player_np"]
         player = self.base.game_instance['player_ref']
-        if parent and child and anims and not self.base.game_instance['is_aiming']:
+        if parent and child and not self.base.game_instance['is_aiming']:
             # with inverted Z -0.7 stands for Up
             # Our horse (un)mounting animations have been made with imperfect positions,
             # so, I had to change child positions to get more satisfactory result
             # with these animations in my game.
             unmounting_pos = Vec3(0.5, -0.15, -0.45)
             # Reparent parent/child node back to its BulletCharacterControllerNode
-            unmount_action_seq = player.actor_interval(anims["horse_unmounting"],
+            unmount_action_seq = player.actor_interval(anim_names.a_anim_horse_unmounting,
                                                        playRate=self.base.actor_play_rate)
             horse_near_pos = Vec3(parent_bs.get_x(), parent_bs.get_y(), child.get_z()) + Vec3(1, 0, 0)
             base.game_instance['player_using_horse'] = ''
