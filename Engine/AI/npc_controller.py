@@ -581,7 +581,7 @@ class NpcController:
                         horse_bs = horse.get_parent()
                         mountplace = horse.get_python_tag("mount_place")
                         if mountplace:
-                            horse_dist_margin = horse_bs.get_pos() + Vec3(1, 1, 0)
+                            horse_dist_margin = horse_bs.get_pos() + Vec3(1.5, 0.5, 0)
                             horse_bs_margin = NodePath("horse_margin")
                             horse_bs_margin.set_pos(horse_dist_margin)
                             horse_dist = int(actor_npc_bs.get_distance(horse_bs_margin))
@@ -596,7 +596,8 @@ class NpcController:
                                     name = actor.get_name()
                                     if not self.mounting_sequence[name].is_playing():
                                         self.mounting_sequence[name] = Sequence()
-                                        mount_func = Func(request.request, "HorseMount", actor, actor_npc_bs, horse)
+                                        mount_func = Func(request.request, "HorseMount",
+                                                          actor, actor_npc_bs, horse)
                                         self.mounting_sequence[name].append(mount_func)
                                         self.mounting_sequence[name].start()
 
@@ -610,7 +611,8 @@ class NpcController:
                 name = actor.get_name()
                 if not self.unmounting_sequence[name].is_playing():
                     self.unmounting_sequence[name] = Sequence()
-                    unmount_func = Func(request.request, "HorseUnmount", actor, actor_npc_bs)
+                    unmount_func = Func(request.request, "HorseUnmount",
+                                        actor, actor_npc_bs)
                     self.unmounting_sequence[name].append(unmount_func)
                     self.unmounting_sequence[name].start()
 

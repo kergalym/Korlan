@@ -167,6 +167,7 @@ class NpcFSM(FSM):
                             appendTask=True)
 
                 # Horse mounting consists of 13 intervals
+                wait = Wait(1)
                 a = Func(child.set_collide_mask, BitMask32.allOff())
                 b = Func(self.fsm_state_wrapper, actor, "generic_states", "is_using", True)
                 c = Parallel(mount_action_seq,
@@ -192,6 +193,7 @@ class NpcFSM(FSM):
 
                 self.mount_sequence[actor_name].append(a)
                 self.mount_sequence[actor_name].append(b)
+                # self.mount_sequence[actor_name].append(wait)
                 self.mount_sequence[actor_name].append(c)
                 self.mount_sequence[actor_name].append(d)
                 self.mount_sequence[actor_name].append(e)
