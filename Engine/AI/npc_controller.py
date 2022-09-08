@@ -3,7 +3,7 @@ from direct.interval.MetaInterval import Sequence, Parallel
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import Vec3, Vec2, Point3, BitMask32, NodePath
 
-from Engine.Physics.npc_physics import NpcPhysics
+from Engine.Physics.npc_damages import NpcDamages
 from Engine.AI.npc_behavior import NpcBehavior
 
 """ ANIMATIONS"""
@@ -30,7 +30,7 @@ class NpcController:
         # Keep this class instance for further usage in NpcBehavior class only
         self.base.game_instance["npc_controller_cls"] = self
 
-        self.npc_physics = NpcPhysics()
+        self.npc_physics = NpcDamages()
         self.npc_behavior = NpcBehavior()
 
         name = actor.get_name()
@@ -97,6 +97,42 @@ class NpcController:
                         actor_bs = self.base.game_instance["actors_np"][actor_bs_name]
                         if int(actor_bs.get_distance(enemy_npc_bs)) < 50:
                             return [enemy_npc_ref, enemy_npc_bs]
+
+    def get_enemy_distance(self, actor, actor_npc_bs, opponent):
+        if actor.get_python_tag("human_states")['is_on_horse']:
+            if "Horse" in opponent.get_parent().get_name():
+                rider_opponent = opponent.get_parent().get_parent()
+                return int(actor_npc_bs.get_distance(rider_opponent))
+        else:
+            return int(actor_npc_bs.get_distance(opponent))
+
+    def get_target_npc_in_state(self, target_np):
+        if "Horse" in target_np.get_parent().get_name():
+            return target_np.get_parent().get_parent()
+        else:
+            return target_np
+
+    def face_actor_to(self, actor_bs, target_np):
+        if actor_bs and target_np:
+
+            if actor_bs.get_child(0).get_python_tag("human_states")['is_on_horse']:
+                npc = actor_bs.get_child(0).get_python_tag("mounted_horse")
+                npc_bs = npc.get_parent()
+                # Calculate NPC rotation vector
+                new_target_np = self.get_target_npc_in_state(target_np)
+                rot_vector = Vec3(npc_bs.get_pos() - new_target_np.get_pos())
+                rot_vector_2d = rot_vector.get_xy()
+                rot_vector_2d.normalize()
+                heading = Vec3(Vec2(0, 1).signed_angle_deg(rot_vector_2d), 0).x
+                npc_bs.set_h(heading)
+            else:
+                # Calculate NPC rotation vector
+                new_target_np = self.get_target_npc_in_state(target_np)
+                rot_vector = Vec3(actor_bs.get_pos() - new_target_np.get_pos())
+                rot_vector_2d = rot_vector.get_xy()
+                rot_vector_2d.normalize()
+                heading = Vec3(Vec2(0, 1).signed_angle_deg(rot_vector_2d), 0).x
+                actor_bs.set_h(heading)
 
     def is_ready_for_walking(self, actor):
         if actor.get_python_tag("human_states"):
@@ -663,25 +699,6 @@ class NpcController:
                     else:
                         request.request("RemoveWeapon", actor, anim_names.a_anim_disarm_bow,
                                         weapon_name, bone_name, "play")
-
-    def face_actor_to(self, actor_bs, target_np):
-        if actor_bs and target_np:
-            if actor_bs.get_child(0).get_python_tag("human_states")['is_on_horse']:
-                npc = actor_bs.get_child(0).get_python_tag("mounted_horse")
-                npc_bs = npc.get_parent()
-                # Calculate NPC rotation vector
-                rot_vector = Vec3(npc_bs.get_pos() - target_np.get_pos())
-                rot_vector_2d = rot_vector.get_xy()
-                rot_vector_2d.normalize()
-                heading = Vec3(Vec2(0, 1).signed_angle_deg(rot_vector_2d), 0).x
-                npc_bs.set_h(heading)
-            else:
-                # Calculate NPC rotation vector
-                rot_vector = Vec3(actor_bs.get_pos() - target_np.get_pos())
-                rot_vector_2d = rot_vector.get_xy()
-                rot_vector_2d.normalize()
-                heading = Vec3(Vec2(0, 1).signed_angle_deg(rot_vector_2d), 0).x
-                actor_bs.set_h(heading)
 
     def do_defensive_prediction(self, actor, actor_npc_bs, request, hitbox_dist):
         if actor and actor_npc_bs and request:

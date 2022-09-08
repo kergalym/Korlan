@@ -17,7 +17,7 @@ class NpcDirectives:
 
     def _melee_attack(self, actor, actor_npc_bs, target, target_dist, hitbox_dist, request):
         if not actor.get_python_tag("human_states")['is_on_horse']:
-            if target_dist <= 1:
+            if target_dist is not None and target_dist <= 1:
                 # If enemy is close start attacking
                 if (not actor.get_python_tag("generic_states")['is_moving']
                         and not actor.get_python_tag("generic_states")['is_crouch_moving']):
@@ -28,7 +28,7 @@ class NpcDirectives:
                                       hitbox_dist, request)
 
         elif actor.get_python_tag("human_states")['is_on_horse']:
-            if target_dist <= 2:
+            if target_dist is not None and target_dist <= 2:
                 # If enemy is close start attacking
                 if (not actor.get_python_tag("generic_states")['is_moving']
                         and not actor.get_python_tag("generic_states")['is_crouch_moving']):
@@ -43,7 +43,7 @@ class NpcDirectives:
             if target_dist > self.archery_distance:
                 self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
                                                          target, request)
-            elif target_dist < 2:
+            elif target_dist is not None and target_dist < 2:
                 archery = NodePath("archery_position")
                 player_pos = target.get_pos() + Vec3(0, self.archery_distance, 0)
                 archery.set_pos(player_pos)
@@ -61,7 +61,7 @@ class NpcDirectives:
             if (not actor.get_python_tag("generic_states")['is_moving']
                     and not actor.get_python_tag("generic_states")['is_crouch_moving']):
                 self.npc_controller.npc_in_staying_logic(actor, request)
-            if target_dist > 1:
+            if target_dist is not None and target_dist > 1:
                 self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
                                                          target, request)
             else:
@@ -104,7 +104,7 @@ class NpcDirectives:
         if actor.get_python_tag("npc_type") == "npc":
             if not actor.get_python_tag("human_states")['is_on_horse']:
                 if not actor.get_python_tag("generic_states")['is_busy']:
-                    if player_dist > 1:
+                    if player_dist is not None and player_dist > 1:
                         if "Horse" in player.get_parent().get_name():
                             pos = player.get_parent().get_parent().get_pos() + Vec3(2, 2, 0)
                             rider_horse_bs = NodePath("destpoint")
@@ -117,7 +117,7 @@ class NpcDirectives:
 
             elif actor.get_python_tag("human_states")['is_on_horse']:
                 if not actor.get_python_tag("generic_states")['is_busy']:
-                    if player_dist > 2:
+                    if player_dist is not None and player_dist > 2:
                         if "Horse" in player.get_parent().get_name():
                             pos = player.get_parent().get_parent().get_pos() + Vec3(2, 2, 0)
                             rider_horse_bs = NodePath("destpoint")
@@ -164,7 +164,7 @@ class NpcDirectives:
         # Pursue and attack!!!!
         if actor.get_python_tag("npc_type") == "npc":
             if not actor.get_python_tag("human_states")['is_on_horse']:
-                if enemy_dist > 1:
+                if enemy_dist is not None and enemy_dist > 1:
                     if "Horse" in enemy_npc_bs.get_parent().get_name():
                         pos = enemy_npc_bs.get_parent().get_parent().get_pos() + Vec3(2, 2, 0)
                         rider_horse_bs = NodePath("destpoint")
@@ -176,7 +176,7 @@ class NpcDirectives:
                                                                  enemy_npc_bs, request)
 
             elif actor.get_python_tag("human_states")['is_on_horse']:
-                if enemy_dist > 2:
+                if enemy_dist is not None and enemy_dist > 2:
                     if "Horse" in enemy_npc_bs.get_parent().get_name():
                         pos = enemy_npc_bs.get_parent().get_parent().get_pos() + Vec3(2, 2, 0)
                         rider_horse_bs = NodePath("destpoint")

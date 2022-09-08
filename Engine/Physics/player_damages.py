@@ -1,7 +1,7 @@
 from panda3d.core import BitMask32
 
 
-class PlayerPhysics:
+class PlayerDamages:
 
     def __init__(self):
         self.base = base

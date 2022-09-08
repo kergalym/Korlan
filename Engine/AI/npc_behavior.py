@@ -93,7 +93,9 @@ class NpcBehavior:
                                 self.npc_controller.npc_in_staying_logic(actor, request)
 
                             if base.player_states['is_alive']:
-                                player_dist = int(actor_npc_bs.get_distance(player))
+                                player_dist = self.npc_controller.get_enemy_distance(actor=actor,
+                                                                                     actor_npc_bs=actor_npc_bs,
+                                                                                     opponent=player)
                                 self.npc_directives.work_with_player(actor, actor_npc_bs,
                                                                      player,
                                                                      player_dist, request)
@@ -103,8 +105,12 @@ class NpcBehavior:
                             enemy_npc_ref, enemy_npc_bs = self.npc_controller.get_enemy(actor=actor)
 
                             if actor_npc_bs and enemy_npc_ref and enemy_npc_bs:
-                                player_dist = int(actor_npc_bs.get_distance(player))
-                                enemy_dist = int(actor_npc_bs.get_distance(enemy_npc_bs))
+                                player_dist = self.npc_controller.get_enemy_distance(actor=actor,
+                                                                                     actor_npc_bs=actor_npc_bs,
+                                                                                     opponent=player)
+                                enemy_dist = self.npc_controller.get_enemy_distance(actor=actor,
+                                                                                    actor_npc_bs=actor_npc_bs,
+                                                                                    opponent=enemy_npc_bs)
                                 hitbox_dist = actor.get_python_tag("enemy_hitbox_distance")
 
                                 # PLAYER

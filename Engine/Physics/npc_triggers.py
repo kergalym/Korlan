@@ -75,15 +75,21 @@ class NpcTriggers:
 
                             elif (round(player_bs.get_distance(trigger_np)) >= 2
                                   and round(player_bs.get_distance(trigger_np)) <= 5):
-                                if animal_actor.get_python_tag("npc_hud_np"):
-                                    animal_actor.get_python_tag("npc_hud_np").hide()
-                                animal_actor.set_python_tag("is_ready_to_be_used", False)
-                                if hasattr(base, "player_states"):
-                                    base.player_states["horse_is_ready_to_be_used"] = False
+                                if (not animal_actor.get_python_tag("is_mounted")
+                                        and not player.get_python_tag("is_on_horse")):
+                                    animal_actor.set_python_tag("is_ready_to_be_used", False)
+                                    if hasattr(base, "player_states"):
+                                        base.player_states["horse_is_ready_to_be_used"] = False
+                                else:
+                                    if (animal_actor.get_python_tag("npc_hud_np")
+                                            and not animal_actor.get_python_tag("npc_hud_np").is_hidden()):
+                                        animal_actor.get_python_tag("npc_hud_np").hide()
 
                 # Hide Horse HUD while Inventory or menu is opening
                 if self.base.game_instance['ui_mode']:
-                    animal_actor.get_python_tag("npc_hud_np").hide()
+                    if (animal_actor.get_python_tag("npc_hud_np")
+                            and not animal_actor.get_python_tag("npc_hud_np").is_hidden()):
+                        animal_actor.get_python_tag("npc_hud_np").hide()
 
                 # keep actor_bs_np height while kinematic is active
                 # because in kinematic it has no gravity impact and gets unwanted drop down
@@ -129,12 +135,15 @@ class NpcTriggers:
                                         actor.get_python_tag("npc_hud_np").show()
                             elif (player_bs.get_distance(trigger_np) >= 2
                                   and player_bs.get_distance(trigger_np) <= 5):
-                                if actor.get_python_tag("npc_hud_np"):
+                                if (actor.get_python_tag("npc_hud_np")
+                                        and not actor.get_python_tag("npc_hud_np").is_hidden()):
                                     actor.get_python_tag("npc_hud_np").hide()
 
                 # keep hide npc hud while inventory or menu is opening
                 if self.base.game_instance['ui_mode']:
-                    actor.get_python_tag("npc_hud_np").hide()
+                    if (actor.get_python_tag("npc_hud_np")
+                            and not actor.get_python_tag("npc_hud_np").is_hidden()):
+                        actor.get_python_tag("npc_hud_np").hide()
 
                 # keep actor_bs_np height while kinematic is active
                 # because in kinematic it has no gravity impact and gets unwanted drop down

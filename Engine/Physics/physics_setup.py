@@ -4,7 +4,7 @@ from panda3d.core import Vec3, BitMask32, NodePath, GeomNode
 from panda3d.bullet import BulletWorld, BulletDebugNode, BulletRigidBodyNode, BulletPlaneShape
 
 from Engine.Physics.collision_solids import BulletCollisionSolids
-from Engine.Physics.player_physics import PlayerPhysics
+from Engine.Physics.player_damages import PlayerDamages
 from Engine.Physics.npc_triggers import NpcTriggers
 
 
@@ -29,7 +29,7 @@ class PhysicsAttr:
         self.cam_bs_nodepath = None
         self.cam_collider = None
         self.bullet_solids = BulletCollisionSolids()
-        self.player_physics = PlayerPhysics()
+        self.player_physics = PlayerDamages()
         self.npc_triggers = NpcTriggers()
 
         self.no_mask = BitMask32.allOff()

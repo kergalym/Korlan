@@ -1,20 +1,12 @@
 from panda3d.core import BitMask32, Vec3, Vec2
 
 
-class NpcPhysics:
+class NpcDamages:
 
     def __init__(self):
         self.base = base
         self.render = render
-
-    def face_actor_to(self, actor, target_np):
-        if actor and target_np:
-            # Calculate NPC rotation vector
-            rot_vector = Vec3(actor.get_pos() - target_np.get_pos())
-            rot_vector_2d = rot_vector.get_xy()
-            rot_vector_2d.normalize()
-            heading = Vec3(Vec2(0, 1).signed_angle_deg(rot_vector_2d), 0).x
-            actor.set_h(heading)
+        self.npc_controller = self.base.game_instance["npc_controller_cls"]
 
     def _do_damage(self, actor, actor_bs, node, hitbox_np, parent_np, request):
         if actor.get_python_tag("enemy_hitbox_distance") != 0:
@@ -37,7 +29,7 @@ class NpcPhysics:
                                 actor.set_python_tag("enemy_npc_ref", npc_ref)
                             if not actor.get_python_tag("enemy_npc_bs"):
                                 actor.set_python_tag("enemy_npc_bs", npc_bs)
-                            self.face_actor_to(actor_bs, npc_bs)
+                            self.npc_controller.face_actor_to(actor_bs, npc_bs)
 
                 hitbox_np.set_collide_mask(BitMask32.allOff())
                 if (actor.get_python_tag("health_np")
