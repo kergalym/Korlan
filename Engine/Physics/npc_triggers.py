@@ -75,15 +75,16 @@ class NpcTriggers:
 
                             elif (round(player_bs.get_distance(trigger_np)) >= 2
                                   and round(player_bs.get_distance(trigger_np)) <= 5):
+
+                                if (animal_actor.get_python_tag("npc_hud_np")
+                                        and not animal_actor.get_python_tag("npc_hud_np").is_hidden()):
+                                    animal_actor.get_python_tag("npc_hud_np").hide()
+
                                 if (not animal_actor.get_python_tag("is_mounted")
                                         and not player.get_python_tag("is_on_horse")):
                                     animal_actor.set_python_tag("is_ready_to_be_used", False)
                                     if hasattr(base, "player_states"):
                                         base.player_states["horse_is_ready_to_be_used"] = False
-                                else:
-                                    if (animal_actor.get_python_tag("npc_hud_np")
-                                            and not animal_actor.get_python_tag("npc_hud_np").is_hidden()):
-                                        animal_actor.get_python_tag("npc_hud_np").hide()
 
                 # Hide Horse HUD while Inventory or menu is opening
                 if self.base.game_instance['ui_mode']:
