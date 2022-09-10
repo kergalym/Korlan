@@ -625,17 +625,21 @@ class NpcController:
                                 self.npc_in_walking_logic(actor, actor_npc_bs,
                                                           horse_bs_margin, request)
                             elif horse_dist <= 1:
-                                self.npc_in_staying_logic(actor, request)
-                                if (actor.get_python_tag("generic_states")['is_idle']
-                                        and not actor.get_python_tag("generic_states")['is_attacked']
-                                        and not actor.get_python_tag("generic_states")['is_moving']):
-                                    name = actor.get_name()
-                                    if not self.mounting_sequence[name].is_playing():
-                                        self.mounting_sequence[name] = Sequence()
-                                        mount_func = Func(request.request, "HorseMount",
-                                                          actor, actor_npc_bs, horse)
-                                        self.mounting_sequence[name].append(mount_func)
-                                        self.mounting_sequence[name].start()
+                                if actor.get_python_tag("current_task") is None:
+                                    self.npc_in_staying_logic(actor, request)
+                                    actor.set_python_tag("current_task", "horse_mounting")
+                                    if (actor.get_python_tag("generic_states")['is_idle']
+                                            and not actor.get_python_tag("generic_states")['is_attacked']
+                                            and not actor.get_python_tag("generic_states")['is_moving']):
+                                        name = actor.get_name()
+                                        if not self.mounting_sequence[name].is_playing():
+                                            self.mounting_sequence[name] = Sequence()
+                                            wait = Wait(1)
+                                            mount_func = Func(request.request, "HorseMount",
+                                                              actor, actor_npc_bs, horse)
+                                            self.mounting_sequence[name].append(wait)
+                                            self.mounting_sequence[name].append(mount_func)
+                                            self.mounting_sequence[name].start()
 
     def npc_in_unmounting_logic(self, actor, actor_npc_bs, request):
         if (actor.get_python_tag("human_states")
@@ -646,6 +650,7 @@ class NpcController:
                     and not actor.get_python_tag("generic_states")['is_moving']):
                 name = actor.get_name()
                 if not self.unmounting_sequence[name].is_playing():
+                    actor.set_python_tag("current_task", "horse_unmounting")
                     self.unmounting_sequence[name] = Sequence()
                     unmount_func = Func(request.request, "HorseUnmount",
                                         actor, actor_npc_bs)

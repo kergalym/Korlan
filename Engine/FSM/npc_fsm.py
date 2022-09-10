@@ -167,7 +167,6 @@ class NpcFSM(FSM):
                             appendTask=True)
 
                 # Horse mounting consists of 13 intervals
-                wait = Wait(1)
                 a = Func(child.set_collide_mask, BitMask32.allOff())
                 b = Func(self.fsm_state_wrapper, actor, "generic_states", "is_using", True)
                 c = Parallel(mount_action_seq,
@@ -189,11 +188,11 @@ class NpcFSM(FSM):
                 k = Func(self.fsm_state_wrapper, actor, "human_states", "is_on_horse", True)
                 l = Func(parent.set_python_tag, "is_mounted", True)
                 m = Func(taskMgr.remove, mount_task_name)
-                n = horse_riding_action_seq
+                n = Func(actor.set_python_tag, "current_task", None)
+                o = horse_riding_action_seq
 
                 self.mount_sequence[actor_name].append(a)
                 self.mount_sequence[actor_name].append(b)
-                # self.mount_sequence[actor_name].append(wait)
                 self.mount_sequence[actor_name].append(c)
                 self.mount_sequence[actor_name].append(d)
                 self.mount_sequence[actor_name].append(e)
@@ -205,6 +204,7 @@ class NpcFSM(FSM):
                 self.mount_sequence[actor_name].append(l)
                 self.mount_sequence[actor_name].append(m)
                 self.mount_sequence[actor_name].append(n)
+                self.mount_sequence[actor_name].append(o)
 
                 self.mount_sequence[actor_name].start()
 
@@ -240,6 +240,7 @@ class NpcFSM(FSM):
                 j = Func(self.fsm_state_wrapper, actor, "human_states", "is_on_horse", False)
                 k = Func(parent.set_python_tag, "is_mounted", False)
                 l = Func(child.set_collide_mask, BitMask32.allOn())
+                m = Func(actor.set_python_tag, "current_task", None)
 
                 self.unmount_sequence[actor_name].append(a)
                 self.unmount_sequence[actor_name].append(b)
@@ -252,6 +253,7 @@ class NpcFSM(FSM):
                 self.unmount_sequence[actor_name].append(j)
                 self.unmount_sequence[actor_name].append(k)
                 self.unmount_sequence[actor_name].append(l)
+                self.unmount_sequence[actor_name].append(m)
 
                 self.unmount_sequence[actor_name].start()
 

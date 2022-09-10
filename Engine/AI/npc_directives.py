@@ -106,27 +106,31 @@ class NpcDirectives:
                 if not actor.get_python_tag("generic_states")['is_busy']:
                     if player_dist is not None and player_dist > 1:
                         if "Horse" in player.get_parent().get_name():
-                            pos = player.get_parent().get_parent().get_pos() + Vec3(2, 2, 0)
-                            rider_horse_bs = NodePath("destpoint")
-                            rider_horse_bs.set_pos(pos)
-                            self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                                     rider_horse_bs, request)
+                            if actor.get_python_tag("current_task") is None:
+                                pos = player.get_parent().get_parent().get_pos() + Vec3(2, 2, 0)
+                                rider_horse_bs = NodePath("destpoint")
+                                rider_horse_bs.set_pos(pos)
+                                self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
+                                                                         rider_horse_bs, request)
                         else:
-                            self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                                     player, request)
+                            if actor.get_python_tag("current_task") is None:
+                                self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
+                                                                         player, request)
 
             elif actor.get_python_tag("human_states")['is_on_horse']:
                 if not actor.get_python_tag("generic_states")['is_busy']:
                     if player_dist is not None and player_dist > 2:
                         if "Horse" in player.get_parent().get_name():
-                            pos = player.get_parent().get_parent().get_pos() + Vec3(2, 2, 0)
-                            rider_horse_bs = NodePath("destpoint")
-                            rider_horse_bs.set_pos(pos)
-                            self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                                     rider_horse_bs, request)
+                            if actor.get_python_tag("current_task") is None:
+                                pos = player.get_parent().get_parent().get_pos() + Vec3(2, 2, 0)
+                                rider_horse_bs = NodePath("destpoint")
+                                rider_horse_bs.set_pos(pos)
+                                self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
+                                                                         rider_horse_bs, request)
                         else:
-                            self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                                     player, request)
+                            if actor.get_python_tag("current_task") is None:
+                                self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
+                                                                         player, request)
 
             if not actor.get_python_tag("human_states")["has_bow"]:
                 self._melee_attack(actor, actor_npc_bs, player,
@@ -166,26 +170,30 @@ class NpcDirectives:
             if not actor.get_python_tag("human_states")['is_on_horse']:
                 if enemy_dist is not None and enemy_dist > 1:
                     if "Horse" in enemy_npc_bs.get_parent().get_name():
-                        pos = enemy_npc_bs.get_parent().get_parent().get_pos() + Vec3(2, 2, 0)
-                        rider_horse_bs = NodePath("destpoint")
-                        rider_horse_bs.set_pos(pos)
-                        self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                                 rider_horse_bs, request)
+                        if actor.get_python_tag("current_task") is None:
+                            pos = enemy_npc_bs.get_parent().get_parent().get_pos() + Vec3(2, 2, 0)
+                            rider_horse_bs = NodePath("destpoint")
+                            rider_horse_bs.set_pos(pos)
+                            self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
+                                                                     rider_horse_bs, request)
                     else:
-                        self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                                 enemy_npc_bs, request)
+                        if actor.get_python_tag("current_task") is None:
+                            self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
+                                                                     enemy_npc_bs, request)
 
             elif actor.get_python_tag("human_states")['is_on_horse']:
                 if enemy_dist is not None and enemy_dist > 2:
                     if "Horse" in enemy_npc_bs.get_parent().get_name():
-                        pos = enemy_npc_bs.get_parent().get_parent().get_pos() + Vec3(2, 2, 0)
-                        rider_horse_bs = NodePath("destpoint")
-                        rider_horse_bs.set_pos(pos)
-                        self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                                 rider_horse_bs, request)
+                        if actor.get_python_tag("current_task") is None:
+                            pos = enemy_npc_bs.get_parent().get_parent().get_pos() + Vec3(2, 2, 0)
+                            rider_horse_bs = NodePath("destpoint")
+                            rider_horse_bs.set_pos(pos)
+                            self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
+                                                                     rider_horse_bs, request)
                     else:
-                        self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                                 enemy_npc_bs, request)
+                        if actor.get_python_tag("current_task") is None:
+                            self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
+                                                                     enemy_npc_bs, request)
 
             if not actor.get_python_tag("human_states")["has_bow"]:
                 self._melee_attack(actor, actor_npc_bs, enemy_npc_bs,

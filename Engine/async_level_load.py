@@ -646,6 +646,9 @@ class AsyncLevelLoad:
                             # Set NPC Horse Tag
                             self.actor.set_python_tag("mounted_horse", None)
 
+                            # Set the current task or quest name keeping tag
+                            self.actor.set_python_tag("current_task", None)
+
                             # Set NPC which potentially could be enemy
                             self.actor.set_python_tag("enemy_npc_ref", None)
                             self.actor.set_python_tag("enemy_npc_bs", None)
