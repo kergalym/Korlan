@@ -74,16 +74,14 @@ class QuestLogic:
             self.current_seq = None
 
     def toggle_sitting_state(self, actor, place, anim, anim_next, task):
-        any_action_seq = actor.actor_interval(anim, loop=0)
-        any_action_next_seq = actor.actor_interval(anim_next, loop=1)
-
-        txt_cap = render.find("**/txt_sit")
-
         if (self.base.game_instance["is_player_sitting"]
                 and self.base.game_instance["is_indoor"]
                 and self.base.player_states["is_busy"]):
+            txt_cap = render.find("**/txt_sit")
+
             if txt_cap:
-                txt_cap.hide()
+                txt_cap.show()
+
             if "Player" in actor.get_name():
                 self.base.game_instance["is_player_sitting"] = False
                 self.base.camera.set_z(0.0)
@@ -100,6 +98,14 @@ class QuestLogic:
         elif (not self.base.game_instance["is_player_sitting"]
               and self.base.game_instance["is_indoor"]
               and not self.base.player_states["is_busy"]):
+            any_action_seq = actor.actor_interval(anim, loop=0)
+            any_action_next_seq = actor.actor_interval(anim_next, loop=1)
+
+            txt_cap = render.find("**/txt_rest")
+
+            if txt_cap:
+                txt_cap.hide()
+
             if "Player" in actor.get_name():
                 self.base.game_instance["is_player_sitting"] = True
                 self.base.camera.set_z(-0.5)
@@ -204,14 +210,11 @@ class QuestLogic:
                             self.current_seq.start()
 
     def toggle_laying_state(self, actor, place, anim, anim_next, task):
-        any_action_seq = actor.actor_interval(anim, loop=0)
-        any_action_next_seq = actor.actor_interval(anim_next, loop=1)
-
-        txt_cap = render.find("**/txt_rest")
-
         if (self.base.game_instance["is_player_laying"]
                 and self.base.game_instance["is_indoor"]
                 and self.base.player_states["is_busy"]):
+            txt_cap = render.find("**/txt_rest")
+
             if txt_cap:
                 txt_cap.show()
             # Stop having rest
@@ -231,9 +234,14 @@ class QuestLogic:
                          Func(self.set_place_state, place, False),
                          Func(self.set_action_state, actor, "is_busy", False)).start()
 
-        if (not self.base.game_instance["is_player_laying"]
+        elif (not self.base.game_instance["is_player_laying"]
                 and self.base.game_instance["is_indoor"]
                 and not self.base.player_states["is_busy"]):
+            any_action_seq = actor.actor_interval(anim, loop=0)
+            any_action_next_seq = actor.actor_interval(anim_next, loop=1)
+
+            txt_cap = render.find("**/txt_rest")
+
             if txt_cap:
                 txt_cap.hide()
             # Start having rest

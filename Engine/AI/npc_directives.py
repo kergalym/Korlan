@@ -114,8 +114,10 @@ class NpcDirectives:
                                                                          rider_horse_bs, request)
                         else:
                             if actor.get_python_tag("current_task") is None:
-                                self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                                         player, request)
+                                # Won't follow player is it's indoor
+                                if not self.base.game_instance["is_indoor"]:
+                                    self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
+                                                                             player, request)
 
             elif actor.get_python_tag("human_states")['is_on_horse']:
                 if not actor.get_python_tag("generic_states")['is_busy']:
@@ -129,8 +131,10 @@ class NpcDirectives:
                                                                          rider_horse_bs, request)
                         else:
                             if actor.get_python_tag("current_task") is None:
-                                self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
-                                                                         player, request)
+                                # Won't follow player is it's indoor
+                                if not self.base.game_instance["is_indoor"]:
+                                    self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
+                                                                             player, request)
 
             if not actor.get_python_tag("human_states")["has_bow"]:
                 self._melee_attack(actor, actor_npc_bs, player,

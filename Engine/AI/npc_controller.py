@@ -305,14 +305,14 @@ class NpcController:
                 # Change animation
                 if actor.get_python_tag("npc_type") == "npc":
                     walk_anim = anim_names.a_anim_walking
-                    func_interval = Func(request.request, "Walk", actor, walk_anim, "loop")
-                    self.walking_sequence[actor_name].append(func_interval)
+                    walk_interval = Func(request.request, "Walk", actor, walk_anim, "loop")
+                    self.walking_sequence[actor_name].append(walk_interval)
 
                 elif actor.get_python_tag("npc_type") == "npc_animal":
                     walk_anim = anim_names.a_anim_horse_walking
                     npc_ref = self.base.game_instance["actors_ref"][actor.get_name()]
-                    func_interval = Func(request.request, "Walk", npc_ref, walk_anim, "loop")
-                    self.walking_sequence[actor_name].append(func_interval)
+                    walk_interval = Func(request.request, "Walk", npc_ref, walk_anim, "loop")
+                    self.walking_sequence[actor_name].append(walk_interval)
 
                 for i in range(len(path_points) - 1):
                     speed = 2
@@ -338,8 +338,8 @@ class NpcController:
 
                     current_dir = new_hpr
 
-                func_interval = Func(self.npc_in_staying_logic, actor, request)
-                self.walking_sequence[actor_name].append(func_interval)
+                staying_interval = Func(self.npc_in_staying_logic, actor, request)
+                self.walking_sequence[actor_name].append(staying_interval)
                 self.walking_sequence[actor_name].start()
 
     def npc_in_walking_logic(self, actor, actor_npc_bs, target, request):

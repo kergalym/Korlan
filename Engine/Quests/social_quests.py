@@ -325,7 +325,7 @@ class SocialQuests:
                                                                  anim_names.a_anim_sleeping,
                                                                  "loop")
             if ("NPC" in node.get_name()
-                    and ":BS" in node.get_name()
+                    and "trigger" not in node.get_name()
                     and "Hips" not in node.get_name()
                     and "Hand" not in node.get_name()):
                 name = node.get_name()

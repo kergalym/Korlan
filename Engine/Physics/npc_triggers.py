@@ -52,14 +52,16 @@ class NpcTriggers:
                         if self.base.game_instance['player_ref'] and player_bs:
                             if round(player_bs.get_distance(trigger_np)) <= 2 \
                                     and round(player_bs.get_distance(trigger_np)) >= 1:
-                                if (not animal_actor.get_python_tag("is_mounted")
-                                        and not player.get_python_tag("is_on_horse")):
-                                    # keep horse name if detected actor is the player
-                                    # and player is not on horse and horse is free
-                                    animal_actor.set_python_tag("is_ready_to_be_used", True)
-                                    if hasattr(base, "player_states"):
-                                        base.player_states["horse_is_ready_to_be_used"] = True
-                                        base.game_instance['player_using_horse'] = animal_actor.get_name()
+
+                                if "Korlan" in animal_actor.get_name():
+                                    if (not animal_actor.get_python_tag("is_mounted")
+                                            and not player.get_python_tag("is_on_horse")):
+                                        # keep horse name if detected actor is the player
+                                        # and player is not on horse and horse is free
+                                        animal_actor.set_python_tag("is_ready_to_be_used", True)
+                                        if hasattr(base, "player_states"):
+                                            base.player_states["horse_is_ready_to_be_used"] = True
+                                            base.game_instance['player_using_horse'] = animal_actor.get_name()
 
                                 # Show Horse HUD
                                 if animal_actor.get_python_tag("npc_hud_np"):
@@ -80,11 +82,12 @@ class NpcTriggers:
                                         and not animal_actor.get_python_tag("npc_hud_np").is_hidden()):
                                     animal_actor.get_python_tag("npc_hud_np").hide()
 
-                                if (not animal_actor.get_python_tag("is_mounted")
-                                        and not player.get_python_tag("is_on_horse")):
-                                    animal_actor.set_python_tag("is_ready_to_be_used", False)
-                                    if hasattr(base, "player_states"):
-                                        base.player_states["horse_is_ready_to_be_used"] = False
+                                if "Korlan" in animal_actor.get_name():
+                                    if (not animal_actor.get_python_tag("is_mounted")
+                                            and not player.get_python_tag("is_on_horse")):
+                                        animal_actor.set_python_tag("is_ready_to_be_used", False)
+                                        if hasattr(base, "player_states"):
+                                            base.player_states["horse_is_ready_to_be_used"] = False
 
                 # Hide Horse HUD while Inventory or menu is opening
                 if self.base.game_instance['ui_mode']:
