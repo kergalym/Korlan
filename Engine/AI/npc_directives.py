@@ -118,6 +118,8 @@ class NpcDirectives:
                                 if not self.base.game_instance["is_indoor"]:
                                     self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
                                                                              player, request)
+                                else:
+                                    self.npc_controller.npc_in_staying_logic(actor, request)
 
             elif actor.get_python_tag("human_states")['is_on_horse']:
                 if not actor.get_python_tag("generic_states")['is_busy']:
@@ -135,6 +137,8 @@ class NpcDirectives:
                                 if not self.base.game_instance["is_indoor"]:
                                     self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
                                                                              player, request)
+                                else:
+                                    self.npc_controller.npc_in_staying_logic(actor, request)
 
             if not actor.get_python_tag("human_states")["has_bow"]:
                 self._melee_attack(actor, actor_npc_bs, player,

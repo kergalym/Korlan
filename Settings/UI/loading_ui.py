@@ -111,31 +111,31 @@ class LoadingUI:
             self.media.stop()
 
     def prepare_to_game(self):
-        self.clear_loading_bar()
+        if self.base.game_instance['loading_is_done'] == 0:
+            self.clear_loading_bar()
+            if self.game_settings['Debug']['set_editor_mode'] == 'NO':
+                self.hud = HUD()
+                self.base.game_instance['hud_np'] = self.hud
+                self.hud.set_aim_cursor()
+                self.hud.set_day_hud()
+                self.hud.set_player_bar()
+                self.hud.set_weapon_ui()
+                self.item_menu = ItemMenu()
+                self.base.game_instance['item_menu_np'] = self.item_menu
 
-        if self.game_settings['Debug']['set_editor_mode'] == 'NO':
-            self.hud = HUD()
-            self.base.game_instance['hud_np'] = self.hud
-            self.hud.set_aim_cursor()
-            self.hud.set_day_hud()
-            self.hud.set_player_bar()
-            self.hud.set_weapon_ui()
-            self.item_menu = ItemMenu()
-            self.base.game_instance['item_menu_np'] = self.item_menu
+            if self.game_settings['Debug']['set_debug_mode'] == 'YES':
+                self.stat_ui.set_game_stat()
 
-        if self.game_settings['Debug']['set_debug_mode'] == 'YES':
-            self.stat_ui.set_game_stat()
+            if self.game_settings['Debug']['set_editor_mode'] == 'YES':
+                self.editor = Editor()
+                self.editor.set_editor()
 
-        if self.game_settings['Debug']['set_editor_mode'] == 'YES':
-            self.editor = Editor()
-            self.editor.set_editor()
+            self.base.game_instance['loading_is_done'] = 1
 
-        self.base.game_instance['loading_is_done'] = 1
-
-        self.set_fadeout_screen()
-        taskMgr.add(self.fadeout_task,
-                    "fadeout_task",
-                    appendTask=True)
+            self.set_fadeout_screen()
+            taskMgr.add(self.fadeout_task,
+                        "fadeout_task",
+                        appendTask=True)
 
     def set_fadeout_screen(self):
         self.fadeout_screen = DirectFrame(frameColor=(0, 0, 0, 1),

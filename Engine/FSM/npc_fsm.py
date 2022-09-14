@@ -133,17 +133,6 @@ class NpcFSM(FSM):
                                  Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", False),
                                  Func(self.fsm_state_wrapper, actor, "human_states", has_weapon, False)).start()
 
-    def npc_mount_helper_task(self, child, child_ref, mounting_pos, action, task):
-        if child:
-
-            if not child_ref.get_python_tag("human_states")['is_on_horse']:
-                if child_ref.get_current_frame(action):
-                    if child_ref.get_current_frame(action) > 47:
-                        child.set_x(0)
-                        child_ref.set_z(mounting_pos[2])
-
-        return task.cont
-
     def enterHorseMount(self, actor, child, parent):
         if actor and parent and child:
             actor_name = actor.get_name()
@@ -160,13 +149,7 @@ class NpcFSM(FSM):
                                                                playRate=self.base.actor_play_rate)
                 actor.set_python_tag("mounted_horse", parent)
 
-                mount_task_name = "{0}_npc_mount_helper_task".format(actor_name.lower())
-                taskMgr.add(self.npc_mount_helper_task,
-                            mount_task_name,
-                            extraArgs=[child, actor, mounting_pos, anim_names.a_anim_horse_mounting],
-                            appendTask=True)
-
-                # Horse mounting consists of 13 intervals
+                # Horse mounting consists of 14 intervals
                 a = Func(child.set_collide_mask, BitMask32.allOff())
                 b = Func(self.fsm_state_wrapper, actor, "generic_states", "is_using", True)
                 c = Parallel(mount_action_seq,
@@ -178,6 +161,7 @@ class NpcFSM(FSM):
                              )
                 d = Func(child.set_x, saddle_pos[0])
                 e = Func(child.set_y, saddle_pos[1])
+                e1 = Func(actor.set_h, 0)
 
                 # bullet shape has impact of gravity
                 # so make player geom stay higher instead
@@ -187,15 +171,15 @@ class NpcFSM(FSM):
                 j = Func(self.fsm_state_wrapper, actor, "human_states", "horse_riding", True)
                 k = Func(self.fsm_state_wrapper, actor, "human_states", "is_on_horse", True)
                 l = Func(parent.set_python_tag, "is_mounted", True)
-                m = Func(taskMgr.remove, mount_task_name)
-                n = Func(actor.set_python_tag, "current_task", None)
-                o = horse_riding_action_seq
+                m = Func(actor.set_python_tag, "current_task", None)
+                n = horse_riding_action_seq
 
                 self.mount_sequence[actor_name].append(a)
                 self.mount_sequence[actor_name].append(b)
                 self.mount_sequence[actor_name].append(c)
                 self.mount_sequence[actor_name].append(d)
                 self.mount_sequence[actor_name].append(e)
+                self.mount_sequence[actor_name].append(e1)
                 self.mount_sequence[actor_name].append(f)
                 self.mount_sequence[actor_name].append(g)
                 self.mount_sequence[actor_name].append(h)
@@ -204,7 +188,6 @@ class NpcFSM(FSM):
                 self.mount_sequence[actor_name].append(l)
                 self.mount_sequence[actor_name].append(m)
                 self.mount_sequence[actor_name].append(n)
-                self.mount_sequence[actor_name].append(o)
 
                 self.mount_sequence[actor_name].start()
 
