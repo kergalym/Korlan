@@ -9,6 +9,8 @@ from Engine.AI.npc_behavior import NpcBehavior
 """ ANIMATIONS"""
 from Engine import anim_names
 
+from random import random
+
 
 class NpcController:
 
@@ -298,9 +300,31 @@ class NpcController:
 
                 self.navmesh_query.nearest_point(actor_npc_bs.get_pos())
 
-                # Set last pos from opposite actor's world points
-                last_pos = self.render.get_relative_vector(target.get_parent(),
-                                                           target.get_pos())
+                # Make target nodepath with defined margins for NPC actors
+                if "NPC" in target.get_name() and "Horse" not in target.get_name():
+                    num = random()
+                    # Correct walking path to avoid any other NPC interference
+                    pos = target.get_pos() + Vec3(1, num*4, 0)
+                    name = "{0}_margins".format(target.get_name())
+                    m_target = NodePath(name)
+                    m_target.set_pos(pos)
+                    # Set last pos from opposite actor's world points
+                    last_pos = self.render.get_relative_vector(m_target.get_parent(),
+                                                               m_target.get_pos())
+                elif "Player" in target.get_name():
+                    num = random()
+                    # Correct walking path to avoid any other NPC interference
+                    pos = target.get_pos() + Vec3(1, num*4, 0)
+                    name = "{0}_margins".format(target.get_name())
+                    m_target = NodePath(name)
+                    m_target.set_pos(pos)
+                    # Set last pos from opposite actor's world points
+                    last_pos = self.render.get_relative_vector(m_target.get_parent(),
+                                                               m_target.get_pos())
+                else:
+                    # Set last pos from opposite actor's world points
+                    last_pos = self.render.get_relative_vector(target.get_parent(),
+                                                               target.get_pos())
                 last_pos = Point3(last_pos[0], last_pos[1], 0)
 
                 self.navmesh.update()

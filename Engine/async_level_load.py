@@ -498,8 +498,11 @@ class AsyncLevelLoad:
 
             self.korlan.set_python_tag("first_attack", False)
 
-            # Keep my hitboxes here
+            # Keep Player hitboxes here
             self.korlan.set_python_tag("actor_hitboxes", None)
+
+            # Set Player Priority
+            self.korlan.set_python_tag("priority", 0)
 
             # Set Player Parameters
             self.state.set_state(actor=self.korlan)
@@ -652,6 +655,9 @@ class AsyncLevelLoad:
                             # Set NPC which potentially could be enemy
                             self.actor.set_python_tag("enemy_npc_ref", None)
                             self.actor.set_python_tag("enemy_npc_bs", None)
+
+                            # Set NPC Priority
+                            self.actor.set_python_tag("priority", 0)
 
                         # Set NPC Parameters
                         self.npc_state.setup_npc_state(actor=self.actor)

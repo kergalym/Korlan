@@ -120,10 +120,10 @@ class NpcBehavior:
                                                                          player_dist, request)
                                 elif not base.player_states['is_alive']:
                                     if player_dist <= 1:
-                                        self.npc_controller.npc_in_staying_logic(actor, request)
+                                        if not actor.get_python_tag("generic_states")['is_idle']:
+                                            self.npc_controller.npc_in_staying_logic(actor, request)
 
-                                # ENEMY
-                                if enemy_npc_ref.get_python_tag("generic_states")['is_alive']:
+                                    # ENEMY
                                     if enemy_npc_ref.get_python_tag("generic_states")['is_alive']:
                                         self.npc_directives.work_with_enemy(actor, actor_npc_bs,
                                                                             enemy_npc_ref,
@@ -131,7 +131,8 @@ class NpcBehavior:
                                                                             hitbox_dist, request)
                                     else:
                                         if enemy_dist <= 1:
-                                            self.npc_controller.npc_in_staying_logic(actor, request)
+                                            if not actor.get_python_tag("generic_states")['is_idle']:
+                                                self.npc_controller.npc_in_staying_logic(actor, request)
             # If me is dead
             else:
                 self.npc_controller.npc_in_dying_logic(actor, request)

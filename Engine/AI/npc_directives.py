@@ -215,8 +215,18 @@ class NpcDirectives:
         self.npc_controller.face_actor_to(actor_npc_bs, oppo_npc_bs)
         # Counterattack an enemy or do block
         # Do attack only if play did first attack
-        player = self.base.game_instance["player_ref"]
-        if player.get_python_tag("first_attack"):
+        if base.player_states['is_alive']:
+            player = self.base.game_instance["player_ref"]
+            if player.get_python_tag("first_attack"):
+                if not actor.get_python_tag("human_states")['is_on_horse']:
+                    self.npc_controller.do_defensive_prediction(actor, actor_npc_bs,
+                                                                request, hitbox_dist)
+                else:
+                    npc = actor.get_python_tag("mounted_horse")
+                    npc_bs = npc.get_parent()
+                    self.npc_controller.do_defensive_prediction(npc, npc_bs,
+                                                                request, hitbox_dist)
+        else:
             if not actor.get_python_tag("human_states")['is_on_horse']:
                 self.npc_controller.do_defensive_prediction(actor, actor_npc_bs,
                                                             request, hitbox_dist)

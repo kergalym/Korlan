@@ -80,7 +80,7 @@ class NpcDamages:
                             if hand in hitbox_np.get_parent().get_name():
                                 return hitbox_np
 
-    def _do_death(self, actor, request, task):
+    def _do_death(self, actor, request):
         if (actor.get_python_tag("health_np")['value'] < 2
                 or actor.get_python_tag("health_np")['value'] < 1):
             if actor.get_python_tag("stamina_np")['value'] > 1:
@@ -90,14 +90,11 @@ class NpcDamages:
                 if actor.get_python_tag("generic_states")['is_idle']:
                     request.request("Death", actor, "Dying", "play")
 
-        if not actor.get_python_tag("generic_states")['is_alive']:
-            return task.done
-
     def actor_hitbox_trace_task(self, actor, actor_bs, hips, request, task):
         if self.base.game_instance['menu_mode']:
             return task.done
 
-        name = actor.get_name()
+        name_bs = actor_bs.get_name()
         parent_node = hips.node()
         parent_np = hips
         node_np = None
@@ -108,20 +105,26 @@ class NpcDamages:
             if "BS" not in node.get_name():
                 continue
 
-            if name in node.get_name():
-                continue
-
             if "Crouch" in node.get_name():
                 continue
 
-            # Get enemy and its health and weapon state (equipped or not)
-            for actor_name in self.base.game_instance["actors_ref"]:
-                if node.get_name() == actor_name:
-                    node_np = self.base.game_instance["actors_ref"][actor_name]
-                    enemy_is_alive = node_np.get_python_tag("generic_states")['is_alive']
-                else:
-                    node_np = self.base.game_instance["player_ref"]
-                    enemy_is_alive = base.player_states['is_alive']
+            if name_bs in node.get_name():
+                continue
+
+            # Get enemy based on its health and weapon state (equipped or not)
+            if base.player_states['is_alive']:
+                node_np = self.base.game_instance["player_ref"]
+                enemy_is_alive = base.player_states['is_alive']
+            else:
+                if node is not None and node.get_name().endswith(":BS"):
+                    node_name = node.get_name().split(":")[0]
+                    if self.base.game_instance["actors_ref"].get(node_name) is not None:
+                        node_np = self.base.game_instance["actors_ref"][node_name]
+                        enemy_is_alive = node_np.get_python_tag("generic_states")['is_alive']
+
+                # Arrow Damage
+                if node_np is not None and node_np.get_python_tag("human_states")["has_bow"]:
+                    self._do_any_damage(actor, actor_bs, "Arrow_BRB", request)
 
             if enemy_is_alive:
                 # Find active hitbox in the enemy actor node before doing damage
@@ -136,11 +139,8 @@ class NpcDamages:
                                 hitbox_np = hitboxes[hitbox]
                                 self._do_damage(actor, actor_bs, node, hitbox_np, parent_np, request)
 
-        # Arrow Damage
-        self._do_any_damage(actor, actor_bs, "Arrow_BRB", request)
-
         # NPC dies if it has no health
-        self._do_death(actor, request, task)
+        self._do_death(actor, request)
 
         if not actor.get_python_tag("generic_states")['is_alive']:
             return task.done
