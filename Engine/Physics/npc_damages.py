@@ -122,10 +122,6 @@ class NpcDamages:
                         node_np = self.base.game_instance["actors_ref"][node_name]
                         enemy_is_alive = node_np.get_python_tag("generic_states")['is_alive']
 
-                # Arrow Damage
-                if node_np is not None and node_np.get_python_tag("human_states")["has_bow"]:
-                    self._do_any_damage(actor, actor_bs, "Arrow_BRB", request)
-
             if enemy_is_alive:
                 # Find active hitbox in the enemy actor node before doing damage
                 hitbox_np = self._find_any_weapon(actor=actor, enemy=node_np)
@@ -138,6 +134,9 @@ class NpcDamages:
                             if hitboxes.get(hitbox):
                                 hitbox_np = hitboxes[hitbox]
                                 self._do_damage(actor, actor_bs, node, hitbox_np, parent_np, request)
+
+        # Arrow Damage
+        self._do_any_damage(actor, actor_bs, "Arrow_BRB", request)
 
         # NPC dies if it has no health
         self._do_death(actor, request)

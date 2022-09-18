@@ -101,10 +101,8 @@ class PlayerDamages:
                                             hitbox_np = hitboxes[hitbox]
                                             self._do_damage(actor, hitbox_np, parent_np, request)
 
-                        if enemy_ref.has_tag("humans_states"):
-                            if enemy_ref.get_python_tag("human_states")["has_bow"]:
-                                # Arrow Damage
-                                self._do_any_damage(actor, actor_bs, "Arrow_BRB", request)
+        # Arrow Damage
+        self._do_any_damage(actor, actor_bs, "Arrow_BRB", request)
 
         # Player dies if he has no health point
         self._do_death(actor, request)

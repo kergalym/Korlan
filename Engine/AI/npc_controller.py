@@ -146,6 +146,15 @@ class NpcController:
                         heading = Vec3(Vec2(0, 1).signed_angle_deg(rot_vector_2d), 0).x
                         actor_bs.set_h(heading)
 
+                elif actor_bs.get_child(0).get_python_tag("human_states")["has_bow"]:
+                    # Calculate NPC rotation vector
+                    new_target_np = self.get_target_npc_in_state(target_np)
+                    rot_vector = Vec3(actor_bs.get_pos() - new_target_np.get_pos())
+                    rot_vector_2d = rot_vector.get_xy()
+                    rot_vector_2d.normalize()
+                    heading = Vec3(Vec2(0, 1).signed_angle_deg(rot_vector_2d), 0).x
+                    actor_bs.set_h(heading)
+
     def is_ready_for_walking(self, actor):
         if actor.get_python_tag("human_states"):
             if not actor.get_python_tag("human_states")['is_on_horse']:
