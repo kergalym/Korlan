@@ -60,7 +60,8 @@ class CameraCollider:
             return task.done
 
         if (not self.base.game_instance["ui_mode"]
-                and not self.base.game_instance["inv_mode"]):
+                and not self.base.game_instance["inv_mode"]
+                and base.player_states["is_alive"]):
 
             close_y = -2.0
             def_y = self.base.game_instance["mouse_y_cam"]

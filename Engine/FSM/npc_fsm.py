@@ -133,6 +133,18 @@ class NpcFSM(FSM):
                                  Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", False),
                                  Func(self.fsm_state_wrapper, actor, "human_states", has_weapon, False)).start()
 
+    def filterGetWeapon(self, request, args):
+        if request not in ['HorseMount']:
+            return (request,) + args
+        else:
+            return None
+
+    def filterRemoveWeapon(self, request, args):
+        if request not in ['HorseUnmount']:
+            return (request,) + args
+        else:
+            return None
+
     def enterHorseMount(self, actor, child, parent):
         if actor and parent and child:
             actor_name = actor.get_name()

@@ -1,3 +1,4 @@
+
 from panda3d.bullet import BulletCharacterControllerNode, BulletBoxShape, BulletSoftBodyConfig, BulletSoftBodyNode
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import Vec3, BitMask32, NodePath, GeomNode
@@ -393,7 +394,7 @@ class PhysicsAttr:
             ground_shape = BulletPlaneShape(Vec3(0, 0, 1), 0)
             ground_nodepath = self.world_nodepath.attach_new_node(BulletRigidBodyNode('Ground'))
             ground_nodepath.node().add_shape(ground_shape)
-            ground_nodepath.set_pos(0, 0, 0.10)
+            ground_nodepath.set_pos(0, 0, 0)
             ground_nodepath.node().set_into_collide_mask(self.mask)
             self.world.attach_rigid_body(ground_nodepath.node())
 

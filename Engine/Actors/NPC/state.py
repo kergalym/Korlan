@@ -208,6 +208,7 @@ class NpcState:
                     weapon.set_hpr(212.47, 0.0, 18.43)
                     if weapon.is_hidden():
                         weapon.show()
+                    actor.set_python_tag("current_hitbox", weapon)
 
                 elif "bow" in weapon_name:
                     weapon = actor.find("**/{0}".format(weapon_name))
@@ -218,6 +219,7 @@ class NpcState:
                     weapon.set_hpr(216.57, 293.80, 316.85)
                     if weapon.is_hidden():
                         weapon.show()
+                    actor.set_python_tag("current_hitbox", weapon)
 
     def remove_weapon(self, actor, weapon_name, bone_name):
         if (actor and weapon_name and bone_name
@@ -229,7 +231,6 @@ class NpcState:
                     # get weapon collider
                     weapon = actor.find("**/{0}_BGN".format(weapon_name))
                     weapon.reparent_to(joint)
-                    # self.clear_weapon_collider(weapon=weapon, joint=joint)
                     # rescale weapon because it's scale 100 times smaller than we need
                     weapon.set_scale(100)
                     weapon.set_pos(10, -14.90, -8)

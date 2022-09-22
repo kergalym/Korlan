@@ -433,7 +433,8 @@ class Sheet(Inventory):
         if (not self.base.game_instance['menu_mode']
                 and not self.base.game_instance["item_menu_mode"]
                 and not self.base.game_instance['esc_mode']
-                and not self.base.game_instance["is_player_sitting"]):
+                and not self.base.game_instance["is_player_sitting"]
+                and base.player_states["is_alive"]):
             player = self.base.game_instance['player_ref']
             if not player.get_python_tag("is_on_horse"):
                 if self.frame_inv:

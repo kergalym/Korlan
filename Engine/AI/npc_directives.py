@@ -118,6 +118,8 @@ class NpcDirectives:
                                 if actor.get_python_tag("current_task") is None:
                                     # Won't follow player is it's indoor
                                     if not self.base.game_instance["is_indoor"]:
+                                        """if actor.get_python_tag("move_type") == "walk":
+                                            actor.set_python_tag("move_type", "run")"""
                                         self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
                                                                                  player, request)
                                     else:

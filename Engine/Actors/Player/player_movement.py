@@ -293,7 +293,7 @@ class PlayerMovement:
                 and not self.kbd.keymap["block"]):
             # If a move-key is pressed, move the player in the specified direction.
             speed = Vec3(0, 0, 0)
-            move_unit = 7
+            move_unit = 5
 
             self.decrement_stamina_while_running(player, move_unit)
 

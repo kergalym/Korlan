@@ -290,15 +290,16 @@ class SocialQuests:
                     name = node.get_name()
                     name = name.split(":")[0]
                     name_bs = node.get_name()
-                    actor = self.base.game_instance["actors_ref"][name]
-                    actor_bs = self.base.game_instance["actors_np"][name_bs]
-                    if (int(actor_bs.get_distance(place)) <= 1
-                            and actor.get_python_tag("directive_num") == 1):
-                        self.quest_logic.toggle_npc_sitting_state(actor,
-                                                                  place,
-                                                                  anim_names.a_anim_stand_sit,
-                                                                  anim_names.a_anim_sitting_turkic,
-                                                                  "loop")
+                    actor = self.base.game_instance["actors_ref"].get(name)
+                    actor_bs = self.base.game_instance["actors_np"].get(name_bs)
+                    if actor is not None and actor_bs is not None:
+                        if (int(actor_bs.get_distance(place)) <= 1
+                                and actor.get_python_tag("directive_num") == 1):
+                            self.quest_logic.toggle_npc_sitting_state(actor,
+                                                                      place,
+                                                                      anim_names.a_anim_stand_sit,
+                                                                      anim_names.a_anim_sitting_turkic,
+                                                                      "loop")
 
         return task.cont
 
@@ -331,16 +332,17 @@ class SocialQuests:
                 name = node.get_name()
                 name = name.split(":")[0]
                 name_bs = node.get_name()
-                actor = self.base.game_instance["actors_ref"][name]
-                actor_bs = self.base.game_instance["actors_np"][name_bs]
-                if (int(actor_bs.get_distance(place)) <= 1
-                        and actor.get_python_tag("directive_num") == 2):
-                    # todo: change to suitable standing_to_laying anim
-                    self.quest_logic.toggle_npc_laying_state(actor,
-                                                             place,
-                                                             anim_names.a_anim_stand_lay,
-                                                             anim_names.a_anim_sleeping,
-                                                             "loop")
+                actor = self.base.game_instance["actors_ref"].get(name)
+                actor_bs = self.base.game_instance["actors_np"].get(name_bs)
+                if actor is not None and actor_bs is not None:
+                    if (int(actor_bs.get_distance(place)) <= 1
+                            and actor.get_python_tag("directive_num") == 2):
+                        # todo: change to suitable standing_to_laying anim
+                        self.quest_logic.toggle_npc_laying_state(actor,
+                                                                 place,
+                                                                 anim_names.a_anim_stand_lay,
+                                                                 anim_names.a_anim_sleeping,
+                                                                 "loop")
 
         return task.cont
 
@@ -369,11 +371,12 @@ class SocialQuests:
                     name = node.get_name()
                     name = name.split(":")[0]
                     name_bs = node.get_name()
-                    actor = self.base.game_instance["actors_ref"][name]
-                    actor_bs = self.base.game_instance["actors_np"][name_bs]
-                    if (int(actor_bs.get_distance(place)) <= 1
-                            and actor.get_python_tag("directive_num") == 4):
-                        self.quest_logic.play_action_state(actor, anim_names.a_anim_spring_water, "play")
+                    actor = self.base.game_instance["actors_ref"].get(name)
+                    actor_bs = self.base.game_instance["actors_np"].get(name_bs)
+                    if actor is not None and actor_bs is not None:
+                        if (int(actor_bs.get_distance(place)) <= 1
+                                and actor.get_python_tag("directive_num") == 4):
+                            self.quest_logic.play_action_state(actor, anim_names.a_anim_spring_water, "play")
 
         return task.cont
 
@@ -486,25 +489,26 @@ class SocialQuests:
                     name = node.get_name()
                     name = name.split(":")[0]
                     name_bs = node.get_name()
-                    actor_npc = self.base.game_instance["actors_ref"][name]
-                    actor_npc_bs = self.base.game_instance["actors_np"][name_bs]
-                    if not actor_npc.get_python_tag("is_item_using"):
-                        if (int(actor_npc_bs.get_distance(actor)) < 2
-                                and actor.get_python_tag("directive_num") == 5):
-                            actor_bs = actor.find("**/{0}:BS".format(actor.get_name()))
-                            # Currently close item parameters
-                            item_prop = {
-                                'type': 'item',
-                                'name': '{0}'.format(actor.get_name()),
-                                'weight': '{0}'.format(1),
-                                'in-use': False,
-                            }
-                            actor_npc.set_python_tag("current_item_prop", item_prop)
-                            actor_npc.set_python_tag("used_item_np", actor_bs)
-                            actor_npc.set_python_tag("is_item_ready", True)
-                        else:
-                            actor_npc.set_python_tag("used_item_np", None)
-                            actor_npc.set_python_tag("is_item_ready", False)
-                            actor_npc.set_python_tag("current_item_prop", None)
+                    actor_npc = self.base.game_instance["actors_ref"].get(name)
+                    actor_npc_bs = self.base.game_instance["actors_np"].get(name_bs)
+                    if actor_npc is not None and actor_npc_bs is not None:
+                        if not actor_npc.get_python_tag("is_item_using"):
+                            if (int(actor_npc_bs.get_distance(actor)) < 2
+                                    and actor.get_python_tag("directive_num") == 5):
+                                actor_bs = actor.find("**/{0}:BS".format(actor.get_name()))
+                                # Currently close item parameters
+                                item_prop = {
+                                    'type': 'item',
+                                    'name': '{0}'.format(actor.get_name()),
+                                    'weight': '{0}'.format(1),
+                                    'in-use': False,
+                                }
+                                actor_npc.set_python_tag("current_item_prop", item_prop)
+                                actor_npc.set_python_tag("used_item_np", actor_bs)
+                                actor_npc.set_python_tag("is_item_ready", True)
+                            else:
+                                actor_npc.set_python_tag("used_item_np", None)
+                                actor_npc.set_python_tag("is_item_ready", False)
+                                actor_npc.set_python_tag("current_item_prop", None)
 
         return task.cont

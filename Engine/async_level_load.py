@@ -501,6 +501,9 @@ class AsyncLevelLoad:
             # Keep Player hitboxes here
             self.korlan.set_python_tag("actor_hitboxes", None)
 
+            # Set Player current hitbox
+            self.korlan.set_python_tag("current_hitbox", None)
+
             # Set Player Priority
             self.korlan.set_python_tag("priority", 0)
 
@@ -593,6 +596,9 @@ class AsyncLevelLoad:
                         self.actor.set_python_tag("npc_name", name)
                         self.actor.set_python_tag("npc_type", _type)
 
+                        # Set NPC Movement types: walk or run
+                        self.actor.set_python_tag("move_type", "walk")
+
                         # Set NPC class
                         self.actor.set_python_tag("npc_class", _class)
 
@@ -658,6 +664,9 @@ class AsyncLevelLoad:
 
                             # Set NPC Priority
                             self.actor.set_python_tag("priority", 0)
+
+                            # Set NPC current hitbox
+                            self.actor.set_python_tag("current_hitbox", None)
 
                         # Set NPC Parameters
                         self.npc_state.setup_npc_state(actor=self.actor)

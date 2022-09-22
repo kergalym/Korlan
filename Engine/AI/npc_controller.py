@@ -312,8 +312,7 @@ class NpcController:
                 # Make target nodepath with defined margins for NPC actors
                 if "NPC" in target.get_name() and "Horse" not in target.get_name():
                     num = random()
-                    # Correct walking path to avoid any other NPC interference
-                    pos = target.get_pos() + Vec3(1, num*4, 0)
+                    pos = target.get_pos() + Vec3(num*3, num*2, 0)
                     name = "{0}_margins".format(target.get_name())
                     m_target = NodePath(name)
                     m_target.set_pos(pos)
@@ -322,8 +321,7 @@ class NpcController:
                                                                m_target.get_pos())
                 elif "Player" in target.get_name():
                     num = random()
-                    # Correct walking path to avoid any other NPC interference
-                    pos = target.get_pos() + Vec3(1, num*4, 0)
+                    pos = target.get_pos() + Vec3(num*3, num*2, 0)
                     name = "{0}_margins".format(target.get_name())
                     m_target = NodePath(name)
                     m_target.set_pos(pos)
@@ -345,20 +343,35 @@ class NpcController:
 
                 self.walking_sequence[actor_name] = Sequence()
 
-                # Change animation
+                # Change animation and speed
+                speed = 2
                 if actor.get_python_tag("npc_type") == "npc":
-                    walk_anim = anim_names.a_anim_walking
-                    walk_interval = Func(request.request, "Walk", actor, walk_anim, "loop")
-                    self.walking_sequence[actor_name].append(walk_interval)
+                    if actor.get_python_tag("move_type") == "walk":
+                        speed = 2
+                        walk_anim = anim_names.a_anim_walking
+                        walk_interval = Func(request.request, "Walk", actor, walk_anim, "loop")
+                        self.walking_sequence[actor_name].append(walk_interval)
+                    elif actor.get_python_tag("move_type") == "run":
+                        speed = 5
+                        run_anim = anim_names.a_anim_run
+                        run_interval = Func(request.request, "Walk", actor, run_anim, "loop")
+                        self.walking_sequence[actor_name].append(run_interval)
 
                 elif actor.get_python_tag("npc_type") == "npc_animal":
-                    walk_anim = anim_names.a_anim_horse_walking
-                    npc_ref = self.base.game_instance["actors_ref"][actor.get_name()]
-                    walk_interval = Func(request.request, "Walk", npc_ref, walk_anim, "loop")
-                    self.walking_sequence[actor_name].append(walk_interval)
+                    if actor.get_python_tag("move_type") == "walk":
+                        speed = 2
+                        walk_anim = anim_names.a_anim_horse_walking
+                        npc_ref = self.base.game_instance["actors_ref"][actor.get_name()]
+                        walk_interval = Func(request.request, "Walk", npc_ref, walk_anim, "loop")
+                        self.walking_sequence[actor_name].append(walk_interval)
+                    elif actor.get_python_tag("move_type") == "run":
+                        speed = 5
+                        run_anim = anim_names.a_anim_horse_run
+                        npc_ref = self.base.game_instance["actors_ref"][actor.get_name()]
+                        run_interval = Func(request.request, "Walk", npc_ref, run_anim, "loop")
+                        self.walking_sequence[actor_name].append(run_interval)
 
                 for i in range(len(path_points) - 1):
-                    speed = 2
 
                     # Heading
                     new_hpr = Vec3(Vec2(0, -1).signed_angle_deg(path_points[i + 1].xy - path_points[i].xy),

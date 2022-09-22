@@ -67,18 +67,11 @@ class NpcDamages:
                                 if actor.get_python_tag("courage_np")['value'] > 1:
                                     actor.get_python_tag("courage_np")['value'] -= 3
 
-    def _find_any_weapon(self, actor, enemy):
-        damage_weapons = actor.get_python_tag("damage_weapons")
-        enemy_hitboxes = enemy.get_python_tag("actor_hitboxes")
-        if enemy_hitboxes:
-            for hand in enemy_hitboxes:
-                hand_hb = enemy_hitboxes.get(hand)
-                if hand_hb:
-                    for weapon in damage_weapons:
-                        hitbox_np = enemy.find("**/{0}".format(weapon))
-                        if hitbox_np:
-                            if hand in hitbox_np.get_parent().get_name():
-                                return hitbox_np
+    def _find_any_weapon(self, enemy):
+        if enemy.get_python_tag("current_hitbox") is not None:
+            hitbox_np = enemy.get_python_tag("current_hitbox")
+            if hitbox_np:
+                return hitbox_np
 
     def _do_death(self, actor, request):
         if (actor.get_python_tag("health_np")['value'] < 2
@@ -124,7 +117,7 @@ class NpcDamages:
 
             if enemy_is_alive:
                 # Find active hitbox in the enemy actor node before doing damage
-                hitbox_np = self._find_any_weapon(actor=actor, enemy=node_np)
+                hitbox_np = self._find_any_weapon(enemy=node_np)
                 if hitbox_np:
                     self._do_damage(actor, actor_bs, node, hitbox_np, parent_np, request)
                 else:
@@ -136,7 +129,11 @@ class NpcDamages:
                                 self._do_damage(actor, actor_bs, node, hitbox_np, parent_np, request)
 
         # Arrow Damage
-        self._do_any_damage(actor, actor_bs, "Arrow_BRB", request)
+        if actor.get_python_tag("npc_type") == "npc":
+            if actor.get_python_tag("human_states")["has_bow"]:
+                self._do_any_damage(actor, actor_bs, "Arrow_BRB", request)
+        else:
+            self._do_any_damage(actor, actor_bs, "Arrow_BRB", request)
 
         # NPC dies if it has no health
         self._do_death(actor, request)
