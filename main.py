@@ -586,6 +586,24 @@ class Main(ShowBase):
                 transformed_path = Filename(path).to_os_specific()
                 return transformed_path
 
+    def get_number_stripped_asset_name(self, name):
+        """ Function    : get_number_stripped_asset_name
+
+            Description : Get number stripped asset name
+                          (for dev purposes only)
+
+            Input       : String
+
+            Output      : None
+
+            Return      : String
+        """
+        raw_name = ''
+        for char in name:
+            if not char.isdigit():
+                raw_name += char
+        return raw_name
+
     def assets_collector(self):
         """ Function    : assets_collector
 

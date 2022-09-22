@@ -520,6 +520,11 @@ class AsyncLevelLoad:
                                                         level_npc_axis):
                 if actor == axis_actor:
                     name = actor
+
+                    # TODO: Use same asset for any numbered npc which have same type.
+                    #       Keep it until assets become game ready
+                    actor = self.base.get_number_stripped_asset_name(actor)
+
                     path = assets['{0}_{1}'.format(actor, suffix)]
                     axis = level_npc_axis[axis_actor]
 

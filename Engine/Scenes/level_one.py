@@ -11,33 +11,14 @@ from Settings.UI.pause_menu_ui import PauseMenuUI
 
 from Engine.FSM.npc_fsm import NpcFSM
 
-py_npc_fsm_classes = []
-
 # List used by loading screen
-LEVEL_NPC_ASSETS = {'name': ['NPC_Ernar', 'NPC_Mongol', 'NPC_Mongol2', 'NPC_Korlan_Horse', 'NPC_Horse'],
-                    'type': ['npc', 'npc', 'npc', 'npc_animal', 'npc_animal'],
-                    'shape': ['capsule', 'capsule', 'capsule', 'capsule', 'capsule'],
-                    'class': ['friend', 'neutral', 'enemy', 'friend', 'enemy']
-                    }
+from Engine.Scenes.npc_list_level1 import LEVEL_NPC_ASSETS
+from Engine.Scenes.npc_list_level1 import LEVEL_NPC_AXIS
 
-LEVEL_NPC_AXIS = {'NPC_Ernar': [-3.0, 17.0, 0],
-                  'NPC_Mongol': [-7.0, 20.0, 0],
-                  'NPC_Mongol2': [-10.0, 27.0, 0],
-                  'NPC_Korlan_Horse': [-9.0, 5.0, 0],
-                  'NPC_Horse': [9.0, 5.0, 0]
-                  }
+py_npc_fsm_classes = []
 
 for i in range(len(LEVEL_NPC_ASSETS['name'])):
     py_npc_fsm_classes.append(NpcFSM)
-
-"""
-LEVEL_NPC_ASSETS = {'name': [],
-                    'type': [],
-                    'shape': [],
-                    'class': []
-                    }
-LEVEL_NPC_AXIS = {}
-"""
 
 
 class LevelOne:

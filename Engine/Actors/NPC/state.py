@@ -67,6 +67,11 @@ class NpcState:
     def set_npc_hud(self, actor):
         if actor:
             npc_name = actor.get_name()
+
+            # TODO: Use same asset for any numbered npc which have same type.
+            #       Keep it until assets become game ready
+            npc_name = self.base.get_number_stripped_asset_name(npc_name)
+
             npc_hud_ui = DirectFrame(text="",
                                      frameColor=(0.0, 0.0, 0.0, 0.4),
                                      pos=(1.7, 0, -1.1),
