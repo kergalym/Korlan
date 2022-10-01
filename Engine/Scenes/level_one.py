@@ -91,10 +91,12 @@ class LevelOne:
                 actor = self.base.game_instance["actors_ref"][name]
 
                 # TODO: Keep it tempo!
-                """if actor.get_python_tag("npc_class") == "friend":
+                """
+                if actor.get_python_tag("npc_class") == "enemy":
                     actor.get_python_tag("generic_states")['is_alive'] = False
                 if actor.get_python_tag("npc_class") == "neutral":
-                    actor.get_python_tag("generic_states")['is_alive'] = False"""
+                    actor.get_python_tag("generic_states")['is_alive'] = False
+                """
 
                 NpcController(actor)
 
@@ -229,7 +231,7 @@ class LevelOne:
         self.base.game_instance['render_attr_cls'].time_text_ui.show()
         taskMgr.add(self.base.game_instance['render_attr_cls'].set_time_of_day_clock_task,
                     "set_time_of_day_clock_task",
-                    extraArgs=["18:00", 1800],  # 1800 sec == 30 min
+                    extraArgs=["10:00", 1800],  # 1800 sec == 30 min
                     appendTask=True)
 
         """ Assets """

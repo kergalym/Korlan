@@ -64,17 +64,26 @@ class BulletCollisionSolids:
                     # Keep hitboxes in the tag as dict
                     self.base.game_instance['actors_ref'][name].set_python_tag("actor_hitboxes", hitboxes)
 
-    def get_bs_sphere(self):
-        radius = 0.6
-        sphere = BulletSphereShape(radius)
-        return sphere
+    def _get_geometry_dimensions(self, geometry):
+        if geometry:
+            min_values, max_values = geometry.get_tight_bounds()
+            dimension_vector = max_values - min_values
+            return dimension_vector
 
-    def get_bs_capsule(self):
-        height = 1.75
-        width = 0.3
-        radius = height - 2 * width
-        capsule = BulletCapsuleShape(width, radius, ZUp)
-        return capsule
+    def get_bs_sphere(self, obj):
+        if obj:
+            dimension_vector = self._get_geometry_dimensions(obj)
+            radius = dimension_vector.y
+            sphere = BulletSphereShape(radius)
+            return sphere
+
+    def get_bs_capsule(self, obj):
+        if obj:
+            dimension_vector = self._get_geometry_dimensions(obj)
+            width = dimension_vector.y
+            height = dimension_vector.z - 2 * width
+            capsule = BulletCapsuleShape(width, height, ZUp)
+            return capsule
 
     def get_bs_cylinder(self):
         radius = 0.5

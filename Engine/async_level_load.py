@@ -1,5 +1,6 @@
 from direct.task.TaskManagerGlobal import taskMgr
-from panda3d.bullet import BulletSphereShape, BulletGhostNode
+from panda3d.bullet import BulletSphereShape, BulletGhostNode, BulletRigidBodyNode, BulletTriangleMeshShape, \
+    BulletTriangleMesh
 from panda3d.core import *
 from Engine.Quests.social_quests import SocialQuests
 
@@ -17,6 +18,8 @@ from Settings.Input.keyboard import Keyboard
 from Settings.Input.mouse import Mouse
 
 from Engine.Actors.NPC.state import NpcState
+
+from Engine.Scenes.npc_list_level1 import npc_ids
 
 import struct
 
@@ -167,7 +170,6 @@ class AsyncLevelLoad:
             if prefab:
                 tree_master = scene.attach_new_node('TreeMaster')
                 for elem in scene.find_all_matches("**/{0}*".format(placeholder)):
-
                     pos_z = prefab.get_z()
                     scale = prefab.get_scale()
                     elem.set_z(pos_z)
@@ -191,7 +193,6 @@ class AsyncLevelLoad:
                 floats = []
 
                 for elem in scene.find_all_matches("**/{0}*".format(placeholder)):
-
                     pos_z = prefab.get_z()
                     scale = prefab.get_scale()
                     elem.set_z(pos_z)
@@ -235,6 +236,22 @@ class AsyncLevelLoad:
             for name in parts:
                 self.base.game_instance["player_parts"].append(name)
 
+    def get_bs_auto(self, obj, type_):
+        if obj and isinstance(type_, str):
+            bool_ = False
+            if hasattr(obj.node(), "get_geom"):
+                geom = obj.node().get_geom(0)
+                mesh = BulletTriangleMesh()
+                mesh.add_geom(geom)
+
+                if type_ == 'dynamic':
+                    bool_ = True
+                if type_ == 'static':
+                    bool_ = False
+
+                shape = BulletTriangleMeshShape(mesh, dynamic=bool_)
+                return shape
+
     async def async_load_level(self, scene_name, player_name, scale, player_pos, culling,
                                suffix, level_npc_assets, level_npc_axis, assets, animation):
         if (isinstance(scene_name, str)
@@ -252,9 +269,15 @@ class AsyncLevelLoad:
             """ SCENE """
             self.base.game_instance['scene_is_loaded'] = False
 
+            # load testing landscape
+            landscape_path = assets["lvl_landscape"]
+            landscape = await self.base.loader.load_model(landscape_path, blocking=False, noCache=True)
+            landscape.reparent_to(self.base.game_instance['lod_np'])
+
             # Load the scene.
             path = assets['{0}_{1}'.format(scene_name, suffix)]
             scene = await self.base.loader.load_model(path, blocking=False, noCache=True)
+
             self.world_nodepath = render.find("**/World")
             if self.world_nodepath:
 
@@ -343,6 +366,9 @@ class AsyncLevelLoad:
                                                          mask=physics_attr.mask)
 
             # Construct navigation system
+            if render.find("**/lvl_landscape"):
+                scene_name = render.find("**/lvl_landscape").get_name()
+
             self.set_level_nav(scene_name)
 
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
@@ -514,10 +540,11 @@ class AsyncLevelLoad:
             self.controller.player_actions_init(self.korlan, animation[0])
 
             """ NPC """
-            for actor, _type, _class, axis_actor in zip(level_npc_assets['name'],
-                                                        level_npc_assets['type'],
-                                                        level_npc_assets['class'],
-                                                        level_npc_axis):
+            for actor, id, _type, _class, axis_actor in zip(level_npc_assets['name'],
+                                                            npc_ids,
+                                                            level_npc_assets['type'],
+                                                            level_npc_assets['class'],
+                                                            level_npc_axis):
                 if actor == axis_actor:
                     name = actor
 
@@ -603,6 +630,9 @@ class AsyncLevelLoad:
 
                         # Set NPC Movement types: walk or run
                         self.actor.set_python_tag("move_type", "walk")
+
+                        # Set NPC id
+                        self.actor.set_python_tag("npc_id", id)
 
                         # Set NPC class
                         self.actor.set_python_tag("npc_class", _class)

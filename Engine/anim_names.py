@@ -70,3 +70,10 @@ a_anim_horse_crouch_walking = ""  # todo: add
 a_anim_horse_standing_crouch = ""  # todo: add
 a_anim_horse_crouching_stand = ""  # todo: add
 a_anim_horse_jumping = ""  # todo: add
+
+# damages
+a_anim_damage_1 = "HitToBody"
+a_anim_damage_2 = ""  # todo: add
+a_anim_damage_3 = ""  # todo: add
+a_anim_damage_rider = "HitToBody_Rider"
+a_anim_damage_any = "HitToBody"  # todo: add

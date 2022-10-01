@@ -9,6 +9,8 @@ names = ['NPC_Ernar',
          'NPC_Horse3'
          ]
 
+npc_ids = [1, 2, 3, 0, 1, 2, 3]
+
 types = ['npc',
          'npc',
          'npc',

@@ -38,7 +38,7 @@ overrides:
     ssvo_max_distance: 3.19
     ssvo_sequence: halton_2D_8
     ssvo_sphere_radius: 18.0
-    technique: SSAO
+    technique: HBAO
     ue4ao_max_distance: 1.47
     ue4ao_sample_radius: 50.14286
     ue4ao_sample_sequence: halton_2D_8

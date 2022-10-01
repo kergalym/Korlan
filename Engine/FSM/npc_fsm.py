@@ -145,21 +145,41 @@ class NpcFSM(FSM):
         else:
             return None
 
-    def enterHorseMount(self, actor, child, parent):
-        if actor and parent and child:
+    def _actor_mount_helper_task(self, actor, child, parent, saddle_pos, task):
+        if actor.get_python_tag("human_states")["is_on_horse"]:
+            child.set_x(saddle_pos[0])
+            child.set_y(saddle_pos[1])
+            child.set_h(parent.get_h())
+        return task.cont
+
+    def enterHorseMount(self, actor, child, parent, parent_bs):
+        if actor and parent and parent_bs and child:
             actor_name = actor.get_name()
             if not self.mount_sequence[actor_name].is_playing():
                 self.mount_sequence[actor_name] = Sequence()
+
                 # Our horse (un)mounting animations have been made with imperfect positions,
                 # so, I had to change child positions to get more satisfactory result
                 # with these animations in my game.
-                mounting_pos = Vec3(0.5, -0.15, -0.45)
+                if int(child.get_distance(parent_bs)) > 1:
+                    actor.set_h(-180)
+                else:
+                    actor.set_h(0)
+
+                mounting_pos = Vec3(0.5, -0.16, -0.45)
                 saddle_pos = Vec3(0, -0.32, 0.16)
                 mount_action_seq = actor.actor_interval(anim_names.a_anim_horse_mounting,
                                                         playRate=self.base.actor_play_rate)
                 horse_riding_action_seq = actor.actor_interval(anim_names.a_anim_horse_rider_idle,
                                                                playRate=self.base.actor_play_rate)
                 actor.set_python_tag("mounted_horse", parent)
+
+                taskMgr.add(self._actor_mount_helper_task,
+                            "actor_mount_helper_task",
+                            extraArgs=[actor, child, parent, saddle_pos],
+                            appendTask=True)
+
+                child.node().set_kinematic(True)
 
                 # Horse mounting consists of 14 intervals
                 a = Func(child.set_collide_mask, BitMask32.allOff())
@@ -169,11 +189,11 @@ class NpcFSM(FSM):
                              Func(child.set_x, mounting_pos[0]),
                              Func(child.set_y, mounting_pos[1]),
                              Func(actor.set_z, mounting_pos[2]),
-                             Func(child.set_h, 0),
+                             Func(child.set_h, parent.get_h()),
                              )
                 d = Func(child.set_x, saddle_pos[0])
                 e = Func(child.set_y, saddle_pos[1])
-                e1 = Func(actor.set_h, 0)
+                re1 = Func(actor.set_h, 0)
 
                 # bullet shape has impact of gravity
                 # so make player geom stay higher instead
@@ -189,9 +209,10 @@ class NpcFSM(FSM):
                 self.mount_sequence[actor_name].append(a)
                 self.mount_sequence[actor_name].append(b)
                 self.mount_sequence[actor_name].append(c)
+                self.mount_sequence[actor_name].append(re1)
+                # self.mount_sequence[actor_name].append(Wait(10))
                 self.mount_sequence[actor_name].append(d)
                 self.mount_sequence[actor_name].append(e)
-                self.mount_sequence[actor_name].append(e1)
                 self.mount_sequence[actor_name].append(f)
                 self.mount_sequence[actor_name].append(g)
                 self.mount_sequence[actor_name].append(h)
@@ -213,11 +234,15 @@ class NpcFSM(FSM):
                 # Our horse (un)mounting animations have been made with imperfect positions,
                 # so, I had to change child positions to get more satisfactory result
                 # with these animations in my game.
-                unmounting_pos = Vec3(0.5, -0.15, -0.45)
+                unmounting_pos = Vec3(0.5, -0.16, -0.45)
                 # Reparent parent/child node back to its BulletCharacterControllerNode
                 unmount_action_seq = actor.actor_interval(anim_names.a_anim_horse_unmounting,
                                                           playRate=self.base.actor_play_rate)
                 horse_near_pos = Vec3(parent_bs.get_x(), parent_bs.get_y(), child.get_z()) + Vec3(1, 0, 0)
+
+                taskMgr.remove("actor_mount_helper_task")
+
+                child.node().set_kinematic(False)
 
                 a = Func(self.fsm_state_wrapper, actor, "generic_states", "is_using", True)
                 b = Parallel(unmount_action_seq,
@@ -426,10 +451,20 @@ class NpcFSM(FSM):
                              any_action_seq,
                              Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", False)).start()
 
-    def enterAttacked(self, actor, action, task):
-        if actor and action and task and isinstance(action, str):
+    def enterAttacked(self, actor, task):
+        if actor and task:
             if isinstance(task, str):
                 if task == "play":
+
+                    if actor.get_python_tag("npc_type") == "npc":
+                        if not actor.get_python_tag("human_states")["is_on_horse"]:
+                            action = anim_names.a_anim_damage_1
+                        else:
+                            action = anim_names.a_anim_damage_rider
+                    else:
+                        name = "{0}_{1}".format(anim_names.a_anim_damage_any, actor.get_name())
+                        action = name
+
                     any_action_seq = actor.actor_interval(action)
                     Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_attacked", True),
                              any_action_seq,

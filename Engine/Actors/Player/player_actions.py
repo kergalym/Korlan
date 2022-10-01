@@ -1098,11 +1098,12 @@ class PlayerActions:
                         self.archery.arrow_ref.set_python_tag("power", 0)
                     self.archery.arrow_ref.set_python_tag("ready", 0)
 
-    def player_mount_helper_task(self, child, player, saddle_pos, task):
+    def player_mount_helper_task(self, child, player,  horse_np, saddle_pos, task):
         if child and player:
             if self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
                 child.set_x(saddle_pos[0])
                 child.set_y(saddle_pos[1])
+                # child.set_h(horse_np.get_h())
 
                 if not self.base.game_instance['is_aiming']:
                     self.base.camera.set_y(-5.5)
@@ -1129,7 +1130,7 @@ class PlayerActions:
                     # Our horse (un)mounting animations have been made with imperfect positions,
                     # so, I had to change child positions to get more satisfactory result
                     # with these animations in my game.
-                    mounting_pos = Vec3(0.5, -0.15, -0.45)
+                    mounting_pos = Vec3(0.5, -0.16, -0.45)
                     saddle_pos = Vec3(0, -0.32, 0.16)
                     mount_action_seq = player.actor_interval(anim_names.a_anim_horse_mounting,
                                                              playRate=self.base.actor_play_rate)
@@ -1139,8 +1140,10 @@ class PlayerActions:
 
                     taskMgr.add(self.player_mount_helper_task,
                                 "player_mount_helper_task",
-                                extraArgs=[child, player, saddle_pos],
+                                extraArgs=[child, player,  horse_np, saddle_pos],
                                 appendTask=True)
+
+                    # child.node().set_kinematic(True)
 
                     Sequence(Func(horse_np.set_collide_mask, BitMask32.bit(0)),
                              Func(child.set_collide_mask, BitMask32.allOff()),
@@ -1177,13 +1180,15 @@ class PlayerActions:
             # Our horse (un)mounting animations have been made with imperfect positions,
             # so, I had to change child positions to get more satisfactory result
             # with these animations in my game.
-            unmounting_pos = Vec3(0.5, -0.15, -0.45)
+            unmounting_pos = Vec3(0.5, -0.16, -0.45)
             # Reparent parent/child node back to its BulletCharacterControllerNode
             unmount_action_seq = player.actor_interval(anim_names.a_anim_horse_unmounting,
                                                        playRate=self.base.actor_play_rate)
             horse_near_pos = Vec3(parent_bs.get_x(), parent_bs.get_y(), child.get_z()) + Vec3(1, 0, 0)
             base.game_instance['player_using_horse'] = ''
             horse_np = self.base.game_instance['actors_np']["{0}:BS".format(horse_name)]
+
+            # child.node().set_kinematic(False)
 
             Sequence(Func(self.base.game_instance['player_ref'].set_python_tag, "is_on_horse", False),
                      Func(self.state.set_action_state, "is_using", True),

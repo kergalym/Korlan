@@ -40,13 +40,13 @@ class NpcDirectives:
 
     def _archery_attack(self, actor, actor_npc_bs, target, target_dist, hitbox_dist, request):
         if actor.get_python_tag("arrow_count") > 1:
-            if target_dist > self.archery_distance:
+            if target_dist is not None and target_dist > self.archery_distance:
                 self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
                                                          target, request)
             elif target_dist is not None and target_dist < 2:
                 archery = NodePath("archery_position")
-                player_pos = target.get_pos() + Vec3(0, self.archery_distance, 0)
-                archery.set_pos(player_pos)
+                _pos = target.get_pos() + Vec3(0, self.archery_distance, 0)
+                archery.set_pos(_pos)
                 self.npc_controller.npc_in_walking_logic(actor, actor_npc_bs,
                                                          archery, request)
 
@@ -218,7 +218,8 @@ class NpcDirectives:
 
     def attack_directive(self, actor, actor_npc_bs, oppo_npc_bs, hitbox_dist, request):
         # Facing to enemy
-        self.npc_controller.face_actor_to(actor_npc_bs, oppo_npc_bs)
+        if actor.get_python_tag("current_task") is None:
+            self.npc_controller.face_actor_to(actor_npc_bs, oppo_npc_bs)
         # Counterattack an enemy or do block
         # Do attack only if play did first attack
         if base.player_states['is_alive']:

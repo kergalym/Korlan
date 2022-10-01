@@ -29,14 +29,20 @@ class NpcDamages:
                                 actor.set_python_tag("enemy_npc_ref", npc_ref)
                             if not actor.get_python_tag("enemy_npc_bs"):
                                 actor.set_python_tag("enemy_npc_bs", npc_bs)
-                            self.npc_controller.face_actor_to(actor_bs, npc_bs)
+
+                            if actor.get_python_tag("current_task") is None:
+                                self.npc_controller.face_actor_to(actor_bs, npc_bs)
 
                 hitbox_np.set_collide_mask(BitMask32.allOff())
                 if (actor.get_python_tag("health_np")
                         and not actor.get_python_tag("generic_states")['is_blocking']):
                     # NPC gets damage if he has health point
                     if actor.get_python_tag("health_np")['value'] > 1:
-                        request.request("Attacked", actor, "HitToBody", "play")
+
+                        # Play damage if NPC doesn't move
+                        if not actor.get_python_tag("generic_states")['is_moving']:
+                            request.request("Attacked", actor, "play")
+
                         actor.get_python_tag("health_np")['value'] -= 6
 
                     if actor.get_python_tag("stamina_np")['value'] > 1:
@@ -58,7 +64,11 @@ class NpcDamages:
                                     and not actor.get_python_tag("generic_states")['is_blocking']):
                                 # NPC gets damage if he has health point
                                 if actor.get_python_tag("health_np")['value'] > 1:
-                                    request.request("Attacked", actor, "HitToBody", "play")
+
+                                    # Play damage if NPC doesn't move
+                                    if not actor.get_python_tag("generic_states")['is_moving']:
+                                        request.request("Attacked", actor, "play")
+
                                     actor.get_python_tag("health_np")['value'] -= 6
 
                                 if actor.get_python_tag("stamina_np")['value'] > 1:

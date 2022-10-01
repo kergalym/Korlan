@@ -1,7 +1,7 @@
-
-from panda3d.bullet import BulletCharacterControllerNode, BulletBoxShape, BulletSoftBodyConfig, BulletSoftBodyNode
+from panda3d.bullet import BulletCharacterControllerNode, BulletBoxShape, BulletSoftBodyConfig, BulletSoftBodyNode, \
+    BulletHelper
 from direct.task.TaskManagerGlobal import taskMgr
-from panda3d.core import Vec3, BitMask32, NodePath, GeomNode
+from panda3d.core import Vec3, BitMask32, NodePath, GeomNode, GeomVertexFormat, Point3
 from panda3d.bullet import BulletWorld, BulletDebugNode, BulletRigidBodyNode, BulletPlaneShape
 
 from Engine.Physics.collision_solids import BulletCollisionSolids
@@ -26,6 +26,7 @@ class PhysicsAttr:
         self.game_settings_filename = base.game_settings_filename
         self.cfg_path = self.game_cfg
 
+        self.ground_bs_np = None
         self.cam_cs = None
         self.cam_bs_nodepath = None
         self.cam_collider = None
@@ -47,6 +48,205 @@ class PhysicsAttr:
         self.spine_bones = {}
         self.info = None
 
+    def _set_player_rigidbody(self, actor, shape, col_name, mask):
+        self.base.game_instance['player_controller_np'] = BulletCharacterControllerNode(shape,
+                                                                                        0.4,
+                                                                                        col_name)
+        actor_bs_np = render.attach_new_node(self.base.game_instance['player_controller_np'])
+        actor_bs_np.set_collide_mask(mask)
+        self.world.attach_character(actor_bs_np.node())
+
+        if self.game_settings['Debug']['set_editor_mode'] == 'NO':
+            if render.find("**/floater"):
+                render.find("**/floater").reparent_to(actor_bs_np)
+        elif self.game_settings['Debug']['set_editor_mode'] == 'YES':
+            actor.reparent_to(actor_bs_np)
+
+        self.base.game_instance["player_np"] = actor_bs_np
+        self.base.game_instance["player_np_mask"] = mask
+
+        # Set actor down to make it
+        # at the same point as bullet shape
+        actor.set_z(-0.8)
+        # Set the bullet shape position same as actor position
+        actor_bs_np.set_x(0)
+        actor_bs_np.set_y(0)
+
+        # Box rigid body for using in crouch state
+        z_scale = shape.height / 2
+        axis = Vec3(0.5, 0.6, z_scale)
+        rectangle = BulletBoxShape(axis)
+        crouch_bs = rectangle
+        crouch_bs_np = actor_bs_np.attach_new_node(BulletRigidBodyNode("Crouch:BS"))
+        crouch_bs_np.node().add_shape(crouch_bs)
+        crouch_bs_np.node().set_mass(1.0)
+        crouch_bs_np.set_collide_mask(mask)
+        self.world.attach_rigid_body(crouch_bs_np.node())
+        crouch_bs_np.node().set_kinematic(True)
+        crouch_bs_np.set_scale(0.5)
+        crouch_bs_np.set_pos(0, -0.1, -0.5)
+        self.base.game_instance["player_crouch_bs_np"] = crouch_bs_np
+        self.base.game_instance["player_crouch_bs_np_mask"] = mask
+
+        # Set actor position to zero
+        # after actor becomes a child of bullet shape.
+        # It should not get own position values.
+        actor.set_y(0)
+        actor.set_x(0)
+
+        # reload actor
+        actor_bs_np.set_z(4)
+
+        # Setup for soft bodies
+        self._set_cloth_physics(actor)
+
+        # attach hitboxes and weapons
+        self.bullet_solids.get_bs_hitbox(actor=actor,
+                                         joints=["LeftHand", "RightHand", "Hips"],
+                                         mask=self.mask0,
+                                         world=self.world)
+        # hitboxes task
+        request = self.base.game_instance["player_fsm_cls"]
+        self.player_physics.player_hips[actor.get_name()] = actor.find("**/**Hips:HB")
+        taskMgr.add(self.player_physics.player_hitbox_trace_task,
+                    "player_hitbox_trace_task",
+                    extraArgs=[actor, actor_bs_np, request], appendTask=True)
+
+    def _set_npc_rigidbody(self, actor, shape, col_name, mask):
+        actor_node = BulletRigidBodyNode(col_name)
+        actor_node.set_mass(9999.0)
+        actor_node.add_shape(shape)
+        actor_bs_np = self.world_nodepath.attach_new_node(actor_node)
+        actor_bs_np.set_collide_mask(mask)
+        self.world.attach_rigid_body(actor_bs_np.node())
+
+        actor.reparent_to(actor_bs_np)
+        self.base.game_instance['actors_np'][col_name] = actor_bs_np
+        self.base.game_instance['actor_controllers_np'][col_name] = actor_node
+        self.base.game_instance["actors_np_mask"][col_name] = mask
+
+        # Set actor down to make it
+        # at the same point as bullet shape
+        actor.set_z(-0.8)
+        # Set the bullet shape position same as actor position
+        actor_bs_np.set_x(0)
+        actor_bs_np.set_y(0)
+
+        # Box rigid body for using in crouch state
+        z_scale = shape.height / 2
+        axis = Vec3(0.5, 0.6, z_scale)
+        rectangle = BulletBoxShape(axis)
+        crouch_bs = rectangle
+        crouch_bs_np = actor_bs_np.attach_new_node(BulletRigidBodyNode("Crouch:BS"))
+        crouch_bs_np.node().add_shape(crouch_bs)
+        crouch_bs_np.node().set_mass(1.0)
+        crouch_bs_np.set_collide_mask(mask)
+        self.world.attach_rigid_body(crouch_bs_np.node())
+        crouch_bs_np.node().set_kinematic(True)
+        crouch_bs_np.set_scale(0.5)
+        crouch_bs_np.set_pos(0, -0.1, -0.5)
+        self.base.game_instance["actors_crouch_bs_np"][col_name] = crouch_bs_np
+        self.base.game_instance["actors_crouch_bs_np_mask"][col_name] = mask
+
+        # Set actor position to zero
+        # after actor becomes a child of bullet shape.
+        # It should not get own position values.
+        actor.set_y(0)
+        actor.set_x(0)
+
+        # Setup for soft bodies
+        self._set_cloth_physics(actor)
+
+        # attach hitboxes and weapons
+        self.bullet_solids.get_bs_hitbox(actor=actor,
+                                         joints=["LeftHand", "RightHand", "Hips"],
+                                         mask=self.mask1,
+                                         world=self.world)
+
+        # actor_bs_np.node().set_kinematic(True)
+        # actor_bs_np.node().set_collision_response(True)
+
+        # reload actor
+        actor_bs_np.set_z(4)
+
+        # reparent bullet-shaped actor to LOD node
+        actor_bs_np.reparent_to(self.base.game_instance['lod_np'])
+
+        # attach trigger sphere
+        self.npc_triggers.set_ghost_trigger(actor, self.world)
+        taskMgr.add(self.npc_triggers.actor_area_trigger_task,
+                    "{0}_area_trigger_task".format(col_name.lower()),
+                    extraArgs=[actor], appendTask=True)
+
+    def _set_npc_animal_rigidbody(self, actor, col_name, mask):
+        # capsule for head
+        actor_bs_box_h = BulletBoxShape(Vec3(0.3, 0.3, 0.8))  # 1.5
+        head_col_name = "{0}_Head:BSH".format(actor.get_name())
+        actor_node_head = BulletRigidBodyNode(head_col_name)
+        actor_node_head.set_mass(9999.0)
+        actor_node_head.add_shape(actor_bs_box_h)
+        actor_bs_head_np = self.world_nodepath.attach_new_node(actor_node_head)
+        actor_bs_head_np.set_collide_mask(self.mask0)
+        self.world.attach_rigid_body(actor_bs_head_np.node())
+
+        # box for body
+        actor_bs_box_b = BulletBoxShape(Vec3(0.3, 1.5, 0.7))  # 1.75
+        actor_node_body = BulletRigidBodyNode(col_name)
+        actor_node_body.set_mass(9999.0)
+        actor_node_body.add_shape(actor_bs_box_b)
+        actor_bs_body_np = self.world_nodepath.attach_new_node(actor_node_body)
+        actor_bs_body_np.set_collide_mask(mask)
+        self.world.attach_rigid_body(actor_bs_body_np.node())
+
+        actor.reparent_to(actor_bs_body_np)
+        actor_bs_head_np.reparent_to(actor_bs_body_np)
+        actor_bs_head_np.set_y(-1.1)
+
+        self.base.game_instance['actors_np'][col_name] = actor_bs_body_np
+        self.base.game_instance['actor_controllers_np'][col_name] = actor_node_body
+        self.base.game_instance["actors_np_mask"][col_name] = mask
+
+        # Set actor down to make it
+        # at the same point as bullet shape
+        actor.set_z(-0.8)  # -0.2
+        # Set the bullet shape position same as actor position
+        actor_bs_body_np.set_x(actor.get_x())
+        actor_bs_body_np.set_y(actor.get_y())
+        # Set actor position to zero
+        # after actor becomes a child of bullet shape.
+        # It should not get own position values.
+        actor.set_y(0)
+        actor.set_x(0)
+
+        actor_bs_head_np.node().set_kinematic(True)
+        actor_bs_head_np.node().set_collision_response(False)
+
+        # reload actor
+        actor_bs_body_np.set_z(4)
+
+        # reparent bullet-shaped actor to LOD node
+        actor_bs_body_np.reparent_to(self.base.game_instance['lod_np'])
+
+        if "NPC_Horse" in col_name:
+            # attach mount place nodepath
+            mountplace = NodePath("Mountplace_{0}".format(actor.get_name()))
+            mountplace.reparent_to(actor_bs_body_np)
+            pos = actor_bs_body_np.get_pos() + Vec3(0.5, -0.15, 0)
+            mountplace.set_pos(pos)
+            actor.set_python_tag("mount_place", mountplace)
+
+        if "Horse" in col_name:
+            # attach trigger sphere
+            self.npc_triggers.set_ghost_trigger(actor, self.world)
+            taskMgr.add(self.npc_triggers.mountable_animal_area_trigger_task,
+                        "{0}_area_trigger_task".format(col_name.lower()),
+                        extraArgs=[actor], appendTask=True)
+        else:
+            self.npc_triggers.set_ghost_trigger(actor, self.world)
+            taskMgr.add(self.npc_triggers.actor_area_trigger_task,
+                        "{0}_area_trigger_task".format(col_name.lower()),
+                        extraArgs=[actor], appendTask=True)
+
     def set_actor_collider(self, actor, col_name, shape, mask, type):
         if (actor
                 and col_name
@@ -58,186 +258,18 @@ class PhysicsAttr:
                 and isinstance(type, str)):
             if not self.base.game_instance['menu_mode'] and self.world_nodepath:
                 actor_bs = None
-                actor_bs_np = None
                 if shape == 'capsule':
-                    actor_bs = self.bullet_solids.get_bs_capsule()
+                    actor_bs = self.bullet_solids.get_bs_capsule(actor)
                 if shape == 'sphere':
-                    actor_bs = self.bullet_solids.get_bs_sphere()
+                    actor_bs = self.bullet_solids.get_bs_sphere(actor_bs)
+
+                # Set Player and NPC colliders
                 if type == 'player':
-                    self.base.game_instance['player_controller_np'] = BulletCharacterControllerNode(actor_bs,
-                                                                                                    0.4,
-                                                                                                    col_name)
-                    actor_bs_np = render.attach_new_node(self.base.game_instance['player_controller_np'])
-                    actor_bs_np.set_collide_mask(mask)
-                    self.world.attach_character(actor_bs_np.node())
-
-                    if self.game_settings['Debug']['set_editor_mode'] == 'NO':
-                        if render.find("**/floater"):
-                            render.find("**/floater").reparent_to(actor_bs_np)
-                    elif self.game_settings['Debug']['set_editor_mode'] == 'YES':
-                        actor.reparent_to(actor_bs_np)
-
-                    self.base.game_instance["player_np"] = actor_bs_np
-                    self.base.game_instance["player_np_mask"] = mask
-
-                    # Set actor down to make it
-                    # at the same point as bullet shape
-                    actor.set_z(-1)
-                    # Set the bullet shape position same as actor position
-                    actor_bs_np.set_x(actor.get_x())
-                    actor_bs_np.set_y(actor.get_y())
-
-                    # Box rigid body for using in crouch state
-                    z_scale = actor_bs.height / 2
-                    axis = Vec3(0.5, 0.6, z_scale)
-                    rectangle = BulletBoxShape(axis)
-                    crouch_bs = rectangle
-                    crouch_bs_np = actor_bs_np.attach_new_node(BulletRigidBodyNode("Crouch:BS"))
-                    crouch_bs_np.node().add_shape(crouch_bs)
-                    crouch_bs_np.node().set_mass(1.0)
-                    crouch_bs_np.set_collide_mask(mask)
-                    self.world.attach_rigid_body(crouch_bs_np.node())
-                    crouch_bs_np.node().set_kinematic(True)
-                    crouch_bs_np.set_scale(0.5)
-                    crouch_bs_np.set_pos(0, -0.1, -0.5)
-                    self.base.game_instance["player_crouch_bs_np"] = crouch_bs_np
-                    self.base.game_instance["player_crouch_bs_np_mask"] = mask
-
-                    # Set actor position to zero
-                    # after actor becomes a child of bullet shape.
-                    # It should not get own position values.
-                    actor.set_y(0)
-                    actor.set_x(0)
-
-                    # Setup for soft bodies
-                    self._set_cloth_physics(actor)
-
-                    # attach hitboxes and weapons
-                    self.bullet_solids.get_bs_hitbox(actor=actor,
-                                                     joints=["LeftHand", "RightHand", "Hips"],
-                                                     mask=self.mask0,
-                                                     world=self.world)
-                    # hitboxes task
-                    request = self.base.game_instance["player_fsm_cls"]
-                    self.player_physics.player_hips[actor.get_name()] = actor.find("**/**Hips:HB")
-                    taskMgr.add(self.player_physics.player_hitbox_trace_task,
-                                "player_hitbox_trace_task",
-                                extraArgs=[actor, actor_bs_np, request], appendTask=True)
-
+                    self._set_player_rigidbody(actor, actor_bs, col_name, mask)
                 elif type == 'npc':
-                    actor_node = BulletRigidBodyNode(col_name)
-                    actor_node.set_mass(1.0)
-                    actor_node.add_shape(actor_bs)
-                    actor_bs_np = self.world_nodepath.attach_new_node(actor_node)
-                    actor_bs_np.set_collide_mask(mask)
-                    self.world.attach_rigid_body(actor_bs_np.node())
-
-                    actor.reparent_to(actor_bs_np)
-                    self.base.game_instance['actors_np'][col_name] = actor_bs_np
-                    self.base.game_instance['actor_controllers_np'][col_name] = actor_node
-                    self.base.game_instance["actors_np_mask"][col_name] = mask
-
-                    # Set actor down to make it
-                    # at the same point as bullet shape
-                    actor.set_z(-1)
-                    # Set the bullet shape position same as actor position
-                    actor_bs_np.set_x(actor.get_x())
-                    actor_bs_np.set_y(actor.get_y())
-
-                    # Box rigid body for using in crouch state
-                    z_scale = actor_bs.height / 2
-                    axis = Vec3(0.5, 0.6, z_scale)
-                    rectangle = BulletBoxShape(axis)
-                    crouch_bs = rectangle
-                    crouch_bs_np = actor_bs_np.attach_new_node(BulletRigidBodyNode("Crouch:BS"))
-                    crouch_bs_np.node().add_shape(crouch_bs)
-                    crouch_bs_np.node().set_mass(1.0)
-                    crouch_bs_np.set_collide_mask(mask)
-                    self.world.attach_rigid_body(crouch_bs_np.node())
-                    crouch_bs_np.node().set_kinematic(True)
-                    crouch_bs_np.set_scale(0.5)
-                    crouch_bs_np.set_pos(0, -0.1, -0.5)
-                    self.base.game_instance["actors_crouch_bs_np"][col_name] = crouch_bs_np
-                    self.base.game_instance["actors_crouch_bs_np_mask"][col_name] = mask
-
-                    # Set actor position to zero
-                    # after actor becomes a child of bullet shape.
-                    # It should not get own position values.
-                    actor.set_y(0)
-                    actor.set_x(0)
-
-                    # Setup for soft bodies
-                    self._set_cloth_physics(actor)
-
-                    # attach hitboxes and weapons
-                    self.bullet_solids.get_bs_hitbox(actor=actor,
-                                                     joints=["LeftHand", "RightHand", "Hips"],
-                                                     mask=self.mask1,
-                                                     world=self.world)
-
-                    actor_bs_np.node().set_kinematic(True)
-                    # actor_bs_np.node().set_collision_response(True)
-
-                    # reparent bullet-shaped actor to LOD node
-                    actor_bs_np.reparent_to(self.base.game_instance['lod_np'])
-
-                    # attach trigger sphere
-                    self.npc_triggers.set_ghost_trigger(actor, self.world)
-                    taskMgr.add(self.npc_triggers.actor_area_trigger_task,
-                                "{0}_area_trigger_task".format(col_name.lower()),
-                                extraArgs=[actor], appendTask=True)
-
+                    self._set_npc_rigidbody(actor, actor_bs, col_name, mask)
                 elif type == 'npc_animal':
-                    actor_bs_box = BulletBoxShape(Vec3(0.3, 1.5, 1))
-                    actor_node = BulletRigidBodyNode(col_name)
-                    actor_node.set_mass(1.0)
-                    actor_node.add_shape(actor_bs_box)
-                    actor_bs_np = self.world_nodepath.attach_new_node(actor_node)
-                    actor_bs_np.set_collide_mask(mask)
-                    self.world.attach_rigid_body(actor_bs_np.node())
-
-                    actor.reparent_to(actor_bs_np)
-
-                    self.base.game_instance['actors_np'][col_name] = actor_bs_np
-                    self.base.game_instance['actor_controllers_np'][col_name] = actor_node
-
-                    # Set actor down to make it
-                    # at the same point as bullet shape
-                    actor.set_z(-1)
-                    # Set the bullet shape position same as actor position
-                    actor_bs_np.set_x(actor.get_x())
-                    actor_bs_np.set_y(actor.get_y())
-                    # Set actor position to zero
-                    # after actor becomes a child of bullet shape.
-                    # It should not get own position values.
-                    actor.set_y(0)
-                    actor.set_x(0)
-
-                    actor_bs_np.node().set_kinematic(True)
-                    # actor_bs_np.node().set_collision_response(True)
-
-                    # reparent bullet-shaped actor to LOD node
-                    actor_bs_np.reparent_to(self.base.game_instance['lod_np'])
-
-                    if "NPC_Horse" in col_name:
-                        # attach mount place nodepath
-                        mountplace = NodePath("Mountplace_{0}".format(actor.get_name()))
-                        mountplace.reparent_to(actor_bs_np)
-                        pos = actor_bs_np.get_pos() + Vec3(0.5, -0.15, 0)
-                        mountplace.set_pos(pos)
-                        actor.set_python_tag("mount_place", mountplace)
-
-                    if "Horse" in col_name:
-                        # attach trigger sphere
-                        self.npc_triggers.set_ghost_trigger(actor, self.world)
-                        taskMgr.add(self.npc_triggers.mountable_animal_area_trigger_task,
-                                    "{0}_area_trigger_task".format(col_name.lower()),
-                                    extraArgs=[actor], appendTask=True)
-                    else:
-                        self.npc_triggers.set_ghost_trigger(actor, self.world)
-                        taskMgr.add(self.npc_triggers.actor_area_trigger_task,
-                                    "{0}_area_trigger_task".format(col_name.lower()),
-                                    extraArgs=[actor], appendTask=True)
+                    self._set_npc_animal_rigidbody(actor, col_name, mask)
 
     def set_static_object_colliders(self, scene, mask):
         if scene and mask and self.world:
@@ -314,6 +346,29 @@ class PhysicsAttr:
                 self.soft_debug_nodepath.hide()
                 # self.soft_debug_nodepath.node().showBoundingBoxes(False)
 
+    def waiting_for_landscape_task(self, task):
+        if self.base.game_instance["loading_is_done"] == 1:
+            return task.done
+
+        if render.find("**/lvl_landscape"):
+            # Remove Pre-loading Stage Ground since we're going to load the landscape
+            if self.ground_bs_np:
+                self.world.remove(self.ground_bs_np.node())
+                self.ground_bs_np.remove_node()
+
+            landscape = render.find("**/lvl_landscape")
+            shape = self.bullet_solids.get_bs_auto(obj=landscape, type_="static")
+            if shape is not None:
+                landscape_bs_np = landscape.attach_new_node(BulletRigidBodyNode("Landscape_BN"))
+                landscape_bs_np.node().set_mass(0.0)
+                landscape_bs_np.node().add_shape(shape)
+                landscape_bs_np.set_collide_mask(BitMask32.allOn())
+                self.world.attach_rigid_body(landscape_bs_np.node())
+                landscape_bs_np.set_pos(0, 0, 0)
+                return task.done
+
+        return task.cont
+
     def update_rigid_physics_task(self, task):
         """ Function    : update_rigid_physics_task
 
@@ -329,7 +384,7 @@ class PhysicsAttr:
             if self.world:
                 # Get the time that elapsed since last frame.
                 dt = globalClock.getDt()
-                self.world.do_physics(dt, 20, 1. / 30)
+                self.world.do_physics(dt, 5, 1. / 30)
 
                 # Do update RigidBodyNode parent node's position for every frame
                 if hasattr(base, "close_item_name"):
@@ -355,14 +410,15 @@ class PhysicsAttr:
             if self.soft_world:
                 # Get the time that elapsed since last frame.
                 dt = globalClock.getDt()
-                self.soft_world.do_physics(dt, 5, 0.004)
+                self.soft_world.do_physics(dt, 5, 1. / 30)
 
                 # Update clothes pin
                 if self.cloth_pins:
                     for name in self.cloth_pins:
                         if self.cloth_pins.get(name) and self.spine_bones.get(name):
-                            self.cloth_pins[name].set_pos(render, self.spine_bones[name].get_pos(render))
-                            self.cloth_pins[name].set_hpr(render, self.spine_bones[name].get_hpr(render))
+                            self.cloth_pins[name].set_pos(render, self.spine_bones[name].get_pos(render)
+                                                          + Vec3(-0.1, 0.2, -1))
+                            self.cloth_pins[name].set_hpr(0, 0, 0)
         return task.cont
 
     def set_physics_world(self, npcs_fsm_states):
@@ -391,12 +447,19 @@ class PhysicsAttr:
                 if hasattr(self.debug_nodepath, "node"):
                     self.world.set_debug_node(self.debug_nodepath.node())
 
+            # Set Pre-loading Stage Ground
             ground_shape = BulletPlaneShape(Vec3(0, 0, 1), 0)
-            ground_nodepath = self.world_nodepath.attach_new_node(BulletRigidBodyNode('Ground'))
-            ground_nodepath.node().add_shape(ground_shape)
-            ground_nodepath.set_pos(0, 0, 0)
-            ground_nodepath.node().set_into_collide_mask(self.mask)
-            self.world.attach_rigid_body(ground_nodepath.node())
+            self.ground_bs_np = self.world_nodepath.attach_new_node(BulletRigidBodyNode('Ground'))
+            self.ground_bs_np.node().add_shape(ground_shape)
+            self.ground_bs_np.set_pos(0, 0, 0)
+            self.ground_bs_np.node().set_into_collide_mask(self.mask)
+            self.world.attach_rigid_body(self.ground_bs_np.node())
+
+            # Set Landscape Collision
+            # Wait until landscape is loaded
+            taskMgr.add(self.waiting_for_landscape_task,
+                        "waiting_for_landscape_task",
+                        appendTask=True)
 
             # todo: remove archery test box soon
             shape = BulletBoxShape(Vec3(1, 1, 1))
@@ -478,23 +541,23 @@ class PhysicsAttr:
                                 node.linkGeom(geom_node.modifyGeom(0))
 
                                 # material and properties setup
-                                node.getMaterial(0).setAngularStiffness(0.5)
-                                node.getMaterial(0).setLinearStiffness(0.5)
+                                node.getMaterial(0).setAngularStiffness(0.1)
+                                # node.getMaterial(0).setLinearStiffness(0.1)
                                 # node.getMaterial(0).setVolumePreservation(0.001)
 
                                 # node.generateBendingConstraints(10)
 
                                 # node.getCfg().setAeroModel(BulletSoftBodyConfig.AMFaceTwoSided  )
-                                node.getCfg().setDampingCoefficient(0.1)
+                                node.getCfg().setDampingCoefficient(0.07)
                                 # node.getCfg().setDragCoefficient(0.0)
                                 # node.getCfg().setDriftSolverIterations(0.2)
-                                # node.getCfg().setDynamicFrictionCoefficient(0.002)
+                                # node.getCfg().setDynamicFrictionCoefficient(0.0)
                                 # node.getCfg().setKineticContactsHardness(0.2)
                                 # node.getCfg().setLiftCoefficient(0.0)
                                 # node.getCfg().setMaxvolume(0.2)
                                 node.getCfg().setPoseMatchingCoefficient(0.2)
                                 # node.getCfg().setPositionsSolverIterations(0.2)
-                                # node.getCfg().setPressureCoefficient(0)
+                                # node.getCfg().setPressureCoefficient(0.0)
                                 # node.getCfg().setRigidContactsHardness(0.2)
                                 # node.getCfg().setSoftContactsHardness(0.2)
                                 # node.getCfg().setSoftVsKineticHardness(0.2)
@@ -504,21 +567,23 @@ class PhysicsAttr:
                                 # node.getCfg().setSoftVsSoftHardness(0.2)
                                 # node.getCfg().setSoftVsSoftImpulseSplit(0.2)
                                 # node.getCfg().setTimescale(0.2)
-                                # node.getCfg().setVelocitiesCorrectionFactor(0.1)
+                                # node.getCfg().setVelocitiesCorrectionFactor(0.0)
                                 # node.getCfg().setVelocitiesSolverIterations(0.2)
-                                # node.getCfg().setVolumeConversationCoefficient(0.1)
+                                # node.getCfg().setVolumeConversationCoefficient(0.0)
                                 # node.getCfg().setCollisionFlag(BulletSoftBodyConfig.CFVertexFaceSoftSoft, True)
-                                node.setPose(True, True)
+                                node.setPose(False, False)
                                 # node.setTotalDensity(1.0)
-                                node.setTotalMass(1, True)
-                                node.getShape(0).setMargin(0.5)
+                                node.setTotalMass(5)
+                                # node.getShape(0).setMargin(0.5)
                                 # node.setVolumeDensity(1.0)
                                 # node.setVolumeMass(100)
+                                node.set_into_collide_mask(BitMask32.allOff())
+
                                 soft_np = self.world_nodepath.attachNewNode(node)
-                                soft_np.setCollideMask(BitMask32.bit(0))
                                 self.soft_world.attachSoftBody(node)
                                 geom_np = soft_np.attachNewNode(geom_node)
                                 geom_np.set_two_sided(True)
+                                soft_np.node().set_into_collide_mask(BitMask32.allOff())
 
                                 for tex in cloth.find_all_textures():
                                     rp = self.base.game_instance['renderpipeline_np']
@@ -536,6 +601,7 @@ class PhysicsAttr:
                                 self.spine_bones[name] = spine_bone
 
                                 pin = spine_bone.attachNewNode(BulletRigidBodyNode('pin'))
+
                                 self.cloth_pins[name] = pin
 
                                 # The position of the cloak get's shifted, fix it
@@ -547,16 +613,6 @@ class PhysicsAttr:
                                 # vec3_list = []
 
                                 # Make nested list with 3-indexed inner list to use as Vec3 component
-                                """for elem in raw_list:
-                                        if len(vec3_list) < 3:
-                                            vec3_list.append(int(elem))
-                                        elif len(vec3_list) == 3:
-                                            vtx_list.append(vec3_list)
-                                            vec3_list = []"""
-
-                                for elem in raw_list:
-                                    vtx_list.append(int(elem))
-
                                 for idx in range(300):
                                     soft_np.node().append_anchor(idx, pin.node())
                                     # soft_np.node().append_anchor(soft_np.node().get_closest_node_index(Vec3(*idx),

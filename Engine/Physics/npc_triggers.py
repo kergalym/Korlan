@@ -1,5 +1,5 @@
 from panda3d.bullet import BulletSphereShape, BulletGhostNode
-from panda3d.core import BitMask32
+from panda3d.core import BitMask32, Vec3
 
 
 class NpcTriggers:
@@ -19,6 +19,19 @@ class NpcTriggers:
             world.attach_ghost(trigger_bg)
             trigger_np.reparent_to(actor)
             trigger_np.set_pos(0, 0, 1)
+
+    def _change_force_and_velocity(self, actor_bs_np):
+        # Keep NPC from being hardly pushed if it has stayed
+        force_z_vec = actor_bs_np.node().get_total_force()[2]
+        imp_z_vec = actor_bs_np.node().get_total_torque()[2]
+        lin_vec_z = actor_bs_np.node().get_linear_velocity()[2]
+        ang_vec_z = actor_bs_np.node().get_angular_velocity()[2]
+
+        actor_bs_np.node().apply_central_force(Vec3(0, 0, force_z_vec))
+        actor_bs_np.node().apply_central_impulse(Vec3(0, 0, imp_z_vec))
+        actor_bs_np.node().apply_torque_impulse(Vec3(0, 0, imp_z_vec))
+        actor_bs_np.node().set_linear_velocity(Vec3(0, 0, lin_vec_z))
+        actor_bs_np.node().set_angular_velocity(Vec3(0, 0, ang_vec_z))
 
     def mountable_animal_area_trigger_task(self, animal_actor, task):
         if self.base.game_instance['menu_mode']:
@@ -45,6 +58,9 @@ class NpcTriggers:
                 actor_bs_np.set_p(0)
                 actor_bs_np.set_r(0)
 
+                # Keep NPC from being hardly pushed if it has stayed
+                self._change_force_and_velocity(actor_bs_np)
+
                 for node in trigger.get_overlapping_nodes():
                     # ignore trigger itself and ground both
                     if "Player" in node.get_name():
@@ -63,12 +79,6 @@ class NpcTriggers:
                                             base.player_states["horse_is_ready_to_be_used"] = True
                                             base.game_instance['player_using_horse'] = animal_actor.get_name()
 
-                                # Show Horse HUD
-                                if animal_actor.get_python_tag("npc_hud_np"):
-                                    if (not self.base.game_instance['ui_mode']
-                                            and not self.base.player_states["is_mounted"]):
-                                        animal_actor.get_python_tag("npc_hud_np").show()
-
                                 # Hide Horse HUD if player is mounted
                                 if animal_actor.get_python_tag("npc_hud_np"):
                                     if (not self.base.game_instance['ui_mode']
@@ -77,10 +87,6 @@ class NpcTriggers:
 
                             elif (round(player_bs.get_distance(trigger_np)) >= 2
                                   and round(player_bs.get_distance(trigger_np)) <= 5):
-
-                                if (animal_actor.get_python_tag("npc_hud_np")
-                                        and not animal_actor.get_python_tag("npc_hud_np").is_hidden()):
-                                    animal_actor.get_python_tag("npc_hud_np").hide()
 
                                 if "Korlan" in animal_actor.get_name():
                                     if (not animal_actor.get_python_tag("is_mounted")
@@ -95,12 +101,6 @@ class NpcTriggers:
                             and not animal_actor.get_python_tag("npc_hud_np").is_hidden()):
                         animal_actor.get_python_tag("npc_hud_np").hide()
 
-                # keep actor_bs_np height while kinematic is active
-                # because in kinematic it has no gravity impact and gets unwanted drop down
-                if (actor_bs_np and hasattr(actor_bs_np.node(), 'is_kinematic')
-                        and actor_bs_np.node().is_kinematic):
-                    actor_bs_np.set_z(0.96)
-
         return task.cont
 
     def actor_area_trigger_task(self, actor, task):
@@ -112,48 +112,24 @@ class NpcTriggers:
             return task.done
 
         if actor:
-            if actor.find("**/{0}_trigger".format(actor.get_name())):
-                trigger = actor.find("**/{0}_trigger".format(actor.get_name())).node()
-                trigger_np = actor.find("**/{0}_trigger".format(actor.get_name()))
-                player_bs = self.base.game_instance["player_np"]
-                actor_bs_np = self.base.game_instance['actors_np']["{0}:BS".format(actor.get_name())]
+            actor_bs_np = self.base.game_instance['actors_np']["{0}:BS".format(actor.get_name())]
+            # Fix me: Dirty hack for path finding issue
+            # when actor's pitch changes for reasons unknown for me xD
+            # Prevent pitch changing
+            self.base.game_instance['actors_ref'][actor.get_name()].set_p(0)
+            self.base.game_instance['actors_ref'][actor.get_name()].get_parent().set_p(0)
+            # Prevent from falling while collided
+            actor_bs_np.set_p(0)
+            actor_bs_np.set_r(0)
 
-                # Fix me: Dirty hack for path finding issue
-                # when actor's pitch changes for reasons unknown for me xD
-                # Prevent pitch changing
-                self.base.game_instance['actors_ref'][actor.get_name()].set_p(0)
-                self.base.game_instance['actors_ref'][actor.get_name()].get_parent().set_p(0)
-                # Prevent from falling while collided
-                actor_bs_np.set_p(0)
-                actor_bs_np.set_r(0)
+            # Keep NPC from being hardly pushed if it has stayed
+            self._change_force_and_velocity(actor_bs_np)
 
-                for node in trigger.get_overlapping_nodes():
-                    # ignore trigger itself and ground both
-                    if "Player" in node.get_name():
-                        # if player close to horse
-                        if player_bs and self.base.game_instance['player_ref']:
-                            if (player_bs.get_distance(trigger_np) <= 2
-                                    and player_bs.get_distance(trigger_np) >= 1):
-                                if actor.get_python_tag("npc_hud_np"):
-                                    if not self.base.game_instance['ui_mode']:
-                                        actor.get_python_tag("npc_hud_np").show()
-                            elif (player_bs.get_distance(trigger_np) >= 2
-                                  and player_bs.get_distance(trigger_np) <= 5):
-                                if (actor.get_python_tag("npc_hud_np")
-                                        and not actor.get_python_tag("npc_hud_np").is_hidden()):
-                                    actor.get_python_tag("npc_hud_np").hide()
-
-                # keep hide npc hud while inventory or menu is opening
-                if self.base.game_instance['ui_mode']:
-                    if (actor.get_python_tag("npc_hud_np")
-                            and not actor.get_python_tag("npc_hud_np").is_hidden()):
-                        actor.get_python_tag("npc_hud_np").hide()
-
-                # keep actor_bs_np height while kinematic is active
-                # because in kinematic it has no gravity impact and gets unwanted drop down
-                if (actor_bs_np and hasattr(actor_bs_np.node(), 'is_kinematic')
-                        and actor_bs_np.node().is_kinematic):
-                    actor_bs_np.set_z(0.96)
+            # keep hide npc hud while inventory or menu is opening
+            if self.base.game_instance['ui_mode']:
+                if (actor.get_python_tag("npc_hud_np") is not None
+                        and not actor.get_python_tag("npc_hud_np").is_hidden()):
+                    actor.get_python_tag("npc_hud_np").hide()
 
         return task.cont
 

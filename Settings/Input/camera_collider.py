@@ -147,6 +147,39 @@ class CameraCollider:
 
         return task.cont
 
+    def _toggle_npc_hud(self, player_bs, node_np):
+        name = node_np.get_name().split(":")[0]
+        actor = self.base.game_instance["actors_ref"].get(name)
+        if actor is not None:
+            if int(player_bs.get_distance(node_np) < 6):
+                # Hide NPCs HUD if it's far
+                for k in self.base.game_instance["actors_ref"]:
+                    _actor = self.base.game_instance["actors_ref"][k]
+                    if _actor.has_python_tag("npc_hud_np"):
+                        if _actor.get_python_tag("npc_hud_np") is not None:
+                            if not _actor.get_python_tag("npc_hud_np").is_hidden():
+                                _actor.get_python_tag("npc_hud_np").hide()
+
+                # Show NPC HUD if it's close
+                if actor.has_python_tag("npc_hud_np"):
+                    if actor.get_python_tag("npc_hud_np") is not None:
+                        if not self.base.game_instance['ui_mode']:
+                            if actor.get_python_tag("npc_hud_np").is_hidden():
+                                actor.get_python_tag("npc_hud_np").show()
+            else:
+                # Hide NPCs HUD if it's far
+                for k in self.base.game_instance["actors_ref"]:
+                    _actor = self.base.game_instance["actors_ref"][k]
+                    if _actor.has_python_tag("npc_hud_np"):
+                        if _actor.get_python_tag("npc_hud_np") is not None:
+                            if not _actor.get_python_tag("npc_hud_np").is_hidden():
+                                _actor.get_python_tag("npc_hud_np").hide()
+
+                if actor.has_python_tag("npc_hud_np"):
+                    if actor.get_python_tag("npc_hud_np") is not None:
+                        if not actor.get_python_tag("npc_hud_np").is_hidden():
+                            actor.get_python_tag("npc_hud_np").hide()
+
     def _camera_raycaster_collision(self, node, player_bs):
         if self.base.game_instance['physics_world_np']:
             mouse_watch = base.mouseWatcherNode
@@ -174,9 +207,8 @@ class CameraCollider:
                             if ("BS" in hit.get_node().get_name()
                                     and "Player:BS" not in hit.get_node().get_name()):
                                 name = hit.get_node().get_name()
-                                node_np = render.find("**/{0}".format(name))
-                                if node_np:
-
+                                node_np = self.base.game_instance["actors_np"].get(name)
+                                if node_np is not None:
                                     if self.base.game_settings['Debug']['set_debug_mode'] == "YES":
                                         self._set_camera_collider_stat(player_bs, node_np, node)
 
@@ -188,9 +220,12 @@ class CameraCollider:
                                                 self._interpolate_to(target_y=close_y, start_y=def_y,
                                                                      target_z=0, start_z=0)
 
+                                    # Toggling NPC HUD
+                                    self._toggle_npc_hud(player_bs, node_np)
+
                 name = node.get_name()
-                node_np = render.find("**/{0}".format(name))
-                if node_np:
+                node_np = self.base.game_instance["actors_np"].get(name)
+                if node_np is not None:
                     if int(player_bs.get_distance(node_np)) > 1:
                         # zoom out if obstacle is far from the player
                         if (int(base.camera.get_distance(player_bs)) < 4

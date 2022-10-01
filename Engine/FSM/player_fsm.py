@@ -2,6 +2,9 @@ from direct.fsm.FSM import FSM
 from direct.interval.FunctionInterval import Func
 from direct.interval.MetaInterval import Sequence
 
+""" ANIMATIONS"""
+from Engine import anim_names
+
 
 class PlayerFSM(FSM):
     def __init__(self):
@@ -36,10 +39,16 @@ class PlayerFSM(FSM):
                                  any_action_seq,
                                  Func(self.fsm_state_wrapper, "is_busy", False)).start()
 
-    def enterAttacked(self, actor, action, task):
-        if actor and action and task:
+    def enterAttacked(self, actor, task):
+        if actor and task:
             if isinstance(task, str):
                 if task == "play":
+
+                    if not base.player_states["is_mounted"]:
+                        action = anim_names.a_anim_damage_1
+                    else:
+                        action = anim_names.a_anim_damage_rider
+
                     any_action = actor.get_anim_control(action)
                     any_action_seq = actor.actor_interval(action)
                     if not any_action.is_playing():
