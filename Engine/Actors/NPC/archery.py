@@ -112,7 +112,7 @@ class Archery:
                         arrow_rb_np.node().set_mass(2.0)
 
                         # Player and its owning arrow won't collide with each other
-                        arrow_rb_np.set_collide_mask(BitMask32.bit(0))
+                        arrow_rb_np.set_collide_mask(BitMask32.allOff())
 
                         # Enable CCD
                         arrow_rb_np.node().set_ccd_motion_threshold(1e-7)
@@ -136,6 +136,7 @@ class Archery:
 
             # Get Bullet Rigid Body wrapped arrow
             self.arrow_brb_in_use.node().set_kinematic(False)
+            self.arrow_brb_in_use.set_collide_mask(BitMask32.bit(0))
             self.arrow_ref.set_python_tag("shot", 1)
             self.arrow_brb_in_use.wrt_reparent_to(render)
 
@@ -160,11 +161,11 @@ class Archery:
             Return      : Task status
         """
         name_bs = "{0}:BS".format(self.actor_name)
-        actor_bs = self.base.game_instance['actors_np'][name_bs]
+        actor_rb_np = self.base.game_instance['actors_np'][name_bs]
 
-        if actor_bs.get_python_tag("target_np"):
-            target_np = actor_bs.get_python_tag("target_np")
-            pos_from = actor_bs.get_pos()
+        if actor_rb_np.get_python_tag("target_np"):
+            target_np = actor_rb_np.get_python_tag("target_np")
+            pos_from = actor_rb_np.get_pos()
             pos_to = target_np.get_pos()
 
             physics_world_np = self.base.game_instance['physics_world_np']
@@ -187,9 +188,9 @@ class Archery:
             if "player_cam_trigger" in self.raytest_result.get_node().get_name():
                 name = self.raytest_result.get_node().get_name()
                 actor = render.find("**/*{0}".format(name))
-                player_bs = actor.get_parent()
+                player_rb_np = actor.get_parent()
 
-                self.hit_target = player_bs.node()
+                self.hit_target = player_rb_np.node()
 
                 hit_target_name = self.hit_target.get_name()
                 hit_target_name = hit_target_name.split("_Hips:HB")[0]
@@ -245,6 +246,11 @@ class Archery:
                         self.arrow_brb_in_use.set_collide_mask(BitMask32.allOff())
                         self.arrow_ref.wrt_reparent_to(self.target_np)
 
+                        # Remove arrow collider if it pierces NPC
+                        if "NPC" in self.target_np.get_name():
+                            self.base.game_instance['physics_world_np'].remove_rigid_body(self.arrow_brb_in_use.node())
+                            self.arrow_brb_in_use.remove_node()
+
                         # self.arrow_brb_in_use.node().set_kinematic(True)
                         self.arrow_ref.set_python_tag("ready", 0)
                         self.reset_arrow_charge()
@@ -258,10 +264,10 @@ class Archery:
             return False
 
         if self.base.game_instance['physics_world_np'] and self.dropped_arrows:
-            for arrow_rb in self.dropped_arrows:
-                if arrow_rb:
-                    self.base.game_instance['physics_world_np'].remove_rigid_body(arrow_rb.node())
-                    arrow_rb.remove_node()
+            for arrow_rb_np in self.dropped_arrows:
+                if arrow_rb_np:
+                    self.base.game_instance['physics_world_np'].remove_rigid_body(arrow_rb_np.node())
+                    arrow_rb_np.remove_node()
             return task.done
 
         return task.cont

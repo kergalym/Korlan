@@ -24,7 +24,7 @@ overrides:
     blur_depth_factor: 0.88158
     blur_normal_factor: 2.97
     blur_quality: MEDIUM
-    clip_length: 4
+    clip_length: 1
     hbao_max_distance: 11.5
     hbao_ray_count: 4
     hbao_ray_steps: 3

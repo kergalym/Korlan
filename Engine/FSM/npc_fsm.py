@@ -5,6 +5,8 @@ from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import BitMask32, Vec3
 from Engine.Actors.NPC.archery import Archery
 
+from Engine.Physics import physics_declaratives
+
 """ ANIMATIONS"""
 from Engine import anim_names
 
@@ -146,43 +148,45 @@ class NpcFSM(FSM):
             return None
 
     def _actor_mount_helper_task(self, actor, child, parent, saddle_pos, task):
+        if self.base.game_instance['menu_mode']:
+            return task.done
+
         if actor.get_python_tag("human_states")["is_on_horse"]:
-            child.set_x(saddle_pos[0])
-            child.set_y(saddle_pos[1])
-            child.set_h(parent.get_h())
+            if child:
+                child.set_x(saddle_pos[0])
+                child.set_y(saddle_pos[1])
+                actor.set_z(saddle_pos[2])
+                child.set_h(parent.get_h())
+
         return task.cont
 
-    def enterHorseMount(self, actor, child, parent, parent_bs):
-        if actor and parent and parent_bs and child:
+    def enterHorseMount(self, actor, child, parent, parent_rb_np):
+        if actor and parent and parent_rb_np and child:
             actor_name = actor.get_name()
             if not self.mount_sequence[actor_name].is_playing():
+                physics_attr = self.base.game_instance["physics_attr_cls"]
                 self.mount_sequence[actor_name] = Sequence()
 
-                # Our horse (un)mounting animations have been made with imperfect positions,
-                # so, I had to change child positions to get more satisfactory result
-                # with these animations in my game.
-                if int(child.get_distance(parent_bs)) > 1:
+                if int(child.get_distance(parent_rb_np)) > 1:
                     actor.set_h(-180)
                 else:
                     actor.set_h(0)
 
-                mounting_pos = Vec3(0.5, -0.16, -0.45)
-                saddle_pos = Vec3(0, -0.32, 0.16)
+                mounting_pos = physics_declaratives.mounting_pos
+                saddle_pos = physics_declaratives.saddle_pos
                 mount_action_seq = actor.actor_interval(anim_names.a_anim_horse_mounting,
                                                         playRate=self.base.actor_play_rate)
                 horse_riding_action_seq = actor.actor_interval(anim_names.a_anim_horse_rider_idle,
                                                                playRate=self.base.actor_play_rate)
-                actor.set_python_tag("mounted_horse", parent)
+                actor.set_python_tag("mounted_horse", parent_rb_np)
 
                 taskMgr.add(self._actor_mount_helper_task,
                             "actor_mount_helper_task",
                             extraArgs=[actor, child, parent, saddle_pos],
                             appendTask=True)
 
-                child.node().set_kinematic(True)
-
-                # Horse mounting consists of 14 intervals
-                a = Func(child.set_collide_mask, BitMask32.allOff())
+                # Horse mounting consists of few intervals
+                a = Func(physics_attr.remove_rigid_body_node, child)
                 b = Func(self.fsm_state_wrapper, actor, "generic_states", "is_using", True)
                 c = Parallel(mount_action_seq,
                              Func(child.reparent_to, parent),
@@ -196,21 +200,20 @@ class NpcFSM(FSM):
                 re1 = Func(actor.set_h, 0)
 
                 # bullet shape has impact of gravity
-                # so make player geom stay higher instead
+                # so make rider geom stay higher instead
                 f = Func(actor.set_z, saddle_pos[2])
-                g = Func(child.set_collide_mask, BitMask32.bit(1))
-                h = Func(self.fsm_state_wrapper, actor, "generic_states", "is_using", False)
-                j = Func(self.fsm_state_wrapper, actor, "human_states", "horse_riding", True)
-                k = Func(self.fsm_state_wrapper, actor, "human_states", "is_on_horse", True)
-                l = Func(parent.set_python_tag, "is_mounted", True)
-                m = Func(actor.set_python_tag, "current_task", None)
-                n = horse_riding_action_seq
+                g = Func(self.fsm_state_wrapper, actor, "generic_states", "is_using", False)
+                h = Func(self.fsm_state_wrapper, actor, "human_states", "horse_riding", True)
+                j = Func(self.fsm_state_wrapper, actor, "human_states", "is_on_horse", True)
+                k = Func(parent.set_python_tag, "is_mounted", True)
+                l = Func(actor.set_python_tag, "current_task", None)
+                l1 = Func(actor.set_python_tag, "detour_nav", False)
+                m = horse_riding_action_seq
 
                 self.mount_sequence[actor_name].append(a)
                 self.mount_sequence[actor_name].append(b)
                 self.mount_sequence[actor_name].append(c)
                 self.mount_sequence[actor_name].append(re1)
-                # self.mount_sequence[actor_name].append(Wait(10))
                 self.mount_sequence[actor_name].append(d)
                 self.mount_sequence[actor_name].append(e)
                 self.mount_sequence[actor_name].append(f)
@@ -219,30 +222,25 @@ class NpcFSM(FSM):
                 self.mount_sequence[actor_name].append(j)
                 self.mount_sequence[actor_name].append(k)
                 self.mount_sequence[actor_name].append(l)
+                self.mount_sequence[actor_name].append(l1)
                 self.mount_sequence[actor_name].append(m)
-                self.mount_sequence[actor_name].append(n)
 
                 self.mount_sequence[actor_name].start()
 
     def enterHorseUnmount(self, actor, child):
-        parent = actor.get_python_tag("mounted_horse")
-        parent_bs = parent.get_parent()
-        if parent_bs and parent and child:
+        parent_rb_np = actor.get_python_tag("mounted_horse")
+        if parent_rb_np and parent_rb_np and child:
             actor_name = actor.get_name()
             if not self.unmount_sequence[actor_name].is_playing():
+                physics_attr = self.base.game_instance["physics_attr_cls"]
                 self.unmount_sequence[actor_name] = Sequence()
-                # Our horse (un)mounting animations have been made with imperfect positions,
-                # so, I had to change child positions to get more satisfactory result
-                # with these animations in my game.
-                unmounting_pos = Vec3(0.5, -0.16, -0.45)
-                # Reparent parent/child node back to its BulletCharacterControllerNode
+                unmounting_pos = physics_declaratives.mounting_pos
                 unmount_action_seq = actor.actor_interval(anim_names.a_anim_horse_unmounting,
                                                           playRate=self.base.actor_play_rate)
-                horse_near_pos = Vec3(parent_bs.get_x(), parent_bs.get_y(), child.get_z()) + Vec3(1, 0, 0)
+                mesh_default_z_pos = actor.get_python_tag("mesh_z_pos")
+                horse_near_pos = Vec3(parent_rb_np.get_x(), parent_rb_np.get_y(), child.get_z()) + Vec3(1, 0, 0)
 
                 taskMgr.remove("actor_mount_helper_task")
-
-                child.node().set_kinematic(False)
 
                 a = Func(self.fsm_state_wrapper, actor, "generic_states", "is_using", True)
                 b = Parallel(unmount_action_seq,
@@ -250,16 +248,16 @@ class NpcFSM(FSM):
                              Func(child.set_y, unmounting_pos[1]),
                              Func(actor.set_z, unmounting_pos[2])
                              )
-                # revert player geom height
+                # revert rider geom height
                 c = Func(child.reparent_to, render)
-                d = Func(child.set_x, horse_near_pos[0])
-                e = Func(child.set_y, horse_near_pos[1])
-                f = Func(actor.set_z, -1)
-                g = Func(self.fsm_state_wrapper, actor, "generic_states", "is_using", False)
-                h = Func(self.fsm_state_wrapper, actor, "human_states", "horse_riding", False)
-                j = Func(self.fsm_state_wrapper, actor, "human_states", "is_on_horse", False)
-                k = Func(parent.set_python_tag, "is_mounted", False)
-                l = Func(child.set_collide_mask, BitMask32.allOn())
+                d = Func(physics_attr.set_rigid_body_nodepath_with_shape, actor, child)
+                e = Func(child.set_x, horse_near_pos[0])
+                f = Func(child.set_y, horse_near_pos[1])
+                g = Func(actor.set_z, mesh_default_z_pos)
+                h = Func(self.fsm_state_wrapper, actor, "generic_states", "is_using", False)
+                j = Func(self.fsm_state_wrapper, actor, "human_states", "horse_riding", False)
+                k = Func(self.fsm_state_wrapper, actor, "human_states", "is_on_horse", False)
+                l = Func(parent_rb_np.get_child(0).set_python_tag, "is_mounted", False)
                 m = Func(actor.set_python_tag, "current_task", None)
 
                 self.unmount_sequence[actor_name].append(a)
@@ -465,10 +463,11 @@ class NpcFSM(FSM):
                         name = "{0}_{1}".format(anim_names.a_anim_damage_any, actor.get_name())
                         action = name
 
-                    any_action_seq = actor.actor_interval(action)
-                    Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_attacked", True),
-                             any_action_seq,
-                             Func(self.fsm_state_wrapper, actor, "generic_states", "is_attacked", False)).start()
+                    if action != '':
+                        any_action_seq = actor.actor_interval(action)
+                        Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_attacked", True),
+                                 any_action_seq,
+                                 Func(self.fsm_state_wrapper, actor, "generic_states", "is_attacked", False)).start()
 
     def enterLife(self, actor, action, task):
         if actor and action and task and isinstance(action, str):
@@ -494,11 +493,17 @@ class NpcFSM(FSM):
                              any_action_seq,
                              Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", False)).start()
 
-    def enterCrouch(self, actor, task):
+    def enterCrouch(self, actor, actor_rb_np, task):
         if actor and task:
             if isinstance(task, str):
                 if task == "play":
+                    ph_ = self.base.game_instance["physics_attr_cls"]
+
                     if not actor.get_python_tag("generic_states")["is_crouch_moving"]:
+
+                        #ph_.remove_character_controller_node(actor_rb_np)
+                        #ph_.set_character_controller_nodepath_half_height_shape(actor, actor_rb_np)
+
                         any_action_seq = actor.actor_interval(anim_names.a_anim_standing_crouch)
                         Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_crouching", True),
                                  any_action_seq,
@@ -506,12 +511,22 @@ class NpcFSM(FSM):
                                  Func(self.fsm_state_wrapper, actor, "generic_states", "is_crouch_moving",
                                       True)).start()
                     elif actor.get_python_tag("generic_states")["is_crouch_moving"]:
+
+                        ph_.remove_character_controller_node(actor_rb_np)
+                        # ph_.set_character_controller_nodepath_with_shape(actor, actor_rb_np)
+
                         any_action_seq = actor.actor_interval(anim_names.a_anim_crouching_stand)
                         Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_crouching", True),
                                  any_action_seq,
                                  Func(self.fsm_state_wrapper, actor, "generic_states", "is_crouching", False),
                                  Func(self.fsm_state_wrapper, actor, "generic_states", "is_crouch_moving",
                                       False)).start()
+
+    def filterCrouch(self, request, args):
+        if request not in ['Crouch']:
+            return (request,) + args
+        else:
+            return None
 
     def _player_jump_move_task(self, actor, actor_bs_npc, action, task):
         if actor.getCurrentFrame(action):
@@ -529,10 +544,9 @@ class NpcFSM(FSM):
 
         return task.cont
 
-    def _player_bullet_jump_helper(self, actor, action):
+    def _player_bullet_jump_helper(self, actor, actor_rb_np, action):
         name = "{0}:BS".format(actor.get_name())
         if self.base.game_instance['actors_np'].get(name):
-            actor_bs_npc = self.base.game_instance['actors_np'][name]
             # if self.base.game_instance['actor_controllers_np'][name].is_on_ground():
             #    self.base.game_instance['actor_controllers_np'][name].set_max_jump_height(3.0)
             #    self.base.game_instance['actor_controllers_np'][name].set_jump_speed(8.0)
@@ -543,18 +557,24 @@ class NpcFSM(FSM):
 
             taskMgr.add(self._player_jump_move_task,
                         "player_jump_move_task",
-                        extraArgs=[actor, actor_bs_npc, action],
+                        extraArgs=[actor, actor_rb_np, action],
                         appendTask=True)
 
-    def enterJump(self, actor, action, task):
+    def enterJump(self, actor, actor_rb_np, action, task):
         if actor and action and task and isinstance(action, str):
             if isinstance(task, str):
                 if task == "play":
                     any_action_seq = actor.actor_interval(action)
                     Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_jumping", True),
-                             Func(self._player_bullet_jump_helper, actor, action),
+                             Func(self._player_bullet_jump_helper, actor, actor_rb_np, action),
                              any_action_seq,
                              Func(self.fsm_state_wrapper, actor, "generic_states", "is_jumping", False)).start()
+
+    def filterJump(self, request, args):
+        if request not in ['Jump']:
+            return (request,) + args
+        else:
+            return None
 
     def enterLay(self, actor, action, task):
         if actor and action and task and isinstance(action, str):

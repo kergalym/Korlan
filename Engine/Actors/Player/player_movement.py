@@ -132,23 +132,23 @@ class PlayerMovement:
         dt = globalClock.getDt()
 
         if "Player" in actor.get_name():
-            actor_bs = self.base.game_instance["player_np"]
+            actor_rb_np = self.base.game_instance["player_np"]
 
             # Turning in place
-            if self.kbd.keymap["left"] and actor_bs:
-                actor_bs.set_h(actor_bs.get_h() + 100 * dt)
-            if self.kbd.keymap["right"] and actor_bs:
-                actor_bs.set_h(actor_bs.get_h() - 100 * dt)
+            if self.kbd.keymap["left"] and actor_rb_np:
+                actor_rb_np.set_h(actor_rb_np.get_h() + 100 * dt)
+            if self.kbd.keymap["right"] and actor_rb_np:
+                actor_rb_np.set_h(actor_rb_np.get_h() - 100 * dt)
 
         elif "Horse" in actor.get_name():
             name = "{0}:BS".format(actor.get_name())
-            actor_bs = self.base.game_instance["actors_np"][name]
+            actor_rb_np = self.base.game_instance["actors_np"][name]
 
             # Turning in place
-            if self.kbd.keymap["left"] and actor_bs:
-                actor_bs.set_h(actor_bs.get_h() + 100 * dt)
-            if self.kbd.keymap["right"] and actor_bs:
-                actor_bs.set_h(actor_bs.get_h() - 100 * dt)
+            if self.kbd.keymap["left"] and actor_rb_np:
+                actor_rb_np.set_h(actor_rb_np.get_h() + 100 * dt)
+            if self.kbd.keymap["right"] and actor_rb_np:
+                actor_rb_np.set_h(actor_rb_np.get_h() - 100 * dt)
 
         # TODO: Add turning in place when player is crouched
         if (not base.player_states["is_crouch_moving"]
@@ -245,9 +245,9 @@ class PlayerMovement:
                 if base.input_state.is_set('forward'):
                     speed.set_y(-move_unit)
 
-            if self.base.game_instance['player_controller_np']:
-                self.base.game_instance['player_controller_np'].set_linear_movement(speed, True)
-                self.base.game_instance['player_controller_np'].set_angular_movement(omega)
+            if self.base.game_instance['player_controller']:
+                self.base.game_instance['player_controller'].set_linear_movement(speed, True)
+                self.base.game_instance['player_controller'].set_angular_movement(omega)
 
             # If the player does action, loop the animation through messenger.
             if (self.kbd.keymap["forward"]
@@ -304,8 +304,8 @@ class PlayerMovement:
                     if self.base.game_instance['player_props']['stamina'] > 1:
                         speed.set_y(-move_unit)
 
-                    if self.base.game_instance['player_controller_np']:
-                        self.base.game_instance['player_controller_np'].set_linear_movement(speed, True)
+                    if self.base.game_instance['player_controller']:
+                        self.base.game_instance['player_controller'].set_linear_movement(speed, True)
 
             # If the player does action, loop the animation.
             # If it is standing still, stop the animation.
@@ -348,7 +348,7 @@ class PlayerMovement:
             horse_name = base.game_instance['player_using_horse']
             if self.base.game_instance['actors_ref'].get(horse_name):
                 player = self.base.game_instance['actors_ref'][horse_name]
-                horse_bs = render.find("**/{0}:BS".format(horse_name))
+                horse_rb_np = render.find("**/{0}:BS".format(horse_name))
                 move_unit = 2
 
                 # Get the time that elapsed since last frame
@@ -356,9 +356,9 @@ class PlayerMovement:
 
                 # Turning in place
                 if self.kbd.keymap["left"] and not self.kbd.keymap["right"]:
-                    horse_bs.set_h(horse_bs.get_h() + 100 * dt)
+                    horse_rb_np.set_h(horse_rb_np.get_h() + 100 * dt)
                 if self.kbd.keymap["right"] and not self.kbd.keymap["left"]:
-                    horse_bs.set_h(horse_bs.get_h() - 100 * dt)
+                    horse_rb_np.set_h(horse_rb_np.get_h() - 100 * dt)
 
                 # todo: uncomment when horse turning anims become ready
                 # self.turning_in_place(player, anims, self.seq_horse_turning_wrapper)
@@ -368,11 +368,11 @@ class PlayerMovement:
                         and not self.kbd.keymap["backward"]
                         and self.kbd.keymap["run"] is False):
                     if base.input_state.is_set('forward'):
-                        horse_bs.set_y(horse_bs, -move_unit * dt)
+                        horse_rb_np.set_y(horse_rb_np, -move_unit * dt)
                 if (self.kbd.keymap["backward"]
                         and self.kbd.keymap["run"] is False):
                     if base.input_state.is_set('reverse'):
-                        horse_bs.set_y(horse_bs, move_unit * dt)
+                        horse_rb_np.set_y(horse_rb_np, move_unit * dt)
 
                 # If the player does action, loop the animation through messenger.
                 if (self.kbd.keymap["forward"]
@@ -428,7 +428,7 @@ class PlayerMovement:
             horse_name = base.game_instance['player_using_horse']
             if self.base.game_instance['actors_ref'].get(horse_name):
                 player = self.base.game_instance['actors_ref'][horse_name]
-                horse_bs = render.find("**/{0}:BS".format(horse_name))
+                horse_rb_np = render.find("**/{0}:BS".format(horse_name))
                 move_unit = 7
 
                 self.decrement_stamina_while_running(player, move_unit)
@@ -440,7 +440,7 @@ class PlayerMovement:
                         and not self.kbd.keymap["backward"]
                         and self.kbd.keymap["run"]):
                     if base.input_state.is_set('forward'):
-                        horse_bs.set_y(horse_bs, -move_unit * dt)
+                        horse_rb_np.set_y(horse_rb_np, -move_unit * dt)
 
                 # If the player does action, loop the animation.
                 # If it is standing still, stop the animation.

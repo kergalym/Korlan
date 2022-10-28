@@ -5,20 +5,21 @@ from panda3d.core import Vec3, Vec2, Point3, BitMask32, NodePath
 
 from Engine.Physics.npc_damages import NpcDamages
 from Engine.AI.npc_behavior import NpcBehavior
+from Engine.Actors.animator import Animator
+
+from Engine.AI import ai_declaratives
 
 """ ANIMATIONS"""
 from Engine import anim_names
-
-from random import random
 
 
 class NpcController:
 
     def __init__(self, actor):
-        self.base = base
-        self.render = render
+        self.base = base  # pylint: disable=undefined-variable
+        self.render = render  # pylint: disable=undefined-variable
         self.player = self.base.game_instance["player_ref"]
-        self.player_bs = self.base.game_instance["player_np"]
+        self.player_rb_np = self.base.game_instance["player_np"]
         self.player_fsm = self.base.game_instance["player_fsm_cls"]
         self.npcs_fsm_states = self.base.game_instance["npcs_fsm_states"]
         self.npc_hips = {}
@@ -40,10 +41,10 @@ class NpcController:
         actor.get_python_tag("generic_states")['is_idle'] = True
         actor.set_python_tag("arrow_count", 20)
         # actor.set_blend(frameBlend=True)
-        actor_bs = self.base.game_instance["actors_np"][name_bs]
-        request = self.npcs_fsm_states[name]
+        actor_rb_np = self.base.game_instance["actors_np"].get(name_bs)
+        request = self.npcs_fsm_states.get(name)
         self.npc_hips[name] = actor.find("**/**Hips:HB")
-        hips = self.npc_hips[name]
+        hips = self.npc_hips.get(name)
 
         # R&D
         self.walking_sequence = {}
@@ -54,13 +55,13 @@ class NpcController:
         self.mounting_sequence[name] = Sequence()
         self.unmounting_sequence[name] = Sequence()
 
-        if actor and actor_bs and request and "animal" not in actor.get_python_tag("npc_type"):
+        if actor and actor_rb_np and request and "animal" not in actor.get_python_tag("npc_type"):
             self.npc_state = self.base.game_instance["npc_state_cls"]
             self.npc_state.set_npc_equipment(actor, "Korlan:Spine1")
 
             taskMgr.add(self.npc_physics.actor_hitbox_trace_task,
                         "{0}_hitbox_trace_task".format(name.lower()),
-                        extraArgs=[actor, actor_bs, hips, request],
+                        extraArgs=[actor, actor_rb_np, hips, request],
                         appendTask=True)
 
         if actor:
@@ -75,8 +76,11 @@ class NpcController:
             if "Horse" not in actor.get_name():
                 taskMgr.add(self.npc_behavior.npc_generic_logic,
                             "{0}_npc_generic_logic_task".format(name),
-                            extraArgs=[actor, self.player_bs, request, False],
+                            extraArgs=[actor, self.player_rb_np, request, False],
                             appendTask=True)
+
+            """ Animator class handles Idle/Walk/Run/Jump states based on actor's velocity"""
+            Animator(actor, actor_rb_np, request)
 
     def _reset_current_sequence(self):
         if self.current_seq:
@@ -92,19 +96,19 @@ class NpcController:
                     enemy_npc_ref = self.base.game_instance['actors_ref'][name]
                     if enemy_npc_ref and enemy_npc_ref.get_python_tag("generic_states")['is_alive']:
                         name_bs = "{0}:BS".format(name)
-                        enemy_npc_bs = self.base.game_instance['actors_np'][name_bs]
+                        enemy_rb_np = self.base.game_instance['actors_np'][name_bs]
                         actor_bs_name = "{0}:BS".format(actor.get_name())
-                        actor_bs = self.base.game_instance["actors_np"][actor_bs_name]
-                        if int(actor_bs.get_distance(enemy_npc_bs)) < 50:
-                            return [enemy_npc_ref, enemy_npc_bs]
+                        actor_rb_np = self.base.game_instance["actors_np"][actor_bs_name]
+                        if int(actor_rb_np.get_distance(enemy_rb_np)) < 50:
+                            return [enemy_npc_ref, enemy_rb_np]
 
-    def get_enemy_distance(self, actor, actor_npc_bs, opponent):
+    def get_enemy_distance(self, actor, actor_npc_rb, opponent):
         if actor.get_python_tag("human_states")['is_on_horse']:
             if "Horse" in opponent.get_parent().get_name():
                 rider_opponent = opponent.get_parent().get_parent()
-                return int(actor_npc_bs.get_distance(rider_opponent))
+                return int(actor_npc_rb.get_distance(rider_opponent))
         else:
-            return int(actor_npc_bs.get_distance(opponent))
+            return int(actor_npc_rb.get_distance(opponent))
 
     def get_target_npc_in_state(self, target_np):
         if "Horse" in target_np.get_parent().get_name():
@@ -112,46 +116,44 @@ class NpcController:
         else:
             return target_np
 
-    def face_actor_to(self, actor_bs, target_np):
-        if actor_bs and target_np:
-
-            if actor_bs.get_child(0).get_python_tag("human_states")['is_on_horse']:
-                npc = actor_bs.get_child(0).get_python_tag("mounted_horse")
-                npc_bs = npc.get_parent()
+    def face_actor_to(self, actor_rb_np, target_np):
+        if actor_rb_np and target_np:
+            if actor_rb_np.get_child(0).get_python_tag("human_states")['is_on_horse']:
+                parent_rb_np = actor_rb_np.get_child(0).get_python_tag("mounted_horse")
                 # Calculate NPC rotation vector
                 new_target_np = self.get_target_npc_in_state(target_np)
-                rot_vector = Vec3(npc_bs.get_pos() - new_target_np.get_pos())
+                rot_vector = Vec3(parent_rb_np.get_pos() - new_target_np.get_pos())
                 rot_vector_2d = rot_vector.get_xy()
                 rot_vector_2d.normalize()
                 heading = Vec3(Vec2(0, 1).signed_angle_deg(rot_vector_2d), 0).x
-                npc_bs.set_h(heading)
+                parent_rb_np.set_h(heading)
             else:
-                if not actor_bs.get_child(0).get_python_tag("human_states")["has_bow"]:
-                    if int(actor_bs.get_distance(target_np)) < 1:
+                if not actor_rb_np.get_child(0).get_python_tag("human_states")["has_bow"]:
+                    if int(actor_rb_np.get_distance(target_np)) < 1:
                         # Calculate NPC rotation vector
                         new_target_np = self.get_target_npc_in_state(target_np)
-                        rot_vector = Vec3(actor_bs.get_pos() - new_target_np.get_pos())
+                        rot_vector = Vec3(actor_rb_np.get_pos() - new_target_np.get_pos())
                         rot_vector_2d = rot_vector.get_xy()
                         rot_vector_2d.normalize()
                         heading = Vec3(Vec2(0, 1).signed_angle_deg(rot_vector_2d), 0).x
-                        actor_bs.set_h(heading)
+                        actor_rb_np.set_h(heading)
                     else:
                         # Calculate NPC rotation vector
                         new_target_np = self.get_target_npc_in_state(target_np)
-                        rot_vector = Vec3(actor_bs.get_pos() - new_target_np.get_pos())
+                        rot_vector = Vec3(actor_rb_np.get_pos() - new_target_np.get_pos())
                         rot_vector_2d = rot_vector.get_xy()
                         rot_vector_2d.normalize()
                         heading = Vec3(Vec2(0, 1).signed_angle_deg(rot_vector_2d), 0).x
-                        actor_bs.set_h(heading)
+                        actor_rb_np.set_h(heading)
 
-                elif actor_bs.get_child(0).get_python_tag("human_states")["has_bow"]:
+                elif actor_rb_np.get_child(0).get_python_tag("human_states")["has_bow"]:
                     # Calculate NPC rotation vector
                     new_target_np = self.get_target_npc_in_state(target_np)
-                    rot_vector = Vec3(actor_bs.get_pos() - new_target_np.get_pos())
+                    rot_vector = Vec3(actor_rb_np.get_pos() - new_target_np.get_pos())
                     rot_vector_2d = rot_vector.get_xy()
                     rot_vector_2d.normalize()
                     heading = Vec3(Vec2(0, 1).signed_angle_deg(rot_vector_2d), 0).x
-                    actor_bs.set_h(heading)
+                    actor_rb_np.set_h(heading)
 
     def is_ready_for_walking(self, actor):
         if actor.get_python_tag("human_states"):
@@ -167,28 +169,25 @@ class NpcController:
                         and not actor.get_python_tag("generic_states")['is_blocking']
                         and not actor.get_python_tag("generic_states")['is_using']
                         and not actor.get_python_tag("generic_states")['is_turning']
-                        and not actor.get_python_tag("generic_states")['is_laying']
-                        and not actor.get_python_tag("human_states")['horse_riding']
-                        and not actor.get_python_tag("human_states")['is_on_horse']):
+                        and not actor.get_python_tag("generic_states")['is_laying']):
                     return True
                 else:
                     return False
-            else:
-                npc = actor.get_python_tag("mounted_horse")
+            elif actor.get_python_tag("human_states")['is_on_horse']:
+                parent_rb_np = actor.get_python_tag("mounted_horse")
+                parent = parent_rb_np.get_child(0)
                 # Only Human or NPC has human_states which is on horse
-                if (npc.get_python_tag("generic_states")['is_idle']
-                        and not npc.get_python_tag("generic_states")['is_running']
-                        and not npc.get_python_tag("generic_states")['is_crouch_moving']
-                        and not npc.get_python_tag("generic_states")['is_crouching']
-                        and not npc.get_python_tag("generic_states")['is_jumping']
-                        and not npc.get_python_tag("generic_states")['is_attacked']
-                        and not npc.get_python_tag("generic_states")['is_busy']
-                        and not npc.get_python_tag("generic_states")['is_blocking']
-                        and not npc.get_python_tag("generic_states")['is_using']
-                        and not npc.get_python_tag("generic_states")['is_turning']
-                        and not npc.get_python_tag("generic_states")['is_laying']
-                        and not npc.get_python_tag("human_states")['horse_riding']
-                        and not npc.get_python_tag("human_states")['is_on_horse']):
+                if (parent.get_python_tag("generic_states")['is_idle']
+                        and not parent.get_python_tag("generic_states")['is_running']
+                        and not parent.get_python_tag("generic_states")['is_crouch_moving']
+                        and not parent.get_python_tag("generic_states")['is_crouching']
+                        and not parent.get_python_tag("generic_states")['is_jumping']
+                        and not parent.get_python_tag("generic_states")['is_attacked']
+                        and not parent.get_python_tag("generic_states")['is_busy']
+                        and not parent.get_python_tag("generic_states")['is_blocking']
+                        and not parent.get_python_tag("generic_states")['is_using']
+                        and not parent.get_python_tag("generic_states")['is_turning']
+                        and not parent.get_python_tag("generic_states")['is_laying']):
                     return True
                 else:
                     return False
@@ -208,62 +207,27 @@ class NpcController:
             else:
                 return False
 
-    def npc_in_staying_logic(self, actor, request):
+    def npc_in_idle_logic(self, actor, request):
         if actor and request:
-
             if actor.get_python_tag("npc_type") == "npc":
                 if not actor.get_python_tag("human_states")['is_on_horse']:
-                    anim_action = anim_names.a_anim_idle
-                    if actor.get_python_tag("generic_states")['is_crouch_moving']:
-                        anim_action = anim_names.a_anim_crouch_idle
+                    actor.get_python_tag("generic_states")['is_moving'] = False
+                    actor.get_python_tag("generic_states")['is_idle'] = True
 
-                    if actor.get_python_tag("generic_states")['is_idle']:
-                        if actor.get_python_tag("generic_states")['is_crouch_moving']:
-                            request.request("Idle", actor, anim_action, "loop")
-                        elif not actor.get_python_tag("generic_states")['is_crouch_moving']:
-                            request.request("Idle", actor, anim_action, "loop")
+                elif actor.get_python_tag("human_states")['is_on_horse']:
+                    parent_rb_np = actor.get_python_tag("mounted_horse")
+                    parent_name = parent_rb_np.get_child(0).get_name()
+                    parent = self.base.game_instance["actors_ref"][parent_name]
 
-                        if actor.get_python_tag("stamina_np"):
-                            if actor.get_python_tag("stamina_np")['value'] < 100:
-                                actor.get_python_tag("stamina_np")['value'] += 0.5
-                else:
-                    npc = actor.get_python_tag("mounted_horse")
-                    npc_ref = self.base.game_instance["actors_ref"][npc.get_name()]
-                    anim_action = anim_names.a_anim_horse_idle
-                    if npc.get_python_tag("generic_states")['is_crouch_moving']:
-                        anim_action = anim_names.a_anim_horse_crouch_idle
-
-                    if npc.get_python_tag("generic_states")['is_idle']:
-                        if npc.get_python_tag("generic_states")['is_crouch_moving']:
-                            request.request("Idle", npc_ref, anim_action, "loop")
-                        elif not npc.get_python_tag("generic_states")['is_crouch_moving']:
-                            request.request("Idle", npc_ref, anim_action, "loop")
-
-                        if actor.get_python_tag("stamina_np"):
-                            if actor.get_python_tag("stamina_np")['value'] < 100:
-                                actor.get_python_tag("stamina_np")['value'] += 0.5
+                    parent.get_python_tag("generic_states")['is_moving'] = False
+                    parent.get_python_tag("generic_states")['is_idle'] = True
 
             elif actor.get_python_tag("npc_type") == "npc_animal":
-                anim_action = anim_names.a_anim_horse_idle
-                if actor.get_python_tag("generic_states")['is_crouch_moving']:
-                    anim_action = anim_names.a_anim_horse_crouch_idle
-
-                if actor.get_python_tag("generic_states")['is_idle']:
-                    if actor.get_python_tag("generic_states")['is_crouch_moving']:
-                        request.request("Idle", actor, anim_action, "loop")
-                    elif not actor.get_python_tag("generic_states")['is_crouch_moving']:
-                        request.request("Idle", actor, anim_action, "loop")
-
-                    if actor.get_python_tag("stamina_np"):
-                        if actor.get_python_tag("stamina_np")['value'] < 100:
-                            actor.get_python_tag("stamina_np")['value'] += 0.5
-
-            actor.get_python_tag("generic_states")['is_moving'] = False
-            actor.get_python_tag("generic_states")['is_idle'] = True
+                actor.get_python_tag("generic_states")['is_moving'] = False
+                actor.get_python_tag("generic_states")['is_idle'] = True
 
     def npc_in_dying_logic(self, actor, request):
         if actor and request:
-
             if actor.get_python_tag("npc_type") == "npc":
                 if not actor.get_python_tag("human_states")['is_on_horse']:
                     anim_action = anim_names.a_anim_dying
@@ -298,92 +262,97 @@ class NpcController:
                 if actor.get_python_tag("courage_np")['value'] > 1:
                     actor.get_python_tag("courage_np")['value'] -= 100
 
-    def do_walking_sequence_once(self, actor, actor_npc_bs, target, actor_name, request):
+    def _get_target_last_pos(self, target, actor_name):
+        # Make target nodepath with defined margins for NPC actors
+        if "NPC" in target.get_name():
+            if target.get_child(0).has_python_tag("human_states"):
+                if target.get_child(0).get_python_tag("human_states")["is_on_horse"]:
+                    pos = target.get_parent().get_parent().get_pos() + Vec3(ai_declaratives.distance_to_animal,
+                                                                            ai_declaratives.distance_to_animal,
+                                                                            0)
+                else:
+                    pos = target.get_pos() + Point3(ai_declaratives.distance_to_target,
+                                                    ai_declaratives.distance_to_target,
+                                                    0)
+            else:
+                pos = target.get_pos() + Point3(ai_declaratives.distance_to_target,
+                                                ai_declaratives.distance_to_target,
+                                                0)
+
+            name = "{0}_margins".format(target.get_name())
+            m_target = NodePath(name)
+            m_target.set_pos(pos)
+            # Set last pos from opposite actor's world points
+            last_pos = self.render.get_relative_vector(m_target.get_parent(),
+                                                       m_target.get_pos())
+        elif "Player" in target.get_name():
+            if base.player_states["is_mounted"]:
+                pos = target.get_parent().get_parent().get_pos() + Point3(ai_declaratives.distance_to_animal,
+                                                                          ai_declaratives.distance_to_animal,
+                                                                          0)
+                name = "{0}_margins".format(target.get_parent().get_parent().get_name())
+                m_target = NodePath(name)
+                m_target.set_pos(pos)
+            else:
+                pos = target.get_pos() + Point3(ai_declaratives.distance_to_target,
+                                                ai_declaratives.distance_to_target,
+                                                0)
+                name = "{0}_margins".format(target.get_name())
+                m_target = NodePath(name)
+                m_target.set_pos(pos)
+
+            # Set last pos from opposite actor's world points
+            last_pos = self.render.get_relative_vector(m_target.get_parent(),
+                                                       m_target.get_pos())
+        else:
+            # Set last pos from opposite actor's world points
+            last_pos = self.render.get_relative_vector(target.get_parent(),
+                                                       target.get_pos())
+        return Point3(last_pos[0], last_pos[1], 0)
+
+    def do_walking_sequence_once(self, actor, actor_rb_np, target, actor_name, request):
         if not self.walking_sequence[actor_name].is_playing():
-            if (actor, actor_npc_bs and target
+            if (actor, actor_rb_np and target
                        and actor_name
                        and isinstance(actor_name, str)
                        and request):
 
-                self.navmesh_query.nearest_point(actor_npc_bs.get_pos())
+                self.navmesh_query.nearest_point(actor_rb_np.get_pos())
 
-                # Make target nodepath with defined margins for NPC actors
-                if "NPC" in target.get_name() and "Horse" not in target.get_name():
-                    num = random()
-                    pos = target.get_pos() + Vec3(num * 3, num * 2, 0)
-                    name = "{0}_margins".format(target.get_name())
-                    m_target = NodePath(name)
-                    m_target.set_pos(pos)
-                    # Set last pos from opposite actor's world points
-                    last_pos = self.render.get_relative_vector(m_target.get_parent(),
-                                                               m_target.get_pos())
-                elif "Player" in target.get_name():
-                    num = random()
-                    pos = target.get_pos() + Vec3(num * 3, num * 2, 0)
-                    name = "{0}_margins".format(target.get_name())
-                    m_target = NodePath(name)
-                    m_target.set_pos(pos)
-                    # Set last pos from opposite actor's world points
-                    last_pos = self.render.get_relative_vector(m_target.get_parent(),
-                                                               m_target.get_pos())
-                else:
-                    # Set last pos from opposite actor's world points
-                    last_pos = self.render.get_relative_vector(target.get_parent(),
-                                                               target.get_pos())
-                last_pos = Point3(last_pos[0], last_pos[1], 0)
+                # get target's last pos
+                last_pos = self._get_target_last_pos(target, actor_name)
 
                 # self.navmesh.update()
 
                 # Find path
-                path = self.navmesh_query.find_path(actor_npc_bs.get_pos(), last_pos)
+                path = self.navmesh_query.find_path(actor_rb_np.get_pos(), last_pos)
                 path_points = list(path.points)
-                current_dir = actor_npc_bs.get_hpr()
+                current_dir = actor_rb_np.get_hpr()
 
                 self.walking_sequence[actor_name] = Sequence()
 
                 # Change animation and speed
                 speed = 2
-                if actor.get_python_tag("npc_type") == "npc":
-                    if actor.get_python_tag("move_type") == "walk":
-                        speed = 2
-                        walk_anim = anim_names.a_anim_walking
-                        walk_interval = Func(request.request, "Walk", actor, walk_anim, "loop")
-                        self.walking_sequence[actor_name].append(walk_interval)
-                    elif actor.get_python_tag("move_type") == "run":
-                        speed = 5
-                        run_anim = anim_names.a_anim_run
-                        run_interval = Func(request.request, "Walk", actor, run_anim, "loop")
-                        self.walking_sequence[actor_name].append(run_interval)
-
-                elif actor.get_python_tag("npc_type") == "npc_animal":
-                    if actor.get_python_tag("move_type") == "walk":
-                        speed = 2
-                        walk_anim = anim_names.a_anim_horse_walking
-                        npc_ref = self.base.game_instance["actors_ref"][actor.get_name()]
-                        walk_interval = Func(request.request, "Walk", npc_ref, walk_anim, "loop")
-                        self.walking_sequence[actor_name].append(walk_interval)
-                    elif actor.get_python_tag("move_type") == "run":
-                        speed = 5
-                        run_anim = anim_names.a_anim_horse_run
-                        npc_ref = self.base.game_instance["actors_ref"][actor.get_name()]
-                        run_interval = Func(request.request, "Walk", npc_ref, run_anim, "loop")
-                        self.walking_sequence[actor_name].append(run_interval)
+                if actor.get_python_tag("move_type") == "walk":
+                    speed = 2
+                elif actor.get_python_tag("move_type") == "run":
+                    speed = 5
 
                 for i in range(len(path_points) - 1):
                     # Heading
                     new_hpr = Vec3(Vec2(0, -1).signed_angle_deg(path_points[i + 1].xy - path_points[i].xy),
                                    current_dir[1],
                                    current_dir[2])
-                    hpr_interval = actor_npc_bs.hprInterval(0, new_hpr)
+                    hpr_interval = actor_rb_np.hprInterval(0, new_hpr)
 
                     # Movement
                     dist = (path_points[i + 1] - path_points[i]).length()
 
                     # Workaround for shifted down actor's rigid body nodepath z pos,
                     # which in posInterval interpreted like -1, not 0
-                    pp = Point3(path_points[i + 1][0], path_points[i + 1][1], 0.7)
-                    pp_start = Point3(path_points[i][0], path_points[i][1], 0.8)
-                    pos_interval = actor_npc_bs.posInterval(dist / speed, pp, pp_start)
+                    pp = Point3(path_points[i + 1][0], path_points[i + 1][1], actor_rb_np.get_z())
+                    pp_start = Point3(path_points[i][0], path_points[i][1], actor_rb_np.get_z())
+                    pos_interval = actor_rb_np.posInterval(dist / speed, pp, pp_start)
 
                     # Append sequence tasks in that order
                     self.walking_sequence[actor_name].append(hpr_interval)
@@ -391,74 +360,103 @@ class NpcController:
 
                     current_dir = new_hpr
 
-                staying_interval = Func(self.npc_in_staying_logic, actor, request)
-                self.walking_sequence[actor_name].append(staying_interval)
+                idle_interval = Func(self.npc_in_idle_logic, actor, request)
+                self.walking_sequence[actor_name].append(idle_interval)
                 self.walking_sequence[actor_name].start()
 
-    def npc_in_walking_logic(self, actor, actor_npc_bs, target, request):
-        if actor and actor_npc_bs and target and request:
+    def _do_dynamic_obstacle_avoidance(self, actor_rb_np, target_rb_np, delta_time, acceleration=2.0):
+        for name in self.base.game_instance["actors_np"]:
+            if name not in actor_rb_np.get_name():
+                obstacle_rb_np = self.base.game_instance["actors_np"][name]
+                distance = obstacle_rb_np.get_distance(actor_rb_np)
+                max_avoid_force = acceleration
+                obstacle_radius = 0.7
+                obstacle_center = obstacle_rb_np.get_pos()
+                velocity = Vec3(0, 0, 0)
+                velocity += actor_rb_np.get_pos() - obstacle_center * acceleration * delta_time
+
+                # Calculate avoidance force
+                avoidance_force = actor_rb_np.get_pos() - obstacle_center
+                avoidance_force = avoidance_force.normalize() * max_avoid_force
+
+                if distance < obstacle_radius:
+                    # Actor got collision with obstacle on it's way,
+                    # We turn away from obstacle
+                    heading = obstacle_rb_np.get_h() + actor_rb_np.get_h()
+
+                    if actor_rb_np.get_h() < heading:
+                        actor_rb_np.set_h(actor_rb_np.get_h() + 200 * delta_time)
+
+                    # Now we decide where we should look to get closer path to the target
+                    rot_vector = Vec3(actor_rb_np.get_pos() - target_rb_np.get_pos())
+                    rot_vector_2d = rot_vector.get_xy()
+                    rot_vector_2d.normalize()
+                    heading = Vec3(Vec2(0, 1).signed_angle_deg(rot_vector_2d), 0).x
+                    actor_rb_np.set_h(heading)
+
+                    # Do push for our actor
+                    actor_rb_np.set_pos(avoidance_force, avoidance_force, actor_rb_np.get_z())
+                    actor_rb_np.set_y(actor_rb_np, -acceleration * delta_time)
+
+                else:
+                    actor_rb_np.set_y(actor_rb_np, -acceleration * delta_time)
+
+    def do_any_walking(self, actor, actor_rb_np, target, request):
+        if actor and actor_rb_np and target and request:
+            delta_time = globalClock.getDt()
+
+            # Change speed
+            speed = 2
+            # Do actual movement
+            actor.get_python_tag("generic_states")['is_idle'] = False
+            actor.get_python_tag("generic_states")['is_moving'] = True
+            self._do_dynamic_obstacle_avoidance(actor_rb_np, target, delta_time, speed)
+            # actor_rb_np.set_y(actor_rb_np, -speed * delta_time)
+
+    def npc_in_walking_rd_logic(self, actor, actor_rb_np, target, request):
+        if actor and actor_rb_np and target and request:
+            actor_name = actor.get_name()
             if not actor.get_python_tag("human_states")['is_on_horse']:
                 if self.is_ready_for_walking(actor):
-                    actor_name = actor.get_name()
 
-                    # Crouch collision states
-                    if not actor.get_python_tag("generic_states")['is_crouch_moving']:
-                        actor_name_bs = "{0}:BS".format(actor_name)
-                        crouch_bs_mask = BitMask32.allOff()
-                        capsule_bs_mask = self.base.game_instance["actors_np_mask"][actor_name_bs]
-
-                        self.base.game_instance['actors_crouch_bs_np'][actor_name_bs].setCollideMask(crouch_bs_mask)
-                        self.base.game_instance['actors_np'][actor_name_bs].setCollideMask(capsule_bs_mask)
-
-                    elif actor.get_python_tag("generic_states")['is_crouch_moving']:
-                        actor_name_bs = "{0}:BS".format(actor_name)
-                        crouch_bs_mask = self.base.game_instance['actors_crouch_bs_np_mask'][actor_name_bs]
-                        capsule_bs_mask = BitMask32.allOff()
-
-                        self.base.game_instance['actors_crouch_bs_np'][actor_name_bs].setCollideMask(crouch_bs_mask)
-                        self.base.game_instance['actors_np'][actor_name_bs].setCollideMask(capsule_bs_mask)
+                    self._toggle_crouch_collision(actor, actor_rb_np)
 
                     actor.get_python_tag("generic_states")['is_idle'] = False
                     actor.get_python_tag("generic_states")['is_moving'] = True
 
-                    if actor.get_python_tag("stamina_np"):
-                        if actor.get_python_tag("stamina_np")['value'] > 1:
-                            actor.get_python_tag("stamina_np")['value'] -= 1
-
-                    self.do_walking_sequence_once(actor, actor_npc_bs, target, actor_name, request)
+                    self.do_walking_sequence_once(actor, actor_rb_np, target, actor_name, request)
             else:
                 if actor.get_python_tag("human_states")['is_on_horse']:
-                    npc = actor.get_python_tag("mounted_horse")
-                    npc_bs = npc.get_parent()
+                    parent_rb_np = actor.get_python_tag("mounted_horse")
+                    parent = parent_rb_np.get_child(0)
 
-                    if self.is_ready_for_walking(npc):
+                    if self.is_ready_for_walking(actor):
                         actor_name = actor.get_name()
 
-                        # Crouch collision states
-                        if not npc.get_python_tag("generic_states")['is_crouch_moving']:
-                            actor_name_bs = "{0}:BS".format(actor_name)
-                            crouch_bs_mask = BitMask32.allOff()
-                            capsule_bs_mask = self.base.game_instance["actors_np_mask"][actor_name_bs]
+                        parent.get_python_tag("generic_states")['is_idle'] = False
+                        parent.get_python_tag("generic_states")['is_moving'] = True
 
-                            self.base.game_instance['actors_crouch_bs_np'][actor_name_bs].setCollideMask(crouch_bs_mask)
-                            self.base.game_instance['actors_np'][actor_name_bs].setCollideMask(capsule_bs_mask)
+                        self.do_walking_sequence_once(parent, parent_rb_np, target, actor_name, request)
 
-                        elif npc.get_python_tag("generic_states")['is_crouch_moving']:
-                            actor_name_bs = "{0}:BS".format(actor_name)
-                            crouch_bs_mask = self.base.game_instance['actors_crouch_bs_np_mask'][actor_name_bs]
-                            capsule_bs_mask = BitMask32.allOff()
+    def _toggle_crouch_collision(self, actor, actor_npc_bs):
+        actor_name = actor.get_name()
+        if not actor.get_python_tag("generic_states")['is_crouch_moving']:
+            actor_name_bs = "{0}:BS".format(actor_name)
+            crouch_bs_mask = BitMask32.allOff()
+            capsule_bs_mask = self.base.game_instance["actors_np_mask"].get(actor_name_bs)
+            crouch_rb_np = self.base.game_instance['actors_crouch_bs_np'].get(actor_name_bs)
+            if crouch_bs_mask is not None and crouch_rb_np is not None:
+                crouch_rb_np.set_collide_mask(crouch_bs_mask)
+                actor_npc_bs.set_collide_mask(capsule_bs_mask)
 
-                            self.base.game_instance['actors_crouch_bs_np'][actor_name_bs].setCollideMask(crouch_bs_mask)
-                            self.base.game_instance['actors_np'][actor_name_bs].setCollideMask(capsule_bs_mask)
-
-                        npc.get_python_tag("generic_states")['is_idle'] = False
-                        npc.get_python_tag("generic_states")['is_moving'] = True
-
-                        if npc.get_python_tag("stamina_np"):
-                            if npc.get_python_tag("stamina_np")['value'] > 1:
-                                npc.get_python_tag("stamina_np")['value'] -= 1
-
-                        self.do_walking_sequence_once(npc, npc_bs, target, actor_name, request)
+        elif actor.get_python_tag("generic_states")['is_crouch_moving']:
+            actor_name_bs = "{0}:BS".format(actor_name)
+            crouch_bs_mask = self.base.game_instance['actors_crouch_bs_np_mask'].get(actor_name_bs)
+            crouch_rb_np = self.base.game_instance['actors_crouch_bs_np'][actor_name_bs]
+            if crouch_bs_mask is not None and crouch_rb_np is not None:
+                capsule_bs_mask = BitMask32.allOff()
+                crouch_rb_np.set_collide_mask(crouch_bs_mask)
+                actor_npc_bs.set_collide_mask(capsule_bs_mask)
 
     def seq_pick_item_wrapper_task(self, actor, action, joint_name, task):
         if actor and action and joint_name:
@@ -628,36 +626,14 @@ class NpcController:
                 if actor.get_python_tag("stamina_np")['value'] > 1:
                     actor.get_python_tag("stamina_np")['value'] -= 3
 
-    def npc_in_crouching_logic(self, actor, request):
+    def npc_in_crouching_logic(self, actor, actor_rb_np, request):
         if (actor.get_python_tag("generic_states")['is_idle']
                 and not actor.get_python_tag("generic_states")['is_attacked']
                 and not actor.get_python_tag("generic_states")['is_busy']
                 and not actor.get_python_tag("generic_states")['is_moving']):
             if (actor.get_python_tag("generic_states")
                     and not actor.get_python_tag("generic_states")['is_crouch_moving']):
-                request.request("Crouch", actor)
-
-    def npc_in_jumping_logic(self, actor, request):
-        if (actor.get_python_tag("generic_states")['is_idle']
-                and not actor.get_python_tag("generic_states")['is_attacked']
-                and not actor.get_python_tag("generic_states")['is_busy']
-                and not actor.get_python_tag("generic_states")['is_moving']):
-            if (actor.get_python_tag("generic_states")
-                    and not actor.get_python_tag("generic_states")['is_crouch_moving']):
-                if actor.get_python_tag("human_states")['is_on_horse']:
-                    # todo add horse jump anim
-                    # request.request("Jump", actor, anim_names.a_anim_horse_jumping, "play")
-                    pass
-                else:
-                    request.request("Jump", actor, anim_names.a_anim_jumping, "play")
-
-            if actor.get_python_tag("stamina_np"):
-                if actor.get_python_tag("stamina_np")['value'] > 1:
-                    actor.get_python_tag("stamina_np")['value'] -= 1
-
-            if actor.get_python_tag("courage_np"):
-                if actor.get_python_tag("courage_np")['value'] > 1:
-                    actor.get_python_tag("courage_np")['value'] -= 1
+                request.request("Crouch", actor, actor_rb_np)
 
     def npc_in_mounting_logic(self, actor, actor_npc_bs, request):
         if (actor.get_python_tag("human_states")
@@ -668,31 +644,31 @@ class NpcController:
             if horses is not None:
                 for k in horses:
                     if "NPC_Horse" in k:
-                        horse_bs = horses[k]
-                        if not horse_bs.get_child(0).get_python_tag("horse_spec_states")["is_mounted"]:
-                            horse = horse_bs.get_child(0)
+                        horse_rb_np = horses[k]
+                        if not horse_rb_np.get_child(0).get_python_tag("horse_spec_states")["is_mounted"]:
+                            horse = horse_rb_np.get_child(0)
                             if horse.get_python_tag("npc_id") == actor.get_python_tag("npc_id"):
-                                if horse_bs:
-                                    # set horse's mountplace margin based on actor's heading
-                                    margin_pos_x = 0
-                                    if int(actor_npc_bs.get_h()) > 0:
-                                        margin_pos_x = -0.5
-                                    elif int(actor_npc_bs.get_h()) < 0:
-                                        margin_pos_x = 0.5
-                                    horse_dist_margin = horse_bs.get_pos() + Vec3(margin_pos_x, 0, 0)
-                                    horse_bs_margin = NodePath("horse_margin")
-                                    horse_bs_margin.set_pos(horse_dist_margin)
-                                    horse_dist = int(actor_npc_bs.get_distance(horse_bs_margin))
+                                if horse_rb_np:
+                                    horse_dist = round(actor_npc_bs.get_distance(horse_rb_np))
 
                                     # Walk to horse
                                     if horse_dist > 1:
-                                        self.npc_in_walking_logic(actor, actor_npc_bs,
-                                                                  horse_bs_margin, request)
+
+                                        if actor.get_python_tag("detour_nav") is False:
+                                            actor.set_python_tag("detour_nav", True)
+
+                                        if actor.get_python_tag("detour_nav"):
+                                            self.npc_in_walking_rd_logic(actor, actor_npc_bs,
+                                                                         horse_rb_np, request)
 
                                     # Stop walking and start horse mounting task
                                     elif horse_dist <= 1:
-                                        self.npc_in_staying_logic(actor, request)
-                                        actor.set_python_tag("current_task", "horse_mounting")
+                                        if actor.has_python_tag("mounted_horse") is False:
+                                            actor.set_python_tag("mounted_horse", horse_rb_np)
+
+                                        if actor.get_python_tag("current_task") != "horse_mounting":
+                                            actor.set_python_tag("current_task", "horse_mounting")
+                                            # self.base.set_problemus_room()
 
                                         # Do advanced obstacle avoidance against the horse
                                         # to get another side of the horse
@@ -703,14 +679,14 @@ class NpcController:
                                             if not self.mounting_sequence[name].is_playing():
                                                 self.mounting_sequence[name] = Sequence()
 
-                                                self.face_actor_to(actor_npc_bs, horse_bs)
+                                                self.face_actor_to(actor_npc_bs, horse_rb_np)
 
                                                 # Wait for 1 second
                                                 self.mounting_sequence[name].append(Wait(1))
 
                                                 # Construct Horse Mount Request
                                                 mount_func = Func(request.request, "HorseMount",
-                                                                  actor, actor_npc_bs, horse, horse_bs)
+                                                                  actor, actor_npc_bs, horse, horse_rb_np)
 
                                                 # Append the horse mount interval
                                                 self.mounting_sequence[name].append(mount_func)
@@ -782,46 +758,49 @@ class NpcController:
 
     def do_defensive_prediction(self, actor, actor_npc_bs, request, hitbox_dist):
         if actor and actor_npc_bs and request:
-            if hitbox_dist is not None:
-                if hitbox_dist >= 0.5 and hitbox_dist <= 1.8:
-                    if actor.get_python_tag("stamina_np")['value'] > 5:
-                        if not actor.get_python_tag("human_states")["has_bow"]:
-                            if not self.current_seq:
-                                self.current_seq = Sequence(
-                                    Parallel(
-                                        Wait(1),
-                                        Func(self.npc_in_backwardstep_logic, actor,
-                                             actor_npc_bs, request)),
-                                    Parallel(
-                                        Wait(1),
-                                        Func(self.npc_in_forwardstep_logic, actor,
-                                             actor_npc_bs, request)),
-                                    Parallel(
-                                        Wait(1),
-                                        Func(self.npc_in_backwardroll_logic, actor,
-                                             actor_npc_bs, request)),
-                                    Parallel(
-                                        Wait(1),
-                                        Func(self.npc_in_blocking_logic, actor, request)),
-                                    Func(self._reset_current_sequence)
-                                )
-                                self.current_seq.sort()
-                            if self.current_seq and not self.current_seq.is_playing():
-                                self.current_seq.start()
+            if actor.get_python_tag("priority") is not None and actor.get_python_tag("priority") > 0:
+                if hitbox_dist is not None:
+                    if hitbox_dist >= 0.5 and hitbox_dist <= 1.8:
+                        if actor.get_python_tag("stamina_np")['value'] > 5:
+                            if actor.has_python_tag("human_states"):
+                                if not actor.get_python_tag("human_states")["has_bow"]:
+                                    if not self.current_seq:
+                                        self.current_seq = Sequence(
+                                            Parallel(
+                                                Wait(1),
+                                                Func(self.npc_in_backwardstep_logic, actor,
+                                                     actor_npc_bs, request)),
+                                            Parallel(
+                                                Wait(1),
+                                                Func(self.npc_in_forwardstep_logic, actor,
+                                                     actor_npc_bs, request)),
+                                            Parallel(
+                                                Wait(1),
+                                                Func(self.npc_in_backwardroll_logic, actor,
+                                                     actor_npc_bs, request)),
+                                            Parallel(
+                                                Wait(1),
+                                                Func(self.npc_in_blocking_logic, actor, request)),
+                                            Func(self._reset_current_sequence)
+                                        )
+                                        self.current_seq.sort()
+                                    if self.current_seq and not self.current_seq.is_playing():
+                                        self.current_seq.start()
 
-            if actor.get_python_tag("stamina_np")['value'] > 50:
-                if actor.has_python_tag("human_states"):
-                    if not actor.get_python_tag("human_states")["has_bow"]:
-                        if actor.get_python_tag("enemy_distance") <= 1:
-                            target_np = actor.get_python_tag("target_np")
-                            self.face_actor_to(actor_npc_bs, target_np)
-                            self._npc_in_attacking_logic(actor, actor_npc_bs, request)
-                        elif (actor.get_python_tag("enemy_distance") > 1
-                              and actor.get_python_tag("enemy_distance") < 3):
-                            self.npc_in_forwardstep_logic(actor, actor_npc_bs, request)
+                if actor.get_python_tag("stamina_np")['value'] > 50:
+                    if actor.has_python_tag("human_states"):
+                        if not actor.get_python_tag("human_states")["has_bow"]:
+                            if actor.get_python_tag("enemy_distance") <= 1:
+                                target_np = actor.get_python_tag("target_np")
+                                self.face_actor_to(actor_npc_bs, target_np)
+                                self._npc_in_attacking_logic(actor, actor_npc_bs, request)
+                            elif (actor.get_python_tag("enemy_distance") > 1
+                                  and actor.get_python_tag("enemy_distance") < 3):
+                                self.npc_in_forwardstep_logic(actor, actor_npc_bs, request)
 
             if (actor.has_python_tag("human_states")
                     and actor.get_python_tag("human_states")["has_bow"]):
                 target_np = actor.get_python_tag("target_np")
+                # todo thange face_to() to heads_up()
                 self.face_actor_to(actor_npc_bs, target_np)
                 self._npc_in_attacking_logic(actor, actor_npc_bs, request)

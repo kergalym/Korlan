@@ -77,6 +77,14 @@ class MovementController(object):
         self.use_hpr = True
         self.reset_to_initial()
 
+    def get_initial_position(self):
+        """ Gets the initial camera position """
+        return self.showbase.camera.get_pos()
+
+    def get_initial_position_hpr(self):
+        """ Gets the initial camera position """
+        return self.showbase.camera.get_hpr()
+
     def reset_to_initial(self):
         """ Resets the camera to the initial position """
         self.showbase.camera.set_pos(self.initial_position)

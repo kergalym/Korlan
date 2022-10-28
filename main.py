@@ -21,7 +21,7 @@ import panda3d.core as p3d
 from direct.gui.OnscreenImage import OnscreenImage
 from direct.gui.OnscreenText import OnscreenText
 from direct.showbase.ShowBaseGlobal import render2d
-from panda3d.core import Filename, LODNode, Texture, Vec3, Vec2
+from panda3d.core import Texture, Vec3, Vec2
 from panda3d.core import WindowProperties
 from direct.showbase.ShowBase import ShowBase
 from direct.showbase.ShowBase import MovieTexture
@@ -420,7 +420,7 @@ class Main(ShowBase):
             "rp_lights": rp_lights,
             "scene_np": None,
             "round_table_np": None,
-            "player_controller_np": None,
+            "player_controller": None,
             "player_np": None,
             "player_np_mask": None,
             "player_crouch_bs_np": None,
@@ -434,6 +434,7 @@ class Main(ShowBase):
             "actors_np": {},
             "actors_np_mask": {},
             "actors_clothes": {},
+            "actors_clothes_path": {},
             "player_parts": [],
             "player_using_horse": '',
             "is_indoor": False,
@@ -455,6 +456,7 @@ class Main(ShowBase):
             "pause_mode": False,
             "physics_attr_cls": None,
             "physics_world_np": None,
+            "ai_world_np": None,
             "water_trigger_np": None,
             "player_actions_cls": None,
             "player_state_cls": None,
@@ -486,6 +488,7 @@ class Main(ShowBase):
             "rest_time_start": None,
             "rest_time_stop": None,
             "cam_coll_dist_stat": None,
+            "problemus_is_activated": 0
         }
         self.shared_functions = {}
 
@@ -562,9 +565,10 @@ class Main(ShowBase):
         self.rotateX = 0
         self.scene_mode = None
 
-        # Enable PBR-dependent projected water
-        taskMgr.add(self.projected_water_init_waiting_task,
-                    "projected_water_init_waiting_task")
+        if self.game_settings['Debug']['set_debug_mode'] == 'NO':
+            # Enable PBR-dependent projected water
+            taskMgr.add(self.projected_water_init_waiting_task,
+                        "projected_water_init_waiting_task")
 
     def projected_water_init_waiting_task(self, task):
         if self.game_instance["projected_water_is_ready"] == 1:
@@ -1276,6 +1280,18 @@ class Main(ShowBase):
 
         # Revert background color after loading intro, since we don't show default gray color
         self.set_background_color(self.default_background_color)
+
+    def set_problemus_room(self):
+        if self.game_instance["problemus_is_activated"] == 0:
+            self.game_instance["physics_attr_cls"].set_problemus_room_physics()
+            self.game_instance["render_attr_cls"].set_problemus_room_lighting()
+            self.game_instance["problemus_is_activated"] = 1
+
+    def remove_problemus_room(self):
+        if self.game_instance["problemus_is_activated"] == 1:
+            self.game_instance["physics_attr_cls"].remove_problemus_room_physics()
+            self.game_instance["render_attr_cls"].remove_problemus_room_lighting()
+            self.game_instance["problemus_is_activated"] = 0
 
 
 check_and_do_cfg()

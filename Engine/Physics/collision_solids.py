@@ -70,18 +70,15 @@ class BulletCollisionSolids:
             dimension_vector = max_values - min_values
             return dimension_vector
 
-    def get_bs_sphere(self, obj):
-        if obj:
-            dimension_vector = self._get_geometry_dimensions(obj)
+    def get_bs_sphere(self, mesh):
+        if mesh:
+            dimension_vector = self._get_geometry_dimensions(mesh)
             radius = dimension_vector.y
             sphere = BulletSphereShape(radius)
             return sphere
 
-    def get_bs_capsule(self, obj):
-        if obj:
-            dimension_vector = self._get_geometry_dimensions(obj)
-            width = dimension_vector.y
-            height = dimension_vector.z - 2 * width
+    def get_bs_capsule(self, width, height):
+        if isinstance(width, float) and isinstance(height, float):
             capsule = BulletCapsuleShape(width, height, ZUp)
             return capsule
 
@@ -108,11 +105,11 @@ class BulletCollisionSolids:
         box = BulletBoxShape(axis)
         return box
 
-    def get_bs_auto(self, obj, type_):
-        if obj and isinstance(type_, str):
+    def get_bs_auto(self, mesh, type_):
+        if mesh and isinstance(type_, str):
             bool_ = False
-            if hasattr(obj.node(), "get_geom"):
-                geom = obj.node().get_geom(0)
+            if hasattr(mesh.node(), "get_geom"):
+                geom = mesh.node().get_geom(0)
                 mesh = BulletTriangleMesh()
                 mesh.add_geom(geom)
 

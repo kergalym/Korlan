@@ -8,7 +8,7 @@ class NpcDamages:
         self.render = render
         self.npc_controller = self.base.game_instance["npc_controller_cls"]
 
-    def _do_damage(self, actor, actor_bs, node, hitbox_np, parent_np, request):
+    def _do_damage(self, actor, actor_rb_np, node, hitbox_np, parent_np, request):
         if actor.get_python_tag("enemy_hitbox_distance") != 0:
             actor.set_python_tag("enemy_hitbox_distance", 0)
         # Deactivate enemy weapon if we got hit
@@ -31,7 +31,7 @@ class NpcDamages:
                                 actor.set_python_tag("enemy_npc_bs", npc_bs)
 
                             if actor.get_python_tag("current_task") is None:
-                                self.npc_controller.face_actor_to(actor_bs, npc_bs)
+                                self.npc_controller.face_actor_to(actor_rb_np, npc_bs)
 
                 hitbox_np.set_collide_mask(BitMask32.allOff())
                 if (actor.get_python_tag("health_np")
@@ -51,14 +51,14 @@ class NpcDamages:
                     if actor.get_python_tag("courage_np")['value'] > 1:
                         actor.get_python_tag("courage_np")['value'] -= 3
 
-    def _do_any_damage(self, actor, actor_bs, pattern, request):
+    def _do_any_damage(self, actor, actor_rb_np, pattern, request):
         colliders = render.find_all_matches("**/{0}*".format(pattern))
         if colliders:
             for collider in colliders:
                 # Skip actor owned object
                 if actor.get_name() not in collider.get_name():
                     if "render" in collider.get_parent().get_name():
-                        distance = round(actor_bs.get_distance(collider), 1)
+                        distance = round(actor_rb_np.get_distance(collider), 1)
                         if distance >= 0.1 and distance <= 0.3:
                             if (actor.get_python_tag("health_np")
                                     and not actor.get_python_tag("generic_states")['is_blocking']):
@@ -93,11 +93,11 @@ class NpcDamages:
                 if actor.get_python_tag("generic_states")['is_idle']:
                     request.request("Death", actor, "Dying", "play")
 
-    def actor_hitbox_trace_task(self, actor, actor_bs, hips, request, task):
+    def actor_hitbox_trace_task(self, actor, actor_rb_np, hips, request, task):
         if self.base.game_instance['menu_mode']:
             return task.done
 
-        name_bs = actor_bs.get_name()
+        name_bs = actor_rb_np.get_name()
         parent_node = hips.node()
         parent_np = hips
         node_np = None
@@ -129,21 +129,21 @@ class NpcDamages:
                 # Find active hitbox in the enemy actor node before doing damage
                 hitbox_np = self._find_any_weapon(enemy=node_np)
                 if hitbox_np:
-                    self._do_damage(actor, actor_bs, node, hitbox_np, parent_np, request)
+                    self._do_damage(actor, actor_rb_np, node, hitbox_np, parent_np, request)
                 else:
                     hitboxes = node_np.get_python_tag("actor_hitboxes")
                     if hitboxes:
                         for hitbox in hitboxes:
                             if hitboxes.get(hitbox):
                                 hitbox_np = hitboxes[hitbox]
-                                self._do_damage(actor, actor_bs, node, hitbox_np, parent_np, request)
+                                self._do_damage(actor, actor_rb_np, node, hitbox_np, parent_np, request)
 
         # Arrow Damage
         if actor.get_python_tag("npc_type") == "npc":
             if actor.get_python_tag("human_states")["has_bow"]:
-                self._do_any_damage(actor, actor_bs, "Arrow_BRB", request)
+                self._do_any_damage(actor, actor_rb_np, "Arrow_BRB", request)
         else:
-            self._do_any_damage(actor, actor_bs, "Arrow_BRB", request)
+            self._do_any_damage(actor, actor_rb_np, "Arrow_BRB", request)
 
         # NPC dies if it has no health
         self._do_death(actor, request)

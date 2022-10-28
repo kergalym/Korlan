@@ -15,6 +15,7 @@ class Item:
     """
 
     def __init__(self, data):
+        self.section_name = data[0][0]
         self.slot_id = -1
         self.count = data[4]
         self.data = data

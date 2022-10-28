@@ -46,7 +46,7 @@ class Aim:
             pos_y = -3.7
             pos_z = 0.29
         else:
-            pos_y = self.base.game_instance["mouse_y_cam"]
+            pos_y = -2
             pos_z = -0.2
 
         self.base.camera.set_x(0.5)

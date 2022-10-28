@@ -51,7 +51,7 @@ class PlayerFSM(FSM):
 
                     any_action = actor.get_anim_control(action)
                     any_action_seq = actor.actor_interval(action)
-                    if not any_action.is_playing():
+                    if any_action and not any_action.is_playing():
                         Sequence(Func(self.fsm_state_wrapper, "is_attacked", True),
                                  any_action_seq,
                                  Func(self.fsm_state_wrapper, "is_attacked", False)).start()

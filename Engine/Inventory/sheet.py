@@ -529,11 +529,11 @@ class Sheet(Inventory):
         if geoms:
             self.char_sheet_bg = self.base.loader.load_model(geoms["bg_black_char_sheet"])
             self.char_sheet_bg.set_name("bg_black_char_sheet")
-            player_bs = self.base.game_instance["player_np"]
-            if player_bs:
-                self.char_sheet_bg.reparent_to(player_bs)
+            player_rb_np = self.base.game_instance["player_np"]
+            if player_rb_np:
+                self.char_sheet_bg.reparent_to(player_rb_np)
                 # self.char_sheet_bg.set_pos(0, 0, 0)
-                self.char_sheet_bg.set_h(player_bs.get_h())
+                self.char_sheet_bg.set_h(player_rb_np.get_h())
                 self.char_sheet_bg.set_two_sided(True)
                 self.char_sheet_bg.hide()
 
@@ -566,19 +566,16 @@ class Sheet(Inventory):
                 # Show character sheet background
                 self.char_sheet_bg.show()
 
-                if render.find("**/World"):
-                    render.find("**/World").hide()
-
                 # set light
-                player_bs = self.base.game_instance["player_np"]
-                if player_bs:
+                player_rb_np = self.base.game_instance["player_np"]
+                if player_rb_np:
                     # keep previous player hpr states
-                    self.player_hpr_saved = player_bs.get_hpr()
+                    self.player_hpr_saved = player_rb_np.get_hpr()
 
                     # face player to light
-                    player_bs.set_h(0)
+                    player_rb_np.set_h(0)
 
-                    light_pos = [player_bs.get_x(), player_bs.get_y() - 4.0, 8.0]
+                    light_pos = [player_rb_np.get_x(), player_rb_np.get_y() - 4.0, 8.0]
                     base.game_instance['render_attr_cls'].set_inv_lighting(name='slight',
                                                                            render=render,
                                                                            pos=light_pos,
@@ -589,9 +586,9 @@ class Sheet(Inventory):
     def revert_character(self):
         self.base.game_instance['inv_mode'] = False
         # Revert character view
-        player_bs = self.base.game_instance["player_np"]
-        if player_bs:
-            player_bs.set_hpr(self.player_hpr_saved)
+        player_rb_np = self.base.game_instance["player_np"]
+        if player_rb_np:
+            player_rb_np.set_hpr(self.player_hpr_saved)
 
         player_cam_pos = self.player_camera_default["pos"]
         player_cam_hpr = self.player_camera_default["hpr"]

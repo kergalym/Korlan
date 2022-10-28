@@ -28,14 +28,14 @@ class PlayerDamages:
                             health -= 5
                             actor.set_python_tag("health", health)
 
-    def _do_any_damage(self, actor, actor_bs, pattern, request):
+    def _do_any_damage(self, actor, actor_rb_np, pattern, request):
         colliders = render.find_all_matches("**/{0}*".format(pattern))
         if colliders:
             for collider in colliders:
                 # Skip actor owned object
                 if actor.get_name() not in collider.get_name():
                     if "render" in collider.get_parent().get_name():
-                        distance = round(actor_bs.get_distance(collider), 1)
+                        distance = round(actor_rb_np.get_distance(collider), 1)
                         if distance >= 0.1 and distance <= 0.3:
                             if self.base.game_instance['hud_np']:
                                 # Player gets damage if he has health point
@@ -64,7 +64,7 @@ class PlayerDamages:
                 if base.player_states['is_idle']:
                     request.request("Death", actor, "Dying", "play")
 
-    def player_hitbox_trace_task(self, actor, actor_bs, request, task):
+    def player_hitbox_trace_task(self, actor, actor_rb_np, request, task):
         if self.base.game_instance['menu_mode']:
             return task.done
 
@@ -104,7 +104,7 @@ class PlayerDamages:
 
         # Arrow Damage
         if base.player_states["has_bow"]:
-            self._do_any_damage(actor, actor_bs, "Arrow_BRB", request)
+            self._do_any_damage(actor, actor_rb_np, "Arrow_BRB", request)
 
         # Player dies if he has no health point
         self._do_death(actor, request)

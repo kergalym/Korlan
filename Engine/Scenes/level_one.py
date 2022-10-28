@@ -3,11 +3,11 @@ from os.path import exists
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import *
 
-from Engine.AI.npc_controller import NpcController
 from Engine.Actors.Player.state import PlayerState
 from Engine.async_level_load import AsyncLevelLoad
-from Engine.Physics.physics_setup import PhysicsAttr
+from Engine.Physics.physics_attr import PhysicsAttr
 from Settings.UI.pause_menu_ui import PauseMenuUI
+from Engine.AI.npc_controller import NpcController
 
 from Engine.FSM.npc_fsm import NpcFSM
 

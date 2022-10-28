@@ -1,9 +1,6 @@
-from direct.interval.IntervalGlobal import Sequence
-from direct.interval.IntervalGlobal import Parallel
-from direct.interval.IntervalGlobal import Func
 from direct.gui.DirectGui import *
 from direct.showbase.ShowBaseGlobal import aspect2d
-from panda3d.core import FontPool, TextNode, AntialiasAttrib
+from panda3d.core import FontPool, TextNode
 from Engine.Scenes.level_one import LevelOne
 from direct.task.TaskManagerGlobal import taskMgr
 from Settings.UI.rp_lights_manager_ui import RPLightsMgrUI
@@ -91,7 +88,6 @@ class LoadingUI:
         self.loading_bar.set_scale(0.9, 0, 0.1)
         self.loading_bar.reparent_to(self.loading_screen)
         self.title_loading_text.reparent_to(self.loading_screen)
-        self.base.build_info.reparent_to(self.loading_screen)
 
         if assets:
             self.loading_bar['range'] = len(assets)
@@ -131,6 +127,11 @@ class LoadingUI:
                 self.editor.set_editor()
 
             self.base.game_instance['loading_is_done'] = 1
+
+            # Remove collider meshes, not needed anymore
+            if not render.find("**/Collisions").is_empty():
+                render.find("**/Collisions").remove_node()
+                render.find("**/Collisions").clear()
 
             self.set_fadeout_screen()
             taskMgr.add(self.fadeout_task,

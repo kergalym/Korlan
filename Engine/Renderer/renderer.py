@@ -57,6 +57,9 @@ class RenderAttr:
         self.flame_light_u_half_energy = 0.5
         self.flame_light_a_half_energy = 2.0
 
+        # Problemus Room Lighting
+        self.problemus_lights = None
+
         # Flame flickering rate
         self.flame_rate = 3.0
 
@@ -85,56 +88,63 @@ class RenderAttr:
                 # seconds floor divided by 60 are equal to 1 minute
                 # 1800 seconds are equal to 30 minutes
                 self.minutes = self.elapsed_seconds // 60
-    
-                if self.base.game_instance['inv_mode']:
-                    self.hour = 15
-                else:
-                    hour = time.split(':')
-                    hour = int(hour[0])
-                    self.hour = hour
-    
-                # 30 minutes of duration
-                if duration == 1800:
-                    self.hour += self.minutes // 60
-                    if self.minutes > 59:
-                        self.minutes = 00
 
-                # Seconds of duration
-                elif duration < 1800:
-                    self.hour += self.minutes
-                    if self.elapsed_seconds > 59:
-                        self.minutes = 00
-    
-                # Day counting
-                if self.hour == 0 and self.elapsed_seconds == 00:
-                    self.day += 1
-    
-                if self.minutes < 10:
-                    text = "Day {0}    {1}:0{2}".format(self.day, self.hour, self.minutes)
-                    self.time_text_ui.setText(text)
-                    self.base.game_instance["renderpipeline_np"].daytime_mgr.time = "{0}:0{1}".format(self.hour,
-                                                                                                      self.minutes)
-                elif self.minutes > 9:
-                    text = "Day {0}    {1}:{2}".format(self.day, self.hour, self.minutes)
-                    self.time_text_ui.setText(text)
-                    self.base.game_instance["renderpipeline_np"].daytime_mgr.time = "{0}:{1}".format(self.hour,
-                                                                                                     self.minutes)
-    
-                self.base.game_instance["world_time"] = "{0}:{1}".format(self.hour, self.minutes)
-    
-                if not self.base.game_instance['ui_mode']:
-                    if 7 <= self.hour < 19:
+                if self.base.game_instance["problemus_is_activated"] == 1:
+                    self.base.game_instance["renderpipeline_np"].daytime_mgr.time = "0:00"
+                    text = "Day {0}    0:00".format(self.day)
+                    if self.time_text_ui.getText() != text:
+                        self.time_text_ui.setText(text)
+
+                elif self.base.game_instance["problemus_is_activated"] == 0:
+                    if self.base.game_instance['inv_mode']:
+                        self.hour = 15
+                    else:
+                        hour = time.split(':')
+                        hour = int(hour[0])
+                        self.hour = hour
+
+                    # 30 minutes of duration
+                    if duration == 1800:
+                        self.hour += self.minutes // 60
+                        if self.minutes > 59:
+                            self.minutes = 00
+
+                    # Seconds of duration
+                    elif duration < 1800:
+                        self.hour += self.minutes
+                        if self.elapsed_seconds > 59:
+                            self.minutes = 00
+
+                    # Day counting
+                    if self.hour == 0 and self.elapsed_seconds == 00:
+                        self.day += 1
+
+                    if self.minutes < 10:
+                        text = "Day {0}    {1}:0{2}".format(self.day, self.hour, self.minutes)
+                        self.time_text_ui.setText(text)
+                        self.base.game_instance["renderpipeline_np"].daytime_mgr.time = "{0}:0{1}".format(self.hour,
+                                                                                                          self.minutes)
+                    elif self.minutes > 9:
+                        text = "Day {0}    {1}:{2}".format(self.day, self.hour, self.minutes)
+                        self.time_text_ui.setText(text)
+                        self.base.game_instance["renderpipeline_np"].daytime_mgr.time = "{0}:{1}".format(self.hour,
+                                                                                                         self.minutes)
+
+                    self.base.game_instance["world_time"] = "{0}:{1}".format(self.hour, self.minutes)
+
+                    if not self.base.game_instance['ui_mode']:
+                        if 7 <= self.hour < 19:
+                            if self.base.game_instance['hud_np']:
+                                self.base.game_instance['hud_np'].toggle_day_hud(time="light")
+                        elif self.hour >= 19:
+                            if self.base.game_instance['hud_np']:
+                                self.base.game_instance['hud_np'].toggle_day_hud(time="night")
+                        elif self.hour > 1 and self.hour < 7:
+                            if self.base.game_instance['hud_np']:
+                                self.base.game_instance['hud_np'].toggle_day_hud(time="night")
+                    else:
                         if self.base.game_instance['hud_np']:
-                            self.base.game_instance['hud_np'].toggle_day_hud(time="light")
-                    elif self.hour >= 19:
-                        if self.base.game_instance['hud_np']:
-                            self.base.game_instance['hud_np'].toggle_day_hud(time="night")
-                    elif self.hour > 1 and self.hour < 7:
-                        if self.base.game_instance['hud_np']:
-                            self.base.game_instance['hud_np'].toggle_day_hud(time="night")
-                else:
-                    if self.base.game_instance['hud_np']:
-                        self.base.game_instance['hud_np'].toggle_day_hud(time="off")
+                            self.base.game_instance['hud_np'].toggle_day_hud(time="off")
 
         return task.cont
 
@@ -489,6 +499,45 @@ class RenderAttr:
                 light = self.base.game_instance['rp_lights']['inventory']
                 self.base.game_instance["renderpipeline_np"].remove_light(light)
                 self.base.game_instance['rp_lights'].pop("inventory")
+
+    def set_problemus_room_lighting(self):
+        if self.problemus_lights is None:
+            self.problemus_lights = []
+
+            light_left = RP_SpotLight()
+            light_left.pos = (-100, 0, 45.7)
+            light_left.set_color_from_temperature(6000.0)
+            light_left.energy = 16000
+            light_left.ies_profile = self.base.game_instance["renderpipeline_np"].load_ies_profile("display.ies")
+            light_left.casts_shadows = True
+            light_left.shadow_map_resolution = 1024
+            light_left.near_plane = 0.5
+            light_left.radius = 15000
+            self.base.game_instance["renderpipeline_np"].add_light(light_left)
+
+            light_right = RP_SpotLight()
+            light_right.pos = (100, 0, 45.7)
+            light_right.set_color_from_temperature(7000.0)
+            light_right.energy = 16000
+            light_right.ies_profile = self.base.game_instance["renderpipeline_np"].load_ies_profile("display.ies")
+            light_right.casts_shadows = True
+            light_right.shadow_map_resolution = 1024
+            light_right.near_plane = 0.5
+            light_right.radius = 15000
+            self.base.game_instance["renderpipeline_np"].add_light(light_right)
+
+            light_left.look_at(0, 0, 2)
+            light_right.look_at(0, 0, 2)
+
+            self.problemus_lights.append(light_left)
+            self.problemus_lights.append(light_right)
+
+    def remove_problemus_room_lighting(self):
+        if self.problemus_lights is not None:
+            for light in self.problemus_lights:
+                self.base.game_instance["renderpipeline_np"].remove_light(light)
+            del self.problemus_lights
+            self.problemus_lights = None
 
     def set_weather(self, weather):
         if weather and isinstance(weather, str):

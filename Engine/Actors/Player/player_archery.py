@@ -111,7 +111,7 @@ class PlayerArchery:
                         arrow_rb_np.node().set_mass(2.0)
 
                         # Player and its owning arrow won't collide with each other
-                        arrow_rb_np.set_collide_mask(BitMask32.bit(0))
+                        arrow_rb_np.set_collide_mask(BitMask32.allOff())
 
                         # Enable CCD
                         arrow_rb_np.node().set_ccd_motion_threshold(1e-7)
@@ -135,6 +135,7 @@ class PlayerArchery:
 
             # Get Bullet Rigid Body wrapped arrow
             self.arrow_brb_in_use.node().set_kinematic(False)
+            self.arrow_brb_in_use.set_collide_mask(BitMask32.bit(0))
             self.arrow_ref.set_python_tag("shot", 1)
             self.arrow_brb_in_use.wrt_reparent_to(render)
 
@@ -242,6 +243,11 @@ class PlayerArchery:
                         self.arrow_brb_in_use.set_collide_mask(BitMask32.allOff())
                         self.arrow_ref.wrt_reparent_to(self.target_np)
 
+                        # Remove arrow collider if it pierces NPC
+                        if "NPC" in self.target_np.get_name():
+                            self.base.game_instance['physics_world_np'].remove_rigid_body(self.arrow_brb_in_use.node())
+                            self.arrow_brb_in_use.remove_node()
+
                         self.base.game_instance["is_arrow_ready"] = False
 
                         # self.arrow_brb_in_use.node().set_kinematic(True)
@@ -261,10 +267,10 @@ class PlayerArchery:
             return False
 
         if self.base.game_instance['physics_world_np'] and self.dropped_arrows:
-            for arrow_rb in self.dropped_arrows:
-                if arrow_rb:
-                    self.base.game_instance['physics_world_np'].remove_rigid_body(arrow_rb.node())
-                    arrow_rb.remove_node()
+            for arrow_rb_np in self.dropped_arrows:
+                if arrow_rb_np:
+                    self.base.game_instance['physics_world_np'].remove_rigid_body(arrow_rb_np.node())
+                    arrow_rb_np.remove_node()
             return task.done
 
         return task.cont

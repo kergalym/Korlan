@@ -270,7 +270,6 @@ class PlayerController:
                     physics_attr.set_actor_collider(actor=self.player,
                                                     col_name='{0}:BS'.format(self.player.get_name()),
                                                     shape="capsule",
-                                                    mask=physics_attr.mask0,
                                                     type="player")
 
                 taskMgr.add(self.mouse.mouse_control_task,

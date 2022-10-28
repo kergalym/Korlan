@@ -348,22 +348,22 @@ class AsyncLevelLoad:
 
             self.base.game_instance['scene_is_loaded'] = True
 
-            # Load collisions for a level
-            colliders_dict = base.assets_collider_collector()
-            coll_scene_name = '{0}_coll'.format(scene_name)
-            coll_path = colliders_dict[coll_scene_name]
-            coll_scene = await self.base.loader.load_model(coll_path, blocking=False, noCache=True)
-            coll_scene.set_name(coll_scene_name)
+            # Load colliders for this level
             coll_scene_np = NodePath("Collisions")
             coll_scene_np.reparent_to(self.world_nodepath)
-            coll_scene.reparent_to(coll_scene_np)
-            coll_scene.hide()
+            colliders_dict = base.assets_collider_collector()
+            for key in colliders_dict:
+                coll_path = base.assets_collider_collector()[key]
+                coll_scene = await self.base.loader.load_model(coll_path, blocking=False, noCache=True)
+                coll_scene_name = key
+                coll_scene.set_name(coll_scene_name)
+                coll_scene.reparent_to(coll_scene_np)
+                coll_scene.hide()
 
             # Add Bullet colliders for this scene
             physics_attr = self.base.game_instance["physics_attr_cls"]
             if hasattr(physics_attr, "set_static_object_colliders"):
-                physics_attr.set_static_object_colliders(scene=scene,
-                                                         mask=physics_attr.mask)
+                physics_attr.set_static_object_colliders(scene=scene)
 
             # Construct navigation system
             if render.find("**/lvl_landscape"):
@@ -433,6 +433,7 @@ class AsyncLevelLoad:
             # load player parts separately
             cloak = self.base.loader.load_model(assets["Korlan_cloak"])
             self.base.game_instance["actors_clothes"][player_name] = [cloak]
+            self.base.game_instance["actors_clothes_path"][player_name] = assets["Korlan_cloak"]
 
             empty = self.base.loader.load_model(assets[asset_names[0]])
             body = self.base.loader.load_model(assets[asset_names[1]])
@@ -533,13 +534,16 @@ class AsyncLevelLoad:
             # Set Player Priority
             self.korlan.set_python_tag("priority", 0)
 
+            # Keep collider shape here
+            self.korlan.set_python_tag("collider_shape", None)
+
             # Set Player Parameters
             self.state.set_state(actor=self.korlan)
 
             # Initialize Player Controller
             self.controller.player_actions_init(self.korlan, animation[0])
 
-            """ NPC """
+            """ Setup NPC and Physics"""
             for actor, id, _type, _class, axis_actor in zip(level_npc_assets['name'],
                                                             npc_ids,
                                                             level_npc_assets['type'],
@@ -568,6 +572,7 @@ class AsyncLevelLoad:
 
                         cloak = await self.base.loader.load_model(assets["Korlan_cloak"], blocking=False, noCache=True)
                         self.base.game_instance["actors_clothes"][name] = [cloak]
+                        self.base.game_instance["actors_clothes_path"][name] = assets["Korlan_cloak"]
 
                         self.actor = await self.base.loader.load_model(path, blocking=False, noCache=True)
                         self.actor = Actor(self.actor, animation[1])
@@ -616,7 +621,6 @@ class AsyncLevelLoad:
                             physics_attr.set_actor_collider(actor=self.actor,
                                                             col_name='{0}:BS'.format(self.actor.get_name()),
                                                             shape="capsule",
-                                                            mask=physics_attr.mask,
                                                             type=_type)
 
                         self.base.game_instance["npc_state_cls"] = self.npc_state
@@ -630,6 +634,9 @@ class AsyncLevelLoad:
 
                         # Set NPC Movement types: walk or run
                         self.actor.set_python_tag("move_type", "walk")
+
+                        # set detour navigation handling
+                        self.actor.set_python_tag("detour_nav", False)
 
                         # Set NPC id
                         self.actor.set_python_tag("npc_id", id)
@@ -702,6 +709,9 @@ class AsyncLevelLoad:
 
                             # Set NPC current hitbox
                             self.actor.set_python_tag("current_hitbox", None)
+
+                        # Set NPC Controller state
+                        self.actor.set_python_tag("ai_controller_state", True)
 
                         # Set NPC Parameters
                         self.npc_state.setup_npc_state(actor=self.actor)

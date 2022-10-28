@@ -86,7 +86,7 @@ class Inventory:
             "VISIBLE": True
         }
         self.current_state = None  # VISIBLE or HIDDEN
-        self.current_target = ''
+        self.current_section = ''
         self.drag_item = -1  # if >=0 then we drag item with this id
         self.slots = []  # list of InvSlot (data)
         self._slots_vis = []
@@ -108,15 +108,15 @@ class Inventory:
 
     def set_inventory(self):
         """ DEFINE INVENTORY """
-        sheet_slot_info = [('HAND_L', (0.9, 0, -0.01), u'Hand', self.images['hand_l_slot']),
-                           ('HAND_R', (1.7, 0, -0.01), u'Hand', self.images['hand_r_slot']),
-                           ('TENGRI_PWR', (1.7, 0, -0.35), u'Hand', self.images['magic_tengri_slot']),
-                           ('UMAI_PWR', (1.7, 0, -0.67), u'Hand', self.images['magic_umai_slot']),
-                           ('HEAD', (0.9, 0, 0.7), u'Head', self.images['head_slot']),
-                           ('BODY', (1.7, 0, 0.32), u'Body', self.images['body_slot']),
-                           ('FEET', (0.9, 0, -0.43), u'Feet', self.images['feet_slot']),
-                           ('LEGS', (0.9, 0, -0.76), u'Legs', self.images['toe_slot']),
-                           ('TRASH', (0.4, 0, -0.6), u'Trash', self.images['trash_slot'])]
+        sheet_slot_info = [('INVENTORY_2', 'HAND_L', (0.9, 0, -0.01), u'Hand', self.images['hand_l_slot']),
+                           ('INVENTORY_2', 'HAND_R', (1.7, 0, -0.01), u'Hand', self.images['hand_r_slot']),
+                           ('INVENTORY_2', 'TENGRI_PWR', (1.7, 0, -0.35), u'Hand', self.images['magic_tengri_slot']),
+                           ('INVENTORY_2', 'UMAI_PWR', (1.7, 0, -0.67), u'Hand', self.images['magic_umai_slot']),
+                           ('INVENTORY_2', 'HEAD', (0.9, 0, 0.7), u'Head', self.images['head_slot']),
+                           ('INVENTORY_2', 'BODY', (1.7, 0, 0.32), u'Body', self.images['body_slot']),
+                           ('INVENTORY_2', 'FEET', (0.9, 0, -0.43), u'Feet', self.images['feet_slot']),
+                           ('INVENTORY_2', 'LEGS', (0.9, 0, -0.76), u'Legs', self.images['toe_slot']),
+                           ('INVENTORY_2', 'TRASH', (0.4, 0, -0.6), u'Trash', self.images['trash_slot'])]
 
         # styled frames for these sheet slots
         sheet_slot_frame_img = self.images['sheet_default_slot']
@@ -400,13 +400,13 @@ class Inventory:
                 and item.get_max_count() > 1):
             self.items[old_id].count = item.count
             self.update_counters()
-            self.current_target = target
+            self.current_section = target
             return True
         else:
             if id >= 0:
                 item.slot_id = id
                 self.items.append(item)
-                self.current_target = target
+                self.current_section = target
                 return True
         return False
 
@@ -430,7 +430,25 @@ class Inventory:
                 self._items_vis[iid].setPos(self.slots[sid].pos)
                 base.messenger.send('inventory-item-move', [iid, old_sid, sid])
                 return True
+
+        if self.slots[sid].section_name != self.items[iid].section_name:
+            # toggle player clothes visibility
+            if self.items[iid].slot_id == 4:
+                self.equip.toggle_cloth_visibility(item="helmet")
+            elif self.items[iid].slot_id == 5:
+                self.equip.toggle_cloth_visibility(item="armor")
+            elif self.items[iid].slot_id == 6:
+                self.equip.toggle_cloth_visibility(item="pants")
+            elif self.items[iid].slot_id == 7:
+                self.equip.toggle_cloth_visibility(item="boots")
+            # toggle player weapons visibility
+            if self.items[iid].slot_id == 1:
+                self.equip.toggle_weapon(item="bow_kazakh", bone="Korlan:Spine1")
+            elif self.items[iid].slot_id == 0:
+                self.equip.toggle_weapon(item="sword", bone="Korlan:Spine1")
+
         self.stop_drag()
+
         return False
 
     def remove_item(self, id):
@@ -473,20 +491,21 @@ class Inventory:
             if self.move_item_to_slot(self.drag_item, args[0]):
                 self.stop_drag()
 
-                # toggle player clothes visibility
-                if self.slots[args[0]].type == "HEAD":
-                    self.equip.toggle_cloth_visibility(item="helmet")
-                elif self.slots[args[0]].type == "BODY":
-                    self.equip.toggle_cloth_visibility(item="armor")
-                elif self.slots[args[0]].type == "FEET":
-                    self.equip.toggle_cloth_visibility(item="pants")
-                elif self.slots[args[0]].type == "LEGS":
-                    self.equip.toggle_cloth_visibility(item="boots")
-                # switch weapon
-                if self.slots[args[0]].type == "HAND_R":
-                    self.equip.toggle_weapon(item="bow_kazakh", bone="Korlan:Spine1")
-                elif self.slots[args[0]].type == "HAND_L":
-                    self.equip.toggle_weapon(item="sword", bone="Korlan:Spine1")
+                if self.slots[args[0]].section_name == self.items[self.drag_item].section_name:
+                    # toggle player clothes visibility
+                    if self.slots[args[0]].type == "HEAD":
+                        self.equip.toggle_cloth_visibility(item="helmet")
+                    elif self.slots[args[0]].type == "BODY":
+                        self.equip.toggle_cloth_visibility(item="armor")
+                    elif self.slots[args[0]].type == "FEET":
+                        self.equip.toggle_cloth_visibility(item="pants")
+                    elif self.slots[args[0]].type == "LEGS":
+                        self.equip.toggle_cloth_visibility(item="boots")
+                    # toggle player weapons visibility
+                    if self.slots[args[0]].type == "HAND_R":
+                        self.equip.toggle_weapon(item="bow_kazakh", bone="Korlan:Spine1")
+                    elif self.slots[args[0]].type == "HAND_L":
+                        self.equip.toggle_weapon(item="sword", bone="Korlan:Spine1")
 
     def on_item_click(self, *args):
         """ Item click callback. Try to capture the item or replace
@@ -494,22 +513,23 @@ class Inventory:
         """
         # Capture clicked item
         if self.drag_item < 0:
-            # toggle player clothes visibility
-            if self.items[args[0]].slot_id == 4:
-                self.equip.toggle_cloth_visibility(item="helmet")
-            elif self.items[args[0]].slot_id == 5:
-                self.equip.toggle_cloth_visibility(item="armor")
-            elif self.items[args[0]].slot_id == 6:
-                self.equip.toggle_cloth_visibility(item="pants")
-            elif self.items[args[0]].slot_id == 7:
-                self.equip.toggle_cloth_visibility(item="boots")
-            # switch weapon
-            if self.items[args[0]].slot_id == 1:
-                self.equip.toggle_weapon(item="bow_kazakh", bone="Korlan:Spine1")
-            elif self.items[args[0]].slot_id == 0:
-                self.equip.toggle_weapon(item="sword", bone="Korlan:Spine1")
-
             self.drag_item = args[0]
+            if self.slots[self.drag_item].section_name == self.items[self.drag_item].section_name:
+                # toggle player clothes visibility
+                if self.items[args[0]].slot_id == 4:
+                    self.equip.toggle_cloth_visibility(item="helmet")
+                elif self.items[args[0]].slot_id == 5:
+                    self.equip.toggle_cloth_visibility(item="armor")
+                elif self.items[args[0]].slot_id == 6:
+                    self.equip.toggle_cloth_visibility(item="pants")
+                elif self.items[args[0]].slot_id == 7:
+                    self.equip.toggle_cloth_visibility(item="boots")
+                # toggle player weapons visibility
+                if self.items[args[0]].slot_id == 1:
+                    self.equip.toggle_weapon(item="bow_kazakh", bone="Korlan:Spine1")
+                elif self.items[args[0]].slot_id == 0:
+                    self.equip.toggle_weapon(item="sword", bone="Korlan:Spine1")
+
             self._items_vis[self.drag_item].setBin('gui-popup', 9999)
         # Merge items if possible
         elif (self.items[args[0]].get_type() == self.items[self.drag_item].get_type()
@@ -526,7 +546,7 @@ class Inventory:
             self.update_counters()
         # otherwise replace an item in the slot and drop or remove old item to the inventory
         elif self.move_item_to_slot(self.drag_item, self.items[args[0]].slot_id, force=True):
-            self.drop_item_to(args[0], self.current_target)
+            self.drop_item_to(args[0], self.current_section)
             self.stop_drag()
 
     def on_slot_enter(self, *args):
@@ -603,8 +623,8 @@ class Inventory:
                 fx = self.slot_half_size_x * 2 + self.slot_margin * 2
                 fy = self.slot_half_size_y * 2 + self.slot_margin * 2
                 pos = (fx * x + dx, 0, -fy * y + dy)
-                slot_args = (sltype, pos, '', self.default_slot_ico)
-                self.slots.append(Slot(slot_args))
+                # slot_args = (sltype, pos, '', self.default_slot_ico)
+                self.slots.append(Slot((sltype, pos, '', self.default_slot_ico)))
 
     def on_start_assign_item_to_sheet_slot(self, iid, sid):
         """ Startup assign sheet slot """

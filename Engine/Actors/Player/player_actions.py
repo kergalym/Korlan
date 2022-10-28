@@ -3,6 +3,8 @@ from panda3d.core import Vec3, BitMask32, Point3
 from direct.interval.IntervalGlobal import *
 from direct.task.TaskManagerGlobal import taskMgr
 
+from Engine.Physics import physics_declaratives
+
 """ ANIMATIONS"""
 from Engine import anim_names
 
@@ -66,11 +68,11 @@ class PlayerActions:
         return task.cont
 
     def _player_bullet_jump_helper(self, action):
-        if self.base.game_instance['player_controller_np']:
-            if self.base.game_instance['player_controller_np'].is_on_ground():
-                self.base.game_instance['player_controller_np'].set_max_jump_height(3.0)
-                self.base.game_instance['player_controller_np'].set_jump_speed(8.0)
-                self.base.game_instance['player_controller_np'].do_jump()
+        if self.base.game_instance['player_controller']:
+            if self.base.game_instance['player_controller'].is_on_ground():
+                self.base.game_instance['player_controller'].set_max_jump_height(3.0)
+                self.base.game_instance['player_controller'].set_jump_speed(8.0)
+                self.base.game_instance['player_controller'].do_jump()
 
                 if taskMgr.hasTaskNamed("player_jump_move_task"):
                     taskMgr.remove("player_jump_move_task")
@@ -81,16 +83,15 @@ class PlayerActions:
                             appendTask=True)
 
     def player_bullet_crouch_helper(self):
-        crouch_bs_mask = BitMask32.allOff()
-        capsule_bs_mask = BitMask32.allOff()
+        ph_ = self.base.game_instance["physics_attr_cls"]
+        player_rb_np = self.base.game_instance["player_np"]
+        player = self.base.game_instance["player_ref"]
         if base.player_states["is_crouch_moving"]:
-            crouch_bs_mask = self.base.game_instance['player_crouch_bs_np_mask']
-            capsule_bs_mask = BitMask32.allOff()
-        elif not base.player_states["is_crouch_moving"]:
-            crouch_bs_mask = BitMask32.allOff()
-            capsule_bs_mask = self.base.game_instance["player_np_mask"]
-        self.base.game_instance['player_crouch_bs_np'].set_collide_mask(crouch_bs_mask)
-        self.base.game_instance['player_np'].set_collide_mask(capsule_bs_mask)
+            ph_.remove_character_controller_node(player_rb_np)
+            ph_.set_character_controller_nodepath_half_height_shape(player, player_rb_np)
+        if not base.player_states["is_crouch_moving"]:
+            ph_.remove_character_controller_node(player_rb_np)
+            ph_.set_character_controller_nodepath_with_shape(player, player_rb_np)
 
     def ground_water_action_switch_task(self, task):
         if self.base.game_instance['menu_mode']:
@@ -177,9 +178,9 @@ class PlayerActions:
                                                                 playRate=self.base.actor_play_rate)
                     Sequence(Func(self.state.set_action_state, "is_crouching", True),
                              stand_to_crouch_seq,
-                             Func(self.player_bullet_crouch_helper),
                              Func(self.state.set_action_state, "is_crouching", False),
                              Func(self.state.set_action_state_crouched, "is_crouch_moving", True),
+                             Func(self.player_bullet_crouch_helper),
                              Func(self.state.set_do_once_key, key, False),
                              ).start()
 
@@ -195,6 +196,7 @@ class PlayerActions:
 
                     Sequence(any_action_seq,
                              Func(self.state.set_action_state_crouched, "is_crouch_moving", False),
+                             Func(self.player_bullet_crouch_helper),
                              Func(self.state.set_do_once_key, key, False),
                              ).start()
 
@@ -1099,11 +1101,14 @@ class PlayerActions:
                     self.archery.arrow_ref.set_python_tag("ready", 0)
 
     def player_mount_helper_task(self, child, player,  horse_np, saddle_pos, task):
+        if self.base.game_instance['menu_mode']:
+            return task.done
+
         if child and player:
             if self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
                 child.set_x(saddle_pos[0])
                 child.set_y(saddle_pos[1])
-                # child.set_h(horse_np.get_h())
+                player.set_z(saddle_pos[2])
 
                 if not self.base.game_instance['is_aiming']:
                     self.base.camera.set_y(-5.5)
@@ -1117,37 +1122,35 @@ class PlayerActions:
     def mount_action(self):
         if self.kbd.keymap["use"] and not base.do_key_once["use"]:
             self.state.set_do_once_key("use", True)
+            physics_attr = self.base.game_instance["physics_attr_cls"]
             horse_name = base.game_instance['player_using_horse']
             parent = self.base.game_instance['actors_ref'][horse_name]
             child = self.base.game_instance["player_np"]
             player = self.base.game_instance['player_ref']
+
+            if not player.has_python_tag("last_pos"):
+                player.set_python_tag("last_pos", child.get_z())
+
             if parent and child and not self.base.game_instance['is_aiming']:
                 if (self.base.game_instance['player_ref'].get_python_tag("is_on_horse")
                         and parent.get_python_tag("is_mounted")):
                     self.unmount_action()
                 else:
-                    # with inverted Z -0.5 stands for Up
-                    # Our horse (un)mounting animations have been made with imperfect positions,
-                    # so, I had to change child positions to get more satisfactory result
-                    # with these animations in my game.
-                    mounting_pos = Vec3(0.5, -0.16, -0.45)
-                    saddle_pos = Vec3(0, -0.32, 0.16)
+                    parent_rb_np = self.base.game_instance['actors_np']["{0}:BS".format(horse_name)]
+                    mounting_pos = physics_declaratives.mounting_pos
+                    saddle_pos = physics_declaratives.saddle_pos
                     mount_action_seq = player.actor_interval(anim_names.a_anim_horse_mounting,
                                                              playRate=self.base.actor_play_rate)
                     horse_riding_action_seq = player.actor_interval(anim_names.a_anim_horse_rider_idle,
                                                                     playRate=self.base.actor_play_rate)
-                    horse_np = self.base.game_instance['actors_np']["{0}:BS".format(horse_name)]
 
                     taskMgr.add(self.player_mount_helper_task,
                                 "player_mount_helper_task",
-                                extraArgs=[child, player,  horse_np, saddle_pos],
+                                extraArgs=[child, player,  parent_rb_np, saddle_pos],
                                 appendTask=True)
 
-                    # child.node().set_kinematic(True)
-
-                    Sequence(Func(horse_np.set_collide_mask, BitMask32.bit(0)),
-                             Func(child.set_collide_mask, BitMask32.allOff()),
-                             Func(self.state.set_action_state, "is_using", True),
+                    Sequence(Func(self.state.set_action_state, "is_using", True),
+                             Func(physics_attr.remove_character_controller_node, child),
                              Parallel(mount_action_seq,
                                       Func(child.reparent_to, parent),
                                       Func(child.set_x, mounting_pos[0]),
@@ -1159,55 +1162,50 @@ class PlayerActions:
                              # bullet shape has impact of gravity
                              # so make player geom stay higher instead
                              Func(player.set_z, saddle_pos[2]),
-                             Func(child.set_collide_mask, BitMask32.bit(0)),
                              Func(self.base.game_instance['player_ref'].set_python_tag, "is_on_horse", True),
                              Func(self.state.set_action_state, "is_using", False),
                              Func(self.state.set_action_state, "horse_riding", True),
                              Func(self.state.set_action_state, "is_mounted", True),
                              Func(parent.set_python_tag, "is_mounted", True),
+                             Func(parent.set_python_tag,"ai_controller_state", False),
                              Func(self.state.set_do_once_key, "use", False),
                              horse_riding_action_seq
                              ).start()
 
     def unmount_action(self):
+        physics_attr = self.base.game_instance["physics_attr_cls"]
         horse_name = base.game_instance['player_using_horse']
-        parent = render.find("**/{0}".format(horse_name))
-        parent_bs = render.find("**/{0}:BS".format(horse_name))
+        parent = self.base.game_instance['actors_ref'][horse_name]
+        parent_rb_np = render.find("**/{0}:BS".format(horse_name))
         child = self.base.game_instance["player_np"]
         player = self.base.game_instance['player_ref']
+
         if parent and child and not self.base.game_instance['is_aiming']:
-            # with inverted Z -0.7 stands for Up
-            # Our horse (un)mounting animations have been made with imperfect positions,
-            # so, I had to change child positions to get more satisfactory result
-            # with these animations in my game.
-            unmounting_pos = Vec3(0.5, -0.16, -0.45)
+            unmounting_pos = physics_declaratives.mounting_pos
+            mesh_default_z_pos = player.get_python_tag("mesh_z_pos")
             # Reparent parent/child node back to its BulletCharacterControllerNode
             unmount_action_seq = player.actor_interval(anim_names.a_anim_horse_unmounting,
                                                        playRate=self.base.actor_play_rate)
-            horse_near_pos = Vec3(parent_bs.get_x(), parent_bs.get_y(), child.get_z()) + Vec3(1, 0, 0)
+            horse_near_pos = Vec3(parent_rb_np.get_x(), parent_rb_np.get_y(), child.get_z()) + Vec3(1, 0, 0)
             base.game_instance['player_using_horse'] = ''
-            horse_np = self.base.game_instance['actors_np']["{0}:BS".format(horse_name)]
-
-            # child.node().set_kinematic(False)
 
             Sequence(Func(self.base.game_instance['player_ref'].set_python_tag, "is_on_horse", False),
                      Func(self.state.set_action_state, "is_using", True),
-                     Func(child.set_collide_mask, BitMask32.allOff()),
                      Parallel(unmount_action_seq,
                               Func(child.set_x, unmounting_pos[0]),
                               Func(child.set_y, unmounting_pos[1]),
                               Func(player.set_z, unmounting_pos[2])),
                      # revert player geom height
                      Func(child.reparent_to, render),
+                     Func(physics_attr.set_character_controller_nodepath_with_shape, player, child),
                      Func(child.set_x, horse_near_pos[0]),
                      Func(child.set_y, horse_near_pos[1]),
-                     Func(player.set_z, -1),
+                     Func(player.set_z, mesh_default_z_pos),
                      Func(self.state.set_action_state, "is_using", False),
                      Func(self.state.set_action_state, "horse_riding", False),
                      Func(self.state.set_action_state, "is_mounted", False),
                      Func(parent.set_python_tag, "is_mounted", False),
                      Func(taskMgr.remove, "player_mount_helper_task"),
-                     Func(horse_np.set_collide_mask, BitMask32.allOn()),
-                     Func(child.set_collide_mask, BitMask32.bit(0)),
+                     Func(parent.set_python_tag, "ai_controller_state", True),
                      Func(self.state.set_do_once_key, "use", False)
                      ).start()

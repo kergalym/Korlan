@@ -151,9 +151,9 @@ class Mouse:
         """
         # Do world heading in aiming
         # and rotate player's last spine bone before hips
-        player_bs = self.base.game_instance["player_np"]
-        if player_bs:
-            heading = player_bs.get_h() - (x - int(base.win.get_x_size() / 2)) * self.mouse_sens
+        player_rb_np = self.base.game_instance["player_np"]
+        if player_rb_np:
+            heading = player_rb_np.get_h() - (x - int(base.win.get_x_size() / 2)) * self.mouse_sens
             pv_heading = self.pivot.get_h() - (y - int(base.win.get_x_size() / 2)) * self.mouse_sens
             pv_pitch = self.pivot.get_p() - (y - int(base.win.get_y_size() / 2)) * self.mouse_sens
             self.pivot.set_h(180)
@@ -163,7 +163,7 @@ class Mouse:
                 self.rotate_player_joint(pv_heading, pv_pitch)
                 self.pivot.set_p(0)
             elif not self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
-                player_bs.set_h(heading)
+                player_rb_np.set_h(heading)
                 # limit pitch by 60 angle
                 if not pv_pitch > 10.0 and not pv_pitch < -50.0:
                     self.rotate_player_joint(pv_heading, pv_pitch)
@@ -171,15 +171,15 @@ class Mouse:
 
     def on_limit_camera_in_social_action(self):
         if self.base.game_instance["is_player_laying"]:
-            player_bs = self.base.game_instance["player_np"]
-            self.pivot.look_at(player_bs.get_pos())
-            self.pivot.set_h(player_bs, 180)
+            player_rb_np = self.base.game_instance["player_np"]
+            self.pivot.look_at(player_rb_np.get_pos())
+            self.pivot.set_h(player_rb_np, 180)
             self.pivot.set_p(-35)
 
         elif self.base.game_instance["is_player_sitting"]:
-            player_bs = self.base.game_instance["player_np"]
-            self.pivot.look_at(player_bs.get_pos())
-            self.pivot.set_h(player_bs, -360)
+            player_rb_np = self.base.game_instance["player_np"]
+            self.pivot.look_at(player_rb_np.get_pos())
+            self.pivot.set_h(player_rb_np, -360)
             self.pivot.set_p(-25)
 
     def on_mouse_look_around_player(self, x, y):
@@ -231,16 +231,17 @@ class Mouse:
                 and not self.base.game_instance["kbd_np"].keymap["backward"]
                 or self.base.game_instance["kbd_np"].keymap["backward"]
                 and not self.base.game_instance["kbd_np"].keymap["forward"]):
-            player_bs = self.base.game_instance["player_np"]
+            player_rb_np = self.base.game_instance["player_np"]
             horse_name = self.base.game_instance['player_using_horse']
-            horse_bs = render.find("**/{0}:BS".format(horse_name))
+            horse_rb_np = self.base.game_instance["actors_np"].get("{0}:BS".format(horse_name))
 
-            if player_bs and not self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
+            if (player_rb_np is not None
+                    and not self.base.game_instance['player_ref'].get_python_tag("is_on_horse")):
                 # apply heading and pitch
-                heading = player_bs.get_h() - (x - int(base.win.get_x_size() / 2)) * self.mouse_sens
+                heading = player_rb_np.get_h() - (x - int(base.win.get_x_size() / 2)) * self.mouse_sens
                 pv_pitch = self.pivot.get_p() - (y - int(base.win.get_y_size() / 2)) * self.mouse_sens
 
-                player_bs.set_h(heading)
+                player_rb_np.set_h(heading)
 
                 # Show player only from back
                 self.pivot.set_h(180)
@@ -249,11 +250,12 @@ class Mouse:
                 if not pv_pitch > 10.0 and not pv_pitch < -50.0:
                     self.pivot.set_p(pv_pitch)
 
-            elif horse_bs and self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
+            elif (horse_rb_np is not None
+                  and self.base.game_instance['player_ref'].get_python_tag("is_on_horse")):
                 # apply heading and pitch
-                heading = horse_bs.get_h() - (x - int(base.win.get_x_size() / 2)) * self.mouse_sens
+                heading = horse_rb_np.get_h() - (x - int(base.win.get_x_size() / 2)) * self.mouse_sens
                 pv_pitch = self.pivot.get_p() - (y - int(base.win.get_y_size() / 2)) * self.mouse_sens
-                horse_bs.set_h(heading)
+                horse_rb_np.set_h(heading)
 
                 # Show player only from back
                 self.pivot.set_h(180)

@@ -20,18 +20,30 @@ class NpcTriggers:
             trigger_np.reparent_to(actor)
             trigger_np.set_pos(0, 0, 1)
 
-    def _change_force_and_velocity(self, actor_bs_np):
+    def _clear_forces(self, actor_rb_np):
         # Keep NPC from being hardly pushed if it has stayed
-        force_z_vec = actor_bs_np.node().get_total_force()[2]
-        imp_z_vec = actor_bs_np.node().get_total_torque()[2]
-        lin_vec_z = actor_bs_np.node().get_linear_velocity()[2]
-        ang_vec_z = actor_bs_np.node().get_angular_velocity()[2]
+        force_z_vec = actor_rb_np.node().get_total_force()[2]
+        imp_z_vec = actor_rb_np.node().get_total_torque()[2]
+        lin_vec_z = actor_rb_np.node().get_linear_velocity()[2]
+        ang_vec_z = actor_rb_np.node().get_angular_velocity()[2]
 
-        actor_bs_np.node().apply_central_force(Vec3(0, 0, force_z_vec))
-        actor_bs_np.node().apply_central_impulse(Vec3(0, 0, imp_z_vec))
-        actor_bs_np.node().apply_torque_impulse(Vec3(0, 0, imp_z_vec))
-        actor_bs_np.node().set_linear_velocity(Vec3(0, 0, lin_vec_z))
-        actor_bs_np.node().set_angular_velocity(Vec3(0, 0, ang_vec_z))
+        actor_rb_np.node().apply_central_force(Vec3(0, 0, force_z_vec))
+        actor_rb_np.node().apply_central_impulse(Vec3(0, 0, imp_z_vec))
+        actor_rb_np.node().apply_torque_impulse(Vec3(0, 0, imp_z_vec))
+        actor_rb_np.node().set_linear_velocity(Vec3(0, 0, lin_vec_z))
+        actor_rb_np.node().set_angular_velocity(Vec3(0, 0, ang_vec_z))
+
+        # Disabling movement and rotation forces
+        actor_rb_np.node().set_angular_factor(Vec3(0, 1, 0))  # disables rotation
+        actor_rb_np.node().set_linear_factor(Vec3(1, 0, 1))  # disables rotation
+
+        actor_rb_np.node().apply_torque(Vec3(0, 0, 0))
+        actor_rb_np.node().clearForces()
+        actor_rb_np.node().set_angular_damping(0)
+        actor_rb_np.node().set_linear_damping(0)
+        actor_rb_np.node().set_linear_sleep_threshold(0)
+        actor_rb_np.node().set_angular_sleep_threshold(0)
+        actor_rb_np.node().setDeactivationTime(0.01)
 
     def mountable_animal_area_trigger_task(self, animal_actor, task):
         if self.base.game_instance['menu_mode']:
@@ -46,8 +58,8 @@ class NpcTriggers:
                 trigger = animal_actor.find("**/{0}_trigger".format(animal_actor.get_name())).node()
                 trigger_np = animal_actor.find("**/{0}_trigger".format(animal_actor.get_name()))
                 player = self.base.game_instance['player_ref']
-                player_bs = self.base.game_instance["player_np"]
-                actor_bs_np = self.base.game_instance['actors_np']["{0}:BS".format(animal_actor.get_name())]
+                player_rb_np = self.base.game_instance["player_np"]
+                actor_rb_np = self.base.game_instance['actors_np']["{0}:BS".format(animal_actor.get_name())]
 
                 # Fix me: Dirty hack for path finding issue
                 # when actor's pitch changes for reasons unknown for me xD
@@ -55,19 +67,19 @@ class NpcTriggers:
                 self.base.game_instance['actors_ref'][animal_actor.get_name()].set_p(0)
                 self.base.game_instance['actors_ref'][animal_actor.get_name()].get_parent().set_p(0)
                 # Prevent from falling while collided
-                actor_bs_np.set_p(0)
-                actor_bs_np.set_r(0)
+                actor_rb_np.set_p(0)
+                actor_rb_np.set_r(0)
 
                 # Keep NPC from being hardly pushed if it has stayed
-                self._change_force_and_velocity(actor_bs_np)
+                self._clear_forces(actor_rb_np)
 
                 for node in trigger.get_overlapping_nodes():
                     # ignore trigger itself and ground both
                     if "Player" in node.get_name():
                         # if player close to horse
-                        if self.base.game_instance['player_ref'] and player_bs:
-                            if round(player_bs.get_distance(trigger_np)) <= 2 \
-                                    and round(player_bs.get_distance(trigger_np)) >= 1:
+                        if self.base.game_instance['player_ref'] and player_rb_np:
+                            if round(player_rb_np.get_distance(trigger_np)) <= 2 \
+                                    and round(player_rb_np.get_distance(trigger_np)) >= 1:
 
                                 if "Korlan" in animal_actor.get_name():
                                     if (not animal_actor.get_python_tag("is_mounted")
@@ -75,25 +87,27 @@ class NpcTriggers:
                                         # keep horse name if detected actor is the player
                                         # and player is not on horse and horse is free
                                         animal_actor.set_python_tag("is_ready_to_be_used", True)
-                                        if hasattr(base, "player_states"):
-                                            base.player_states["horse_is_ready_to_be_used"] = True
-                                            base.game_instance['player_using_horse'] = animal_actor.get_name()
+                                        base.player_states["horse_is_ready_to_be_used"] = True
+                                        base.game_instance['player_using_horse'] = animal_actor.get_name()
 
-                                # Hide Horse HUD if player is mounted
-                                if animal_actor.get_python_tag("npc_hud_np"):
-                                    if (not self.base.game_instance['ui_mode']
-                                            and self.base.player_states["is_mounted"]):
-                                        animal_actor.get_python_tag("npc_hud_np").hide()
+                                        # Hide Horse HUD if player is mounted
+                                        if animal_actor.get_python_tag("npc_hud_np"):
+                                            if (not self.base.game_instance['ui_mode']
+                                                    and self.base.player_states["is_mounted"]):
+                                                animal_actor.get_python_tag("npc_hud_np").hide()
 
-                            elif (round(player_bs.get_distance(trigger_np)) >= 2
-                                  and round(player_bs.get_distance(trigger_np)) <= 5):
+                            elif (round(player_rb_np.get_distance(trigger_np)) >= 2
+                                  and round(player_rb_np.get_distance(trigger_np)) <= 5):
 
                                 if "Korlan" in animal_actor.get_name():
                                     if (not animal_actor.get_python_tag("is_mounted")
                                             and not player.get_python_tag("is_on_horse")):
-                                        animal_actor.set_python_tag("is_ready_to_be_used", False)
-                                        if hasattr(base, "player_states"):
-                                            base.player_states["horse_is_ready_to_be_used"] = False
+                                        if animal_actor.get_python_tag("is_ready_to_be_used"):
+                                            name = base.game_instance['player_using_horse']
+                                            if render.find("**/{0}".format(name)):
+                                                animal_actor_ = render.find("**/{0}".format(name))
+                                                animal_actor_.set_python_tag("is_ready_to_be_used", False)
+                                                base.player_states["horse_is_ready_to_be_used"] = False
 
                 # Hide Horse HUD while Inventory or menu is opening
                 if self.base.game_instance['ui_mode']:
@@ -112,18 +126,18 @@ class NpcTriggers:
             return task.done
 
         if actor:
-            actor_bs_np = self.base.game_instance['actors_np']["{0}:BS".format(actor.get_name())]
+            actor_rb_np = self.base.game_instance['actors_np']["{0}:BS".format(actor.get_name())]
             # Fix me: Dirty hack for path finding issue
             # when actor's pitch changes for reasons unknown for me xD
             # Prevent pitch changing
             self.base.game_instance['actors_ref'][actor.get_name()].set_p(0)
             self.base.game_instance['actors_ref'][actor.get_name()].get_parent().set_p(0)
             # Prevent from falling while collided
-            actor_bs_np.set_p(0)
-            actor_bs_np.set_r(0)
+            actor_rb_np.set_p(0)
+            actor_rb_np.set_r(0)
 
             # Keep NPC from being hardly pushed if it has stayed
-            self._change_force_and_velocity(actor_bs_np)
+            self._clear_forces(actor_rb_np)
 
             # keep hide npc hud while inventory or menu is opening
             if self.base.game_instance['ui_mode']:
