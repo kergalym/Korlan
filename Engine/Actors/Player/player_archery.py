@@ -1,3 +1,5 @@
+import random
+
 from direct.gui.OnscreenText import OnscreenText
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.bullet import BulletRigidBodyNode, BulletBoxShape
@@ -175,14 +177,32 @@ class PlayerArchery:
             mouse_watch = base.mouseWatcherNode
             if mouse_watch.has_mouse():
                 pos_mouse = base.mouseWatcherNode.get_mouse()
-                pos_from = Point3(0, 1, 0)
-                pos_to = Point3(0, 1000, 0)
+                pos_from = Point3()
+                pos_to = Point3()
                 base.camLens.extrude(pos_mouse, pos_from, pos_to)
 
-                pos_from = self.render.get_relative_point(base.camera, pos_from)
-                pos_to = self.render.get_relative_point(base.camera, pos_to)
+                pos_from = self.render.get_relative_point(base.cam, pos_from)
+                pos_to = self.render.get_relative_point(base.cam, pos_to)
                 physics_world_np = self.base.game_instance['physics_world_np']
-                self.raytest_result = physics_world_np.ray_test_closest(pos_from, pos_to)
+                result = physics_world_np.ray_test_all(pos_from, pos_to)
+                for hit in result.get_hits():
+                    if (hit and hit.get_node()
+                            and "Player" not in hit.get_node().get_name()
+                            and "Arrow" not in hit.get_node().get_name()
+                            and "Ground" not in hit.get_node().get_name()
+                            and "trigger" not in hit.get_node().get_name()
+                            and "BGN" not in hit.get_node().get_name()
+                            and "BRB" not in hit.get_node().get_name()
+                    ):
+                        hit.get_node().get_name()
+                        self.raytest_result = hit
+                        break
+
+                if self.base.game_settings['Debug']['set_debug_mode'] == 'YES':
+                    if self.target_test_ui.is_hidden():
+                        self.target_test_ui.show()
+                    if self.raytest_result:
+                        self.target_test_ui.setText(self.raytest_result.get_node().get_name())
 
         return task.cont
 
@@ -198,65 +218,56 @@ class PlayerArchery:
             Return      : Task status
         """
 
-        if (self.raytest_result and self.raytest_result.get_node()
-                and "Player" not in self.raytest_result.get_node().get_name()
-                and "Arrow" not in self.raytest_result.get_node().get_name()
-                and "player_cam_trigger" not in self.raytest_result.get_node().get_name()):
+        if self.raytest_result and self.raytest_result.get_node():
             self.hit_target = self.raytest_result.get_node()
             self.target_pos = self.raytest_result.get_hit_pos()
-            hit_target_name = self.hit_target.get_name()
-            hit_target_name = hit_target_name.split("_trigger")[0]
-
-            self.target_test_ui.show()
-            self.target_test_ui.setText(self.hit_target.get_name())
-
-            # Show NPC HUD
-            if self.hit_target and "NPC" in self.hit_target.get_name():
-                if (self.base.game_instance['actors_ref']
-                        and self.base.game_instance['actors_ref'].get(hit_target_name)):
-                    actor = self.base.game_instance['actors_ref'][hit_target_name]
-                    actor.get_python_tag("npc_hud_np").show()
-
             physics_world_np = self.base.game_instance['physics_world_np']
             if physics_world_np and self.arrow_brb_in_use:
                 self.pierce_arrow()
 
-                # Hide NPC HUD
-                if self.hit_target and "NPC" in self.hit_target.get_name():
-                    if (self.base.game_instance['actors_ref']
-                            and self.base.game_instance['actors_ref'].get(hit_target_name)):
-                        actor = self.base.game_instance['actors_ref'][hit_target_name]
-                        actor.get_python_tag("npc_hud_np").hide()
-
         return task.cont
+
+    def _on_contact_attach_to_joint(self, actor):
+        sorted_ = actor.get_python_tag("joint_bones")
+        # sorted_ = sorted(j_bones, key=lambda x: (x.get_pos() - self.base.cam.get_pos()).length())
+        random.shuffle(sorted_)
+        for bone in sorted_:
+            self.arrow_brb_in_use.set_collide_mask(BitMask32.allOff())
+            self.arrow_ref.wrt_reparent_to(bone)
+            self.arrow_ref.set_scale(100)
+            self.arrow_ref.set_pos(bone.get_pos())
+            self.base.game_instance["is_arrow_ready"] = False
+            self.arrow_ref.set_python_tag("ready", 0)
+            self.reset_arrow_charge()
+            break
+
+    def _on_contact_attach_arrow(self):
+        physics_world_np = self.base.game_instance['physics_world_np']
+        result = physics_world_np.contact_test_pair(self.arrow_brb_in_use.node(), self.target_np.node())
+        for contact in result.getContacts():
+            if "NPC" not in contact.getNode1().name:
+                self.arrow_brb_in_use.set_collide_mask(BitMask32.allOff())
+                self.arrow_ref.wrt_reparent_to(self.target_np)
+                self.base.game_instance["is_arrow_ready"] = False
+                self.arrow_ref.set_python_tag("ready", 0)
+                self.reset_arrow_charge()
+            elif "NPC" in contact.getNode1().name:
+                name = contact.getNode1().name.split(":")[0]
+                actor = self.base.game_instance["actors_ref"][name]
+                if actor:
+                    self._on_contact_attach_to_joint(actor)
+                    actor.get_python_tag("do_any_damage_func")()
+            break
 
     def pierce_arrow(self):
         if self.arrow_ref and self.arrow_brb_in_use:
             if self.arrow_ref.get_python_tag("ready") == 1:
 
-                name = self.hit_target.get_name()
-                self.target_np = render.find("**/{0}".format(name))
+                name_bs = self.hit_target.get_name()
+                self.target_np = render.find("**/{0}".format(name_bs))
 
                 if self.target_np:
-                    distance = round(self.arrow_brb_in_use.get_distance(self.target_np), 1)
-                    if distance >= 0.8 and distance <= 1.1:
-                        self.arrow_brb_in_use.set_collide_mask(BitMask32.allOff())
-                        self.arrow_ref.wrt_reparent_to(self.target_np)
-
-                        # Remove arrow collider if it pierces NPC
-                        if "NPC" in self.target_np.get_name():
-                            self.base.game_instance['physics_world_np'].remove_rigid_body(self.arrow_brb_in_use.node())
-                            self.arrow_brb_in_use.remove_node()
-
-                        self.base.game_instance["is_arrow_ready"] = False
-
-                        # self.arrow_brb_in_use.node().set_kinematic(True)
-                        self.arrow_ref.set_python_tag("ready", 0)
-                        self.reset_arrow_charge()
-
-            else:
-                if self.base.game_instance["is_arrow_ready"]:
-                    self.arrow_ref.remove_node()
+                    self._on_contact_attach_arrow()
 
     def reset_arrow_charge(self):
         if self.arrow_brb_in_use:
@@ -280,11 +291,18 @@ class PlayerArchery:
         if self.arrow_brb_in_use:
             power = 10
             if self.arrow_ref.get_python_tag("ready") == 1:
-
                 self.base.game_instance["is_arrow_ready"] = True
 
+                # Disable unwanted rotation
+                self.arrow_brb_in_use.node().set_linear_velocity(Vec3(0, 0, 1))
+                self.arrow_brb_in_use.node().set_angular_velocity(Vec3(0, 0, 1))
+                self.arrow_brb_in_use.node().set_angular_factor(Vec3(0, 1, 0))
+                self.arrow_brb_in_use.node().set_linear_factor(Vec3(1, 0, 1))
+
+                # Move forward by x axis
                 self.arrow_brb_in_use.set_x(self.arrow_brb_in_use, -power * dt)
 
+                # Camera follows by arrow
                 self.base.camera.set_y(self.base.camera, power * dt)
                 self.base.camera.set_z(self.arrow_brb_in_use.get_z())
 

@@ -72,16 +72,11 @@ class AsyncLevelLoad:
             scene_name = "{0}_navmesh".format(scene_name)
             navmesh_scene_np = self.base.loader.load_model(navmesh_scenes[scene_name])
             navmesh_scene_np.reparent_to(render)
-            self.base.game_instance["level_navmesh_np"] = navmesh_scene_np
             navmesh_scene_np.hide()
 
             self.builder.from_coll_node_path(navmesh_scene_np)
 
-            self.builder.params.actor_height = 1
-            self.builder.params.actor_radius = 0.6
-            self.builder.params.actor_max_climb = 2
-            self.builder.params.tile_size = 32
-            self.builder.params.cell_size = 0.3
+            self.builder.params.actor_radius = 1
             self.navmesh = self.builder.build()
 
             # Add an untracked collision mesh.
@@ -91,6 +86,7 @@ class AsyncLevelLoad:
 
             self.navmeshnode = NavMeshNode("scene", self.navmesh)
             self.navmeshnodepath: NodePath = navmesh_scene_np.attach_new_node(self.navmeshnode)
+            self.base.game_instance["level_navmesh_np"] = self.navmeshnodepath
 
             # Uncomment the line below to save the generated navmesh to file.
             # self.navmeshnodepath.write_bam_file("scene_navmesh.bam")
@@ -270,9 +266,9 @@ class AsyncLevelLoad:
             self.base.game_instance['scene_is_loaded'] = False
 
             # load testing landscape
-            landscape_path = assets["lvl_landscape"]
+            """landscape_path = assets["lvl_landscape"]
             landscape = await self.base.loader.load_model(landscape_path, blocking=False, noCache=True)
-            landscape.reparent_to(self.base.game_instance['lod_np'])
+            landscape.reparent_to(self.base.game_instance['lod_np'])"""
 
             # Load the scene.
             path = assets['{0}_{1}'.format(scene_name, suffix)]
@@ -302,7 +298,7 @@ class AsyncLevelLoad:
                     base.accept("f2", self.scene_toggle, [scene])
 
                 scene.set_name(scene_name)
-                scene.set_scale(scale)
+                # scene.set_scale(scale)
                 scene.set_pos(0, 0, 0)
                 scene.set_hpr(scene, 0, 0, 0)
 
@@ -468,6 +464,14 @@ class AsyncLevelLoad:
             # Save actor parts
             self.save_player_parts(part_names)
 
+            # Save actor joints
+            j_bones = []
+            for joint in self.korlan.get_joints():
+                if joint is not None:
+                    bone = self.korlan.exposeJoint(None, "modelRoot", joint.get_name())
+                    j_bones.append(bone)
+            self.korlan.set_python_tag("joint_bones", j_bones)
+
             # Enable blending to fix cloth poking
             self.korlan.set_blend(frameBlend=True)
 
@@ -612,6 +616,14 @@ class AsyncLevelLoad:
                         if self.base.game_instance["renderpipeline_np"]:
                             self.base.game_instance['renderpipeline_np'].prepare_scene(self.actor)
 
+                        # Save actor joints
+                        j_bones = []
+                        for joint in self.actor.get_joints():
+                            if joint is not None:
+                                bone = self.actor.exposeJoint(None, "modelRoot", joint.get_name())
+                                j_bones.append(bone)
+                        self.actor.set_python_tag("joint_bones", j_bones)
+
                         # Keep my hitboxes here
                         self.actor.set_python_tag("actor_hitboxes", None)
 
@@ -634,9 +646,6 @@ class AsyncLevelLoad:
 
                         # Set NPC Movement types: walk or run
                         self.actor.set_python_tag("move_type", "walk")
-
-                        # set detour navigation handling
-                        self.actor.set_python_tag("detour_nav", False)
 
                         # Set NPC id
                         self.actor.set_python_tag("npc_id", id)

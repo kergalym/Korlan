@@ -150,7 +150,6 @@ class NpcFSM(FSM):
     def _actor_mount_helper_task(self, actor, child, parent, saddle_pos, task):
         if self.base.game_instance['menu_mode']:
             return task.done
-
         if actor.get_python_tag("human_states")["is_on_horse"]:
             if child:
                 child.set_x(saddle_pos[0])
@@ -180,51 +179,39 @@ class NpcFSM(FSM):
                                                                playRate=self.base.actor_play_rate)
                 actor.set_python_tag("mounted_horse", parent_rb_np)
 
+                # Horse mounting consists of few intervals
+                # bullet shape has impact of gravity
+                # so make rider geom stay higher instead
                 taskMgr.add(self._actor_mount_helper_task,
                             "actor_mount_helper_task",
                             extraArgs=[actor, child, parent, saddle_pos],
                             appendTask=True)
+                set_use_true = Func(self.fsm_state_wrapper, actor, "generic_states", "is_using", True)
+                remove_rigid_body = Func(physics_attr.remove_rigid_body_node, child)
+                play_mount_anim = Parallel(mount_action_seq,
+                                           Func(child.reparent_to, parent),
+                                           Func(child.set_x, mounting_pos[0]),
+                                           Func(child.set_y, mounting_pos[1]),
+                                           Func(actor.set_z, mounting_pos[2]),
+                                           Func(child.set_h, 0))
+                set_saddle_pos = Parallel(Func(child.set_x, saddle_pos[0]),
+                                          Func(child.set_y, saddle_pos[1]),
+                                          Func(actor.set_h, 0),
+                                          Func(actor.set_z, saddle_pos[2]))
+                set_mounting_states = Parallel(Func(self.fsm_state_wrapper, actor, "generic_states", "is_using", False),
+                                               Func(self.fsm_state_wrapper, actor, "human_states", "horse_riding",
+                                                    True),
+                                               Func(self.fsm_state_wrapper, actor, "human_states", "is_on_horse", True),
+                                               Func(parent.set_python_tag, "is_mounted", True),
+                                               Func(actor.set_python_tag, "current_task", None))
+                play_riding_anim = horse_riding_action_seq
 
-                # Horse mounting consists of few intervals
-                a = Func(physics_attr.remove_rigid_body_node, child)
-                b = Func(self.fsm_state_wrapper, actor, "generic_states", "is_using", True)
-                c = Parallel(mount_action_seq,
-                             Func(child.reparent_to, parent),
-                             Func(child.set_x, mounting_pos[0]),
-                             Func(child.set_y, mounting_pos[1]),
-                             Func(actor.set_z, mounting_pos[2]),
-                             Func(child.set_h, parent.get_h()),
-                             )
-                d = Func(child.set_x, saddle_pos[0])
-                e = Func(child.set_y, saddle_pos[1])
-                re1 = Func(actor.set_h, 0)
-
-                # bullet shape has impact of gravity
-                # so make rider geom stay higher instead
-                f = Func(actor.set_z, saddle_pos[2])
-                g = Func(self.fsm_state_wrapper, actor, "generic_states", "is_using", False)
-                h = Func(self.fsm_state_wrapper, actor, "human_states", "horse_riding", True)
-                j = Func(self.fsm_state_wrapper, actor, "human_states", "is_on_horse", True)
-                k = Func(parent.set_python_tag, "is_mounted", True)
-                l = Func(actor.set_python_tag, "current_task", None)
-                l1 = Func(actor.set_python_tag, "detour_nav", False)
-                m = horse_riding_action_seq
-
-                self.mount_sequence[actor_name].append(a)
-                self.mount_sequence[actor_name].append(b)
-                self.mount_sequence[actor_name].append(c)
-                self.mount_sequence[actor_name].append(re1)
-                self.mount_sequence[actor_name].append(d)
-                self.mount_sequence[actor_name].append(e)
-                self.mount_sequence[actor_name].append(f)
-                self.mount_sequence[actor_name].append(g)
-                self.mount_sequence[actor_name].append(h)
-                self.mount_sequence[actor_name].append(j)
-                self.mount_sequence[actor_name].append(k)
-                self.mount_sequence[actor_name].append(l)
-                self.mount_sequence[actor_name].append(l1)
-                self.mount_sequence[actor_name].append(m)
-
+                self.mount_sequence[actor_name].append(set_use_true)
+                self.mount_sequence[actor_name].append(remove_rigid_body)
+                self.mount_sequence[actor_name].append(play_mount_anim)
+                self.mount_sequence[actor_name].append(set_saddle_pos)
+                self.mount_sequence[actor_name].append(set_mounting_states)
+                self.mount_sequence[actor_name].append(play_riding_anim)
                 self.mount_sequence[actor_name].start()
 
     def enterHorseUnmount(self, actor, child):
@@ -240,38 +227,35 @@ class NpcFSM(FSM):
                 mesh_default_z_pos = actor.get_python_tag("mesh_z_pos")
                 horse_near_pos = Vec3(parent_rb_np.get_x(), parent_rb_np.get_y(), child.get_z()) + Vec3(1, 0, 0)
 
-                taskMgr.remove("actor_mount_helper_task")
+                taskMgr.remove("actor_mount_helper_task"),
 
-                a = Func(self.fsm_state_wrapper, actor, "generic_states", "is_using", True)
-                b = Parallel(unmount_action_seq,
-                             Func(child.set_x, unmounting_pos[0]),
-                             Func(child.set_y, unmounting_pos[1]),
-                             Func(actor.set_z, unmounting_pos[2])
-                             )
+                set_use_false = Func(self.fsm_state_wrapper, actor, "generic_states", "is_using", True)
+                play_unmount_anim = Parallel(unmount_action_seq,
+                                             Func(child.set_x, unmounting_pos[0]),
+                                             Func(child.set_y, unmounting_pos[1]),
+                                             Func(actor.set_z, unmounting_pos[2])
+                                             )
                 # revert rider geom height
-                c = Func(child.reparent_to, render)
-                d = Func(physics_attr.set_rigid_body_nodepath_with_shape, actor, child)
-                e = Func(child.set_x, horse_near_pos[0])
-                f = Func(child.set_y, horse_near_pos[1])
-                g = Func(actor.set_z, mesh_default_z_pos)
-                h = Func(self.fsm_state_wrapper, actor, "generic_states", "is_using", False)
-                j = Func(self.fsm_state_wrapper, actor, "human_states", "horse_riding", False)
-                k = Func(self.fsm_state_wrapper, actor, "human_states", "is_on_horse", False)
-                l = Func(parent_rb_np.get_child(0).set_python_tag, "is_mounted", False)
-                m = Func(actor.set_python_tag, "current_task", None)
+                reparent_to_render = Func(child.reparent_to, render)
+                set_rigid_body = Func(physics_attr.set_rigid_body_nodepath_with_shape, actor, child)
+                set_near_pos = Parallel(Func(child.set_x, horse_near_pos[0]),
+                                        Func(child.set_y, horse_near_pos[1]),
+                                        Func(actor.set_z, mesh_default_z_pos))
 
-                self.unmount_sequence[actor_name].append(a)
-                self.unmount_sequence[actor_name].append(b)
-                self.unmount_sequence[actor_name].append(c)
-                self.unmount_sequence[actor_name].append(d)
-                self.unmount_sequence[actor_name].append(e)
-                self.unmount_sequence[actor_name].append(f)
-                self.unmount_sequence[actor_name].append(g)
-                self.unmount_sequence[actor_name].append(h)
-                self.unmount_sequence[actor_name].append(j)
-                self.unmount_sequence[actor_name].append(k)
-                self.unmount_sequence[actor_name].append(l)
-                self.unmount_sequence[actor_name].append(m)
+                set_unmounting_states = Parallel(
+                    Func(self.fsm_state_wrapper, actor, "generic_states", "is_using", False),
+                    Func(self.fsm_state_wrapper, actor, "human_states", "horse_riding", False),
+                    Func(self.fsm_state_wrapper, actor, "human_states", "is_on_horse", False),
+                    Func(parent_rb_np.get_child(0).set_python_tag, "is_mounted", False),
+                    Func(actor.set_python_tag, "current_task", None),
+                    Func(actor.set_python_tag, "mounted_horse", None))
+
+                self.unmount_sequence[actor_name].append(set_use_false)
+                self.unmount_sequence[actor_name].append(play_unmount_anim)
+                self.unmount_sequence[actor_name].append(reparent_to_render)
+                self.unmount_sequence[actor_name].append(set_rigid_body)
+                self.unmount_sequence[actor_name].append(set_near_pos)
+                self.unmount_sequence[actor_name].append(set_unmounting_states)
 
                 self.unmount_sequence[actor_name].start()
 
@@ -501,8 +485,8 @@ class NpcFSM(FSM):
 
                     if not actor.get_python_tag("generic_states")["is_crouch_moving"]:
 
-                        #ph_.remove_character_controller_node(actor_rb_np)
-                        #ph_.set_character_controller_nodepath_half_height_shape(actor, actor_rb_np)
+                        # ph_.remove_character_controller_node(actor_rb_np)
+                        # ph_.set_character_controller_nodepath_half_height_shape(actor, actor_rb_np)
 
                         any_action_seq = actor.actor_interval(anim_names.a_anim_standing_crouch)
                         Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_crouching", True),

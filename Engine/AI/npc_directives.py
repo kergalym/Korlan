@@ -37,12 +37,14 @@ class NpcDirectives:
             if target_dist is not None and target_dist > self.archery_distance:
                 self.npc_controller.npc_in_walking_rd_logic(actor, actor_rb_np,
                                                             target, request)
-            elif target_dist is not None and target_dist < 2:
+            if target_dist is not None and target_dist <= 1:
                 archery = NodePath("archery_position")
                 _pos = target.get_pos() + Vec3(0, self.archery_distance, 0)
                 archery.set_pos(_pos)
                 self.npc_controller.npc_in_walking_rd_logic(actor, actor_rb_np,
                                                             archery, request)
+            elif target_dist is not None and target_dist <= 1:
+                self.npc_controller.npc_in_idle_logic(actor)
 
             if (not actor.get_python_tag("generic_states")['is_moving']
                     and not actor.get_python_tag("generic_states")['is_crouch_moving']):
@@ -67,7 +69,8 @@ class NpcDirectives:
                                           hitbox_dist, request)
 
     def work_with_player(self, actor, actor_rb_np, player, player_dist, request):
-        actor.set_python_tag("target_np", player)
+        if not actor.get_python_tag("target_np"):
+            actor.set_python_tag("target_np", player)
         actor.set_python_tag("enemy_distance", player_dist)
         hitbox_dist = actor.get_python_tag("enemy_hitbox_distance")
 
@@ -97,52 +100,44 @@ class NpcDirectives:
                 if not actor.get_python_tag("human_states")['is_on_horse']:
                     if not actor.get_python_tag("generic_states")['is_busy']:
                         if player_dist is not None:
-                            if actor.get_python_tag("detour_nav") is False:
-                                if player_dist > ai_declaratives.distance_to_target:
-                                    # Won't follow player if it's indoor
-                                    if not self.base.game_instance["is_indoor"]:
+                            if player_dist > ai_declaratives.distance_to_target:
+                                # Won't follow player if it's indoor
+                                if not self.base.game_instance["is_indoor"]:
 
-                                        # Walk/Run state goes here
-                                        if actor.get_python_tag("move_type") == "walk":
-                                            if base.player_states["is_running"]:
-                                                actor.set_python_tag("move_type", "run")
-                                        if actor.get_python_tag("move_type") == "run":
-                                            if not base.player_states["is_running"]:
-                                                actor.set_python_tag("move_type", "walk")
+                                    # Walk/Run state goes here
+                                    if actor.get_python_tag("move_type") == "walk":
+                                        if base.player_states["is_running"]:
+                                            actor.set_python_tag("move_type", "run")
+                                    if actor.get_python_tag("move_type") == "run":
+                                        if not base.player_states["is_running"]:
+                                            actor.set_python_tag("move_type", "walk")
 
-                                        self.npc_controller.face_actor_to(actor_rb_np, player)
-                                        self.npc_controller.do_any_walking(actor, actor_rb_np,
-                                                                           player, request)
-
-                                if player_dist <= ai_declaratives.distance_to_target:
-                                    self.npc_controller.npc_in_idle_logic(actor, request)
-                                    self.npc_controller.face_actor_to(actor_rb_np, player)
+                                    if (actor.get_python_tag("current_task") is None
+                                            and not actor.get_python_tag("generic_states")['is_busy']):
+                                        self.npc_controller.npc_in_walking_rd_logic(actor, actor_rb_np,
+                                                                                    player, request)
 
                 elif actor.get_python_tag("human_states")['is_on_horse']:
                     if not actor.get_python_tag("generic_states")['is_busy']:
                         if player_dist is not None:
-                            if actor.get_python_tag("detour_nav") is False:
-                                if player_dist > ai_declaratives.distance_to_animal:
-                                    # Won't follow player if it's indoor
-                                    if not self.base.game_instance["is_indoor"]:
-                                        parent_rb_np = actor.get_python_tag("mounted_horse")
-                                        parent = parent_rb_np.get_child(0)
+                            if player_dist > ai_declaratives.distance_to_animal:
+                                # Won't follow player if it's indoor
+                                if not self.base.game_instance["is_indoor"]:
+                                    parent_rb_np = actor.get_python_tag("mounted_horse")
+                                    parent = parent_rb_np.get_child(0)
 
-                                        # Walk/Run state goes here
-                                        if parent.get_python_tag("move_type") == "walk":
-                                            if base.player_states["is_running"]:
-                                                parent.set_python_tag("move_type", "run")
-                                        if parent.get_python_tag("move_type") == "run":
-                                            if not base.player_states["is_running"]:
-                                                parent.set_python_tag("move_type", "walk")
+                                    # Walk/Run state goes here
+                                    if parent.get_python_tag("move_type") == "walk":
+                                        if base.player_states["is_running"]:
+                                            parent.set_python_tag("move_type", "run")
+                                    if parent.get_python_tag("move_type") == "run":
+                                        if not base.player_states["is_running"]:
+                                            parent.set_python_tag("move_type", "walk")
 
-                                        self.npc_controller.face_actor_to(actor_rb_np, player)
-                                        self.npc_controller.do_any_walking(parent, parent_rb_np,
-                                                                           player, request)
-
-                                if player_dist <= ai_declaratives.distance_to_animal:
-                                    self.npc_controller.npc_in_idle_logic(actor, request)
-                                    self.npc_controller.face_actor_to(actor_rb_np, player)
+                                    if (actor.get_python_tag("current_task") is None
+                                            and not actor.get_python_tag("generic_states")['is_busy']):
+                                        self.npc_controller.npc_in_walking_rd_logic(parent, parent_rb_np,
+                                                                                    player, request)
 
             if not actor.get_python_tag("human_states")["has_bow"]:
                 self._melee_attack(actor, actor_rb_np, player,
@@ -193,12 +188,10 @@ class NpcDirectives:
                                     if not enemy_rb_np.get_child(0).get_python_tag("generic_states")["is_running"]:
                                         actor.set_python_tag("move_type", "walk")
 
-                                self.npc_controller.face_actor_to(actor_rb_np, enemy_rb_np)
-                                self.npc_controller.do_any_walking(actor, actor_rb_np,
-                                                                   enemy_rb_np, request)
-                            if enemy_dist <= ai_declaratives.distance_to_target:
-                                self.npc_controller.npc_in_idle_logic(actor, request)
-                                self.npc_controller.face_actor_to(actor_rb_np, enemy_rb_np)
+                                if (actor.get_python_tag("current_task") is None
+                                        and not actor.get_python_tag("generic_states")['is_busy']):
+                                    self.npc_controller.npc_in_walking_rd_logic(actor, actor_rb_np,
+                                                                                enemy_rb_np, request)
 
                 elif actor.get_python_tag("human_states")['is_on_horse']:
                     if enemy_dist is not None:
@@ -216,12 +209,10 @@ class NpcDirectives:
                                         if not enemy_rb_np.get_parent().get_python_tag("generic_states")["is_running"]:
                                             parent.set_python_tag("move_type", "walk")
 
-                                    self.npc_controller.face_actor_to(actor_rb_np, enemy_rb_np)
-                                    self.npc_controller.do_any_walking(actor, parent_rb_np,
-                                                                       enemy_rb_np, request)
-                            if enemy_dist <= ai_declaratives.distance_to_animal:
-                                self.npc_controller.npc_in_idle_logic(actor, request)
-                                self.npc_controller.face_actor_to(actor_rb_np, enemy_rb_np)
+                                    if (actor.get_python_tag("current_task") is None
+                                            and not actor.get_python_tag("generic_states")['is_busy']):
+                                        self.npc_controller.npc_in_walking_rd_logic(actor, parent_rb_np,
+                                                                                    enemy_rb_np, request)
 
             if not actor.get_python_tag("human_states")["has_bow"]:
                 self._melee_attack(actor, actor_rb_np, enemy_rb_np,
@@ -236,7 +227,7 @@ class NpcDirectives:
             dist = target.get_distance(self.base.game_instance["actors_np"][k])
             if actor.get_python_tag("npc_type") == "npc":
                 if not actor.get_python_tag("human_states")["has_bow"]:
-                    if dist < 1:
+                    if dist <= 1.5:
                         if actor.get_python_tag("priority") == 0:
                             actor.set_python_tag("priority", 1)
                     else:
@@ -263,8 +254,8 @@ class NpcDirectives:
                                                                 request, hitbox_dist)
                 else:
                     npc = actor.get_python_tag("mounted_horse")
-                    npc_bs = npc.get_parent()
-                    self.npc_controller.do_defensive_prediction(npc, npc_bs,
+                    npc_rp_np = npc.get_parent()
+                    self.npc_controller.do_defensive_prediction(npc, npc_rp_np,
                                                                 request, hitbox_dist)
         else:
             if not actor.get_python_tag("human_states")['is_on_horse']:
@@ -273,8 +264,8 @@ class NpcDirectives:
                                                             request, hitbox_dist)
             else:
                 npc = actor.get_python_tag("mounted_horse")
-                npc_bs = npc.get_parent()
-                self.npc_controller.do_defensive_prediction(npc, npc_bs,
+                npc_rp_np = npc.get_parent()
+                self.npc_controller.do_defensive_prediction(npc, npc_rp_np,
                                                             request, hitbox_dist)
 
     def work_with_outdoor_directive(self, actor, target, request):

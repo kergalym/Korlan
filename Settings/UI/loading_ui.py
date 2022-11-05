@@ -1,4 +1,6 @@
 from direct.gui.DirectGui import *
+from direct.interval.FunctionInterval import Wait, Func
+from direct.interval.MetaInterval import Parallel, Sequence
 from direct.showbase.ShowBaseGlobal import aspect2d
 from panda3d.core import FontPool, TextNode
 from Engine.Scenes.level_one import LevelOne
@@ -26,6 +28,8 @@ class LoadingUI:
         self.font = FontPool
 
         """ Frames & Bars """
+        self.fadeout_sequence_is_done = False
+        self.fadeout_sequence = None
         self.fadeout_screen = None
         self.loading_screen = None
         self.loading_frame = None
@@ -49,6 +53,8 @@ class LoadingUI:
         self.stat_ui = StatUI()
 
     def set_loading_bar(self):
+        self.fadeout_sequence = Sequence()
+        self.fadeout_sequence_is_done = False
         self.base.win_props.set_cursor_hidden(True)
         self.base.win.request_properties(self.base.win_props)
 
@@ -142,19 +148,30 @@ class LoadingUI:
         self.fadeout_screen = DirectFrame(frameColor=(0, 0, 0, 1),
                                           frameSize=(-2, 2, -1, 1))
 
-    def fadeout_task(self, task):
+    def decrement_fade(self):
         if self.fadeout_screen:
-            # dt = globalClock.getDt()
-            # seconds = int(60 * dt)
             alpha = self.fadeout_screen['frameColor'][3]
 
             if alpha > 0:
                 alpha -= 0.1
                 self.fadeout_screen['frameColor'] = (0, 0, 0, alpha)
-
-            if self.base.game_instance['loading_is_done'] == 1:
+            else:
                 self.fadeout_screen.destroy()
-                return task.done
+                self.fadeout_sequence.finish()
+                self.fadeout_sequence = None
+                self.fadeout_sequence_is_done = True
+
+    def fadeout_task(self, task):
+        if self.fadeout_screen:
+            if not self.fadeout_sequence.is_playing():
+                par = Parallel(Wait(0.1),
+                               Func(self.decrement_fade)
+                               )
+                self.fadeout_sequence.append(par)
+                self.fadeout_sequence.start()
+
+        if self.fadeout_sequence_is_done:
+            return task.done
 
         return task.cont
 

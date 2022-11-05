@@ -618,6 +618,14 @@ class StatUI:
                 self.player_actions_ui_np.append(item)
 
     def get_npc_actions_list(self, actor_name):
+        if self.current_npc:
+            if not self.current_npc.get_python_tag("human_states")['is_on_horse']:
+                return self.current_npc.get_python_tag("generic_states")
+            elif self.current_npc.get_python_tag("human_states")['is_on_horse']:
+                # Get Horse nodepath which hierarchy looks like:
+                # render/World/LOD/NPC_Horse:BS/NPC_Horse/NPC_Somebody:BS/NPC_Somebody
+                return self.current_npc.get_parent().get_parent().get_python_tag("generic_states")
+
         if not self.current_npc:
             if actor_name and isinstance(actor_name, str):
                 for k in base.game_instance["actors_ref"]:
@@ -625,13 +633,12 @@ class StatUI:
                     if actor:
                         is_alive = actor.get_python_tag("generic_states")['is_alive']
                         if actor_name in actor.get_name() and is_alive:
+                            self.current_npc = actor
                             return actor.get_python_tag("generic_states")
                         # If not alive actor which has actor_name, get another alive actor
                         elif actor_name not in actor.get_name() and is_alive:
                             self.current_npc = actor
                             return actor.get_python_tag("generic_states")
-        else:
-            return self.current_npc.get_python_tag("generic_states")
 
     def draw_npc_actions_list(self):
         if len(self.npc_actions_ui_np) > 0:

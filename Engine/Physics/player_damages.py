@@ -3,53 +3,47 @@ from panda3d.core import BitMask32
 
 class PlayerDamages:
 
-    def __init__(self):
+    def __init__(self, actor, request):
         self.base = base
         self.render = render
         self.player_hips = {}
+        self.actor = actor
+        self.request = request
+        self.actor.set_python_tag("do_any_damage_func", self.do_any_damage)
 
     def _do_damage(self, actor, hitbox_np, parent_np, request):
         # Deactivate enemy weapon if we got hit
         if str(hitbox_np.get_collide_mask()) != " 0000 0000 0000 0000 0000 0000 0000 0000\n":
-            distance = round(hitbox_np.get_distance(parent_np), 1)
-            if distance >= 0.5 and distance <= 1.8:
+            physics_world_np = self.base.game_instance['physics_world_np']
+            result = physics_world_np.contact_test_pair(parent_np.node(), hitbox_np.node())
+            for contact in result.getContacts():
                 hitbox_np.set_collide_mask(BitMask32.allOff())
                 if self.base.game_instance['hud_np']:
                     # Player gets damage if he has health point
                     if self.base.game_instance['hud_np'].player_bar_ui_health['value'] > 1:
-
                         # Play damage if Player doesn't move
                         if not base.player_states['is_moving']:
                             request.request("Attacked", actor, "play")
-
                         self.base.game_instance['hud_np'].player_bar_ui_health['value'] -= 5
                         if actor.get_python_tag("health") > 1:
                             health = actor.get_python_tag("health")
                             health -= 5
                             actor.set_python_tag("health", health)
+                break
 
-    def _do_any_damage(self, actor, actor_rb_np, pattern, request):
-        colliders = render.find_all_matches("**/{0}*".format(pattern))
-        if colliders:
-            for collider in colliders:
-                # Skip actor owned object
-                if actor.get_name() not in collider.get_name():
-                    if "render" in collider.get_parent().get_name():
-                        distance = round(actor_rb_np.get_distance(collider), 1)
-                        if distance >= 0.1 and distance <= 0.3:
-                            if self.base.game_instance['hud_np']:
-                                # Player gets damage if he has health point
-                                if self.base.game_instance['hud_np'].player_bar_ui_health['value'] > 1:
-
-                                    # Play damage if Player doesn't move
-                                    if not base.player_states['is_moving']:
-                                        request.request("Attacked", actor, "play")
-
-                                    self.base.game_instance['hud_np'].player_bar_ui_health['value'] -= 5
-                                    if actor.get_python_tag("health") > 1:
-                                        health = actor.get_python_tag("health")
-                                        health -= 5
-                                        actor.set_python_tag("health", health)
+    def do_any_damage(self):
+        if (self.base.game_instance['hud_np']
+                and not base.player_states["is_blocking"]):
+            # Play damage if Player doesn't move
+            if not base.player_states['is_moving']:
+                self.request.request("Attacked", self.actor, "play")
+            # Player gets damage if he has health point
+            if self.base.game_instance['hud_np'].player_bar_ui_health['value'] > 1:
+                self.base.game_instance['hud_np'].player_bar_ui_health['value'] -= 5
+                if self.actor.get_python_tag("health") > 1:
+                    health = self.actor.get_python_tag("health")
+                    health -= 5
+                    self.actor.set_python_tag("health", health)
 
     def _find_any_weapon(self, enemy):
         if enemy.get_python_tag("current_hitbox") is not None:
@@ -87,24 +81,20 @@ class PlayerDamages:
             if node is not None and node.get_name().endswith(":BS"):
                 node_name = node.get_name().split(":")[0]
                 if self.base.game_instance["actors_ref"].get(node_name) is not None:
-                    enemy_ref = self.base.game_instance["actors_ref"][node_name]
-                    if enemy_ref is not None:
-                        if enemy_ref.get_python_tag("generic_states")['is_alive']:
+                    enemy_npc_ref = self.base.game_instance["actors_ref"][node_name]
+                    if enemy_npc_ref is not None:
+                        if enemy_npc_ref.get_python_tag("generic_states")['is_alive']:
                             # Find active hitbox in the enemy actor node before doing damage
-                            hitbox_np = self._find_any_weapon(enemy=enemy_ref)
+                            hitbox_np = self._find_any_weapon(enemy=enemy_npc_ref)
                             if hitbox_np:
                                 self._do_damage(actor, hitbox_np, parent_np, request)
                             else:
-                                hitboxes = enemy_ref.get_python_tag("actor_hitboxes")
+                                hitboxes = enemy_npc_ref.get_python_tag("actor_hitboxes")
                                 if hitboxes:
                                     for hitbox in hitboxes:
                                         if hitboxes.get(hitbox):
                                             hitbox_np = hitboxes[hitbox]
                                             self._do_damage(actor, hitbox_np, parent_np, request)
-
-        # Arrow Damage
-        if base.player_states["has_bow"]:
-            self._do_any_damage(actor, actor_rb_np, "Arrow_BRB", request)
 
         # Player dies if he has no health point
         self._do_death(actor, request)

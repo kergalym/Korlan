@@ -25,13 +25,32 @@ class Animator:
 
         if actor.get_python_tag("ai_controller_state"):
             if actor.get_python_tag("generic_states")['is_alive']:
-                if not actor.get_python_tag("generic_states")['is_moving']:
-                    self._idle_anim_logic(actor, request)
-                elif actor.get_python_tag("generic_states")['is_moving']:
-                    self._walking_anim_logic(actor, request)
+                if actor.get_python_tag("npc_type") == "npc":
+                    if not actor.get_python_tag("human_states")['is_on_horse']:
+                        if not actor.get_python_tag("generic_states")['is_moving']:
+                            self._idle_anim_logic(actor, request)
+                        elif actor.get_python_tag("generic_states")['is_moving']:
+                            self._walking_anim_logic(actor, request)
+                        if actor.get_python_tag("generic_states")['is_jumping']:
+                            self._jumping_logic(actor, actor_rb_np, request)
+                    elif actor.get_python_tag("human_states")['is_on_horse']:
+                        parent_rb_np = actor.get_python_tag("mounted_horse")
+                        parent_name = parent_rb_np.get_child(0).get_name()
+                        parent = self.base.game_instance["actors_ref"][parent_name]
+                        if not parent.get_python_tag("generic_states")['is_moving']:
+                            self._idle_anim_logic(parent, request)
+                        elif parent.get_python_tag("generic_states")['is_moving']:
+                            self._walking_anim_logic(parent, request)
+                        if parent.get_python_tag("generic_states")['is_jumping']:
+                            self._jumping_logic(parent, parent_rb_np, request)
 
-                if actor.get_python_tag("generic_states")['is_jumping']:
-                    self._jumping_logic(actor, actor_rb_np, request)
+                elif actor.get_python_tag("npc_type") == "npc_animal":
+                    if not actor.get_python_tag("generic_states")['is_moving']:
+                        self._idle_anim_logic(actor, request)
+                    elif actor.get_python_tag("generic_states")['is_moving']:
+                        self._walking_anim_logic(actor, request)
+                    if actor.get_python_tag("generic_states")['is_jumping']:
+                        self._jumping_logic(actor, actor_rb_np, request)
 
         return task.cont
 
@@ -115,23 +134,6 @@ class Animator:
 
                     # Stamina decreases while walking
                     self._decrease_stamina(actor)
-
-                elif actor.get_python_tag("human_states")['is_on_horse']:
-                    parent_rb_np = actor.get_python_tag("mounted_horse")
-                    parent_name = parent_rb_np.get_child(0).get_name()
-                    parent = self.base.game_instance["actors_ref"][parent_name]
-
-                    if parent.get_python_tag("move_type") == "walk":
-                        anim_action = anim_names.a_anim_horse_walking
-                        request.request("Walk", parent, anim_action, "loop")
-                    elif parent.get_python_tag("move_type") == "run":
-                        if parent.get_python_tag("stamina_np"):
-                            if parent.get_python_tag("stamina_np")['value'] > 10:
-                                run_anim = anim_names.a_anim_horse_run
-                                request.request("Walk", parent, run_anim, "loop")
-
-                    # Stamina decreases while walking
-                    self._decrease_stamina(parent)
 
             elif actor.get_python_tag("npc_type") == "npc_animal":
                 if actor.get_python_tag("move_type") == "walk":

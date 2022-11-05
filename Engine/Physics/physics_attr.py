@@ -33,7 +33,7 @@ class PhysicsAttr:
         self.cam_bs_nodepath = None
         self.cam_collider = None
         self.bullet_solids = BulletCollisionSolids()
-        self.player_physics = PlayerDamages()
+        self.player_damages = None
         self.npc_triggers = NpcTriggers()
 
         self.no_mask = BitMask32.allOff()
@@ -87,19 +87,6 @@ class PhysicsAttr:
             rigid_body_np.set_collide_mask(self.mask)
             self.world.attach_character(rigid_body_np.node())
 
-    def set_character_controller_nodepath_half_height_shape(self, actor, rigid_body_np):
-        if actor and rigid_body_np:
-            # get collision name
-            node_name = actor.get_python_tag("col_name")
-
-            shape = self.bullet_solids.get_bs_capsule(width=0.3, height=0.3)
-            rigid_body_node = BulletCharacterControllerNode(shape,
-                                                            0.4,
-                                                            node_name)
-            rigid_body_np.attach_new_node(rigid_body_node)
-            rigid_body_np.set_collide_mask(self.mask)
-            self.world.attach_character(rigid_body_np.node())
-
     def set_rigid_body_nodepath_with_shape(self, actor, rigid_body_np):
         if actor and rigid_body_np:
             shape = self.bullet_solids.get_bs_capsule(width=0.3, height=1.3)
@@ -114,6 +101,19 @@ class PhysicsAttr:
             rigid_body_np.attach_new_node(rigid_body_node)
             rigid_body_np.set_collide_mask(self.mask)
             self.world.attach_rigid_body(rigid_body_np.node())
+
+    def set_character_controller_nodepath_half_height_shape(self, actor, rigid_body_np):
+        if actor and rigid_body_np:
+            # get collision name
+            node_name = actor.get_python_tag("col_name")
+
+            shape = self.bullet_solids.get_bs_capsule(width=0.3, height=0.3)
+            rigid_body_node = BulletCharacterControllerNode(shape,
+                                                            0.4,
+                                                            node_name)
+            rigid_body_np.attach_new_node(rigid_body_node)
+            rigid_body_np.set_collide_mask(self.mask)
+            self.world.attach_character(rigid_body_np.node())
 
     def set_rigid_body_nodepath_half_height_shape(self, actor, rigid_body_np):
         if actor and rigid_body_np:
@@ -132,11 +132,11 @@ class PhysicsAttr:
 
     def remove_character_controller_node(self, rigid_body_np):
         if rigid_body_np:
-            self.world.remove_character(rigid_body_np.node())
+            self.world.remove(rigid_body_np.node())
 
     def remove_rigid_body_node(self, rigid_body_np):
         if rigid_body_np:
-            self.world.remove_rigid_body(rigid_body_np.node())
+            self.world.remove(rigid_body_np.node())
 
     def _get_crouch_rigidbody_nodepath(self, actor_rb_np, shape, mask):
         # Box rigid body for using in crouch state
@@ -205,8 +205,9 @@ class PhysicsAttr:
                                          world=self.world)
         # hitboxes task
         request = self.base.game_instance["player_fsm_cls"]
-        self.player_physics.player_hips[actor.get_name()] = actor.find("**/**Hips:HB")
-        taskMgr.add(self.player_physics.player_hitbox_trace_task,
+        self.player_damages = PlayerDamages(actor, request)
+        self.player_damages.player_hips[actor.get_name()] = actor.find("**/**Hips:HB")
+        taskMgr.add(self.player_damages.player_hitbox_trace_task,
                     "player_hitbox_trace_task",
                     extraArgs=[actor, actor_rb_np, request], appendTask=True)
 
@@ -307,14 +308,6 @@ class PhysicsAttr:
 
         # reparent bullet-shaped actor to LOD node
         actor_rb_np.reparent_to(self.base.game_instance['lod_np'])
-
-        if "NPC_Horse" in col_name:
-            # attach mount place nodepath
-            mountplace = NodePath("Mountplace_{0}".format(actor.get_name()))
-            mountplace.reparent_to(actor_rb_np)
-            pos = actor_rb_np.get_pos() + Vec3(0.5, -0.16, 0)
-            mountplace.set_pos(pos)
-            actor.set_python_tag("mount_place", mountplace)
 
         if "Horse" in col_name:
             # attach trigger sphere
@@ -426,6 +419,13 @@ class PhysicsAttr:
             else:
                 self.soft_debug_nodepath.hide()
                 # self.soft_debug_nodepath.node().showBoundingBoxes(False)
+
+        if self.base.game_instance["level_navmesh_np"]:
+            navmesh_scene_np = self.base.game_instance["level_navmesh_np"]
+            if navmesh_scene_np.is_hidden():
+                navmesh_scene_np.show()
+            else:
+                navmesh_scene_np.hide()
 
     def waiting_for_landscape_task(self, task):
         if self.base.game_instance["loading_is_done"] == 1:
