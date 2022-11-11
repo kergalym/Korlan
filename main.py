@@ -391,6 +391,7 @@ class Main(ShowBase):
             "inventory": None
         }
         self.game_instance = {
+            "current_play_rate": 1.0,
             "render_attr_cls": None,
             "renderpipeline_np": None,
             "menu_mode": False,
@@ -420,6 +421,7 @@ class Main(ShowBase):
             "rp_lights": rp_lights,
             "scene_np": None,
             "round_table_np": None,
+            "player_trigger_cls": None,
             "player_controller": None,
             "player_np": None,
             "player_np_mask": None,
@@ -447,10 +449,9 @@ class Main(ShowBase):
             "unloading_is_done": 0,
             "player_actions_init_is_activated": 0,
             "mouse_control_is_activated": 0,
-            "cam_obstacle_is_close": False,
             "mouse_mode": None,
             "mouse_y_cam": 0,
-            "cursor_ui": None,
+            "crosshair_ui": None,
             "kbd_np": None,
             "keymap": None,
             "pause_mode": False,

@@ -12,6 +12,9 @@ from Engine.AI.npc_controller import NpcController
 from Engine.FSM.npc_fsm import NpcFSM
 
 # List used by loading screen
+from Engine.Scenes.npc_list_test_level import LEVEL_NPC_ASSETS as TESTLEVEL_NPC_ASSETS
+from Engine.Scenes.npc_list_test_level import LEVEL_NPC_AXIS as TESTLEVEL_NPC_AXIS
+
 from Engine.Scenes.npc_list_level1 import LEVEL_NPC_ASSETS
 from Engine.Scenes.npc_list_level1 import LEVEL_NPC_AXIS
 
@@ -116,7 +119,7 @@ class LevelOne:
 
             # Remove HUD elements
             if self.base.game_instance['hud_np']:
-                self.base.game_instance['hud_np'].clear_aim_cursor()
+                self.base.game_instance['hud_np'].clear_aim_crosshair()
                 self.base.game_instance['hud_np'].clear_day_hud()
                 self.base.game_instance['hud_np'].clear_player_bar()
                 self.base.game_instance['hud_np'].clear_weapon_ui()
@@ -248,49 +251,97 @@ class LevelOne:
                         'class': ['env', 'hero']
                         }
 
-        # Construct and pass NPC_FSM classes
-        for actor, npc_fsm_cls in zip(LEVEL_NPC_ASSETS['name'], py_npc_fsm_classes):
-            npc_fsm_cls_self = npc_fsm_cls(actor)
-            self.actor_fsm_classes.append(npc_fsm_cls_self)
+        """ LOAD SCENE AND CHARACTERS """
 
-        for actor, npc_fsm_cls in zip(LEVEL_NPC_ASSETS['name'], self.actor_fsm_classes):
-            if "NPC" in actor and npc_fsm_cls:
-                self.base.game_instance["npcs_fsm_states"][actor] = npc_fsm_cls
+        if self.game_settings['Debug']['set_debug_mode'] == "NO":
+            # Construct and pass NPC_FSM classes
+            for actor, npc_fsm_cls in zip(LEVEL_NPC_ASSETS['name'], py_npc_fsm_classes):
+                npc_fsm_cls_self = npc_fsm_cls(actor)
+                self.actor_fsm_classes.append(npc_fsm_cls_self)
 
-        # Join list values into one shared dict
-        level_assets_joined = {}
-        for a_key, b_key in zip(level_assets, LEVEL_NPC_ASSETS):
-            if a_key == b_key:
-                level_assets_joined[a_key] = level_assets[a_key] + LEVEL_NPC_ASSETS[a_key]
+            for actor, npc_fsm_cls in zip(LEVEL_NPC_ASSETS['name'], self.actor_fsm_classes):
+                if "NPC" in actor and npc_fsm_cls:
+                    self.base.game_instance["npcs_fsm_states"][actor] = npc_fsm_cls
 
-        self.base.game_instance['level_assets_np'] = level_assets_joined
+            # Join list values into one shared dict
+            level_assets_joined = {}
+            for a_key, b_key in zip(level_assets, LEVEL_NPC_ASSETS):
+                if a_key == b_key:
+                    level_assets_joined[a_key] = level_assets[a_key] + LEVEL_NPC_ASSETS[a_key]
 
-        self.actors_for_focus = {}
-        for index, actor in enumerate(LEVEL_NPC_ASSETS['name'], 1):
-            self.actors_for_focus[index] = actor
+            self.base.game_instance['level_assets_np'] = level_assets_joined
 
-        """ Setup Physics """
-        self.physics_attr.set_physics_world(self.base.game_instance["npcs_fsm_states"])
+            self.actors_for_focus = {}
+            for index, actor in enumerate(LEVEL_NPC_ASSETS['name'], 1):
+                self.actors_for_focus[index] = actor
 
-        self.physics_attr.set_soft_physics_world(True)
+            """ Setup Physics """
+            self.physics_attr.set_physics_world(self.base.game_instance["npcs_fsm_states"])
 
-        self.base.game_instance["physics_attr_cls"] = self.physics_attr
+            self.physics_attr.set_soft_physics_world(True)
 
-        """ Async Loading """
+            self.base.game_instance["physics_attr_cls"] = self.physics_attr
 
-        suffix = "rp"
+            """ Async Loading """
 
-        # Combined async loading of the scene, player and non-playable_characters
-        taskMgr.add(self.async_level_load.async_load_level(scene_name="lvl_one",
-                                                           player_name="Player",
-                                                           player_pos=[-8, 15, 0],
-                                                           scale=1.0,
-                                                           culling=False,
-                                                           level_npc_assets=LEVEL_NPC_ASSETS,
-                                                           level_npc_axis=LEVEL_NPC_AXIS,
-                                                           assets=assets,
-                                                           suffix=suffix,
-                                                           animation=anims))
+            suffix = "rp"
+
+            # Combined async loading of the scene, player and non-playable_characters
+            taskMgr.add(self.async_level_load.async_load_level(scene_name="lvl_one",
+                                                               player_name="Player",
+                                                               player_pos=[-8, 15, 0],
+                                                               scale=1.0,
+                                                               culling=False,
+                                                               level_npc_assets=LEVEL_NPC_ASSETS,
+                                                               level_npc_axis=LEVEL_NPC_AXIS,
+                                                               assets=assets,
+                                                               suffix=suffix,
+                                                               animation=anims))
+
+        elif self.game_settings['Debug']['set_debug_mode'] == "YES":
+            # Construct and pass NPC_FSM classes
+            for actor, npc_fsm_cls in zip(TESTLEVEL_NPC_ASSETS['name'], py_npc_fsm_classes):
+                npc_fsm_cls_self = npc_fsm_cls(actor)
+                self.actor_fsm_classes.append(npc_fsm_cls_self)
+
+            for actor, npc_fsm_cls in zip(TESTLEVEL_NPC_ASSETS['name'], self.actor_fsm_classes):
+                if "NPC" in actor and npc_fsm_cls:
+                    self.base.game_instance["npcs_fsm_states"][actor] = npc_fsm_cls
+
+            # Join list values into one shared dict
+            level_assets_joined = {}
+            for a_key, b_key in zip(level_assets, TESTLEVEL_NPC_ASSETS):
+                if a_key == b_key:
+                    level_assets_joined[a_key] = level_assets[a_key] + TESTLEVEL_NPC_ASSETS[a_key]
+
+            self.base.game_instance['level_assets_np'] = level_assets_joined
+
+            self.actors_for_focus = {}
+            for index, actor in enumerate(TESTLEVEL_NPC_ASSETS['name'], 1):
+                self.actors_for_focus[index] = actor
+
+            """ Setup Physics """
+            self.physics_attr.set_physics_world(self.base.game_instance["npcs_fsm_states"])
+
+            self.physics_attr.set_soft_physics_world(True)
+
+            self.base.game_instance["physics_attr_cls"] = self.physics_attr
+
+            """ Async Loading """
+
+            suffix = "rp"
+
+            # Combined async loading of the scene, player and non-playable_characters
+            taskMgr.add(self.async_level_load.async_load_level(scene_name="lvl_one",
+                                                               player_name="Player",
+                                                               player_pos=[-8, 15, 0],
+                                                               scale=1.0,
+                                                               culling=False,
+                                                               level_npc_assets=TESTLEVEL_NPC_ASSETS,
+                                                               level_npc_axis=TESTLEVEL_NPC_AXIS,
+                                                               assets=assets,
+                                                               suffix=suffix,
+                                                               animation=anims))
 
         """ Task for Debug mode """
         if self.game_settings['Debug']['set_debug_mode'] == 'YES':

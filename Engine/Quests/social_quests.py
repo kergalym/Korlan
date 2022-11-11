@@ -109,6 +109,23 @@ class SocialQuests:
 
                 self._is_items_info_collected = True
 
+    def _yurt_trigger_handler_task(self, trigger_np, player_rb_np, task):
+        if self.base.game_instance['menu_mode']:
+            return task.done
+
+        if (not self.base.player_states['is_mounted']
+                and self.base.player_states["is_alive"]):
+            if (int(trigger_np.get_distance(player_rb_np)) >= 1
+                    and int(trigger_np.get_distance(player_rb_np)) < 4):
+                if not self.base.game_instance["is_indoor"]:
+                    self.base.game_instance["is_indoor"] = True
+            elif (int(trigger_np.get_distance(player_rb_np)) >= 4
+                  and int(trigger_np.get_distance(player_rb_np)) < 7):
+                if self.base.game_instance["is_indoor"]:
+                    self.base.game_instance["is_indoor"] = False
+
+        return task.cont
+
     def set_level_triggers(self, scene, task):
         if (self.base.game_instance['scene_is_loaded']
                 and self.base.game_settings['Debug']['set_editor_mode'] == 'NO'
@@ -226,6 +243,13 @@ class SocialQuests:
                         ph_world.attach_ghost(trigger_bg)
                         trigger_np.reparent_to(actor)
                         trigger_np.set_pos(0, 0, 1)
+
+                        # Yurt trigger handler which does check if player at indoor
+                        player_rb_np = self.base.game_instance["player_np"]
+                        taskMgr.add(self._yurt_trigger_handler_task,
+                                    "yurt_trigger_handler_task",
+                                    extraArgs=[trigger_np, player_rb_np],
+                                    appendTask=True)
 
                         # Set place state to check if it's free or busy
                         actor.set_python_tag("place_is_busy", False)

@@ -6,9 +6,9 @@ class Aim:
         self.base.game_instance['is_aiming'] = False
 
     def on_aim_activate(self):
-        if self.base.game_instance['cursor_ui']:
-            if self.base.game_instance['cursor_ui'].is_hidden():
-                self.base.game_instance['cursor_ui'].show()
+        if self.base.game_instance['crosshair_ui']:
+            if self.base.game_instance['crosshair_ui'].is_hidden():
+                self.base.game_instance['crosshair_ui'].show()
 
         if not self.base.game_instance['is_aiming']:
             self.base.game_instance['is_aiming'] = True
@@ -25,6 +25,7 @@ class Aim:
                 and not self.base.game_instance['free_camera']):
             pos_y = self.base.game_instance["mouse_y_cam"]
             pos_z = -0.2
+
         self.base.camera.set_x(0.5)
 
         if not self.base.game_instance["is_arrow_ready"]:
@@ -33,9 +34,9 @@ class Aim:
         self.base.camera.set_z(pos_z)
 
     def on_aim_activate_charge(self):
-        if self.base.game_instance['cursor_ui']:
-            if self.base.game_instance['cursor_ui'].is_hidden():
-                self.base.game_instance['cursor_ui'].show()
+        if self.base.game_instance['crosshair_ui']:
+            if self.base.game_instance['crosshair_ui'].is_hidden():
+                self.base.game_instance['crosshair_ui'].show()
 
         if not self.base.game_instance['is_aiming']:
             self.base.game_instance['is_aiming'] = True
@@ -57,18 +58,19 @@ class Aim:
         self.base.camera.set_z(pos_z)
 
     def on_aim_deactivate(self):
-        if self.base.game_instance['cursor_ui']:
-            if not self.base.game_instance['cursor_ui'].is_hidden():
-                self.base.game_instance['cursor_ui'].hide()
+        if self.base.game_instance['crosshair_ui']:
+            if not self.base.game_instance['crosshair_ui'].is_hidden():
+                self.base.game_instance['crosshair_ui'].hide()
 
-        self.base.camera.set_x(0)
-
-        if self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
-            self.base.camera.set_z(0.5)
-        elif not self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
-            self.base.camera.set_y(self.base.game_instance["mouse_y_cam"])
-            self.base.camera.set_z(0)
         if self.base.game_instance['is_aiming']:
+
+            self.base.camera.set_x(0)
+            if self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
+                self.base.camera.set_z(0.5)
+            elif not self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
+                self.base.camera.set_y(self.base.game_instance["mouse_y_cam"])
+                self.base.camera.set_z(0)
+
             self.base.game_instance['is_aiming'] = False
             self.base.game_instance["is_arrow_ready"] = False
 
@@ -96,3 +98,4 @@ class Aim:
                 self.on_aim_deactivate()
 
         return task.cont
+

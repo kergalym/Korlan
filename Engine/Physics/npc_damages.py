@@ -12,63 +12,65 @@ class NpcDamages:
         self.npc_controller = self.base.game_instance["npc_controller_cls"]
 
     def _do_damage(self, actor, node, hitbox_np, parent_np, request):
-        # Deactivate enemy weapon if we got hit
-        if str(hitbox_np.get_collide_mask()) != " 0000 0000 0000 0000 0000 0000 0000 0000\n":
-            physics_world_np = self.base.game_instance['physics_world_np']
-            result = physics_world_np.contact_test_pair(parent_np.node(), hitbox_np.node())
+        if actor.get_python_tag("generic_states")['is_alive']:
+            # Deactivate enemy weapon if we got hit
+            if str(hitbox_np.get_collide_mask()) != " 0000 0000 0000 0000 0000 0000 0000 0000\n":
+                physics_world_np = self.base.game_instance['physics_world_np']
+                result = physics_world_np.contact_test_pair(parent_np.node(), hitbox_np.node())
 
-            # Save distance to use it for an attack prediction
-            distance = hitbox_np.get_distance(parent_np)
-            actor.set_python_tag("enemy_hitbox_distance", distance)
-            if distance >= 0.5 and distance <= 1.8:
-                # Enemy Prediction for facing
-                if node:
-                    name = node.get_name()
-                    name_bs = "{0}:BS".format(name)
-                    if name in actor.get_name():
-                        npc_ref = self.base.game_instance["actors_np"][name]
-                        npc_rb_np = self.base.game_instance["actors_np"][name_bs]
-                        if npc_ref:
-                            if not actor.get_python_tag("enemy_npc_ref"):
-                                actor.set_python_tag("enemy_npc_ref", npc_ref)
-                            if not actor.get_python_tag("enemy_npc_bs"):
-                                actor.set_python_tag("enemy_npc_bs", npc_rb_np)
+                # Save distance to use it for an attack prediction
+                distance = hitbox_np.get_distance(parent_np)
+                actor.set_python_tag("enemy_hitbox_distance", distance)
+                if distance >= 0.5 and distance <= 1.8:
+                    # Enemy Prediction for facing
+                    if node:
+                        name = node.get_name()
+                        name_bs = "{0}:BS".format(name)
+                        if name in actor.get_name():
+                            npc_ref = self.base.game_instance["actors_np"][name]
+                            npc_rb_np = self.base.game_instance["actors_np"][name_bs]
+                            if npc_ref:
+                                if not actor.get_python_tag("enemy_npc_ref"):
+                                    actor.set_python_tag("enemy_npc_ref", npc_ref)
+                                if not actor.get_python_tag("enemy_npc_bs"):
+                                    actor.set_python_tag("enemy_npc_bs", npc_rb_np)
 
-            for contact in result.getContacts():
-                hitbox_np.set_collide_mask(BitMask32.allOff())
-                if (actor.get_python_tag("health_np")
-                        and not actor.get_python_tag("generic_states")['is_blocking']):
-                    # NPC gets damage if he has health point
-                    if actor.get_python_tag("health_np")['value'] > 1:
+                for contact in result.getContacts():
+                    hitbox_np.set_collide_mask(BitMask32.allOff())
+                    if (actor.get_python_tag("health_np")
+                            and not actor.get_python_tag("generic_states")['is_blocking']):
+                        # NPC gets damage if he has health point
+                        if actor.get_python_tag("health_np")['value'] > 1:
 
-                        # Play damage if NPC doesn't move
-                        if not actor.get_python_tag("generic_states")['is_moving']:
-                            request.request("Attacked", actor, "play")
+                            # Play damage if NPC doesn't move
+                            if not actor.get_python_tag("generic_states")['is_moving']:
+                                request.request("Attacked", actor, "play")
 
-                        actor.get_python_tag("health_np")['value'] -= 6
+                            actor.get_python_tag("health_np")['value'] -= 6
 
-                    if actor.get_python_tag("stamina_np")['value'] > 1:
-                        actor.get_python_tag("stamina_np")['value'] -= 3
+                        if actor.get_python_tag("stamina_np")['value'] > 1:
+                            actor.get_python_tag("stamina_np")['value'] -= 3
 
-                    if actor.get_python_tag("courage_np")['value'] > 1:
-                        actor.get_python_tag("courage_np")['value'] -= 3
-                break
+                        if actor.get_python_tag("courage_np")['value'] > 1:
+                            actor.get_python_tag("courage_np")['value'] -= 3
+                    break
 
     def do_any_damage(self):
-        if (self.actor.get_python_tag("health_np")
-                and not self.actor.get_python_tag("generic_states")['is_blocking']):
-            # Play damage if NPC doesn't move
-            if not self.actor.get_python_tag("generic_states")['is_moving']:
-                self.request.request("Attacked", self.actor, "play")
-            # NPC gets damage if he has health point
-            if self.actor.get_python_tag("health_np")['value'] > 1:
-                self.actor.get_python_tag("health_np")['value'] -= 5
+        if self.actor.get_python_tag("generic_states")['is_alive']:
+            if (self.actor.get_python_tag("health_np")
+                    and not self.actor.get_python_tag("generic_states")['is_blocking']):
+                # Play damage if NPC doesn't move
+                if not self.actor.get_python_tag("generic_states")['is_moving']:
+                    self.request.request("Attacked", self.actor, "play")
+                # NPC gets damage if he has health point
+                if self.actor.get_python_tag("health_np")['value'] > 1:
+                    self.actor.get_python_tag("health_np")['value'] -= 5
 
-            if self.actor.get_python_tag("stamina_np")['value'] > 1:
-                self.actor.get_python_tag("stamina_np")['value'] -= 3
+                if self.actor.get_python_tag("stamina_np")['value'] > 1:
+                    self.actor.get_python_tag("stamina_np")['value'] -= 3
 
-            if self.actor.get_python_tag("courage_np")['value'] > 1:
-                self.actor.get_python_tag("courage_np")['value'] -= 3
+                if self.actor.get_python_tag("courage_np")['value'] > 1:
+                    self.actor.get_python_tag("courage_np")['value'] -= 3
 
     def _find_any_weapon(self, enemy):
         if enemy.get_python_tag("current_hitbox") is not None:

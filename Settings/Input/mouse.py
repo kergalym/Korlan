@@ -22,6 +22,8 @@ class Mouse:
         self.mouse_sens = 0.2
         self.last = 0
         self.cam_y_back_pos = -4.6
+        self.cam_y_back_pos_close = -1
+        self.cam_y_back_pos_current = 0
         self.base.game_instance["mouse_y_cam"] = self.cam_y_back_pos
         self.keymap = {
             'wheel_up': False,
@@ -47,8 +49,9 @@ class Mouse:
             self.keymap[key] = value
 
     def mouse_wheel_init(self):
-        self.base.accept("wheel_up", self.set_key, ['wheel_up', True])
-        self.base.accept("wheel_down", self.set_key, ['wheel_down', True])
+        # Zooming Logic
+        self.base.accept("wheel_up", self.on_camera_zoom_out)
+        self.base.accept("wheel_down", self.on_camera_zoom_in)
 
     def set_floater(self, player):
         """ Function    : set_floater
@@ -316,6 +319,24 @@ class Mouse:
                 and not self.base.game_instance['menu_mode']):
             self.mouse_control()
         return task.cont
+
+    def on_camera_zoom_in(self):
+        if (not self.base.game_instance['ui_mode']
+                and not self.base.game_instance["item_menu_mode"]
+                and not self.base.game_instance['menu_mode']):
+            if not self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
+                if int(base.camera.get_y()) != self.cam_y_back_pos_close:
+                    self.cam_y_back_pos_current = base.camera.get_y() + 0.5
+                    base.camera.set_y(self.cam_y_back_pos_current)
+
+    def on_camera_zoom_out(self):
+        if (not self.base.game_instance['ui_mode']
+                and not self.base.game_instance["item_menu_mode"]
+                and not self.base.game_instance['menu_mode']):
+            if not self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
+                if round(base.camera.get_y(), 1) != self.cam_y_back_pos:
+                    self.cam_y_back_pos_current = base.camera.get_y() - 0.5
+                    base.camera.set_y(self.cam_y_back_pos_current)
 
     def set_mouse_mode(self, mode):
         """ Function    : set_mouse_mode

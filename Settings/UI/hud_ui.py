@@ -12,8 +12,8 @@ class HUD:
         self.game_dir = base.game_dir
         self.images = base.textures_collector(path="Settings/UI")
         self.fonts = base.fonts_collector()
-        self.cursor_ui_pos = (0, 0, 0)
-        self.cursor_ui_scale = 0.04
+        self.crosshair_ui_pos = (0, 0, 0)
+        self.crosshair_ui_scale = 0.04
         self.day_hud_ui_pos = (0.0, 0, 0.90)
         self.day_hud_ui_scale = (0.5, 0, 0.1)
         self.weapon_state_ui_pos = (1.7, 0, -0.80)
@@ -40,7 +40,7 @@ class HUD:
         self.player_bar_ui_health = None
         self.player_bar_ui_stamina = None
         self.player_bar_ui_courage = None
-        self.cursor_ui = None
+        self.crosshair_ui = None
         self.charge_arrow_bar_ui = None
         self.cooldown_bar_ui = None
 
@@ -56,13 +56,13 @@ class HUD:
         self.font = FontPool
         self.text = TextNode("TextNode")
 
-    def set_aim_cursor(self):
-        self.cursor_ui = OnscreenImage(image=self.images['crosshair'])
-        self.cursor_ui.set_pos(self.cursor_ui_pos)
-        self.cursor_ui.set_transparency(TransparencyAttrib.MAlpha)
-        self.cursor_ui.set_scale(self.cursor_ui_scale)
-        self.cursor_ui.hide()
-        self.base.game_instance['cursor_ui'] = self.cursor_ui
+    def set_aim_crosshair(self):
+        self.crosshair_ui = OnscreenImage(image=self.images['crosshair'])
+        self.crosshair_ui.set_pos(self.crosshair_ui_pos)
+        self.crosshair_ui.set_transparency(TransparencyAttrib.MAlpha)
+        self.crosshair_ui.set_scale(self.crosshair_ui_scale)
+        self.crosshair_ui.hide()
+        self.base.game_instance['crosshair_ui'] = self.crosshair_ui
 
     def set_day_hud(self):
         self.day_hud_ui = OnscreenImage(image=self.images['day_hud_light_ui'])
@@ -155,10 +155,10 @@ class HUD:
             self.cooldown_bar_ui.destroy()
             self.cooldown_bar_ui.remove_node()
 
-    def clear_aim_cursor(self):
-        if self.cursor_ui:
-            self.cursor_ui.destroy()
-            self.cursor_ui.remove_node()
+    def clear_aim_crosshair(self):
+        if self.crosshair_ui:
+            self.crosshair_ui.destroy()
+            self.crosshair_ui.remove_node()
 
     def clear_player_bar(self):
         if self.player_bar_ui_frame:

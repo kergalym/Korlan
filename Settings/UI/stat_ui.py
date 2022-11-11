@@ -27,13 +27,6 @@ class StatUI:
             self.text_stat_h = None
             self.text_stat_p = None
 
-            # Camera Collision Distance
-            self.title_dbg_mode_cam_pos = None
-            self.title_coll_obj_name = None
-            self.title_coll_obj_dist = None
-            self.text_cam_coll_stat_h = None
-            self.text_cam_coll_stat_p = None
-
             self.text_toggle_col = None
 
             # Object items
@@ -93,46 +86,6 @@ class StatUI:
                                         font=self.font.load_font(self.menu_font),
                                         align=TextNode.ALeft,
                                         mayChange=True)
-
-        self.title_dbg_mode_cam_pos = OnscreenText(text="",
-                                                   pos=(-1.8, 0.5),
-                                                   scale=0.03,
-                                                   fg=(0.9, 1, 0, 0.9),
-                                                   font=self.font.load_font(self.menu_font),
-                                                   align=TextNode.ALeft,
-                                                   mayChange=True)
-
-        self.title_coll_obj_name = OnscreenText(text="",
-                                                pos=(-1.8, 0.45),
-                                                scale=0.03,
-                                                fg=(0.9, 1, 0, 0.9),
-                                                font=self.font.load_font(self.menu_font),
-                                                align=TextNode.ALeft,
-                                                mayChange=True)
-
-        self.title_coll_obj_dist = OnscreenText(text="",
-                                                pos=(-1.35, 0.45),
-                                                scale=0.03,
-                                                fg=(0.9, 1, 0, 0.9),
-                                                font=self.font.load_font(self.menu_font),
-                                                align=TextNode.ALeft,
-                                                mayChange=True)
-
-        self.text_cam_coll_stat_h = OnscreenText(text="",
-                                                 pos=(-1.8, 0.4),
-                                                 scale=0.03,
-                                                 fg=(0.9, 1, 0, 0.9),
-                                                 font=self.font.load_font(self.menu_font),
-                                                 align=TextNode.ALeft,
-                                                 mayChange=True)
-
-        self.text_cam_coll_stat_p = OnscreenText(text="",
-                                                 pos=(-1.4, 0.4),
-                                                 scale=0.03,
-                                                 fg=(0.9, 1, 0, 0.9),
-                                                 font=self.font.load_font(self.menu_font),
-                                                 align=TextNode.ALeft,
-                                                 mayChange=True)
 
         self.text_toggle_col = OnscreenText(text="",
                                             pos=(-1.8, -0.8),
@@ -221,12 +174,6 @@ class StatUI:
         self.title_obj_dist.destroy()
         self.text_stat_h.destroy()
         self.text_stat_p.destroy()
-
-        self.title_dbg_mode_cam_pos.destroy()
-        self.title_coll_obj_name.destroy()
-        self.title_coll_obj_dist.destroy()
-        self.text_cam_coll_stat_h.destroy()
-        self.text_cam_coll_stat_p.destroy()
 
         self.text_toggle_col.destroy()
         self.title_dbg_mode_obj_state.destroy()
@@ -361,43 +308,6 @@ class StatUI:
                     self.text_stat_p.hide()
                     self.text_toggle_col.hide()
 
-    def set_cam_coll_stat_text(self, records_h, records_p, set_mode):
-        """ Function    : set_cam_coll_stat_text
-
-            Description : Set stat text
-
-            Input       : String
-
-            Output      : None
-
-            Return      : None
-        """
-        if (records_h and records_p
-                and isinstance(records_h, str)
-                and isinstance(records_p, str)
-                and isinstance(set_mode, str)):
-            if self.game_settings['Debug']['set_debug_mode'] == "YES":
-                if (not base.game_instance['menu_mode']
-                        and set_mode == 'show'):
-                    self.title_dbg_mode_cam_pos.setText("DEBUG MODE: Camera collided Object Position")
-                    self.title_coll_obj_name.setText("OBJECT NAME")
-                    self.title_coll_obj_dist.setText("OBJECT DISTANCE (units)")
-                    self.text_cam_coll_stat_h.setText(records_h)
-                    self.text_cam_coll_stat_p.setText(records_p)
-
-                    self.title_dbg_mode_cam_pos.show()
-                    self.title_coll_obj_name.show()
-                    self.title_coll_obj_dist.show()
-                    self.text_cam_coll_stat_h.show()
-                    self.text_cam_coll_stat_p.show()
-                elif (base.game_instance['menu_mode']
-                      and set_mode == 'hide'):
-                    self.title_dbg_mode_cam_pos.hide()
-                    self.title_coll_obj_name.hide()
-                    self.title_coll_obj_dist.hide()
-                    self.text_cam_coll_stat_h.hide()
-                    self.text_cam_coll_stat_p.hide()
-
     def set_obj_stat_text(self, records_h, records_p, set_mode):
         """ Function    : set_obj_stat_text
 
@@ -531,36 +441,6 @@ class StatUI:
 
         return npcs
 
-    def get_camera_collision_distance(self):
-        cam_coll_stat = base.game_instance["cam_coll_dist_stat"]
-        coll_stat = {}
-        if cam_coll_stat:
-            player_dist_vec = cam_coll_stat["player_to_obstacle"]
-            camera_dist_vec = cam_coll_stat["camera_to_obstacle"]
-            object_name = cam_coll_stat["object_name"]
-            _bool = base.game_instance["cam_obstacle_is_close"]
-            cam_state = "Camera is close: {0}".format(_bool)
-        else:
-            d = {"name": base.game_instance["player_np"].get_name(),
-                 "player_to_obstacle": "N/A",
-                 "camera_to_obstacle": "N/A",
-                 "object_name": "N/A",
-                 "cam_is_close_to_player": False
-                 }
-            base.game_instance["cam_coll_dist_stat"] = d
-            player_dist_vec = d["player_to_obstacle"]
-            camera_dist_vec = d["camera_to_obstacle"]
-            object_name = d["object_name"]
-            _bool = base.game_instance["cam_obstacle_is_close"]
-            cam_state = "Camera is close: {0}".format(_bool)
-
-        coll_stat["Player"] = player_dist_vec
-        coll_stat["Camera"] = camera_dist_vec
-        coll_stat["Object"] = object_name
-        coll_stat["State"] = cam_state
-
-        return coll_stat
-
     def show_game_stat_task(self, task):
         """ Function    : show_game_stat_task
 
@@ -574,17 +454,11 @@ class StatUI:
         """
         if not base.game_instance['menu_mode']:
             dist_vec = self.get_actors_distance()
-            cam_coll_dist_vec = self.get_camera_collision_distance()
             dist_vec_fmt_h = self.gen_stat_text_h(dist_vec)
             dist_vec_fmt_p = self.gen_stat_text_p(dist_vec)
-            cam_coll_dist_vec_fmt_h = self.gen_stat_text_h(cam_coll_dist_vec)
-            cam_coll_dist_vec_fmt_p = self.gen_stat_text_p(cam_coll_dist_vec)
             stat_obj_fmt_h = self.gen_stat_obj_text_h()
             stat_obj_fmt_p = self.gen_stat_obj_text_p()
             self.set_obj_dist_stat_text(dist_vec_fmt_h, dist_vec_fmt_p, set_mode='show')
-            self.set_cam_coll_stat_text(cam_coll_dist_vec_fmt_h,
-                                        cam_coll_dist_vec_fmt_p,
-                                        set_mode='show')
             self.set_obj_stat_text(stat_obj_fmt_h, stat_obj_fmt_p, set_mode='show')
             self.set_player_action_stat_text(set_mode='show')
             self.set_npc_action_stat_text(set_mode='show')

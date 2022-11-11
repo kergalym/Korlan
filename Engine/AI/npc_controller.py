@@ -210,7 +210,7 @@ class NpcController:
             if actor.get_python_tag("npc_type") == "npc":
                 if not actor.get_python_tag("human_states")['is_on_horse']:
                     anim_action = anim_names.a_anim_dying
-                    if not (actor.get_python_tag("generic_states")['is_alive']):
+                    if not actor.get_python_tag("generic_states")['is_alive']:
                         if actor.get_python_tag("generic_states")['is_idle']:
                             request.request("Death", actor, anim_action, "play")
                             actor.get_python_tag("generic_states")['is_idle'] = False
@@ -225,7 +225,7 @@ class NpcController:
 
             elif actor.get_python_tag("npc_type") == "npc_animal":
                 anim_action = anim_names.a_anim_horse_dying
-                if not (actor.get_python_tag("generic_states")['is_alive']):
+                if not actor.get_python_tag("generic_states")['is_alive']:
                     if actor.get_python_tag("generic_states")['is_idle']:
                         request.request("Death", actor, anim_action, "play")
                         actor.get_python_tag("generic_states")['is_idle'] = False

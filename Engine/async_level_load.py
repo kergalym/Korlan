@@ -149,12 +149,6 @@ class AsyncLevelLoad:
 
         return task.cont
 
-    def scene_toggle(self, scene):
-        if scene.is_hidden():
-            scene.show()
-        else:
-            scene.hide()
-
     def set_cpu_instancing_to(self, scene, pattern, placeholder):
         if (scene and isinstance(scene, NodePath)
                 and isinstance(pattern, str)
@@ -271,7 +265,12 @@ class AsyncLevelLoad:
             landscape.reparent_to(self.base.game_instance['lod_np'])"""
 
             # Load the scene.
-            path = assets['{0}_{1}'.format(scene_name, suffix)]
+            path = ''
+            if self.game_settings['Debug']['set_debug_mode'] == "YES":
+                path = "{0}/Assets/Levels/test_scene.egg".format(self.game_dir)
+            elif self.game_settings['Debug']['set_debug_mode'] == "NO":
+                path = assets['{0}_{1}'.format(scene_name, suffix)]
+
             scene = await self.base.loader.load_model(path, blocking=False, noCache=True)
 
             self.world_nodepath = render.find("**/World")
@@ -282,7 +281,6 @@ class AsyncLevelLoad:
                 # self.base.toggle_texture_compression(scene)
 
                 scene.reparent_to(self.base.game_instance['lod_np'])
-                # scene.reparent_to(self.world_nodepath)
 
                 # LOD quality preset
                 for lod_qk in self.base.game_instance["lod_quality"]:
@@ -294,11 +292,9 @@ class AsyncLevelLoad:
                 # Set sRGB
                 self.base.set_textures_srgb(scene, True)
 
-                if self.game_settings['Debug']['set_debug_mode'] == "YES":
-                    base.accept("f2", self.scene_toggle, [scene])
+                if self.game_settings['Debug']['set_debug_mode'] == "NO":
+                    scene.set_name(scene_name)
 
-                scene.set_name(scene_name)
-                # scene.set_scale(scale)
                 scene.set_pos(0, 0, 0)
                 scene.set_hpr(scene, 0, 0, 0)
 
@@ -361,14 +357,15 @@ class AsyncLevelLoad:
             if hasattr(physics_attr, "set_static_object_colliders"):
                 physics_attr.set_static_object_colliders(scene=scene)
 
-            # Construct navigation system
-            if render.find("**/lvl_landscape"):
-                scene_name = render.find("**/lvl_landscape").get_name()
-
-            self.set_level_nav(scene_name)
+            if self.game_settings['Debug']['set_debug_mode'] == "NO":
+                # Construct navigation system
+                if render.find("**/lvl_landscape"):
+                    scene_name = render.find("**/lvl_landscape").get_name()
+                self.set_level_nav(scene_name)
 
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
-                scene.hide()
+                scene.set_name("test_scene")
+                self.set_level_nav("test_scene")
 
             # Add indoor trigger
             radius = 4

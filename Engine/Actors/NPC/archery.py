@@ -172,7 +172,6 @@ class Archery:
 
             physics_world_np = self.base.game_instance['physics_world_np']
             result = physics_world_np.ray_test_all(pos_from, pos_to)
-            sorted(result.get_hits(), key=lambda x: (x.get_hit_pos() - pos_from).length())
             for hit in result.get_hits():
                 if (hit and hit.get_node()
                         and self.actor_name not in hit.get_node().get_name()
@@ -215,10 +214,10 @@ class Archery:
         return task.cont
 
     def _on_contact_attach_to_joint(self, actor):
-        sorted_ = actor.get_python_tag("joint_bones")
-        # sorted_ = sorted(j_bones, key=lambda x: (x.get_pos() - self.arrow_brb_in_use.get_pos()).length())
-        random.shuffle(sorted_)
-        for bone in sorted_:
+        joint_sorted_ = actor.get_python_tag("joint_bones")
+        # sorted_ = sorted(j_bones, key=lambda x: (x.get_pos() - self.base.cam.get_pos()).length())
+        random.shuffle(joint_sorted_)
+        for bone in joint_sorted_:
             self.arrow_brb_in_use.set_collide_mask(BitMask32.allOff())
             self.arrow_ref.wrt_reparent_to(bone)
             self.arrow_ref.set_scale(100)
@@ -282,11 +281,6 @@ class Archery:
         if self.arrow_brb_in_use:
             power = 10
             if self.arrow_ref.get_python_tag("ready") == 1:
-                # Disable unwanted rotation
-                self.arrow_brb_in_use.node().set_linear_velocity(Vec3(0, 0, 1))
-                self.arrow_brb_in_use.node().set_angular_velocity(Vec3(0, 0, 1))
-                self.arrow_brb_in_use.node().set_angular_factor(Vec3(0, 1, 0))
-                self.arrow_brb_in_use.node().set_linear_factor(Vec3(1, 0, 1))
 
                 # Move forward by x axis
                 self.arrow_brb_in_use.set_x(self.arrow_brb_in_use, -power * dt)

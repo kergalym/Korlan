@@ -13,11 +13,49 @@ class Animator:
         self.actor = actor
         self.actor_rb_np = actor_rb_np
         self.request = request
+        self.default_play_rate = 1.0
+        self.current_play_rate = 1.0
+        self.slow_play_rate = 0.2
 
         taskMgr.add(self._update_npc_anim_state_task,
                     "update_npc_anim_state_task",
                     extraArgs=[self.actor, self.actor_rb_np, self.request],
                     appendTask=True)
+
+        taskMgr.add(self._time_dilation_task,
+                    "time_dilation_task")
+
+    def _time_dilation_task(self, task):
+        if self.base.game_instance["menu_mode"]:
+            self.base.game_instance["current_play_rate"] = self.default_play_rate
+            return task.done
+
+        # Apply time dilation while aiming:
+        # Save current play rate before it gets changed while aiming
+        if not self.base.game_instance["is_aiming"]:
+            if abs(self.current_play_rate) == self.slow_play_rate:
+                self.current_play_rate = self.default_play_rate
+                if self.actor.get_play_rate() is not None:
+                    if self.actor.get_play_rate() > 0:
+                        self.actor.set_play_rate(self.default_play_rate, self.actor.get_current_anim())
+                    elif self.actor.get_play_rate() < 0:
+                        self.actor.set_play_rate(-self.default_play_rate, self.actor.get_current_anim())
+                self.base.game_instance["current_play_rate"] = self.default_play_rate
+
+        elif self.base.game_instance["is_aiming"]:
+            if abs(self.current_play_rate) != self.slow_play_rate:
+                if self.actor.get_play_rate() is not None:
+                    self.current_play_rate = self.actor.get_play_rate()
+
+            if self.actor.get_play_rate() is not None:
+                if self.actor.get_play_rate() > 0:
+                    self.actor.set_play_rate(self.slow_play_rate, self.actor.get_current_anim())
+                elif self.actor.get_play_rate() < 0:
+                    self.actor.set_play_rate(-self.slow_play_rate, self.actor.get_current_anim())
+            else:
+                self.base.game_instance["current_play_rate"] = self.slow_play_rate
+
+        return task.cont
 
     def _update_npc_anim_state_task(self, actor, actor_rb_np, request, task):
         if self.base.game_instance["menu_mode"]:

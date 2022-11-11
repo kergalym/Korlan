@@ -428,51 +428,76 @@ class Sheet(Inventory):
         self.btn_select_journal["state"] = DGG.NORMAL
         self.btn_select_inv["state"] = DGG.DISABLED
 
+    def is_player_ready(self):
+        """ Checks if player ready to be rendered on the character sheet
+        """
+        player = self.base.game_instance['player_ref']
+        if (player
+                and base.player_states["is_alive"]
+                and base.player_states["is_idle"]
+                and not base.player_states["is_moving"]
+                and not base.player_states["is_running"]
+                and not base.player_states["is_crouch_moving"]
+                and not base.player_states["is_crouching"]
+                and not base.player_states["is_standing"]
+                and not base.player_states["is_jumping"]
+                and not base.player_states["is_h_kicking"]
+                and not base.player_states["is_f_kicking"]
+                and not base.player_states["is_using"]
+                and not base.player_states["is_attacked"]
+                and not base.player_states["is_busy"]
+                and not base.player_states["is_turning"]
+                and not base.player_states["is_mounted"]
+                and not base.player_states["horse_riding"]
+                and not self.base.game_instance["is_player_sitting"]
+                and not player.get_python_tag("is_on_horse")
+        ):
+            return True
+        else:
+            return False
+
     def set_sheet(self):
         """ Sets inventory ui """
         if (not self.base.game_instance['menu_mode']
                 and not self.base.game_instance["item_menu_mode"]
                 and not self.base.game_instance['esc_mode']
-                and not self.base.game_instance["is_player_sitting"]
-                and base.player_states["is_alive"]):
-            player = self.base.game_instance['player_ref']
-            if not player.get_python_tag("is_on_horse"):
-                if self.frame_inv:
-                    if self.frame_inv.is_hidden():
+                and self.is_player_ready()):
+            if self.frame_inv:
+                if self.frame_inv.is_hidden():
 
-                        if self.base.game_instance['hud_np']:
-                            self.base.game_instance['hud_np'].toggle_all_hud(state="hidden")
-                        base.game_instance['render_attr_cls'].time_text_ui.hide()
+                    if self.base.game_instance['hud_np']:
+                        self.base.game_instance['hud_np'].toggle_all_hud(state="hidden")
+                    base.game_instance['render_attr_cls'].time_text_ui.hide()
 
-                        self.reset_camera_params()
+                    self.reset_camera_params()
 
-                        self.frame_inv.show()
-                        self.btn_select_inv.show()
-                        self.btn_select_journal.show()
+                    self.frame_inv.show()
+                    self.btn_select_inv.show()
+                    self.btn_select_journal.show()
 
-                        self.btn_select_inv["state"] = DGG.DISABLED
-                        self.btn_select_journal["state"] = DGG.NORMAL
+                    self.btn_select_inv["state"] = DGG.DISABLED
+                    self.btn_select_journal["state"] = DGG.NORMAL
 
-                        self.base.win_props.set_cursor_hidden(False)
-                        self.base.win.request_properties(self.base.win_props)
+                    self.base.win_props.set_cursor_hidden(False)
+                    self.base.win.request_properties(self.base.win_props)
 
-                        self.base.game_instance['ui_mode'] = True
-                        self.base.is_inventory_active = True
-                        self.prepare_character()
+                    self.base.game_instance['ui_mode'] = True
+                    self.base.is_inventory_active = True
+                    self.prepare_character()
 
-                        self.toggle()
+                    self.toggle()
 
-                        # Stop item dragging on right mouse
-                        base.accept('mouse3-up', self.stop_drag)
+                    # Stop item dragging on right mouse
+                    base.accept('mouse3-up', self.stop_drag)
 
-                        # 'on item move' event processing
-                        # in this case we are delete item, which has been placed into the 'TRASH'
-                        base.accept('inventory-item-move', self.on_item_move)
-                        self.refresh_items()
-                        self.update_counters()
-                        self.refresh_player_properties()
-                    else:
-                        self.clear_sheet()
+                    # 'on item move' event processing
+                    # in this case we are delete item, which has been placed into the 'TRASH'
+                    base.accept('inventory-item-move', self.on_item_move)
+                    self.refresh_items()
+                    self.update_counters()
+                    self.refresh_player_properties()
+                else:
+                    self.clear_sheet()
 
     def clear_sheet(self):
         self.base.build_info.reparent_to(aspect2d)

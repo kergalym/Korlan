@@ -7,6 +7,8 @@ from panda3d.bullet import BulletWorld, BulletDebugNode, BulletRigidBodyNode, Bu
 from Engine.Physics.collision_solids import BulletCollisionSolids
 from Engine.Physics.player_damages import PlayerDamages
 from Engine.Physics.npc_triggers import NpcTriggers
+from Engine.Physics.player_trigger import PlayerTrigger
+
 import json
 
 
@@ -34,6 +36,7 @@ class PhysicsAttr:
         self.cam_collider = None
         self.bullet_solids = BulletCollisionSolids()
         self.player_damages = None
+        self.player_trigger = PlayerTrigger()
         self.npc_triggers = NpcTriggers()
 
         self.no_mask = BitMask32.allOff()
@@ -198,9 +201,18 @@ class PhysicsAttr:
         # Setup for soft bodies
         # self._set_cloth_physics(actor)
 
-        # attach hitboxes and weapons
-        self.bullet_solids.get_bs_hitbox(actor=actor,
-                                         joints=["LeftHand", "RightHand", "Hips"],
+        # Attach hitboxes
+        joints = ["Head",
+                  "Hips",
+                  "LeftHand", "RightHand",
+                  "LeftArm", "RightArm",
+                  "LeftForeArm", "RightForeArm",
+                  "LeftUpLeg", "RightUpLeg",
+                  "LeftLeg", "RightLeg",
+                  "LeftFoot", "RightFoot"
+                  ]
+        self.bullet_solids.set_bs_hitbox(actor=actor,
+                                         joints=joints,
                                          mask=self.mask,
                                          world=self.world)
         # hitboxes task
@@ -210,6 +222,10 @@ class PhysicsAttr:
         taskMgr.add(self.player_damages.player_hitbox_trace_task,
                     "player_hitbox_trace_task",
                     extraArgs=[actor, actor_rb_np, request], appendTask=True)
+
+        # attach trigger sphere
+        self.base.game_instance["player_trigger_cls"] = self.player_trigger
+        self.player_trigger.set_ghost_trigger(actor, self.world)
 
     def _set_npc_rigidbody(self, actor, shape, col_name, mask):
         actor_rb_np = self._get_rigid_body_nodepath(shape=shape,
@@ -255,9 +271,18 @@ class PhysicsAttr:
         # Setup for soft bodies
         # self._set_cloth_physics(actor)
 
-        # attach hitboxes and weapons
-        self.bullet_solids.get_bs_hitbox(actor=actor,
-                                         joints=["LeftHand", "RightHand", "Hips"],
+        # attach hitboxes
+        joints = ["Head",
+                  "Hips",
+                  "LeftHand", "RightHand",
+                  "LeftArm", "RightArm",
+                  "LeftForeArm", "RightForeArm",
+                  "LeftUpLeg", "RightUpLeg",
+                  "LeftLeg", "RightLeg",
+                  "LeftFoot", "RightFoot"
+                  ]
+        self.bullet_solids.set_bs_hitbox(actor=actor,
+                                         joints=joints,
                                          mask=self.mask,
                                          world=self.world)
 
@@ -347,8 +372,12 @@ class PhysicsAttr:
     def set_static_object_colliders(self, scene):
         if scene and self.world:
 
-            if not self.coll_collection:
-                self.coll_collection = render.find("**/Collisions/lvl*collider")
+            if self.game_settings['Debug']['set_debug_mode'] == "YES":
+                if not self.coll_collection:
+                    self.coll_collection = render.find("**/Collisions/test_scene_collider")
+            elif self.game_settings['Debug']['set_debug_mode'] == "NO":
+                if not self.coll_collection:
+                    self.coll_collection = render.find("**/Collisions/lvl*collider")
 
             for coll in self.coll_collection.get_children():
                 # Cut coll suffix from collider mesh name
@@ -526,8 +555,8 @@ class PhysicsAttr:
             self.base.game_instance['physics_world_np'] = self.world
 
             # Setup collision filtering
-            self.world.set_group_collision_flag(0, 0, False)
-            self.world.set_group_collision_flag(0, 1, True)
+            # self.world.set_group_collision_flag(0, 0, False)
+            self.world.set_group_collision_flag(0, 1, False)
 
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
                 if hasattr(self.debug_nodepath, "node"):
@@ -549,7 +578,7 @@ class PhysicsAttr:
 
             # todo: remove archery test box soon
             shape = BulletBoxShape(Vec3(1, 1, 1))
-            node = BulletRigidBodyNode('Box')
+            node = BulletRigidBodyNode('Box:BS')
             node.set_mass(50.0)
             node.add_shape(shape)
             np = render.attach_new_node(node)

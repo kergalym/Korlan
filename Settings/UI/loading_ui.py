@@ -118,7 +118,7 @@ class LoadingUI:
             if self.game_settings['Debug']['set_editor_mode'] == 'NO':
                 self.hud = HUD()
                 self.base.game_instance['hud_np'] = self.hud
-                self.hud.set_aim_cursor()
+                self.hud.set_aim_crosshair()
                 self.hud.set_day_hud()
                 self.hud.set_player_bar()
                 self.hud.set_weapon_ui()
@@ -195,6 +195,9 @@ class LoadingUI:
             if matched:
                 num = matched[1]
                 asset_num = len(assets['name'])
+                if self.game_settings['Debug']['set_debug_mode'] == "YES":
+                    # Exclude game level scene asset
+                    asset_num = len(assets['name'])-1
                 self.loading_bar['range'] = asset_num - 1
 
                 if num < asset_num:
