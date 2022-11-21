@@ -461,6 +461,7 @@ class Sheet(Inventory):
         if (not self.base.game_instance['menu_mode']
                 and not self.base.game_instance["item_menu_mode"]
                 and not self.base.game_instance['esc_mode']
+                and not self.base.game_instance["chest_ui_mode"]
                 and self.is_player_ready()):
             if self.frame_inv:
                 if self.frame_inv.is_hidden():
@@ -507,10 +508,6 @@ class Sheet(Inventory):
         self.btn_select_journal.hide()
 
         self.frame_journal.hide()
-
-        if self.base.game_instance['hud_np']:
-            self.base.game_instance['hud_np'].toggle_all_hud(state="visible")
-        base.game_instance['render_attr_cls'].time_text_ui.show()
 
         self.toggle()
 

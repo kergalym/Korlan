@@ -12,7 +12,7 @@ class SocialQuests:
         self.base = base
         self.render = render
         self.player = None
-        self.player_bs = None
+        self.player_rb_np = None
         self.player_name = ''
         self.rest_place_np = None
         self.game_dir = base.game_dir
@@ -20,7 +20,7 @@ class SocialQuests:
         self.render_pipeline = None
         if self.base.game_instance["renderpipeline_np"]:
             self.render_pipeline = self.base.game_instance["renderpipeline_np"]
-
+        self.current_storage_name = None
         # Items lists and boolean
         self._is_items_info_collected = False
         self._usable_items = []
@@ -132,8 +132,12 @@ class SocialQuests:
                 and self.base.game_instance['player_actions_init_is_activated'] == 1
                 and self.base.game_instance['physics_is_activated'] == 1):
             self.player = self.base.game_instance["player_ref"]
-            self.player_bs = self.base.game_instance["player_np"]
-            self.player_name = self.player_bs.get_name()
+            self.player_rb_np = self.base.game_instance["player_np"]
+            self.player_name = self.player_rb_np.get_name()
+
+            # Chest inventory
+            taskMgr.add(self.chest_trigger_task,
+                        "chest_trigger_task")
 
             # Add round table trigger.
             # We take list of usable items as children of round table node
@@ -296,7 +300,7 @@ class SocialQuests:
                 self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_sit",
                                                         place=place, actor=node)
                 if self.player_name in node.get_name():
-                    if int(self.player_bs.get_distance(place)) <= 1:
+                    if int(self.player_rb_np.get_distance(place)) < 1:
                         if (self.base.game_instance["kbd_np"].keymap["use"]
                                 and not base.player_states['is_using']
                                 and not base.player_states['is_moving']
@@ -338,7 +342,7 @@ class SocialQuests:
                                                     place=place, actor=node)
             if self.player_name in node.get_name():
                 if not self.player.get_python_tag("is_on_horse"):
-                    if int(self.player_bs.get_distance(place)) <= 1:
+                    if int(self.player_rb_np.get_distance(place)) <= 1:
                         if (self.base.game_instance["kbd_np"].keymap["use"]
                                 and not base.player_states['is_using']
                                 and not base.player_states['is_moving']
@@ -380,7 +384,7 @@ class SocialQuests:
                 self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_use",
                                                         place=place, actor=node)
                 if self.player_name in node.get_name():
-                    if int(self.player_bs.get_distance(place)) <= 1:
+                    if int(self.player_rb_np.get_distance(place)) <= 1:
                         if (self.base.game_instance["kbd_np"].keymap["use"]
                                 and not base.player_states['is_using']
                                 and not base.player_states['is_moving']
@@ -415,7 +419,7 @@ class SocialQuests:
                 self.toggle_dimensional_text_visibility(trigger_np=trigger_np, txt_label="txt_use",
                                                         place=place, actor=node)
                 if self.player_name in node.get_name():
-                    if int(self.player_bs.get_distance(place)) <= 1:
+                    if int(self.player_rb_np.get_distance(place)) < 1:
                         """
                         if (self.base.game_instance["kbd_np"].keymap["use"]
                                     and not base.player_states['is_using']
@@ -442,30 +446,54 @@ class SocialQuests:
 
         return task.cont
 
+    def chest_trigger_task(self, task):
+        if self.base.game_instance['menu_mode']:
+            return task.done
+
+        if self.base.game_instance["loading_is_done"] == 1:
+            if not self.player.get_python_tag("is_on_horse"):
+                player_cam_trigger_np = self.player_rb_np.find("**/player_cam_trigger")
+                if player_cam_trigger_np:
+                    for trigger_node in player_cam_trigger_np.node().get_overlapping_nodes():
+                        if "indoor_empty_trigger" in trigger_node.get_name():
+                            if self.current_storage_name != "sandyk":
+                                chest = render.find("**/sandyk")
+                                if chest:
+                                    self.current_storage_name = chest.get_name()
+                                    for node in trigger_node.get_overlapping_nodes():
+                                        if self.player_name in node.get_name():
+                                            if int(self.player_rb_np.get_distance(chest)) < 1:
+                                                if not self.player.get_python_tag("is_close_to_chest"):
+                                                    self.player.set_python_tag("is_close_to_chest", True)
+                                            else:
+                                                if self.player.get_python_tag("is_close_to_chest"):
+                                                    self.player.set_python_tag("is_close_to_chest", False)
+        return task.cont
+
     def round_table_trigger_task(self, task):
         if self.base.game_instance['menu_mode']:
             return task.done
 
         if self.base.game_instance["loading_is_done"] == 1:
             if not self.player.get_python_tag("is_on_horse"):
-                player_cam_trigger_np = self.player_bs.find("**/player_cam_trigger")
+                # Check if player is inside yurts indoor trigger sphere
+                player_cam_trigger_np = self.player_rb_np.find("**/player_cam_trigger")
                 if player_cam_trigger_np:
                     for trigger_node in player_cam_trigger_np.node().get_overlapping_nodes():
                         if "indoor_empty_trigger" in trigger_node.get_name():
-                            round_table = render.find("**/round_table")
-                            if round_table:
-                                for node in trigger_node.get_overlapping_nodes():
-                                    if self.player_name in node.get_name():
-
-                                        if self.player.get_python_tag("is_close_to_use_item"):
-                                            self.player.set_python_tag("is_close_to_use_item", False)
-
-                                        if int(self.player_bs.get_distance(round_table)) < 2:
-
-                                            self._construct_usable_item_list(round_table)
-
-                                            if not self.player.get_python_tag("is_close_to_use_item"):
-                                                self.player.set_python_tag("is_close_to_use_item", True)
+                            if self.current_storage_name != "round_table":
+                                round_table = render.find("**/round_table")
+                                if round_table:
+                                    self.current_storage_name = round_table.get_name()
+                                    for node in trigger_node.get_overlapping_nodes():
+                                        if self.player_name in node.get_name():
+                                            if int(self.player_rb_np.get_distance(round_table)) < 1:
+                                                self._construct_usable_item_list(round_table)
+                                                if not self.player.get_python_tag("is_close_to_use_item"):
+                                                    self.player.set_python_tag("is_close_to_use_item", True)
+                                            else:
+                                                if self.player.get_python_tag("is_close_to_use_item"):
+                                                    self.player.set_python_tag("is_close_to_use_item", False)
         return task.cont
 
     def item_trigger_task(self, trigger_np, actor, task):
@@ -480,15 +508,10 @@ class SocialQuests:
                 if self.player_name in node.get_name():
                     # This logic is dedicated only for picking up the outdoor items
                     if not self.base.game_instance["is_indoor"]:
-
                         if not self.player.get_python_tag("is_item_using"):
 
-                            if self.player.get_python_tag("is_close_to_use_item"):
-                                self.player.set_python_tag("is_close_to_use_item", False)
-
                             # Construct the item properties which is near of the player
-                            if int(self.player_bs.get_distance(actor)) < 2:
-
+                            if int(self.player_rb_np.get_distance(actor)) < 1:
                                 if not self.player.get_python_tag("is_close_to_use_item"):
                                     self.player.set_python_tag("is_close_to_use_item", True)
 
@@ -497,6 +520,9 @@ class SocialQuests:
                                 if not item_np:
                                     self._construct_item_property(self.player, actor)
                             else:
+                                if self.player.get_python_tag("is_close_to_use_item"):
+                                    self.player.set_python_tag("is_close_to_use_item", False)
+
                                 # Wipe item properties if we didn't take item yet
                                 item_prop = self.player.get_python_tag("current_item_prop")
                                 if item_prop:
@@ -517,7 +543,7 @@ class SocialQuests:
                     actor_npc_bs = self.base.game_instance["actors_np"].get(name_bs)
                     if actor_npc is not None and actor_npc_bs is not None:
                         if not actor_npc.get_python_tag("is_item_using"):
-                            if (int(actor_npc_bs.get_distance(actor)) < 2
+                            if (int(actor_npc_bs.get_distance(actor)) < 1
                                     and actor.get_python_tag("directive_num") == 5):
                                 actor_bs = actor.find("**/{0}:BS".format(actor.get_name()))
                                 # Currently close item parameters

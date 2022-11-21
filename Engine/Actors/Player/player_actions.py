@@ -269,8 +269,8 @@ class PlayerActions:
                     if player.get_python_tag("is_close_to_use_item"):
                         # Show item menu here if indoor
                         if self.base.game_instance["is_indoor"]:
-                            if not self.base.game_instance['item_menu_np'].item_menu_ui:
-                                self.base.game_instance['item_menu_np'].set_item_menu(anims, action)
+                            if not self.base.game_instance['round_table_menu_np'].item_menu_ui:
+                                self.base.game_instance['round_table_menu_np'].set_item_menu(anims, action)
                         else:
                             base.player_states['is_idle'] = False
                             # just take item if not indoor
@@ -312,8 +312,8 @@ class PlayerActions:
                     # Drop item if is using
                     if self.base.game_instance["is_indoor"]:
                         # Show item menu here if indoor
-                        if not self.base.game_instance['item_menu_np'].item_menu_ui:
-                            self.base.game_instance['item_menu_np'].set_item_menu(anims, action)
+                        if not self.base.game_instance['round_table_menu_np'].item_menu_ui:
+                            self.base.game_instance['round_table_menu_np'].set_item_menu(anims, action)
                     else:
                         base.player_states['is_idle'] = False
                         # Just drop item if not indoor
@@ -350,6 +350,9 @@ class PlayerActions:
                                      Func(self.state.set_action_state, "is_using", False),
                                      Func(self.state.set_do_once_key, key, False),
                                      ).start()
+
+                if player.get_python_tag("is_close_to_chest"):
+                    self.base.game_instance['chest_inventory_np'].show_chest()
 
     def player_forwardroll_action(self, player, anims):
         if (player and isinstance(anims, dict)

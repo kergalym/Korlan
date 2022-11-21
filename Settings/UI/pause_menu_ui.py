@@ -125,6 +125,7 @@ class PauseMenuUI(MenuSettings):
             # close inventory
             if self.base.game_instance['ui_mode']:
                 base.messenger.send("close_sheet")
+                self.base.game_instance["chest_inventory_np"].hide_chest()
 
             self.base.game_instance['ui_mode'] = True
             self.pause_mode = 1

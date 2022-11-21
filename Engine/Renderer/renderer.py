@@ -96,8 +96,11 @@ class RenderAttr:
                         self.time_text_ui.setText(text)
 
                 elif self.base.game_instance["problemus_is_activated"] == 0:
-                    if self.base.game_instance['inv_mode']:
+                    if (self.base.game_instance['inv_mode']
+                            and not self.base.game_instance["chest_ui_mode"]):
                         self.hour = 15
+                    elif self.base.game_instance["chest_ui_mode"]:
+                        self.hour = 00
                     else:
                         hour = time.split(':')
                         hour = int(hour[0])

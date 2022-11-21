@@ -43,7 +43,6 @@ class Inventory:
         """ Frame Sizes """
         # Left, right, bottom, top
         self.frame_inv_size = [-3, 3, -1, 3]
-        self.frame_inv_black_bg_size = [-3, 0.7, -1, 3]
 
         """ Frames, Buttons & Fonts"""
         # Transparent background
@@ -52,10 +51,20 @@ class Inventory:
                                      pos=(0, 0, 0))
         self.frame_inv.hide()
 
+        self.hand_l_styled_frame = None
+        self.hand_r_styled_frame = None
+        self.tengri_pwr_styled_frame = None
+        self.umai_pwr_styled_frame = None
+        self.head_styled_frame = None
+        self.body_styled_frame = None
+        self.feet_styled_frame = None
+        self.legs_styled_frame = None
+        self.trash_styled_frame = None
+
         self.sheet_items = None
 
-        self.inv_misc_grid_cap = None
-        self.inv_weapons_grid_cap = None
+        self.inv_food_grid_cap = None
+        self.inv_armor_grid_cap = None
         self.inv_magic_grid_cap = None
 
         self.menu_font = self.fonts['OpenSans-Regular']
@@ -81,6 +90,34 @@ class Inventory:
 
         self.use_transparency = True
 
+        """ Grid and slots positions """
+        self.grid_frame_pos = (-0.82, 0, 0.30)
+        self.grid_frame_scale = (0.86, 0, 0.48)
+        self.grid_frame_paddings = (0.14, 0.18)
+
+        self.grid_cap_pos = (-0.82, 0, 0.82)
+        self.grid_cap_scale = (0.92, 0, 0.08)
+
+        """ Calculate sections position relative to grid frame edges """
+        section_gaps = 0.02
+        sections_count = 3
+        column_count = 3
+        section_width = self.grid_frame_scale[0] / sections_count
+        section_width = section_width - section_gaps
+
+        s_food_pos_x = self.grid_frame_pos[0] + self.grid_frame_paddings[0] - self.grid_frame_scale[0]
+        s_food_pos_y = self.grid_frame_pos[2] + self.grid_frame_paddings[1] * 2
+
+        s_armor_pos_x = s_food_pos_x + section_width + self.slot_half_size_x * column_count
+        s_armor_pos_y = self.grid_frame_pos[2] + self.grid_frame_paddings[1] * 2
+
+        s_magic_pos_x = s_armor_pos_x + section_width + self.slot_half_size_x * column_count
+        s_magic_pos_y = self.grid_frame_pos[2] + self.grid_frame_paddings[1] * 2
+
+        self.section_food_pos = (s_food_pos_x, s_food_pos_y)  # -1.55, 0.66
+        self.section_armor_pos = (s_armor_pos_x, s_armor_pos_y)  # -1.0, 0.66
+        self.section_magic_pos = (s_magic_pos_x, s_magic_pos_y)  # -0.45, 0.66
+
         self.states = {
             "HIDDEN": False,
             "VISIBLE": True
@@ -90,9 +127,14 @@ class Inventory:
         self.drag_item = -1  # if >=0 then we drag item with this id
         self.slots = []  # list of InvSlot (data)
         self._slots_vis = []
+        self.sheet_slot_ids = []
 
         self.items = []  # list of items (data)
         self._items_vis = []
+
+        self.current_item = None
+
+        self.sheet_item_ids = []
 
         self._counters = {}
         self.old_mp = (0, 0)
@@ -121,65 +163,66 @@ class Inventory:
         # styled frames for these sheet slots
         sheet_slot_frame_img = self.images['sheet_default_slot']
         sheet_slot_frame_scale = (0.21, 0, 0.21)
-        hand_l_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
-                                            pos=(0.9, 0, -0.01),
-                                            scale=sheet_slot_frame_scale,
-                                            parent=self.frame_inv)
-        hand_l_styled_frame.set_transparency(TransparencyAttrib.MAlpha)
+        self.hand_l_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
+                                                 pos=(0.9, 0, -0.01),
+                                                 scale=sheet_slot_frame_scale,
+                                                 parent=self.frame_inv)
+        self.hand_l_styled_frame.set_transparency(TransparencyAttrib.MAlpha)
 
-        hand_r_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
-                                            pos=(1.7, 0, -0.01),
-                                            scale=sheet_slot_frame_scale,
-                                            parent=self.frame_inv)
-        hand_r_styled_frame.set_transparency(TransparencyAttrib.MAlpha)
+        self.hand_r_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
+                                                 pos=(1.7, 0, -0.01),
+                                                 scale=sheet_slot_frame_scale,
+                                                 parent=self.frame_inv)
+        self.hand_r_styled_frame.set_transparency(TransparencyAttrib.MAlpha)
 
-        tengri_pwr_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
-                                                pos=(1.7, 0, -0.35),
+        self.tengri_pwr_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
+                                                     pos=(1.7, 0, -0.35),
+                                                     scale=sheet_slot_frame_scale,
+                                                     parent=self.frame_inv)
+        self.tengri_pwr_styled_frame.set_transparency(TransparencyAttrib.MAlpha)
+
+        self.umai_pwr_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
+                                                   pos=(1.7, 0, -0.67),
+                                                   scale=sheet_slot_frame_scale,
+                                                   parent=self.frame_inv)
+        self.umai_pwr_styled_frame.set_transparency(TransparencyAttrib.MAlpha)
+
+        self.head_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
+                                               pos=(0.9, 0, 0.7),
+                                               scale=sheet_slot_frame_scale,
+                                               parent=self.frame_inv)
+        self.head_styled_frame.set_transparency(TransparencyAttrib.MAlpha)
+
+        self.body_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
+                                               pos=(1.7, 0, 0.32),
+                                               scale=sheet_slot_frame_scale,
+                                               parent=self.frame_inv)
+        self.body_styled_frame.set_transparency(TransparencyAttrib.MAlpha)
+
+        self.feet_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
+                                               pos=(0.9, 0, -0.43),
+                                               scale=sheet_slot_frame_scale,
+                                               parent=self.frame_inv)
+        self.feet_styled_frame.set_transparency(TransparencyAttrib.MAlpha)
+
+        self.legs_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
+                                               pos=(0.9, 0, -0.76),
+                                               scale=sheet_slot_frame_scale,
+                                               parent=self.frame_inv)
+        self.legs_styled_frame.set_transparency(TransparencyAttrib.MAlpha)
+
+        self.trash_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
+                                                pos=(0.4, 0, -0.6),
                                                 scale=sheet_slot_frame_scale,
                                                 parent=self.frame_inv)
-        tengri_pwr_styled_frame.set_transparency(TransparencyAttrib.MAlpha)
-
-        umai_pwr_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
-                                              pos=(1.7, 0, -0.67),
-                                              scale=sheet_slot_frame_scale,
-                                              parent=self.frame_inv)
-        umai_pwr_styled_frame.set_transparency(TransparencyAttrib.MAlpha)
-
-        head_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
-                                          pos=(0.9, 0, 0.7),
-                                          scale=sheet_slot_frame_scale,
-                                          parent=self.frame_inv)
-        head_styled_frame.set_transparency(TransparencyAttrib.MAlpha)
-
-        body_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
-                                          pos=(1.7, 0, 0.32),
-                                          scale=sheet_slot_frame_scale,
-                                          parent=self.frame_inv)
-        body_styled_frame.set_transparency(TransparencyAttrib.MAlpha)
-
-        feet_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
-                                          pos=(0.9, 0, -0.43),
-                                          scale=sheet_slot_frame_scale,
-                                          parent=self.frame_inv)
-        feet_styled_frame.set_transparency(TransparencyAttrib.MAlpha)
-
-        legs_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
-                                          pos=(0.9, 0, -0.76),
-                                          scale=sheet_slot_frame_scale,
-                                          parent=self.frame_inv)
-        legs_styled_frame.set_transparency(TransparencyAttrib.MAlpha)
-
-        trash_styled_frame = OnscreenImage(image=sheet_slot_frame_img,
-                                           pos=(0.4, 0, -0.6),
-                                           scale=sheet_slot_frame_scale,
-                                           parent=self.frame_inv)
-        trash_styled_frame.set_transparency(TransparencyAttrib.MAlpha)
+        self.trash_styled_frame.set_transparency(TransparencyAttrib.MAlpha)
 
         """(('INVENTORY_1', 'TRASH'), 'item',
             self.images['slot_item_qymyran'], 'Qymyran', 1, 1, 0, 8),
            (('INVENTORY_1', 'TRASH'), 'item',
             self.images['slot_item_torsyk'], 'Torsyk', 1, 1, 0, 8),"""
 
+        """ Inventory Content """
         # Inventory row, slots, inventory_type, icon, txt_pieces, int_pieces, 0, damage
         self.sheet_items = [
             [['INVENTORY_2', 'TRASH', 'HAND_L'], 'weapon',
@@ -203,10 +246,10 @@ class Inventory:
         # sheet slots init
         self.custom_inv_slots(sheet_slot_info)
 
-        # Field of slots 3х5,        positions: x, y
-        self.fill_up_inv_slots(3, 5, -1.55, 0.66, 'INVENTORY_1')
-        self.fill_up_inv_slots(3, 5, -1.0, 0.66, 'INVENTORY_2')
-        self.fill_up_inv_slots(3, 5, -0.45, 0.66, 'INVENTORY_3')
+        # Field of slots 3х5,        sections positions: x, y
+        self.fill_up_inv_slots(3, 5, self.section_food_pos[0], self.section_food_pos[1], 'INVENTORY_1')
+        self.fill_up_inv_slots(3, 5, self.section_armor_pos[0], self.section_armor_pos[1], 'INVENTORY_2')
+        self.fill_up_inv_slots(3, 5, self.section_magic_pos[0], self.section_magic_pos[1], 'INVENTORY_3')
 
         for item in self.sheet_items:
             inventory_type = item[0][0]
@@ -215,16 +258,16 @@ class Inventory:
         # Inventory init
         self.init()
 
-        self.inv_misc_grid_cap = OnscreenImage(image=self.images['misc_grid_cap'],
+        self.inv_food_grid_cap = OnscreenImage(image=self.images['misc_grid_cap'],
                                                pos=(-1.4, 0, -0.25),
                                                scale=(0.32, 0, 0.1),
                                                parent=self.frame_inv)
-        self.inv_misc_grid_cap.set_transparency(TransparencyAttrib.MAlpha)
-        self.inv_weapons_grid_cap = OnscreenImage(image=self.images['weapons_grid_cap'],
-                                                  pos=(-0.82, 0, -0.25),
-                                                  scale=(0.32, 0, 0.1),
-                                                  parent=self.frame_inv)
-        self.inv_weapons_grid_cap.set_transparency(TransparencyAttrib.MAlpha)
+        self.inv_food_grid_cap.set_transparency(TransparencyAttrib.MAlpha)
+        self.inv_armor_grid_cap = OnscreenImage(image=self.images['weapons_grid_cap'],
+                                                pos=(-0.82, 0, -0.25),
+                                                scale=(0.32, 0, 0.1),
+                                                parent=self.frame_inv)
+        self.inv_armor_grid_cap.set_transparency(TransparencyAttrib.MAlpha)
         self.inv_magic_grid_cap = OnscreenImage(image=self.images['magic_grid_cap'],
                                                 pos=(-0.24, 0, -0.25),
                                                 scale=(0.32, 0, 0.1),
@@ -239,10 +282,10 @@ class Inventory:
         self.on_start_assign_item_to_sheet_slot(0, 0)  # sword
         self.on_start_assign_item_to_sheet_slot(1, 1)  # bow
 
-    def add_item_to_inventory(self, item, count, inventory, inventory_type):
+    def add_item_to_inventory(self, item, count, inventory, item_type):
         if (item and isinstance(item, str)
                 and inventory and isinstance(inventory, str)
-                and inventory_type and isinstance(inventory_type, str)
+                and item_type and isinstance(item_type, str)
                 and count and isinstance(count, int)):
             item_is_matched = 0
             matched_item = None
@@ -251,27 +294,33 @@ class Inventory:
                     item_is_matched = 1
                     matched_item = sheet_item
 
-            if item_is_matched == 0:
-                item_row = [[inventory, 'TRASH'], inventory_type,
+            if not self.base.game_instance['chest_ui_mode']:
+                if item_is_matched == 1:
+                    count = matched_item[4] + count
+
+                item_row = [[inventory, 'TRASH'], item_type,
                             self.images['slot_item_{0}'.format(item.lower())],
                             item, count, count, 0, 5
                             ]
-                inventory_type = item_row[0][0]
                 self.sheet_items.append(item_row)
-                self.add_item(Item(item_row), inventory_type)
+                self.add_item(Item(item_row), inventory)
                 self.refresh_items()
-                self.base.game_instance['arrow_count'] = count
-            elif item_is_matched == 1:
-                new_count = matched_item[4] + count
-                item_row = [[inventory, 'TRASH'], inventory_type,
+
+                if item in "Arrows":
+                    self.base.game_instance['arrow_count'] = count
+
+            elif self.base.game_instance['chest_ui_mode']:
+
+                item_row = [[inventory, 'TRASH'], item_type,
                             self.images['slot_item_{0}'.format(item.lower())],
-                            item, new_count, new_count, 0, 5
+                            item, count, count, 0, 5
                             ]
-                inventory_type = item_row[0][0]
                 self.sheet_items.append(item_row)
-                self.add_item(Item(item_row), inventory_type)
+                self.add_item(Item(item_row), inventory)
                 self.refresh_items()
-                self.base.game_instance['arrow_count'] = new_count
+
+                if item in "Arrows":
+                    self.base.game_instance['arrow_count'] = count
 
     def init(self):
         self._visualize_slots()
@@ -306,12 +355,12 @@ class Inventory:
         """ Make background and slots visualization from prepared data
         """
         self.inv_grid_frame = OnscreenImage(image=self.images['grid_frame'],
-                                            pos=(-0.82, 0, 0.30),
-                                            scale=(0.86, 0, 0.48),
+                                            pos=self.grid_frame_pos,
+                                            scale=self.grid_frame_scale,
                                             parent=self.frame_inv)
         self.inv_grid_cap = OnscreenImage(image=self.images['grid_cap_i'],
-                                          pos=(-0.82, 0, 0.82),
-                                          scale=(0.92, 0, 0.08),
+                                          pos=self.grid_cap_pos,
+                                          scale=self.grid_cap_scale,
                                           parent=self.frame_inv)
         if self.use_transparency:
             self.inv_grid_cap.set_transparency(TransparencyAttrib.MAlpha)
@@ -331,6 +380,51 @@ class Inventory:
             self._slots_vis[id].reparent_to(self.frame_inv)
             if self.use_transparency:
                 self._slots_vis[id].set_transparency(TransparencyAttrib.MAlpha)
+
+        if self.base.game_instance['chest_ui_mode']:
+            self._hide_sheet_slots()
+
+    def _show_sheet_slots(self):
+        # Show sheet slots
+        self.hand_l_styled_frame.show()
+        self.hand_r_styled_frame.show()
+        self.tengri_pwr_styled_frame.show()
+        self.umai_pwr_styled_frame.show()
+        self.head_styled_frame.show()
+        self.body_styled_frame.show()
+        self.feet_styled_frame.show()
+        self.legs_styled_frame.show()
+        self.trash_styled_frame.show()
+
+        for sid in self.sheet_slot_ids:
+            self._slots_vis[sid].show()
+        self._slots_vis[2].show()
+        self._slots_vis[3].show()
+
+    def _hide_sheet_slots(self):
+        # Hide sheet slots
+        self.hand_l_styled_frame.hide()
+        self.hand_r_styled_frame.hide()
+        self.tengri_pwr_styled_frame.hide()
+        self.umai_pwr_styled_frame.hide()
+        self.head_styled_frame.hide()
+        self.body_styled_frame.hide()
+        self.feet_styled_frame.hide()
+        self.legs_styled_frame.hide()
+        self.trash_styled_frame.hide()
+
+        for sid in self.sheet_slot_ids:
+            self._slots_vis[sid].hide()
+        self._slots_vis[3].hide()
+        self._slots_vis[2].hide()
+
+    def bind_chest_slots(self):
+        chest = self.base.game_instance["current_chest"]
+        if chest:
+            for id, slot in enumerate(chest.slots):
+                chest._slots_vis[id].bind(DGG.B1PRESS,
+                                          self.move_item_to_chest_slot,
+                                          [self.drag_item, id])
 
     def _visualize_items(self):
         """ Inventory items visualization
@@ -352,6 +446,19 @@ class Inventory:
             self._items_vis[id].reparent_to(self.frame_inv)
             if self.use_transparency:
                 self._items_vis[id].set_transparency(TransparencyAttrib.MAlpha)
+
+        if self.base.game_instance['chest_ui_mode']:
+            self._hide_sheet_items()
+
+    def _show_sheet_items(self):
+        # Show sheet items
+        for iid in self.sheet_item_ids:
+            self._items_vis[iid].show()
+
+    def _hide_sheet_items(self):
+        # Hide sheet items
+        for iid in self.sheet_item_ids:
+            self._items_vis[iid].hide()
 
     def _make_counters(self):
         """ Make counter text for multiple items
@@ -423,31 +530,69 @@ class Inventory:
     def move_item_to_slot(self, iid, sid, force=False):
         """ Move item with id 'iid' to slot with id 'sid'
         """
-        if not self.is_slot_busy(sid, [iid]) or force:
-            if self.slots[sid].type in self.items[iid].get_slots():
-                old_sid = self.items[iid].slot_id
-                self.items[iid].slot_id = sid
-                self._items_vis[iid].setPos(self.slots[sid].pos)
-                base.messenger.send('inventory-item-move', [iid, old_sid, sid])
-                return True
+        if not self.base.game_instance['chest_ui_mode']:
+            # Regular item transferring when Player Inventory with sheet is active
+            if not self.is_slot_busy(sid, [iid]) or force:
+                if self.slots[sid].type in self.items[iid].get_slots():
+                    old_sid = self.items[iid].slot_id
+                    self.items[iid].slot_id = sid
+                    self._items_vis[iid].setPos(self.slots[sid].pos)
+                    base.messenger.send('inventory-item-move', [iid, old_sid, sid])
+                    return True
 
-        if self.slots[sid].section_name != self.items[iid].section_name:
-            # toggle player clothes visibility
-            if self.items[iid].slot_id == 4:
-                self.equip.toggle_cloth_visibility(item="helmet")
-            elif self.items[iid].slot_id == 5:
-                self.equip.toggle_cloth_visibility(item="armor")
-            elif self.items[iid].slot_id == 6:
-                self.equip.toggle_cloth_visibility(item="pants")
-            elif self.items[iid].slot_id == 7:
-                self.equip.toggle_cloth_visibility(item="boots")
-            # toggle player weapons visibility
-            if self.items[iid].slot_id == 1:
-                self.equip.toggle_weapon(item="bow_kazakh", bone="Korlan:Spine1")
-            elif self.items[iid].slot_id == 0:
-                self.equip.toggle_weapon(item="sword", bone="Korlan:Spine1")
+            if self.slots[sid].section_name != self.items[iid].section_name:
+                # toggle player clothes visibility
+                if self.items[iid].slot_id == 4:
+                    self.equip.toggle_cloth_visibility(item="helmet")
+                elif self.items[iid].slot_id == 5:
+                    self.equip.toggle_cloth_visibility(item="armor")
+                elif self.items[iid].slot_id == 6:
+                    self.equip.toggle_cloth_visibility(item="pants")
+                elif self.items[iid].slot_id == 7:
+                    self.equip.toggle_cloth_visibility(item="boots")
+                # toggle player weapons visibility
+                if self.items[iid].slot_id == 1:
+                    self.equip.toggle_weapon(item="bow_kazakh", bone="Korlan:Spine1")
+                elif self.items[iid].slot_id == 0:
+                    self.equip.toggle_weapon(item="sword", bone="Korlan:Spine1")
 
-        self.stop_drag()
+        elif self.base.game_instance['chest_ui_mode']:
+            # Regular item transferring when Player Inventory works pair with Chest
+            if self.slot_under_mouse > 0:
+                if not self.is_slot_busy(sid, [iid]) or force:
+                    if self.slots[sid].type in self.items[iid].get_slots():
+                        old_sid = self.items[iid].slot_id
+                        self.items[iid].slot_id = sid
+                        self._items_vis[iid].setPos(self.slots[sid].pos)
+                        base.messenger.send('inventory-item-move', [iid, old_sid, sid])
+                        return True
+
+            self.stop_drag()
+
+        return False
+
+    def move_item_to_chest_slot(self, iid, sid, force=False):
+        """ Move sheet item with id 'iid' to slot with id 'sid'
+        """
+        if self.base.game_instance['chest_ui_mode']:
+            chest = self.base.game_instance["current_chest"]
+            if chest:
+                if not chest.is_slot_busy(sid, [iid]):
+                    # Add item to Player Inventory
+                    if self.current_item:
+                        # Put item into chest slot only if if cursor is not in this inventory
+                        if chest.slot_under_mouse > 0:
+                            self.current_item.slot_id = sid
+                            chest.add_item_to_inventory(item=self.current_item.get_name(),
+                                                        count=self.current_item.get_max_count(),
+                                                        inventory=self.current_item.section_name,
+                                                        item_type=self.current_item.get_type())
+
+                            self.remove_item(self.drag_item)
+                            self.current_item = None
+                            return True
+
+            self.stop_drag()
 
         return False
 
@@ -514,6 +659,11 @@ class Inventory:
         # Capture clicked item
         if self.drag_item < 0:
             self.drag_item = args[0]
+
+            if self.base.game_instance['chest_ui_mode']:
+                if not self.current_item:
+                    self.current_item = self.items[self.drag_item]
+
             if self.slots[self.drag_item].section_name == self.items[self.drag_item].section_name:
                 # toggle player clothes visibility
                 if self.items[args[0]].slot_id == 4:
@@ -628,6 +778,8 @@ class Inventory:
 
     def on_start_assign_item_to_sheet_slot(self, iid, sid):
         """ Startup assign sheet slot """
+        self.sheet_slot_ids.append(sid)
+        self.sheet_item_ids.append(iid)
         self.items[iid].slot_id = sid
         self._items_vis[iid].setPos(self.slots[sid].pos)
         self.refresh_items()

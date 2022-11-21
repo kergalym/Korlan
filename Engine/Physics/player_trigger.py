@@ -44,58 +44,59 @@ class PlayerTrigger:
         return task.cont
 
     def toggle_npc_hud(self, player_rb_np, node_np):
-        if player_rb_np and node_np:
-            # If I have any bow weapon
-            if base.player_states["has_bow"]:
-                # Show enemy HUD starting from 100 meters
-                if (player_rb_np.get_distance(node_np) > 1
-                        and player_rb_np.get_distance(node_np) < 100):
-                    for k in self.base.game_instance["actors_ref"]:
-                        # Hide all other NPC HUDs if visible
-                        if k not in node_np.get_name():
+        if self.base.game_instance['loading_is_done'] == 1:
+            if player_rb_np and node_np:
+                # If I have any bow weapon
+                if base.player_states["has_bow"]:
+                    # Show enemy HUD starting from 100 meters
+                    if (player_rb_np.get_distance(node_np) > 1
+                            and player_rb_np.get_distance(node_np) < 100):
+                        for k in self.base.game_instance["actors_ref"]:
+                            # Hide all other NPC HUDs if visible
+                            if k not in node_np.get_name():
+                                _actor = self.base.game_instance["actors_ref"][k]
+                                if _actor.has_python_tag("npc_hud_np"):
+                                    if _actor.get_python_tag("npc_hud_np") is not None:
+                                        if not _actor.get_python_tag("npc_hud_np").is_hidden():
+                                            _actor.get_python_tag("npc_hud_np").hide()
+                            else:
+                                # Show NPC HUD if it's close
+                                _actor = self.base.game_instance["actors_ref"][k]
+                                if _actor.has_python_tag("npc_hud_np"):
+                                    if _actor.get_python_tag("npc_hud_np") is not None:
+                                        _actor.get_python_tag("npc_hud_np").show()
+                    elif player_rb_np.get_distance(node_np) >= 25:
+                        # Hide NPCs HUD if it's far
+                        for k in self.base.game_instance["actors_ref"]:
                             _actor = self.base.game_instance["actors_ref"][k]
                             if _actor.has_python_tag("npc_hud_np"):
                                 if _actor.get_python_tag("npc_hud_np") is not None:
                                     if not _actor.get_python_tag("npc_hud_np").is_hidden():
                                         _actor.get_python_tag("npc_hud_np").hide()
-                        else:
-                            # Show NPC HUD if it's close
-                            _actor = self.base.game_instance["actors_ref"][k]
-                            if _actor.has_python_tag("npc_hud_np"):
-                                if _actor.get_python_tag("npc_hud_np") is not None:
-                                    _actor.get_python_tag("npc_hud_np").show()
-                elif player_rb_np.get_distance(node_np) >= 25:
-                    # Hide NPCs HUD if it's far
-                    for k in self.base.game_instance["actors_ref"]:
-                        _actor = self.base.game_instance["actors_ref"][k]
-                        if _actor.has_python_tag("npc_hud_np"):
-                            if _actor.get_python_tag("npc_hud_np") is not None:
-                                if not _actor.get_python_tag("npc_hud_np").is_hidden():
-                                    _actor.get_python_tag("npc_hud_np").hide()
 
-            # If I have any melee weapon instead of bow
-            # Show enemy HUD starting from 2 meters
-            elif not base.player_states["has_bow"]:
-                if player_rb_np.get_distance(node_np) > 2:
-                    # Hide NPCs HUD if it's far
-                    for k in self.base.game_instance["actors_ref"]:
-                        _actor = self.base.game_instance["actors_ref"][k]
-                        if _actor.has_python_tag("npc_hud_np"):
-                            if _actor.get_python_tag("npc_hud_np") is not None:
-                                if not _actor.get_python_tag("npc_hud_np").is_hidden():
-                                    _actor.get_python_tag("npc_hud_np").hide()
-                else:
-                    for k in self.base.game_instance["actors_ref"]:
-                        # Hide all other NPC HUDs if visible
-                        if k not in node_np.get_name():
+                # If I have any melee weapon instead of bow
+                # Show enemy HUD starting from 2 meters
+                elif not base.player_states["has_bow"]:
+                    if player_rb_np.get_distance(node_np) > 2:
+                        # Hide NPCs HUD if it's far
+                        for k in self.base.game_instance["actors_ref"]:
                             _actor = self.base.game_instance["actors_ref"][k]
                             if _actor.has_python_tag("npc_hud_np"):
                                 if _actor.get_python_tag("npc_hud_np") is not None:
                                     if not _actor.get_python_tag("npc_hud_np").is_hidden():
                                         _actor.get_python_tag("npc_hud_np").hide()
-                        else:
-                            # Show NPC HUD if it's close
-                            _actor = self.base.game_instance["actors_ref"][k]
-                            if _actor.has_python_tag("npc_hud_np"):
-                                if _actor.get_python_tag("npc_hud_np") is not None:
-                                    _actor.get_python_tag("npc_hud_np").show()
+                    else:
+                        for k in self.base.game_instance["actors_ref"]:
+                            # Hide all other NPC HUDs if visible
+                            if k not in node_np.get_name():
+                                _actor = self.base.game_instance["actors_ref"][k]
+                                if _actor.has_python_tag("npc_hud_np"):
+                                    if _actor.get_python_tag("npc_hud_np") is not None:
+                                        if not _actor.get_python_tag("npc_hud_np").is_hidden():
+                                            _actor.get_python_tag("npc_hud_np").hide()
+                            else:
+                                # Show NPC HUD if it's close
+                                _actor = self.base.game_instance["actors_ref"][k]
+                                if _actor.has_python_tag("npc_hud_np"):
+                                    if _actor.get_python_tag("npc_hud_np") is not None:
+                                        _actor.get_python_tag("npc_hud_np").show()

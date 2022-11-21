@@ -8,7 +8,8 @@ from direct.task.TaskManagerGlobal import taskMgr
 from Settings.UI.rp_lights_manager_ui import RPLightsMgrUI
 from Editor.editor import Editor
 from Settings.UI.hud_ui import HUD
-from Settings.UI.item_menu_ui import ItemMenu
+from Settings.UI.round_table_menu_ui import RoundTableMenu
+from Engine.ChestInventory.chest_ui import ChestUI
 from Settings.UI.stat_ui import StatUI
 
 
@@ -17,7 +18,8 @@ class LoadingUI:
     def __init__(self):
         self.base = base
         self.hud = None
-        self.item_menu = None
+        self.round_table_menu = None
+        self.chest_inventory = None
         self.level_one = LevelOne()
         self.editor = None
         self.rp_lights_mgr_ui = RPLightsMgrUI()
@@ -122,8 +124,11 @@ class LoadingUI:
                 self.hud.set_day_hud()
                 self.hud.set_player_bar()
                 self.hud.set_weapon_ui()
-                self.item_menu = ItemMenu()
-                self.base.game_instance['item_menu_np'] = self.item_menu
+                self.round_table_menu = RoundTableMenu()
+                self.chest_inventory = ChestUI()
+                self.base.game_instance['round_table_menu_np'] = self.round_table_menu
+                self.base.game_instance['chest_inventory_np'] = self.chest_inventory
+                self.chest_inventory.chest_init()
 
             if self.game_settings['Debug']['set_debug_mode'] == 'YES':
                 self.stat_ui.set_game_stat()

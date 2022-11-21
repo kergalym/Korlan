@@ -41,3 +41,6 @@ class Item:
 
     def get_type(self):
         return self.data[1]
+
+    def get_name(self):
+        return self.data[3]

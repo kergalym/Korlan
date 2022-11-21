@@ -17,6 +17,7 @@ rm -rf $BUILDDIR/Assets/Actors
 rm -rf $BUILDDIR/Assets/Animations
 rm -rf $BUILDDIR/Assets/Colliders
 rm -rf $BUILDDIR/Assets/Inventory
+rm -rf $BUILDDIR/Assets/ChestInventory
 rm -rf $BUILDDIR/Assets/Items
 rm -rf $BUILDDIR/Assets/Levels
 rm -rf $BUILDDIR/Assets/Menu

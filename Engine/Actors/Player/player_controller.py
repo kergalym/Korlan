@@ -280,6 +280,7 @@ class PlayerController:
                 # I suddenly can't do it inside the sheet class
                 self.sheet = Sheet()
                 self.sheet.sheet_init()
+                self.base.game_instance["sheet_cls"] = self.sheet
                 base.accept('i', self.sheet.set_sheet)
                 base.accept('close_sheet', self.sheet.clear_sheet)
 
@@ -287,7 +288,7 @@ class PlayerController:
                 self.sheet.add_item_to_inventory(item="Arrows",
                                                  count=10,
                                                  inventory="INVENTORY_2",
-                                                 inventory_type="weapon")
+                                                 item_type="weapon")
                 self.base.shared_functions['add_item_to_inventory'] = self.sheet.add_item_to_inventory
 
                 # Define player attack here
