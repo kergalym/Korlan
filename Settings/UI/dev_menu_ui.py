@@ -108,6 +108,7 @@ class DevMenuUI(DevMode):
 
         """ Buttons & Fonts"""
         self.menu_font = self.fonts['OpenSans-Regular']
+        self.menu_font_color = (0.8, 0.4, 0, 1)
 
     def load_dev_mode_menu(self):
         """ Function    : load_dev_mode_menu
@@ -156,42 +157,42 @@ class DevMenuUI(DevMode):
                                                   parent=self.base.frame_int_dev)
 
         self.lbl_pos_x = DirectLabel(text=self.language['pos_x'], text_bg=(0, 0, 0, 1),
-                                     text_fg=(255, 255, 255, 0.9),
+                                     text_fg=self.menu_font_color,
                                      text_font=self.font.load_font(self.menu_font),
                                      frameColor=(255, 255, 255, self.frm_opacity),
                                      scale=.03, borderWidth=(self.w, self.h),
                                      parent=self.base.frame_int_dev)
 
         self.lbl_pos_y = DirectLabel(text=self.language['pos_y'], text_bg=(0, 0, 0, 1),
-                                     text_fg=(255, 255, 255, 0.9),
+                                     text_fg=self.menu_font_color,
                                      text_font=self.font.load_font(self.menu_font),
                                      frameColor=(255, 255, 255, self.frm_opacity),
                                      scale=.03, borderWidth=(self.w, self.h),
                                      parent=self.base.frame_int_dev)
 
         self.lbl_pos_z = DirectLabel(text=self.language['pos_z'], text_bg=(0, 0, 0, 1),
-                                     text_fg=(255, 255, 255, 0.9),
+                                     text_fg=self.menu_font_color,
                                      text_font=self.font.load_font(self.menu_font),
                                      frameColor=(255, 255, 255, self.frm_opacity),
                                      scale=.03, borderWidth=(self.w, self.h),
                                      parent=self.base.frame_int_dev)
 
         self.lbl_rot_h = DirectLabel(text=self.language['rot_h'], text_bg=(0, 0, 0, 1),
-                                     text_fg=(255, 255, 255, 0.9),
+                                     text_fg=self.menu_font_color,
                                      text_font=self.font.load_font(self.menu_font),
                                      frameColor=(255, 255, 255, self.frm_opacity),
                                      scale=.03, borderWidth=(self.w, self.h),
                                      parent=self.base.frame_int_dev)
 
         self.lbl_rot_p = DirectLabel(text=self.language['rot_p'], text_bg=(0, 0, 0, 1),
-                                     text_fg=(255, 255, 255, 0.9),
+                                     text_fg=self.menu_font_color,
                                      text_font=self.font.load_font(self.menu_font),
                                      frameColor=(255, 255, 255, self.frm_opacity),
                                      scale=.03, borderWidth=(self.w, self.h),
                                      parent=self.base.frame_int_dev)
 
         self.lbl_rot_r = DirectLabel(text=self.language['rot_r'], text_bg=(0, 0, 0, 1),
-                                     text_fg=(255, 255, 255, 0.9),
+                                     text_fg=self.menu_font_color,
                                      text_font=self.font.load_font(self.menu_font),
                                      frameColor=(255, 255, 255, self.frm_opacity),
                                      scale=.03, borderWidth=(self.w, self.h),
@@ -269,7 +270,7 @@ class DevMenuUI(DevMode):
                                              incButtonCallback=self.get_active_node_wrapper)
 
         self.lbl_node_exp = DirectLabel(text=self.language['node_exp'], text_bg=(0, 0, 0, 1),
-                                        text_fg=(255, 255, 255, 0.9),
+                                        text_fg=self.menu_font_color,
                                         text_font=self.font.load_font(self.menu_font),
                                         frameColor=(255, 255, 255, self.frm_opacity),
                                         scale=self.lbl_scale, borderWidth=(self.w, self.h),
@@ -281,7 +282,7 @@ class DevMenuUI(DevMode):
                                               parent=self.base.frame_int_dev, mayChange=True)
 
         self.lbl_cc = DirectLabel(text=self.language['cache_clean'], text_bg=(0, 0, 0, 1),
-                                  text_fg=(255, 255, 255, 0.9),
+                                  text_fg=self.menu_font_color,
                                   text_font=self.font.load_font(self.menu_font),
                                   frameColor=(255, 255, 255, self.frm_opacity),
                                   scale=self.lbl_scale, borderWidth=(self.w, self.h),
@@ -307,7 +308,7 @@ class DevMenuUI(DevMode):
                                       command=self.set_slider_cache_clean_wrapper)
 
         self.btn_back_options = DirectButton(text=self.language['back'],
-                                             text_fg=(255, 255, 255, 0.9),
+                                             text_fg=self.menu_font_color,
                                              text_font=self.font.load_font(self.menu_font),
                                              frameColor=(255, 255, 255, self.frm_opacity),
                                              scale=self.btn_scale, borderWidth=(self.w, self.h),
@@ -317,7 +318,7 @@ class DevMenuUI(DevMode):
                                              command=self.unload_dev_mode_menu)
 
         self.btn_save_changes = DirectButton(text='OK',
-                                             text_fg=(255, 255, 255, 0.9),
+                                             text_fg=self.menu_font_color,
                                              text_font=self.font.load_font(self.menu_font),
                                              frameColor=(255, 255, 255, self.frm_opacity),
                                              scale=self.btn_scale, borderWidth=(self.w, self.h),

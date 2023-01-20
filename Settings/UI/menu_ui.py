@@ -102,6 +102,7 @@ class MenuUI(MenuSettings):
 
         """ Buttons & Fonts"""
         self.menu_font = self.fonts['OpenSans-Regular']
+        self.menu_font_color = (0.8, 0.4, 0, 1)
 
         self.btn_new_game = None
         self.btn_load_game = None
@@ -142,7 +143,7 @@ class MenuUI(MenuSettings):
                                             pos=self.ornament_r_pos, color=(63.9, 63.9, 63.9, 0.5))
 
         self.btn_new_game = DirectButton(text=self.language['new_game'],
-                                         text_fg=(255, 255, 255, 0.9),
+                                         text_fg=self.menu_font_color,
                                          text_font=self.font.load_font(self.menu_font),
                                          frameColor=(0, 0, 0, self.frm_opacity),
                                          scale=self.btn_scale, borderWidth=(self.w, self.h),
@@ -152,7 +153,7 @@ class MenuUI(MenuSettings):
                                          command=self.load_new_game_wrapper)
 
         self.btn_load_game = DirectButton(text=self.language['load_game'],
-                                          text_fg=(255, 255, 255, 0.9),
+                                          text_fg=self.menu_font_color,
                                           text_font=self.font.load_font(self.menu_font),
                                           frameColor=(0, 0, 0, self.frm_opacity),
                                           scale=self.btn_scale, borderWidth=(self.w, self.h),
@@ -162,7 +163,7 @@ class MenuUI(MenuSettings):
                                           command=self.load_game_wrapper)
 
         self.btn_save_game = DirectButton(text=self.language['save_game'],
-                                          text_fg=(255, 255, 255, 0.9),
+                                          text_fg=self.menu_font_color,
                                           text_font=self.font.load_font(self.menu_font),
                                           frameColor=(0, 0, 0, self.frm_opacity),
                                           scale=self.btn_scale, borderWidth=(self.w, self.h),
@@ -172,7 +173,7 @@ class MenuUI(MenuSettings):
                                           command=self.save_game_wrapper)
 
         self.btn_options = DirectButton(text=self.language['options'],
-                                        text_fg=(255, 255, 255, 0.9),
+                                        text_fg=self.menu_font_color,
                                         text_font=self.font.load_font(self.menu_font),
                                         frameColor=(0, 0, 0, self.frm_opacity),
                                         scale=self.btn_scale, borderWidth=(self.w, self.h),
@@ -182,7 +183,7 @@ class MenuUI(MenuSettings):
                                         command=self.menu_options.load_options_menu)
 
         self.btn_credits = DirectButton(text=self.language['credits'],
-                                        text_fg=(255, 255, 255, 0.9),
+                                        text_fg=self.menu_font_color,
                                         text_font=self.font.load_font(self.menu_font),
                                         frameColor=(0, 0, 0, self.frm_opacity),
                                         scale=self.btn_scale, borderWidth=(self.w, self.h),
@@ -192,7 +193,7 @@ class MenuUI(MenuSettings):
                                         command="")
 
         self.btn_dev_mode = DirectButton(text=self.language['dev_mode'],
-                                         text_fg=(255, 255, 255, 0.9),
+                                         text_fg=self.menu_font_color,
                                          text_font=self.font.load_font(self.menu_font),
                                          frameColor=(0, 0, 0, self.frm_opacity),
                                          scale=self.btn_scale, borderWidth=(self.w, self.h),
@@ -202,7 +203,7 @@ class MenuUI(MenuSettings):
                                          command=self.menu_dev.load_dev_mode_menu)
 
         self.btn_exit = DirectButton(text=self.language['quit_game'],
-                                     text_fg=(255, 255, 255, 0.9),
+                                     text_fg=self.menu_font_color,
                                      text_font=self.font.load_font(self.menu_font),
                                      frameColor=(0, 0, 0, self.frm_opacity),
                                      scale=self.btn_scale, borderWidth=(self.w, self.h),

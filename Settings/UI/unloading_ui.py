@@ -28,6 +28,7 @@ class UnloadingUI:
         self.frm_opacity = 1
         """ Texts & Fonts"""
         self.menu_font = self.fonts['OpenSans-Regular']
+        self.menu_font_color = (0.8, 0.4, 0, 1)
 
         self.unloading_text = None
         self.base.game_instance['unloading_is_done'] = 0
@@ -42,7 +43,7 @@ class UnloadingUI:
         self.unloading_text = OnscreenText(text="",
                                            pos=(-1.8, 0.9),
                                            scale=0.03,
-                                           fg=(255, 255, 255, 0.9),
+                                           fg=self.menu_font_color,
                                            font=self.font.load_font(self.menu_font),
                                            align=TextNode.ALeft,
                                            mayChange=True)

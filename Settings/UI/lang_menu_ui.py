@@ -92,6 +92,7 @@ class LangMenuUI(Language):
 
         """ Buttons & Fonts"""
         self.menu_font = self.fonts['OpenSans-Regular']
+        self.menu_font_color = (0.8, 0.4, 0, 1)
 
     def load_language_menu(self):
         """ Function    : load_language_menu
@@ -129,35 +130,35 @@ class LangMenuUI(Language):
         self.base.build_info.reparent_to(self.base.frame_int_lang)
 
         self.lbl_lang_title = DirectLabel(text=self.language['language'],
-                                          text_fg=(255, 255, 255, 1),
+                                          text_fg=self.menu_font_color,
                                           text_font=self.font.load_font(self.menu_font),
                                           frameColor=(255, 255, 255, 0),
                                           scale=.07, borderWidth=(self.w, self.h),
                                           parent=self.base.frame_int_lang)
 
         self.lbl_english = DirectLabel(text=self.language['english'],
-                                       text_fg=(255, 255, 255, 1),
+                                       text_fg=self.menu_font_color,
                                        text_font=self.font.load_font(self.menu_font),
                                        frameColor=(255, 255, 255, 0),
                                        scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                        parent=self.base.frame_int_lang)
 
         self.lbl_kazakh = DirectLabel(text=self.language['kazakh'],
-                                      text_fg=(255, 255, 255, 1),
+                                      text_fg=self.menu_font_color,
                                       text_font=self.font.load_font(self.menu_font),
                                       frameColor=(255, 255, 255, 0),
                                       scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                       parent=self.base.frame_int_lang)
 
         self.lbl_russian = DirectLabel(text=self.language['russian'],
-                                       text_fg=(255, 255, 255, 1),
+                                       text_fg=self.menu_font_color,
                                        text_font=self.font.load_font(self.menu_font),
                                        frameColor=(255, 255, 255, 0),
                                        scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                        parent=self.base.frame_int_lang)
 
         self.btn_param_defaults = DirectButton(text="Load defaults",
-                                               text_fg=(255, 255, 255, 1),
+                                               text_fg=self.menu_font_color,
                                                text_font=self.font.load_font(self.menu_font),
                                                frameColor=(255, 255, 255, 0),
                                                scale=self.btn_scale, borderWidth=(self.w, self.h),
@@ -167,7 +168,7 @@ class LangMenuUI(Language):
                                                command=self.set_default_language)
 
         self.btn_param_back = DirectButton(text="Back",
-                                           text_fg=(255, 255, 255, 1),
+                                           text_fg=self.menu_font_color,
                                            text_font=self.font.load_font(self.menu_font),
                                            frameColor=(255, 255, 255, 0),
                                            scale=self.btn_scale, borderWidth=(self.w, self.h),

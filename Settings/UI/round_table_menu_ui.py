@@ -38,6 +38,8 @@ class RoundTableMenu:
         self.btn_select_dec = None
 
         self.menu_font = self.fonts['OpenSans-Regular']
+        self.menu_font_color = (0.8, 0.4, 0, 1)
+
         # instance of the abstract class
         self.font = FontPool
         self.text = TextNode("TextNode")
@@ -255,7 +257,7 @@ class RoundTableMenu:
                                       deselect_btn_maps.find('**/button_deselect_rollover'))
 
                 self.btn_select_item = DirectButton(text="",
-                                                    text_fg=(255, 255, 255, 0.9),
+                                                    text_fg=self.menu_font_color,
                                                     text_font=self.font.load_font(self.menu_font),
                                                     frameColor=(0, 0, 0, 0),
                                                     scale=0.05, borderWidth=(0, 0),
@@ -265,7 +267,7 @@ class RoundTableMenu:
                                                     pos=(-0.3, 0, -0.7),
                                                     parent=self.item_menu_ui)
                 self.btn_deselect_item = DirectButton(text="",
-                                                      text_fg=(255, 255, 255, 0.9),
+                                                      text_fg=self.menu_font_color,
                                                       text_font=self.font.load_font(self.menu_font),
                                                       frameColor=(0, 0, 0, 0),
                                                       scale=0.05, borderWidth=(0, 0),
@@ -320,7 +322,7 @@ class RoundTableMenu:
                             return_btn_maps.find('**/button_return_rollover'))
 
         self.btn_close = DirectButton(text="",
-                                      text_fg=(255, 255, 255, 0.9),
+                                      text_fg=self.menu_font_color,
                                       text_font=self.font.load_font(self.menu_font),
                                       frameColor=(0, 0, 0, 0),
                                       scale=self.btn_scale, borderWidth=(0, 0),
@@ -378,7 +380,7 @@ class RoundTableMenu:
         player = self.base.game_instance["player_ref"]
         if not player.get_python_tag("used_item_np"):
             self.btn_select_item = DirectButton(text="",
-                                                text_fg=(255, 255, 255, 0.9),
+                                                text_fg=self.menu_font_color,
                                                 text_font=self.font.load_font(self.menu_font),
                                                 frameColor=(0, 0, 0, 0),
                                                 scale=0.05, borderWidth=(0, 0),
@@ -388,7 +390,7 @@ class RoundTableMenu:
                                                 pos=(-0.3, 0, -0.7),
                                                 parent=self.item_menu_ui)
             self.btn_deselect_item = DirectButton(text="",
-                                                  text_fg=(255, 255, 255, 0.9),
+                                                  text_fg=self.menu_font_color,
                                                   text_font=self.font.load_font(self.menu_font),
                                                   frameColor=(0, 0, 0, 0),
                                                   scale=0.05, borderWidth=(0, 0),
@@ -401,7 +403,7 @@ class RoundTableMenu:
             self.btn_select_inc["state"] = DGG.NORMAL
         else:
             self.btn_return_item = DirectButton(text="",
-                                                text_fg=(255, 255, 255, 0.9),
+                                                text_fg=self.menu_font_color,
                                                 text_font=self.font.load_font(self.menu_font),
                                                 frameColor=(0, 0, 0, 0),
                                                 scale=0.05, borderWidth=(0, 0),
@@ -444,7 +446,7 @@ class RoundTableMenu:
             self.active_item_text = OnscreenText(text="{0}".format(name),
                                                  pos=self.active_item_text_pos,
                                                  scale=self.active_item_text_scale,
-                                                 fg=self.active_item_text_color,
+                                                 fg=self.menu_font_color,
                                                  font=self.font.load_font(self.menu_font),
                                                  align=TextNode.A_center,
                                                  mayChange=True)

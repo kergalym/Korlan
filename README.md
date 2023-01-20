@@ -1,5 +1,5 @@
 ### Korlan -- Daughter of the Steppes ###
-<img src="https://i.imgur.com/JZ7SrEd.png" />
+![image info](./screenshoots/main_scr.png)
 
 ### About ###
 Development of 3D-person adventure openworld game about a family of the nomads, their life and struggle for survival in a harsh steppe full of danger.
@@ -8,13 +8,20 @@ The Game is dedicated to Tengri and Tengrism.
 
 ### Early Game Gallery (Working in progress) ###
 
-<img src="https://i.imgur.com/LtYdSvh.png" />
+![image info](./screenshoots/main_menu_scr.png)
+ Main menu Overview
+ 
+![image info](./screenshoots/loading_scr.png)
+ Loading screen Overview
+ 
+![image info](./screenshoots/horse_riding_scr.png)
+![image info](./screenshoots/round_table_menu_scr.png)
  Game Overview
 
-<img src="https://i.imgur.com/kjNPyKd.png" />
+![image info](./screenshoots/inventory_scr.png)
  Inventory Overview
 
-<img src="https://i.imgur.com/CYPivTC.jpg" />
+![image info](./screenshoots/weapons_scr.jpg)
  Weapons Overview
 
 ### Game Code License ###

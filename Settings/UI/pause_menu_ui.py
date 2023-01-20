@@ -94,6 +94,7 @@ class PauseMenuUI(MenuSettings):
 
         """ Buttons & Fonts"""
         self.menu_font = self.fonts['OpenSans-Regular']
+        self.menu_font_color = (0.8, 0.4, 0, 1)
 
     def load_pause_menu(self):
         """ Function    : load_pause_menu
@@ -146,7 +147,7 @@ class PauseMenuUI(MenuSettings):
             self.base.build_info.reparent_to(self.base.frame_int_pause)
 
             self.btn_continue = DirectButton(text=self.language['continue'],
-                                             text_fg=(255, 255, 255, 0.9),
+                                             text_fg=self.menu_font_color,
                                              text_font=self.font.load_font(self.menu_font),
                                              frameColor=(0, 0, 0, self.frm_opacity),
                                              scale=self.btn_scale, borderWidth=(self.w, self.h),
@@ -156,7 +157,7 @@ class PauseMenuUI(MenuSettings):
                                              command=self.unload_pause_menu)
 
             self.btn_game = DirectButton(text=self.language['game'],
-                                         text_fg=(255, 255, 255, 0.9),
+                                         text_fg=self.menu_font_color,
                                          text_font=self.font.load_font(self.menu_font),
                                          frameColor=(0, 0, 0, self.frm_opacity),
                                          scale=self.btn_scale, borderWidth=(self.w, self.h),
@@ -166,7 +167,7 @@ class PauseMenuUI(MenuSettings):
                                          command=self.ui_game.load_game_menu)
 
             self.btn_gfx = DirectButton(text=self.language['graphics'],
-                                        text_fg=(255, 255, 255, 0.9),
+                                        text_fg=self.menu_font_color,
                                         text_font=self.font.load_font(self.menu_font),
                                         frameColor=(0, 0, 0, self.frm_opacity),
                                         scale=self.btn_scale, borderWidth=(self.w, self.h),
@@ -176,7 +177,7 @@ class PauseMenuUI(MenuSettings):
                                         command=self.ui_gfx.load_graphics_menu)
 
             self.btn_sound = DirectButton(text=self.language['sound'],
-                                          text_fg=(255, 255, 255, 0.9),
+                                          text_fg=self.menu_font_color,
                                           text_font=self.font.load_font(self.menu_font),
                                           frameColor=(0, 0, 0, self.frm_opacity),
                                           scale=self.btn_scale, borderWidth=(self.w, self.h),
@@ -186,7 +187,7 @@ class PauseMenuUI(MenuSettings):
                                           command=self.ui_snd.load_sound_menu)
 
             self.btn_language = DirectButton(text=self.language['language'],
-                                             text_fg=(255, 255, 255, 0.9),
+                                             text_fg=self.menu_font_color,
                                              text_font=self.font.load_font(self.menu_font),
                                              frameColor=(0, 0, 0, self.frm_opacity),
                                              scale=self.btn_scale, borderWidth=(self.w, self.h),
@@ -196,7 +197,7 @@ class PauseMenuUI(MenuSettings):
                                              command=self.ui_lng.load_language_menu)
 
             self.btn_keymap = DirectButton(text=self.language['keymap'],
-                                           text_fg=(255, 255, 255, 0.9),
+                                           text_fg=self.menu_font_color,
                                            text_font=self.font.load_font(self.menu_font),
                                            frameColor=(0, 0, 0, self.frm_opacity),
                                            scale=self.btn_scale, borderWidth=(self.w, self.h),
@@ -206,7 +207,7 @@ class PauseMenuUI(MenuSettings):
                                            command=self.ui_kmp.load_keymap_menu)
 
             self.btn_exit_game = DirectButton(text=self.language['exit_game'],
-                                              text_fg=(255, 255, 255, 0.9),
+                                              text_fg=self.menu_font_color,
                                               text_font=self.font.load_font(self.menu_font),
                                               frameColor=(0, 0, 0, self.frm_opacity),
                                               scale=self.btn_scale, borderWidth=(self.w, self.h),

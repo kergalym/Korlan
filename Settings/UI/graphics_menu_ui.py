@@ -149,6 +149,7 @@ class GraphicsMenuUI(Graphics):
 
         """ Buttons & Fonts"""
         self.menu_font = self.fonts['OpenSans-Regular']
+        self.menu_font_color = (0.8, 0.4, 0, 1)
 
     def load_graphics_menu(self):
         """ Function    : load_graphics_menu
@@ -185,140 +186,140 @@ class GraphicsMenuUI(Graphics):
         self.base.build_info.reparent_to(self.base.frame_int_gfx)
 
         self.lbl_gfx_title = DirectLabel(text=self.language['graphics'],
-                                         text_fg=(255, 255, 255, 1),
+                                         text_fg=self.menu_font_color,
                                          text_font=self.font.load_font(self.menu_font),
                                          frameColor=(255, 255, 255, 0),
                                          scale=.07, borderWidth=(self.w, self.h),
                                          parent=self.base.frame_int_gfx)
 
         self.lbl_disp_res = DirectLabel(text=self.language['disp_res'],
-                                        text_fg=(255, 255, 255, 1),
+                                        text_fg=self.menu_font_color,
                                         text_font=self.font.load_font(self.menu_font),
                                         frameColor=(255, 255, 255, 0),
                                         scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                         parent=self.base.frame_int_gfx)
 
         self.lbl_details = DirectLabel(text=self.language['details'],
-                                       text_fg=(255, 255, 255, 1),
+                                       text_fg=self.menu_font_color,
                                        text_font=self.font.load_font(self.menu_font),
                                        frameColor=(255, 255, 255, 0),
                                        scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                        parent=self.base.frame_int_gfx)
 
         self.lbl_texcomp = DirectLabel(text=self.language['texcomp'],
-                                       text_fg=(255, 255, 255, 1),
+                                       text_fg=self.menu_font_color,
                                        text_font=self.font.load_font(self.menu_font),
                                        frameColor=(255, 255, 255, 0),
                                        scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                        parent=self.base.frame_int_gfx)
 
         self.lbl_shadows = DirectLabel(text=self.language['shadows'],
-                                       text_fg=(255, 255, 255, 1),
+                                       text_fg=self.menu_font_color,
                                        text_font=self.font.load_font(self.menu_font),
                                        frameColor=(255, 255, 255, 0),
                                        scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                        parent=self.base.frame_int_gfx)
 
         self.lbl_antialiasing = DirectLabel(text=self.language['antialiasing'],
-                                            text_fg=(255, 255, 255, 1),
+                                            text_fg=self.menu_font_color,
                                             text_font=self.font.load_font(self.menu_font),
                                             frameColor=(255, 255, 255, 0),
                                             scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                             parent=self.base.frame_int_gfx)
 
         self.lbl_ao = DirectLabel(text=self.language['ao'],
-                                  text_fg=(255, 255, 255, 1),
+                                  text_fg=self.menu_font_color,
                                   text_font=self.font.load_font(self.menu_font),
                                   frameColor=(255, 255, 255, 0),
                                   scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                   parent=self.base.frame_int_gfx)
 
         self.lbl_bloom = DirectLabel(text=self.language['bloom'],
-                                     text_fg=(255, 255, 255, 1),
+                                     text_fg=self.menu_font_color,
                                      text_font=self.font.load_font(self.menu_font),
                                      frameColor=(255, 255, 255, 0),
                                      scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                      parent=self.base.frame_int_gfx)
 
         self.lbl_clouds = DirectLabel(text=self.language['clouds'],
-                                      text_fg=(255, 255, 255, 1),
+                                      text_fg=self.menu_font_color,
                                       text_font=self.font.load_font(self.menu_font),
                                       frameColor=(255, 255, 255, 0),
                                       scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                       parent=self.base.frame_int_gfx)
 
         self.lbl_cc = DirectLabel(text=self.language['cc'],
-                                  text_fg=(255, 255, 255, 1),
+                                  text_fg=self.menu_font_color,
                                   text_font=self.font.load_font(self.menu_font),
                                   frameColor=(255, 255, 255, 0),
                                   scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                   parent=self.base.frame_int_gfx)
 
         self.lbl_scattering = DirectLabel(text=self.language['scattering'],
-                                          text_fg=(255, 255, 255, 1),
+                                          text_fg=self.menu_font_color,
                                           text_font=self.font.load_font(self.menu_font),
                                           frameColor=(255, 255, 255, 0),
                                           scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                           parent=self.base.frame_int_gfx)
 
         self.lbl_sky_ao = DirectLabel(text=self.language['sky_ao'],
-                                      text_fg=(255, 255, 255, 1),
+                                      text_fg=self.menu_font_color,
                                       text_font=self.font.load_font(self.menu_font),
                                       frameColor=(255, 255, 255, 0),
                                       scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                       parent=self.base.frame_int_gfx)
 
         self.lbl_ssr = DirectLabel(text=self.language['ssr'],
-                                   text_fg=(255, 255, 255, 1),
+                                   text_fg=self.menu_font_color,
                                    text_font=self.font.load_font(self.menu_font),
                                    frameColor=(255, 255, 255, 0),
                                    scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                    parent=self.base.frame_int_gfx)
 
         self.lbl_forward_shading = DirectLabel(text=self.language['forward_shading'],
-                                               text_fg=(255, 255, 255, 1),
+                                               text_fg=self.menu_font_color,
                                                text_font=self.font.load_font(self.menu_font),
                                                frameColor=(255, 255, 255, 0),
                                                scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                                parent=self.base.frame_int_gfx)
 
         self.lbl_skin_shading = DirectLabel(text=self.language['skin_shading'],
-                                            text_fg=(255, 255, 255, 1),
+                                            text_fg=self.menu_font_color,
                                             text_font=self.font.load_font(self.menu_font),
                                             frameColor=(255, 255, 255, 0),
                                             scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                             parent=self.base.frame_int_gfx)
 
         self.lbl_pssm = DirectLabel(text=self.language['pssm'],
-                                    text_fg=(255, 255, 255, 1),
+                                    text_fg=self.menu_font_color,
                                     text_font=self.font.load_font(self.menu_font),
                                     frameColor=(255, 255, 255, 0),
                                     scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                     parent=self.base.frame_int_gfx)
 
         self.lbl_dof = DirectLabel(text=self.language['dof'],
-                                   text_fg=(255, 255, 255, 1),
+                                   text_fg=self.menu_font_color,
                                    text_font=self.font.load_font(self.menu_font),
                                    frameColor=(255, 255, 255, 0),
                                    scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                    parent=self.base.frame_int_gfx)
 
         self.lbl_env_probes = DirectLabel(text=self.language['env_probes'],
-                                          text_fg=(255, 255, 255, 1),
+                                          text_fg=self.menu_font_color,
                                           text_font=self.font.load_font(self.menu_font),
                                           frameColor=(255, 255, 255, 0),
                                           scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                           parent=self.base.frame_int_gfx)
 
         self.lbl_motion_blur = DirectLabel(text=self.language['motion_blur'],
-                                           text_fg=(255, 255, 255, 1),
+                                           text_fg=self.menu_font_color,
                                            text_font=self.font.load_font(self.menu_font),
                                            frameColor=(255, 255, 255, 0),
                                            scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                            parent=self.base.frame_int_gfx)
 
         self.lbl_volumetrics = DirectLabel(text=self.language['volumetrics'],
-                                           text_fg=(255, 255, 255, 1),
+                                           text_fg=self.menu_font_color,
                                            text_font=self.font.load_font(self.menu_font),
                                            frameColor=(255, 255, 255, 0),
                                            scale=self.lbl_scale, borderWidth=(self.w, self.h),
@@ -559,7 +560,7 @@ class GraphicsMenuUI(Graphics):
                                                  parent=self.base.frame_int_gfx, mayChange=True)
 
         self.btn_param_defaults = DirectButton(text="Load defaults",
-                                               text_fg=(255, 255, 255, 1),
+                                               text_fg=self.menu_font_color,
                                                text_font=self.font.load_font(self.menu_font),
                                                frameColor=(255, 255, 255, 0),
                                                scale=self.btn_scale, borderWidth=(self.w, self.h),
@@ -569,7 +570,7 @@ class GraphicsMenuUI(Graphics):
                                                command=self.set_default_gfx)
 
         self.btn_param_accept = DirectButton(text="OK",
-                                             text_fg=(255, 255, 255, 1),
+                                             text_fg=self.menu_font_color,
                                              text_font=self.font.load_font(self.menu_font),
                                              frameColor=(255, 255, 255, 0),
                                              scale=self.btn_scale, borderWidth=(self.w, self.h),

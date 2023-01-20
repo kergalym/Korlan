@@ -97,6 +97,7 @@ class SoundMenuUI(Sound):
 
         """ Buttons & Fonts"""
         self.menu_font = self.fonts['OpenSans-Regular']
+        self.menu_font_color = (0.8, 0.4, 0, 1)
 
     def load_sound_menu(self):
         """ Function    : load_sound_menu
@@ -134,28 +135,28 @@ class SoundMenuUI(Sound):
         self.base.build_info.reparent_to(self.base.frame_int_snd)
 
         self.lbl_snd_title = DirectLabel(text=self.language['sound'], 
-                                         text_fg=(255, 255, 255, 1),
+                                         text_fg=self.menu_font_color,
                                          text_font=self.font.load_font(self.menu_font),
                                          frameColor=(255, 255, 255, 0),
                                          scale=.07, borderWidth=(self.w, self.h),
                                          parent=self.base.frame_int_snd)
 
         self.lbl_sound = DirectLabel(text=self.language['sound'], 
-                                     text_fg=(255, 255, 255, 1),
+                                     text_fg=self.menu_font_color,
                                      text_font=self.font.load_font(self.menu_font),
                                      frameColor=(255, 255, 255, 0),
                                      scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                      parent=self.base.frame_int_snd)
 
         self.lbl_music = DirectLabel(text=self.language['music'], 
-                                     text_fg=(255, 255, 255, 1),
+                                     text_fg=self.menu_font_color,
                                      text_font=self.font.load_font(self.menu_font),
                                      frameColor=(255, 255, 255, 0),
                                      scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                      parent=self.base.frame_int_snd)
 
         self.lbl_effects = DirectLabel(text=self.language['effects'], 
-                                       text_fg=(255, 255, 255, 1),
+                                       text_fg=self.menu_font_color,
                                        text_font=self.font.load_font(self.menu_font),
                                        frameColor=(255, 255, 255, 0),
                                        scale=self.lbl_scale, borderWidth=(self.w, self.h),
@@ -193,7 +194,7 @@ class SoundMenuUI(Sound):
                                              parent=self.base.frame_int_snd, mayChange=True)
 
         self.btn_param_defaults = DirectButton(text="Load defaults", 
-                                               text_fg=(255, 255, 255, 1),
+                                               text_fg=self.menu_font_color,
                                                text_font=self.font.load_font(self.menu_font),
                                                frameColor=(255, 255, 255, 0),
                                                scale=self.btn_scale, borderWidth=(self.w, self.h),
@@ -203,7 +204,7 @@ class SoundMenuUI(Sound):
                                                command=self.set_default_snd)
 
         self.btn_param_accept = DirectButton(text="OK",
-                                             text_fg=(255, 255, 255, 1),
+                                             text_fg=self.menu_font_color,
                                              text_font=self.font.load_font(self.menu_font),
                                              frameColor=(255, 255, 255, 0),
                                              scale=self.btn_scale, borderWidth=(self.w, self.h),

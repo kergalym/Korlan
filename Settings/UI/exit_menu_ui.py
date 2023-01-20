@@ -85,6 +85,7 @@ class ExitMenuUI(ExitGame):
 
         """ Buttons & Fonts"""
         self.menu_font = self.fonts['OpenSans-Regular']
+        self.menu_font_color = (0.8, 0.4, 0, 1)
 
     def load_exit_menu(self):
         """ Function    : load_exit_menu
@@ -122,14 +123,14 @@ class ExitMenuUI(ExitGame):
         self.base.build_info.reparent_to(self.base.frame_int_exit)
 
         self.lbl_exit_title = DirectLabel(text=self.language['game_exit_title'],
-                                          text_fg=(255, 255, 255, 1),
+                                          text_fg=self.menu_font_color,
                                           text_font=self.font.load_font(self.menu_font),
                                           frameColor=(255, 255, 255, 0),
                                           scale=.07, borderWidth=(self.w, self.h),
                                           parent=self.base.frame_int_exit)
 
         self.btn_param_decline = DirectButton(text=self.language['no_exit_game'],
-                                              text_fg=(255, 255, 255, 1),
+                                              text_fg=self.menu_font_color,
                                               text_font=self.font.load_font(self.menu_font),
                                               frameColor=(255, 255, 255, 0),
                                               scale=self.btn_scale, borderWidth=(self.w, self.h),
@@ -139,7 +140,7 @@ class ExitMenuUI(ExitGame):
                                               command=self.unload_exit_menu)
 
         self.btn_param_accept = DirectButton(text=self.language['yes_exit_game'],
-                                             text_fg=(255, 255, 255, 1),
+                                             text_fg=self.menu_font_color,
                                              text_font=self.font.load_font(self.menu_font),
                                              frameColor=(255, 255, 255, 0),
                                              scale=self.btn_scale, borderWidth=(self.w, self.h),

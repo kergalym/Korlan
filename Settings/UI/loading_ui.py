@@ -2,7 +2,7 @@ from direct.gui.DirectGui import *
 from direct.interval.FunctionInterval import Wait, Func
 from direct.interval.MetaInterval import Parallel, Sequence
 from direct.showbase.ShowBaseGlobal import aspect2d
-from panda3d.core import FontPool, TextNode
+from panda3d.core import FontPool, TextNode, TransparencyAttrib
 from Engine.Scenes.level_one import LevelOne
 from direct.task.TaskManagerGlobal import taskMgr
 from Settings.UI.rp_lights_manager_ui import RPLightsMgrUI
@@ -25,6 +25,7 @@ class LoadingUI:
         self.rp_lights_mgr_ui = RPLightsMgrUI()
         self.game_settings = base.game_settings
         self.game_dir = base.game_dir
+        self.images = base.textures_collector(path="Settings/UI")
         self.fonts = base.fonts_collector()
         # instance of the abstract class
         self.font = FontPool
@@ -36,6 +37,7 @@ class LoadingUI:
         self.loading_screen = None
         self.loading_frame = None
         self.loading_bar = None
+        self.loading_bar_image = None
         self.media = None
 
         """ Frame Sizes """
@@ -44,8 +46,13 @@ class LoadingUI:
 
         """ Frame Colors """
         self.frm_opacity = 1
+
+        """ Logo & Ornament Scaling, Positioning """
+        self.loading_bar_image_pos = (0, 0.4, -0.90)
+
         """ Texts & Fonts"""
         self.menu_font = self.fonts['OpenSans-Regular']
+        self.menu_font_color = (0.8, 0.4, 0, 1)
 
         self.title_loading_text = None
         self.base.game_instance['loading_is_done'] = 0
@@ -68,9 +75,9 @@ class LoadingUI:
 
         assets = base.assets_collector()
         self.title_loading_text = OnscreenText(text="",
-                                               pos=(-0.8, -0.8),
-                                               scale=0.04,
-                                               fg=(255, 255, 255, 0.9),
+                                               pos=(-0.8, -0.73),
+                                               scale=0.03,
+                                               fg=self.menu_font_color,
                                                font=self.font.load_font(self.menu_font),
                                                align=TextNode.ALeft,
                                                mayChange=True)
@@ -78,13 +85,21 @@ class LoadingUI:
         self.loading_bar = DirectWaitBar(text="",
                                          value=0,
                                          range=100,
-                                         frameColor=(0, 0.1, 0.1, self.frm_opacity),
-                                         barColor=(0.6, 0, 0, 1),
-                                         pos=(0, 0.4, -0.95))
+                                         frameColor=(0.1, 0, 0, self.frm_opacity),
+                                         barTexture=self.images['loading_bar_thumb_ui'],
+                                         pos=(0, 0.4, -0.90))
 
         self.loading_screen = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
-                                          frameSize=self.loading_frame_size)
+                                          frameSize=self.loading_frame_size,
+                                          image=self.images['loading_layout'],
+                                          image_scale=(1.9, 1, 1))
         self.loading_screen.set_name("LoadingScreen")
+        self.loading_screen.set_transparency(TransparencyAttrib.MAlpha)
+
+        self.loading_bar_image = OnscreenImage(image=self.images['loading_bar_ui'],
+                                               pos=self.loading_bar_image_pos)
+        self.loading_bar_image.set_scale(0.9, 0, 0.1)
+        self.loading_bar_image.set_transparency(TransparencyAttrib.MDual)
 
         if self.loading_screen:
             self.media = base.load_video(file="circle", type="loading_menu")
@@ -93,7 +108,8 @@ class LoadingUI:
                 self.media.play()
                 self.media.set_play_rate(0.5)
 
-        self.loading_bar.set_scale(0.9, 0, 0.1)
+        self.loading_bar.set_scale(0.76, 0, 0.3)
+        self.loading_bar.set_transparency(TransparencyAttrib.MAlpha)
         self.loading_bar.reparent_to(self.loading_screen)
         self.title_loading_text.reparent_to(self.loading_screen)
 
@@ -108,6 +124,9 @@ class LoadingUI:
             self.loading_screen.hide()
             self.loading_screen.destroy()
             self.base.build_info.reparent_to(aspect2d)
+        if self.loading_bar_image:
+            self.loading_bar_image.hide()
+            self.loading_bar_image.destroy()
         if self.title_loading_text:
             self.title_loading_text.hide()
             self.title_loading_text.destroy()
@@ -202,14 +221,19 @@ class LoadingUI:
                 asset_num = len(assets['name'])
                 if self.game_settings['Debug']['set_debug_mode'] == "YES":
                     # Exclude game level scene asset
-                    asset_num = len(assets['name'])-1
+                    asset_num = len(assets['name']) - 1
                 self.loading_bar['range'] = asset_num - 1
 
                 if num < asset_num:
                     if self.loading_bar:
                         self.loading_bar['value'] = num
-                        txt = "Loading asset: {0}\n Loaded: {1}\n Total: {2}".format(assets['name'][num], num,
-                                                                                     len(assets['name']))
+                        # Set loading progress text
+                        txt = ''
+                        if num <= 1:
+                            txt = "Loading asset: {0}\n".format(assets['name'][num])
+                        elif num > 1:
+                            txt = "Loading asset: {0}\n Loaded: {1}".format(assets['name'][num],
+                                                                            assets['name'][num - 1])
                         self.title_loading_text.setText(txt)
 
                 elif num == asset_num:
@@ -218,8 +242,11 @@ class LoadingUI:
                         last_np = assets['name'][asset_num - 1]
                         if render.find("**/{0}".format(last_np)):
                             self.loading_bar.hide()
+                            self.loading_bar_image.hide()
+
                             txt = "Press Enter to continue..."
                             self.title_loading_text.setText(txt)
+                            self.title_loading_text.setScale(0.05)
                             self.title_loading_text['align'] = TextNode.A_center
                             self.title_loading_text['pos'] = (0.0, -0.8)
 

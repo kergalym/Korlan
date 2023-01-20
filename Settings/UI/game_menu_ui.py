@@ -100,6 +100,7 @@ class GameMenuUI(Game):
 
         """ Buttons & Fonts"""
         self.menu_font = self.fonts['OpenSans-Regular']
+        self.menu_font_color = (0.8, 0.4, 0, 1)
 
     def load_game_menu(self):
         """ Function    : load_sound_menu
@@ -137,35 +138,35 @@ class GameMenuUI(Game):
         self.base.build_info.reparent_to(self.base.frame_int_game)
 
         self.lbl_game_title = DirectLabel(text=self.language['game'],
-                                          text_fg=(255, 255, 255, 1),
+                                          text_fg=self.menu_font_color,
                                           text_font=self.font.load_font(self.menu_font),
                                           frameColor=(255, 255, 255, 0),
                                           scale=.07, borderWidth=(self.w, self.h),
                                           parent=self.base.frame_int_game)
 
         self.lbl_person_look_mode = DirectLabel(text=self.language['person_look_mode'],
-                                                text_fg=(255, 255, 255, 1),
+                                                text_fg=self.menu_font_color,
                                                 text_font=self.font.load_font(self.menu_font),
                                                 frameColor=(255, 255, 255, 0),
                                                 scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                                 parent=self.base.frame_int_game)
 
         self.lbl_gameplay_mode = DirectLabel(text=self.language['gameplay_mode'],
-                                             text_fg=(255, 255, 255, 1),
+                                             text_fg=self.menu_font_color,
                                              text_font=self.font.load_font(self.menu_font),
                                              frameColor=(255, 255, 255, 0),
                                              scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                              parent=self.base.frame_int_game)
 
         self.lbl_show_blood = DirectLabel(text=self.language['show_blood'],
-                                          text_fg=(255, 255, 255, 1),
+                                          text_fg=self.menu_font_color,
                                           text_font=self.font.load_font(self.menu_font),
                                           frameColor=(255, 255, 255, 0),
                                           scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                           parent=self.base.frame_int_game)
 
         self.lbl_cam_distance = DirectLabel(text=self.language['camera_distance'],
-                                            text_fg=(255, 255, 255, 1),
+                                            text_fg=self.menu_font_color,
                                             text_font=self.font.load_font(self.menu_font),
                                             frameColor=(255, 255, 255, 0),
                                             scale=self.lbl_scale, borderWidth=(self.w, self.h),
@@ -216,7 +217,7 @@ class GameMenuUI(Game):
                                                   parent=self.base.frame_int_game, mayChange=True)
 
         self.btn_param_defaults = DirectButton(text="Load defaults",
-                                               text_fg=(255, 255, 255, 1),
+                                               text_fg=self.menu_font_color,
                                                text_font=self.font.load_font(self.menu_font),
                                                frameColor=(255, 255, 255, 0),
                                                scale=self.btn_scale, borderWidth=(self.w, self.h),
@@ -226,7 +227,7 @@ class GameMenuUI(Game):
                                                command=self.set_default_game)
 
         self.btn_param_accept = DirectButton(text="OK",
-                                             text_fg=(255, 255, 255, 1),
+                                             text_fg=self.menu_font_color,
                                              text_font=self.font.load_font(self.menu_font),
                                              frameColor=(255, 255, 255, 0),
                                              scale=self.btn_scale, borderWidth=(self.w, self.h),
