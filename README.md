@@ -12,6 +12,7 @@ The Game is dedicated to Tengri and Tengrism.
  Main menu Overview
  
 ![image info](./screenshoots/loading_scr.png)
+![image info](./screenshoots/loading2_scr.png)
  Loading screen Overview
  
 ![image info](./screenshoots/horse_riding_scr.png)
