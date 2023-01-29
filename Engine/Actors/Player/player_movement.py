@@ -31,12 +31,6 @@ class PlayerMovement:
         self.exclude_while_move.pop("has_tengri")
         self.exclude_while_move.pop("has_umai")
 
-        # Smooth velocity change
-        self.max_move_unit = 2
-        self.max_run_unit = 5
-        self.current_move_unit = 0
-        self.smooth_speed_sequence = Sequence()
-
     def seq_turning_wrapper(self, player, anims, action, state):
         if player and anims and isinstance(state, str):
             turning_seq = player.get_anim_control(anims[action])
@@ -208,60 +202,6 @@ class PlayerMovement:
         if not any(self.exclude_while_move.values()):
             return True
 
-    def increment_walking_speed_smooth(self):
-        if self.current_move_unit < self.max_move_unit:
-            self.current_move_unit += 1
-
-    def decrement_walking_speed_smooth(self):
-        if self.current_move_unit > 0:
-            self.current_move_unit -= 1
-
-    def on_smooth_forward_walking(self):
-        if not self.smooth_speed_sequence.is_playing():
-            par = Parallel(Wait(0.015),
-                           Func(self.increment_walking_speed_smooth)
-                           )
-            self.smooth_speed_sequence.append(par)
-            self.smooth_speed_sequence.start()
-
-    def on_smooth_walking_stop(self):
-        if self.smooth_speed_sequence.is_playing():
-            self.smooth_speed_sequence.finish()
-            self.smooth_speed_sequence = Sequence()
-            if not self.smooth_speed_sequence.is_playing():
-                par = Parallel(Wait(0.02),
-                               Func(self.decrement_walking_speed_smooth)
-                               )
-                self.smooth_speed_sequence.append(par)
-                self.smooth_speed_sequence.start()
-
-    def increment_running_speed_smooth(self):
-        if self.current_move_unit < self.max_run_unit:
-            self.current_move_unit += 1
-
-    def decrement_running_speed_smooth(self):
-        if self.current_move_unit > 0:
-            self.current_move_unit -= 1
-
-    def on_smooth_forward_running(self):
-        if not self.smooth_speed_sequence.is_playing():
-            par = Parallel(Wait(0.01),
-                           Func(self.increment_running_speed_smooth)
-                           )
-            self.smooth_speed_sequence.append(par)
-            self.smooth_speed_sequence.start()
-
-    def on_smooth_running_stop(self):
-        if self.smooth_speed_sequence.is_playing():
-            self.smooth_speed_sequence.finish()
-            self.smooth_speed_sequence = Sequence()
-            if not self.smooth_speed_sequence.is_playing():
-                par = Parallel(Wait(0.01),
-                               Func(self.decrement_running_speed_smooth)
-                               )
-                self.smooth_speed_sequence.append(par)
-                self.smooth_speed_sequence.start()
-
     def player_movement_action(self, player, anims):
         if (player and isinstance(anims, dict)
                 and not self.base.game_instance['is_aiming']
@@ -274,11 +214,7 @@ class PlayerMovement:
             # If a move-key is pressed, move the player in the specified direction.
             speed = Vec3(0, 0, 0)
             omega = 0.0
-
-            if not self.kbd.keymap["forward"] and not self.kbd.keymap["backward"]:
-                # smooth stopping
-                speed.set_y(self.current_move_unit)
-                self.on_smooth_walking_stop()
+            move_unit = 2
 
             self.turning_in_place(player, anims, self.seq_turning_wrapper)
 
@@ -291,8 +227,7 @@ class PlayerMovement:
 
                 # Smooth walking
                 if base.input_state.is_set('forward'):
-                    speed.set_y(-self.current_move_unit)
-                    self.on_smooth_forward_walking()
+                    speed.set_y(-move_unit)
 
             # Backward
             if (self.kbd.keymap["backward"]
@@ -303,8 +238,7 @@ class PlayerMovement:
                 player.set_play_rate(-1.0,
                                      anims[anim_names.a_anim_walking])
                 if base.input_state.is_set('reverse'):
-                    speed.set_y(self.current_move_unit)
-                    self.on_smooth_forward_walking()
+                    speed.set_y(move_unit)
 
             # Forward crouch walk
             if (self.kbd.keymap["forward"]
@@ -312,8 +246,7 @@ class PlayerMovement:
                     and self.kbd.keymap["run"] is False
                     and base.player_states['is_crouch_moving']):
                 if base.input_state.is_set('forward'):
-                    speed.set_y(-self.current_move_unit)
-                    self.on_smooth_forward_walking()
+                    speed.set_y(-move_unit)
 
             if self.base.game_instance['player_controller']:
                 self.base.game_instance['player_controller'].set_linear_movement(speed, True)
@@ -363,20 +296,16 @@ class PlayerMovement:
                 and not self.kbd.keymap["block"]):
             # If a move-key is pressed, move the player in the specified direction.
             speed = Vec3(0, 0, 0)
-            if not self.kbd.keymap["forward"] and not self.kbd.keymap["backward"]:
-                # smooth stopping
-                speed.set_y(self.current_move_unit)
-                self.on_smooth_running_stop()
+            move_unit = 5
 
-            self.decrement_stamina_while_running(player, self.current_move_unit)
+            self.decrement_stamina_while_running(player, move_unit)
 
             if (self.kbd.keymap["forward"]
                     and not self.kbd.keymap["backward"]
                     and self.kbd.keymap["run"]):
                 if base.input_state.is_set('forward'):
                     if self.base.game_instance['player_props']['stamina'] > 1:
-                        speed.set_y(-self.current_move_unit)
-                        self.on_smooth_forward_running()
+                        speed.set_y(-move_unit)
 
                     if self.base.game_instance['player_controller']:
                         self.base.game_instance['player_controller'].set_linear_movement(speed, True)
@@ -424,9 +353,7 @@ class PlayerMovement:
                 player = self.base.game_instance['actors_ref'][horse_name]
                 horse_rb_np = render.find("**/{0}:BS".format(horse_name))
 
-                if not self.kbd.keymap["forward"] and not self.kbd.keymap["backward"]:
-                    # smooth stopping
-                    self.on_smooth_walking_stop()
+                move_unit = 2
 
                 # Get the time that elapsed since last frame
                 dt = globalClock.getDt()
@@ -445,13 +372,11 @@ class PlayerMovement:
                         and not self.kbd.keymap["backward"]
                         and self.kbd.keymap["run"] is False):
                     if base.input_state.is_set('forward'):
-                        horse_rb_np.set_y(horse_rb_np, -self.current_move_unit * dt)
-                        self.on_smooth_forward_walking()
+                        horse_rb_np.set_y(horse_rb_np, -move_unit * dt)
                 if (self.kbd.keymap["backward"]
                         and self.kbd.keymap["run"] is False):
                     if base.input_state.is_set('reverse'):
-                        horse_rb_np.set_y(horse_rb_np, self.current_move_unit * dt)
-                        self.on_smooth_forward_walking()
+                        horse_rb_np.set_y(horse_rb_np, move_unit * dt)
 
                 # If the player does action, loop the animation through messenger.
                 if (self.kbd.keymap["forward"]
@@ -509,11 +434,9 @@ class PlayerMovement:
                 player = self.base.game_instance['actors_ref'][horse_name]
                 horse_rb_np = render.find("**/{0}:BS".format(horse_name))
 
-                if not self.kbd.keymap["forward"] and not self.kbd.keymap["backward"]:
-                    # smooth stopping
-                    self.on_smooth_running_stop()
+                move_unit = 7
 
-                self.decrement_stamina_while_running(player, self.current_move_unit)
+                self.decrement_stamina_while_running(player, move_unit)
 
                 # Get the time that elapsed since last frame
                 dt = globalClock.getDt()
@@ -522,7 +445,7 @@ class PlayerMovement:
                         and not self.kbd.keymap["backward"]
                         and self.kbd.keymap["run"]):
                     if base.input_state.is_set('forward'):
-                        horse_rb_np.set_y(horse_rb_np, -self.current_move_unit * dt)
+                        horse_rb_np.set_y(horse_rb_np, -move_unit * dt)
 
                 # If the player does action, loop the animation.
                 # If it is standing still, stop the animation.
