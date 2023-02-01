@@ -61,7 +61,7 @@ class PlayerController:
                 if self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] < 100:
                     self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] += 5
                     stamina = self.base.game_instance['hud_np'].player_bar_ui_stamina['value']
-                    player.set_python_tag("health", stamina)
+                    player.set_python_tag("stamina", stamina)
 
     def _regular_actions_set(self, player, anims):
         if base.player_state_unarmed:

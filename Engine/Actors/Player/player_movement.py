@@ -191,7 +191,7 @@ class PlayerMovement:
         if self.kbd.keymap["forward"] and self.kbd.keymap["run"]:
             if self.base.game_instance['hud_np']:
                 if self.base.game_instance['player_props']['stamina'] > 1:
-                    if seconds == 2:
+                    if seconds == 1:
                         self.base.game_instance['player_props']['stamina'] -= move_unit
                         stamina = self.base.game_instance['player_props']['stamina']
                         self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] = stamina
@@ -225,7 +225,6 @@ class PlayerMovement:
                     and not base.player_states['is_crouch_moving']
                     and base.player_states['is_idle']):
 
-                # Smooth walking
                 if base.input_state.is_set('forward'):
                     speed.set_y(-move_unit)
 
@@ -286,58 +285,83 @@ class PlayerMovement:
                         Sequence(Func(self.seq_crouch_move_wrapper, player, anims, 'stop')).start()
 
     def player_run_action(self, player, anims):
-        if (player and isinstance(anims, dict)
-                and not self.base.game_instance['is_aiming']
-                and not base.player_states['is_using']
-                and not base.player_states['is_attacked']
-                and not base.player_states['is_mounted']
-                and self.is_ready_for_move()
-                and not self.kbd.keymap["attack"]
-                and not self.kbd.keymap["block"]):
-            # If a move-key is pressed, move the player in the specified direction.
-            speed = Vec3(0, 0, 0)
-            move_unit = 5
-
-            self.decrement_stamina_while_running(player, move_unit)
-
+        if player:
             if (self.kbd.keymap["forward"]
                     and not self.kbd.keymap["backward"]
-                    and self.kbd.keymap["run"]):
+                    and self.kbd.keymap["run"]
+                    and player.get_python_tag('stamina') < 2):
+                speed = Vec3(0, 0, 0)
+                omega = 0.0
+                move_unit = 2
                 if base.input_state.is_set('forward'):
-                    if self.base.game_instance['player_props']['stamina'] > 1:
-                        speed.set_y(-move_unit)
+                    speed.set_y(-move_unit)
+                if self.base.game_instance['player_controller']:
+                    self.base.game_instance['player_controller'].set_linear_movement(speed, True)
+                    self.base.game_instance['player_controller'].set_angular_movement(omega)
 
-                    if self.base.game_instance['player_controller']:
-                        self.base.game_instance['player_controller'].set_linear_movement(speed, True)
+                Sequence(Func(self.seq_move_wrapper, player, anims, 'loop')
+                         ).start()
 
-            # If the player does action, loop the animation.
-            # If it is standing still, stop the animation.
-            if (self.kbd.keymap["forward"]
+            elif (not self.kbd.keymap["forward"]
                     and not self.kbd.keymap["backward"]
-                    and self.kbd.keymap["run"]):
-                if (not base.player_states['is_running']
-                        and base.player_states['is_idle']
-                        and player.get_python_tag('stamina') > 3):
-                    Sequence(Parallel(Func(self.seq_run_wrapper, player, anims, 'loop'),
-                                      Func(self.state.set_action_state, "is_running", True))).start()
-                if (base.player_states['is_running']
-                        and player.get_python_tag('stamina') > 3):
-                    Sequence(Func(self.seq_run_wrapper, player, anims, 'loop')
-                             ).start()
-            else:
-                # Stop animation
-                if (base.player_states['is_running']
-                        and self.kbd.keymap["left"] is False
-                        and self.kbd.keymap["right"] is False
-                        and base.player_states['is_crouch_moving'] is False):
-                    Sequence(Func(self.seq_run_wrapper, player, anims, 'stop'),
-                             Func(self.state.set_action_state, "is_running", False)
-                             ).start()
+                  and not self.kbd.keymap["run"]
+                  and player.get_python_tag('stamina') < 2):
+                Sequence(Func(self.seq_move_wrapper, player, anims, 'stop'),
+                         Func(self.state.set_action_state, "is_running", False)
+                         ).start()
 
-                if not self.kbd.keymap["run"] and player.get_python_tag('stamina') < 2:
-                    Sequence(Func(self.seq_run_wrapper, player, anims, 'stop'),
-                             Func(self.state.set_action_state, "is_running", False)
-                             ).start()
+            if player.get_python_tag('stamina') > 1:
+                if (isinstance(anims, dict)
+                        and not self.base.game_instance['is_aiming']
+                        and not base.player_states['is_using']
+                        and not base.player_states['is_attacked']
+                        and not base.player_states['is_mounted']
+                        and self.is_ready_for_move()
+                        and not self.kbd.keymap["attack"]
+                        and not self.kbd.keymap["block"]):
+                    # If a move-key is pressed, move the player in the specified direction.
+                    speed = Vec3(0, 0, 0)
+                    move_unit = 5
+
+                    self.decrement_stamina_while_running(player, move_unit)
+
+                    if (self.kbd.keymap["forward"]
+                            and not self.kbd.keymap["backward"]
+                            and self.kbd.keymap["run"]):
+                        if base.input_state.is_set('forward'):
+                            speed.set_y(-move_unit)
+
+                            if self.base.game_instance['player_controller']:
+                                self.base.game_instance['player_controller'].set_linear_movement(speed, True)
+
+                    # If the player does action, loop the animation.
+                    # If it is standing still, stop the animation.
+                    if (self.kbd.keymap["forward"]
+                            and not self.kbd.keymap["backward"]
+                            and self.kbd.keymap["run"]):
+                        if (not base.player_states['is_running']
+                                and base.player_states['is_idle']
+                                and player.get_python_tag('stamina') > 3):
+                            Sequence(Parallel(Func(self.seq_run_wrapper, player, anims, 'loop'),
+                                              Func(self.state.set_action_state, "is_running", True))).start()
+                        if (base.player_states['is_running']
+                                and player.get_python_tag('stamina') > 3):
+                            Sequence(Func(self.seq_run_wrapper, player, anims, 'loop')
+                                     ).start()
+                    else:
+                        # Stop animation
+                        if (base.player_states['is_running']
+                                and self.kbd.keymap["left"] is False
+                                and self.kbd.keymap["right"] is False
+                                and base.player_states['is_crouch_moving'] is False):
+                            Sequence(Func(self.seq_run_wrapper, player, anims, 'stop'),
+                                     Func(self.state.set_action_state, "is_running", False)
+                                     ).start()
+
+                        if not self.kbd.keymap["run"] and player.get_python_tag('stamina') < 2:
+                            Sequence(Func(self.seq_run_wrapper, player, anims, 'stop'),
+                                     Func(self.state.set_action_state, "is_running", False)
+                                     ).start()
 
     def horse_riding_movement_action(self, anims):
         if (isinstance(anims, dict)
