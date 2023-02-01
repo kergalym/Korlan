@@ -191,7 +191,7 @@ class PlayerMovement:
         if self.kbd.keymap["forward"] and self.kbd.keymap["run"]:
             if self.base.game_instance['hud_np']:
                 if self.base.game_instance['player_props']['stamina'] > 1:
-                    if seconds == 1:
+                    if seconds == 2:
                         self.base.game_instance['player_props']['stamina'] -= move_unit
                         stamina = self.base.game_instance['player_props']['stamina']
                         self.base.game_instance['hud_np'].player_bar_ui_stamina['value'] = stamina
@@ -286,10 +286,11 @@ class PlayerMovement:
 
     def player_run_action(self, player, anims):
         if player:
+            # When stamina is low, player changes running state to moving
             if (self.kbd.keymap["forward"]
                     and not self.kbd.keymap["backward"]
                     and self.kbd.keymap["run"]
-                    and player.get_python_tag('stamina') < 2):
+                    and player.get_python_tag('stamina') <= 10):
                 speed = Vec3(0, 0, 0)
                 omega = 0.0
                 move_unit = 2
@@ -305,12 +306,13 @@ class PlayerMovement:
             elif (not self.kbd.keymap["forward"]
                     and not self.kbd.keymap["backward"]
                   and not self.kbd.keymap["run"]
-                  and player.get_python_tag('stamina') < 2):
+                  and player.get_python_tag('stamina') <= 10):
                 Sequence(Func(self.seq_move_wrapper, player, anims, 'stop'),
                          Func(self.state.set_action_state, "is_running", False)
                          ).start()
 
-            if player.get_python_tag('stamina') > 1:
+            # When stamina is higher than 10 units, player changes moving state to running
+            if player.get_python_tag('stamina') > 10:
                 if (isinstance(anims, dict)
                         and not self.base.game_instance['is_aiming']
                         and not base.player_states['is_using']
