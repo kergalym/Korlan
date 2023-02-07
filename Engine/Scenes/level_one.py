@@ -94,10 +94,12 @@ class LevelOne:
                 actor = self.base.game_instance["actors_ref"][name]
 
                 # TODO: Keep it tempo!
+                """
                 if actor.get_python_tag("npc_class") == "enemy":
                     actor.get_python_tag("generic_states")['is_alive'] = False
                 if actor.get_python_tag("npc_class") == "neutral":
                     actor.get_python_tag("generic_states")['is_alive'] = False
+                """
 
                 NpcController(actor)
 

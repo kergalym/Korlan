@@ -160,6 +160,7 @@ p3d.load_prc_file_data(
 
 p3d.load_prc_file_data(
     '',
+    # 'win-fixed-size 1\n'
     'icon-filename icon-16.ico\n'
     'win-origin -1 -2\n'
     'window-title Korlan - Daughter of the Steppes\n'

@@ -74,7 +74,8 @@ class AsyncLevelLoad:
             navmesh_scene_np.reparent_to(render)
             navmesh_scene_np.hide()
 
-            self.builder.from_coll_node_path(navmesh_scene_np)
+            if hasattr(self.builder, "from_coll_node_path"):
+                self.builder.from_coll_node_path(navmesh_scene_np)
 
             self.builder.params.actor_radius = 1
             self.navmesh = self.builder.build()
@@ -260,9 +261,9 @@ class AsyncLevelLoad:
             self.base.game_instance['scene_is_loaded'] = False
 
             # load testing landscape
-            """landscape_path = assets["lvl_landscape"]
+            landscape_path = assets["lvl_landscape"]
             landscape = await self.base.loader.load_model(landscape_path, blocking=False, noCache=True)
-            landscape.reparent_to(self.base.game_instance['lod_np'])"""
+            landscape.reparent_to(self.base.game_instance['lod_np'])
 
             # Load the scene.
             path = ''
