@@ -248,9 +248,9 @@ class NpcController:
             if "NPC" in target.get_name():
                 if target.get_child(0).has_python_tag("human_states"):
                     if target.get_child(0).get_python_tag("human_states")["is_on_horse"]:
-                        pos = target.get_parent().get_parent().get_pos() + Vec3(ai_declaratives.distance_to_animal,
-                                                                                ai_declaratives.distance_to_animal,
-                                                                                0)
+                        pos = target.get_pos() + Vec3(ai_declaratives.distance_to_animal,
+                                                      ai_declaratives.distance_to_animal,
+                                                      0)
                     else:
                         pos = target.get_pos() + Point3(ai_declaratives.distance_to_target,
                                                         ai_declaratives.distance_to_target,
@@ -268,9 +268,9 @@ class NpcController:
 
             elif "Player" in target.get_name():
                 if base.player_states["is_mounted"]:
-                    pos = target.get_parent().get_parent().get_pos() + Point3(ai_declaratives.distance_to_animal,
-                                                                              ai_declaratives.distance_to_animal,
-                                                                              0)
+                    pos = target.get_pos() + Point3(ai_declaratives.distance_to_animal,
+                                                    ai_declaratives.distance_to_animal,
+                                                    0)
                     name = "{0}_margins".format(target.get_parent().get_parent().get_name())
                     m_target = NodePath(name)
                     m_target.set_pos(pos)
@@ -291,85 +291,70 @@ class NpcController:
 
         return last_pos
 
-    def do_walking_sequence_once(self, actor, actor_rb_np, target, request):
+    def do_walking(self, actor, actor_rb_np, target, request):
         if actor and actor_rb_np and target and request:
-            actor_name = actor.get_name()
-            if self.walking_sequence.get(actor_name) is None:
-                self.walking_sequence[actor_name] = Sequence()
+            dt = globalClock.getDt()
+            self.navmesh_query.nearest_point(actor_rb_np.get_pos())
 
-            if self.walking_sequence.get(actor_name) is not None:
-                if not self.walking_sequence[actor_name].is_playing():
-                    actor_name = actor.get_name()
-                    self.navmesh_query.nearest_point(actor_rb_np.get_pos())
+            # get target's last pos
+            last_pos = target.get_pos(base.render)
 
-                    # get target's last pos
-                    last_pos = self._get_target_last_pos(target)
-                    # last_pos = target.get_pos(base.render)
+            # Find path
+            path = self.navmesh_query.find_path(actor_rb_np.get_pos(), last_pos)
+            path_points = list(path.points)
 
-                    # self.navmesh.update()
+            if self.base.game_settings['Debug']['set_debug_mode'] == 'YES':
+                self.path_line = LineSegs()
+                self.path_line.set_color(0, 1, 0)
+                self.path_line.set_thickness(5)
 
-                    # Find path
-                    path = self.navmesh_query.find_path(actor_rb_np.get_pos(), last_pos)
-                    path_points = list(path.points)
+                for point in path_points:
+                    self.path_line.draw_to(point)
 
-                    if self.base.game_settings['Debug']['set_debug_mode'] == 'YES':
-                        self.path_line = LineSegs()
-                        self.path_line.set_color(0, 1, 0)
-                        self.path_line.set_thickness(5)
+                self.path_line.drawTo(last_pos)
+                self.line_node = self.path_line.create()
+                self.line_nodepath.remove_node()
+                self.line_nodepath = render.attach_new_node(self.line_node)
 
-                        for point in path_points:
-                            self.path_line.draw_to(point)
+                rp = self.base.game_instance['renderpipeline_np']
+                if rp:
+                    rp.set_effect(self.line_nodepath, "{0}/Engine/Renderer"
+                                                      "/effects/line.yaml".format(self.game_dir),
+                                  {"render_gbuffer": True,
+                                   "render_shadow": False,
+                                   "alpha_testing": True,
+                                   "normal_mapping": True})
 
-                        self.path_line.drawTo(last_pos)
-                        self.line_node = self.path_line.create()
-                        self.line_nodepath.remove_node()
-                        self.line_nodepath = render.attach_new_node(self.line_node)
+            current_dir = actor_rb_np.get_hpr()
 
-                        rp = self.base.game_instance['renderpipeline_np']
-                        if rp:
-                            rp.set_effect(self.line_nodepath, "{0}/Engine/Renderer"
-                                                              "/effects/line.yaml".format(self.game_dir),
-                                          {"render_gbuffer": True,
-                                           "render_shadow": False,
-                                           "alpha_testing": True,
-                                           "normal_mapping": True})
+            # Change speed
+            speed = 2
+            if actor.get_python_tag("move_type") == "walk":
+                speed = 2
+            elif actor.get_python_tag("move_type") == "run":
+                speed = 5
 
-                    current_dir = actor_rb_np.get_hpr()
+            for i in range(len(path_points) - 1):
+                # Heading
+                new_hpr = Vec3(Vec2(0, -1).signed_angle_deg(path_points[i + 1].xy - path_points[i].xy),
+                               current_dir[1],
+                               current_dir[2])
 
-                    self.walking_sequence[actor_name] = Sequence()
+                actor_rb_np.set_h(new_hpr[0])
 
-                    # Change speed
-                    speed = 2
-                    if actor.get_python_tag("move_type") == "walk":
-                        speed = 2
-                    elif actor.get_python_tag("move_type") == "run":
-                        speed = 5
+            dist = (actor_rb_np.get_pos() - target.get_pos(base.render)).length()
 
-                    for i in range(len(path_points) - 1):
-                        # Heading
-                        new_hpr = Vec3(Vec2(0, -1).signed_angle_deg(path_points[i + 1].xy - path_points[i].xy),
-                                       current_dir[1],
-                                       current_dir[2])
-                        hpr_interval = actor_rb_np.hprInterval(0, new_hpr)
+            if actor.get_python_tag("npc_type") == "npc":
+                if dist > ai_declaratives.distance_to_target:
+                    actor_rb_np.set_y(actor_rb_np, -speed * dt)
+                if actor_rb_np.get_distance(target) < ai_declaratives.distance_to_target+1:
+                    self.npc_in_idle_logic(actor)
 
-                        # Movement
-                        dist = (path_points[i + 1] - path_points[i]).length()
-
-                        # Workaround for shifted down actor's rigid body nodepath z pos,
-                        # which in posInterval interpreted like -1, not 0
-                        pp = Point3(path_points[i + 1][0], path_points[i + 1][1], path_points[i + 1][2])
-                        pp_start = Point3(path_points[i][0], path_points[i][1], path_points[i][2])
-                        pos_interval = actor_rb_np.posInterval(dist / speed, pp, pp_start)
-
-                        # Append sequence tasks in that order
-                        self.walking_sequence[actor_name].append(hpr_interval)
-                        self.walking_sequence[actor_name].append(pos_interval)
-
-                        current_dir = new_hpr
-
-                    idle_interval = Func(self.npc_in_idle_logic, actor)
-                    self.walking_sequence[actor_name].append(idle_interval)
-                    self.walking_sequence[actor_name].start()
+            if actor.get_python_tag("npc_type") == "npc_animal":
+                if dist > ai_declaratives.distance_to_animal:
+                    actor_rb_np.set_y(actor_rb_np, -speed * dt)
+                if actor_rb_np.get_distance(target) < ai_declaratives.distance_to_animal+1:
+                    self.npc_in_idle_logic(actor)
 
     def npc_in_idle_logic(self, actor):
         if actor:
@@ -384,7 +369,7 @@ class NpcController:
             actor.get_python_tag("generic_states")['is_idle'] = False
             actor.get_python_tag("generic_states")['is_moving'] = True
 
-            self.do_walking_sequence_once(actor, actor_rb_np, target, request)
+            self.do_walking(actor, actor_rb_np, target, request)
 
     def _toggle_crouch_collision(self, actor, actor_npc_bs):
         actor_name = actor.get_name()
