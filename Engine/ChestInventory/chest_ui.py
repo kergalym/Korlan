@@ -1,14 +1,7 @@
-from direct.interval.FunctionInterval import Func
-from direct.interval.LerpInterval import LerpPosInterval
-from direct.interval.MetaInterval import Sequence
 from direct.showbase.ShowBaseGlobal import aspect2d
 from direct.gui.DirectGui import *
-from direct.gui.OnscreenImage import OnscreenImage
-from direct.gui.OnscreenImage import TransparencyAttrib
-from panda3d.core import Vec3, PGButton, MouseButton, Point3
 
 from Engine.ChestInventory.chest_inventory import ChestInventory
-from panda3d.core import TextNode
 
 
 class ChestUI(ChestInventory):

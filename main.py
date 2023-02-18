@@ -24,8 +24,8 @@ from direct.showbase.ShowBaseGlobal import render2d
 from panda3d.core import Texture, Vec3, Vec2
 from panda3d.core import WindowProperties
 from direct.showbase.ShowBase import ShowBase
-from direct.showbase.ShowBase import MovieTexture
-from direct.showbase.ShowBase import CardMaker
+from panda3d.core import MovieTexture
+from panda3d.core import CardMaker
 from direct.showbase.ShowBase import NodePath
 from direct.showbase.ShowBase import AudioSound
 

@@ -7,7 +7,7 @@ from pathlib import Path
 
 from direct.gui.DirectGui import *
 from direct.gui.OnscreenImage import OnscreenImage
-from direct.gui.OnscreenImage import TransparencyAttrib
+from panda3d.core import TransparencyAttrib
 from direct.showbase.ShowBaseGlobal import aspect2d
 from panda3d.core import FontPool
 from panda3d.core import TextNode
