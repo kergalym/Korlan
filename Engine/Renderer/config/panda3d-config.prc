@@ -138,7 +138,7 @@ gl-force-no-scissor #t
 gl-enable-memory-barriers #f
 
 # Disable threading
-lock-to-one-cpu t
+lock-to-one-cpu f
 support-threads t
 
 # Let the driver generate the mipmaps

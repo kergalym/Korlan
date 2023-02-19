@@ -95,10 +95,19 @@ class LevelOne:
 
                 NpcController(actor)
 
+            # Add a tracked obstacle.
+            self.base.game_instance["navmesh"].add_obstacles(render)
+
             self.base.game_instance["ai_is_activated"] = 1
+            taskMgr.doMethodLater(0.25, self.navmesh_update, 'navmesh_update')
+
             return task.done
 
         return task.cont
+
+    def navmesh_update(self, task):
+        self.base.game_instance["navmesh"].update()
+        return task.again
 
     def unload_game_scene(self):
         if not self.base.game_instance['menu_mode']:

@@ -4,6 +4,7 @@ from direct.interval.FunctionInterval import Func, Wait
 from direct.interval.MetaInterval import Sequence, Parallel
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import Vec3, Vec2, Point3, BitMask32, NodePath, LineSegs
+from panda3d.navigation import NavObstacleCylinderNode
 
 from Engine.Physics.npc_damages import NpcDamages
 from Engine.AI.npc_behavior import NpcBehavior
@@ -64,6 +65,8 @@ class NpcController:
         self.mounting_sequence[name] = Sequence()
         self.unmounting_sequence[name] = Sequence()
 
+        self.walking_point_sequence = []
+
         if actor and actor_rb_np and request and "animal" not in actor.get_python_tag("npc_type"):
             self.npc_state = self.base.game_instance["npc_state_cls"]
             self.npc_state.set_npc_equipment(actor, "Korlan:Spine1")
@@ -74,12 +77,14 @@ class NpcController:
                         appendTask=True)
 
         if actor:
-            # Add a tracked obstacle which is NPC.
-            for actor_name in self.base.game_instance["actors_np"]:
-                if actor.get_name() not in actor_name:
-                    actor_npc_rb = self.base.game_instance["actors_np"][actor_name]
-                    self.navmesh.add_node_path(actor_npc_rb)
-            # self.navmesh.update()
+            actor_name = "{0}:BS".format(actor.get_name())
+            actor_npc_rb = self.base.game_instance["actors_np"][actor_name]
+
+            # Create a navmesh obstacle cylinder and parent it to the moving panda so it moves with it.
+            obstacle_node = NavObstacleCylinderNode(4, 5, "pandaObstacle")
+            obstacle_np = actor_npc_rb.attach_new_node(obstacle_node)
+            obstacle_np.set_scale(1 / 0.01)
+            # obstacle_np.show()
 
             # TODO KEEP HERE UNTILL HORSE ANIMS BECOME READY
             if "Horse" not in actor.get_name():
@@ -291,70 +296,93 @@ class NpcController:
 
         return last_pos
 
-    def do_walking(self, actor, actor_rb_np, target, request):
+    def do_walking_sequence_once(self, actor, actor_rb_np, target, request):
         if actor and actor_rb_np and target and request:
-            dt = globalClock.getDt()
-            self.navmesh_query.nearest_point(actor_rb_np.get_pos())
+            actor_name = actor.get_name()
+            if self.walking_sequence.get(actor_name) is None:
+                self.walking_sequence[actor_name] = Sequence()
 
-            # get target's last pos
-            last_pos = target.get_pos(base.render)
+            physics_world = self.base.game_instance['physics_world_np']
+            pFrom = Point3(0, 0, 0)
+            pTo = Point3(0, 0, 10)
 
-            # Find path
-            path = self.navmesh_query.find_path(actor_rb_np.get_pos(), last_pos)
-            path_points = list(path.points)
+            result = physics_world.ray_test_closest(pFrom, pTo)
 
-            if self.base.game_settings['Debug']['set_debug_mode'] == 'YES':
-                self.path_line = LineSegs()
-                self.path_line.set_color(0, 1, 0)
-                self.path_line.set_thickness(5)
+            if result.hasHit():
+                actor_rb_np.set_z(result.getHitPos()[2])
 
-                for point in path_points:
-                    self.path_line.draw_to(point)
+            if self.walking_sequence.get(actor_name) is not None:
+                if not self.walking_sequence[actor_name].is_playing():
+                    actor_name = actor.get_name()
+                    self.navmesh_query.nearest_point(actor_rb_np.get_pos())
 
-                self.path_line.drawTo(last_pos)
-                self.line_node = self.path_line.create()
-                self.line_nodepath.remove_node()
-                self.line_nodepath = render.attach_new_node(self.line_node)
+                    # get target's last pos
+                    last_pos = self._get_target_last_pos(target)
 
-                rp = self.base.game_instance['renderpipeline_np']
-                if rp:
-                    rp.set_effect(self.line_nodepath, "{0}/Engine/Renderer"
-                                                      "/effects/line.yaml".format(self.game_dir),
-                                  {"render_gbuffer": True,
-                                   "render_shadow": False,
-                                   "alpha_testing": True,
-                                   "normal_mapping": True})
+                    self.navmesh.update()
 
-            current_dir = actor_rb_np.get_hpr()
+                    # Find path
+                    path = self.navmesh_query.find_smooth_path(actor_rb_np.get_pos(), last_pos)
+                    path_points = list(path.points)
 
-            # Change speed
-            speed = 2
-            if actor.get_python_tag("move_type") == "walk":
-                speed = 2
-            elif actor.get_python_tag("move_type") == "run":
-                speed = 5
+                    if self.base.game_settings['Debug']['set_debug_mode'] == 'YES':
+                        self.path_line = LineSegs()
+                        self.path_line.set_color(0, 1, 0)
+                        self.path_line.set_thickness(5)
 
-            for i in range(len(path_points) - 1):
-                # Heading
-                new_hpr = Vec3(Vec2(0, -1).signed_angle_deg(path_points[i + 1].xy - path_points[i].xy),
-                               current_dir[1],
-                               current_dir[2])
+                        for point in path_points:
+                            self.path_line.draw_to(point)
 
-                actor_rb_np.set_h(new_hpr[0])
+                        self.path_line.drawTo(last_pos)
+                        self.line_node = self.path_line.create()
+                        self.line_nodepath.remove_node()
+                        self.line_nodepath = render.attach_new_node(self.line_node)
 
-            dist = (actor_rb_np.get_pos() - target.get_pos(base.render)).length()
+                        rp = self.base.game_instance['renderpipeline_np']
+                        if rp:
+                            rp.set_effect(self.line_nodepath, "{0}/Engine/Renderer"
+                                                              "/effects/line.yaml".format(self.game_dir),
+                                          {"render_gbuffer": True,
+                                           "render_shadow": False,
+                                           "alpha_testing": True,
+                                           "normal_mapping": True})
 
-            if actor.get_python_tag("npc_type") == "npc":
-                if dist > ai_declaratives.distance_to_target:
-                    actor_rb_np.set_y(actor_rb_np, -speed * dt)
-                if actor_rb_np.get_distance(target) < ai_declaratives.distance_to_target+1:
-                    self.npc_in_idle_logic(actor)
+                    current_dir = actor_rb_np.get_hpr()
 
-            if actor.get_python_tag("npc_type") == "npc_animal":
-                if dist > ai_declaratives.distance_to_animal:
-                    actor_rb_np.set_y(actor_rb_np, -speed * dt)
-                if actor_rb_np.get_distance(target) < ai_declaratives.distance_to_animal+1:
-                    self.npc_in_idle_logic(actor)
+                    self.walking_sequence[actor_name] = Sequence()
+
+                    # Change speed
+                    speed = 2
+                    if actor.get_python_tag("move_type") == "walk":
+                        speed = 2
+                    elif actor.get_python_tag("move_type") == "run":
+                        speed = 5
+
+                    for i in range(len(path_points) - 1):
+                        # Heading
+                        new_hpr = Vec3(Vec2(0, -1).signed_angle_deg(path_points[i + 1].xy - path_points[i].xy),
+                                       current_dir[1],
+                                       current_dir[2])
+                        hpr_interval = actor_rb_np.hprInterval(0, new_hpr)
+
+                        # Movement
+                        dist = (path_points[i + 1] - path_points[i]).length()
+
+                        # Workaround for shifted down actor's rigid body nodepath z pos,
+                        # which in posInterval interpreted like -1, not 0
+                        pp = Point3(path_points[i + 1][0], path_points[i + 1][1], path_points[i + 1][2]+.6)
+                        pp_start = Point3(path_points[i][0], path_points[i][1], path_points[i][2]+.6)
+                        pos_interval = actor_rb_np.posInterval(dist / speed, pp, pp_start)
+
+                        # Append sequence tasks in that order
+                        self.walking_sequence[actor_name].append(hpr_interval)
+                        self.walking_sequence[actor_name].append(pos_interval)
+
+                        current_dir = new_hpr
+
+                    idle_interval = Func(self.npc_in_idle_logic, actor)
+                    self.walking_sequence[actor_name].append(idle_interval)
+                    self.walking_sequence[actor_name].start()
 
     def npc_in_idle_logic(self, actor):
         if actor:
@@ -369,7 +397,7 @@ class NpcController:
             actor.get_python_tag("generic_states")['is_idle'] = False
             actor.get_python_tag("generic_states")['is_moving'] = True
 
-            self.do_walking(actor, actor_rb_np, target, request)
+            self.do_walking_sequence_once(actor, actor_rb_np, target, request)
 
     def _toggle_crouch_collision(self, actor, actor_npc_bs):
         actor_name = actor.get_name()

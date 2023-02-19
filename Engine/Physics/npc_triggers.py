@@ -39,8 +39,8 @@ class NpcTriggers:
 
         actor_rb_np.node().apply_torque(Vec3(0, 0, 0))
         actor_rb_np.node().clearForces()
-        actor_rb_np.node().set_angular_damping(0)
-        actor_rb_np.node().set_linear_damping(0)
+        actor_rb_np.node().set_angular_damping(0)  # stop sliding vertically
+        actor_rb_np.node().set_linear_damping(0)  # stop sliding horizontally
         actor_rb_np.node().set_linear_sleep_threshold(0)
         actor_rb_np.node().set_angular_sleep_threshold(0)
         actor_rb_np.node().setDeactivationTime(0.01)

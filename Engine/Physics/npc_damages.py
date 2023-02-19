@@ -131,7 +131,8 @@ class NpcDamages:
                         for hitbox in hitboxes:
                             if hitboxes.get(hitbox):
                                 hitbox_np = hitboxes[hitbox]
-                                self._do_damage(actor, node, hitbox_np, parent_np, request)
+                                if hitbox_np is not None:
+                                    self._do_damage(actor, node, hitbox_np, parent_np, request)
 
         # NPC dies if it has no health
         self._do_death(actor, request)

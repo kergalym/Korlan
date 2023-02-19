@@ -89,9 +89,10 @@ class NpcBehavior:
                                 player_dist = self.npc_controller.get_enemy_distance(actor=actor,
                                                                                      actor_npc_rb=actor_npc_rb,
                                                                                      opponent=player)
-                                self.npc_directives.work_with_player(actor, actor_npc_rb,
-                                                                     player,
-                                                                     player_dist, request)
+                                if actor.get_python_tag("current_task") != "horse_mounting":
+                                    self.npc_directives.work_with_player(actor, actor_npc_rb,
+                                                                         player,
+                                                                         player_dist, request)
 
                         # Check if we have alive someone around us
                         if self.npc_controller.get_enemy(actor=actor):
@@ -108,16 +109,18 @@ class NpcBehavior:
 
                                 # PLAYER
                                 if base.player_states['is_alive']:
-                                    self.npc_directives.work_with_player(actor, actor_npc_rb,
-                                                                         player,
-                                                                         player_dist, request)
+                                    if actor.get_python_tag("current_task") != "horse_mounting":
+                                        self.npc_directives.work_with_player(actor, actor_npc_rb,
+                                                                             player,
+                                                                             player_dist, request)
                                 elif not base.player_states['is_alive']:
                                     # ENEMY
                                     if enemy_npc_ref.get_python_tag("generic_states")['is_alive']:
-                                        self.npc_directives.work_with_enemy(actor, actor_npc_rb,
-                                                                            enemy_npc_ref,
-                                                                            enemy_npc_rb, enemy_dist,
-                                                                            hitbox_dist, request)
+                                        if actor.get_python_tag("current_task") != "horse_mounting":
+                                            self.npc_directives.work_with_enemy(actor, actor_npc_rb,
+                                                                                enemy_npc_ref,
+                                                                                enemy_npc_rb, enemy_dist,
+                                                                                hitbox_dist, request)
 
             # If me is dead
             else:

@@ -24,6 +24,19 @@ class PlayerTrigger:
                         "npc_hud_switcher_task",
                         extraArgs=[trigger_np, player_rb_np],
                         appendTask=True)
+            taskMgr.add(self._clear_forces, "clear_forces_player",
+                        extraArgs=[player_rb_np],
+                        appendTask=True)
+
+    def _clear_forces(self, actor_rb_np, task):
+        if self.base.game_instance['menu_mode']:
+            return task.done
+
+        if hasattr(actor_rb_np.node(), "set_angular_damping"):
+            actor_rb_np.node().set_angular_damping(60)  # stop sliding vertically
+        if hasattr(actor_rb_np.node(), "set_linear_damping"):
+            actor_rb_np.node().set_linear_damping(60)  # stop sliding horizontally
+        return task.cont
 
     def _npc_hud_switcher_task(self, trigger_np, player_rb_np, task):
         if self.base.game_instance['menu_mode']:
