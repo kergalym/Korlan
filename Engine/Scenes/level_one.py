@@ -2,6 +2,7 @@ from os.path import exists
 
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import *
+from panda3d.navigation import NavObstacleCylinderNode
 
 from Engine.Actors.Player.state import PlayerState
 from Engine.async_level_load import AsyncLevelLoad
@@ -94,6 +95,14 @@ class LevelOne:
                 actor = self.base.game_instance["actors_ref"][name]
 
                 NpcController(actor)
+
+            # Create a navmesh obstacle cylinder and parent it to the moving player so it moves with it.
+            player_rb_np = self.base.game_instance["player_np"]
+            obstacle_node = NavObstacleCylinderNode(4, 5, "pandaObstacle")
+            obstacle_np = player_rb_np.attach_new_node(obstacle_node)
+            obstacle_np.set_scale(player_rb_np.get_scale())
+            obstacle_np.set_pos(player_rb_np.get_pos())
+            # obstacle_np.show()
 
             # Add a tracked obstacle.
             self.base.game_instance["navmesh"].add_obstacles(render)

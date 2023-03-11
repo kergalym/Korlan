@@ -260,10 +260,10 @@ class AsyncLevelLoad:
             """ SCENE """
             self.base.game_instance['scene_is_loaded'] = False
 
-            # load testing landscape
-            landscape_path = assets["lvl_landscape"]
-            landscape = await self.base.loader.load_model(landscape_path, blocking=False, noCache=True)
-            landscape.reparent_to(self.base.game_instance['lod_np'])
+            # ts = TextureStage("lightmap")
+            # lightmap = base.loader.load_texture("tex/ligtmap.png")
+            # ts.setTexcoordName("lightmap")
+            # landscape.set_texture(ts, lightmap)
 
             # Load the scene.
             path = ''
@@ -359,9 +359,6 @@ class AsyncLevelLoad:
                 physics_attr.set_static_object_colliders(scene=scene)
 
             if self.game_settings['Debug']['set_debug_mode'] == "NO":
-                # Construct navigation system
-                if render.find("**/lvl_landscape"):
-                    scene_name = render.find("**/lvl_landscape").get_name()
                 self.set_level_nav(scene_name)
 
             if self.game_settings['Debug']['set_debug_mode'] == "YES":
