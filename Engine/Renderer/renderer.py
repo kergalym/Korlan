@@ -222,7 +222,7 @@ class RenderAttr:
                     if self.base.game_instance["renderpipeline_np"] and adv_render:
                         # Put second light above hearth
                         light_a = RP_PointLight()
-                        light_a.pos = Vec3(node_path.get_x(), node_path.get_y(), 1.7)
+                        light_a.pos = Vec3(node_path.get_x(), node_path.get_y(), node_path.get_z()+1)
                         light_a.set_color_from_temperature(1000.0)
                         light_a.energy = self.flame_light_a_energy
                         light_a.ies_profile = self.base.game_instance["renderpipeline_np"].load_ies_profile("pear.ies")
@@ -236,7 +236,7 @@ class RenderAttr:
 
                         # Put first light under hearth
                         light_u = RP_PointLight()
-                        light_u.pos = Vec3(node_path.get_x(), node_path.get_y(), 0.3)
+                        light_u.pos = Vec3(node_path.get_x(), node_path.get_y(), node_path.get_z())
                         light_u.set_color_from_temperature(1000.0)
                         light_u.energy = self.flame_light_u_energy
                         light_u.ies_profile = self.base.game_instance["renderpipeline_np"].load_ies_profile("pear.ies")

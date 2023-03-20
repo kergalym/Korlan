@@ -1,6 +1,6 @@
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.bullet import BulletSphereShape, BulletGhostNode, BulletRigidBodyNode, BulletTriangleMeshShape, \
-    BulletTriangleMesh
+    BulletTriangleMesh, ZUp, BulletCapsuleShape
 from panda3d.core import *
 from Engine.Quests.social_quests import SocialQuests
 
@@ -22,6 +22,8 @@ from Engine.Actors.NPC.state import NpcState
 from Engine.Scenes.npc_list_level1 import npc_ids
 
 import struct
+
+from random import random
 
 
 class AsyncLevelLoad:
@@ -156,19 +158,29 @@ class AsyncLevelLoad:
                 and isinstance(placeholder, str)):
             # Find the asset object, we are going to in instance this object
             # multiple times
-            # Collect all instances
             prefab = scene.find("**/{0}".format(pattern))
             if prefab:
                 tree_master = scene.attach_new_node('TreeMaster')
-                for elem in scene.find_all_matches("**/{0}*".format(placeholder)):
+                for np in scene.find_all_matches("**/{0}*".format(placeholder)):
                     pos_z = prefab.get_z()
                     scale = prefab.get_scale()
-                    elem.set_z(pos_z)
-                    elem.set_scale(scale)
+                    np.set_z(pos_z)
+                    np.set_scale(scale)
 
-                    cpuinst = tree_master.attach_new_node("treeInstance")
-                    cpuinst.set_pos(elem.get_pos())
-                    prefab.instance_to(cpuinst)
+                    instance = tree_master.attach_new_node("treeInstance")
+                    instance.set_pos(np.get_pos())
+                    prefab.instance_to(instance)
+
+                    # Add rigidbodies to place them physically
+                    physics_world_np = self.base.game_instance['physics_world_np']
+                    np_bs_name = "{0}:BS".format(np.get_name())
+                    np_rb_np = np.attach_new_node(BulletRigidBodyNode(np_bs_name))
+                    width = 3
+                    height = 1
+                    capsule = BulletCapsuleShape(width, height, ZUp)
+                    np_rb_np.node().add_shape(capsule)
+                    physics_world_np.attach(np_rb_np.node())
+                    np.set_z(-1)
 
     def set_gpu_instancing_to(self, scene, pattern, placeholder):
         if (scene and isinstance(scene, NodePath)
@@ -266,12 +278,7 @@ class AsyncLevelLoad:
             # landscape.set_texture(ts, lightmap)
 
             # Load the scene.
-            path = ''
-            if self.game_settings['Debug']['set_debug_mode'] == "YES":
-                path = "{0}/Assets/Levels/test_scene.egg".format(self.game_dir)
-            elif self.game_settings['Debug']['set_debug_mode'] == "NO":
-                path = assets['{0}_{1}'.format(scene_name, suffix)]
-
+            path = assets['{0}_{1}'.format(scene_name, suffix)]
             scene = await self.base.loader.load_model(path, blocking=False, noCache=True)
 
             self.world_nodepath = render.find("**/World")
@@ -330,15 +337,6 @@ class AsyncLevelLoad:
                                                             fogcenter=Vec3(256, 256, 0),
                                                             uv_offset=Vec2(0, 0))
 
-            # Tree Instancing
-            self.set_cpu_instancing_to(scene=scene,
-                                       pattern="tree_rig",
-                                       placeholder="tree_empty")
-
-            """self.set_gpu_instancing_to(scene=scene,
-                                       pattern="tree_rig",
-                                       placeholder="tree_empty")"""
-
             self.base.game_instance['scene_is_loaded'] = True
 
             # Load colliders for this level
@@ -353,17 +351,21 @@ class AsyncLevelLoad:
                 coll_scene.reparent_to(coll_scene_np)
                 coll_scene.hide()
 
+            # Tree Instancing
+            self.set_cpu_instancing_to(scene=scene,
+                                       pattern="tree_rig",
+                                       placeholder="tree_empty")
+
+            """self.set_gpu_instancing_to(scene=scene,
+                                       pattern="tree_rig",
+                                       placeholder="tree_empty")"""
+
             # Add Bullet colliders for this scene
             physics_attr = self.base.game_instance["physics_attr_cls"]
             if hasattr(physics_attr, "set_static_object_colliders"):
                 physics_attr.set_static_object_colliders(scene=scene)
 
-            if self.game_settings['Debug']['set_debug_mode'] == "NO":
-                self.set_level_nav(scene_name)
-
-            if self.game_settings['Debug']['set_debug_mode'] == "YES":
-                scene.set_name("test_scene")
-                self.set_level_nav("test_scene")
+            self.set_level_nav(scene_name)
 
             # Add indoor trigger
             radius = 4
