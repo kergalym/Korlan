@@ -169,6 +169,12 @@ p3d.load_prc_file_data(
     'bullet-filter-algorithm groups-mask\n'
     'loader-thread-priority normal\n'
     'loader-num-threads 2\n'
+    'lock-to-one-cpu f\n'
+    'support-threads t\n'
+    'pstats-python-profiler 1\n'
+    'pstats-gpu-timing 1\n'
+    'preload-simple-textures 1\n'
+    'allow-incomplete-render 1\n'
 )
 
 p3d.load_prc_file_data(
