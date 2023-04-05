@@ -30,7 +30,7 @@ import sys
 import math
 import time
 
-from panda3d.core import LVecBase2i, TransformState, RenderState, load_prc_file
+from panda3d.core import LVecBase2i, TransformState, RenderState, load_prc_file, ShaderAttrib
 from panda3d.core import PandaSystem, MaterialAttrib, WindowProperties
 from panda3d.core import GeomTristrips, Vec4
 
@@ -248,6 +248,12 @@ class RenderPipeline(RPObject):
         self._applied_effects.append(args)
         self._internal_set_effect(*args)
 
+    def get_effect_attrib(self, stage, effect_src, options=None):
+        """ Returns effect shader attributes """
+        effect = Effect.load(effect_src, options)
+        shader = effect.get_shader_obj(stage)
+        return ShaderAttrib.make(shader)
+
     def add_environment_probe(self):
         """ Constructs a new environment probe and returns the handle, so that
         the probe can be modified. In case the env_probes plugin is not activated,
@@ -358,7 +364,7 @@ class RenderPipeline(RPObject):
                         if geom_count > 1:
                             self.error("Transparent materials must be on their own geom!\n"
                                        "If you are exporting from blender, split them into\n"
-                                       "seperate meshes, then re-export your scene. The\n"
+                                       "separate meshes, then re-export your scene. The\n"
                                        "problematic mesh is: " + geom_np.get_name())
                             continue
                         self.set_effect(geom_np, "effects/default.yaml",
@@ -558,7 +564,7 @@ class RenderPipeline(RPObject):
 
     def _plugin_pre_render_update(self, task):
         """ Update task which gets called before the rendering, and updates the
-        plugins. This is a seperate task to split the work, and be able to do
+        plugins. This is a separate task to split the work, and be able to do
         better performance analysis in pstats later on. """
         self.plugin_mgr.trigger_hook("pre_render_update")
         return task.cont
