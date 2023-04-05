@@ -139,7 +139,7 @@ gl-enable-memory-barriers #f
 
 # Disable threading
 lock-to-one-cpu f
-support-threads t
+# support-threads #t
 
 # Let the driver generate the mipmaps
 driver-generate-mipmaps #t
@@ -168,7 +168,7 @@ screenshot-extension png
 
 # Required for correct velocity
 always-store-prev-transform t
-allow-incomplete-render t
+allow-incomplete-render f
 
 
 no-singular-invert #f
