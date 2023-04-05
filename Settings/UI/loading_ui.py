@@ -158,6 +158,8 @@ class LoadingUI:
 
             self.base.game_instance['loading_is_done'] = 1
 
+            self.base.messenger.send("setup_foliage")
+
             # Remove collider meshes, not needed anymore
             if not render.find("**/Collisions").is_empty():
                 render.find("**/Collisions").remove_node()

@@ -11,9 +11,6 @@ from os import mkdir, walk
 from os.path import isdir, exists
 
 from direct.stdpy.file import exists as vfs_exists
-from direct.stdpy.file import isdir as vfs_isdir
-from direct.stdpy.file import isfile as vfs_isfile
-from direct.stdpy.file import listdir as vfs_listdir
 from direct.stdpy.file import open as vfs_open
 from direct.stdpy.file import walk as vfs_walk
 
@@ -417,12 +414,14 @@ class Main(ShowBase):
             "chest_inventory_np": None,
             "lod_np": None,
             "lod_quality": {
-                "low": Vec2(999999.0, 100.0),
+                "low": Vec2(999999.0, 0.0),
                 "medium": Vec2(1000.0, 50.0),
                 "high": Vec2(500.0, 0.0)
             },
             "rp_lights": rp_lights,
             "scene_np": None,
+            "trees_np": None,
+            "grass_np": None,
             "round_table_np": None,
             "player_trigger_cls": None,
             "player_controller": None,

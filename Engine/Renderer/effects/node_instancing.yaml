@@ -1,0 +1,33 @@
+# node instancing effect
+
+vertex:
+    inout: |
+      in mat4x3 p3d_InstanceMatrix;
+      uniform vec4 p3d_ColorScale;
+      in vec4 p3d_Color;
+      out vec2 texCoord;
+      out vec4 color;
+
+    transform: |
+      vOutput.position = vec4(p3d_ModelViewProjectionMatrix * vec4(p3d_InstanceMatrix * p3d_Vertex, 1)).xyz;
+      texCoord = p3d_MultiTexCoord0;
+      color = p3d_Color * p3d_ColorScale;
+
+fragment:
+    inout: |
+      in vec2 texCoord;
+      in vec4 color;
+
+    defines: |
+      #define DONT_FETCH_DEFAULT_TEXTURES 0
+      #define DONT_SET_MATERIAL_PROPERTIES 1
+
+    material: |
+      m.basecolor = texture(p3d_Texture0,  texcoord).xyz;
+      m.basecolor *= color.rgb;
+      m.shading_model =  mInput.shading_model;
+      m.specular_ior = 1.0;
+      m.metallic = 0.0;
+      m.roughness = 1.0;
+      m.shading_model_param0 = 0.0;
+      m.normal = vOutput.normal;

@@ -194,6 +194,10 @@ class LevelOne:
                 self.base.game_instance['player_ref'].remove_node()
                 self.base.game_instance['player_ref'].clear()
 
+            if render.find("**/TreeMaster"):
+                render.find("**/TreeMaster").remove_node()
+                render.find("**/TreeMaster").clear()
+
             # Clean level Navmesh
             if self.base.game_instance["level_navmesh_np"]:
                 self.base.game_instance["level_navmesh_np"].remove_node()
