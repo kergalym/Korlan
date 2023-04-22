@@ -43,7 +43,9 @@ class NpcTriggers:
         actor_rb_np.node().set_linear_damping(0)  # stop sliding horizontally
         actor_rb_np.node().set_linear_sleep_threshold(0)
         actor_rb_np.node().set_angular_sleep_threshold(0)
-        actor_rb_np.node().setDeactivationTime(0.01)
+        actor_rb_np.node().set_deactivation_time(0.01)
+
+        actor_rb_np.node().set_restitution(0.01)
 
     def mountable_animal_area_trigger_task(self, animal_actor, task):
         if self.base.game_instance['menu_mode']:
@@ -71,7 +73,8 @@ class NpcTriggers:
                 actor_rb_np.set_r(0)
 
                 # Keep NPC from being hardly pushed if it has stayed
-                self._clear_forces(actor_rb_np)
+                if str(actor_rb_np.node().type) != "BulletCharacterControllerNode":
+                    self._clear_forces(actor_rb_np)
 
                 for node in trigger.get_overlapping_nodes():
                     # ignore trigger itself and ground both
@@ -136,8 +139,13 @@ class NpcTriggers:
             actor_rb_np.set_p(0)
             actor_rb_np.set_r(0)
 
-            # Keep NPC from being hardly pushed if it has stayed
-            self._clear_forces(actor_rb_np)
+            # Prevent from move through walls
+            if str(actor_rb_np.node().type) != "BulletCharacterControllerNode":
+                actor_rb_np.node().setCcdMotionThreshold(1e-7)
+                actor_rb_np.node().setCcdSweptSphereRadius(0.50)
+
+                # Keep NPC from being hardly pushed if it has stayed
+                self._clear_forces(actor_rb_np)
 
             # keep hide npc hud while inventory or menu is opening
             if self.base.game_instance['ui_mode']:

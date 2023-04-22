@@ -89,7 +89,7 @@ class NpcBehavior:
                                 player_dist = self.npc_controller.get_enemy_distance(actor=actor,
                                                                                      actor_npc_rb=actor_npc_rb,
                                                                                      opponent=player)
-                                if actor.get_python_tag("current_task") != "horse_mounting":
+                                if not actor.get_python_tag("generic_states")['is_busy']:
                                     self.npc_directives.work_with_player(actor, actor_npc_rb,
                                                                          player,
                                                                          player_dist, request)
@@ -109,14 +109,14 @@ class NpcBehavior:
 
                                 # PLAYER
                                 if base.player_states['is_alive']:
-                                    if actor.get_python_tag("current_task") != "horse_mounting":
+                                    if not actor.get_python_tag("generic_states")['is_busy']:
                                         self.npc_directives.work_with_player(actor, actor_npc_rb,
                                                                              player,
                                                                              player_dist, request)
                                 elif not base.player_states['is_alive']:
                                     # ENEMY
                                     if enemy_npc_ref.get_python_tag("generic_states")['is_alive']:
-                                        if actor.get_python_tag("current_task") != "horse_mounting":
+                                        if not actor.get_python_tag("generic_states")['is_busy']:
                                             self.npc_directives.work_with_enemy(actor, actor_npc_rb,
                                                                                 enemy_npc_ref,
                                                                                 enemy_npc_rb, enemy_dist,

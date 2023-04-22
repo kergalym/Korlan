@@ -1,15 +1,22 @@
+from panda3d.core import *
+from panda3d.core import Vec3
+from random import random
+
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.bullet import BulletSphereShape, BulletGhostNode, BulletRigidBodyNode, BulletTriangleMeshShape, \
     BulletTriangleMesh, ZUp, BulletCapsuleShape
-from panda3d.core import *
+
 from Engine.Quests.social_quests import SocialQuests
 
 from panda3d.navigation import NavMeshNode
 from panda3d.navigation import NavMeshQuery
 from panda3d.navigation import NavMeshBuilder
 
+from Engine.Scenes.npc_list_level1 import npc_ids
+
 from direct.actor.Actor import Actor
-from panda3d.core import Vec3
+
+from Engine.Renderer.gpu_instancing import GPUInstancing
 
 from Engine.Actors.Player.player_controller import PlayerController
 from Engine.Actors.Player.state import PlayerState
@@ -19,14 +26,8 @@ from Settings.Input.mouse import Mouse
 
 from Engine.Actors.NPC.state import NpcState
 
-from Engine.Scenes.npc_list_level1 import npc_ids
 
-import struct
-
-from random import random
-
-
-class AsyncLevelLoad:
+class AsyncLevelLoading:
 
     def __init__(self):
         self.base = base
@@ -52,9 +53,14 @@ class AsyncLevelLoad:
         self.korlan_bs = None
         self.korlan_start_pos = None
         self.korlan_life_perc = None
+
         self.taskMgr = taskMgr
+
         self.kbd = Keyboard()
         self.mouse = Mouse()
+
+        self.gpu_instancing = GPUInstancing()
+
         self.controller = PlayerController()
         self.state = PlayerState()
         self.base.actor_is_dead = False
@@ -185,7 +191,7 @@ class AsyncLevelLoad:
                     # make a copy of instance
                     prefab.copy_to(tree_master)
                     if placeholder == "tree_empty":
-                        prefab.set_pos(np.get_pos() + Vec3(np.get_x()+2, np.get_y()+2, -0))
+                        prefab.set_pos(np.get_pos() + Vec3(np.get_x() + 2, np.get_y() + 2, -0))
                     elif placeholder == "foliage_empty":
                         prefab.set_pos(np.get_pos())
                         prefab.set_scale(7)
@@ -205,105 +211,6 @@ class AsyncLevelLoad:
                         prefab.set_z(-1)
             # join tree
             tree_master.flattenStrong()
-
-    def set_gpu_instancing_to(self, scene, asset_type, pattern, placeholder):
-        if (scene and isinstance(scene, NodePath)
-                and isinstance(asset_type, str)
-                and isinstance(pattern, str)
-                and isinstance(placeholder, str)):
-
-            # Define prefab LOD and reparent to render node
-            prefab_lod = LODNode("{0}_LODNode".format(pattern))
-            prefab_lod_np = NodePath(prefab_lod)
-            prefab_lod_np.reparent_to(render)
-
-            # Find the asset object, we are going to in instance this object
-            # multiple times
-            prefabs = scene.find_all_matches("**/{0}*".format(pattern))
-            if prefabs is not None:
-                for prefab in prefabs:
-
-                    if "LODNode" not in prefab.get_name():
-                        prefab.reparent_to(prefab_lod_np)
-
-                        if placeholder == "tree_empty":
-                            prefab_lod.add_switch(50.0, 0.0)
-                        else:
-                            if "LOD0" in prefab.get_name():
-                                prefab_lod.add_switch(50.0, 0.0)
-                            elif "LOD1" in prefab.get_name():
-                                prefab_lod.add_switch(200.0, 50.0)
-                            elif "LOD2" in prefab.get_name():
-                                prefab_lod.add_switch(500.0, 200.0)
-                            elif "LOD3" in prefab.get_name():
-                                prefab_lod.add_switch(1000.0, 500.0)
-                            elif "LOD4" in prefab.get_name():
-                                prefab_lod.add_switch(1500.0, 1000.0)
-
-                        matrices = []
-                        floats = []
-
-                        for np in scene.find_all_matches("**/{0}*".format(placeholder)):
-                            if placeholder == "tree_empty":
-                                np.set_pos(np.get_pos() + Vec3(np.get_x() + 2, np.get_y() + 2, -0))
-                            elif placeholder == "foliage_empty":
-                                pos = LPoint3((random() - 0.5) * 9,
-                                              (random() - 0.5) * 9,
-                                              0)
-                                np.set_pos(np.get_pos() + pos)
-
-                            matrices.append(np.get_mat(render))
-                            np.hide()
-
-                            if asset_type == "tree":
-                                # Add rigidbodies to place them physically
-                                physics_world_np = self.base.game_instance['physics_world_np']
-                                np_bs_name = "{0}:BS".format(prefab.get_name())
-                                np_rb_np = prefab.attach_new_node(BulletRigidBodyNode(np_bs_name))
-                                width = 3
-                                height = 1
-                                capsule = BulletCapsuleShape(width, height, ZUp)
-                                np_rb_np.node().add_shape(capsule)
-                                physics_world_np.attach(np_rb_np.node())
-                                np.set_z(-1)
-
-                        # Allocate storage for the matrices, each matrix has 16 elements,
-                        # but because one pixel has four components, we need amount * 4 pixels.
-                        buffer_texture = Texture()
-                        buffer_texture.setup_buffer_texture(len(matrices) * 4,
-                                                            Texture.T_float,
-                                                            Texture.F_rgba32,
-                                                            GeomEnums.UH_static)
-
-                        # Serialize matrices to floats
-                        ram_image = buffer_texture.modify_ram_image()
-                        for idx, mat in enumerate(matrices):
-                            for i in range(4):
-                                for j in range(4):
-                                    floats.append(mat.get_cell(i, j))
-
-                        # Write the floats to the texture
-                        data = struct.pack("f" * len(floats), *floats)
-                        ram_image.set_subdata(0, len(data), data)
-
-                        # Load the effect
-                        renderpipeline_np = self.base.game_instance["renderpipeline_np"]
-                        renderpipeline_np.set_effect(prefab,
-                                                     "{0}/Engine/Renderer/effects/basic_instancing.yaml".format(
-                                                         self.game_dir),
-                                                     {"render_gbuffer": True,
-                                                      "render_forward": False,
-                                                      "render_shadow": True,
-                                                      "alpha_testing": True,
-                                                      "normal_mapping": True})
-                        prefab.set_shader_input("InstancingData", buffer_texture)
-                        prefab.set_instance_count(len(matrices))
-                        # We have do disable culling, so that all instances stay visible
-                        prefab.node().set_bounds(OmniBoundingVolume())
-                        prefab.node().set_final(True)
-
-            # prefab_lod_np.flatten_strong()
-            # render.analyze()
 
     def save_player_parts(self, parts):
         if self.korlan and isinstance(self.base.game_instance["player_parts"], list):
@@ -333,49 +240,52 @@ class AsyncLevelLoad:
         trees = self.base.game_instance['trees_np']
         trees.reparent_to(self.base.game_instance['lod_np'])
 
-        # Trees Instancing
-        """self.set_gpu_instancing_to(scene=render,
-                                   asset_type="tree",
-                                   pattern="AlaskaCedar_1",
-                                   placeholder="tree_empty")
-        self.set_gpu_instancing_to(scene=render,
-                                   asset_type="tree",
-                                   pattern="AlaskaCedar_Young",
-                                   placeholder="tree_empty")"""
-        # Grass Instancing
-        self.set_gpu_instancing_to(scene=render,
-                                   pattern="Grass_1",
-                                   asset_type="foliage",
-                                   placeholder="foliage_empty")
-        self.set_gpu_instancing_to(scene=render,
-                                   pattern="Grass_2",
-                                   asset_type="foliage",
-                                   placeholder="foliage_empty")
-        self.set_gpu_instancing_to(scene=render,
-                                   pattern="Grass_3",
-                                   asset_type="foliage",
-                                   placeholder="foliage_empty")
-        self.set_gpu_instancing_to(scene=render,
-                                   pattern="Daisy_1",
-                                   asset_type="foliage",
-                                   placeholder="foliage_empty")
-        self.set_gpu_instancing_to(scene=render,
-                                   pattern="Cattail_1",
-                                   asset_type="foliage",
-                                   placeholder="foliage_empty")
-        self.set_gpu_instancing_to(scene=render,
-                                   pattern="Papaver_1",
-                                   asset_type="foliage",
-                                   placeholder="foliage_empty")
-        self.set_gpu_instancing_to(scene=render,
-                                   pattern="Tulip_1",
-                                   asset_type="foliage",
-                                   placeholder="foliage_empty")
-        self.set_gpu_instancing_to(scene=render,
-                                   pattern="WildBluePhlox_1",
-                                   asset_type="foliage",
-                                   placeholder="foliage_empty")
+        self.base.game_instance['foliage_np'] = render.attach_new_node("LODs_Tree")
 
+        # Trees Instancing
+        self.gpu_instancing.set_gpu_instancing_to(scene=render,
+                                                  asset_type="tree",
+                                                  pattern="AlaskaCedar_1",
+                                                  placeholder="tree_empty")
+        self.gpu_instancing.set_gpu_instancing_to(scene=render,
+                                                  asset_type="tree",
+                                                  pattern="AlaskaCedar_Young",
+                                                  placeholder="tree_empty")
+        # Grass Instancing
+        self.gpu_instancing.set_gpu_instancing_to(scene=render,
+                                                  pattern="Grass_1",
+                                                  asset_type="foliage",
+                                                  placeholder="foliage_empty")
+        self.gpu_instancing.set_gpu_instancing_to(scene=render,
+                                                  pattern="Grass_2",
+                                                  asset_type="foliage",
+                                                  placeholder="foliage_empty")
+        self.gpu_instancing.set_gpu_instancing_to(scene=render,
+                                                  pattern="Grass_3",
+                                                  asset_type="foliage",
+                                                  placeholder="foliage_empty")
+        self.gpu_instancing.set_gpu_instancing_to(scene=render,
+                                                  pattern="Daisy_1",
+                                                  asset_type="foliage",
+                                                  placeholder="foliage_empty")
+        self.gpu_instancing.set_gpu_instancing_to(scene=render,
+                                                  pattern="Cattail_1",
+                                                  asset_type="foliage",
+                                                  placeholder="foliage_empty")
+        self.gpu_instancing.set_gpu_instancing_to(scene=render,
+                                                  pattern="Papaver_1",
+                                                  asset_type="foliage",
+                                                  placeholder="foliage_empty")
+        self.gpu_instancing.set_gpu_instancing_to(scene=render,
+                                                  pattern="Tulip_1",
+                                                  asset_type="foliage",
+                                                  placeholder="foliage_empty")
+        self.gpu_instancing.set_gpu_instancing_to(scene=render,
+                                                  pattern="WildBluePhlox_1",
+                                                  asset_type="foliage",
+                                                  placeholder="foliage_empty")
+
+        """ OPTIMIZATIONS """
         for np in render.find_all_matches("**/tree_empty*"):
             np.remove_node()
         for np in render.find_all_matches("**/foliage_empty*"):
@@ -439,8 +349,8 @@ class AsyncLevelLoad:
 
                 scene.set_name(scene_name)
 
-                scene.set_pos(0, 0, 0)
-                scene.set_hpr(scene, 0, 0, 0)
+                # scene.set_pos(0, 0, 0)
+                # scene.set_hpr(scene, 0, 0, 0)
 
                 # Make scene global
                 self.base.game_instance['scene_np'] = scene
@@ -693,7 +603,8 @@ class AsyncLevelLoad:
                         pos_y = axis[1]
                         pos_z = axis[2]
 
-                        cloak = await self.base.loader.load_model(assets["Korlan_cloak"], loaderOptions=opts, blocking=False)
+                        cloak = await self.base.loader.load_model(assets["Korlan_cloak"], loaderOptions=opts,
+                                                                  blocking=False)
                         self.base.game_instance["actors_clothes"][name] = [cloak]
                         self.base.game_instance["actors_clothes_path"][name] = assets["Korlan_cloak"]
 

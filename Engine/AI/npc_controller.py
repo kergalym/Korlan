@@ -31,6 +31,7 @@ class NpcController:
         self.activated_npc_count = 0
         self.current_seq = None
         self.current_step_action = None
+        self.npc_current_distance = 0
 
         # Draw line for debugging purposes
         self.path_line = LineSegs()
@@ -80,10 +81,11 @@ class NpcController:
             actor_name = "{0}:BS".format(actor.get_name())
             actor_npc_rb = self.base.game_instance["actors_np"][actor_name]
 
-            # Create a navmesh obstacle cylinder and parent it to the moving panda so it moves with it.
+            # Create a navmesh obstacle cylinder and parent it to the moving actor so it moves with it.
             obstacle_node = NavObstacleCylinderNode(4, 5, "pandaObstacle")
             obstacle_np = actor_npc_rb.attach_new_node(obstacle_node)
-            obstacle_np.set_scale(1 / 0.01)
+            obstacle_np.set_scale(actor_rb_np.get_scale())
+            obstacle_np.set_pos(actor_rb_np.get_pos())
             # obstacle_np.show()
 
             # TODO KEEP HERE UNTILL HORSE ANIMS BECOME READY
@@ -133,6 +135,9 @@ class NpcController:
 
     def face_actor_to(self, actor_rb_np, target_np):
         if actor_rb_np and target_np:
+            if actor_rb_np.get_child(0).get_python_tag("human_states") is None:
+                return None
+
             if actor_rb_np.get_child(0).get_python_tag("human_states")['is_on_horse']:
                 parent_rb_np = actor_rb_np.get_child(0).get_python_tag("mounted_horse")
                 # Calculate NPC rotation vector
@@ -253,9 +258,9 @@ class NpcController:
             if "NPC" in target.get_name():
                 if target.get_child(0).has_python_tag("human_states"):
                     if target.get_child(0).get_python_tag("human_states")["is_on_horse"]:
-                        pos = target.get_pos() + Vec3(ai_declaratives.distance_to_animal,
-                                                      ai_declaratives.distance_to_animal,
-                                                      0)
+                        pos = target.get_parent().get_parent().get_pos() + Vec3(ai_declaratives.distance_to_animal,
+                                                                                ai_declaratives.distance_to_animal,
+                                                                                0)
                     else:
                         pos = target.get_pos() + Point3(ai_declaratives.distance_to_target,
                                                         ai_declaratives.distance_to_target,
@@ -269,13 +274,13 @@ class NpcController:
                 m_target = NodePath(name)
                 m_target.set_pos(pos)
                 # Set last pos from opposite actor's world points
-                last_pos = m_target.get_pos(base.render)
-
+                last_pos = self.render.get_relative_vector(m_target.get_parent(),
+                                                           m_target.get_pos())
             elif "Player" in target.get_name():
                 if base.player_states["is_mounted"]:
-                    pos = target.get_pos() + Point3(ai_declaratives.distance_to_animal,
-                                                    ai_declaratives.distance_to_animal,
-                                                    0)
+                    pos = target.get_parent().get_parent().get_pos() + Point3(ai_declaratives.distance_to_animal,
+                                                                              ai_declaratives.distance_to_animal,
+                                                                              0)
                     name = "{0}_margins".format(target.get_parent().get_parent().get_name())
                     m_target = NodePath(name)
                     m_target.set_pos(pos)
@@ -288,29 +293,62 @@ class NpcController:
                     m_target.set_pos(pos)
 
                 # Set last pos from opposite actor's world points
-                last_pos = m_target.get_pos(base.render)
-
+                last_pos = self.render.get_relative_vector(m_target.get_parent(),
+                                                           m_target.get_pos())
         elif "Mountplace" in target.get_name():
             # Set last pos from opposite actor's world points
-            last_pos = target.get_pos(base.render)
+            last_pos = self.render.get_relative_vector(target.get_parent(),
+                                                       target.get_pos())
+        return Point3(last_pos[0], last_pos[1], 0)
 
-        return last_pos
+    def collider_data(self, pos_1=Vec3(), pos_2=Vec3()):
+        coll = self.base.game_instance['physics_world_np'].ray_test_closest(pos_1, pos_2)
+        out_data = [coll.get_hit_pos(), coll.get_hit_normal(), coll.get_hit_fraction(), coll.get_node()]
+        return out_data
 
     def do_walking_sequence_once(self, actor, actor_rb_np, target, request):
         if actor and actor_rb_np and target and request:
+            dt = globalClock.getDt()
+
             actor_name = actor.get_name()
+
             if self.walking_sequence.get(actor_name) is None:
                 self.walking_sequence[actor_name] = Sequence()
 
             physics_world = self.base.game_instance['physics_world_np']
-            pFrom = Point3(0, 0, 0)
-            pTo = Point3(0, 0, 10)
 
-            result = physics_world.ray_test_closest(pFrom, pTo)
+            physics_world.ray_test_closest(actor_rb_np.get_pos(), render.find("**/Landscape_BN").get_pos())
 
-            if result.hasHit():
-                actor_rb_np.set_z(result.getHitPos()[2])
+            result = physics_world.contactTestPair(actor_rb_np.node(), render.find("**/Landscape_BN").node())
 
+            if result.getNumContacts() > 0:
+                print(result.getNumContacts())
+
+                for contact in result.getContacts():
+                    print(contact.getNode0())
+                    print(contact.getNode1())
+
+                    mpoint = contact.getManifoldPoint()
+                    print(mpoint.getDistance())
+                    print(mpoint.getAppliedImpulse())
+                    print(mpoint.getPositionWorldOnA())
+                    print(mpoint.getPositionWorldOnB())
+                    print(mpoint.getLocalPointA())
+                    print(mpoint.getLocalPointB())
+
+                    actor_rb_np.set_z(mpoint.getAppliedImpulse())
+
+            # Ray casting from y to y
+            pFrom_y = actor_rb_np.get_pos()
+            pTo_y = Point3(0, 1000, 0)
+            collision_dist = 0
+
+            result_y = physics_world.ray_test_closest(pFrom_y, pTo_y)
+
+            if result_y.hasHit():
+                collision_dist = (actor_rb_np.get_pos() - result_y.getHitPos()).length()
+
+            dist = 0
             if self.walking_sequence.get(actor_name) is not None:
                 if not self.walking_sequence[actor_name].is_playing():
                     actor_name = actor.get_name()
@@ -319,10 +357,10 @@ class NpcController:
                     # get target's last pos
                     last_pos = self._get_target_last_pos(target)
 
-                    self.navmesh.update()
+                    # self.navmesh.update()
 
                     # Find path
-                    path = self.navmesh_query.find_smooth_path(actor_rb_np.get_pos(), last_pos)
+                    path = self.navmesh_query.find_path(actor_rb_np.get_pos(), last_pos)
                     path_points = list(path.points)
 
                     if self.base.game_settings['Debug']['set_debug_mode'] == 'YES':
@@ -370,8 +408,8 @@ class NpcController:
 
                         # Workaround for shifted down actor's rigid body nodepath z pos,
                         # which in posInterval interpreted like -1, not 0
-                        pp = Point3(path_points[i + 1][0], path_points[i + 1][1], path_points[i + 1][2]+.6)
-                        pp_start = Point3(path_points[i][0], path_points[i][1], path_points[i][2]+.6)
+                        pp = Point3(path_points[i + 1][0], path_points[i + 1][1], actor_rb_np.get_z())
+                        pp_start = Point3(path_points[i][0], path_points[i][1], actor_rb_np.get_z())
                         pos_interval = actor_rb_np.posInterval(dist / speed, pp, pp_start)
 
                         # Append sequence tasks in that order
@@ -383,6 +421,52 @@ class NpcController:
                     idle_interval = Func(self.npc_in_idle_logic, actor)
                     self.walking_sequence[actor_name].append(idle_interval)
                     self.walking_sequence[actor_name].start()
+
+    def do_walking(self, actor, actor_rb_np, target, request):
+        if actor and actor_rb_np and target and request:
+            dt = globalClock.getDt()
+
+            physics_world = self.base.game_instance['physics_world_np']
+            pFrom = actor_rb_np.get_pos()
+            pTo = Point3(0, 1000, 0)
+            collision_dist = 0
+
+            result = physics_world.ray_test_closest(pFrom, pTo)
+
+            if result.hasHit():
+                collision_dist = (actor_rb_np.get_pos() - result.getHitPos()).length()
+
+            # obstacle avoidance
+            """for actor_name in self.base.game_instance["actors_np"]:
+                if actor_name not in actor_rb_np.get_name():
+                    cross_enemy_np = self.base.game_instance["actors_np"][actor_name]
+                    if round(actor_rb_np.get_distance(cross_enemy_np)) < ai_declaratives.distance_to_target + 1:
+                        # Change speed
+                        speed = 2
+                        if actor.get_python_tag("move_type") == "walk":
+                            speed = 2
+                        elif actor.get_python_tag("move_type") == "run":
+                            speed = 5
+
+                        actor_rb_np.set_y(actor_rb_np, speed * dt)
+                        self.face_actor_to(actor_rb_np, cross_enemy_np)
+                    elif round(collision_dist) == ai_declaratives.distance_to_target + 1:
+                        self.npc_in_idle_logic(actor)
+            """
+
+            # Change speed
+            speed = 2
+            if actor.get_python_tag("move_type") == "walk":
+                speed = 2
+            elif actor.get_python_tag("move_type") == "run":
+                speed = 5
+            if round(actor_rb_np.get_distance(target)) > ai_declaratives.distance_to_target + 1:
+                actor_rb_np.set_y(actor_rb_np, -speed * dt)
+                self.face_actor_to(actor_rb_np, target)
+
+            if (round(actor_rb_np.get_distance(target)) <= ai_declaratives.distance_to_target + 1
+                    or round(collision_dist) == ai_declaratives.distance_to_target):
+                self.npc_in_idle_logic(actor)
 
     def npc_in_idle_logic(self, actor):
         if actor:
@@ -397,7 +481,8 @@ class NpcController:
             actor.get_python_tag("generic_states")['is_idle'] = False
             actor.get_python_tag("generic_states")['is_moving'] = True
 
-            self.do_walking_sequence_once(actor, actor_rb_np, target, request)
+            self.do_walking(actor, actor_rb_np, target, request)
+            # self.do_walking_sequence_once(actor, actor_rb_np, target, request)
 
     def _toggle_crouch_collision(self, actor, actor_npc_bs):
         actor_name = actor.get_name()

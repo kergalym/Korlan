@@ -111,22 +111,25 @@ class BulletCollisionSolids:
                     self.base.game_instance['actors_ref'][name].set_python_tag("actor_hitboxes", hitboxes)
 
     def _get_geometry_dimensions(self, geometry):
-        if geometry:
-            min_values, max_values = geometry.get_tight_bounds()
-            dimension_vector = max_values - min_values
-            return dimension_vector
+        # calculate actors's width and height
+        min, max = geometry.get_tight_bounds()
+        size = max - min
+        actual_width = size[1]/size[1]
+        optimized_width = actual_width / 3
+        width = optimized_width
+        height = size[2]
+        return width, height
 
-    def get_bs_sphere(self, mesh):
-        if mesh:
-            dimension_vector = self._get_geometry_dimensions(mesh)
-            radius = dimension_vector.y
+    def get_bs_sphere(self, radius):
+        if isinstance(radius, int) or isinstance(radius, float):
             sphere = BulletSphereShape(radius)
             return sphere
 
-    def get_bs_capsule(self, width, height):
-        if isinstance(width, float) and isinstance(height, float):
-            capsule = BulletCapsuleShape(width, height, ZUp)
-            return capsule
+    def get_bs_capsule(self, width, height, geometry):
+        if geometry is not None:
+            width, height = self._get_geometry_dimensions(geometry=geometry)
+        capsule = BulletCapsuleShape(width, height, ZUp)
+        return capsule
 
     def get_bs_cylinder(self):
         radius = 0.5

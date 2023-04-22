@@ -36,6 +36,10 @@ class PlayerTrigger:
             actor_rb_np.node().set_angular_damping(60)  # stop sliding vertically
         if hasattr(actor_rb_np.node(), "set_linear_damping"):
             actor_rb_np.node().set_linear_damping(60)  # stop sliding horizontally
+
+        if hasattr(actor_rb_np.node(), "set_restitution"):
+            actor_rb_np.node().set_restitution(0.01)
+
         return task.cont
 
     def _npc_hud_switcher_task(self, trigger_np, player_rb_np, task):

@@ -152,6 +152,10 @@ class LoadingUI:
             if self.game_settings['Debug']['set_debug_mode'] == 'YES':
                 self.stat_ui.set_game_stat()
 
+                landscape = render.find("**/lvl_landscape")
+                if landscape:
+                    landscape.hide()
+
             if self.game_settings['Debug']['set_editor_mode'] == 'YES':
                 self.editor = Editor()
                 self.editor.set_editor()

@@ -5,8 +5,6 @@ from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import BitMask32, Vec3
 from Engine.Actors.NPC.archery import Archery
 
-from Engine.Physics import physics_declaratives
-
 """ ANIMATIONS"""
 from Engine import anim_names
 
@@ -174,8 +172,8 @@ class NpcFSM(FSM):
                 else:
                     actor.set_h(0)
 
-                mounting_pos = physics_declaratives.mounting_pos
-                saddle_pos = physics_declaratives.saddle_pos
+                mounting_pos = Vec3(0.6, -0.16, 1.45)
+                saddle_pos = Vec3(0, -0.32, 1)
                 mount_action_seq = actor.actor_interval(anim_names.a_anim_horse_mounting, 
                                                         playRate=self.base.game_instance["current_play_rate"])
                 horse_riding_action_seq = actor.actor_interval(anim_names.a_anim_horse_rider_idle, 
@@ -189,18 +187,23 @@ class NpcFSM(FSM):
                             "actor_mount_helper_task",
                             extraArgs=[actor, child, parent, saddle_pos],
                             appendTask=True)
+
                 set_use_true = Func(self.fsm_state_wrapper, actor, "generic_states", "is_using", True)
                 remove_rigid_body = Func(physics_attr.remove_rigid_body_node, child)
                 play_mount_anim = Parallel(mount_action_seq,
                                            Func(child.reparent_to, parent),
                                            Func(child.set_x, mounting_pos[0]),
                                            Func(child.set_y, mounting_pos[1]),
-                                           Func(actor.set_z, mounting_pos[2]),
+                                           Func(child.set_z, mounting_pos[2]),
                                            Func(child.set_h, 0))
                 set_saddle_pos = Parallel(Func(child.set_x, saddle_pos[0]),
                                           Func(child.set_y, saddle_pos[1]),
-                                          Func(actor.set_h, 0),
-                                          Func(actor.set_z, saddle_pos[2]))
+                                          # bullet shape has impact of gravity
+                                          # so make player geom stay higher instead
+                                          Func(child.set_z, 0),
+                                          Func(actor.set_z, saddle_pos[2]),
+                                          Func(actor.set_h, 0))
+
                 set_mounting_states = Parallel(Func(self.fsm_state_wrapper, actor, "generic_states", "is_using", False),
                                                Func(self.fsm_state_wrapper, actor, "human_states", "horse_riding",
                                                     True),
@@ -224,11 +227,12 @@ class NpcFSM(FSM):
             if not self.unmount_sequence[actor_name].is_playing():
                 physics_attr = self.base.game_instance["physics_attr_cls"]
                 self.unmount_sequence[actor_name] = Sequence()
-                unmounting_pos = physics_declaratives.mounting_pos
+                unmounting_pos = Vec3(0.6, -0.16, child.get_z()-0.45)
                 unmount_action_seq = actor.actor_interval(anim_names.a_anim_horse_unmounting, 
                                                           playRate=self.base.game_instance["current_play_rate"])
                 mesh_default_z_pos = actor.get_python_tag("mesh_z_pos")
-                horse_near_pos = Vec3(parent_rb_np.get_x(), parent_rb_np.get_y(), child.get_z()) + Vec3(1, 0, 0)
+                horse_near_pos = Vec3(parent_rb_np.get_x(), parent_rb_np.get_y(),
+                                      parent_rb_np.get_z()) + Vec3(0.6, -0.16, 0)
 
                 taskMgr.remove("actor_mount_helper_task"),
 
@@ -236,15 +240,17 @@ class NpcFSM(FSM):
                 play_unmount_anim = Parallel(unmount_action_seq,
                                              Func(child.set_x, unmounting_pos[0]),
                                              Func(child.set_y, unmounting_pos[1]),
-                                             Func(actor.set_z, unmounting_pos[2])
+                                             Func(child.set_z, unmounting_pos[2])
                                              )
-                # revert rider geom height
+                # revert rider collider back
                 reparent_to_render = Func(child.reparent_to, render)
                 set_rigid_body = Func(physics_attr.set_rigid_body_nodepath_with_shape, actor, child)
+                # Set player near of previous state
                 set_near_pos = Parallel(Func(child.set_x, horse_near_pos[0]),
                                         Func(child.set_y, horse_near_pos[1]),
-                                        Func(actor.set_z, mesh_default_z_pos))
-
+                                        Func(actor.set_z, mesh_default_z_pos),
+                                        Func(child.set_z, parent_rb_np.get_z()+2))
+                # Finalize unmounting
                 set_unmounting_states = Parallel(
                     Func(self.fsm_state_wrapper, actor, "generic_states", "is_using", False),
                     Func(self.fsm_state_wrapper, actor, "human_states", "horse_riding", False),

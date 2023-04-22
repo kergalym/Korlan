@@ -3,8 +3,6 @@ from panda3d.core import Vec3, BitMask32, Point3
 from direct.interval.IntervalGlobal import *
 from direct.task.TaskManagerGlobal import taskMgr
 
-from Engine.Physics import physics_declaratives
-
 """ ANIMATIONS"""
 from Engine import anim_names
 
@@ -1104,6 +1102,7 @@ class PlayerActions:
                     self.archery.arrow_ref.set_python_tag("ready", 0)
 
     def player_mount_helper_task(self, child, player,  horse_np, saddle_pos, task):
+        dt = globalClock.getDt()
         if self.base.game_instance['menu_mode']:
             return task.done
 
@@ -1113,13 +1112,13 @@ class PlayerActions:
                 child.set_y(saddle_pos[1])
                 player.set_z(saddle_pos[2])
 
+                # Set revert camera
                 if not self.base.game_instance['is_aiming']:
                     self.base.camera.set_y(-5.5)
 
-                self.base.camera.set_z(0.5)
+                self.base.camera.set_z(0.8)
             else:
                 self.base.camera.set_y(self.base.game_instance["mouse_y_cam"])
-                self.base.camera.set_z(0)
         return task.cont
 
     def mount_action(self):
@@ -1131,17 +1130,21 @@ class PlayerActions:
             child = self.base.game_instance["player_np"]
             player = self.base.game_instance['player_ref']
 
-            if not player.has_python_tag("last_pos"):
-                player.set_python_tag("last_pos", child.get_z())
-
             if parent and child and not self.base.game_instance['is_aiming']:
                 if (self.base.game_instance['player_ref'].get_python_tag("is_on_horse")
                         and parent.get_python_tag("is_mounted")):
                     self.unmount_action()
                 else:
                     parent_rb_np = self.base.game_instance['actors_np']["{0}:BS".format(horse_name)]
-                    mounting_pos = physics_declaratives.mounting_pos
-                    saddle_pos = physics_declaratives.saddle_pos
+                    # X works as Y and Y works as X:
+                    # Our horse (un)mounting animations have been made with imperfect positions,
+                    # so, I had to change child positions to get more satisfactory result
+                    # with these animations in my game.
+                    mounting_pos = Vec3(0.6, -0.16, 1.45)
+                    saddle_pos = Vec3(0, -0.32, 1)
+                    # mounting_pos = Vec3(0.6, -0.16, -0.41)
+                    # saddle_pos = Vec3(0, -0.32, 0.35)
+
                     mount_action_seq = player.actor_interval(anim_names.a_anim_horse_mounting,
                                                              playRate=self.base.actor_play_rate)
                     horse_riding_action_seq = player.actor_interval(anim_names.a_anim_horse_rider_idle,
@@ -1158,12 +1161,13 @@ class PlayerActions:
                                       Func(child.reparent_to, parent),
                                       Func(child.set_x, mounting_pos[0]),
                                       Func(child.set_y, mounting_pos[1]),
-                                      Func(player.set_z, mounting_pos[2]),
+                                      Func(child.set_z, mounting_pos[2]),
                                       Func(child.set_h, 0)),
                              Func(child.set_x, saddle_pos[0]),
                              Func(child.set_y, saddle_pos[1]),
                              # bullet shape has impact of gravity
                              # so make player geom stay higher instead
+                             Func(child.set_z, 0),
                              Func(player.set_z, saddle_pos[2]),
                              Func(self.base.game_instance['player_ref'].set_python_tag, "is_on_horse", True),
                              Func(self.state.set_action_state, "is_using", False),
@@ -1184,12 +1188,17 @@ class PlayerActions:
         player = self.base.game_instance['player_ref']
 
         if parent and child and not self.base.game_instance['is_aiming']:
-            unmounting_pos = physics_declaratives.mounting_pos
+            # X works as Y and Y works as X:
+            # Our horse (un)mounting animations have been made with imperfect positions,
+            # so, I had to change child positions to get more satisfactory result
+            # with these animations in my game.
+            unmounting_pos = Vec3(0.6, -0.16, child.get_z()-0.45)
             mesh_default_z_pos = player.get_python_tag("mesh_z_pos")
             # Reparent parent/child node back to its BulletCharacterControllerNode
             unmount_action_seq = player.actor_interval(anim_names.a_anim_horse_unmounting,
                                                        playRate=self.base.actor_play_rate)
-            horse_near_pos = Vec3(parent_rb_np.get_x(), parent_rb_np.get_y(), child.get_z()) + Vec3(1, 0, 0)
+            horse_near_pos = Vec3(parent_rb_np.get_x(), parent_rb_np.get_y(),
+                                  parent_rb_np.get_z()) + Vec3(0.6, -0.16, 0)
             base.game_instance['player_using_horse'] = ''
 
             Sequence(Func(self.base.game_instance['player_ref'].set_python_tag, "is_on_horse", False),
@@ -1197,13 +1206,17 @@ class PlayerActions:
                      Parallel(unmount_action_seq,
                               Func(child.set_x, unmounting_pos[0]),
                               Func(child.set_y, unmounting_pos[1]),
-                              Func(player.set_z, unmounting_pos[2])),
-                     # revert player geom height
+                              Func(child.set_z, unmounting_pos[2])),
+                     # revert player collider back
                      Func(child.reparent_to, render),
                      Func(physics_attr.set_character_controller_nodepath_with_shape, player, child),
+                     # Set player near of previous state
                      Func(child.set_x, horse_near_pos[0]),
                      Func(child.set_y, horse_near_pos[1]),
                      Func(player.set_z, mesh_default_z_pos),
+                     Func(child.set_z, parent_rb_np.get_z()),
+                     Func(self.base.camera.set_z, 0),
+                     # Finalize unmounting
                      Func(self.state.set_action_state, "is_using", False),
                      Func(self.state.set_action_state, "horse_riding", False),
                      Func(self.state.set_action_state, "is_mounted", False),

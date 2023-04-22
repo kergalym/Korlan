@@ -5,7 +5,7 @@ from panda3d.core import *
 from panda3d.navigation import NavObstacleCylinderNode
 
 from Engine.Actors.Player.state import PlayerState
-from Engine.async_level_load import AsyncLevelLoad
+from Engine.async_level_loading import AsyncLevelLoading
 from Engine.Physics.physics_attr import PhysicsAttr
 from Settings.UI.pause_menu_ui import PauseMenuUI
 from Engine.AI.npc_controller import NpcController
@@ -34,7 +34,7 @@ class LevelOne:
         self.render = render
         self.loader = base.loader
         self.node_path = NodePath()
-        self.async_level_load = AsyncLevelLoad()
+        self.async_level_loading = AsyncLevelLoading()
         self.pos_z = 0
         self.actor_fsm_classes = []
         self.pause_game_ui = PauseMenuUI()
@@ -163,7 +163,7 @@ class LevelOne:
                 taskMgr.remove("update_soft_physics_task")
 
             # Player and NPC cleanup
-            if self.async_level_load.korlan:
+            if self.async_level_loading.korlan:
                 # Remove all remained nodes
                 if not render.find('**/Player:BS').is_empty():
                     render.find('**/Player:BS').remove_node()
@@ -177,8 +177,8 @@ class LevelOne:
                 taskMgr.remove("mouse_control_task")
                 taskMgr.remove("collect_actors_health_task")
                 taskMgr.remove("update_horse_trigger_task")
-                self.async_level_load.korlan.delete()
-                self.async_level_load.korlan.cleanup()
+                self.async_level_loading.korlan.delete()
+                self.async_level_loading.korlan.cleanup()
 
             for name in self.base.game_instance['actors_np']:
                 if self.base.game_instance['actors_np'].get(name):
@@ -186,17 +186,17 @@ class LevelOne:
                     self.base.game_instance['actors_np'][name].clear()
 
             # Clean Level World
-            if render.find("**/World"):
-                render.find("**/World").remove_node()
-                render.find("**/World").clear()
+            if self.base.game_instance["world_np"]:
+                self.base.game_instance["world_np"].remove_node()
+                self.base.game_instance["world_np"].clear()
                 self.base.game_instance['scene_np'].remove_node()
                 self.base.game_instance['scene_np'].clear()
                 self.base.game_instance['player_ref'].remove_node()
                 self.base.game_instance['player_ref'].clear()
 
-            if render.find("**/TreeMaster"):
-                render.find("**/TreeMaster").remove_node()
-                render.find("**/TreeMaster").clear()
+            if render.find("**/LODs_Tree"):
+                render.find("**/LODs_Tree").remove_node()
+                render.find("**/LODs_Tree").clear()
 
             # Clean level Navmesh
             if self.base.game_instance["level_navmesh_np"]:
@@ -241,11 +241,14 @@ class LevelOne:
         world_np = NodePath("World")
         world_np.reparent_to(render)
 
+        self.base.game_instance["world_np"] = world_np
+
         lod = LODNode('LOD')
         self.base.game_instance['lod_np'] = NodePath(lod)
         self.base.game_instance['lod_np'].reparentTo(world_np)
 
         self.base.game_instance['render_attr_cls'].time_text_ui.show()
+
         taskMgr.add(self.base.game_instance['render_attr_cls'].set_time_of_day_clock_task,
                     "set_time_of_day_clock_task",
                     extraArgs=["10:00", 1800],  # 1800 sec == 30 min
@@ -303,16 +306,16 @@ class LevelOne:
             suffix = "rp"
 
             # Combined async loading of the scene, player and non-playable_characters
-            taskMgr.add(self.async_level_load.async_load_level(scene_name="lvl_one",
-                                                               player_name="Player",
-                                                               player_pos=[-8, 15, 0],
-                                                               scale=1.0,
-                                                               culling=False,
-                                                               level_npc_assets=LEVEL_NPC_ASSETS,
-                                                               level_npc_axis=LEVEL_NPC_AXIS,
-                                                               assets=assets,
-                                                               suffix=suffix,
-                                                               animation=anims))
+            taskMgr.add(self.async_level_loading.async_load_level(scene_name="lvl_one",
+                                                                  player_name="Player",
+                                                                  player_pos=[-8, 15, 0],
+                                                                  scale=1.0,
+                                                                  culling=False,
+                                                                  level_npc_assets=LEVEL_NPC_ASSETS,
+                                                                  level_npc_axis=LEVEL_NPC_AXIS,
+                                                                  assets=assets,
+                                                                  suffix=suffix,
+                                                                  animation=anims))
 
         elif self.game_settings['Debug']['set_debug_mode'] == "YES":
             # Construct and pass NPC_FSM classes
@@ -348,16 +351,16 @@ class LevelOne:
             suffix = "rp"
 
             # Combined async loading of the scene, player and non-playable_characters
-            taskMgr.add(self.async_level_load.async_load_level(scene_name="lvl_one",
-                                                               player_name="Player",
-                                                               player_pos=[-8, 15, 0],
-                                                               scale=1.0,
-                                                               culling=False,
-                                                               level_npc_assets=TESTLEVEL_NPC_ASSETS,
-                                                               level_npc_axis=TESTLEVEL_NPC_AXIS,
-                                                               assets=assets,
-                                                               suffix=suffix,
-                                                               animation=anims))
+            taskMgr.add(self.async_level_loading.async_load_level(scene_name="lvl_one",
+                                                                  player_name="Player",
+                                                                  player_pos=[-8, 15, 0],
+                                                                  scale=1.0,
+                                                                  culling=False,
+                                                                  level_npc_assets=TESTLEVEL_NPC_ASSETS,
+                                                                  level_npc_axis=TESTLEVEL_NPC_AXIS,
+                                                                  assets=assets,
+                                                                  suffix=suffix,
+                                                                  animation=anims))
 
         """ Task for Debug mode """
         if self.game_settings['Debug']['set_debug_mode'] == 'YES':

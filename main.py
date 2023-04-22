@@ -14,7 +14,8 @@ from direct.stdpy.file import exists as vfs_exists
 from direct.stdpy.file import open as vfs_open
 from direct.stdpy.file import walk as vfs_walk
 
-import panda3d.core as p3d
+from panda3d.core import load_prc_file_data
+
 from direct.gui.OnscreenImage import OnscreenImage
 from direct.gui.OnscreenText import OnscreenText
 from direct.showbase.ShowBaseGlobal import render2d
@@ -140,22 +141,29 @@ if game_settings['Main']['fullscreen'] == "on":
 if game_settings['Debug']['want_pstats'] == "YES":
     want_pstats_value = "t"
 
-p3d.load_prc_file_data(
+load_prc_file_data("", """
+    stm-max-chunk-count 2048
+    gl-coordinate-system default
+    stm-max-views 20
+    notify-level-linmath error
+""")
+
+load_prc_file_data(
     '',
     'fullscreen {0}\n'.format(fscreen)
 )
 
-p3d.load_prc_file_data(
+load_prc_file_data(
     '',
     'win-size {0} {1}\n'.format(disp_res[0], disp_res[1])
 )
 
-p3d.load_prc_file_data(
+load_prc_file_data(
     '',
     'window-type {0}\n'.format(wintype)
 )
 
-p3d.load_prc_file_data(
+load_prc_file_data(
     '',
     # 'win-fixed-size 1\n'
     'icon-filename icon-16.ico\n'
@@ -164,6 +172,7 @@ p3d.load_prc_file_data(
     'show-frame-rate-meter  t\n'
     'load-display pandagl\n'
     'audio-library-name p3openal_audio\n'
+    'allow-portal-cull t\n'
     'model-cache-textures f \n'
     'model-cache-dir\n'
     'bullet-filter-algorithm groups-mask\n'
@@ -177,7 +186,7 @@ p3d.load_prc_file_data(
     'allow-incomplete-render 1\n'
 )
 
-p3d.load_prc_file_data(
+load_prc_file_data(
     '',
     'want-pstats {0}\n'.format(want_pstats_value)
 )
@@ -428,6 +437,7 @@ class Main(ShowBase):
             "scene_np": None,
             "trees_np": None,
             "grass_np": None,
+            "foliage_np": None,
             "round_table_np": None,
             "player_trigger_cls": None,
             "player_controller": None,
@@ -494,6 +504,7 @@ class Main(ShowBase):
             "npcs_fsm_states": {},
             "static_indoor_targets": None,
             "npc_state_cls": None,
+            "world_np": None,
             "world_time": None,
             "sit_time_start": None,
             "sit_time_stop": None,
