@@ -588,10 +588,9 @@ class Main(ShowBase):
         self.rotateX = 0
         self.scene_mode = None
 
-        if self.game_settings['Debug']['set_debug_mode'] == 'NO':
-            # Enable PBR-dependent projected water
-            taskMgr.add(self.projected_water_init_waiting_task,
-                        "projected_water_init_waiting_task")
+        # Enable PBR-dependent projected water
+        taskMgr.add(self.projected_water_init_waiting_task,
+                    "projected_water_init_waiting_task")
 
     def projected_water_init_waiting_task(self, task):
         if self.game_instance["projected_water_is_ready"] == 1:

@@ -412,6 +412,7 @@ class PhysicsAttr:
                             coll.remove_node()
 
     def toggle_physics_debug(self):
+        renderpipeline_np = self.base.game_instance["renderpipeline_np"]
         if self.debug_nodepath:
             if self.debug_nodepath.is_hidden():
                 self.debug_nodepath.show()
@@ -422,9 +423,25 @@ class PhysicsAttr:
 
         if self.soft_debug_nodepath:
             if self.soft_debug_nodepath.is_hidden():
+                renderpipeline_np.set_effect(render,
+                                             "{0}/Engine/Renderer/effects/default.yaml".format(
+                                                 self.base.game_dir),
+                                             {"render_gbuffer": False,
+                                              "render_forward": True,
+                                              "render_shadow": True,
+                                              "alpha_testing": True,
+                                              "normal_mapping": True})
                 self.soft_debug_nodepath.show()
                 # self.soft_debug_nodepath.node().showBoundingBoxes(True)
             else:
+                renderpipeline_np.set_effect(render,
+                                             "{0}/Engine/Renderer/effects/default.yaml".format(
+                                                 self.base.game_dir),
+                                             {"render_gbuffer": True,
+                                              "render_forward": False,
+                                              "render_shadow": True,
+                                              "alpha_testing": True,
+                                              "normal_mapping": True})
                 self.soft_debug_nodepath.hide()
                 # self.soft_debug_nodepath.node().showBoundingBoxes(False)
 
@@ -478,21 +495,20 @@ class PhysicsAttr:
             self.landscape_rb_np.set_pos(0, 0, 0)
 
     def waiting_for_landscape_task(self, task):
-        if self.game_settings['Debug']['set_debug_mode'] == 'NO':
-            if render.find("**/lvl_landscape"):
-                # Remove Pre-loading Stage Ground since we're going to load the landscape
-                if self.ground_rb_np:
-                    self.world.remove_rigid_body(self.ground_rb_np.node())
+        if render.find("**/lvl_landscape"):
+            # Remove Pre-loading Stage Ground since we're going to load the landscape
+            if self.ground_rb_np:
+                self.world.remove_rigid_body(self.ground_rb_np.node())
 
-                self._construct_landscape_mesh()
+            self._construct_landscape_mesh()
 
-                """landscape = render.find("**/lvl_landscape")
-                if landscape is not None:
-                    landscape.remove_node()
+            """landscape = render.find("**/lvl_landscape")
+            if landscape is not None:
+                landscape.remove_node()
 
-                self._construct_landscape_terrain()"""
+            self._construct_landscape_terrain()"""
 
-                return task.done
+            return task.done
 
         return task.cont
 
@@ -577,7 +593,7 @@ class PhysicsAttr:
             # self.world.set_group_collision_flag(0, 0, False)
             self.world.set_group_collision_flag(0, 1, False)
 
-            if self.game_settings['Debug']['set_debug_mode'] == "NO":
+            if self.game_settings['Debug']['set_debug_mode'] == "YES":
                 if hasattr(self.debug_nodepath, "node"):
                     self.world.set_debug_node(self.debug_nodepath.node())
 

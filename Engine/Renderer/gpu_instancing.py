@@ -118,24 +118,23 @@ class GPUInstancing:
         :param placeholder:
         :return:
         """
-        if self.base.game_settings['Debug']['set_debug_mode'] == 'NO':
-            if (scene and isinstance(scene, NodePath)
-                    and isinstance(asset_type, str)
-                    and isinstance(pattern, str)
-                    and isinstance(placeholder, str)):
+        if (scene and isinstance(scene, NodePath)
+                and isinstance(asset_type, str)
+                and isinstance(pattern, str)
+                and isinstance(placeholder, str)):
 
-                # Define prefab LOD and reparent to render node
-                prefab_lod, prefab_lod_np = self._construct_prefab_lod(pattern=pattern)
+            # Define prefab LOD and reparent to render node
+            prefab_lod, prefab_lod_np = self._construct_prefab_lod(pattern=pattern)
 
-                # Find the asset object, we are going to in instance this object
-                # multiple times
-                prefabs = scene.find_all_matches("**/{0}*".format(pattern))
-                if prefabs is not None:
-                    for prefab in prefabs:
-                        if "LODNode" not in prefab.get_name():
-                            self._setup_prefab_lod(placeholder=placeholder,
-                                                   prefab=prefab,
-                                                   prefab_lod_np=prefab_lod_np,
-                                                   prefab_lod=prefab_lod)
+            # Find the asset object, we are going to in instance this object
+            # multiple times
+            prefabs = scene.find_all_matches("**/{0}*".format(pattern))
+            if prefabs is not None:
+                for prefab in prefabs:
+                    if "LODNode" not in prefab.get_name():
+                        self._setup_prefab_lod(placeholder=placeholder,
+                                               prefab=prefab,
+                                               prefab_lod_np=prefab_lod_np,
+                                               prefab_lod=prefab_lod)
 
-                            self._populate_instances(scene, placeholder, prefab, asset_type)
+                        self._populate_instances(scene, placeholder, prefab, asset_type)

@@ -84,7 +84,7 @@ class RenderAttr:
             if self.base.game_instance["renderpipeline_np"] and time and duration:
                 self.base.game_instance["renderpipeline_np"].daytime_mgr.time = time
                 self.elapsed_seconds = round(globalClock.getRealTime())
-    
+
                 # seconds floor divided by 60 are equal to 1 minute
                 # 1800 seconds are equal to 30 minutes
                 self.minutes = self.elapsed_seconds // 60
@@ -222,7 +222,7 @@ class RenderAttr:
                     if self.base.game_instance["renderpipeline_np"] and adv_render:
                         # Put second light above hearth
                         light_a = RP_PointLight()
-                        light_a.pos = Vec3(node_path.get_x(), node_path.get_y(), node_path.get_z()+1)
+                        light_a.pos = Vec3(node_path.get_x(), node_path.get_y(), node_path.get_z() + 1)
                         light_a.set_color_from_temperature(1000.0)
                         light_a.energy = self.flame_light_a_energy
                         light_a.ies_profile = self.base.game_instance["renderpipeline_np"].load_ies_profile("pear.ies")
