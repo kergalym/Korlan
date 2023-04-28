@@ -1209,7 +1209,7 @@ class PlayerActions:
                               Func(child.set_z, unmounting_pos[2])),
                      # revert player collider back
                      Func(child.reparent_to, render),
-                     Func(physics_attr.set_character_controller_nodepath_with_shape, player, child),
+                     Func(physics_attr.set_rigid_body_nodepath_with_shape, player, child),
                      # Set player near of previous state
                      Func(child.set_x, horse_near_pos[0]),
                      Func(child.set_y, horse_near_pos[1]),

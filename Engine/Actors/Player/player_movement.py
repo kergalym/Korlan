@@ -216,6 +216,9 @@ class PlayerMovement:
             omega = 0.0
             move_unit = 2
 
+            # Get the time that elapsed since last frame
+            dt = globalClock.getDt()
+
             self.turning_in_place(player, anims, self.seq_turning_wrapper)
 
             # Forward walk
@@ -226,7 +229,11 @@ class PlayerMovement:
                     and base.player_states['is_idle']):
 
                 if base.input_state.is_set('forward'):
-                    speed.set_y(-move_unit)
+                    if str(self.base.game_instance['player_controller'].type) != "BulletCharacterControllerNode":
+                        player_rb_np = self.base.game_instance["player_np"]
+                        player_rb_np.set_y(player_rb_np, -move_unit * dt)
+                    else:
+                        speed.set_y(-move_unit)
 
             # Backward
             if (self.kbd.keymap["backward"]
@@ -237,7 +244,11 @@ class PlayerMovement:
                 player.set_play_rate(-1.0,
                                      anims[anim_names.a_anim_walking])
                 if base.input_state.is_set('reverse'):
-                    speed.set_y(move_unit)
+                    if str(self.base.game_instance['player_controller'].type) != "BulletCharacterControllerNode":
+                        player_rb_np = self.base.game_instance["player_np"]
+                        player_rb_np.set_y(player_rb_np, move_unit * dt)
+                    else:
+                        speed.set_y(move_unit)
 
             # Forward crouch walk
             if (self.kbd.keymap["forward"]
@@ -245,11 +256,16 @@ class PlayerMovement:
                     and self.kbd.keymap["run"] is False
                     and base.player_states['is_crouch_moving']):
                 if base.input_state.is_set('forward'):
-                    speed.set_y(-move_unit)
+                    if str(self.base.game_instance['player_controller'].type) != "BulletCharacterControllerNode":
+                        player_rb_np = self.base.game_instance["player_np"]
+                        player_rb_np.set_y(player_rb_np, -move_unit * dt)
+                    else:
+                        speed.set_y(-move_unit)
 
             if self.base.game_instance['player_controller']:
-                self.base.game_instance['player_controller'].set_linear_movement(speed, True)
-                self.base.game_instance['player_controller'].set_angular_movement(omega)
+                if str(self.base.game_instance['player_controller'].type) == "BulletCharacterControllerNode":
+                    self.base.game_instance['player_controller'].set_linear_movement(speed, True)
+                    self.base.game_instance['player_controller'].set_angular_movement(omega)
 
             # If the player does action, loop the animation through messenger.
             if (self.kbd.keymap["forward"]
@@ -294,11 +310,19 @@ class PlayerMovement:
                 speed = Vec3(0, 0, 0)
                 omega = 0.0
                 move_unit = 2
+
                 if base.input_state.is_set('forward'):
-                    speed.set_y(-move_unit)
+                    if str(self.base.game_instance['player_controller'].type) != "BulletCharacterControllerNode":
+                        # Get the time that elapsed since last frame
+                        dt = globalClock.getDt()
+                        player_rb_np = self.base.game_instance["player_np"]
+                        player_rb_np.set_y(player_rb_np, -move_unit * dt)
+                    else:
+                        speed.set_y(-move_unit)
                 if self.base.game_instance['player_controller']:
-                    self.base.game_instance['player_controller'].set_linear_movement(speed, True)
-                    self.base.game_instance['player_controller'].set_angular_movement(omega)
+                    if str(player.node().type) == "BulletCharacterControllerNode":
+                        self.base.game_instance['player_controller'].set_linear_movement(speed, True)
+                        self.base.game_instance['player_controller'].set_angular_movement(omega)
 
                 Sequence(Func(self.seq_move_wrapper, player, anims, 'loop')
                          ).start()
@@ -331,10 +355,17 @@ class PlayerMovement:
                             and not self.kbd.keymap["backward"]
                             and self.kbd.keymap["run"]):
                         if base.input_state.is_set('forward'):
-                            speed.set_y(-move_unit)
+                            if str(self.base.game_instance['player_controller'].type) != "BulletCharacterControllerNode":
+                                # Get the time that elapsed since last frame
+                                dt = globalClock.getDt()
+                                player_rb_np = self.base.game_instance["player_np"]
+                                player_rb_np.set_y(player_rb_np, -move_unit * dt)
+                            else:
+                                speed.set_y(-move_unit)
 
                             if self.base.game_instance['player_controller']:
-                                self.base.game_instance['player_controller'].set_linear_movement(speed, True)
+                                if str(self.base.game_instance['player_controller'].type) == "BulletCharacterControllerNode":
+                                    self.base.game_instance['player_controller'].set_linear_movement(speed, True)
 
                     # If the player does action, loop the animation.
                     # If it is standing still, stop the animation.

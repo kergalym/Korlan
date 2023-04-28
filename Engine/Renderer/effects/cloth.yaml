@@ -2,6 +2,9 @@
 # Cloth texture
 
 vertex:
+    inout: |
+        out vec2 tex_coord;
+
     transform: |
         // vOutput.position.xy += MainSceneData.camera_pos.xy;
 

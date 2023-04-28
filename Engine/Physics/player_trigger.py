@@ -1,6 +1,6 @@
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.bullet import BulletSphereShape, BulletGhostNode
-from panda3d.core import BitMask32, Point3
+from panda3d.core import BitMask32, Point3, Vec3
 
 
 class PlayerTrigger:
@@ -24,21 +24,46 @@ class PlayerTrigger:
                         "npc_hud_switcher_task",
                         extraArgs=[trigger_np, player_rb_np],
                         appendTask=True)
-            taskMgr.add(self._clear_forces, "clear_forces_player",
-                        extraArgs=[player_rb_np],
-                        appendTask=True)
+
+            # Keep NPC from being hardly pushed if it has stayed
+            if str(player_rb_np.node().type) != "BulletCharacterControllerNode":
+                taskMgr.add(self._clear_forces, "clear_forces_player",
+                            extraArgs=[player_rb_np],
+                            appendTask=True)
 
     def _clear_forces(self, actor_rb_np, task):
         if self.base.game_instance['menu_mode']:
             return task.done
 
-        if hasattr(actor_rb_np.node(), "set_angular_damping"):
-            actor_rb_np.node().set_angular_damping(60)  # stop sliding vertically
-        if hasattr(actor_rb_np.node(), "set_linear_damping"):
-            actor_rb_np.node().set_linear_damping(60)  # stop sliding horizontally
+        # Keep NPC from being hardly pushed if it has stayed
+        force_z_vec = actor_rb_np.node().get_total_force()[2]
+        imp_z_vec = actor_rb_np.node().get_total_torque()[2]
+        lin_vec_z = actor_rb_np.node().get_linear_velocity()[2]
+        ang_vec_z = actor_rb_np.node().get_angular_velocity()[2]
 
-        if hasattr(actor_rb_np.node(), "set_restitution"):
-            actor_rb_np.node().set_restitution(0.01)
+        actor_rb_np.node().apply_central_force(Vec3(0, 0, force_z_vec))
+        actor_rb_np.node().apply_central_impulse(Vec3(0, 0, imp_z_vec))
+        actor_rb_np.node().apply_torque_impulse(Vec3(0, 0, imp_z_vec))
+        actor_rb_np.node().set_linear_velocity(Vec3(0, 0, lin_vec_z))
+        actor_rb_np.node().set_angular_velocity(Vec3(0, 0, ang_vec_z))
+
+        # Disabling movement and rotation forces
+        actor_rb_np.node().set_angular_factor(Vec3(0, 1, 0))  # disables rotation
+        actor_rb_np.node().set_linear_factor(Vec3(1, 0, 1))  # disables rotation
+
+        actor_rb_np.node().apply_torque(Vec3(0, 0, 0))
+        actor_rb_np.node().clearForces()
+        actor_rb_np.node().set_angular_damping(0)  # stop sliding vertically
+        actor_rb_np.node().set_linear_damping(0)  # stop sliding horizontally
+        actor_rb_np.node().set_linear_sleep_threshold(0)
+        actor_rb_np.node().set_angular_sleep_threshold(0)
+        actor_rb_np.node().set_deactivation_time(0.01)
+
+        actor_rb_np.node().set_restitution(0.01)
+
+        # Disable shape pitching and rotating
+        actor_rb_np.set_p(0)
+        actor_rb_np.set_r(0)
 
         return task.cont
 

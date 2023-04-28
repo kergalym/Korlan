@@ -261,6 +261,8 @@ class PauseMenuUI(MenuSettings):
 
             if self.base.game_instance['dev_ui_mode']:
                 self.base.game_instance['ui_mode'] = True
+            elif self.base.game_settings['Debug']['set_editor_mode'] == 'YES':
+                self.base.game_instance['ui_mode'] = True
             else:
                 self.base.game_instance['ui_mode'] = False
 
@@ -273,6 +275,10 @@ class PauseMenuUI(MenuSettings):
         self.base.win.request_properties(self.base.win_props)
 
         if self.base.game_instance['dev_ui_mode']:
+            self.base.win_props.set_cursor_hidden(False)
+            self.base.win.request_properties(self.base.win_props)
+            self.base.game_instance['ui_mode'] = True
+        elif self.base.game_settings['Debug']['set_editor_mode'] == 'YES':
             self.base.win_props.set_cursor_hidden(False)
             self.base.win.request_properties(self.base.win_props)
             self.base.game_instance['ui_mode'] = True

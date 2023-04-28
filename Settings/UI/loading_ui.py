@@ -153,6 +153,8 @@ class LoadingUI:
                 self.stat_ui.set_game_stat()
 
             if self.game_settings['Debug']['set_editor_mode'] == 'YES':
+                self.base.win_props.set_cursor_hidden(False)
+                self.base.win.request_properties(self.base.win_props)
                 self.editor = Editor()
                 self.editor.set_editor()
 

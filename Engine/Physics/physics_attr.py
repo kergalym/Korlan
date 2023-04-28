@@ -2,7 +2,7 @@ from panda3d.bullet import BulletCharacterControllerNode, BulletBoxShape, Bullet
     BulletHelper, BulletHeightfieldShape, ZUp
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import Vec3, BitMask32, NodePath, GeomNode, GeomVertexFormat, Point3, PNMImage, Filename, \
-    ShaderTerrainMesh
+    ShaderTerrainMesh, SamplerState
 from panda3d.bullet import BulletWorld, BulletDebugNode, BulletRigidBodyNode, BulletPlaneShape
 
 from Engine.Physics.collision_solids import BulletCollisionSolids
@@ -159,6 +159,10 @@ class PhysicsAttr:
         actor_rb_np = self._get_character_controller_nodepath(shape=shape,
                                                               node_name=col_name,
                                                               mask=mask)
+        actor_rb_np = self._get_rigid_body_nodepath(shape=shape,
+                                                    node_name=col_name,
+                                                    mass=9999,
+                                                    mask=mask)
         self.base.game_instance['player_controller'] = actor_rb_np.node()
 
         if self.game_settings['Debug']['set_editor_mode'] == 'NO':
@@ -172,6 +176,8 @@ class PhysicsAttr:
 
         # keep collision name and mass
         actor.set_python_tag("col_name", col_name)
+
+        actor.set_python_tag("col_mass", 9999)
 
         # Set actor down to make it
         # at the same point as bullet shape
@@ -415,14 +421,6 @@ class PhysicsAttr:
         renderpipeline_np = self.base.game_instance["renderpipeline_np"]
         if self.debug_nodepath:
             if self.debug_nodepath.is_hidden():
-                self.debug_nodepath.show()
-                # self.debug_nodepath.node().showBoundingBoxes(True)
-            else:
-                self.debug_nodepath.hide()
-                # self.debug_nodepath.node().showBoundingBoxes(False)
-
-        if self.soft_debug_nodepath:
-            if self.soft_debug_nodepath.is_hidden():
                 renderpipeline_np.set_effect(render,
                                              "{0}/Engine/Renderer/effects/default.yaml".format(
                                                  self.base.game_dir),
@@ -431,8 +429,8 @@ class PhysicsAttr:
                                               "render_shadow": True,
                                               "alpha_testing": True,
                                               "normal_mapping": True})
-                self.soft_debug_nodepath.show()
-                # self.soft_debug_nodepath.node().showBoundingBoxes(True)
+                self.debug_nodepath.show()
+                # self.debug_nodepath.node().showBoundingBoxes(True)
             else:
                 renderpipeline_np.set_effect(render,
                                              "{0}/Engine/Renderer/effects/default.yaml".format(
@@ -442,6 +440,14 @@ class PhysicsAttr:
                                               "render_shadow": True,
                                               "alpha_testing": True,
                                               "normal_mapping": True})
+                self.debug_nodepath.hide()
+                # self.debug_nodepath.node().showBoundingBoxes(False)
+
+        if self.soft_debug_nodepath:
+            if self.soft_debug_nodepath.is_hidden():
+                self.soft_debug_nodepath.show()
+                # self.soft_debug_nodepath.node().showBoundingBoxes(True)
+            else:
                 self.soft_debug_nodepath.hide()
                 # self.soft_debug_nodepath.node().showBoundingBoxes(False)
 
@@ -453,36 +459,52 @@ class PhysicsAttr:
                 navmesh_scene_np.hide()
 
     def _construct_landscape_terrain(self):
-        terrain_np = self.base.game_instance["world_np"].attach_new_node("terrain")
-
+        terrain_master_np = self.base.game_instance["world_np"].attach_new_node("terrain")
         images = base.textures_collector(path="Assets/Heightmaps")
-        shape = BulletHeightfieldShape(
-            PNMImage(Filename(images["heightfield"])), 0, ZUp)
+        terrain_np_scale = Vec3(8192, 8192, 600)
+
+        # Construct terrain from large heightfield texture with size 8192x8192
+        heightfield = self.base.loader.load_texture(images["heightfield"])
+        terrain_node = ShaderTerrainMesh()
+        terrain_node.heightfield = heightfield
+        terrain_node.target_triangle_width = 1.0
+        terrain_node.generate()
+        terrain_np = terrain_master_np.attach_new_node(terrain_node)
+        terrain_np.set_scale(terrain_np_scale)
+
+        # Construct collision shape for terrain from small heightfield texture with size 256x256
+        heightmap_sm = PNMImage(Filename(images["heightfield_sm"]))
+        shape = BulletHeightfieldShape(heightmap_sm, 10, ZUp)
+        shape.set_use_diamond_subdivision(True)
 
         node = BulletRigidBodyNode('Ground')
-        node.addShape(shape)
+        node.add_shape(shape)
 
-        self.world.attachRigidBody(node)
+        terrain_bs_np = terrain_master_np.attach_new_node(node)
+        self.world.attach_rigid_body(node)
+        terrain_bs_np.set_pos(0, 0, 0)
 
-        heightfield = self.base.loader.loadTexture(images["heightfield"])
+        # ShaderTerrainMesh and BulletHeightfieldShape have different origins.
+        # The BulletHeightfieldShape is centered around the origin,
+        # while the ShaderTerrainMesh uses the lower left corner as its origin.
+        # This can be corrected by positioning the ShaderTerrainMesh with an left offset based on its half size.
+        offset = terrain_np.get_scale() / 2
+        terrain_np.set_pos(-offset.x, -offset.y, -offset.z)
 
-        for x in range(3):
-            for y in range(3):
-                terrain_node = ShaderTerrainMesh()
-                terrain_node.heightfield = heightfield
-                terrain_node.target_triangle_width = 6.0
-                terrain_node.generate()
+        # Calculate same scale for BulletHeightfieldShape
+        terrain_bs_np.set_scale(32.5, 32.5, 62)
+        terrain_bs_np.set_z(terrain_bs_np.get_z() + 5)
 
-                terrain_n = terrain_np.attach_new_node(terrain_node)
-                terrain_n.set_scale(8192, 8192, 600)
-                terrain_n.set_pos(-4096 + (x - 1) * 8192, -4096 + (y - 1) * 8192, 0)
-
+        # Add shader to terrain
         render_pipeline = self.base.game_instance["renderpipeline_np"]
         render_pipeline.set_effect(terrain_np,
                                    "{0}/Engine/Renderer/effects/terrain-effect.yaml".format(self.base.game_dir),
-                                   {}, 100)
+                                   {}, 101)
 
-        self.base.terrain_np = terrain_np
+        # Set land texture
+        landscape_tex_path = "{0}/Assets/Levels/tex/T_OuterLandscape_1_B.txo".format(self.base.game_dir)
+        landscape_tex = self.base.loader.load_texture(landscape_tex_path)
+        terrain_np.set_shader_input("heightfield_diffuse", landscape_tex)
 
     def _construct_landscape_mesh(self):
         landscape = render.find("**/lvl_landscape")

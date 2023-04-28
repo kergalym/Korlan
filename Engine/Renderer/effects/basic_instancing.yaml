@@ -1,7 +1,5 @@
 
-# Terrain effect
-# This effect uses prodecural shader splatting, you most likely want to modify
-# it with your own texture-map generation code.
+# Instancing effect
 
 vertex:
     inout: |
