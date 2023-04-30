@@ -295,7 +295,9 @@ class LevelOne:
                 self.actors_for_focus[index] = actor
 
             """ Setup Physics """
-            self.physics_attr.set_physics_world(self.base.game_instance["npcs_fsm_states"])
+            self.physics_attr.set_physics_world(
+                level_mesh="lvl_landscape",
+                npcs_fsm_states=self.base.game_instance["npcs_fsm_states"])
 
             self.physics_attr.set_soft_physics_world(True)
 
@@ -340,8 +342,9 @@ class LevelOne:
                 self.actors_for_focus[index] = actor
 
             """ Setup Physics """
-            self.physics_attr.set_physics_world(self.base.game_instance["npcs_fsm_states"])
-
+            self.physics_attr.set_physics_world(
+                level_mesh="lvl_landscape",
+                npcs_fsm_states=self.base.game_instance["npcs_fsm_states"])
             self.physics_attr.set_soft_physics_world(True)
 
             self.base.game_instance["physics_attr_cls"] = self.physics_attr

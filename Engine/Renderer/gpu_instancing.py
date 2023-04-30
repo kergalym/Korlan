@@ -68,6 +68,7 @@ class GPUInstancing:
                 node_path_rb.node().add_shape(capsule)
                 physics_world_np.attach(node_path_rb.node())
                 node_path.set_pos(0, 0, -1)
+                node_path_rb.set_collide_mask(1)
 
     def _allocate_texture_storage(self, matrices, floats):
         # Allocate storage for the matrices, each matrix has 16 elements,

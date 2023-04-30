@@ -67,6 +67,7 @@ fragment:
             int terrain_size;
             int chunk_size;
         } ShaderTerrainMesh;
+        uniform sampler2D heightfield_diffuse;
 
     material: |
 

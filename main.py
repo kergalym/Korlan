@@ -142,7 +142,7 @@ if game_settings['Debug']['want_pstats'] == "YES":
     want_pstats_value = "t"
 
 load_prc_file_data("", """
-    stm-max-chunk-count 2048
+    stm-max-chunk-count 8192
     gl-coordinate-system default
     stm-max-views 20
     notify-level-linmath error

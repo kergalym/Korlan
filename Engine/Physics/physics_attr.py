@@ -361,31 +361,30 @@ class PhysicsAttr:
     def set_static_object_colliders(self, scene):
         if scene and self.world:
 
-            if self.game_settings['Debug']['set_debug_mode'] == "NO":
-                self.coll_collection = render.find("**/Collisions/lvl*collider")
+            self.coll_collection = render.find("**/Collisions/lvl*collider")
 
-                for coll in self.coll_collection.get_children():
-                    # Cut coll suffix from collider mesh name
-                    name = coll.get_name()
-                    if name.endswith(".coll.001"):
-                        name = name.split(".coll.001")[0]
+            for coll in self.coll_collection.get_children():
+                # Cut coll suffix from collider mesh name
+                name = coll.get_name()
+                if name.endswith(".coll.001"):
+                    name = name.split(".coll.001")[0]
+
+                # Find asset to attach it to rigidbody collider
+                if scene.find("**/{0}".format(name)):
+                    child = scene.find("**/{0}".format(name))
 
                     # Find asset to attach it to rigidbody collider
-                    if scene.find("**/{0}".format(name)):
-                        child = scene.find("**/{0}".format(name))
+                    if child:
+                        shape = self.bullet_solids.get_bs_auto(mesh=coll, type_="static")
+                        if shape:
+                            child_bs_name = "{0}:BS".format(child.get_name())
+                            child_rb_np = child.attach_new_node(BulletRigidBodyNode(child_bs_name))
+                            child_rb_np.node().add_shape(shape)
+                            self.world.attach(child_rb_np.node())
+                            child_rb_np.set_hpr(child.get_hpr())
 
-                        # Find asset to attach it to rigidbody collider
-                        if child:
-                            shape = self.bullet_solids.get_bs_auto(mesh=coll, type_="static")
-                            if shape:
-                                child_bs_name = "{0}:BS".format(child.get_name())
-                                child_rb_np = child.attach_new_node(BulletRigidBodyNode(child_bs_name))
-                                child_rb_np.node().add_shape(shape)
-                                self.world.attach(child_rb_np.node())
-                                child_rb_np.set_hpr(child.get_hpr())
-
-                                # Remove collider meshes, not needed anymore
-                                coll.remove_node()
+                            # Remove collider meshes, not needed anymore
+                            coll.remove_node()
 
     def set_dynamic_object_colliders(self, scene):
         if scene and self.world:
@@ -506,8 +505,7 @@ class PhysicsAttr:
         landscape_tex = self.base.loader.load_texture(landscape_tex_path)
         terrain_np.set_shader_input("heightfield_diffuse", landscape_tex)
 
-    def _construct_landscape_mesh(self):
-        landscape = render.find("**/lvl_landscape")
+    def _construct_landscape_colision_mesh(self, landscape):
         shape = self.bullet_solids.get_bs_auto(mesh=landscape, type_="static")
         if shape is not None:
             self.landscape_rb_np = landscape.attach_new_node(BulletRigidBodyNode("Landscape_BN"))
@@ -516,19 +514,22 @@ class PhysicsAttr:
             self.world.attach_rigid_body(self.landscape_rb_np.node())
             self.landscape_rb_np.set_pos(0, 0, 0)
 
-    def waiting_for_landscape_task(self, task):
-        if render.find("**/lvl_landscape"):
+    def waiting_for_landscape_task(self, name, task):
+        landscapes = render.find_all_matches("**/{0}_*_LOD0".format(name))
+        if landscapes is not None and len(landscapes) > 0:
             # Remove Pre-loading Stage Ground since we're going to load the landscape
             if self.ground_rb_np:
                 self.world.remove_rigid_body(self.ground_rb_np.node())
 
-            self._construct_landscape_mesh()
+            for landscape in landscapes:
+                self._construct_landscape_colision_mesh(landscape=landscape)
 
-            """landscape = render.find("**/lvl_landscape")
+            """
             if landscape is not None:
                 landscape.remove_node()
 
-            self._construct_landscape_terrain()"""
+            self._construct_landscape_terrain()
+            """
 
             return task.done
 
@@ -589,7 +590,7 @@ class PhysicsAttr:
 
         return task.cont
 
-    def set_physics_world(self, npcs_fsm_states):
+    def set_physics_world(self, level_mesh, npcs_fsm_states):
         """ Function    : set_physics_world
 
             Description : Enable Physics
@@ -605,7 +606,8 @@ class PhysicsAttr:
             # Show a visual representation of the collisions occuring
             self.debug_nodepath = self.world_nodepath.attach_new_node(BulletDebugNode('Debug'))
 
-            base.accept("f1", self.toggle_physics_debug)
+            if self.game_settings['Debug']['set_debug_mode'] == "NO":
+                base.accept("f1", self.toggle_physics_debug)
 
             self.world = BulletWorld()
             self.world.set_gravity(Vec3(0, 0, -9.81))
@@ -615,9 +617,7 @@ class PhysicsAttr:
             # self.world.set_group_collision_flag(0, 0, False)
             self.world.set_group_collision_flag(0, 1, False)
 
-            if self.game_settings['Debug']['set_debug_mode'] == "YES":
-                if hasattr(self.debug_nodepath, "node"):
-                    self.world.set_debug_node(self.debug_nodepath.node())
+            self.world.set_debug_node(self.debug_nodepath.node())
 
             # Set Pre-loading Stage Ground
             ground_shape = BulletPlaneShape(Vec3(0, 0, 1), 0)
@@ -631,6 +631,7 @@ class PhysicsAttr:
             # Wait until landscape is loaded
             taskMgr.add(self.waiting_for_landscape_task,
                         "waiting_for_landscape_task",
+                        extraArgs=[level_mesh],
                         appendTask=True)
 
             # todo: remove archery test box soon
@@ -670,8 +671,7 @@ class PhysicsAttr:
             # self.soft_debug_nodepath.node().showBoundingBoxes(False)
             # self.soft_debug_nodepath.node().showNormals(True)
 
-            if self.game_settings['Debug']['set_debug_mode'] == "YES":
-                self.soft_world.set_debug_node(self.soft_debug_nodepath.node())
+            self.soft_world.set_debug_node(self.soft_debug_nodepath.node())
 
             # Get Soft body world information
             self.info = self.soft_world.getWorldInfo()
