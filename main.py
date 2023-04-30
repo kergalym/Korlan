@@ -478,6 +478,7 @@ class Main(ShowBase):
             "inv_frame_cls": None,
             "physics_attr_cls": None,
             "physics_world_np": None,
+            "gpu_instancing_cls": None,
             "ai_world_np": None,
             "water_trigger_np": None,
             "player_actions_cls": None,

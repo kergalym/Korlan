@@ -189,22 +189,20 @@ class Editor:
         self.gizmo_mesh.reparent_to(render)
         self.gizmo_mesh.hide()
 
-    def get_asset_nodes_task(self, task):
-        for node in render.findAllMatches("**/*:BS"):
-            if not node.is_empty():
-                name = node.get_name()
-                self.assets_bs[name] = node
+    def set_editor(self):
+        self.assets_bs = {}
+        self.actor_refs = self.base.game_instance["actors_ref"]
+        self.actor_refs["Player"] = self.base.game_instance["player_ref"]
 
-                if "Player" in name or "NPC" in name:
-                    self.active_actor[name] = False
+        for node in render.find_all_matches("**/*:BS"):
+            if node.is_empty():
+                continue
 
-                if (hasattr(base, "player_ref")
-                        and base.player_ref
-                        and hasattr(base, "npcs_actor_refs")
-                        and base.npcs_actor_refs):
-                    self.actor_refs = {base.player_ref.get_name(): base.player_ref}
-                    for name in base.npcs_actor_refs:
-                        self.actor_refs[name] = base.npcs_actor_refs[name]
+            name = node.get_name()
+            self.assets_bs[name] = node
+
+            if self.is_asset_actor(asset=node):
+                self.active_actor[name] = False
 
         # load weapon model
         kylysh = self.base.loader.load_model("{0}/Assets/Weapons/sword.egg".format(self.game_dir))
@@ -218,21 +216,18 @@ class Editor:
         for name in self.weapons:
             self.assets_bs[name] = self.weapons[name]
 
-        if self.assets_bs:
+        if self.assets_bs is not None:
             self.editor_ui.set_ui()
             self.editor_ui.set_ui_rotation()
             self.editor_ui.set_ui_manipulation_modes()
+
+            gpu_instancing = self.base.game_instance["gpu_instancing_cls"]
+
             taskMgr.add(self.update_scene, "update_scene")
             # taskMgr.add(self.view_camera, "view_camera")
-            return task.done
 
-        return task.cont
 
-    def set_editor(self):
-        self.assets_bs = {}
-        taskMgr.add(self.get_asset_nodes_task, "get_asset_task")
-
-    def get_actor_joints(self):
+    def get_actor_joints_list(self):
         if self.active_asset_from_list and self.actor_refs:
             if self.is_asset_actor(asset=self.active_asset_from_list):
                 self.active_item = self.active_asset_from_list
@@ -244,14 +239,13 @@ class Editor:
                     return joints
 
     def is_asset_actor(self, asset):
-        if asset and "Player:BS" in asset.get_name():
-            if not render.find("**/Player").find("**/+Character").is_empty():
-                return True
-        else:
-            if not asset.find("**/+Character").is_empty():
-                return True
-            elif asset.find("**/+Character").is_empty():
-                return False
+        if not asset:
+            return False
+
+        if not asset.find("**/+Character").is_empty():
+            return True
+        elif asset.find("**/+Character").is_empty():
+            return False
 
     def is_actor_joint_busy(self, joint):
         if joint:
@@ -788,14 +782,13 @@ class Editor:
 
     def save_asset_orientation(self):
         if exists("{0}/Editor/Saves".format(self.game_dir)):
-            if self.assets_bs:
+            if self.assets_bs is not None:
                 asset_json = {}
-                for asset in self.assets_bs:
-                    if not render.find("**/{0}".format(asset)).is_empty():
-                        name = render.find("**/{0}".format(asset)).get_name()
-                        pos = render.find("**/{0}".format(asset)).get_pos()
-                        hpr = render.find("**/{0}".format(asset)).get_hpr()
-                        scale = render.find("**/{0}".format(asset)).get_scale()
+                for name in self.assets_bs:
+                    if self.assets_bs.get(name) is not None:
+                        pos = self.assets_bs[name].get_pos()
+                        hpr = self.assets_bs[name].get_hpr()
+                        scale = self.assets_bs[name].get_scale()
                         asset_json[name] = [(pos[0], pos[1], pos[2]),
                                             (hpr[0], hpr[1], hpr[2]),
                                             (scale[0], scale[1], scale[2])]
@@ -820,32 +813,35 @@ class Editor:
                 with open('{0}/Editor/Saves/item_pos.json'.format(self.game_dir), 'w') as f:
                     f.write(str(asset_json_dump))
 
-    def select_asset_from_list(self, asset):
-        if asset and isinstance(asset, str):
-            # todo tempo: check for weapon asset
-            if not render.find("**/{0}".format(asset)).is_empty():
-                if not self.weapons.get(asset):
-                    self.active_asset_from_list = render.find("**/{0}".format(asset))
-                    if self.active_asset_from_list:
-                        self.is_asset_selected_from_list = True
+    def select_asset_from_list(self, asset_name):
+        if not asset_name and not isinstance(asset_name, str):
+            return
 
-                if self.weapons.get(asset):
-                    self.active_item = render.find("**/{0}".format(asset))
-                    if self.active_item:
-                        self.is_asset_selected_from_list = True
+        if self.assets_bs.get(asset_name) is None:
+            return
 
-                # If an asset is selected and it is not an actor, and there is also a selected actor,
-                # consider this asset is an item for the joint, otherwise: a regular asset.
-                if (self.weapons.get(asset)
-                        and self.is_asset_actor(asset=self.active_asset_from_list)
-                        and self.active_joint_from_list):
-                    self.active_item = self.weapons.get(asset)
-                    self.is_asset_selected_from_list = True
-                    self.attach_to_joint(actor=self.active_asset_from_list,
-                                         item=self.active_item,
-                                         joint=self.active_joint_from_list,
-                                         wrt=True)
-                    self.is_item_attached_to_joint = True
+        weapon = self.weapons.get(asset_name)
+        asset = self.assets_bs.get(asset_name)
+        if not weapon and self.is_asset_actor(asset=asset):
+            self.active_asset_from_list = self.assets_bs.get(asset_name)
+            if self.active_asset_from_list is not None:
+                self.is_asset_selected_from_list = True
+        elif weapon and not self.is_asset_actor(asset=asset):
+            self.active_item = self.assets_bs.get(asset_name)
+            if self.active_item is not None:
+                self.is_asset_selected_from_list = True
+
+        # If an asset is selected and it is not an actor, and there is also a selected actor,
+        # consider this asset is an item for the joint, otherwise: a regular asset.
+        if (weapon and self.is_asset_actor(asset=self.active_asset_from_list)
+                and self.active_joint_from_list):
+            self.active_item = weapon
+            self.is_asset_selected_from_list = True
+            self.attach_to_joint(actor=self.active_asset_from_list,
+                                 item=self.active_item,
+                                 joint=self.active_joint_from_list,
+                                 wrt=True)
+            self.is_item_attached_to_joint = True
 
     def select_joint_from_list(self, joint):
         if joint and isinstance(joint, str):
@@ -855,6 +851,7 @@ class Editor:
                 # Drop :BS suffix
                 if "BS" in name:
                     name = name.split(":BS")[0]
+
                 if self.actor_refs.get(name):
                     self.active_joint_from_list = self.actor_refs[name].expose_joint(None, "modelRoot", joint)
 

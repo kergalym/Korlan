@@ -246,7 +246,21 @@ class PlayerController:
                     base.player_states[key] = False
 
             self.base.game_instance['player_actions_init_is_activated'] = 0
-            if self.game_settings['Debug']['set_editor_mode'] == 'NO':
+            if self.game_settings['Debug']['set_editor_mode'] == 'YES':
+                self.player = player
+
+                physics_attr = self.base.game_instance["physics_attr_cls"]
+                physics_attr.set_actor_collider(actor=self.player,
+                                                col_name='{0}:BS'.format(self.player.get_name()),
+                                                shape="capsule",
+                                                type="player")
+
+                # Define player weapons here
+                self.state.set_player_equipment(player, "Korlan:Spine1")
+                taskMgr.add(self.archery.prepare_arrows_helper(arrow_name="bow_arrow_kazakh",
+                                                               joint_name="Korlan:Spine1"))
+
+            elif self.game_settings['Debug']['set_editor_mode'] == 'NO':
                 self.player = player
                 self.kbd.keymap_init()
                 self.kbd.keymap_init_released()
@@ -254,21 +268,24 @@ class PlayerController:
                 base.input_state = self.kbd.bullet_keymap_init()
                 self.archery.is_arrow_ready = False
 
+                # Define player actions here
                 self.mov_actions = PlayerMovement(self.kbd, self.state)
                 self.actions = PlayerActions(self.kbd, self.state, self.archery)
 
                 self.base.game_instance['person_look_mode'] = self.game_settings['Main']['person_look_mode']
 
-                # Define Mouse System
+                # Define mouse system
                 self.mouse.mouse_wheel_init()
+
+                # Define player's floater
                 self.floater = self.mouse.set_floater(self.player)
 
+                # Define player collider
                 physics_attr = self.base.game_instance["physics_attr_cls"]
-                if hasattr(physics_attr, "set_actor_collider"):
-                    physics_attr.set_actor_collider(actor=self.player,
-                                                    col_name='{0}:BS'.format(self.player.get_name()),
-                                                    shape="capsule",
-                                                    type="player")
+                physics_attr.set_actor_collider(actor=self.player,
+                                                col_name='{0}:BS'.format(self.player.get_name()),
+                                                shape="capsule",
+                                                type="player")
 
                 taskMgr.add(self.mouse.mouse_control_task,
                             "mouse_control_task",
@@ -291,7 +308,7 @@ class PlayerController:
                                                  item_type="weapon")
                 self.base.shared_functions['add_item_to_inventory'] = self.sheet.add_item_to_inventory
 
-                # Define player attack here
+                # Define player weapons here
                 self.state.set_player_equipment(player, "Korlan:Spine1")
                 taskMgr.add(self.archery.prepare_arrows_helper(arrow_name="bow_arrow_kazakh",
                                                                joint_name="Korlan:Spine1"))

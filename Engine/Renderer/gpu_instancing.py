@@ -12,6 +12,7 @@ class GPUInstancing:
     """
     def __init__(self):
         self.base = base
+        self.base.game_instance["gpu_instancing_cls"] = self
 
     def _construct_prefab_lod(self, pattern):
         prefab_lod = LODNode("{0}_LODNode".format(pattern))
@@ -138,4 +139,4 @@ class GPUInstancing:
                                                prefab_lod_np=prefab_lod_np,
                                                prefab_lod=prefab_lod)
 
-                        self._populate_instances(scene, placeholder, prefab, asset_type)
+                        self._populate_instances(scene, placeholder, prefab, asset_type)"""
