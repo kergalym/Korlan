@@ -71,7 +71,10 @@ class PhysicsAttr:
         rigid_body_node = BulletRigidBodyNode(node_name)
         rigid_body_node.set_mass(mass)
         rigid_body_node.add_shape(shape)
-        rigid_body_np = self.world_nodepath.attach_new_node(rigid_body_node)
+        if "Player" in node_name:
+            rigid_body_np = self.render.attach_new_node(rigid_body_node)
+        else:
+            rigid_body_np = self.world_nodepath.attach_new_node(rigid_body_node)
         rigid_body_np.set_collide_mask(mask)
         self.world.attach_rigid_body(rigid_body_np.node())
         return rigid_body_np
@@ -156,9 +159,6 @@ class PhysicsAttr:
         return crouch_rb_np
 
     def _set_player_rigidbody(self, actor, shape, col_name, mask):
-        actor_rb_np = self._get_character_controller_nodepath(shape=shape,
-                                                              node_name=col_name,
-                                                              mask=mask)
         actor_rb_np = self._get_rigid_body_nodepath(shape=shape,
                                                     node_name=col_name,
                                                     mass=9999,
