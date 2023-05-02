@@ -19,6 +19,7 @@ class EditorUI:
                                             frameSize=self.editor.frame_size, geom=self.editor.menu_geom)
             self.editor.active_asset_text = OnscreenText(text="",
                                                          scale=0.04,
+                                                         bg=(0, 0, 0, 0.5),
                                                          fg=(255, 255, 255, 0.9),
                                                          font=self.editor.font.load_font(self.editor.menu_font),
                                                          align=TextNode.ALeft,
@@ -26,6 +27,7 @@ class EditorUI:
                                                          mayChange=True)
             self.editor.mode_warn_text = OnscreenText(text="",
                                                       scale=0.03,
+                                                      bg=(0, 0, 0, 0.5),
                                                       fg=(255, 255, 255, 0.9),
                                                       font=self.editor.font.load_font(self.editor.menu_font),
                                                       align=TextNode.ALeft,
@@ -75,7 +77,6 @@ class EditorUI:
                                                                    borderWidth=(self.editor.w, self.editor.h),
                                                                    parent=self.editor.frame)
                 if self.editor.assets_bs:
-                    btn_inc_pos = 0.46
                     for index, asset in enumerate(self.editor.assets_bs, 1):
                         btn = DirectButton(text="{0}".format(asset),
                                            text_fg=(255, 255, 255, 1), relief=2,
@@ -87,7 +88,6 @@ class EditorUI:
                                            command=self.editor.select_asset_from_list,
                                            extraArgs=[asset],
                                            parent=self.editor.frame)
-                        btn_inc_pos += -0.08
                         btn_list.append(btn)
 
                     self.editor.scrolled_list = DirectScrolledList(
@@ -99,7 +99,7 @@ class EditorUI:
                         decButton_geom=geoms_scrolled_dec,
                         decButton_geom_scale=0.08,
 
-                        incButton_pos=(0.35, 0, btn_inc_pos),
+                        incButton_pos=(0.35, 0, -0.64),
                         incButton_scale=(5, 1, 0.5),
                         incButton_text="",
                         incButton_text_scale=0.04,

@@ -2,27 +2,36 @@ import re
 from os import walk
 from os.path import exists
 
+from direct.stdpy.file import exists as vfs_exists
+from direct.stdpy.file import listdir as vfs_listdir
+
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import *
 from pathlib import Path, PurePath
 from Editor.editor_ui import EditorUI
+from Editor.foliage import Foliage
 
 import json
+
+from Editor.terrain import Terrain
 
 
 class Editor:
     def __init__(self):
         self.base = base
+        self.render = render
+        self.gpu_instancing = self.base.game_instance["gpu_instancing_cls"]
         self.game_dir = str(Path.cwd())
         self.editor_ui = EditorUI(self)
         self.is_actor_busy = False
         self.assets_bs = {}
+        self.foliage_asset_bs = {}
 
         """ Frame Sizes """
         # Left, right, bottom, top
         self.frame_size = [-3, -1.3, -1, 3]
         self.frame_size = [-2, 2.5, -1.5, -0.5]
-        self.frame_scrolled_size = [0.0, 0.7, -0.05, 0.40]
+        self.frame_scrolled_size = [0.0, 0.7, -0.05, 1.50]
         self.frame_scrolled_inner_size = [-0.2, 0.2, -0.00, 0.00]
 
         """ Frame Positions """
@@ -131,6 +140,8 @@ class Editor:
         self.scrolled_list_actor_joints_lbl_desc_empty = None
         self.joint_item_management_title = None
 
+        self.frame_foliage_stack = None
+
         self.lbl_joint_item_pos_x = None
         self.lbl_joint_item_pos_y = None
         self.lbl_joint_item_pos_z = None
@@ -190,7 +201,13 @@ class Editor:
         self.gizmo_mesh.hide()
 
     def set_editor(self):
-        self.assets_bs = {}
+        if len(self.assets_bs) > 0:
+            del self.assets_bs
+            self.assets_bs = {}
+        if len(self.foliage_asset_bs) > 0:
+            del self.foliage_asset_bs
+            self.foliage_asset_bs = {}
+
         self.actor_refs = self.base.game_instance["actors_ref"]
         self.actor_refs["Player"] = self.base.game_instance["player_ref"]
 
@@ -221,11 +238,12 @@ class Editor:
             self.editor_ui.set_ui_rotation()
             self.editor_ui.set_ui_manipulation_modes()
 
-            gpu_instancing = self.base.game_instance["gpu_instancing_cls"]
-
+            taskMgr.add(self.asset_watcher_task, "asset_watcher_task")
             taskMgr.add(self.update_scene, "update_scene")
             # taskMgr.add(self.view_camera, "view_camera")
 
+        foliage = Foliage(self.frame_foliage_stack)
+        terrain = Terrain()
 
     def get_actor_joints_list(self):
         if self.active_asset_from_list and self.actor_refs:
@@ -892,6 +910,43 @@ class Editor:
                 transformed_path = Filename(path).to_os_specific()
                 return transformed_path
 
+    def asset_watcher_task(self, task):
+        if self.base.game_instance["menu_mode"]:
+            return task.done
+
+        path = "{0}/Assets/Foliage".format(self.base.game_dir)
+        if vfs_exists(path) or exists(path):
+            for _path in vfs_listdir(path):
+                if vfs_exists(_path) is not None:
+                    continue
+
+                # Skip asset if we added it already
+                # fixme!
+                if _path in self.foliage_asset_bs:
+                    continue
+
+                asset = self.base.loader.load_model(path)
+                asset.reparent_to(self.base.game_instance["world_np"])
+
+                prefab_lod, prefab_lod_np = self.gpu_instancing.construct_prefab_lod(pattern=asset.get_name())
+
+                # We are going to in instance this object multiple times
+                if asset is not None:
+
+                    if "LODNode" in asset.get_name():
+                        continue
+
+                    self.gpu_instancing.setup_prefab_lod(prefab=asset,
+                                                         prefab_lod_np=prefab_lod_np,
+                                                         prefab_lod=prefab_lod)
+
+                    self.gpu_instancing.populate_instance(prefab=asset)
+
+                    name_bs = asset.get_parent().get_name()
+                    self.foliage_asset_bs[name_bs] = asset.get_parent()
+
+        return task.cont
+
     def mouse_click_handler(self):
         if (self.active_asset_from_list
                 and self.is_asset_selected_from_list):
@@ -925,6 +980,11 @@ class Editor:
                 self.active_asset_from_list.set_y(render, pos3d[1])
 
     def update_scene(self, task):
+        if self.base.game_instance['menu_mode']:
+            if self.frame is not None:
+                self.frame.destroy()
+            return task.done
+
         if self.is_asset_selected_from_list:
             self.base.accept("mouse1", self.select)
             self.base.accept("mouse1-up", self.drop_down)
@@ -971,10 +1031,6 @@ class Editor:
 
         self.base.accept("set_joints_list_ui", self.editor_ui.set_joints_list_ui)
         self.update_fields()
-
-        if self.base.game_instance['menu_mode']:
-            self.frame.destroy()
-            return task.done
 
         return task.cont
 

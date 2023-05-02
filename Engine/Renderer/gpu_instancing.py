@@ -12,15 +12,17 @@ class GPUInstancing:
     """
     def __init__(self):
         self.base = base
+        self.matrices = []
+        self.floats = []
         self.base.game_instance["gpu_instancing_cls"] = self
 
-    def _construct_prefab_lod(self, pattern):
+    def construct_prefab_lod(self, pattern):
         prefab_lod = LODNode("{0}_LODNode".format(pattern))
         prefab_lod_np = NodePath(prefab_lod)
         prefab_lod_np.reparent_to(self.base.game_instance['foliage_np'])
         return prefab_lod, prefab_lod_np
 
-    def _setup_prefab_lod(self, placeholder, prefab, prefab_lod_np, prefab_lod):
+    def _setup_prefab_lod(self, prefab, prefab_lod_np, prefab_lod):
         prefab.reparent_to(prefab_lod_np)
 
         if "LOD0" in prefab.get_name():
@@ -49,6 +51,24 @@ class GPUInstancing:
             buffer_texture = self._allocate_texture_storage(matrices, floats)
             self._visualize(prefab, matrices, buffer_texture)
 
+    def populate_instance(self, prefab):
+        if self.base.game_settings['Main']['pbr_renderer'] == 'on':
+            if len(self.matrices) > 0:
+                del self.matrices
+                self.matrices = []
+            if len(self.floats) > 0:
+                del self.floats
+                self.floats = []
+
+            node_path = NodePath("{0}_instance".format(prefab.get_name()))
+            self.matrices.append(node_path.get_mat(render))
+
+            self.add_collider(prefab=prefab,
+                              node_path=node_path)
+
+            buffer_texture = self._allocate_texture_storage(self.matrices, self.floats)
+            self._visualize(prefab, self.matrices, buffer_texture)
+
     def _add_colliders(self, prefab, node_path, asset_type, limit, index):
         if asset_type == "tree":
             if limit is not None and index < limit or limit is None:
@@ -70,6 +90,26 @@ class GPUInstancing:
                 physics_world_np.attach(node_path_rb.node())
                 node_path.set_pos(0, 0, -1)
                 node_path_rb.set_collide_mask(1)
+
+    def add_collider(self, prefab, node_path):
+        # calculate trunk's width and height
+        min, max = prefab.get_tight_bounds()
+        size = max - min
+        actual_width = size[1] / size[1]
+        trunk_width = actual_width / 2
+        width = trunk_width
+        height = size[2]
+
+        # Add rigidbodies to place them physically
+        physics_world_np = self.base.game_instance['physics_world_np']
+        name = "{0}:BS".format(prefab.get_name())
+        node_path_rb = node_path.attach_new_node(BulletRigidBodyNode(name))
+        capsule = BulletCapsuleShape(width, height, ZUp)
+        node_path_rb.node().set_mass(0.0)
+        node_path_rb.node().add_shape(capsule)
+        physics_world_np.attach(node_path_rb.node())
+        node_path.set_pos(0, 0, -1)
+        node_path_rb.set_collide_mask(1)
 
     def _allocate_texture_storage(self, matrices, floats):
         # Allocate storage for the matrices, each matrix has 16 elements,
@@ -126,7 +166,7 @@ class GPUInstancing:
                 and isinstance(placeholder, str)):
 
             # Define prefab LOD and reparent to render node
-            prefab_lod, prefab_lod_np = self._construct_prefab_lod(pattern=pattern)
+            prefab_lod, prefab_lod_np = self.construct_prefab_lod(pattern=pattern)
 
             # Find the asset object, we are going to in instance this object
             # multiple times
