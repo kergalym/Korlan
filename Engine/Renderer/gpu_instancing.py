@@ -1,9 +1,8 @@
 import struct
-from random import random
 
 from panda3d.bullet import BulletCapsuleShape, BulletRigidBodyNode, ZUp
-from panda3d.core import NodePath, LODNode, LPoint3
-from panda3d.core import Vec3, Texture, GeomEnums, OmniBoundingVolume
+from panda3d.core import NodePath, LODNode
+from panda3d.core import Texture, GeomEnums, OmniBoundingVolume
 
 
 class GPUInstancing:
@@ -22,7 +21,7 @@ class GPUInstancing:
         prefab_lod_np.reparent_to(self.base.game_instance['foliage_np'])
         return prefab_lod, prefab_lod_np
 
-    def _setup_prefab_lod(self, prefab, prefab_lod_np, prefab_lod):
+    def setup_prefab_lod(self, prefab, prefab_lod_np, prefab_lod):
         prefab.reparent_to(prefab_lod_np)
 
         if "LOD0" in prefab.get_name():
@@ -174,8 +173,7 @@ class GPUInstancing:
             if prefabs is not None:
                 for prefab in prefabs:
                     if "LODNode" not in prefab.get_name():
-                        self._setup_prefab_lod(placeholder=placeholder,
-                                               prefab=prefab,
+                        self.setup_prefab_lod(prefab=prefab,
                                                prefab_lod_np=prefab_lod_np,
                                                prefab_lod=prefab_lod)
 

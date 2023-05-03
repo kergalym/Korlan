@@ -1,6 +1,8 @@
 from direct.gui.DirectEntry import DirectEntry
 from panda3d.core import TextNode
 
+from direct.task.TaskManagerGlobal import taskMgr
+
 from direct.gui.DirectFrame import DirectFrame
 from direct.gui.DirectButton import DirectButton
 from direct.gui.DirectLabel import DirectLabel
@@ -12,6 +14,63 @@ from direct.gui.OnscreenText import OnscreenText
 class EditorUI:
     def __init__(self, editor):
         self.editor = editor
+        self.base = base
+
+    def foliage_stack_refresh_task(self,
+                                   geoms_scrolled_dbtn,
+                                   geoms_scrolled_dec,
+                                   geoms_scrolled_inc,
+                                   task):
+        if self.base.game_instance["menu_mode"]:
+            return task.done
+
+        foliage_stack = self.editor.foliage.get_foliage_stack()
+        if len(foliage_stack) > 0:
+            foliage_stack_btn_list = []
+
+            for index, asset in enumerate(foliage_stack, 1):
+                btn = DirectButton(text="{0}".format(asset),
+                                   text_fg=(255, 255, 255, 1), relief=2,
+                                   text_font=self.editor.font.load_font(self.editor.menu_font),
+                                   frameColor=(0, 0, 0, 1),
+                                   scale=.03, borderWidth=(self.editor.w, self.editor.h),
+                                   geom=geoms_scrolled_dbtn, geom_scale=(15.3, 0, 2),
+                                   clickSound="",
+                                   command='',
+                                   extraArgs=[asset],
+                                   parent=self.editor.frame)
+                foliage_stack_btn_list.append(btn)
+
+                self.editor.foliage_stack_scrolled_list = DirectScrolledList(
+                    pos=(-1.25, 0, 0.3),
+                    decButton_pos=(0.35, 0, 0.46),
+                    decButton_scale=(5, 1, 0.5),
+                    decButton_text="",
+                    decButton_text_scale=0.04,
+                    decButton_borderWidth=(0, 0),
+                    decButton_geom=geoms_scrolled_dec,
+                    decButton_geom_scale=0.08,
+
+                    incButton_pos=(0.35, 0, 0.15),
+                    incButton_scale=(5, 1, 0.5),
+                    incButton_text="",
+                    incButton_text_scale=0.04,
+                    incButton_borderWidth=(0, 0),
+                    incButton_geom=geoms_scrolled_inc,
+                    incButton_geom_scale=0.08,
+
+                    frameSize=self.editor.frame_scrolled_size,
+                    frameColor=(0, 0, 0, 0),
+                    numItemsVisible=6,
+                    forceHeight=0.07,
+                    items=foliage_stack_btn_list,
+                    itemFrame_frameSize=self.editor.frame_scrolled_inner_size,
+                    itemFrame_pos=(0.35, 0, 0.4),
+                    parent=self.editor.frame
+                )
+                self.editor.foliage_stack_scrolled_list.set_transparency(True)
+
+        return task.cont
 
     def set_ui(self):
         if not self.editor.frame:
@@ -49,6 +108,10 @@ class EditorUI:
                                                         scale=.05, borderWidth=(self.editor.w, self.editor.h),
                                                         parent=self.editor.frame)
 
+            self.editor.frame_foliage_stack = DirectFrame(frameColor=(0, 0, 0, 0.6), pos=(0.6, 0, 0.6),
+                                                          frameSize=self.editor.foliage_frame_stack_size,
+                                                          parent=self.editor.frame)
+
             ui_geoms = self.editor.ui_geom_collector()
             if ui_geoms:
                 maps_scrolled_dbtn = base.loader.loadModel(ui_geoms['btn_t_icon'])
@@ -67,6 +130,72 @@ class EditorUI:
                                       maps_scrolled_inc.find('**/button_rollover_inc'))
 
                 btn_list = []
+                foliage_stack_btn_list = []
+                foliage_stack = self.editor.foliage.get_foliage_stack()
+                if len(foliage_stack) > 0:
+                    for index, asset in enumerate(foliage_stack, 1):
+                        btn = DirectButton(text="{0}".format(asset),
+                                           text_fg=(255, 255, 255, 1), relief=2,
+                                           text_font=self.editor.font.load_font(self.editor.menu_font),
+                                           frameColor=(0, 0, 0, 1),
+                                           scale=.03, borderWidth=(self.editor.w, self.editor.h),
+                                           geom=geoms_scrolled_dbtn, geom_scale=(15.3, 0, 2),
+                                           clickSound="",
+                                           command='',
+                                           extraArgs=[asset],
+                                           parent=self.editor.frame)
+                        foliage_stack_btn_list.append(btn)
+
+                self.editor.foliage_stack_scrolled_list = DirectScrolledList(
+                    pos=(-1.25, 0, 0.3),
+                    decButton_pos=(0.35, 0, 0.46),
+                    decButton_scale=(5, 1, 0.5),
+                    decButton_text="",
+                    decButton_text_scale=0.04,
+                    decButton_borderWidth=(0, 0),
+                    decButton_geom=geoms_scrolled_dec,
+                    decButton_geom_scale=0.08,
+
+                    incButton_pos=(0.35, 0, 0.15),
+                    incButton_scale=(5, 1, 0.5),
+                    incButton_text="",
+                    incButton_text_scale=0.04,
+                    incButton_borderWidth=(0, 0),
+                    incButton_geom=geoms_scrolled_inc,
+                    incButton_geom_scale=0.08,
+
+                    frameSize=self.editor.frame_scrolled_size,
+                    frameColor=(0, 0, 0, 0),
+                    numItemsVisible=6,
+                    forceHeight=0.07,
+                    items=foliage_stack_btn_list,
+                    itemFrame_frameSize=self.editor.frame_scrolled_inner_size,
+                    itemFrame_pos=(0.35, 0, 0.4),
+                    parent=self.editor.frame
+                )
+                self.editor.foliage_stack_scrolled_list.set_transparency(True)
+
+                taskMgr.add(self.foliage_stack_refresh_task,
+                            "foliage_stack_refresh_task",
+                            extraArgs=[geoms_scrolled_dbtn,
+                                       geoms_scrolled_dec,
+                                       geoms_scrolled_inc],
+                            appendTask=True)
+
+                self.editor.foliage_stack_scrolled_list_lbl = OnscreenText(text="",
+                                                                           pos=(-1.25, 0, 0.35),
+                                                                           scale=0.03,
+                                                                           bg=(0, 0, 0, 0.5),
+                                                                           fg=(255, 255, 255, 0.9),
+                                                                           font=self.editor.font.load_font(
+                                                                               self.editor.menu_font),
+                                                                           align=TextNode.ALeft,
+                                                                           parent=self.editor.frame,
+                                                                           mayChange=True)
+                self.editor.foliage_stack_scrolled_list_lbl.setText("Foliage stack list \n"
+                                                                    "Foliage items here will be placed into scene")
+                self.editor.foliage_stack_scrolled_list_lbl.set_z(0.35)
+
                 if not self.editor.assets_bs:
                     self.editor.scrolled_list_lbl_na = DirectLabel(text="N/A",
                                                                    text_fg=(255, 255, 255, 0.9),
