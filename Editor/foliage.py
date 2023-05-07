@@ -12,6 +12,7 @@ class Foliage:
         self.base = base
         self.render = render
         self.foliage_asset_bs = {}
+        self.models = {}
         self.gpu_instancing = None
         self.model = None
         self.is_loaded = False
@@ -21,29 +22,40 @@ class Foliage:
             del self.foliage_asset_bs
             self.foliage_asset_bs = {}
 
+        if len(self.models) > 0:
+            del self.models
+            self.models = {}
+
         self.gpu_instancing = self.base.game_instance["gpu_instancing_cls"]
 
-        taskMgr.add(self.asset_watcher_task, "asset_watcher_task")
+        taskMgr.do_method_later(1.5, self.asset_watcher_task, "asset_watcher_task")
 
     def get_foliage_stack(self):
         return self.foliage_asset_bs
 
-    async def async_foliage_loading(self, path):
-        if self.is_loaded:
-            return
+    def get_models_stack(self):
+        return self.models
 
+    async def async_foliage_loading(self, path):
         if not self.model:
             self.is_loaded = False
             self.model = await self.base.loader.load_model(path, blocking=False)
             self.is_loaded = True
-            self.model.reparent_to(self.base.game_instance["world_np"])
+            name = self.model.get_name().replace(".egg", "")
+            self.model.set_name(name)
             self.is_loaded = False
-        elif self.model.get_name() not in path:
+            if name not in self.models:
+                self.models[name] = self.model
+
+        elif self.model.get_name() not in self.models:
             self.is_loaded = False
             self.model = await self.base.loader.load_model(path, blocking=False)
             self.is_loaded = True
-            self.model.reparent_to(self.base.game_instance["world_np"])
+            name = self.model.get_name().replace(".egg", "")
+            self.model.set_name(name)
             self.is_loaded = False
+            if name not in self.models:
+                self.models[name] = self.model
 
     def asset_watcher_task(self, task):
         if self.base.game_instance["menu_mode"]:
@@ -63,29 +75,34 @@ class Foliage:
 
                 taskMgr.add(self.async_foliage_loading(file_path))
 
-                if self.model is not None:
-                    for asset in self.model.find_all_matches("**/*LOD*"):
-                        print(asset)
-                        prefab_lod, prefab_lod_np = self.gpu_instancing.construct_prefab_lod(pattern=asset.get_name())
+                if self.model is None:
+                    break
 
-                        # We are going to in instance this object multiple times
-                        if asset is not None:
+        return task.again
 
-                            name_bs = asset.get_parent().get_name()
+    def instance_to(self, pos):
+        for prefab in self.model.find_all_matches("**/*LOD*"):
+            # We are going to in instance this object multiple times
+            if prefab is None:
+                continue
 
-                            # Skip asset if we added it already
-                            if name_bs in self.foliage_asset_bs:
-                                continue
+            name_bs = prefab.get_name()
 
-                            if "LODNode" in asset.get_name():
-                                continue
+            # Skip asset if we added it already
+            if name_bs in self.foliage_asset_bs:
+                continue
 
-                            self.gpu_instancing.setup_prefab_lod(prefab=asset,
-                                                                 prefab_lod_np=prefab_lod_np,
-                                                                 prefab_lod=prefab_lod)
+            prefab_lod, prefab_lod_np = self.gpu_instancing.construct_prefab_lod(pattern=prefab.get_name())
 
-                            self.gpu_instancing.populate_instance(prefab=asset)
+            if "LODNode" in prefab.get_name():
+                continue
 
-                            self.foliage_asset_bs[name_bs] = asset.get_parent()
+            self.gpu_instancing.setup_prefab_lod(prefab=prefab,
+                                                 prefab_lod_np=prefab_lod_np,
+                                                 prefab_lod=prefab_lod)
 
-        return task.cont
+            self.gpu_instancing.populate_instance(prefab=prefab, pos=pos)
+
+            if "LOD0" in prefab.get_parent().get_name():
+                self.foliage_asset_bs[name_bs] = prefab.get_parent()
+

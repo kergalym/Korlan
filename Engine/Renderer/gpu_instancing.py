@@ -50,20 +50,23 @@ class GPUInstancing:
             buffer_texture = self._allocate_texture_storage(matrices, floats)
             self._visualize(prefab, matrices, buffer_texture)
 
-    def populate_instance(self, prefab):
+    def populate_instance(self, prefab, pos):
         if self.base.game_settings['Main']['pbr_renderer'] == 'on':
-            if len(self.matrices) > 0:
+            if len(self.matrices) > 3:
                 del self.matrices
                 self.matrices = []
-            if len(self.floats) > 0:
+            if len(self.floats) > 3:
                 del self.floats
                 self.floats = []
 
             node_path = NodePath("{0}_instance".format(prefab.get_name()))
+            node_path.set_x(render, pos[0])
+            node_path.set_y(render, pos[1])
             self.matrices.append(node_path.get_mat(render))
 
-            self.add_collider(prefab=prefab,
-                              node_path=node_path)
+            if "LOD0" in node_path.get_name():
+                self.add_collider(prefab=prefab,
+                                  node_path=node_path)
 
             buffer_texture = self._allocate_texture_storage(self.matrices, self.floats)
             self._visualize(prefab, self.matrices, buffer_texture)
@@ -169,7 +172,7 @@ class GPUInstancing:
 
             # Find the asset object, we are going to in instance this object
             # multiple times
-            prefabs = scene.find_all_matches("**/{0}*".format(pattern))
+            """prefabs = scene.find_all_matches("**/{0}*".format(pattern))
             if prefabs is not None:
                 for prefab in prefabs:
                     if "LODNode" not in prefab.get_name():

@@ -24,7 +24,7 @@ class EditorUI:
         if self.base.game_instance["menu_mode"]:
             return task.done
 
-        foliage_stack = self.editor.foliage.get_foliage_stack()
+        foliage_stack = self.editor.foliage.get_models_stack()
         if len(foliage_stack) > 0:
             foliage_stack_btn_list = []
 
@@ -36,41 +36,45 @@ class EditorUI:
                                    scale=.03, borderWidth=(self.editor.w, self.editor.h),
                                    geom=geoms_scrolled_dbtn, geom_scale=(15.3, 0, 2),
                                    clickSound="",
-                                   command='',
+                                   command=self.editor.select_foliage_asset_from_list,
                                    extraArgs=[asset],
                                    parent=self.editor.frame)
                 foliage_stack_btn_list.append(btn)
 
-                self.editor.foliage_stack_scrolled_list = DirectScrolledList(
-                    pos=(-1.25, 0, 0.3),
-                    decButton_pos=(0.35, 0, 0.46),
-                    decButton_scale=(5, 1, 0.5),
-                    decButton_text="",
-                    decButton_text_scale=0.04,
-                    decButton_borderWidth=(0, 0),
-                    decButton_geom=geoms_scrolled_dec,
-                    decButton_geom_scale=0.08,
+            if self.editor.foliage_stack_scrolled_list is not None:
+                self.editor.foliage_stack_scrolled_list.remove_node()
+                self.editor.foliage_stack_scrolled_list = None
 
-                    incButton_pos=(0.35, 0, 0.15),
-                    incButton_scale=(5, 1, 0.5),
-                    incButton_text="",
-                    incButton_text_scale=0.04,
-                    incButton_borderWidth=(0, 0),
-                    incButton_geom=geoms_scrolled_inc,
-                    incButton_geom_scale=0.08,
+            self.editor.foliage_stack_scrolled_list = DirectScrolledList(
+                pos=(-1.25, 0, 0.3),
+                decButton_pos=(0.35, 0, 0.46),
+                decButton_scale=(5, 1, 0.5),
+                decButton_text="",
+                decButton_text_scale=0.04,
+                decButton_borderWidth=(0, 0),
+                decButton_geom=geoms_scrolled_dec,
+                decButton_geom_scale=0.08,
 
-                    frameSize=self.editor.frame_scrolled_size,
-                    frameColor=(0, 0, 0, 0),
-                    numItemsVisible=6,
-                    forceHeight=0.07,
-                    items=foliage_stack_btn_list,
-                    itemFrame_frameSize=self.editor.frame_scrolled_inner_size,
-                    itemFrame_pos=(0.35, 0, 0.4),
-                    parent=self.editor.frame
-                )
-                self.editor.foliage_stack_scrolled_list.set_transparency(True)
+                incButton_pos=(0.35, 0, 0.15),
+                incButton_scale=(5, 1, 0.5),
+                incButton_text="",
+                incButton_text_scale=0.04,
+                incButton_borderWidth=(0, 0),
+                incButton_geom=geoms_scrolled_inc,
+                incButton_geom_scale=0.08,
 
-        return task.cont
+                frameSize=self.editor.frame_scrolled_size,
+                frameColor=(0, 0, 0, 0),
+                numItemsVisible=6,
+                forceHeight=0.07,
+                items=foliage_stack_btn_list,
+                itemFrame_frameSize=self.editor.frame_scrolled_inner_size,
+                itemFrame_pos=(0.35, 0, 0.4),
+                parent=self.editor.frame
+            )
+            self.editor.foliage_stack_scrolled_list.set_transparency(True)
+
+        return task.again
 
     def set_ui(self):
         if not self.editor.frame:
@@ -108,7 +112,7 @@ class EditorUI:
                                                         scale=.05, borderWidth=(self.editor.w, self.editor.h),
                                                         parent=self.editor.frame)
 
-            self.editor.frame_foliage_stack = DirectFrame(frameColor=(0, 0, 0, 0.6), pos=(0.6, 0, 0.6),
+            self.editor.frame_foliage_stack = DirectFrame(frameColor=(0, 0, 0, 0.3), pos=(0.6, 0, 0.6),
                                                           frameSize=self.editor.foliage_frame_stack_size,
                                                           parent=self.editor.frame)
 
@@ -131,7 +135,7 @@ class EditorUI:
 
                 btn_list = []
                 foliage_stack_btn_list = []
-                foliage_stack = self.editor.foliage.get_foliage_stack()
+                foliage_stack = self.editor.foliage.get_models_stack()
                 if len(foliage_stack) > 0:
                     for index, asset in enumerate(foliage_stack, 1):
                         btn = DirectButton(text="{0}".format(asset),
@@ -141,7 +145,7 @@ class EditorUI:
                                            scale=.03, borderWidth=(self.editor.w, self.editor.h),
                                            geom=geoms_scrolled_dbtn, geom_scale=(15.3, 0, 2),
                                            clickSound="",
-                                           command='',
+                                           command=self.editor.select_foliage_asset_from_list,
                                            extraArgs=[asset],
                                            parent=self.editor.frame)
                         foliage_stack_btn_list.append(btn)
@@ -175,12 +179,13 @@ class EditorUI:
                 )
                 self.editor.foliage_stack_scrolled_list.set_transparency(True)
 
-                taskMgr.add(self.foliage_stack_refresh_task,
-                            "foliage_stack_refresh_task",
-                            extraArgs=[geoms_scrolled_dbtn,
-                                       geoms_scrolled_dec,
-                                       geoms_scrolled_inc],
-                            appendTask=True)
+                taskMgr.do_method_later(1.5,
+                                        self.foliage_stack_refresh_task,
+                                        "foliage_stack_refresh_task",
+                                        extraArgs=[geoms_scrolled_dbtn,
+                                                   geoms_scrolled_dec,
+                                                   geoms_scrolled_inc],
+                                        appendTask=True)
 
                 self.editor.foliage_stack_scrolled_list_lbl = OnscreenText(text="",
                                                                            pos=(-1.25, 0, 0.35),

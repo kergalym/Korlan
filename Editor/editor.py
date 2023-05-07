@@ -374,12 +374,40 @@ class Editor:
 
     def select(self):
         self.is_asset_selected = True
-        if self.active_asset_from_list:
-            active_geom = self.active_asset_from_list.find("{0}".format(self.active_asset_from_list.get_name()))
-            if active_geom:
-                active_geom.setColor(0.5, 0.5, 0.7, 1.0)
+        if self.active_asset_from_list is not None and not self.active_asset_from_list.is_empty():
 
-        self.pick_up()
+            # Check if asset is foliage
+            name = self.active_asset_from_list.get_name()
+            if self.foliage.models.get(name) is not None:
+                # Place asset once at mouse position
+                if self.foliage.models[name].get_name() == self.active_asset_from_list.get_name():
+                    self.active_asset_from_list.reparent_to(self.base.game_instance["world_np"])
+                    # Hide prefab asset from land surface
+                    self.active_asset_from_list.hide()
+
+                    if base.mouseWatcherNode.has_mouse():
+                        mpos = base.mouseWatcherNode.get_mouse()
+                        pos3d = Point3()
+                        near_point = Point3()
+                        far_point = Point3()
+                        base.camLens.extrude(mpos, near_point, far_point)
+                        if self.collider_plane.intersects_line(pos3d,
+                                                               render.get_relative_point(base.camera,
+                                                                                         near_point),
+                                                               render.get_relative_point(base.camera,
+                                                                                         far_point)):
+                            self.foliage.instance_to(pos=pos3d)
+                            # Destroy prefab
+                            # self.active_asset_from_list.remove_node()
+                            self.unselect()
+
+            else:
+                # Regular asset
+                active_geom = self.active_asset_from_list.find("{0}".format(self.active_asset_from_list.get_name()))
+                if active_geom:
+                    active_geom.setColor(0.5, 0.5, 0.7, 1.0)
+
+                self.pick_up()
 
     def unselect(self):
         self.is_look_around_mouse_pressed = False
@@ -857,6 +885,15 @@ class Editor:
                                  wrt=True)
             self.is_item_attached_to_joint = True
 
+    def select_foliage_asset_from_list(self, asset_name):
+        if not asset_name and not isinstance(asset_name, str):
+            return
+
+        asset = self.foliage.models.get(asset_name)
+        self.active_asset_from_list = asset
+        if self.active_asset_from_list is not None:
+            self.is_asset_selected_from_list = True
+
     def select_joint_from_list(self, joint):
         if joint and isinstance(joint, str):
             # if asset is an actor
@@ -924,8 +961,8 @@ class Editor:
                 self.gizmo_mesh.hide()
 
     def move_with_cursor(self):
-        if base.mouseWatcherNode.hasMouse():
-            mpos = base.mouseWatcherNode.getMouse()
+        if base.mouseWatcherNode.has_mouse():
+            mpos = base.mouseWatcherNode.get_mouse()
             pos3d = Point3()
             near_point = Point3()
             far_point = Point3()
@@ -933,8 +970,8 @@ class Editor:
             if (self.active_asset_from_list
                     and self.is_asset_picked_up
                     and self.collider_plane.intersects_line(pos3d,
-                                                            render.getRelativePoint(base.camera, near_point),
-                                                            render.getRelativePoint(base.camera, far_point))):
+                                                            render.get_relative_point(base.camera, near_point),
+                                                            render.get_relative_point(base.camera, far_point))):
                 self.active_asset_from_list.set_x(render, pos3d[0])
                 self.active_asset_from_list.set_y(render, pos3d[1])
 
