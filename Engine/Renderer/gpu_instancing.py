@@ -1,4 +1,5 @@
 import struct
+from random import random
 
 from panda3d.bullet import BulletCapsuleShape, BulletRigidBodyNode, ZUp
 from panda3d.core import NodePath, LODNode
@@ -11,8 +12,6 @@ class GPUInstancing:
     """
     def __init__(self):
         self.base = base
-        self.matrices = []
-        self.floats = []
         self.base.game_instance["gpu_instancing_cls"] = self
 
     def construct_prefab_lod(self, pattern):
@@ -50,26 +49,23 @@ class GPUInstancing:
             buffer_texture = self._allocate_texture_storage(matrices, floats)
             self._visualize(prefab, matrices, buffer_texture)
 
-    def populate_instance(self, prefab, pos):
+    def populate_instances_with_brush(self, prefab, pos, count, density):
         if self.base.game_settings['Main']['pbr_renderer'] == 'on':
-            if len(self.matrices) > 3:
-                del self.matrices
-                self.matrices = []
-            if len(self.floats) > 3:
-                del self.floats
-                self.floats = []
+            matrices = []
+            floats = []
 
-            node_path = NodePath("{0}_instance".format(prefab.get_name()))
-            node_path.set_x(render, pos[0])
-            node_path.set_y(render, pos[1])
-            self.matrices.append(node_path.get_mat(render))
+            for i in range(count):
+                node_path = NodePath("{0}_instance".format(prefab.get_name()))
+                node_path.set_x(render, pos[0]+random()*int(density))
+                node_path.set_y(render, pos[1]+random()*int(density))
+                matrices.append(node_path.get_mat(render))
 
-            if "LOD0" in node_path.get_name():
-                self.add_collider(prefab=prefab,
-                                  node_path=node_path)
+                if "LOD0" in node_path.get_name():
+                    self.add_collider(prefab=prefab,
+                                      node_path=node_path)
 
-            buffer_texture = self._allocate_texture_storage(self.matrices, self.floats)
-            self._visualize(prefab, self.matrices, buffer_texture)
+            buffer_texture = self._allocate_texture_storage(matrices, floats)
+            self._visualize(prefab, matrices, buffer_texture)
 
     def _add_colliders(self, prefab, node_path, asset_type, limit, index):
         if asset_type == "tree":
@@ -172,12 +168,14 @@ class GPUInstancing:
 
             # Find the asset object, we are going to in instance this object
             # multiple times
-            """prefabs = scene.find_all_matches("**/{0}*".format(pattern))
-            if prefabs is not None:
-                for prefab in prefabs:
-                    if "LODNode" not in prefab.get_name():
-                        self.setup_prefab_lod(prefab=prefab,
-                                               prefab_lod_np=prefab_lod_np,
-                                               prefab_lod=prefab_lod)
+            if self.base.game_settings['Debug']['set_editor_mode'] == 'NO':
+                prefabs = scene.find_all_matches("**/{0}*".format(pattern))
+                if prefabs is not None:
+                    for prefab in prefabs:
+                        if "LODNode" not in prefab.get_name():
+                            self.setup_prefab_lod(prefab=prefab,
+                                                  prefab_lod_np=prefab_lod_np,
+                                                  prefab_lod=prefab_lod)
 
-                        self._populate_instances(scene, placeholder, prefab, asset_type)"""
+                            self._populate_instances(scene, placeholder, prefab, asset_type)
+

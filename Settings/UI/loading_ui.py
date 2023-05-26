@@ -150,9 +150,15 @@ class LoadingUI:
                 self.chest_inventory.chest_init()
 
             if self.game_settings['Debug']['set_debug_mode'] == 'YES':
+                self.hud = HUD()
+                self.base.game_instance['hud_np'] = self.hud
+                self.hud.set_day_hud()
                 self.stat_ui.set_game_stat()
 
             if self.game_settings['Debug']['set_editor_mode'] == 'YES':
+                self.hud = HUD()
+                self.base.game_instance['hud_np'] = self.hud
+                self.hud.set_day_hud()
                 self.base.win_props.set_cursor_hidden(False)
                 self.base.win.request_properties(self.base.win_props)
                 self.editor = Editor()

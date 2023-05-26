@@ -1,5 +1,5 @@
 from direct.gui.DirectEntry import DirectEntry
-from panda3d.core import TextNode
+from panda3d.core import TextNode, TransparencyAttrib
 
 from direct.task.TaskManagerGlobal import taskMgr
 
@@ -34,7 +34,7 @@ class EditorUI:
                                    text_font=self.editor.font.load_font(self.editor.menu_font),
                                    frameColor=(0, 0, 0, 1),
                                    scale=.03, borderWidth=(self.editor.w, self.editor.h),
-                                   geom=geoms_scrolled_dbtn, geom_scale=(15.3, 0, 2),
+                                   geom=geoms_scrolled_dbtn, geom_scale=(13, 0, 2),
                                    clickSound="",
                                    command=self.editor.select_foliage_asset_from_list,
                                    extraArgs=[asset],
@@ -46,7 +46,7 @@ class EditorUI:
                 self.editor.foliage_stack_scrolled_list = None
 
             self.editor.foliage_stack_scrolled_list = DirectScrolledList(
-                pos=(-1.25, 0, 0.3),
+                pos=(-1.3, 0, 0.3),
                 decButton_pos=(0.35, 0, 0.46),
                 decButton_scale=(5, 1, 0.5),
                 decButton_text="",
@@ -72,7 +72,6 @@ class EditorUI:
                 itemFrame_pos=(0.35, 0, 0.4),
                 parent=self.editor.frame
             )
-            self.editor.foliage_stack_scrolled_list.set_transparency(True)
 
         return task.again
 
@@ -112,26 +111,28 @@ class EditorUI:
                                                         scale=.05, borderWidth=(self.editor.w, self.editor.h),
                                                         parent=self.editor.frame)
 
-            self.editor.frame_foliage_stack = DirectFrame(frameColor=(0, 0, 0, 0.3), pos=(0.6, 0, 0.6),
+            self.editor.frame_foliage_stack = DirectFrame(frameColor=(0, 0, 0, 0), pos=(0.6, 0, 0.6),
                                                           frameSize=self.editor.foliage_frame_stack_size,
                                                           parent=self.editor.frame)
 
             ui_geoms = self.editor.ui_geom_collector()
             if ui_geoms:
-                maps_scrolled_dbtn = base.loader.loadModel(ui_geoms['btn_t_icon'])
+                maps_scrolled_dbtn = base.loader.load_model(ui_geoms['btn_t_icon'])
                 geoms_scrolled_dbtn = (maps_scrolled_dbtn.find('**/button_any'),
                                        maps_scrolled_dbtn.find('**/button_pressed'),
                                        maps_scrolled_dbtn.find('**/button_rollover'))
 
-                maps_scrolled_dec = base.loader.loadModel(ui_geoms['btn_t_icon_dec'])
+                maps_scrolled_dec = base.loader.load_model(ui_geoms['btn_t_icon_dec'])
                 geoms_scrolled_dec = (maps_scrolled_dec.find('**/button_any_dec'),
                                       maps_scrolled_dec.find('**/button_pressed_dec'),
                                       maps_scrolled_dec.find('**/button_rollover_dec'))
 
-                maps_scrolled_inc = base.loader.loadModel(ui_geoms['btn_t_icon_inc'])
+                maps_scrolled_inc = base.loader.load_model(ui_geoms['btn_t_icon_inc'])
                 geoms_scrolled_inc = (maps_scrolled_inc.find('**/button_any_inc'),
                                       maps_scrolled_inc.find('**/button_pressed_inc'),
                                       maps_scrolled_inc.find('**/button_rollover_inc'))
+                maps_scrolled_dec.set_transparency(TransparencyAttrib.MAlpha)
+                maps_scrolled_inc.set_transparency(TransparencyAttrib.MAlpha)
 
                 btn_list = []
                 foliage_stack_btn_list = []
@@ -143,7 +144,7 @@ class EditorUI:
                                            text_font=self.editor.font.load_font(self.editor.menu_font),
                                            frameColor=(0, 0, 0, 1),
                                            scale=.03, borderWidth=(self.editor.w, self.editor.h),
-                                           geom=geoms_scrolled_dbtn, geom_scale=(15.3, 0, 2),
+                                           geom=geoms_scrolled_dbtn, geom_scale=(13, 0, 2),
                                            clickSound="",
                                            command=self.editor.select_foliage_asset_from_list,
                                            extraArgs=[asset],
@@ -151,7 +152,7 @@ class EditorUI:
                         foliage_stack_btn_list.append(btn)
 
                 self.editor.foliage_stack_scrolled_list = DirectScrolledList(
-                    pos=(-1.25, 0, 0.3),
+                    pos=(-1.3, 0, 0.3),
                     decButton_pos=(0.35, 0, 0.46),
                     decButton_scale=(5, 1, 0.5),
                     decButton_text="",
@@ -177,7 +178,6 @@ class EditorUI:
                     itemFrame_pos=(0.35, 0, 0.4),
                     parent=self.editor.frame
                 )
-                self.editor.foliage_stack_scrolled_list.set_transparency(True)
 
                 taskMgr.do_method_later(1.5,
                                         self.foliage_stack_refresh_task,
@@ -200,6 +200,61 @@ class EditorUI:
                 self.editor.foliage_stack_scrolled_list_lbl.setText("Foliage stack list \n"
                                                                     "Foliage items here will be placed into scene")
                 self.editor.foliage_stack_scrolled_list_lbl.set_z(0.35)
+
+                self.editor.lbl_foliage_items_select = DirectLabel(text="Select foliage items",
+                                                                   text_fg=(255, 255, 255, 0.9),
+                                                                   text_font=self.editor.font.load_font(self.editor.menu_font),
+                                                                   frameColor=(255, 255, 255, 0),
+                                                                   scale=.03, borderWidth=(self.editor.w, self.editor.h),
+                                                                   pos=(-1.07, 0, 0.25),
+                                                                   parent=self.editor.frame)
+
+                self.editor.lbl_foliage_items_count = DirectLabel(text="Foliage items count",
+                                                                  text_fg=(255, 255, 255, 0.9),
+                                                                  text_font=self.editor.font.load_font(self.editor.menu_font),
+                                                                  frameColor=(255, 255, 255, 0),
+                                                                  scale=.03, borderWidth=(self.editor.w, self.editor.h),
+                                                                  pos=(-0.65, 0, 0.25),
+                                                                  parent=self.editor.frame)
+
+                self.editor.lbl_foliage_items_density = DirectLabel(text="Foliage items density",
+                                                                    text_fg=(255, 255, 255, 0.9),
+                                                                    text_font=self.editor.font.load_font(self.editor.menu_font),
+                                                                    frameColor=(255, 255, 255, 0),
+                                                                    scale=.03, borderWidth=(self.editor.w, self.editor.h),
+                                                                    pos=(-0.15, 0, 0.25),
+                                                                    parent=self.editor.frame)
+
+                self.editor.btn_foliage_items_select = DirectButton(text="Select",
+                                                                    text_fg=(255, 255, 255, 1), relief=2,
+                                                                    text_font=self.editor.font.load_font(self.editor.menu_font),
+                                                                    frameColor=(0, 0, 0, 1),
+                                                                    scale=.03, borderWidth=(self.editor.w, self.editor.h),
+                                                                    geom=geoms_scrolled_dbtn, geom_scale=(15.3, 0, 2),
+                                                                    clickSound="",
+                                                                    command=self.editor.select_foliage_items,
+                                                                    pos=(-1.07, 0, 0.18),
+                                                                    parent=self.editor.frame)
+
+                self.editor.inp_foliage_items_count = DirectEntry(initialText="1",
+                                                                  text_bg=(0, 0, 0, 1),
+                                                                  entryFont=self.editor.font.load_font(self.editor.menu_font),
+                                                                  text_align=TextNode.A_center,
+                                                                  scale=.03, width=7, borderWidth=(self.editor.w, self.editor.h),
+                                                                  pos=(-0.65, 0, 0.18),
+                                                                  parent=self.editor.frame, cursorKeys=1,
+                                                                  command=self.editor.foliage_items_count,
+                                                                  focusInCommand=self.editor.input_clear_pos_x)
+
+                self.editor.inp_foliage_items_density = DirectEntry(initialText="1.0",
+                                                                    text_bg=(0, 0, 0, 1),
+                                                                    entryFont=self.editor.font.load_font(self.editor.menu_font),
+                                                                    text_align=TextNode.A_center,
+                                                                    scale=.03, width=7, borderWidth=(self.editor.w, self.editor.h),
+                                                                    pos=(-0.15, 0, 0.18),
+                                                                    parent=self.editor.frame, cursorKeys=1,
+                                                                    command=self.editor.foliage_items_density,
+                                                                    focusInCommand=self.editor.input_clear_pos_x)
 
                 if not self.editor.assets_bs:
                     self.editor.scrolled_list_lbl_na = DirectLabel(text="N/A",
@@ -793,13 +848,13 @@ class EditorUI:
 
     def set_ui_rotation(self):
         ui_geoms = self.editor.ui_geom_collector()
-        axis_h_maps = self.editor.base.loader.loadModel(ui_geoms['axis_h_icon'])
+        axis_h_maps = self.editor.base.loader.load_model(ui_geoms['axis_h_icon'])
         axis_h_geoms = (axis_h_maps.find('**/axis_h_any'), axis_h_maps.find('**/axis_h_pressed'))
 
-        axis_p_maps = self.editor.base.loader.loadModel(ui_geoms['axis_p_icon'])
+        axis_p_maps = self.editor.base.loader.load_model(ui_geoms['axis_p_icon'])
         axis_p_geoms = (axis_p_maps.find('**/axis_p_any'), axis_p_maps.find('**/axis_p_pressed'))
 
-        axis_r_maps = self.editor.base.loader.loadModel(ui_geoms['axis_r_icon'])
+        axis_r_maps = self.editor.base.loader.load_model(ui_geoms['axis_r_icon'])
         axis_r_geoms = (axis_r_maps.find('**/axis_r_any'), axis_r_maps.find('**/axis_r_pressed'))
 
         radbuttons = [
@@ -829,10 +884,10 @@ class EditorUI:
 
     def set_ui_manipulation_modes(self):
         ui_geoms = self.editor.ui_geom_collector()
-        pos_mode_maps = self.editor.base.loader.loadModel(ui_geoms['pos_mode_icon'])
+        pos_mode_maps = self.editor.base.loader.load_model(ui_geoms['pos_mode_icon'])
         pos_mode_geoms = (pos_mode_maps.find('**/pos_mode_any'), pos_mode_maps.find('**/pos_mode_pressed'))
 
-        rot_mode_maps = self.editor.base.loader.loadModel(ui_geoms['rot_mode_icon'])
+        rot_mode_maps = self.editor.base.loader.load_model(ui_geoms['rot_mode_icon'])
         rot_mode_geoms = (rot_mode_maps.find('**/rot_mode_any'), rot_mode_maps.find('**/rot_mode_pressed'))
 
         radbuttons = [
@@ -858,17 +913,17 @@ class EditorUI:
         if not self.editor.scrolled_list_actor_joints_lbl_desc:
             ui_geoms = self.editor.ui_geom_collector()
             if ui_geoms:
-                maps_scrolled_dbtn = self.editor.base.loader.loadModel(ui_geoms['btn_t_icon'])
+                maps_scrolled_dbtn = self.editor.base.loader.load_model(ui_geoms['btn_t_icon'])
                 geoms_scrolled_dbtn = (maps_scrolled_dbtn.find('**/button_any'),
                                        maps_scrolled_dbtn.find('**/button_pressed'),
                                        maps_scrolled_dbtn.find('**/button_rollover'))
 
-                maps_scrolled_dec = base.loader.loadModel(ui_geoms['btn_t_icon_dec'])
+                maps_scrolled_dec = base.loader.load_model(ui_geoms['btn_t_icon_dec'])
                 geoms_scrolled_dec = (maps_scrolled_dec.find('**/button_any_dec'),
                                       maps_scrolled_dec.find('**/button_pressed_dec'),
                                       maps_scrolled_dec.find('**/button_rollover_dec'))
 
-                maps_scrolled_inc = base.loader.loadModel(ui_geoms['btn_t_icon_inc'])
+                maps_scrolled_inc = base.loader.load_model(ui_geoms['btn_t_icon_inc'])
                 geoms_scrolled_inc = (maps_scrolled_inc.find('**/button_any_inc'),
                                       maps_scrolled_inc.find('**/button_pressed_inc'),
                                       maps_scrolled_inc.find('**/button_rollover_inc'))

@@ -2,6 +2,7 @@ import re
 import json
 from os import walk
 from os.path import exists
+from random import random
 
 from direct.task.TaskManagerGlobal import taskMgr
 
@@ -65,6 +66,8 @@ class Editor:
         self.active_asset = None
         self.active_asset_from_list = None
         self.active_joint_from_list = None
+        self.last_foliage_pos = Vec3(0, 0, 0)
+        self.is_asset_foliage = False
 
         self.is_asset_picked_up = False
         self.is_asset_selected = False
@@ -97,6 +100,10 @@ class Editor:
 
         self.asset_management_title = None
 
+        self.lbl_foliage_items_select = None
+        self.lbl_foliage_items_count = None
+        self.lbl_foliage_items_density = None
+
         self.lbl_pos_x = None
         self.lbl_pos_y = None
         self.lbl_pos_z = None
@@ -108,6 +115,13 @@ class Editor:
         self.lbl_scale_x = None
         self.lbl_scale_y = None
         self.lbl_scale_z = None
+
+        self.btn_foliage_items_select = None
+        self.inp_foliage_items_count = None
+        self.inp_foliage_items_density = None
+
+        self.current_foliage_count = 1
+        self.current_foliage_density = 0
 
         self.inp_pos_x = None
         self.inp_pos_y = None
@@ -374,16 +388,13 @@ class Editor:
 
     def select(self):
         self.is_asset_selected = True
-        if self.active_asset_from_list is not None and not self.active_asset_from_list.is_empty():
+        if self.active_asset_from_list is not None:
 
-            # Check if asset is foliage
-            name = self.active_asset_from_list.get_name()
-            if self.foliage.models.get(name) is not None:
-                # Place asset once at mouse position
-                if self.foliage.models[name].get_name() == self.active_asset_from_list.get_name():
-                    self.active_asset_from_list.reparent_to(self.base.game_instance["world_np"])
+            if self.is_asset_foliage:
+                for foliage_np in self.active_asset_from_list:
+                    foliage_np.reparent_to(self.base.game_instance["world_np"])
                     # Hide prefab asset from land surface
-                    self.active_asset_from_list.hide()
+                    foliage_np.hide()
 
                     if base.mouseWatcherNode.has_mouse():
                         mpos = base.mouseWatcherNode.get_mouse()
@@ -396,14 +407,19 @@ class Editor:
                                                                                          near_point),
                                                                render.get_relative_point(base.camera,
                                                                                          far_point)):
-                            self.foliage.instance_to(pos=pos3d)
-                            # Destroy prefab
-                            # self.active_asset_from_list.remove_node()
-                            self.unselect()
+                            pos3d += foliage_np.get_pos()
+                            self.foliage.instance_to(pos=pos3d,
+                                                     count=self.current_foliage_count,
+                                                     density=self.current_foliage_density)
 
+                # Destroy prefab
+                # self.active_asset_from_list.remove_node()
+                self.unselect()
             else:
-                # Regular asset
-                active_geom = self.active_asset_from_list.find("{0}".format(self.active_asset_from_list.get_name()))
+                # Check if asset is foliage
+                name = self.active_asset_from_list.get_name()
+                # Regular asset set color
+                active_geom = self.active_asset_from_list.find("{0}".format(name))
                 if active_geom:
                     active_geom.setColor(0.5, 0.5, 0.7, 1.0)
 
@@ -419,6 +435,17 @@ class Editor:
             self.is_asset_selected_from_list = False
             if self.active_asset_text:
                 self.active_asset_text.setText("")
+
+    def select_foliage_items(self):
+        self.is_asset_selected = True
+        self.active_asset_from_list = self.foliage.stack
+        self.is_asset_foliage = True
+
+    def foliage_items_count(self, count):
+        self.current_foliage_count = int(count)
+
+    def foliage_items_density(self, density):
+        self.current_foliage_density = float(density)
 
     def look_around_mouse(self):
         if not self.is_asset_selected_from_list:
@@ -885,26 +912,26 @@ class Editor:
                                  wrt=True)
             self.is_item_attached_to_joint = True
 
-    def select_foliage_asset_from_list(self, asset_name):
-        if not asset_name and not isinstance(asset_name, str):
-            return
+        self.is_asset_foliage = False
 
+    def select_foliage_asset_from_list(self, asset_name):
         asset = self.foliage.models.get(asset_name)
-        self.active_asset_from_list = asset
-        if self.active_asset_from_list is not None:
-            self.is_asset_selected_from_list = True
+        if asset is not None:
+            for i in range(self.current_foliage_count):
+                self.foliage.stack.append(asset)
 
     def select_joint_from_list(self, joint):
-        if joint and isinstance(joint, str):
-            # if asset is an actor
-            if self.active_asset_from_list and self.active_asset_from_list.get_name():
-                name = self.active_asset_from_list.get_name()
-                # Drop :BS suffix
-                if "BS" in name:
-                    name = name.split(":BS")[0]
+        if not self.is_asset_foliage:
+            if joint and isinstance(joint, str):
+                # if asset is an actor
+                if self.active_asset_from_list and self.active_asset_from_list.get_name():
+                    name = self.active_asset_from_list.get_name()
+                    # Drop :BS suffix
+                    if "BS" in name:
+                        name = name.split(":BS")[0]
 
-                if self.actor_refs.get(name):
-                    self.active_joint_from_list = self.actor_refs[name].expose_joint(None, "modelRoot", joint)
+                    if self.actor_refs.get(name):
+                        self.active_joint_from_list = self.actor_refs[name].expose_joint(None, "modelRoot", joint)
 
     def ui_geom_collector(self):
         """ Function    : ui_geom_collector

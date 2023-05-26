@@ -13,6 +13,7 @@ class Foliage:
         self.render = render
         self.foliage_asset_bs = {}
         self.models = {}
+        self.stack = []
         self.gpu_instancing = None
         self.model = None
         self.is_loaded = False
@@ -57,6 +58,17 @@ class Foliage:
             if name not in self.models:
                 self.models[name] = self.model
 
+        else:
+            if self.model.get_num_children() == 0:
+                self.is_loaded = False
+                self.model = await self.base.loader.load_model(path, blocking=False)
+                self.is_loaded = True
+                name = self.model.get_name().replace(".egg", "")
+                self.model.set_name(name)
+                self.is_loaded = False
+                if name not in self.models:
+                    self.models[name] = self.model
+
     def asset_watcher_task(self, task):
         if self.base.game_instance["menu_mode"]:
             return task.done
@@ -80,17 +92,11 @@ class Foliage:
 
         return task.again
 
-    def instance_to(self, pos):
+    def instance_to(self, pos, count, density):
         for prefab in self.model.find_all_matches("**/*LOD*"):
             # We are going to in instance this object multiple times
-            if prefab is None:
-                continue
 
             name_bs = prefab.get_name()
-
-            # Skip asset if we added it already
-            if name_bs in self.foliage_asset_bs:
-                continue
 
             prefab_lod, prefab_lod_np = self.gpu_instancing.construct_prefab_lod(pattern=prefab.get_name())
 
@@ -101,7 +107,10 @@ class Foliage:
                                                  prefab_lod_np=prefab_lod_np,
                                                  prefab_lod=prefab_lod)
 
-            self.gpu_instancing.populate_instance(prefab=prefab, pos=pos)
+            self.gpu_instancing.populate_instances_with_brush(prefab=prefab,
+                                                              pos=pos,
+                                                              count=count,
+                                                              density=density)
 
             if "LOD0" in prefab.get_parent().get_name():
                 self.foliage_asset_bs[name_bs] = prefab.get_parent()
