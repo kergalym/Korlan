@@ -13,12 +13,12 @@ cp requirements_win.txt requirements.txt
 . venv3*/bin/activate
 
 # build the game
-python3 setup_win.py build_apps # bdist_apps
+venv3.7/bin/python3 setup_win.py build_apps # bdist_apps
 
 cd $DISTDIR
 
 # Pack game files into single multifile
-multify -c -f GameData.mf Assets Settings Engine
+multify -c -f GameData.mf Assets Settings Engine vfs
 
 # Exit from virtualenv
 deactivate

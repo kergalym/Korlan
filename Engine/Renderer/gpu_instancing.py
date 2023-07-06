@@ -1,8 +1,13 @@
+import math
 import struct
 from random import random
 
-from panda3d.bullet import BulletCapsuleShape, BulletRigidBodyNode, ZUp
-from panda3d.core import NodePath, LODNode
+from direct.task.TaskManagerGlobal import taskMgr
+from panda3d.bullet import BulletCapsuleShape
+from panda3d.bullet import BulletRigidBodyNode
+from panda3d.bullet import ZUp
+from panda3d.core import NodePath
+from panda3d.core import LODNode
 from panda3d.core import Texture, GeomEnums, OmniBoundingVolume
 
 
@@ -12,7 +17,10 @@ class GPUInstancing:
     """
     def __init__(self):
         self.base = base
+        self.render = render
         self.base.game_instance["gpu_instancing_cls"] = self
+        self._is_tree = False
+        self._total_instances = 0
 
     def construct_prefab_lod(self, pattern):
         prefab_lod = LODNode("{0}_LODNode".format(pattern))
@@ -21,10 +29,8 @@ class GPUInstancing:
         return prefab_lod, prefab_lod_np
 
     def setup_prefab_lod(self, prefab, prefab_lod_np, prefab_lod):
-        prefab.reparent_to(prefab_lod_np)
-
         if "LOD0" in prefab.get_name():
-            prefab_lod.add_switch(50, 0.0)
+            prefab_lod.add_switch(50.0, 0.0)
         elif "LOD1" in prefab.get_name():
             prefab_lod.add_switch(500.0, 50.0)
         elif "LOD2" in prefab.get_name():
@@ -32,7 +38,7 @@ class GPUInstancing:
         elif "LOD3" in prefab.get_name():
             prefab_lod.add_switch(1500.0, 1000.0)
         elif "LOD4" in prefab.get_name():
-            prefab_lod.add_switch(999999.0, 1500.0)
+            prefab_lod.add_switch(2000.0, 1500.0)
 
     def _populate_instances(self, scene, placeholder, prefab, asset_type):
         if self.base.game_settings['Main']['pbr_renderer'] == 'on':
@@ -40,11 +46,17 @@ class GPUInstancing:
             floats = []
             for i, node_path in enumerate(scene.find_all_matches("**/{0}*".format(placeholder))):
                 matrices.append(node_path.get_mat(render))
+                if asset_type == "tree":
+                    node_path.set_scale(0.5)
                 self._add_colliders(prefab=prefab,
                                     node_path=node_path,
                                     asset_type=asset_type,
-                                    limit=100,
+                                    limit=200,
                                     index=i)
+
+            self._total_instances += len(matrices)
+
+            print("Loaded", self._total_instances, "instances!")
 
             buffer_texture = self._allocate_texture_storage(matrices, floats)
             self._visualize(prefab, matrices, buffer_texture)
@@ -133,17 +145,21 @@ class GPUInstancing:
 
     def _visualize(self, prefab, matrices, buffer_texture):
         # Load the effect
+
+        if self._is_tree:
+            is_render_shadow = True
+        else:
+            is_render_shadow = False
         renderpipeline_np = self.base.game_instance["renderpipeline_np"]
         renderpipeline_np.set_effect(prefab,
                                      "{0}/Engine/Renderer/effects/basic_instancing.yaml".format(
                                          self.base.game_dir),
                                      {"render_gbuffer": True,
                                       "render_forward": False,
-                                      "render_shadow": True,
+                                      "render_shadow": is_render_shadow,
                                       "alpha_testing": True,
                                       "normal_mapping": True})
         prefab.set_shader_input("InstancingData", buffer_texture)
-        prefab.flatten_light()
         prefab.set_instance_count(len(matrices))
         # We have do disable culling, so that all instances stay visible
         prefab.node().set_bounds(OmniBoundingVolume())
@@ -163,6 +179,11 @@ class GPUInstancing:
                 and isinstance(pattern, str)
                 and isinstance(placeholder, str)):
 
+            if asset_type == "tree":
+                self._is_tree = True
+            else:
+                self._is_tree = False
+
             # Define prefab LOD and reparent to render node
             prefab_lod, prefab_lod_np = self.construct_prefab_lod(pattern=pattern)
 
@@ -173,9 +194,16 @@ class GPUInstancing:
                 if prefabs is not None:
                     for prefab in prefabs:
                         if "LODNode" not in prefab.get_name():
+
+                            prefab.reparent_to(prefab_lod_np)
+
                             self.setup_prefab_lod(prefab=prefab,
                                                   prefab_lod_np=prefab_lod_np,
                                                   prefab_lod=prefab_lod)
 
-                            self._populate_instances(scene, placeholder, prefab, asset_type)
+                if prefab_lod_np.get_num_children() > 0:
+                    self._populate_instances(scene, placeholder, prefab_lod_np, asset_type)
+
+
+
 

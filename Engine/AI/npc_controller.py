@@ -3,8 +3,7 @@ from pathlib import Path
 from direct.interval.FunctionInterval import Func, Wait
 from direct.interval.MetaInterval import Sequence, Parallel
 from direct.task.TaskManagerGlobal import taskMgr
-from panda3d.core import Vec3, Vec2, Point3, BitMask32, NodePath, LineSegs
-from panda3d.navigation import NavObstacleCylinderNode
+from panda3d.core import Vec3, Vec2, Point3, BitMask32, NodePath, LineSegs, PandaSystem
 
 from Engine.Physics.npc_damages import NpcDamages
 from Engine.AI.npc_behavior import NpcBehavior
@@ -14,6 +13,9 @@ from Engine.AI import ai_declaratives
 
 """ ANIMATIONS"""
 from Engine import anim_names
+
+if "1.11" in PandaSystem.get_version_string():
+    from panda3d.navigation import NavObstacleCylinderNode
 
 
 class NpcController:
@@ -81,12 +83,13 @@ class NpcController:
             actor_name = "{0}:BS".format(actor.get_name())
             actor_npc_rb = self.base.game_instance["actors_np"][actor_name]
 
-            # Create a navmesh obstacle cylinder and parent it to the moving actor so it moves with it.
-            obstacle_node = NavObstacleCylinderNode(4, 5, "pandaObstacle")
-            obstacle_np = actor_npc_rb.attach_new_node(obstacle_node)
-            obstacle_np.set_scale(actor_rb_np.get_scale())
-            obstacle_np.set_pos(actor_rb_np.get_pos())
-            # obstacle_np.show()
+            if "1.11" in PandaSystem.get_version_string():
+                # Create a navmesh obstacle cylinder and parent it to the moving actor so it moves with it.
+                obstacle_node = NavObstacleCylinderNode(4, 5, "pandaObstacle")
+                obstacle_np = actor_npc_rb.attach_new_node(obstacle_node)
+                obstacle_np.set_scale(actor_rb_np.get_scale())
+                obstacle_np.set_pos(actor_rb_np.get_pos())
+                # obstacle_np.show()
 
             # TODO KEEP HERE UNTILL HORSE ANIMS BECOME READY
             if "Horse" not in actor.get_name():
@@ -128,7 +131,8 @@ class NpcController:
             return int(actor_npc_rb.get_distance(opponent))
 
     def get_target_npc_in_state(self, target_np):
-        if "Horse" in target_np.get_parent().get_name():
+        if (target_np is not None
+                and "Horse" in target_np.get_parent().get_name()):
             return target_np.get_parent().get_parent()
         else:
             return target_np

@@ -8,6 +8,7 @@ setup(
         'build_apps': {
             'include_patterns': [
                 'Assets/**/*',
+                'Assets/**/*.json',
                 'Assets/**/tex/*',
                 'Configs/Language/*.json',
                 'Configs/Keyboard/*.json',

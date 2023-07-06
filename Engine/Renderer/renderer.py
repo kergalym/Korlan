@@ -584,3 +584,37 @@ class RenderAttr:
                                              "alpha_testing": True,
                                              "normal_mapping": True})
             """
+
+    def set_occlusion_culling(self):
+        """ Callback node
+        A special node that can issue arbitrary callbacks to user code,
+        either during the cull or draw traversals.
+        """
+        lens = base.camLens
+        lens.setFar(4000)
+
+        """cbnode = CallbackNode("CullingTraverse")
+        cbnode.set_bounds(BoundingBox())
+        cbnode.set_draw_callback(self._init_drawing)
+
+        # cbnode.set_cull_callback(self._init_culling)
+        self.base.game_instance["culling_traverser_np"] = render.attach_new_node(cbnode)"""
+
+        """ OCCLUDER CULLING """
+        occluder = OccluderNode("occluder")
+        occluder.set_vertices(Point3(0, 0, 0), Point3(130, 0, 0), Point3(100, 100, 0), Point3(0, 100, 0))
+        occluder_nodepath = render.attach_new_node(occluder)
+        # occluder_nodepath.show()
+        render.set_occluder(occluder_nodepath)
+        occluder_nodepath.node().set_double_sided(True)
+
+    def _init_culling(self, cbdata):
+        name = cbdata.getData().node().getName()
+        np = render.find(f"**/{name}")
+        if np is not None:
+            np.hide()
+
+        cbdata.upcall()
+
+    def _init_drawing(self, cbdata):
+        cbdata.upcall()

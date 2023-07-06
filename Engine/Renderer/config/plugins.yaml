@@ -100,7 +100,7 @@ overrides:
     dist_shadow_clipsize: 400.0
     dist_shadow_resolution: 4096
     dist_shadow_sundist: 300.0
-    filter_radius: 0.7
+    filter_radius: 6.0
     filter_sequence: halton_2D_32
     fixed_bias: 0.11429
     logarithmic_factor: 3.0

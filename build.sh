@@ -17,12 +17,12 @@ cp requirements_lin.txt requirements.txt
 . venv3*/bin/activate
 
 # build the game
-python3 setup_lin.py build_apps # bdist_apps
+venv3.7/bin/python3 setup_lin.py build_apps # bdist_apps
 
 cd $DISTDIR
 
 # Pack game files into single multifile
-multify -c -f GameData.mf Assets Settings Engine
+multify -c -f GameData.mf Assets Engine
 
 # Exit from virtualenv
 deactivate
@@ -41,7 +41,7 @@ rm -rf $DISTDIR/Assets/Sounds
 rm -rf $DISTDIR/Assets/Videos
 rm -rf $DISTDIR/Assets/Weapons
 rm -rf $DISTDIR/Engine/Shaders
-rm -rf $DISTDIR/Settings
+# rm -rf $DISTDIR/Settings
 
 # Return to project directory
 cd $PROJDIR

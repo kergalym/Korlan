@@ -2,7 +2,6 @@ from os.path import exists
 
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import *
-from panda3d.navigation import NavObstacleCylinderNode
 
 from Engine.Actors.Player.state import PlayerState
 from Engine.async_level_loading import AsyncLevelLoading
@@ -18,6 +17,9 @@ from Engine.Scenes.npc_list_test_level import LEVEL_NPC_AXIS as TESTLEVEL_NPC_AX
 
 from Engine.Scenes.npc_list_level1 import LEVEL_NPC_ASSETS
 from Engine.Scenes.npc_list_level1 import LEVEL_NPC_AXIS
+
+if "1.11" in PandaSystem.get_version_string():
+    from panda3d.navigation import NavObstacleCylinderNode
 
 py_npc_fsm_classes = []
 
@@ -96,19 +98,23 @@ class LevelOne:
 
                 NpcController(actor)
 
-            # Create a navmesh obstacle cylinder and parent it to the moving player so it moves with it.
-            player_rb_np = self.base.game_instance["player_np"]
-            obstacle_node = NavObstacleCylinderNode(4, 5, "pandaObstacle")
-            obstacle_np = player_rb_np.attach_new_node(obstacle_node)
-            obstacle_np.set_scale(player_rb_np.get_scale())
-            obstacle_np.set_pos(player_rb_np.get_pos())
-            # obstacle_np.show()
+            if "1.11" in PandaSystem.get_version_string():
+                # Create a navmesh obstacle cylinder and parent it to the moving player so it moves with it.
+                player_rb_np = self.base.game_instance["player_np"]
 
-            # Add a tracked obstacle.
-            self.base.game_instance["navmesh"].add_obstacles(render)
+                obstacle_node = NavObstacleCylinderNode(4, 5, "pandaObstacle")
+                obstacle_np = player_rb_np.attach_new_node(obstacle_node)
+                obstacle_np.set_scale(player_rb_np.get_scale())
+                obstacle_np.set_pos(player_rb_np.get_pos())
+                # obstacle_np.show()
+
+                # Add a tracked obstacle.
+                self.base.game_instance["navmesh"].add_obstacles(render)
 
             self.base.game_instance["ai_is_activated"] = 1
-            taskMgr.doMethodLater(0.25, self.navmesh_update, 'navmesh_update')
+
+            if "1.11" in PandaSystem.get_version_string():
+                taskMgr.doMethodLater(0.25, self.navmesh_update, 'navmesh_update')
 
             return task.done
 
@@ -235,6 +241,8 @@ class LevelOne:
         self.base.shared_functions['unload_game_scene'] = self.unload_game_scene
 
         self.base.accept("escape", self.pause_game_ui.load_pause_menu)
+
+        self.base.game_instance['render_attr_cls'].set_occlusion_culling()
 
         """ Set Time of Day """
 

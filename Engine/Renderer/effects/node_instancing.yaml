@@ -20,7 +20,7 @@ fragment:
 
     defines: |
       #define DONT_FETCH_DEFAULT_TEXTURES 0
-      #define DONT_SET_MATERIAL_PROPERTIES 1
+      #define DONT_SET_MATERIAL_PROPERTIES 0
 
     material: |
       m.basecolor = texture(p3d_Texture0,  texcoord).xyz;
