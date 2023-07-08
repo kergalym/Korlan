@@ -291,6 +291,13 @@ class PhysicsAttr:
         # reparent bullet-shaped actor to LOD node
         actor_rb_np.reparent_to(self.base.game_instance['lod_np'])
 
+        # LOD quality preset
+        for lod_qk in self.base.game_instance["lod_quality"]:
+            if self.game_settings['Main']['details'] == lod_qk:
+                lod_qv = self.base.game_instance["lod_quality"][lod_qk]
+                self.base.game_instance['lod_np'].node().add_switch(lod_qv[0],
+                                                                    lod_qv[1])
+
         # attach trigger sphere
         self.npc_triggers.set_ghost_trigger(actor, self.world)
         taskMgr.add(self.npc_triggers.actor_area_trigger_task,
@@ -322,6 +329,13 @@ class PhysicsAttr:
 
         # reparent bullet-shaped actor to LOD node
         actor_rb_np.reparent_to(self.base.game_instance['lod_np'])
+
+        # LOD quality preset
+        for lod_qk in self.base.game_instance["lod_quality"]:
+            if self.game_settings['Main']['details'] == lod_qk:
+                lod_qv = self.base.game_instance["lod_quality"][lod_qk]
+                self.base.game_instance['lod_np'].node().add_switch(lod_qv[0],
+                                                                    lod_qv[1])
 
         if "Horse" in col_name:
             # attach trigger sphere
