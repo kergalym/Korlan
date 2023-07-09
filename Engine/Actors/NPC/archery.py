@@ -284,6 +284,7 @@ class Archery:
 
                 # Move forward by x axis
                 self.arrow_brb_in_use.set_x(self.arrow_brb_in_use, -power * dt)
+                self.arrow_brb_in_use.set_z(self.arrow_brb_in_use, -0.3 * dt)
 
                 # Camera follows by arrow
                 # self.base.camera.set_y(self.base.camera, power * dt)

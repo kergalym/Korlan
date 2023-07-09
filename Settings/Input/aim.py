@@ -79,6 +79,7 @@ class Aim:
             return task.done
 
         if (self.base.player_states['has_bow']
+                and base.player_states["is_alive"]
                 and not self.base.game_instance["is_indoor"]
                 and not self.base.game_instance['ui_mode']):
             if (self.base.game_instance['kbd_np'].keymap["block"]

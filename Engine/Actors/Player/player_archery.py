@@ -312,9 +312,11 @@ class PlayerArchery:
 
                 # Move forward by x axis
                 self.arrow_brb_in_use.set_x(self.arrow_brb_in_use, -power * dt)
-                if self.target_np:
+                self.arrow_brb_in_use.set_z(self.arrow_brb_in_use, -0.3 * dt)
+
+                """if self.target_np:
                     if self.arrow_brb_in_use.get_distance(self.target_np) < 0.9:
-                        self.arrow_brb_in_use.set_pos(self.target_pos)
+                        self.arrow_brb_in_use.set_pos(self.target_pos)"""
 
                 # Camera follows by arrow
                 if self.base.game_settings['Debug']['set_debug_mode'] == 'YES':

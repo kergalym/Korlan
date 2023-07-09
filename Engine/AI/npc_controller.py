@@ -131,11 +131,15 @@ class NpcController:
             return int(actor_npc_rb.get_distance(opponent))
 
     def get_target_npc_in_state(self, target_np):
-        if (target_np is not None
-                and "Horse" in target_np.get_parent().get_name()):
-            return target_np.get_parent().get_parent()
-        else:
-            return target_np
+        try:
+            if (target_np is not None
+                    and target_np.get_parent() is not None
+                    and "Horse" in target_np.get_parent().get_name()):
+                return target_np.get_parent().get_parent()
+            else:
+                return target_np
+        except AssertionError:
+            pass
 
     def face_actor_to(self, actor_rb_np, target_np):
         if actor_rb_np and target_np:
@@ -146,38 +150,42 @@ class NpcController:
                 parent_rb_np = actor_rb_np.get_child(0).get_python_tag("mounted_horse")
                 # Calculate NPC rotation vector
                 new_target_np = self.get_target_npc_in_state(target_np)
-                rot_vector = Vec3(parent_rb_np.get_pos() - new_target_np.get_pos())
-                rot_vector_2d = rot_vector.get_xy()
-                rot_vector_2d.normalize()
-                heading = Vec3(Vec2(0, 1).signed_angle_deg(rot_vector_2d), 0).x
-                parent_rb_np.set_h(heading)
+                if new_target_np is not None:
+                    rot_vector = Vec3(parent_rb_np.get_pos() - new_target_np.get_pos())
+                    rot_vector_2d = rot_vector.get_xy()
+                    rot_vector_2d.normalize()
+                    heading = Vec3(Vec2(0, 1).signed_angle_deg(rot_vector_2d), 0).x
+                    parent_rb_np.set_h(heading)
             else:
                 if not actor_rb_np.get_child(0).get_python_tag("human_states")["has_bow"]:
                     if int(actor_rb_np.get_distance(target_np)) < 1:
                         # Calculate NPC rotation vector
                         new_target_np = self.get_target_npc_in_state(target_np)
-                        rot_vector = Vec3(actor_rb_np.get_pos() - new_target_np.get_pos())
-                        rot_vector_2d = rot_vector.get_xy()
-                        rot_vector_2d.normalize()
-                        heading = Vec3(Vec2(0, 1).signed_angle_deg(rot_vector_2d), 0).x
-                        actor_rb_np.set_h(heading)
+                        if new_target_np is not None:
+                            rot_vector = Vec3(actor_rb_np.get_pos() - new_target_np.get_pos())
+                            rot_vector_2d = rot_vector.get_xy()
+                            rot_vector_2d.normalize()
+                            heading = Vec3(Vec2(0, 1).signed_angle_deg(rot_vector_2d), 0).x
+                            actor_rb_np.set_h(heading)
                     else:
                         # Calculate NPC rotation vector
                         new_target_np = self.get_target_npc_in_state(target_np)
-                        rot_vector = Vec3(actor_rb_np.get_pos() - new_target_np.get_pos())
-                        rot_vector_2d = rot_vector.get_xy()
-                        rot_vector_2d.normalize()
-                        heading = Vec3(Vec2(0, 1).signed_angle_deg(rot_vector_2d), 0).x
-                        actor_rb_np.set_h(heading)
+                        if new_target_np is not None:
+                            rot_vector = Vec3(actor_rb_np.get_pos() - new_target_np.get_pos())
+                            rot_vector_2d = rot_vector.get_xy()
+                            rot_vector_2d.normalize()
+                            heading = Vec3(Vec2(0, 1).signed_angle_deg(rot_vector_2d), 0).x
+                            actor_rb_np.set_h(heading)
 
                 elif actor_rb_np.get_child(0).get_python_tag("human_states")["has_bow"]:
                     # Calculate NPC rotation vector
                     new_target_np = self.get_target_npc_in_state(target_np)
-                    rot_vector = Vec3(actor_rb_np.get_pos() - new_target_np.get_pos())
-                    rot_vector_2d = rot_vector.get_xy()
-                    rot_vector_2d.normalize()
-                    heading = Vec3(Vec2(0, 1).signed_angle_deg(rot_vector_2d), 0).x
-                    actor_rb_np.set_h(heading)
+                    if new_target_np is not None:
+                        rot_vector = Vec3(actor_rb_np.get_pos() - new_target_np.get_pos())
+                        rot_vector_2d = rot_vector.get_xy()
+                        rot_vector_2d.normalize()
+                        heading = Vec3(Vec2(0, 1).signed_angle_deg(rot_vector_2d), 0).x
+                        actor_rb_np.set_h(heading)
 
     def is_ready_for_walking(self, actor):
         if actor.get_python_tag("human_states"):
