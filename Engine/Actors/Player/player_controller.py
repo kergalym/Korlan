@@ -244,6 +244,8 @@ class PlayerController:
             for key in base.player_states:
                 if key != "is_alive":
                     base.player_states[key] = False
+                else:
+                    base.player_states[key] = True
 
             self.base.game_instance['player_actions_init_is_activated'] = 0
             if self.game_settings['Debug']['set_editor_mode'] == 'YES':
