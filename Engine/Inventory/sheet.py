@@ -520,8 +520,14 @@ class Sheet(Inventory):
         if render.find("**/bg_black_char_sheet"):
             bg_black = render.find("**/bg_black_char_sheet")
             bg_black.hide()
+
+        # Show world after inventory
         if render.find("**/World"):
             render.find("**/World").show()
+
+        # Show foliage after inventory
+        for np in self.base.game_instance['foliage_np'].get_children():
+            np.show()
 
         self.base.is_inventory_active = False
 
@@ -565,6 +571,10 @@ class Sheet(Inventory):
             # Hide world from inventory
             if render.find("**/World"):
                 render.find("**/World").hide()
+
+            # Hide foliage from inventory
+            for np in self.base.game_instance['foliage_np'].get_children():
+                np.hide()
 
             # keep default state of player camera
             self.player_camera_default["pos"] = base.camera.get_pos()

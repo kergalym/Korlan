@@ -54,6 +54,7 @@ class PhysicsAttr:
         self.spine_bones = {}
         self.actor_parents = {}
         self.info = None
+        self.item_bs = None
 
     def _get_character_controller_nodepath(self, shape, node_name, mask):
         rigid_body_node = BulletCharacterControllerNode(shape,
@@ -568,11 +569,16 @@ class PhysicsAttr:
 
                 # Do update RigidBodyNode parent node's position for every frame
                 if hasattr(base, "close_item_name"):
-                    name = base.close_item_name
-                    if not render.find("**/{0}".format(name)).is_empty():
-                        item = render.find("**/{0}".format(name))
-                        if 'BS' in item.get_parent().get_name():
-                            item.get_parent().node().set_transform_dirty()
+                    if self.item_bs is not None:
+                        self.item_bs.node().set_transform_dirty()
+
+                    elif self.item_bs is None:
+                        name = base.close_item_name
+                        if not render.find("**/{0}".format(name)).is_empty():
+                            item = render.find("**/{0}".format(name))
+                            if 'BS' in item.get_parent().get_name():
+                                item.get_parent().node().set_transform_dirty()
+                                self.item_bs = item.get_parent()
         return task.cont
 
     def update_soft_physics_task(self, task):
@@ -590,7 +596,7 @@ class PhysicsAttr:
             if self.soft_world:
                 # Get the time that elapsed since last frame.
                 dt = globalClock.getDt()
-                self.soft_world.do_physics(dt, 5, 1. / 180)
+                self.soft_world.do_physics(dt, 5, 1.0/60.0)
 
                 # Update clothes pin
                 if self.cloth_pins:
@@ -667,6 +673,7 @@ class PhysicsAttr:
 
             self.base.game_instance['physics_is_activated'] = 1
 
+            self.item_bs = None
             taskMgr.add(self.update_rigid_physics_task,
                         "update_rigid_physics_task",
                         appendTask=True)
