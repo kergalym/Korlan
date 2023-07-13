@@ -6,9 +6,10 @@ class Aim:
         self.base.game_instance['is_aiming'] = False
 
     def on_aim_activate(self):
-        if self.base.game_instance['crosshair_ui']:
-            if self.base.game_instance['crosshair_ui'].is_hidden():
-                self.base.game_instance['crosshair_ui'].show()
+        if self.base.game_settings['Main']['crosshair_visibility'] == 'on':
+            if self.base.game_instance['crosshair_ui']:
+                if self.base.game_instance['crosshair_ui'].is_hidden():
+                    self.base.game_instance['crosshair_ui'].show()
 
         if not self.base.game_instance['is_aiming']:
             self.base.game_instance['is_aiming'] = True
@@ -34,9 +35,10 @@ class Aim:
         self.base.camera.set_z(pos_z)
 
     def on_aim_activate_charge(self):
-        if self.base.game_instance['crosshair_ui']:
-            if self.base.game_instance['crosshair_ui'].is_hidden():
-                self.base.game_instance['crosshair_ui'].show()
+        if self.base.game_settings['Main']['crosshair_visibility'] == 'on':
+            if self.base.game_instance['crosshair_ui']:
+                if self.base.game_instance['crosshair_ui'].is_hidden():
+                    self.base.game_instance['crosshair_ui'].show()
 
         if not self.base.game_instance['is_aiming']:
             self.base.game_instance['is_aiming'] = True
@@ -58,9 +60,10 @@ class Aim:
         self.base.camera.set_z(pos_z)
 
     def on_aim_deactivate(self):
-        if self.base.game_instance['crosshair_ui']:
-            if not self.base.game_instance['crosshair_ui'].is_hidden():
-                self.base.game_instance['crosshair_ui'].hide()
+        if self.base.game_settings['Main']['crosshair_visibility'] == 'on':
+            if self.base.game_instance['crosshair_ui']:
+                if not self.base.game_instance['crosshair_ui'].is_hidden():
+                    self.base.game_instance['crosshair_ui'].hide()
 
         if self.base.game_instance['is_aiming']:
 

@@ -129,19 +129,15 @@ class PlayerArchery:
     def bow_shoot(self):
         if (self.arrow_brb_in_use
                 and self.arrow_ref):
-            # Calculate initial velocity
-            # velocity = self.target_pos - self.arrow_brb_in_use.get_pos()
-            # velocity = self.target_pos - self.bow.get_pos()
-            # velocity.normalize()
-            # velocity *= 100.0
-
             # Get Bullet Rigid Body wrapped arrow
             self.arrow_brb_in_use.node().set_kinematic(False)
             self.arrow_brb_in_use.set_collide_mask(BitMask32.bit(0))
             self.arrow_ref.set_python_tag("shot", 1)
+
             self.arrow_brb_in_use.wrt_reparent_to(render)
 
-            # self.arrow_brb_in_use.node().setLinearVelocity(velocity)
+            self.arrow_brb_in_use.node().apply_central_force(Vec3(0, 1, 0))
+            self.arrow_brb_in_use.node().apply_central_impulse(Vec3(0, 1, 0))
 
             # We record arrows which have been shot
             self.dropped_arrows.append(self.arrow_brb_in_use)
@@ -261,7 +257,7 @@ class PlayerArchery:
         physics_world_np = self.base.game_instance['physics_world_np']
         result = physics_world_np.contact_test_pair(self.arrow_brb_in_use.node(),
                                                     self.target_np.node())
-        for contact in result.getContacts():
+        for contact in result.get_contacts():
             if "NPC" not in contact.getNode1().name:
                 self.arrow_brb_in_use.set_collide_mask(BitMask32.allOff())
                 self.arrow_ref.wrt_reparent_to(self.target_np)
@@ -312,8 +308,6 @@ class PlayerArchery:
 
                 # Move forward by x axis
                 self.arrow_brb_in_use.set_x(self.arrow_brb_in_use, -power * dt)
-
-                self.arrow_brb_in_use.set_y(self.arrow_brb_in_use, -0.3 * dt)
 
                 self.arrow_brb_in_use.set_z(self.arrow_brb_in_use, -0.3 * dt)
 

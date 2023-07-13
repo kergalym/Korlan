@@ -81,6 +81,7 @@ game_settings['Main'] = {
                          'gameplay_mode': 'enhanced',
                          'show_blood': 'on',
                          'camera_distance': '4',
+                         'crosshair_visibility': 'on'
                          }
 
 game_settings['Keymap'] = {

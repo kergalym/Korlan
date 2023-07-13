@@ -69,16 +69,19 @@ class GameMenuUI(Game):
         self.lbl_gameplay_mode = None
         self.lbl_show_blood = None
         self.lbl_cam_distance = None
+        self.lbl_crosshair_visibility = None
 
         self.slider_person_look_mode = None
         self.slider_gameplay_mode = None
         self.slider_show_blood = None
         self.slider_cam_distance = None
+        self.slider_crosshair_visibility = None
 
         self.lbl_perc_person_look_mode = None
         self.lbl_perc_gameplay_mode = None
         self.lbl_perc_show_blood = None
         self.lbl_perc_cam_distance = None
+        self.lbl_toggle_crosshair_visibility = None
 
         self.btn_param_accept = None
         self.btn_param_back = None
@@ -172,6 +175,13 @@ class GameMenuUI(Game):
                                             scale=self.lbl_scale, borderWidth=(self.w, self.h),
                                             parent=self.base.frame_int_game)
 
+        self.lbl_crosshair_visibility = DirectLabel(text=self.language['crosshair_visibility'],
+                                                    text_fg=self.menu_font_color,
+                                                    text_font=self.font.load_font(self.menu_font),
+                                                    frameColor=(255, 255, 255, 0),
+                                                    scale=self.lbl_scale, borderWidth=(self.w, self.h),
+                                                    parent=self.base.frame_int_game)
+
         self.slider_person_look_mode = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
                                                     value=self.get_person_look_mode_value(),
                                                     scale=self.sli_scale, borderWidth=(2, 2),
@@ -196,6 +206,12 @@ class GameMenuUI(Game):
                                                 parent=self.base.frame_int_game,
                                                 command=self.set_slider_cam_distance_wrapper)
 
+        self.slider_crosshair_visibility = DirectSlider(frameColor=self.rgba_gray_color, range=(1, 2),
+                                                        value=self.get_crosshair_vis_value(),
+                                                        scale=self.sli_scale, borderWidth=(self.w, self.h),
+                                                        parent=self.base.frame_int_game,
+                                                        command=self.set_slider_crosshair_vis_wrapper)
+
         self.lbl_perc_person_look_mode = OnscreenText(bg=(0, 0, 0, 0), fg=(255, 255, 255, 1),
                                                       font=self.font.load_font(self.menu_font),
                                                       scale=self.lbl_scale,
@@ -215,6 +231,11 @@ class GameMenuUI(Game):
                                                   font=self.font.load_font(self.menu_font),
                                                   scale=self.lbl_scale,
                                                   parent=self.base.frame_int_game, mayChange=True)
+
+        self.lbl_toggle_crosshair_visibility = OnscreenText(bg=(0, 0, 0, 0), fg=(255, 255, 255, 1),
+                                                            font=self.font.load_font(self.menu_font),
+                                                            scale=self.lbl_scale,
+                                                            parent=self.base.frame_int_game, mayChange=True)
 
         self.btn_param_defaults = DirectButton(text="Load defaults",
                                                text_fg=self.menu_font_color,
@@ -250,11 +271,13 @@ class GameMenuUI(Game):
         self.lbl_gameplay_mode.set_pos(-0.3, 0, 0.2)
         self.lbl_show_blood.set_pos(-0.3, 0, 0.1)
         self.lbl_cam_distance.set_pos(-0.3, 0, 0)
+        self.lbl_crosshair_visibility.set_pos(-0.3, 0, -0.1)
 
         self.slider_person_look_mode.set_pos(0.6, 0, 0.3)
         self.slider_gameplay_mode.set_pos(0.6, 0, 0.2)
         self.slider_show_blood.set_pos(0.6, 0, 0.1)
         self.slider_cam_distance.set_pos(0.6, 0, 0)
+        self.slider_crosshair_visibility.set_pos(0.6, 0, -0.1)
 
         OnscreenImage(image=self.images['ui_slider_button'],
                       scale=(.07, 1, .08)).reparent_to(self.slider_person_look_mode.thumb)
@@ -264,11 +287,14 @@ class GameMenuUI(Game):
                       scale=(.07, 1, .08)).reparent_to(self.slider_show_blood.thumb)
         OnscreenImage(image=self.images['ui_slider_button'],
                       scale=(.07, 1, .08)).reparent_to(self.slider_cam_distance.thumb)
+        OnscreenImage(image=self.images['ui_slider_button'],
+                      scale=(.07, 1, .08)).reparent_to(self.slider_crosshair_visibility.thumb)
 
         self.lbl_perc_person_look_mode.set_pos(1.3, 0, 0.3)
         self.lbl_perc_gameplay_mode.set_pos(1.3, 0, 0.2)
         self.lbl_perc_show_blood.set_pos(1.3, 0, 0.1)
         self.lbl_perc_cam_distance.set_pos(1.3, 0, 0)
+        self.lbl_toggle_crosshair_visibility.set_pos(1.3, 0, -0.1)
 
         self.btn_param_defaults.set_pos(1.5, 0, -0.9)
         self.btn_param_accept.set_pos(-0.6, 0, -0.9)
@@ -374,3 +400,21 @@ class GameMenuUI(Game):
         string = cam_distance_dict[i]
         self.lbl_perc_cam_distance.setText(string)
         self.save_cam_distance_value(int(string))
+
+    def set_slider_crosshair_vis_wrapper(self):
+        """ Function    : set_slider_crosshair_vis_wrapper
+
+            Description : Wrapper function.
+
+            Input       : None
+
+            Output      : None
+
+            Return      : None
+        """
+        # Make it int and then str
+        i = int(self.slider_crosshair_visibility['value'])
+        crosshair_vis_dict = self.load_crosshair_vis_value()
+        string = crosshair_vis_dict[i]
+        self.lbl_toggle_crosshair_visibility.setText(string)
+        self.save_crosshair_vis_value(string)

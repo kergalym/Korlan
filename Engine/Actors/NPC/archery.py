@@ -229,7 +229,7 @@ class Archery:
     def _on_contact_attach_arrow(self):
         physics_world_np = self.base.game_instance['physics_world_np']
         result = physics_world_np.contact_test_pair(self.arrow_brb_in_use.node(), self.target_np.node())
-        for contact in result.getContacts():
+        for contact in result.get_contacts():
             if ("NPC" not in contact.getNode1().name
                     and "Player" not in contact.getNode1().name):
                 self.arrow_brb_in_use.set_collide_mask(BitMask32.allOff())

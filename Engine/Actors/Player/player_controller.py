@@ -163,9 +163,15 @@ class PlayerController:
             self.actions.player_block_action(player, "block", anims, anim_names.a_anim_blocking)
 
     def _regular_equip_actions(self, player, anims):
-        self.actions.player_get_sword_action(player, "sword", anims,
-                                             anim_names.a_anim_arm_sword)
-        self.actions.player_get_bow_action(player, "bow", anims, anim_names.a_anim_arm_bow)
+        if not self.base.game_instance["is_player_laying"]:
+            self.actions.player_get_sword_action(player, "sword", anims,
+                                                 anim_names.a_anim_arm_sword)
+            self.actions.player_get_bow_action(player, "bow", anims, anim_names.a_anim_arm_bow)
+
+        elif not self.base.game_instance["is_player_sitting"]:
+            self.actions.player_get_sword_action(player, "sword", anims,
+                                                 anim_names.a_anim_arm_sword)
+            self.actions.player_get_bow_action(player, "bow", anims, anim_names.a_anim_arm_bow)
 
     def _battle_actions(self, player, anims):
         if base.player_states['has_sword'] and not base.player_states['has_bow']:

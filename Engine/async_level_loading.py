@@ -14,6 +14,7 @@ from panda3d.bullet import ZUp
 from panda3d.bullet import BulletCapsuleShape
 
 from Engine.Quests.social_quests import SocialQuests
+from Engine.Quests.story_quests import StoryQuests
 
 from Engine.Scenes.npc_list_level1 import npc_ids
 
@@ -41,6 +42,7 @@ class AsyncLevelLoading:
         self.base = base
         self.render = render
         self.social_quests = None
+        self.story_quests = None
         self.game_settings = base.game_settings
         self.game_dir = base.game_dir
         self.world_nodepath = None
@@ -565,6 +567,7 @@ class AsyncLevelLoading:
                         appendTask=True)
 
             self.social_quests = SocialQuests()
+            self.story_quests = StoryQuests(social_quests=self.social_quests)
             # Add item triggers
             taskMgr.add(self.social_quests.set_level_triggers,
                         "set_level_triggers",
@@ -727,6 +730,10 @@ class AsyncLevelLoading:
 
             # Initialize Player Controller
             self.controller.player_actions_init(self.korlan, animation[0])
+
+            # Set story mode
+            self.story_quests.init()
+            taskMgr.add(self.story_quests.start_story_mode_task, "start_story_mode_task")
 
             """ Setup NPC and Physics"""
             for actor, id, _type, _class, axis_actor in zip(level_npc_assets['name'],
