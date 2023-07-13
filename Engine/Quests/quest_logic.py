@@ -135,13 +135,11 @@ class QuestLogic:
                     and int(minutes) == self.npc_sit_time_stop[1]):
                 if "NPC" in actor.get_name():
                     name = "{0}:BS".format(actor.get_name())
-                    actor_bs = self.base.game_instance["actors_np"][name]
                     # Reverse play for standing_to_sit animation
                     any_action_seq = actor.actor_interval(anim, loop=0, playRate=-1.0)
 
                     if self.current_seq:
-                        self.current_seq = Sequence(Func(actor_bs.set_z, 0),
-                                                    any_action_seq,
+                        self.current_seq = Sequence(any_action_seq,
                                                     Func(self.set_action_state, actor, "is_sitting", False),
                                                     Func(self.set_place_state, place, False),
                                                     Func(self._reset_current_sequence)
@@ -224,12 +222,10 @@ class QuestLogic:
                 self.base.camera.set_p(self.cam_p)
                 self.base.camera.set_y(-1)
                 actor.set_z(self.actor_geom_pos_z)
-                actor_bs = self.base.game_instance["player_np"]
                 # Reverse play for standing_to_sit animation
                 any_action_seq = actor.actor_interval(anim, loop=0, playRate=-1.0)
 
-                Sequence(Func(actor_bs.set_z, 0),
-                         any_action_seq,
+                Sequence(any_action_seq,
                          Func(self.set_do_once_key, "use", False),
                          Func(self.set_place_state, place, False),
                          Func(self.set_action_state, actor, "is_busy", False)).start()
@@ -281,13 +277,11 @@ class QuestLogic:
                 if "NPC" in actor.get_name():
                     actor.set_z(-1)
                     name = "{0}:BS".format(actor.get_name())
-                    actor_bs = self.base.game_instance["actors_np"][name]
                     # Reverse play for standing_to_sit animation
                     any_action_seq = actor.actor_interval(anim, loop=0, playRate=-1.0)
 
                     if self.current_seq:
-                        self.current_seq = Sequence(Func(actor_bs.set_z, 0),
-                                                    any_action_seq,
+                        self.current_seq = Sequence(any_action_seq,
                                                     Func(self.set_action_state, actor, "is_laying", False),
                                                     Func(self.set_place_state, place, False),
                                                     Func(self._reset_current_sequence)
