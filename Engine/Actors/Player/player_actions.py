@@ -430,6 +430,12 @@ class PlayerActions:
                     if player_bs.get_y() != player_bs.get_y() - 2:
                         player_bs.set_y(player_bs, -1.0 * dt)
 
+                    if base.player_states['has_sword']:
+                        self.base.sound.play_melee()
+
+                    elif not base.player_states['has_sword']:
+                        self.base.sound.play_kicking()
+
                     Sequence(Func(self.state.set_action_state, "is_hitting", True),
                              Func(hitbox_np.set_collide_mask, BitMask32.bit(0)),
                              any_action_seq,
@@ -490,6 +496,9 @@ class PlayerActions:
                 if (base.player_states['is_h_kicking'] is False
                         and crouched_to_standing.is_playing() is False
                         and base.player_states['is_crouch_moving'] is True):
+
+                    self.base.sound.play_kicking()
+
                     player_bs = self.base.game_instance["player_np"]
                     # TODO: Use blending for smooth transition between animations
                     # Do an animation sequence if player is crouched.
@@ -539,6 +548,9 @@ class PlayerActions:
                 if (base.player_states['is_f_kicking'] is False
                         and crouched_to_standing.is_playing() is False
                         and base.player_states['is_crouch_moving'] is False):
+
+                    self.base.sound.play_punching()
+
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
                     Sequence(Func(self.state.set_action_state, "is_f_kicking", True),
@@ -898,6 +910,8 @@ class PlayerActions:
                 self.state.set_do_once_key("block", True)
                 crouched_to_standing = player.get_anim_control(anims[anim_names.a_anim_crouching_stand])
 
+                self.base.sound.play_bow_charge()
+
                 if self.archery.arrow_ref:
                     if self.archery.arrow_ref.get_python_tag("power") > 0:
                         self.archery.arrow_ref.set_python_tag("power", 0)
@@ -949,7 +963,7 @@ class PlayerActions:
                              Wait(0.1),
                              Func(player.pose, action, -0.99),
                              Wait(0.1),
-                             Func(player.pose, action, -1),
+                             Func(player.pose, action, -1)
                              ).start()
 
             if (not self.kbd.keymap["attack"]
@@ -963,6 +977,8 @@ class PlayerActions:
                         and len(self.archery.arrows) > 0):
                     self.archery.arrow_ref.set_python_tag("ready", 1)
                     self.archery.bow_shoot()
+                    self.base.sound.stop_bow_charge()
+                    self.base.sound.play_bow_release()
 
                     if not player.get_python_tag("first_attack"):
                         player.set_python_tag("first_attack", True)
@@ -985,6 +1001,8 @@ class PlayerActions:
                     if self.archery.arrow_ref.get_python_tag("power") > 0:
                         self.archery.arrow_ref.set_python_tag("power", 0)
                     self.archery.arrow_ref.set_python_tag("ready", 0)
+
+                self.base.sound.stop_bow_charge()
 
                 self.base.game_instance['free_camera'] = False
 

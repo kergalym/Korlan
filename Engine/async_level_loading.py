@@ -914,4 +914,7 @@ class AsyncLevelLoading:
                         # Set NPC Parameters
                         self.npc_state.setup_npc_state(actor=self.actor)
 
+            # Load Actors and SFX sounds
+            self.base.sound.load_sounds()
+
             self.base.game_instance['actors_are_loaded'] = True

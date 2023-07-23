@@ -973,8 +973,8 @@ class Main(ShowBase):
             for root, dirs, files in vfs_walk(path, topdown=True):
                 for file in files:
                     if os_name == "nt":
-                        if file.endswith(".ogv"):
-                            key = re.sub('.ogv$', '', file)
+                        if file.endswith(".mkv"):
+                            key = re.sub('.mkv$', '', file)
                             path = str(PurePath("{0}/".format(root), file))
                             videos[key] = Filename.from_os_specific(path).getFullpath()
                     elif os_name == "posix":

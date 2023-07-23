@@ -159,15 +159,17 @@ class PlayerMovement:
                 Sequence(Parallel(Func(seq_turning_wrapper, actor, anims, "left_turn", 'loop'),
                                   Func(self.state.set_action_state, "is_turning", True)),
                          ).start()
+                self.base.sound.play_turning()
+
             if (not self.kbd.keymap["forward"]
                     and not self.kbd.keymap["run"]
                     and self.kbd.keymap["right"]):
                 Sequence(Parallel(Func(seq_turning_wrapper, actor, anims, "right_turn", 'loop'),
                                   Func(self.state.set_action_state, "is_turning", True)),
                          ).start()
+                self.base.sound.play_turning()
 
         # Stop turning in place
-
         if (not self.kbd.keymap["forward"]
                 and not self.kbd.keymap["run"]
                 and not self.kbd.keymap["left"]):
@@ -175,6 +177,8 @@ class PlayerMovement:
                 Sequence(Parallel(Func(seq_turning_wrapper, actor, anims, "left_turn", 'stop'),
                                   Func(self.state.set_action_state, "is_turning", False)),
                          ).start()
+                self.base.sound.stop_turning()
+
         if (not self.kbd.keymap["forward"]
                 and not self.kbd.keymap["run"]
                 and not self.kbd.keymap["right"]):
@@ -182,6 +186,7 @@ class PlayerMovement:
                 Sequence(Parallel(Func(seq_turning_wrapper, actor, anims, "right_turn", 'stop'),
                                   Func(self.state.set_action_state, "is_turning", False)),
                          ).start()
+                self.base.sound.stop_turning()
 
     def decrement_stamina_while_running(self, player, move_unit):
         # Get the time that elapsed since last frame
@@ -279,12 +284,14 @@ class PlayerMovement:
                     Sequence(Parallel(Func(self.seq_move_wrapper, player, anims, 'loop'),
                                       Func(self.state.set_action_state, "is_moving", True)),
                              ).start()
+                    self.base.sound.play_walking()
             else:
                 # Stop animation
                 if base.player_states['is_moving']:
                     Sequence(Func(self.seq_move_wrapper, player, anims, 'stop'),
                              Func(self.state.set_action_state, "is_moving", False)
                              ).start()
+                    self.base.sound.stop_walking()
 
             if base.player_states['is_crouch_moving']:
                 if (self.kbd.keymap["forward"]
@@ -296,9 +303,11 @@ class PlayerMovement:
                     if not base.player_states['is_idle']:
                         Sequence(Func(self.seq_crouch_move_wrapper, player, anims, 'loop')
                                  ).start()
+                        self.base.sound.play_walking()
                 else:
                     if base.player_states['is_crouch_moving']:
                         Sequence(Func(self.seq_crouch_move_wrapper, player, anims, 'stop')).start()
+                        self.base.sound.stop_walking()
 
     def player_run_action(self, player, anims):
         if player:
@@ -381,6 +390,8 @@ class PlayerMovement:
                                 and player.get_python_tag('stamina') > 3):
                             Sequence(Func(self.seq_run_wrapper, player, anims, 'loop')
                                      ).start()
+
+                            self.base.sound.play_running()
                     else:
                         # Stop animation
                         if (base.player_states['is_running']
@@ -390,11 +401,13 @@ class PlayerMovement:
                             Sequence(Func(self.seq_run_wrapper, player, anims, 'stop'),
                                      Func(self.state.set_action_state, "is_running", False)
                                      ).start()
+                            self.base.sound.stop_running()
 
                         if not self.kbd.keymap["run"] and player.get_python_tag('stamina') < 2:
                             Sequence(Func(self.seq_run_wrapper, player, anims, 'stop'),
                                      Func(self.state.set_action_state, "is_running", False)
                                      ).start()
+                            self.base.sound.stop_running()
 
     def horse_riding_movement_action(self, anims):
         if (isinstance(anims, dict)

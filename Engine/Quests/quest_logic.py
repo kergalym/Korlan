@@ -23,6 +23,7 @@ class QuestLogic:
         self.base.game_instance["rest_time_stop"] = self.npc_rest_time_stop
 
         self.current_seq = None
+        self.current_seq_player = None
 
     def set_action_state(self, actor, action, bool_):
         if (actor and action
@@ -225,10 +226,15 @@ class QuestLogic:
                 # Reverse play for standing_to_sit animation
                 any_action_seq = actor.actor_interval(anim, loop=0, playRate=-1.0)
 
-                Sequence(any_action_seq,
-                         Func(self.set_do_once_key, "use", False),
-                         Func(self.set_place_state, place, False),
-                         Func(self.set_action_state, actor, "is_busy", False)).start()
+                if self.current_seq_player is not None:
+                    if self.current_seq_player.is_playing():
+                        self.current_seq_player.finish()
+
+                self.current_seq_player = Sequence(any_action_seq,
+                                                   Func(self.set_do_once_key, "use", False),
+                                                   Func(self.set_place_state, place, False),
+                                                   Func(self.set_action_state, actor, "is_busy", False))
+                self.current_seq_player.start()
 
         elif (not self.base.game_instance["is_player_laying"]
                 and self.base.game_instance["is_indoor"]
@@ -259,15 +265,21 @@ class QuestLogic:
                 actor_bs.set_x(place_pos[0])
                 actor_bs.set_y(place_pos[1])
 
+                if self.current_seq_player is not None:
+                    if self.current_seq_player.is_playing():
+                        self.current_seq_player.finish()
+
                 if task == "loop":
-                    Sequence(any_action_seq,
-                             Func(self.set_action_state, actor, "is_busy", True),
-                             Func(self.set_place_state, place, True),
-                             any_action_next_seq,
-                             ).start()
+                    self.current_seq_player = Sequence(any_action_seq,
+                                                       Func(self.set_action_state, actor, "is_busy", True),
+                                                       Func(self.set_place_state, place, True),
+                                                       any_action_next_seq,
+                                                       )
+                    self.current_seq_player.start()
                 elif task == "play":
-                    Sequence(any_action_seq,
-                             Func(self.set_action_state, actor, "is_busy", True)).start()
+                    self.current_seq_player = Sequence(any_action_seq,
+                                                       Func(self.set_action_state, actor, "is_busy", True))
+                    self.current_seq_player.start()
 
     def toggle_npc_laying_state(self, actor, place, anim, anim_next, task):
         if actor.get_python_tag('generic_states')["is_laying"]:
