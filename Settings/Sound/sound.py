@@ -1,4 +1,5 @@
 import logging
+from random import randint
 
 
 class Sound:
@@ -68,7 +69,14 @@ class Sound:
         self._sound_male_voice_dying_02 = None
         self._sound_male_voice_dying_03 = None
 
-        """ Misc interacting sounds """
+        # Keep sounds in the dictionary for randomised usage
+        self._sounds_seq_arrow_hits = None
+        self._sounds_seq_kicking = None
+        self._sounds_seq_punching = None
+        self._sounds_seq_voice_female_hurting = None
+        self._sounds_seq_voice_male_hurting = None
+        self._sounds_seq_voice_female_dying = None
+        self._sounds_seq_voice_male_dying = None
 
     def openal_mgr(self):
         """ Function    : openal_mgr
@@ -148,9 +156,9 @@ class Sound:
 
         self._sound_female_voice_attacking = self.base.loader.load_sfx(sounds["voice_female_attack_01"])
 
-        self._sound_female_voice_dying_01 = self.base.loader.load_sfx(sounds["walk_new2"])
-        self._sound_female_voice_dying_02 = self.base.loader.load_sfx(sounds["walk_new2"])
-        self._sound_female_voice_dying_03 = self.base.loader.load_sfx(sounds["walk_new2"])
+        self._sound_female_voice_dying_01 = self.base.loader.load_sfx(sounds["voice_female_dying_01"])
+        self._sound_female_voice_dying_02 = self.base.loader.load_sfx(sounds["voice_female_dying_02"])
+        self._sound_female_voice_dying_03 = self.base.loader.load_sfx(sounds["voice_female_dying_03"])
 
         self._sound_male_voice_hurting_01 = self.base.loader.load_sfx(sounds["voice_male_pain_01"])
         self._sound_male_voice_hurting_02 = self.base.loader.load_sfx(sounds["voice_male_pain_02"])
@@ -158,9 +166,64 @@ class Sound:
 
         self._sound_male_voice_attacking = self.base.loader.load_sfx(sounds["voice_male_battle_shout_short_01"])
 
-        self._sound_male_voice_dying_01 = self.base.loader.load_sfx(sounds["walk_new2"])
-        self._sound_male_voice_dying_02 = self.base.loader.load_sfx(sounds["walk_new2"])
-        self._sound_male_voice_dying_03 = self.base.loader.load_sfx(sounds["walk_new2"])
+        self._sound_male_voice_dying_01 = self.base.loader.load_sfx(sounds["voice_male_dying_01"])
+        self._sound_male_voice_dying_02 = self.base.loader.load_sfx(sounds["voice_male_dying_02"])
+        self._sound_male_voice_dying_03 = self.base.loader.load_sfx(sounds["voice_male_dying_03"])
+
+        # Keep sounds in the dictionary for randomised usage
+        self._sounds_seq_arrow_hits = {
+            0: self._sound_arrow_hit,
+            1: self._sound_arrow_hit_rock,
+            2: self._sound_arrow_hit_metal
+        }
+
+        self._sounds_seq_kicking = {
+            0: self._sound_kicking_01,
+            1: self._sound_kicking_02,
+            2: self._sound_kicking_03,
+            3: self._sound_kicking_04,
+            4: self._sound_kicking_05,
+            5: self._sound_kicking_06,
+            6: self._sound_kicking_07,
+            7: self._sound_kicking_08,
+            8: self._sound_kicking_09
+        }
+
+        self._sounds_seq_punching = {
+            0: self._sound_punching_01,
+            1: self._sound_punching_02,
+            2: self._sound_punching_03,
+            3: self._sound_punching_04,
+            4: self._sound_punching_05,
+            5: self._sound_punching_06,
+            6: self._sound_punching_07,
+            7: self._sound_punching_08,
+            8: self._sound_punching_09
+        }
+
+        self._sounds_seq_voice_female_hurting = {
+            0: self._sound_female_voice_hurting_01,
+            1: self._sound_female_voice_hurting_02,
+            2: self._sound_female_voice_hurting_03
+        }
+
+        self._sounds_seq_voice_male_hurting = {
+            0: self._sound_male_voice_hurting_01,
+            1: self._sound_male_voice_hurting_02,
+            2: self._sound_male_voice_hurting_03,
+        }
+
+        self._sounds_seq_voice_female_dying = {
+            0: self._sound_female_voice_dying_01,
+            1: self._sound_female_voice_dying_02,
+            2: self._sound_female_voice_dying_03,
+        }
+
+        self._sounds_seq_voice_male_dying = {
+            0: self._sound_male_voice_dying_01,
+            1: self._sound_male_voice_dying_02,
+            2: self._sound_male_voice_dying_03,
+        }
 
     def play_walking(self):
         self._sound_walking.set_play_rate(1.3)
@@ -214,128 +277,55 @@ class Sound:
             self._sound_bow_release.stop()
 
     def play_arrow_hit(self):
-        if self._sound_arrow_hit.status() != self._sound_arrow_hit.PLAYING:
-            self._sound_arrow_hit.play()
-        else:
-            self._sound_arrow_hit.stop()
+        length = len(self._sounds_seq_arrow_hits)
+        rand_idx = 0
+        for i in range(length):
+            rand_idx = randint(0, length-1)
+            break
 
-        if self._sound_arrow_hit_metal.status() != self._sound_arrow_hit_metal.PLAYING:
-            self._sound_arrow_hit_metal.play()
+        if self._sounds_seq_arrow_hits[rand_idx].status() != self._sounds_seq_arrow_hits[rand_idx].PLAYING:
+            self._sounds_seq_arrow_hits[rand_idx].play()
         else:
-            self._sound_arrow_hit_metal.stop()
-
-        if self._sound_arrow_hit_rock.status() != self._sound_arrow_hit_rock.PLAYING:
-            self._sound_arrow_hit_rock.play()
-        else:
-            self._sound_arrow_hit_rock.stop()
+            self._sounds_seq_arrow_hits[rand_idx].stop()
 
     def play_kicking(self):
-        if self._sound_kicking_01.status() != self._sound_kicking_01.PLAYING:
-            self._sound_kicking_01.play()
-        else:
-            self._sound_kicking_01.stop()
+        if self._sounds_seq_kicking is not None:
+            length = len(self._sounds_seq_kicking)
+            rand_idx = 0
+            for i in range(length):
+                rand_idx = randint(0, length-1)
+                break
 
-        if self._sound_kicking_02.status() != self._sound_kicking_02.PLAYING:
-            self._sound_kicking_02.play()
-        else:
-            self._sound_kicking_02.stop()
-
-        if self._sound_kicking_03.status() != self._sound_kicking_03.PLAYING:
-            self._sound_kicking_03.play()
-        else:
-            self._sound_kicking_03.stop()
-
-        if self._sound_kicking_04.status() != self._sound_kicking_04.PLAYING:
-            self._sound_kicking_04.play()
-        else:
-            self._sound_kicking_04.stop()
-
-        if self._sound_kicking_05.status() != self._sound_kicking_05.PLAYING:
-            self._sound_kicking_05.play()
-        else:
-            self._sound_kicking_05.stop()
-
-        if self._sound_kicking_06.status() != self._sound_kicking_06.PLAYING:
-            self._sound_kicking_06.play()
-        else:
-            self._sound_kicking_06.stop()
-
-        if self._sound_kicking_07.status() != self._sound_kicking_07.PLAYING:
-            self._sound_kicking_07.play()
-        else:
-            self._sound_kicking_07.stop()
-
-        if self._sound_kicking_08.status() != self._sound_kicking_08.PLAYING:
-            self._sound_kicking_08.play()
-        else:
-            self._sound_kicking_08.stop()
-
-        if self._sound_kicking_09.status() != self._sound_kicking_09.PLAYING:
-            self._sound_kicking_09.play()
-        else:
-            self._sound_kicking_09.stop()
+            if self._sounds_seq_kicking[rand_idx].status() != self._sounds_seq_kicking[rand_idx].PLAYING:
+                self._sounds_seq_kicking[rand_idx].play()
+            else:
+                self._sounds_seq_kicking[rand_idx].stop()
 
     def play_punching(self):
-        if self._sound_punching_01.status() != self._sound_punching_01.PLAYING:
-            self._sound_punching_01.play()
-        else:
-            self._sound_punching_01.stop()
+        if self._sounds_seq_punching is not None:
+            length = len(self._sounds_seq_punching)
+            rand_idx = 0
+            for i in range(length):
+                rand_idx = randint(0, length-1)
+                break
 
-        if self._sound_punching_02.status() != self._sound_punching_02.PLAYING:
-            self._sound_punching_02.play()
-        else:
-            self._sound_punching_02.stop()
-
-        if self._sound_punching_03.status() != self._sound_punching_03.PLAYING:
-            self._sound_punching_03.play()
-        else:
-            self._sound_punching_03.stop()
-
-        if self._sound_punching_04.status() != self._sound_punching_04.PLAYING:
-            self._sound_punching_04.play()
-        else:
-            self._sound_punching_04.stop()
-
-        if self._sound_punching_05.status() != self._sound_punching_05.PLAYING:
-            self._sound_punching_05.play()
-        else:
-            self._sound_punching_05.stop()
-
-        if self._sound_punching_06.status() != self._sound_punching_06.PLAYING:
-            self._sound_punching_06.play()
-        else:
-            self._sound_punching_06.stop()
-
-        if self._sound_punching_07.status() != self._sound_punching_07.PLAYING:
-            self._sound_punching_07.play()
-        else:
-            self._sound_punching_07.stop()
-
-        if self._sound_punching_08.status() != self._sound_punching_08.PLAYING:
-            self._sound_punching_08.play()
-        else:
-            self._sound_punching_08.stop()
-
-        if self._sound_punching_09.status() != self._sound_punching_09.PLAYING:
-            self._sound_punching_09.play()
-        else:
-            self._sound_punching_09.stop()
+            if self._sounds_seq_punching[rand_idx].status() != self._sounds_seq_punching[rand_idx].PLAYING:
+                self._sounds_seq_punching[rand_idx].play()
+            else:
+                self._sounds_seq_punching[rand_idx].stop()
 
     def play_female_hurting(self):
-        if self._sound_female_voice_hurting_01.status() != self._sound_female_voice_hurting_01.PLAYING:
-            self._sound_female_voice_hurting_01.play()
-        else:
-            self._sound_female_voice_hurting_01.stop()
+        if self._sounds_seq_voice_female_hurting is not None:
+            length = len(self._sounds_seq_voice_female_hurting)
+            rand_idx = 0
+            for i in range(length):
+                rand_idx = randint(0, length-1)
+                break
 
-        if self._sound_female_voice_hurting_02.status() != self._sound_female_voice_hurting_02.PLAYING:
-            self._sound_female_voice_hurting_02.play()
-        else:
-            self._sound_female_voice_hurting_02.stop()
-
-        if self._sound_female_voice_hurting_03.status() != self._sound_female_voice_hurting_03.PLAYING:
-            self._sound_female_voice_hurting_03.play()
-        else:
-            self._sound_female_voice_hurting_03.stop()
+            if self._sounds_seq_voice_female_hurting[rand_idx].status() != self._sounds_seq_voice_female_hurting[rand_idx].PLAYING:
+                self._sounds_seq_voice_female_hurting[rand_idx].play()
+            else:
+                self._sounds_seq_voice_female_hurting[rand_idx].stop()
 
     def play_female_attacking(self):
         if self._sound_female_voice_attacking.status() != self._sound_female_voice_attacking.PLAYING:
@@ -344,20 +334,17 @@ class Sound:
             self._sound_female_voice_attacking.stop()
 
     def play_male_hurting(self):
-        if self._sound_male_voice_hurting_01.status() != self._sound_male_voice_hurting_01.PLAYING:
-            self._sound_male_voice_hurting_01.play()
-        else:
-            self._sound_male_voice_hurting_01.stop()
+        if self._sounds_seq_voice_male_hurting is not None:
+            length = len(self._sounds_seq_voice_male_hurting)
+            rand_idx = 0
+            for i in range(length):
+                rand_idx = randint(0, length-1)
+                break
 
-        if self._sound_male_voice_hurting_02.status() != self._sound_male_voice_hurting_02.PLAYING:
-            self._sound_male_voice_hurting_02.play()
-        else:
-            self._sound_male_voice_hurting_02.stop()
-
-        if self._sound_male_voice_hurting_03.status() != self._sound_male_voice_hurting_03.PLAYING:
-            self._sound_male_voice_hurting_03.play()
-        else:
-            self._sound_male_voice_hurting_03.stop()
+            if self._sounds_seq_voice_male_hurting[rand_idx].status() != self._sounds_seq_voice_male_hurting[rand_idx].PLAYING:
+                self._sounds_seq_voice_male_hurting[rand_idx].play()
+            else:
+                self._sounds_seq_voice_male_hurting[rand_idx].stop()
 
     def play_male_attacking(self):
         if self._sound_male_voice_attacking.status() != self._sound_male_voice_attacking.PLAYING:
@@ -365,35 +352,41 @@ class Sound:
         else:
             self._sound_male_voice_attacking.stop()
 
+    def play_picking(self):
+        if self._sound_using_item.status() != self._sound_using_item.PLAYING:
+            self._sound_using_item.play()
+        else:
+            self._sound_using_item.stop()
+
+    def play_dropping(self):
+        if self._sound_using_item.status() != self._sound_using_item.PLAYING:
+            self._sound_using_item.play()
+        else:
+            self._sound_using_item.stop()
+
     def play_female_dying(self):
-        if self._sound_female_voice_dying_01.status() != self._sound_female_voice_dying_01.PLAYING:
-            self._sound_female_voice_dying_01.play()
-        else:
-            self._sound_female_voice_dying_01.stop()
+        if self._sounds_seq_voice_female_dying is not None:
+            length = len(self._sounds_seq_voice_female_dying)
+            rand_idx = 0
+            for i in range(length):
+                rand_idx = randint(0, length-1)
+                break
 
-        if self._sound_female_voice_dying_02.status() != self._sound_female_voice_dying_02.PLAYING:
-            self._sound_female_voice_dying_02.play()
-        else:
-            self._sound_female_voice_dying_02.stop()
-
-        if self._sound_female_voice_dying_03.status() != self._sound_female_voice_dying_03.PLAYING:
-            self._sound_female_voice_dying_03.play()
-        else:
-            self._sound_female_voice_dying_03.stop()
+            if self._sounds_seq_voice_female_dying[rand_idx].status() != self._sounds_seq_voice_female_dying[rand_idx].PLAYING:
+                self._sounds_seq_voice_female_dying[rand_idx].play()
+            else:
+                self._sounds_seq_voice_female_dying[rand_idx].stop()
 
     def play_male_dying(self):
-        if self._sound_male_voice_dying_01.status() != self._sound_male_voice_dying_01.PLAYING:
-            self._sound_male_voice_dying_01.play()
-        else:
-            self._sound_male_voice_dying_01.stop()
+        if self._sounds_seq_voice_male_dying is not None:
+            length = len(self._sounds_seq_voice_male_dying)
+            rand_idx = 0
+            for i in range(length):
+                rand_idx = randint(0, length-1)
+                break
 
-        if self._sound_male_voice_dying_02.status() != self._sound_male_voice_dying_02.PLAYING:
-            self._sound_male_voice_dying_02.play()
-        else:
-            self._sound_male_voice_dying_02.stop()
-
-        if self._sound_male_voice_dying_03.status() != self._sound_male_voice_dying_03.PLAYING:
-            self._sound_male_voice_dying_03.play()
-        else:
-            self._sound_male_voice_dying_03.stop()
+            if self._sounds_seq_voice_male_dying[rand_idx].status() != self._sounds_seq_voice_male_dying[rand_idx].PLAYING:
+                self._sounds_seq_voice_male_dying[rand_idx].play()
+            else:
+                self._sounds_seq_voice_male_dying[rand_idx].stop()
 

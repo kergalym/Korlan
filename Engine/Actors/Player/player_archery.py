@@ -280,6 +280,7 @@ class PlayerArchery:
                 self.target_np = render.find("**/{0}".format(name_bs))
 
                 if self.target_np:
+                    self.base.sound.play_arrow_hit()
                     self._on_contact_attach_arrow()
 
     def reset_arrow_charge(self):
