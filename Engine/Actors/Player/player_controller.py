@@ -40,6 +40,7 @@ class PlayerController:
         if (any_action.is_playing() is False
                 # and base.player_states['is_idle']
                 and base.player_states['is_attacked'] is False
+                and base.player_states["is_blocking"] is False
                 and base.player_states['is_busy'] is False
                 and base.player_states['is_using'] is False
                 and base.player_states['is_turning'] is False
@@ -95,6 +96,7 @@ class PlayerController:
         if (any_action.is_playing() is False
                 # and base.player_states['is_idle']
                 and base.player_states['is_attacked'] is False
+                and base.player_states["is_blocking"] is False
                 and base.player_states['is_busy'] is False
                 and base.player_states['is_using'] is False
                 and base.player_states['is_turning'] is False

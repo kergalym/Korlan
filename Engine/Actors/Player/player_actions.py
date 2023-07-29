@@ -18,6 +18,7 @@ class PlayerActions:
         self.kbd = kbd
         self.archery = archery
         self.base.game_instance["player_actions_cls"] = self
+        self.current_seq_player = None
 
     def seq_pick_item_wrapper_task(self, player, anims, action, joint_name, task):
         if player and anims and action and joint_name:
@@ -570,23 +571,46 @@ class PlayerActions:
                 and not base.player_states['is_busy']
                 and not base.player_states['is_moving']
                 and not self.base.game_instance['is_aiming']):
-            if self.kbd.keymap[key] and not base.do_key_once[key]:
-                self.state.set_do_once_key(key, True)
+
+            # Change anim state to special block looping
+            if base.player_states['is_blocking']:
+                if self.current_seq_player is not None:
+                    if not self.current_seq_player.is_playing():
+                        action = "{0}_loop".format(action)
+                        any_action_seq = player.actor_interval(anims[action],
+                                                               playRate=self.base.actor_play_rate)
+                        self.current_seq_player = Sequence(any_action_seq)
+                        self.current_seq_player.loop()
+
+            elif not base.player_states['is_blocking']:
+                if self.current_seq_player is not None:
+                    if self.current_seq_player.is_playing():
+                        self.current_seq_player.finish()
+                        self.current_seq_player = None
+
+            # Key accepting logic
+            if self.kbd.keymap[key] and not base.player_states['is_blocking']:
                 crouched_to_standing = player.get_anim_control(anims[anim_names.a_anim_crouching_stand])
                 base.player_states['is_idle'] = False
 
                 self.player_in_crouched_to_stand_with_any_action(player, key, anims, action, "is_blocking")
 
-                if (base.player_states['is_blocking'] is False
-                        and crouched_to_standing.is_playing() is False
+                if (crouched_to_standing.is_playing() is False
                         and base.player_states['is_crouch_moving'] is False):
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
-                    Sequence(Func(self.state.set_action_state, "is_blocking", True),
-                             any_action_seq,
-                             Func(self.state.set_action_state, "is_blocking", False),
-                             Func(self.state.set_do_once_key, key, False),
-                             ).start()
+                    self.current_seq_player = Sequence(Func(self.state.set_action_state, "is_blocking", True),
+                                                       any_action_seq,
+                                                       )
+                    self.current_seq_player.start()
+            elif not self.kbd.keymap[key] and base.player_states['is_blocking']:
+                crouched_to_standing = player.get_anim_control(anims[anim_names.a_anim_crouching_stand])
+
+                self.player_in_crouched_to_stand_with_any_action(player, key, anims, action, "is_blocking")
+
+                if (crouched_to_standing.is_playing() is False
+                        and base.player_states['is_crouch_moving'] is False):
+                    self.state.set_action_state("is_blocking", False)
 
     def player_get_sword_action(self, player, key, anims, action):
         if (player and isinstance(anims, dict)
