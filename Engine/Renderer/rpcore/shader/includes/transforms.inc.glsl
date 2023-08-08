@@ -99,7 +99,7 @@ vec3 view_to_screen(vec3 view_pos) {
     return projected.xyz;
 }
 
-// Converts a view space normal to render_attr space
+// Converts a view space normal to world space
 vec3 view_normal_to_world(vec3 view_normal) {
     // We need to transform the coordinate system, should not be required,
     // seems to be some panda bug?
@@ -107,7 +107,7 @@ vec3 view_normal_to_world(vec3 view_normal) {
     return normalize((vec4(view_normal, 0) * trans_mainRender_to_view_of_mainCam).xyz);
 }
 
-// Converts a render_attr space position to screen space position (NDC)
+// Converts a world space position to screen space position (NDC)
 vec3 world_to_screen(vec3 world_pos) {
     vec4 proj = trans_mainRender_to_clip_of_mainCam * vec4(world_pos, 1);
     proj.xyz /= proj.w;
@@ -115,7 +115,7 @@ vec3 world_to_screen(vec3 world_pos) {
     return proj.xyz;
 }
 
-// Converts a render_attr space normal to view space
+// Converts a world space normal to view space
 vec3 world_normal_to_view(vec3 world_normal) {
     vec4 proj = trans_mainRender_to_view_of_mainCam * vec4(world_normal, 0);
     proj.xyz *= vec3(1, -1, 1);

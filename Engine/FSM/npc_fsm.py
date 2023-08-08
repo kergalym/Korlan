@@ -61,6 +61,12 @@ class NpcFSM(FSM):
         if actor and stack_name and state_name and isinstance(bool_, bool):
             actor.get_python_tag(stack_name)[state_name] = bool_
 
+    def filterIdle(self, request, args):
+        if request not in ['Idle']:
+            return (request,) + args
+        else:
+            return None
+
     def enterIdle(self, actor, action, task):
         if actor and action and task:
             any_action = actor.get_anim_control(action)
@@ -74,6 +80,12 @@ class NpcFSM(FSM):
                 elif task == "loop":
                     if not any_action.is_playing():
                         actor.loop(action)
+
+    def filterWalk(self, request, args):
+        if request not in ['Walk']:
+            return (request,) + args
+        else:
+            return None
 
     def enterWalk(self, actor, action, task):
         if actor and action and task:

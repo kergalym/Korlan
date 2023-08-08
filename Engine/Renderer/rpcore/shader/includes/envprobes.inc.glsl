@@ -106,7 +106,7 @@ float correct_parallax(Cubemap map, Material m, vec3 vector, out float factor) {
 vec3 get_cubemap_vector(Cubemap map, Material m, vec3 vector, out float factor, out float dist) {
     dist = correct_parallax(map, m, vector, factor);
 
-    // Use distance in render_attr space directly to recover intersection.
+    // Use distance in world space directly to recover intersection.
     // Mix parallax corrected and original vector based on roughness
     vec3 intersection_pos = mix(
         m.position + vector * dist,

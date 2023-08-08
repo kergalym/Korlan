@@ -137,18 +137,18 @@ uniform mat4 p3d_ProjectionMatrix;
         return texelFetch(data.Depth, coord, 0).x;
     }
 
-    // Returns the render_attr space position at a given texcoord
+    // Returns the world space position at a given texcoord
     vec3 get_gbuffer_position(GBufferData data, vec2 coord) {
         float depth = get_gbuffer_depth(data, coord);
         return calculate_surface_pos(depth, coord);
     }
 
-    // Returns the render_attr space normal at a given texcoord
+    // Returns the world space normal at a given texcoord
     vec3 get_gbuffer_normal(GBufferData data, vec2 coord) {
         vec2 packed_normal = textureLod(data.Data1, coord, 0).xy;
         return unpack_normal_octahedron(packed_normal);
     }
-    // Returns the render_attr space normal at a given texcoord
+    // Returns the world space normal at a given texcoord
     vec3 get_gbuffer_normal(GBufferData data, ivec2 coord) {
         vec2 packed_normal = texelFetch(data.Data1, coord, 0).xy;
         return unpack_normal_octahedron(packed_normal);
@@ -235,7 +235,7 @@ uniform mat4 p3d_ProjectionMatrix;
         }
 
 
-        // Returns the render_attr space position at a given texcoord
+        // Returns the world space position at a given texcoord
         vec3 get_world_pos_at(vec2 coord) {
             return calculate_surface_pos(get_depth_at(coord), coord);
         }
@@ -254,7 +254,7 @@ uniform mat4 p3d_ProjectionMatrix;
         // It does not include normal mapping, since it uses the depth buffer as source.
         vec3 get_view_normal(vec2 coord) {
 
-            // OPTIONAL: Just recover it from the render_attr space normal.
+            // OPTIONAL: Just recover it from the world space normal.
             // This has the advantage that it does include normal mapping.
             #if 1
                 vec3 world_normal = get_gbuffer_normal(GBuffer, coord);
