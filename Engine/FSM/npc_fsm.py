@@ -61,12 +61,6 @@ class NpcFSM(FSM):
         if actor and stack_name and state_name and isinstance(bool_, bool):
             actor.get_python_tag(stack_name)[state_name] = bool_
 
-    def filterIdle(self, request, args):
-        if request not in ['Idle']:
-            return (request,) + args
-        else:
-            return None
-
     def enterIdle(self, actor, action, task):
         if actor and action and task:
             any_action = actor.get_anim_control(action)
@@ -387,17 +381,7 @@ class NpcFSM(FSM):
                              any_action_seq,
                              Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", False)).start()
 
-    def enterForwardStep(self, actor, action, task):
-        if actor and action and task:
-            if isinstance(task, str):
-                if task == "play":
-                    any_action_seq = actor.actor_interval(action,
-                                                          playRate=self.base.game_instance["current_play_rate"])
-                    Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", True),
-                             any_action_seq,
-                             Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", False)).start()
-
-    def enterBackwardStep(self, actor, action, task):
+    def enterCounterAttack(self, actor, action, task):
         if actor and action and task:
             if isinstance(task, str):
                 if task == "play":

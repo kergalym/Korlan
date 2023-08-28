@@ -325,7 +325,7 @@ class Mouse:
                 and not self.base.game_instance["item_menu_mode"]
                 and not self.base.game_instance['menu_mode']):
             if not self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
-                if int(base.camera.get_y()) != self.cam_y_back_pos_close:
+                if abs(int(base.camera.get_y())) > abs(self.cam_y_back_pos_close):
                     self.cam_y_back_pos_current = base.camera.get_y() + 0.5
                     base.camera.set_y(self.cam_y_back_pos_current)
 
@@ -334,7 +334,7 @@ class Mouse:
                 and not self.base.game_instance["item_menu_mode"]
                 and not self.base.game_instance['menu_mode']):
             if not self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
-                if round(base.camera.get_y(), 1) != self.cam_y_back_pos:
+                if abs(round(base.camera.get_y(), 1)) < abs(self.cam_y_back_pos):
                     self.cam_y_back_pos_current = base.camera.get_y() - 0.5
                     base.camera.set_y(self.cam_y_back_pos_current)
 

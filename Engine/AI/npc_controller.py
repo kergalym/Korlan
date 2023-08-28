@@ -327,40 +327,6 @@ class NpcController:
             if self.walking_sequence.get(actor_name) is None:
                 self.walking_sequence[actor_name] = Sequence()
 
-            physics_world = self.base.game_instance['physics_world_np']
-
-            physics_world.ray_test_closest(actor_rb_np.get_pos(), render.find("**/Landscape_BN").get_pos())
-
-            result = physics_world.contactTestPair(actor_rb_np.node(), render.find("**/Landscape_BN").node())
-
-            if result.getNumContacts() > 0:
-                print(result.getNumContacts())
-
-                for contact in result.getContacts():
-                    print(contact.getNode0())
-                    print(contact.getNode1())
-
-                    mpoint = contact.getManifoldPoint()
-                    print(mpoint.getDistance())
-                    print(mpoint.getAppliedImpulse())
-                    print(mpoint.getPositionWorldOnA())
-                    print(mpoint.getPositionWorldOnB())
-                    print(mpoint.getLocalPointA())
-                    print(mpoint.getLocalPointB())
-
-                    actor_rb_np.set_z(mpoint.getAppliedImpulse())
-
-            # Ray casting from y to y
-            pFrom_y = actor_rb_np.get_pos()
-            pTo_y = Point3(0, 1000, 0)
-            collision_dist = 0
-
-            result_y = physics_world.ray_test_closest(pFrom_y, pTo_y)
-
-            if result_y.hasHit():
-                collision_dist = (actor_rb_np.get_pos() - result_y.getHitPos()).length()
-
-            dist = 0
             if self.walking_sequence.get(actor_name) is not None:
                 if not self.walking_sequence[actor_name].is_playing():
                     actor_name = actor.get_name()
@@ -369,10 +335,8 @@ class NpcController:
                     # get target's last pos
                     last_pos = self._get_target_last_pos(target)
 
-                    # self.navmesh.update()
-
                     # Find path
-                    path = self.navmesh_query.find_path(actor_rb_np.get_pos(), last_pos)
+                    path = self.navmesh_query.find_smooth_path(actor_rb_np.get_pos(), last_pos)
                     path_points = list(path.points)
 
                     if self.base.game_settings['Debug']['set_debug_mode'] == 'YES':
@@ -415,27 +379,29 @@ class NpcController:
                                        current_dir[2])
                         hpr_interval = actor_rb_np.hprInterval(0, new_hpr)
 
-                        # Movement
-                        dist = (path_points[i + 1] - path_points[i]).length()
-
-                        # Workaround for shifted down actor's rigid body nodepath z pos,
-                        # which in posInterval interpreted like -1, not 0
-                        pp = Point3(path_points[i + 1][0], path_points[i + 1][1], actor_rb_np.get_z())
-                        pp_start = Point3(path_points[i][0], path_points[i][1], actor_rb_np.get_z())
-                        pos_interval = actor_rb_np.posInterval(dist / speed, pp, pp_start)
-
                         # Append sequence tasks in that order
                         self.walking_sequence[actor_name].append(hpr_interval)
-                        self.walking_sequence[actor_name].append(pos_interval)
 
                         current_dir = new_hpr
 
-                    idle_interval = Func(self.npc_in_idle_logic, actor)
-                    self.walking_sequence[actor_name].append(idle_interval)
                     self.walking_sequence[actor_name].start()
+
+                    # Walking to main target
+                    if round(actor_rb_np.get_distance(target)) > ai_declaratives.distance_to_target + 1:
+                        actor_rb_np.set_y(actor_rb_np, -speed * dt)
+                    else:
+                        self.npc_in_idle_logic(actor)
 
     def do_walking(self, actor, actor_rb_np, target, request):
         if actor and actor_rb_np and target and request:
+
+            # Change speed
+            speed = 2
+            if actor.get_python_tag("move_type") == "walk":
+                speed = 2
+            elif actor.get_python_tag("move_type") == "run":
+                speed = 5
+
             dt = globalClock.getDt()
 
             physics_world = self.base.game_instance['physics_world_np']
@@ -447,36 +413,26 @@ class NpcController:
 
             if result.hasHit():
                 collision_dist = (actor_rb_np.get_pos() - result.getHitPos()).length()
+                # print(collision_dist)
+                if round(collision_dist) == ai_declaratives.distance_to_target + 1:
+                    #self.npc_in_idle_logic(actor)
+                    #print(round(collision_dist, 1))
+                    pass
 
             # obstacle avoidance
             """for actor_name in self.base.game_instance["actors_np"]:
                 if actor_name not in actor_rb_np.get_name():
                     cross_enemy_np = self.base.game_instance["actors_np"][actor_name]
                     if round(actor_rb_np.get_distance(cross_enemy_np)) < ai_declaratives.distance_to_target + 1:
-                        # Change speed
-                        speed = 2
-                        if actor.get_python_tag("move_type") == "walk":
-                            speed = 2
-                        elif actor.get_python_tag("move_type") == "run":
-                            speed = 5
-
-                        actor_rb_np.set_y(actor_rb_np, speed * dt)
                         self.face_actor_to(actor_rb_np, cross_enemy_np)
-                    elif round(collision_dist) == ai_declaratives.distance_to_target + 1:
-                        self.npc_in_idle_logic(actor)
-            """
+                        actor_rb_np.set_y(actor_rb_np, -speed * dt)"""
 
-            # Change speed
-            speed = 2
-            if actor.get_python_tag("move_type") == "walk":
-                speed = 2
-            elif actor.get_python_tag("move_type") == "run":
-                speed = 5
+            # Walking to main target
             if round(actor_rb_np.get_distance(target)) > ai_declaratives.distance_to_target + 1:
-                actor_rb_np.set_y(actor_rb_np, -speed * dt)
                 self.face_actor_to(actor_rb_np, target)
+                actor_rb_np.set_y(actor_rb_np, -speed * dt)
 
-            if (round(actor_rb_np.get_distance(target)) <= ai_declaratives.distance_to_target + 1
+            elif (round(actor_rb_np.get_distance(target)) <= ai_declaratives.distance_to_target + 1
                     or round(collision_dist) == ai_declaratives.distance_to_target):
                 self.npc_in_idle_logic(actor)
 
@@ -493,8 +449,10 @@ class NpcController:
             actor.get_python_tag("generic_states")['is_idle'] = False
             actor.get_python_tag("generic_states")['is_moving'] = True
 
-            self.do_walking(actor, actor_rb_np, target, request)
-            # self.do_walking_sequence_once(actor, actor_rb_np, target, request)
+            if "1.11" in PandaSystem.get_version_string():
+                self.do_walking_sequence_once(actor, actor_rb_np, target, request)
+            else:
+                self.do_walking(actor, actor_rb_np, target, request)
 
     def _toggle_crouch_collision(self, actor, actor_npc_bs):
         actor_name = actor.get_name()
@@ -658,28 +616,12 @@ class NpcController:
                 if actor.get_python_tag("stamina_np")['value'] > 1:
                     actor.get_python_tag("stamina_np")['value'] -= 15
 
-    def npc_in_forwardstep_logic(self, actor, actor_npc_bs, request):
-        dt = globalClock.getDt()
-        if actor.get_python_tag("stamina_np"):
-            if (actor.get_python_tag("stamina_np")['value'] > 3
-                    and actor.get_python_tag("enemy_distance") >= 2):
-                if actor_npc_bs.get_y() != actor_npc_bs.get_y() - 2:
-                    actor_npc_bs.set_y(actor_npc_bs, -2 * dt)
-                    request.request("ForwardStep", actor,
-                                    anim_names.a_anim_walking, "play")
-
-                if actor.get_python_tag("stamina_np")['value'] > 1:
-                    actor.get_python_tag("stamina_np")['value'] -= 3
-
-    def npc_in_backwardstep_logic(self, actor, actor_npc_bs, request):
-        dt = globalClock.getDt()
+    def npc_in_counter_attack_logic(self, actor, request):
         if actor.get_python_tag("stamina_np"):
             if (actor.get_python_tag("stamina_np")['value'] > 3
                     and actor.get_python_tag("enemy_distance") <= 1):
-                if actor_npc_bs.get_y() != actor_npc_bs.get_y() + 2:
-                    actor_npc_bs.set_y(actor_npc_bs, 2 * dt)
-                    request.request("BackwardStep", actor,
-                                    anim_names.a_anim_walking, "play")
+                request.request("CounterAttack", actor,
+                                anim_names.a_anim_blocking, "play")
 
                 if actor.get_python_tag("stamina_np")['value'] > 1:
                     actor.get_python_tag("stamina_np")['value'] -= 3
@@ -823,7 +765,7 @@ class NpcController:
         if actor and actor_npc_rb and request:
             if actor.get_python_tag("priority") is not None and actor.get_python_tag("priority") > 0:
                 if hitbox_dist is not None:
-                    if hitbox_dist > 0 and hitbox_dist < 1.8:
+                    if hitbox_dist > 0 and hitbox_dist < 11:
                         if actor.get_python_tag("stamina_np")['value'] > 5:
                             if actor.has_python_tag("human_states"):
                                 if not actor.get_python_tag("human_states")["has_bow"]:
@@ -831,12 +773,8 @@ class NpcController:
                                         self.current_seq = Sequence(
                                             Parallel(
                                                 Wait(1),
-                                                Func(self.npc_in_backwardstep_logic, actor,
-                                                     actor_npc_rb, request)),
-                                            Parallel(
-                                                Wait(1),
-                                                Func(self.npc_in_forwardstep_logic, actor,
-                                                     actor_npc_rb, request)),
+                                                Func(self.npc_in_counter_attack_logic, actor,
+                                                     request)),
                                             Parallel(
                                                 Wait(1),
                                                 Func(self.npc_in_backwardroll_logic, actor,
@@ -859,7 +797,7 @@ class NpcController:
                                 self._npc_in_attacking_logic(actor, actor_npc_rb, request)
                             elif (actor.get_python_tag("enemy_distance") > 1
                                   and actor.get_python_tag("enemy_distance") < 3):
-                                self.npc_in_forwardstep_logic(actor, actor_npc_rb, request)
+                                self.npc_in_counter_attack_logic(actor, request)
 
             if (actor.has_python_tag("human_states")
                     and actor.get_python_tag("human_states")["has_bow"]):
