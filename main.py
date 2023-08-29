@@ -438,6 +438,7 @@ class Main(ShowBase):
             },
             "rp_lights": rp_lights,
             "scene_np": None,
+            "scenes_np": [],
             "foliage_np": None,
             "round_table_np": None,
             "player_trigger_cls": None,

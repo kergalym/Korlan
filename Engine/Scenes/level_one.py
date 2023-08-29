@@ -197,6 +197,12 @@ class LevelOne:
                 self.base.game_instance["world_np"].clear()
                 self.base.game_instance['scene_np'].remove_node()
                 self.base.game_instance['scene_np'].clear()
+
+                for idx in range(self.base.game_instance['scenes_np']):
+                    self.base.game_instance['scenes_np'][idx].remove_node()
+                    self.base.game_instance['scenes_np'][idx].clear()
+                    del self.base.game_instance['scenes_np'][idx]
+
                 self.base.game_instance['player_ref'].remove_node()
                 self.base.game_instance['player_ref'].clear()
 
