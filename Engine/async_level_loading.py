@@ -277,40 +277,41 @@ class AsyncLevelLoading:
         with open("Assets/Placeholders/wild_blue_phloxs_plh.json", "r") as file:
             json_wild_blue_phloxs_plh = json.load(file)
 
+        gaps = 0.3
         for key, values in zip(json_trees_plh.keys(), json_trees_plh.values()):
             np = NodePath(key)
             np.reparent_to(self.base.game_instance["world_np"])
-            np.set_pos(values[0], values[1], values[2])
+            np.set_pos(values[0], values[1], values[2]-gaps)
 
         for key, values in zip(json_grass_plh.keys(), json_grass_plh.values()):
             np = NodePath(key)
             np.reparent_to(self.base.game_instance["world_np"])
-            np.set_pos(values[0], values[1], values[2])
+            np.set_pos(values[0], values[1], values[2]-gaps)
 
         for key, values in zip(json_cat_tails_plh.keys(), json_cat_tails_plh.values()):
             np = NodePath(key)
             np.reparent_to(self.base.game_instance["world_np"])
-            np.set_pos(values[0], values[1], values[2])
+            np.set_pos(values[0], values[1], values[2]-gaps)
 
         for key, values in zip(json_daisies_plh.keys(), json_daisies_plh.values()):
             np = NodePath(key)
             np.reparent_to(self.base.game_instance["world_np"])
-            np.set_pos(values[0], values[1], values[2])
+            np.set_pos(values[0], values[1], values[2]-gaps)
 
         for key, values in zip(json_papavers_plh.keys(), json_papavers_plh.values()):
             np = NodePath(key)
             np.reparent_to(self.base.game_instance["world_np"])
-            np.set_pos(values[0], values[1], values[2])
+            np.set_pos(values[0], values[1], values[2]-gaps)
 
         for key, values in zip(json_tulips_plh.keys(), json_tulips_plh.values()):
             np = NodePath(key)
             np.reparent_to(self.base.game_instance["world_np"])
-            np.set_pos(values[0], values[1], values[2])
+            np.set_pos(values[0], values[1], values[2]-gaps)
 
         for key, values in zip(json_wild_blue_phloxs_plh.keys(), json_wild_blue_phloxs_plh.values()):
             np = NodePath(key)
             np.reparent_to(self.base.game_instance["world_np"])
-            np.set_pos(values[0], values[1], values[2])
+            np.set_pos(values[0], values[1], values[2]-gaps)
 
         # Trees Instancing
         self.gpu_instancing.set_gpu_instancing_to(scene=render,
