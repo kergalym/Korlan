@@ -1,6 +1,7 @@
 import math
 import json
 import struct
+from os.path import exists
 from random import random
 
 from direct.task.TaskManagerGlobal import taskMgr
@@ -23,6 +24,24 @@ class GPUInstancing:
         self.base.game_instance["gpu_instancing_cls"] = self
         self._is_tree = False
         self._total_instances = 0
+        self._instances = []
+        self._instances_pos = []
+
+        self._json_trees_plh = None
+        self._json_grass_plh = None
+        self._json_cat_tails_plh = None
+        self._json_daisies_plh = None
+        self._json_papavers_plh = None
+        self._json_tulips_plh = None
+        self._json_wild_blue_phloxs_plh = None
+
+        self._trees_plh_json_path = "Assets/Placeholders/trees_plh.json"
+        self._grass_plh_json_path = "Assets/Placeholders/grass_plh.json"
+        self._cat_tails_plh_json_path = "Assets/Placeholders/cat_tails_plh.json"
+        self._daisies_plh_json_path = "Assets/Placeholders/daisies_plh.json"
+        self._papavers_plh_json_path = "Assets/Placeholders/papavers_plh.json"
+        self._tulips_plh_json_path = "Assets/Placeholders/tulips_plh.json"
+        self._wild_blue_phloxs_plh_path = "Assets/Placeholders/wild_blue_phloxs_plh.json"
 
     def construct_prefab_lod(self, pattern):
         prefab_lod = LODNode("{0}_LODNode".format(pattern))
@@ -47,18 +66,24 @@ class GPUInstancing:
             matrices = []
             floats = []
             for i, node_path in enumerate(scene.find_all_matches("**/{0}*".format(placeholder))):
-                matrices.append(node_path.get_mat(render))
                 if asset_type == "tree":
+                    prefab.set_scale(0.5)
                     node_path.set_scale(0.5)
+                matrices.append(node_path.get_mat(render))
+
+                pos = node_path.get_pos(render)
+                self._instances_pos.append(pos)
+                self._instances.append(node_path)
+
                 self._add_colliders(prefab=prefab,
                                     node_path=node_path,
                                     asset_type=asset_type,
-                                    limit=200,
+                                    limit=None,
                                     index=i)
 
-            self._total_instances += len(matrices)
-
-            print("Loaded", self._total_instances, "instances!")
+            if self.base.game_settings['Debug']['set_debug_mode'] == 'YES':
+                self._total_instances += len(matrices)
+                print("Loaded", self._total_instances, "instances!")
 
             buffer_texture = self._allocate_texture_storage(matrices, floats)
             self._visualize(prefab, matrices, buffer_texture)
@@ -147,11 +172,11 @@ class GPUInstancing:
 
     def _visualize(self, prefab, matrices, buffer_texture):
         # Load the effect
-
         if self._is_tree:
             is_render_shadow = True
         else:
             is_render_shadow = False
+
         renderpipeline_np = self.base.game_instance["renderpipeline_np"]
         renderpipeline_np.set_effect(prefab,
                                      "{0}/Engine/Renderer/effects/basic_instancing.yaml".format(
@@ -163,7 +188,6 @@ class GPUInstancing:
                                       "normal_mapping": True})
         prefab.set_shader_input("InstancingData", buffer_texture)
         prefab.set_instance_count(len(matrices))
-        # We have do disable culling, so that all instances stay visible
         prefab.node().set_bounds(OmniBoundingVolume())
         prefab.node().set_final(True)
 
@@ -197,7 +221,6 @@ class GPUInstancing:
                     for prefab in prefabs:
                         if "LODNode" not in prefab.get_name():
                             prefab.reparent_to(prefab_lod_np)
-
                             self.setup_prefab_lod(prefab=prefab,
                                                   prefab_lod_np=prefab_lod_np,
                                                   prefab_lod=prefab_lod)
@@ -205,113 +228,89 @@ class GPUInstancing:
                 if prefab_lod_np.get_num_children() > 0:
                     self._populate_instances(scene, placeholder, prefab_lod_np, asset_type)
 
-    def setup_foliage(self):
-        """ Set up foliage with GPU instancing
+    def load_foliage(self):
+        """ Load foliage set-up data for GPU instancing
         """
 
         self.base.game_instance['foliage_np'] = render.attach_new_node("LODs_Tree")
 
-        json_trees_plh = None
-        with open("Assets/Placeholders/trees_plh.json", "r") as file:
-            json_trees_plh = json.load(file)
+        self._json_trees_plh = None
+        if exists(self._trees_plh_json_path):
+            with open(self._trees_plh_json_path, "r") as file:
+                self._json_trees_plh = json.load(file)
 
-        json_grass_plh = None
-        with open("Assets/Placeholders/grass_plh.json", "r") as file:
-            json_grass_plh = json.load(file)
+        self._json_grass_plh = None
+        if exists(self._grass_plh_json_path):
+            with open(self._grass_plh_json_path, "r") as file:
+                self._json_grass_plh = json.load(file)
 
-        json_cat_tails_plh = None
-        with open("Assets/Placeholders/cat_tails_plh.json", "r") as file:
-            json_cat_tails_plh = json.load(file)
+        self._json_cat_tails_plh = None
+        if exists(self._cat_tails_plh_json_path):
+            with open(self._cat_tails_plh_json_path, "r") as file:
+                self._json_cat_tails_plh = json.load(file)
 
-        json_daisies_plh = None
-        with open("Assets/Placeholders/daisies_plh.json", "r") as file:
-            json_daisies_plh = json.load(file)
+        self._json_daisies_plh = None
+        if exists(self._daisies_plh_json_path):
+            with open(self._daisies_plh_json_path, "r") as file:
+                self._json_daisies_plh = json.load(file)
 
-        json_papavers_plh = None
-        with open("Assets/Placeholders/papavers_plh.json", "r") as file:
-            json_papavers_plh = json.load(file)
+        self._json_papavers_plh = None
+        if exists(self._papavers_plh_json_path):
+            with open(self._papavers_plh_json_path, "r") as file:
+                self._json_papavers_plh = json.load(file)
 
-        json_tulips_plh = None
-        with open("Assets/Placeholders/tulips_plh.json", "r") as file:
-            json_tulips_plh = json.load(file)
+        self._json_tulips_plh = None
+        if exists(self._tulips_plh_json_path):
+            with open(self._tulips_plh_json_path, "r") as file:
+                self._json_tulips_plh = json.load(file)
 
-        json_wild_blue_phloxs_plh = None
-        with open("Assets/Placeholders/wild_blue_phloxs_plh.json", "r") as file:
-            json_wild_blue_phloxs_plh = json.load(file)
+        self._json_wild_blue_phloxs_plh = None
+        if exists(self._wild_blue_phloxs_plh_path):
+            with open(self._wild_blue_phloxs_plh_path, "r") as file:
+                self._json_wild_blue_phloxs_plh = json.load(file)
 
-        gaps = 0.3
+    def _set_placeholder_nodepath(self, current_json_plh, scene_pos, gaps):
+        if current_json_plh is not None:
+            for key, values in zip(current_json_plh.keys(), current_json_plh.values()):
+                np = NodePath(key)
+                np.reparent_to(self.base.game_instance["world_np"])
+                np.set_pos(scene_pos.x + values[0], scene_pos.y + values[1], scene_pos.z + values[2] - gaps)
+
+    def setup_foliage(self):
+        """ Set up foliage with GPU instancing
+        """
+
+        # Enable camera frustum culling
+        base.cam.node().setCullBounds(base.cam.node().getLens().makeBounds())
+        base.cam.node().setFinal(True)
+
+        render.setDepthTest(True)
+        render.setDepthWrite(True)
+
+        self._instances_pos = []
+        self._instances = []
+        self.load_foliage()
+
         scene_pos = self.base.game_instance["scene_np"].get_pos()
-        for key, values in zip(json_trees_plh.keys(), json_trees_plh.values()):
-            np = NodePath(key)
-            np.reparent_to(self.base.game_instance["world_np"])
-            np.set_pos(scene_pos.x + values[0], scene_pos.y + values[1], scene_pos.z + values[2] - gaps)
+        json_placeholders = [self._json_trees_plh,
+                             self._json_grass_plh,
+                             self._json_cat_tails_plh,
+                             self._json_daisies_plh,
+                             self._json_papavers_plh,
+                             self._json_tulips_plh,
+                             self._json_wild_blue_phloxs_plh]
 
-        for key, values in zip(json_grass_plh.keys(), json_grass_plh.values()):
-            np = NodePath(key)
-            np.reparent_to(self.base.game_instance["world_np"])
-            np.set_pos(scene_pos.x + values[0], scene_pos.y + values[1], scene_pos.z + values[2] - gaps)
-
-        for key, values in zip(json_cat_tails_plh.keys(), json_cat_tails_plh.values()):
-            np = NodePath(key)
-            np.reparent_to(self.base.game_instance["world_np"])
-            np.set_pos(scene_pos.x + values[0], scene_pos.y + values[1], scene_pos.z + values[2] - gaps)
-
-        for key, values in zip(json_daisies_plh.keys(), json_daisies_plh.values()):
-            np = NodePath(key)
-            np.reparent_to(self.base.game_instance["world_np"])
-            np.set_pos(scene_pos.x + values[0], scene_pos.y + values[1], scene_pos.z + values[2] - gaps)
-
-        for key, values in zip(json_papavers_plh.keys(), json_papavers_plh.values()):
-            np = NodePath(key)
-            np.reparent_to(self.base.game_instance["world_np"])
-            np.set_pos(scene_pos.x + values[0], scene_pos.y + values[1], scene_pos.z + values[2] - gaps)
-
-        for key, values in zip(json_tulips_plh.keys(), json_tulips_plh.values()):
-            np = NodePath(key)
-            np.reparent_to(self.base.game_instance["world_np"])
-            np.set_pos(scene_pos.x + values[0], scene_pos.y + values[1], scene_pos.z + values[2] - gaps)
-
-        for key, values in zip(json_wild_blue_phloxs_plh.keys(), json_wild_blue_phloxs_plh.values()):
-            np = NodePath(key)
-            np.reparent_to(self.base.game_instance["world_np"])
-            np.set_pos(scene_pos.x + values[0], scene_pos.y + values[1], scene_pos.z + values[2] - gaps)
+        for json_placeholder in json_placeholders:
+            self._set_placeholder_nodepath(current_json_plh=json_placeholder,
+                                           scene_pos=scene_pos,
+                                           gaps=0.1)
 
         for landscape_chunk in self.base.game_instance["scenes_np"]:
-            scene_pos = landscape_chunk.get_pos()
-            for key, values in zip(json_trees_plh.keys(), json_trees_plh.values()):
-                np = NodePath(key)
-                np.reparent_to(self.base.game_instance["world_np"])
-                np.set_pos(scene_pos.x + values[0], scene_pos.y + values[1], scene_pos.z + values[2] - gaps)
-
-            for key, values in zip(json_grass_plh.keys(), json_grass_plh.values()):
-                np = NodePath(key)
-                np.reparent_to(self.base.game_instance["world_np"])
-                np.set_pos(scene_pos.x + values[0], scene_pos.y + values[1], scene_pos.z + values[2] - gaps)
-
-            for key, values in zip(json_cat_tails_plh.keys(), json_cat_tails_plh.values()):
-                np = NodePath(key)
-                np.reparent_to(self.base.game_instance["world_np"])
-                np.set_pos(scene_pos.x + values[0], scene_pos.y + values[1], scene_pos.z + values[2] - gaps)
-
-            for key, values in zip(json_daisies_plh.keys(), json_daisies_plh.values()):
-                np = NodePath(key)
-                np.reparent_to(self.base.game_instance["world_np"])
-                np.set_pos(scene_pos.x + values[0], scene_pos.y + values[1], scene_pos.z + values[2] - gaps)
-
-            for key, values in zip(json_papavers_plh.keys(), json_papavers_plh.values()):
-                np = NodePath(key)
-                np.reparent_to(self.base.game_instance["world_np"])
-                np.set_pos(scene_pos.x + values[0], scene_pos.y + values[1], scene_pos.z + values[2] - gaps)
-
-            for key, values in zip(json_tulips_plh.keys(), json_tulips_plh.values()):
-                np = NodePath(key)
-                np.reparent_to(self.base.game_instance["world_np"])
-                np.set_pos(scene_pos.x + values[0], scene_pos.y + values[1], scene_pos.z + values[2] - gaps)
-
-            for key, values in zip(json_wild_blue_phloxs_plh.keys(), json_wild_blue_phloxs_plh.values()):
-                np = NodePath(key)
-                np.reparent_to(self.base.game_instance["world_np"])
-                np.set_pos(scene_pos.x + values[0], scene_pos.y + values[1], scene_pos.z + values[2] - gaps)
+            chunk_scene_pos = landscape_chunk.get_pos()
+            for json_placeholder in json_placeholders:
+                self._set_placeholder_nodepath(current_json_plh=json_placeholder,
+                                               scene_pos=chunk_scene_pos,
+                                               gaps=0.1)
 
         # Trees Instancing
         self.set_gpu_instancing_to(scene=render,
@@ -410,16 +409,22 @@ class GPUInstancing:
         for np in render.find_all_matches("**/wild_blue_phlox_*_empty*"):
             np.remove_node()
 
-        # taskMgr.add(self._occlusion_per_asset, "occl")
+        # Add a task to update the culling
+        # taskMgr.add(self.update_culling, "update_culling")
 
-    def _occlusion_per_asset(self, task):
-        for np in self.base.game_instance['foliage_np'].get_children():
-            for child in np.get_children():
-                print(child.get_pos(render) - base.camera.get_pos(render))
-                if child.get_distance(base.camera) >= 1000.0:
-                    # We have do disable culling, so that all instances stay visible
-                    child.hide()
-                if child.get_distance(base.camera) < 1000.0:
-                    child.show()
+    def update_culling(self, task):
+        # Check if the model is in the camera's view frustum
+        for model in self._instances:
+            if self.IsInView(model):
+                model.show()
+            else:
+                model.hide()
 
-        return task.cont
+            return task.cont
+
+    def IsInView(self, object):
+        lensBounds = base.cam.node().getLens().makeBounds()
+        bounds = object.getBounds()
+        bounds.xform(object.getParent().getMat(base.cam))
+        return lensBounds.contains(bounds)
+

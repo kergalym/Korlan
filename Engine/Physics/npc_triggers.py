@@ -22,12 +22,13 @@ class NpcTriggers:
 
     def _clear_forces(self, actor_rb_np):
         # Keep NPC from being hardly pushed if it has stayed
+        force_y_vec = actor_rb_np.node().get_total_force()[1]
         force_z_vec = actor_rb_np.node().get_total_force()[2]
         imp_z_vec = actor_rb_np.node().get_total_torque()[2]
         lin_vec_z = actor_rb_np.node().get_linear_velocity()[2]
         ang_vec_z = actor_rb_np.node().get_angular_velocity()[2]
 
-        actor_rb_np.node().apply_central_force(Vec3(0, 0, force_z_vec))
+        actor_rb_np.node().apply_central_force(Vec3(0, force_y_vec, force_z_vec))
         actor_rb_np.node().apply_central_impulse(Vec3(0, 0, imp_z_vec))
         actor_rb_np.node().apply_torque_impulse(Vec3(0, 0, imp_z_vec))
         actor_rb_np.node().set_linear_velocity(Vec3(0, 0, lin_vec_z))

@@ -1148,7 +1148,6 @@ class PlayerActions:
                     self.archery.arrow_ref.set_python_tag("ready", 0)
 
     def player_mount_helper_task(self, child, player,  horse_np, saddle_pos, task):
-        dt = globalClock.getDt()
         if self.base.game_instance['menu_mode']:
             return task.done
 
@@ -1158,13 +1157,7 @@ class PlayerActions:
                 child.set_y(saddle_pos[1])
                 player.set_z(saddle_pos[2])
 
-                # Set revert camera
-                if not self.base.game_instance['is_aiming']:
-                    self.base.camera.set_y(-5.5)
-
-                self.base.camera.set_z(0.8)
-            else:
-                self.base.camera.set_y(self.base.game_instance["mouse_y_cam"])
+                self.base.camera.set_z(0.5)
         return task.cont
 
     def mount_action(self):

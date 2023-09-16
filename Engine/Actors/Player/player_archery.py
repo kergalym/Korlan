@@ -3,7 +3,7 @@ import random
 from direct.gui.OnscreenText import OnscreenText
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.bullet import BulletRigidBodyNode, BulletBoxShape
-from panda3d.core import BitMask32, NodePath, Vec3, TextNode, Point3
+from panda3d.core import BitMask32, NodePath, Vec3, TextNode, Point3, Point2, Vec2
 from Settings.Input.aim import Aim
 
 
@@ -18,6 +18,9 @@ class PlayerArchery:
         self.arrow_ref = None
         self.arrow_is_prepared = False
         self.arrow_charge_units = 100
+        self.arrow_accel_default = 10
+        self.pos_from = None
+        self.pos_to = None
         self.arrow_brb_in_use = None
         self.raytest_result = None
         self.hit_target = None
@@ -110,7 +113,7 @@ class PlayerArchery:
                         arrow_rb_np.set_scale(arrow.get_scale())
                         arrow.wrt_reparent_to(arrow_rb_np)
                         arrow_rb_np.node().add_shape(shape)
-                        arrow_rb_np.node().set_mass(2.0)
+                        arrow_rb_np.node().set_mass(10.0)
 
                         # Player and its owning arrow won't collide with each other
                         arrow_rb_np.set_collide_mask(BitMask32.allOff())
@@ -137,7 +140,7 @@ class PlayerArchery:
             self.arrow_brb_in_use.wrt_reparent_to(render)
 
             self.arrow_brb_in_use.node().apply_central_force(Vec3(0, 1, 0))
-            self.arrow_brb_in_use.node().apply_central_impulse(Vec3(0, 1, 0))
+            self.arrow_brb_in_use.node().set_angular_velocity(Vec3(0, -0.4, 0))
 
             # We record arrows which have been shot
             self.dropped_arrows.append(self.arrow_brb_in_use)
@@ -173,17 +176,17 @@ class PlayerArchery:
             mouse_watch = base.mouseWatcherNode
             if mouse_watch.has_mouse():
                 pos_mouse = base.mouseWatcherNode.get_mouse()
-                pos_from = Point3()
-                pos_to = Point3()
+                self.pos_from = Point3()
+                self.pos_to = Point3()
                 # Convert local position into world one
-                base.camLens.extrude(pos_mouse, pos_from, pos_to)
-                pos_from = self.render.get_relative_point(base.cam, pos_from)
-                pos_to = self.render.get_relative_point(base.cam, pos_to)
+                base.camLens.extrude(Point2(0, 0), self.pos_from, self.pos_to)
+                self.pos_from = self.render.get_relative_point(base.cam, self.pos_from)
+                self.pos_to = self.render.get_relative_point(base.cam, self.pos_to)
                 physics_world_np = self.base.game_instance['physics_world_np']
                 # Do raycasting for all objects (most of them are rigid bodies) with sorting by distance
                 # Thus, we can skip unwanted objects like ghost triggers or other certain rigid bodies
-                result = physics_world_np.ray_test_all(pos_from, pos_to)
-                for hit in sorted(result.get_hits(), key=lambda x: (x.get_hit_pos() - pos_from).length()):
+                result = physics_world_np.ray_test_all(self.pos_from, self.pos_to)
+                for hit in sorted(result.get_hits(), key=lambda x: (x.get_hit_pos() - self.pos_from).length()):
                     if hit:
                         # Skip player itself and other unwanted objects
                         if "Player" in hit.get_node().get_name():
@@ -238,20 +241,22 @@ class PlayerArchery:
 
     def _on_contact_attach_to_joint(self, actor):
         joint_bones = actor.get_python_tag("joint_bones")
+        scale = 100
+        if "Horse" in actor.get_name():
+            scale = 1
+        sorted(joint_bones, key=lambda _bone: (_bone.get_pos() - self.arrow_brb_in_use.get_pos(render)).length())
         for bone in joint_bones:
-            if (abs(bone.get_pos(self.base.cam).x) < 0.1
-                    and abs(bone.get_pos(self.base.cam).z) < 0.1):
-                self.arrow_brb_in_use.set_collide_mask(BitMask32.allOff())
-                self.arrow_ref.wrt_reparent_to(bone)
-                self.arrow_ref.set_scale(100)
-                self.arrow_ref.set_pos(self.target_np.get_pos())
-                self.base.game_instance["is_arrow_ready"] = False
-                self.arrow_ref.set_python_tag("ready", 0)
-                self.reset_arrow_charge()
-                actor.get_python_tag("do_any_damage_func")()
-                if self.base.game_settings['Debug']['set_debug_mode'] == 'YES':
-                    print(self.arrow_ref)
-                break
+            self.arrow_brb_in_use.set_collide_mask(BitMask32.allOff())
+            self.arrow_ref.wrt_reparent_to(bone)
+            self.arrow_ref.set_scale(scale)
+            self.arrow_ref.set_pos(self.target_np.get_pos())
+            self.base.game_instance["is_arrow_ready"] = False
+            self.arrow_ref.set_python_tag("ready", 0)
+            self.reset_arrow_charge()
+            actor.get_python_tag("do_any_damage_func")()
+            if self.base.game_settings['Debug']['set_debug_mode'] == 'YES':
+                print(self.arrow_ref)
+            break
 
     def _on_contact_attach_arrow(self):
         physics_world_np = self.base.game_instance['physics_world_np']
@@ -303,18 +308,24 @@ class PlayerArchery:
     def arrow_fly_task(self, task):
         dt = globalClock.getDt()
         if self.arrow_brb_in_use:
-            power = 10
+
             if self.arrow_ref.get_python_tag("ready") == 1:
                 self.base.game_instance["is_arrow_ready"] = True
 
-                # Move forward by x axis
-                self.arrow_brb_in_use.set_x(self.arrow_brb_in_use, -power * dt)
+                # Arrow rigidbody has reversed coordinates. Move forward by x axis
+                self.arrow_brb_in_use.set_x(self.arrow_brb_in_use, -self.arrow_accel_default * dt)
 
-                self.arrow_brb_in_use.set_z(self.arrow_brb_in_use, -0.3 * dt)
+                # Arrow rigidbody has reversed coordinates. So pitch becomes heading, and heading becomes pitch
+                crosshair_vec = self.base.game_instance['crosshair_ui'].get_pos(self.target_np)
+                rot_vector = Vec3(self.target_np.get_pos() - crosshair_vec)
+                rot_vector_2d = rot_vector.get_xy()
+                rot_vector_2d.normalize()
+                heading = Vec3(Vec2(0, 1).signed_angle_deg(rot_vector_2d), 0).x
+                self.arrow_brb_in_use.set_p(heading)
 
                 # Camera follows by arrow
                 if self.base.game_settings['Debug']['set_debug_mode'] == 'YES':
-                    self.base.camera.set_y(self.base.camera, power * dt)
+                    self.base.camera.set_y(self.base.camera, self.arrow_accel_default * dt)
                     self.base.camera.set_z(self.arrow_brb_in_use.get_z())
 
         return task.cont

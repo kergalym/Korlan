@@ -237,6 +237,8 @@ class PlayerMovement:
                     if str(self.base.game_instance['player_controller'].type) != "BulletCharacterControllerNode":
                         player_rb_np = self.base.game_instance["player_np"]
                         player_rb_np.set_y(player_rb_np, -move_unit * dt)
+                        force = Vec3(0, move_unit, move_unit)  # Adjust the force direction
+                        player_rb_np.node().apply_central_force(force)
                     else:
                         speed.set_y(-move_unit)
 
@@ -443,10 +445,14 @@ class PlayerMovement:
                         and self.kbd.keymap["run"] is False):
                     if base.input_state.is_set('forward'):
                         horse_rb_np.set_y(horse_rb_np, -move_unit * dt)
+                        force = Vec3(0, 1, 0)  # Adjust the force direction
+                        horse_rb_np.node().apply_central_force(force)
                 if (self.kbd.keymap["backward"]
                         and self.kbd.keymap["run"] is False):
                     if base.input_state.is_set('reverse'):
                         horse_rb_np.set_y(horse_rb_np, move_unit * dt)
+                        force = Vec3(0, -1, 0)  # Adjust the force direction
+                        horse_rb_np.node().apply_central_force(force)
 
                 # If the player does action, loop the animation through messenger.
                 if (self.kbd.keymap["forward"]
@@ -516,6 +522,8 @@ class PlayerMovement:
                         and self.kbd.keymap["run"]):
                     if base.input_state.is_set('forward'):
                         horse_rb_np.set_y(horse_rb_np, -move_unit * dt)
+                        force = Vec3(0, 1, 0)  # Adjust the force direction
+                        horse_rb_np.node().apply_central_force(force)
 
                 # If the player does action, loop the animation.
                 # If it is standing still, stop the animation.

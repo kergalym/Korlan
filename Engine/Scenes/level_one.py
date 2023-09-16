@@ -98,19 +98,6 @@ class LevelOne:
 
                 NpcController(actor)
 
-            if "1.11" in PandaSystem.get_version_string():
-                # Create a navmesh obstacle cylinder and parent it to the moving player so it moves with it.
-                player_rb_np = self.base.game_instance["player_np"]
-
-                obstacle_node = NavObstacleCylinderNode(4, 5, "pandaObstacle")
-                obstacle_np = player_rb_np.attach_new_node(obstacle_node)
-                obstacle_np.set_scale(player_rb_np.get_scale())
-                obstacle_np.set_pos(player_rb_np.get_pos())
-                # obstacle_np.show()
-
-                # Add a tracked obstacle.
-                self.base.game_instance["navmesh"].add_obstacles(render)
-
             self.base.game_instance["ai_is_activated"] = 1
 
             if "1.11" in PandaSystem.get_version_string():
@@ -198,7 +185,7 @@ class LevelOne:
                 self.base.game_instance['scene_np'].remove_node()
                 self.base.game_instance['scene_np'].clear()
 
-                for idx in range(self.base.game_instance['scenes_np']):
+                for idx in range(len(self.base.game_instance['scenes_np'])):
                     self.base.game_instance['scenes_np'][idx].remove_node()
                     self.base.game_instance['scenes_np'][idx].clear()
                     del self.base.game_instance['scenes_np'][idx]

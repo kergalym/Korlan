@@ -87,6 +87,15 @@ class PlayerTrigger:
 
     def toggle_npc_hud(self, player_rb_np, node_np):
         if self.base.game_instance['loading_is_done'] == 1:
+            if player_rb_np and not node_np:
+                # Hide NPCs HUD if nothing is found
+                for k in self.base.game_instance["actors_ref"]:
+                    _actor = self.base.game_instance["actors_ref"][k]
+                    if _actor.has_python_tag("npc_hud_np"):
+                        if _actor.get_python_tag("npc_hud_np") is not None:
+                            if not _actor.get_python_tag("npc_hud_np").is_hidden():
+                                _actor.get_python_tag("npc_hud_np").hide()
+
             if player_rb_np and node_np:
                 # If I have any bow weapon
                 if base.player_states["has_bow"]:

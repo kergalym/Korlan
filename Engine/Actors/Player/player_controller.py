@@ -254,7 +254,6 @@ class PlayerController:
                     base.player_states[key] = False
                 else:
                     base.player_states[key] = True
-
             self.base.game_instance['player_actions_init_is_activated'] = 0
             if self.game_settings['Debug']['set_editor_mode'] == 'YES':
                 self.player = player
@@ -271,6 +270,9 @@ class PlayerController:
                                                                joint_name="Korlan:Spine1"))
 
             elif self.game_settings['Debug']['set_editor_mode'] == 'NO':
+                # Set the field of view
+                self.base.game_instance["lens"].set_fov(self.base.game_instance["fov_indoor"])
+
                 self.player = player
                 self.kbd.keymap_init()
                 self.kbd.keymap_init_released()

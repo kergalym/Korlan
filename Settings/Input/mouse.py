@@ -23,6 +23,7 @@ class Mouse:
         self.last = 0
         self.cam_y_back_pos = -4.6
         self.cam_y_back_pos_close = -1
+        self.cam_y_back_pos_rider_close = -3.5
         self.cam_y_back_pos_current = 0
         self.base.game_instance["mouse_y_cam"] = self.cam_y_back_pos
         self.keymap = {
@@ -324,7 +325,11 @@ class Mouse:
         if (not self.base.game_instance['ui_mode']
                 and not self.base.game_instance["item_menu_mode"]
                 and not self.base.game_instance['menu_mode']):
-            if not self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
+            if self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
+                if abs(int(base.camera.get_y())) > abs(self.cam_y_back_pos_rider_close):
+                    self.cam_y_back_pos_current = base.camera.get_y() + 0.5
+                    base.camera.set_y(self.cam_y_back_pos_current)
+            else:
                 if abs(int(base.camera.get_y())) > abs(self.cam_y_back_pos_close):
                     self.cam_y_back_pos_current = base.camera.get_y() + 0.5
                     base.camera.set_y(self.cam_y_back_pos_current)
@@ -333,7 +338,11 @@ class Mouse:
         if (not self.base.game_instance['ui_mode']
                 and not self.base.game_instance["item_menu_mode"]
                 and not self.base.game_instance['menu_mode']):
-            if not self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
+            if self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
+                if abs(round(base.camera.get_y(), 1)) < abs(self.cam_y_back_pos):
+                    self.cam_y_back_pos_current = base.camera.get_y() - 0.5
+                    base.camera.set_y(self.cam_y_back_pos_current)
+            else:
                 if abs(round(base.camera.get_y(), 1)) < abs(self.cam_y_back_pos):
                     self.cam_y_back_pos_current = base.camera.get_y() - 0.5
                     base.camera.set_y(self.cam_y_back_pos_current)
