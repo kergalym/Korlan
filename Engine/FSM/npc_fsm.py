@@ -271,7 +271,8 @@ class NpcFSM(FSM):
                     Func(self.fsm_state_wrapper, actor, "human_states", "is_on_horse", False),
                     Func(parent_rb_np.get_child(0).set_python_tag, "is_mounted", False),
                     Func(actor.set_python_tag, "current_task", None),
-                    Func(actor.set_python_tag, "mounted_horse", None))
+                    Func(actor.set_python_tag, "mounted_horse", None),
+                    Func(actor.set_z, -0.9))
 
                 self.unmount_sequence[actor_name].append(set_use_false)
                 self.unmount_sequence[actor_name].append(play_unmount_anim)

@@ -77,7 +77,7 @@ class PhysicsAttr:
         else:
             rigid_body_np = self.world_nodepath.attach_new_node(rigid_body_node)
         rigid_body_np.set_collide_mask(mask)
-        self.world.attach_rigid_body(rigid_body_np.node())
+        self.world.attach(rigid_body_np.node())
         return rigid_body_np
 
     def set_character_controller_nodepath_with_shape(self, actor, rigid_body_np):
@@ -106,7 +106,14 @@ class PhysicsAttr:
             rigid_body_node.add_shape(shape)
             rigid_body_np.attach_new_node(rigid_body_node)
             rigid_body_np.set_collide_mask(self.mask)
-            self.world.attach_rigid_body(rigid_body_np.node())
+
+            # Removed rigid body added before
+            if len(self.world.get_rigid_bodies()) > 0:
+                for body in self.world.get_rigid_bodies():
+                    if body.name == rigid_body_np.get_name():
+                        self.world.remove(rigid_body_np.node())
+
+            self.world.attach(rigid_body_np.node())
 
     def set_character_controller_nodepath_half_height_shape(self, actor, rigid_body_np):
         if actor and rigid_body_np:
@@ -134,7 +141,7 @@ class PhysicsAttr:
             rigid_body_node.add_shape(shape)
             rigid_body_np.attach_new_node(rigid_body_node)
             rigid_body_np.set_collide_mask(self.mask)
-            self.world.attach_rigid_body(rigid_body_np.node())
+            self.world.attach(rigid_body_np.node())
 
     def remove_character_controller_node(self, rigid_body_np):
         if rigid_body_np:
@@ -153,7 +160,7 @@ class PhysicsAttr:
         crouch_rb_np.node().add_shape(rectangle_shape)
         crouch_rb_np.node().set_mass(9999)
         crouch_rb_np.set_collide_mask(mask)
-        self.world.attach_rigid_body(crouch_rb_np.node())
+        self.world.attach(crouch_rb_np.node())
         crouch_rb_np.node().set_kinematic(True)
         crouch_rb_np.set_scale(0.5)
         crouch_rb_np.set_pos(0, -0.1, -0.5)
@@ -503,7 +510,7 @@ class PhysicsAttr:
         node.add_shape(shape)
 
         terrain_bs_np = terrain_master_np.attach_new_node(node)
-        self.world.attach_rigid_body(node)
+        self.world.attach(node)
         terrain_bs_np.set_pos(0, 0, 0)
 
         # ShaderTerrainMesh and BulletHeightfieldShape have different origins.
@@ -534,7 +541,7 @@ class PhysicsAttr:
             self.landscape_rb_np = landscape.attach_new_node(BulletRigidBodyNode("Landscape_BN"))
             self.landscape_rb_np.node().add_shape(shape)
             self.landscape_rb_np.set_collide_mask(self.mask)
-            self.world.attach_rigid_body(self.landscape_rb_np.node())
+            self.world.attach(self.landscape_rb_np.node())
             self.landscape_rb_np.set_pos(0, 0, 0)
 
     def waiting_for_landscape_task(self, name, task):
@@ -649,7 +656,7 @@ class PhysicsAttr:
             self.ground_rb_np.node().add_shape(ground_shape)
             self.ground_rb_np.set_pos(0, 0, 0)
             self.ground_rb_np.set_collide_mask(self.mask)
-            self.world.attach_rigid_body(self.ground_rb_np.node())
+            self.world.attach(self.ground_rb_np.node())
 
             # Set Landscape Collision
             # Wait until landscape is loaded
@@ -665,7 +672,7 @@ class PhysicsAttr:
             node.add_shape(shape)
             np = render.attach_new_node(node)
             np.set_pos(3, 2, 0)
-            self.world.attach_rigid_body(node)
+            self.world.attach(node)
             assets = self.base.assets_collector()
             model = base.loader.load_model(assets['Box'])
             model.reparent_to(np)
@@ -831,7 +838,7 @@ class PhysicsAttr:
             self.ground_rb_np.node().add_shape(ground_shape)
             self.ground_rb_np.set_pos(0, 0, 0)
             self.ground_rb_np.set_collide_mask(self.mask)
-            self.world.attach_rigid_body(self.ground_rb_np.node())
+            self.world.attach(self.ground_rb_np.node())
 
         if self.landscape_rb_np:
             self.world.remove_rigid_body(self.landscape_rb_np.node())
@@ -866,7 +873,7 @@ class PhysicsAttr:
                 self.landscape_rb_np = landscape.attach_new_node(BulletRigidBodyNode("Landscape_BN"))
                 self.landscape_rb_np.node().add_shape(shape)
                 self.landscape_rb_np.set_collide_mask(self.mask)
-                self.world.attach_rigid_body(self.landscape_rb_np.node())
+                self.world.attach(self.landscape_rb_np.node())
                 self.landscape_rb_np.set_pos(0, 0, 0)
 
         # Reparent actors back to World nodepath if they done with complex tasks

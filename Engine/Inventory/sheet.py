@@ -64,6 +64,7 @@ class Sheet(Inventory):
         # object click n move
         self.base.is_inventory_active = False
         self.is_inventory_items_loaded = False
+        self.is_inventory_in_use = False
         self.player_camera_default = {
             "pos": Vec3(0, 0, 0),
             "hpr": Vec3(0, 0, 0),
@@ -463,7 +464,7 @@ class Sheet(Inventory):
                 and not self.base.game_instance['esc_mode']
                 and not self.base.game_instance["chest_ui_mode"]
                 and self.is_player_ready()):
-            if self.frame_inv:
+            if self.frame_inv and not self.is_inventory_in_use:
                 if self.frame_inv.is_hidden():
 
                     if self.base.game_instance['hud_np']:
@@ -514,12 +515,17 @@ class Sheet(Inventory):
         self.base.win_props.set_cursor_hidden(True)
         self.base.win.request_properties(self.base.win_props)
         self.base.game_instance['ui_mode'] = False
+        self.base.is_inventory_active = False
 
         self.revert_character()
 
         if render.find("**/bg_black_char_sheet"):
             bg_black = render.find("**/bg_black_char_sheet")
             bg_black.hide()
+
+        if self.base.game_instance['hud_np']:
+            self.base.game_instance['hud_np'].toggle_all_hud(state="visible")
+        base.game_instance['render_attr_cls'].time_text_ui.show()
 
         # Show world after inventory
         if render.find("**/World"):
@@ -529,7 +535,11 @@ class Sheet(Inventory):
         for np in self.base.game_instance['foliage_np'].get_children():
             np.show()
 
-        self.base.is_inventory_active = False
+    def toggle_inventory_once(self):
+        if not self.is_inventory_in_use:
+            self.is_inventory_in_use = True
+        else:
+            self.is_inventory_in_use = False
 
     def reset_camera_params(self):
         player = self.base.game_instance["player_ref"]
@@ -546,8 +556,10 @@ class Sheet(Inventory):
                                        pos=Point3(target_x, target_y, target_z),
                                        startPos=base.camera.get_pos()
                                        )
-        Sequence(lerp_pos_inv,
-                 Func(player.show)
+        Sequence(Func(self.toggle_inventory_once),
+                 lerp_pos_inv,
+                 Func(player.show),
+                 Func(self.toggle_inventory_once)
                  ).start()
 
         base.camera.set_hpr(0, 0, 0)

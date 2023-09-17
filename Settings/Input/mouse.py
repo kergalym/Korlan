@@ -297,7 +297,9 @@ class Mouse:
                     if not self.base.game_instance['is_aiming']:
                         self.reset_rotated_player_joints()
                         self.on_mouse_look_around_player(x, y)
-                        self.on_mouse_rotate_player(x, y)
+
+                        if self.base.player_states['is_alive']:
+                            self.on_mouse_rotate_player(x, y)
 
                     elif self.base.game_instance['is_aiming']:
                         if self.base.game_instance['arrow_count'] > 1:

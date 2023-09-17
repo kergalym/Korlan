@@ -61,7 +61,7 @@ if exists("GameData.mf"):
 else:
     cfg_is_broken = True
 
-build_info_txt = "Build 0.6. 04/2022"
+build_info_txt = "Build 0.6. 08/2023"
 
 game_settings = configparser.ConfigParser()
 game_settings['Main'] = {
@@ -174,6 +174,7 @@ load_prc_file_data(
     'show-frame-rate-meter  t\n'
     'load-display pandagl\n'
     'audio-library-name p3openal_audio\n'
+    'sync-video f\n'
     'allow-portal-cull t\n'
     f'model-path {game_dir}\n'
     'model-cache-textures f \n'
@@ -187,6 +188,8 @@ load_prc_file_data(
     'pstats-gpu-timing 1\n'
     'preload-simple-textures 1\n'
     'allow-incomplete-render 1\n'
+    'state-cache t\n'
+    'transform-cache t\n'
 )
 
 load_prc_file_data(
@@ -436,6 +439,9 @@ class Main(ShowBase):
                 "medium": Vec2(1000.0, 50.0),
                 "high": Vec2(500.0, 0.0)
             },
+            "fov_indoor": LVecBase2f(75, 46),
+            "fov_outdoor": LVecBase2f(40, 23.1409),
+            "lens": base.cam.node().get_lens(),
             "rp_lights": rp_lights,
             "scene_np": None,
             "scenes_np": [],
