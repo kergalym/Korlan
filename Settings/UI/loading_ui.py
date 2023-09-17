@@ -31,7 +31,9 @@ class LoadingUI:
         self.font = FontPool
 
         """ Frames & Bars """
+        self.pre_fadeout_sequence_is_done = False
         self.fadeout_sequence_is_done = False
+        self.pre_fadeout_delay_sequence = None
         self.fadeout_sequence = None
         self.fadeout_screen = None
         self.loading_screen = None
@@ -39,6 +41,10 @@ class LoadingUI:
         self.loading_bar = None
         self.loading_bar_image = None
         self.media = None
+
+        """ Fadeout Parameters """
+        self._pre_fadeout_delay = 2
+        self._fadeout_speed = 0.1
 
         """ Frame Sizes """
         # Left, right, bottom, top
@@ -63,6 +69,8 @@ class LoadingUI:
 
     def set_loading_bar(self):
         self.fadeout_sequence = Sequence()
+        self.pre_fadeout_delay_sequence = Sequence()
+        self.pre_fadeout_sequence_is_done = False
         self.fadeout_sequence_is_done = False
         self.base.win_props.set_cursor_hidden(True)
         self.base.win.request_properties(self.base.win_props)
@@ -195,10 +203,17 @@ class LoadingUI:
                 self.fadeout_sequence = None
                 self.fadeout_sequence_is_done = True
 
+    def set_pre_fadeout_sequence_is_done(self):
+        self.pre_fadeout_sequence_is_done = True
+
     def fadeout_task(self, task):
         if self.fadeout_screen:
-            if not self.fadeout_sequence.is_playing():
-                par = Parallel(Wait(0.1),
+            if not self.pre_fadeout_delay_sequence.is_playing():
+                self.pre_fadeout_delay_sequence.append(Wait(self._pre_fadeout_delay))
+                self.pre_fadeout_delay_sequence.append(Func(self.set_pre_fadeout_sequence_is_done))
+                self.pre_fadeout_delay_sequence.start()
+            if self.pre_fadeout_sequence_is_done and not self.fadeout_sequence.is_playing():
+                par = Parallel(Wait(self._fadeout_speed),
                                Func(self.decrement_fade)
                                )
                 self.fadeout_sequence.append(par)
