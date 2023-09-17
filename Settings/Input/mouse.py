@@ -349,6 +349,40 @@ class Mouse:
                     self.cam_y_back_pos_current = base.camera.get_y() - 0.5
                     base.camera.set_y(self.cam_y_back_pos_current)
 
+    def cam_zoom_in_task(self, task):
+        if self.base.game_instance['menu_mode']:
+            return task.done
+
+        if (not self.base.game_instance['ui_mode']
+                and not self.base.game_instance["item_menu_mode"]
+                and not self.base.game_instance['menu_mode']):
+            dt = globalClock.getDt()
+
+            if self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
+                if abs(int(base.camera.get_y())) > abs(self.cam_y_back_pos_rider_close)//1.2:
+                    base.camera.set_y(base.camera, 3*dt)
+                else:
+                    return task.done
+
+        return task.cont
+
+    def cam_zoom_out_task(self, task):
+        if self.base.game_instance['menu_mode']:
+            return task.done
+
+        if (not self.base.game_instance['ui_mode']
+                and not self.base.game_instance["item_menu_mode"]
+                and not self.base.game_instance['menu_mode']):
+            dt = globalClock.getDt()
+
+            if self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
+                if abs(round(base.camera.get_y(), 1)) < abs(self.cam_y_back_pos)//1.2:
+                    base.camera.set_y(base.camera, -3*dt)
+                else:
+                    return task.done
+
+        return task.cont
+
     def set_mouse_mode(self, mode):
         """ Function    : set_mouse_mode
 

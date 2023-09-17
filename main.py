@@ -447,6 +447,7 @@ class Main(ShowBase):
             "scenes_np": [],
             "foliage_np": None,
             "round_table_np": None,
+            "mouse_cls": None,
             "player_trigger_cls": None,
             "player_controller": None,
             "player_np": None,

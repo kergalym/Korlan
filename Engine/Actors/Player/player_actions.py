@@ -1181,8 +1181,6 @@ class PlayerActions:
                     # with these animations in my game.
                     mounting_pos = Vec3(0.6, -0.16, 1.45)
                     saddle_pos = Vec3(0, -0.32, 1)
-                    # mounting_pos = Vec3(0.6, -0.16, -0.41)
-                    # saddle_pos = Vec3(0, -0.32, 0.35)
 
                     mount_action_seq = player.actor_interval(anim_names.a_anim_horse_mounting,
                                                              playRate=self.base.actor_play_rate)
@@ -1193,6 +1191,7 @@ class PlayerActions:
                                 "player_mount_helper_task",
                                 extraArgs=[child, player,  parent_rb_np, saddle_pos],
                                 appendTask=True)
+                    taskMgr.add(self.base.game_instance["mouse_cls"].cam_zoom_out_task, "cam_zoom_out_task")
 
                     Sequence(Func(self.state.set_action_state, "is_using", True),
                              Func(physics_attr.remove_character_controller_node, child),
@@ -1239,6 +1238,8 @@ class PlayerActions:
             horse_near_pos = Vec3(parent_rb_np.get_x(), parent_rb_np.get_y(),
                                   parent_rb_np.get_z()) + Vec3(0.6, -0.16, 0)
             base.game_instance['player_using_horse'] = ''
+
+            taskMgr.add(self.base.game_instance["mouse_cls"].cam_zoom_in_task, "cam_zoom_in_task")
 
             Sequence(Func(self.base.game_instance['player_ref'].set_python_tag, "is_on_horse", False),
                      Func(self.state.set_action_state, "is_using", True),
