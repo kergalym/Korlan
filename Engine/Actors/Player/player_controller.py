@@ -25,6 +25,7 @@ class PlayerController:
         self.taskMgr = taskMgr
         self.kbd = Keyboard()
         self.mouse = Mouse()
+        self.base.game_instance["mouse_cls"] = self.mouse
         self.fsm_player = PlayerFSM()
         self.base.game_instance["player_fsm_cls"] = self.fsm_player
         self.sheet = None
