@@ -120,7 +120,7 @@ class NpcDirectives:
                 elif actor.get_python_tag("human_states")['is_on_horse']:
                     if not actor.get_python_tag("generic_states")['is_busy']:
                         if player_dist is not None:
-                            if player_dist > ai_declaratives.distance_to_animal:
+                            if player_dist > ai_declaratives.distance_to_animal+1:
                                 # Won't follow player if it's indoor
                                 if not self.base.game_instance["is_indoor"]:
                                     parent_rb_np = actor.get_python_tag("mounted_horse")
@@ -138,6 +138,10 @@ class NpcDirectives:
                                             and not actor.get_python_tag("generic_states")['is_busy']):
                                         self.npc_controller.npc_in_walking_rd_logic(parent, parent_rb_np,
                                                                                     player, request)
+                            else:
+                                parent_rb_np = actor.get_python_tag("mounted_horse")
+                                parent = parent_rb_np.get_child(0)
+                                self.npc_controller.npc_in_idle_logic(parent)
 
             if not actor.get_python_tag("human_states")["has_bow"]:
                 self._melee_attack(actor, actor_rb_np, player,
@@ -196,7 +200,7 @@ class NpcDirectives:
                 elif actor.get_python_tag("human_states")['is_on_horse']:
                     if enemy_dist is not None:
                         if actor.get_python_tag("detour_nav") is False:
-                            if enemy_dist > ai_declaratives.distance_to_animal:
+                            if enemy_dist > ai_declaratives.distance_to_animal+1:
                                 if actor.get_python_tag("current_task") is None:
                                     parent_rb_np = actor.get_python_tag("mounted_horse")
                                     parent = parent_rb_np.get_child(0)
@@ -213,6 +217,10 @@ class NpcDirectives:
                                             and not actor.get_python_tag("generic_states")['is_busy']):
                                         self.npc_controller.npc_in_walking_rd_logic(actor, parent_rb_np,
                                                                                     enemy_rb_np, request)
+                            else:
+                                parent_rb_np = actor.get_python_tag("mounted_horse")
+                                parent = parent_rb_np.get_child(0)
+                                self.npc_controller.npc_in_idle_logic(parent)
 
             if not actor.get_python_tag("human_states")["has_bow"]:
                 self._melee_attack(actor, actor_rb_np, enemy_rb_np,

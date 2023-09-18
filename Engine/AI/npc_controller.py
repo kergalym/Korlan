@@ -1,3 +1,4 @@
+import random
 from pathlib import Path
 
 from direct.interval.FunctionInterval import Func, Wait
@@ -270,15 +271,15 @@ class NpcController:
             if "NPC" in target.get_name():
                 if target.get_child(0).has_python_tag("human_states"):
                     if target.get_child(0).get_python_tag("human_states")["is_on_horse"]:
-                        pos = target.get_parent().get_parent().get_pos() + Vec3(ai_declaratives.distance_to_animal,
+                        pos = target.get_parent().get_parent().get_pos() + Vec3(ai_declaratives.distance_to_animal + random.randrange(0.1, 1.0),
                                                                                 ai_declaratives.distance_to_animal,
                                                                                 0)
                     else:
-                        pos = target.get_pos() + Point3(ai_declaratives.distance_to_target,
+                        pos = target.get_pos() + Point3(ai_declaratives.distance_to_target + random.randrange(0.1, 1.0),
                                                         ai_declaratives.distance_to_target,
                                                         0)
                 else:
-                    pos = target.get_pos() + Point3(ai_declaratives.distance_to_target,
+                    pos = target.get_pos() + Point3(ai_declaratives.distance_to_target + random.randrange(0.1, 1.0),
                                                     ai_declaratives.distance_to_target,
                                                     0)
 
@@ -329,7 +330,7 @@ class NpcController:
 
             if self.walking_sequence.get(actor_name) is not None:
                 if not self.walking_sequence[actor_name].is_playing():
-                    actor_name = actor.get_name()
+                    self.walking_sequence[actor_name] = Sequence()
                     self.navmesh_query.nearest_point(actor_rb_np.get_pos())
 
                     # get target's last pos
@@ -338,6 +339,14 @@ class NpcController:
                     # Find path
                     path = self.navmesh_query.find_smooth_path(actor_rb_np.get_pos(), last_pos)
                     path_points = list(path.points)
+
+                    if len(path_points) == 0:
+                        # get target's last pos
+                        last_pos = self._get_target_last_pos(target)
+
+                        # Find path
+                        path = self.navmesh_query.find_path(actor_rb_np.get_pos(), last_pos)
+                        path_points = list(path.points)
 
                     if self.base.game_settings['Debug']['set_debug_mode'] == 'YES':
                         self.path_line = LineSegs()
@@ -387,10 +396,16 @@ class NpcController:
                     self.walking_sequence[actor_name].start()
 
                     # Walking to main target
-                    if round(actor_rb_np.get_distance(target)) > ai_declaratives.distance_to_target + 1:
-                        actor_rb_np.set_y(actor_rb_np, -speed * dt)
-                    else:
-                        self.npc_in_idle_logic(actor)
+                    if actor.get_python_tag("npc_type") == "npc":
+                        if round(actor_rb_np.get_distance(target)) > ai_declaratives.distance_to_target+1:
+                            actor_rb_np.set_y(actor_rb_np, -speed * dt)
+                        else:
+                            self.npc_in_idle_logic(actor)
+                    elif actor.get_python_tag("npc_type") == "npc_animal":
+                        if round(actor_rb_np.get_distance(target)) > ai_declaratives.distance_to_animal+1:
+                            actor_rb_np.set_y(actor_rb_np, -speed * dt)
+                        else:
+                            self.npc_in_idle_logic(actor)
 
     def do_walking(self, actor, actor_rb_np, target, request):
         if actor and actor_rb_np and target and request:
@@ -402,44 +417,19 @@ class NpcController:
             elif actor.get_python_tag("move_type") == "run":
                 speed = 5
 
-            dt = globalClock.getDt()
-
-            physics_world = self.base.game_instance['physics_world_np']
-            pFrom = actor_rb_np.get_pos()
-            pTo = Point3(0, 1000, 0)
-            collision_dist = 0
-
-            result = physics_world.ray_test_closest(pFrom, pTo)
-
-            if result.hasHit():
-                collision_dist = (actor_rb_np.get_pos() - result.getHitPos()).length()
-                # print(collision_dist)
-                if round(collision_dist) == ai_declaratives.distance_to_target + 1:
-                    #self.npc_in_idle_logic(actor)
-                    #print(round(collision_dist, 1))
-                    pass
-
-            # obstacle avoidance
-            """for actor_name in self.base.game_instance["actors_np"]:
-                if actor_name not in actor_rb_np.get_name():
-                    cross_enemy_np = self.base.game_instance["actors_np"][actor_name]
-                    if round(actor_rb_np.get_distance(cross_enemy_np)) < ai_declaratives.distance_to_target + 1:
-                        self.face_actor_to(actor_rb_np, cross_enemy_np)
-                        actor_rb_np.set_y(actor_rb_np, -speed * dt)"""
-
             # Walking to main target
+            dt = globalClock.getDt()
             if round(actor_rb_np.get_distance(target)) > ai_declaratives.distance_to_target + 1:
                 self.face_actor_to(actor_rb_np, target)
                 actor_rb_np.set_y(actor_rb_np, -speed * dt)
-
-            elif (round(actor_rb_np.get_distance(target)) <= ai_declaratives.distance_to_target + 1
-                    or round(collision_dist) == ai_declaratives.distance_to_target):
+            else:
                 self.npc_in_idle_logic(actor)
 
     def npc_in_idle_logic(self, actor):
         if actor:
             if self.walking_sequence.get(actor.get_name()):
-                self.walking_sequence[actor.get_name()].finish()
+                if actor.get_python_tag("generic_states")['is_moving']:
+                    self.walking_sequence[actor.get_name()].finish()
             actor.get_python_tag("generic_states")['is_moving'] = False
             actor.get_python_tag("generic_states")['is_idle'] = True
 
@@ -700,10 +690,10 @@ class NpcController:
         if (actor.get_python_tag("human_states")
                 and actor.get_python_tag("mounted_horse")
                 and actor.get_python_tag("human_states")['is_on_horse']):
-            if (actor.get_python_tag("generic_states")['is_idle']
-                    and not actor.get_python_tag("generic_states")['is_attacked']
-                    and not actor.get_python_tag("generic_states")['is_busy']
-                    and not actor.get_python_tag("generic_states")['is_moving']):
+            if (actor_npc_rb.get_parent().get_python_tag("generic_states")['is_idle']
+                    and not actor_npc_rb.get_parent().get_python_tag("generic_states")['is_attacked']
+                    and not actor_npc_rb.get_parent().get_python_tag("generic_states")['is_busy']
+                    and not actor_npc_rb.get_parent().get_python_tag("generic_states")['is_moving']):
                 name = actor.get_name()
                 if not self.unmounting_sequence[name].is_playing():
                     actor.set_python_tag("current_task", "horse_unmounting")
