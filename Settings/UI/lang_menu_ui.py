@@ -247,6 +247,10 @@ class LangMenuUI(Language):
         if not self.base.frame_int_lang:
             return
 
+        # Write changes to disk
+        with open(self.cfg_path, "w") as cfg_file:
+            self.loaded_settings.write(cfg_file)
+
         if self.base.game_instance['current_active_frame']:
             self.base.game_instance['current_active_frame'].destroy()
 

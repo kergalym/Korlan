@@ -22,7 +22,6 @@ from Engine.Actors.Player.player_controller import PlayerController
 from Engine.Actors.Player.state import PlayerState
 
 from Settings.Input.keyboard import Keyboard
-from Settings.Input.mouse import Mouse
 
 from Engine.Actors.NPC.state import NpcState
 
@@ -63,7 +62,6 @@ class AsyncLevelLoading:
         self.taskMgr = taskMgr
 
         self.kbd = Keyboard()
-        self.mouse = Mouse()
 
         self.gpu_instancing = GPUInstancing()
 
@@ -251,25 +249,6 @@ class AsyncLevelLoading:
                 path = assets['{0}_{1}'.format(scene_name, suffix)]
                 scene = await self.base.loader.load_model(path, loaderOptions=opts, blocking=False)
 
-                # Define the number of rows and columns of landscape instances
-                rows = 3
-                cols = 3
-
-                # Create a grid of landscape instances
-                for row in range(rows):
-                    for col in range(cols):
-                        landscape_instance = NodePath(scene.copy_to(self.render))
-
-                        # Calculate the position for each instance
-                        x = col * 100.0  # Adjust the spacing between instances
-                        y = row * 100.0
-                        landscape_instance.set_pos(Vec3(x, y, 0))
-                        landscape_instance.reparent_to(self.base.game_instance['lod_np'])
-                        self.base.game_instance['scenes_np'].append(landscape_instance)
-
-                        if self.base.game_instance["renderpipeline_np"]:
-                            self.base.game_instance['renderpipeline_np'].prepare_scene(landscape_instance)
-
                 scene.reparent_to(self.base.game_instance['lod_np'])
 
                 # toggle texture compression for textures to compress them
@@ -398,7 +377,7 @@ class AsyncLevelLoading:
 
             """ PLAYER """
             if self.game_settings['Debug']['set_editor_mode'] == 'NO':
-                self.mouse.set_mouse_mode(mode="absolute")
+                self.base.game_instance["mouse_cls"].set_mouse_mode(mode="absolute")
 
             self.base.game_instance['player_is_loaded'] = False
 
@@ -488,8 +467,8 @@ class AsyncLevelLoading:
             # Make actor global
             self.base.game_instance['player_ref'] = self.korlan
 
-            if self.base.game_instance["renderpipeline_np"]:
-                self.base.game_instance['renderpipeline_np'].prepare_scene(self.korlan)
+            """if self.base.game_instance["renderpipeline_np"]:
+                self.base.game_instance['renderpipeline_np'].prepare_scene(self.korlan)"""
 
             # Set allowed weapons list
             self.base.game_instance["weapons"] = [
