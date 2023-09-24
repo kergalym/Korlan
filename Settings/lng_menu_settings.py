@@ -7,9 +7,10 @@ class Language(MenuSettings):
         self.lng_kz = 1
         self.lng_ru = 2
         MenuSettings.__init__(self)
+        self.loaded_settings = self.load_settings()
 
     def get_selected_language(self):
-        loaded_settings = self.load_settings()
+        loaded_settings = self.loaded_settings
         lng_dict = {'english': self.lng_en,
                     'kazakh': self.lng_kz,
                     'russian': self.lng_ru}
@@ -30,25 +31,19 @@ class Language(MenuSettings):
             return lng_dict
 
     def set_language_english(self):
-        loaded_settings = self.load_settings()
+        loaded_settings = self.loaded_settings
         loaded_settings['Main']['language'] = 'english'
-        with open(self.cfg_path, "w") as cfg_file:
-            loaded_settings.write(cfg_file)
 
     def set_language_kazakh(self):
-        loaded_settings = self.load_settings()
+        loaded_settings = self.loaded_settings
         loaded_settings['Main']['language'] = 'kazakh'
-        with open(self.cfg_path, "w") as cfg_file:
-            loaded_settings.write(cfg_file)
 
     def set_language_russian(self):
-        loaded_settings = self.load_settings()
+        loaded_settings = self.loaded_settings
         loaded_settings['Main']['language'] = 'russian'
-        with open(self.cfg_path, "w") as cfg_file:
-            loaded_settings.write(cfg_file)
 
     def set_default_language(self):
-        loaded_settings = self.load_settings()
+        loaded_settings = self.loaded_settings
         loaded_settings['Main']['language'] = 'english'
         with open(self.cfg_path, "w") as cfg_file:
             loaded_settings.write(cfg_file)

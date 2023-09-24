@@ -18,6 +18,7 @@ class PlayerActions:
         self.kbd = kbd
         self.archery = archery
         self.base.game_instance["player_actions_cls"] = self
+        self.current_seq_player = None
 
     def seq_pick_item_wrapper_task(self, player, anims, action, joint_name, task):
         if player and anims and action and joint_name:
@@ -25,6 +26,7 @@ class PlayerActions:
                 if (player.get_current_frame(action) > 67
                         and player.get_current_frame(action) < 72):
                     self.state.pick_up_item(player, joint_name)
+                    self.base.sound.play_picking()
         return task.cont
 
     def seq_drop_item_wrapper_task(self, player, anims, action, task):
@@ -33,6 +35,7 @@ class PlayerActions:
                 if (player.get_current_frame(action) > 67
                         and player.get_current_frame(action) < 72):
                     self.state.drop_item(player)
+                    self.base.sound.play_dropping()
         return task.cont
 
     def remove_seq_pick_item_wrapper_task(self):
@@ -57,6 +60,7 @@ class PlayerActions:
                 delta_offset = current_pos + Vec3(0, -2.0, 0)
                 pos_interval_seq = player_bs.posInterval(1.0, delta_offset,
                                                          startPos=current_pos)
+                self.base.sound.play_jump()
                 seq = Sequence(pos_interval_seq)
                 if not seq.is_playing():
                     seq.start()
@@ -67,18 +71,13 @@ class PlayerActions:
 
     def _player_bullet_jump_helper(self, action):
         if self.base.game_instance['player_controller']:
-            if self.base.game_instance['player_controller'].is_on_ground():
-                self.base.game_instance['player_controller'].set_max_jump_height(3.0)
-                self.base.game_instance['player_controller'].set_jump_speed(8.0)
-                self.base.game_instance['player_controller'].do_jump()
+            if taskMgr.hasTaskNamed("player_jump_move_task"):
+                taskMgr.remove("player_jump_move_task")
 
-                if taskMgr.hasTaskNamed("player_jump_move_task"):
-                    taskMgr.remove("player_jump_move_task")
-
-                taskMgr.add(self._player_jump_move_task,
-                            "player_jump_move_task",
-                            extraArgs=[action],
-                            appendTask=True)
+            taskMgr.add(self._player_jump_move_task,
+                        "player_jump_move_task",
+                        extraArgs=[action],
+                        appendTask=True)
 
     def player_bullet_crouch_helper(self):
         ph_ = self.base.game_instance["physics_attr_cls"]
@@ -202,6 +201,7 @@ class PlayerActions:
         if (player and isinstance(anims, dict)
                 and isinstance(action, str)
                 and isinstance(key, str)
+                and not self.base.game_instance["is_indoor"]
                 and not base.player_states['is_using']
                 and not base.player_states['is_attacked']
                 and not base.player_states['is_busy']
@@ -217,6 +217,7 @@ class PlayerActions:
                 if (base.player_states['is_jumping'] is False
                         and crouched_to_standing.is_playing() is False
                         and base.player_states['is_crouch_moving']):
+
                     crouch_to_stand_seq = player.actor_interval(anims[anim_names.a_anim_crouching_stand],
                                                                 playRate=self.base.actor_play_rate)
                     # Do an animation sequence if player is stayed.
@@ -233,6 +234,7 @@ class PlayerActions:
                 elif (base.player_states['is_jumping'] is False
                       and crouched_to_standing.is_playing() is False
                       and base.player_states['is_crouch_moving'] is False):
+
                     # Do an animation sequence if player is stayed.
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
@@ -323,6 +325,7 @@ class PlayerActions:
                         if (base.player_states['is_using'] is False
                                 and crouched_to_standing.is_playing() is False
                                 and base.player_states['is_crouching'] is True):
+
                             # TODO: Use blending for smooth transition between animations
                             # Do an animation sequence if player is crouched.
                             crouch_to_stand_seq = player.actor_interval(anims[anim_names.a_anim_crouching_stand],
@@ -464,6 +467,13 @@ class PlayerActions:
                 if (actor_node and base.player_states['is_hitting'] is False
                         and crouched_to_standing.is_playing() is False
                         and base.player_states['is_crouching'] is False):
+
+                    if base.player_states['has_sword']:
+                        self.base.sound.play_melee()
+
+                    elif not base.player_states['has_sword']:
+                        self.base.sound.play_kicking()
+
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
                     Sequence(Func(self.state.set_action_state, "is_hitting", True),
@@ -490,6 +500,9 @@ class PlayerActions:
                 if (base.player_states['is_h_kicking'] is False
                         and crouched_to_standing.is_playing() is False
                         and base.player_states['is_crouch_moving'] is True):
+
+                    self.base.sound.play_kicking()
+
                     player_bs = self.base.game_instance["player_np"]
                     # TODO: Use blending for smooth transition between animations
                     # Do an animation sequence if player is crouched.
@@ -539,6 +552,9 @@ class PlayerActions:
                 if (base.player_states['is_f_kicking'] is False
                         and crouched_to_standing.is_playing() is False
                         and base.player_states['is_crouch_moving'] is False):
+
+                    self.base.sound.play_punching()
+
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
                     Sequence(Func(self.state.set_action_state, "is_f_kicking", True),
@@ -556,23 +572,46 @@ class PlayerActions:
                 and not base.player_states['is_busy']
                 and not base.player_states['is_moving']
                 and not self.base.game_instance['is_aiming']):
-            if self.kbd.keymap[key] and not base.do_key_once[key]:
-                self.state.set_do_once_key(key, True)
+
+            # Change anim state to special block looping
+            if base.player_states['is_blocking']:
+                if self.current_seq_player is not None:
+                    if not self.current_seq_player.is_playing():
+                        action = "{0}_loop".format(action)
+                        any_action_seq = player.actor_interval(anims[action],
+                                                               playRate=self.base.actor_play_rate)
+                        self.current_seq_player = Sequence(any_action_seq)
+                        self.current_seq_player.loop()
+
+            elif not base.player_states['is_blocking']:
+                if self.current_seq_player is not None:
+                    if self.current_seq_player.is_playing():
+                        self.current_seq_player.finish()
+                        self.current_seq_player = None
+
+            # Key accepting logic
+            if self.kbd.keymap[key] and not base.player_states['is_blocking']:
                 crouched_to_standing = player.get_anim_control(anims[anim_names.a_anim_crouching_stand])
                 base.player_states['is_idle'] = False
 
                 self.player_in_crouched_to_stand_with_any_action(player, key, anims, action, "is_blocking")
 
-                if (base.player_states['is_blocking'] is False
-                        and crouched_to_standing.is_playing() is False
+                if (crouched_to_standing.is_playing() is False
                         and base.player_states['is_crouch_moving'] is False):
                     any_action_seq = player.actor_interval(anims[action],
                                                            playRate=self.base.actor_play_rate)
-                    Sequence(Func(self.state.set_action_state, "is_blocking", True),
-                             any_action_seq,
-                             Func(self.state.set_action_state, "is_blocking", False),
-                             Func(self.state.set_do_once_key, key, False),
-                             ).start()
+                    self.current_seq_player = Sequence(Func(self.state.set_action_state, "is_blocking", True),
+                                                       any_action_seq,
+                                                       )
+                    self.current_seq_player.start()
+            elif not self.kbd.keymap[key] and base.player_states['is_blocking']:
+                crouched_to_standing = player.get_anim_control(anims[anim_names.a_anim_crouching_stand])
+
+                self.player_in_crouched_to_stand_with_any_action(player, key, anims, action, "is_blocking")
+
+                if (crouched_to_standing.is_playing() is False
+                        and base.player_states['is_crouch_moving'] is False):
+                    self.state.set_action_state("is_blocking", False)
 
     def player_get_sword_action(self, player, key, anims, action):
         if (player and isinstance(anims, dict)
@@ -600,6 +639,7 @@ class PlayerActions:
                              Func(self.state.get_weapon, player, "sword", "Korlan:LeftHand"),
                              Func(self.state.set_action_state, "has_sword", True),
                              Func(self.state.set_action_state, "is_using", True),
+                             Func(self.base.sound.play_picking),
                              any_action_seq,
                              Func(self.state.set_action_state, "is_using", False),
                              Func(self.state.set_do_once_key, key, False),
@@ -615,6 +655,7 @@ class PlayerActions:
                     Sequence(Func(self.state.get_weapon, player, "sword", "Korlan:LeftHand"),
                              Func(self.state.set_action_state, "has_sword", True),
                              Func(self.state.set_action_state, "is_using", True),
+                             Func(self.base.sound.play_picking),
                              any_action_seq,
                              Func(self.state.set_action_state, "is_using", False),
                              Func(self.state.set_do_once_key, key, False),
@@ -898,6 +939,8 @@ class PlayerActions:
                 self.state.set_do_once_key("block", True)
                 crouched_to_standing = player.get_anim_control(anims[anim_names.a_anim_crouching_stand])
 
+                self.base.sound.play_bow_charge()
+
                 if self.archery.arrow_ref:
                     if self.archery.arrow_ref.get_python_tag("power") > 0:
                         self.archery.arrow_ref.set_python_tag("power", 0)
@@ -949,7 +992,7 @@ class PlayerActions:
                              Wait(0.1),
                              Func(player.pose, action, -0.99),
                              Wait(0.1),
-                             Func(player.pose, action, -1),
+                             Func(player.pose, action, -1)
                              ).start()
 
             if (not self.kbd.keymap["attack"]
@@ -963,6 +1006,8 @@ class PlayerActions:
                         and len(self.archery.arrows) > 0):
                     self.archery.arrow_ref.set_python_tag("ready", 1)
                     self.archery.bow_shoot()
+                    self.base.sound.stop_bow_charge()
+                    self.base.sound.play_bow_release()
 
                     if not player.get_python_tag("first_attack"):
                         player.set_python_tag("first_attack", True)
@@ -985,6 +1030,8 @@ class PlayerActions:
                     if self.archery.arrow_ref.get_python_tag("power") > 0:
                         self.archery.arrow_ref.set_python_tag("power", 0)
                     self.archery.arrow_ref.set_python_tag("ready", 0)
+
+                self.base.sound.stop_bow_charge()
 
                 self.base.game_instance['free_camera'] = False
 
@@ -1102,7 +1149,6 @@ class PlayerActions:
                     self.archery.arrow_ref.set_python_tag("ready", 0)
 
     def player_mount_helper_task(self, child, player,  horse_np, saddle_pos, task):
-        dt = globalClock.getDt()
         if self.base.game_instance['menu_mode']:
             return task.done
 
@@ -1112,13 +1158,7 @@ class PlayerActions:
                 child.set_y(saddle_pos[1])
                 player.set_z(saddle_pos[2])
 
-                # Set revert camera
-                if not self.base.game_instance['is_aiming']:
-                    self.base.camera.set_y(-5.5)
-
-                self.base.camera.set_z(0.8)
-            else:
-                self.base.camera.set_y(self.base.game_instance["mouse_y_cam"])
+                self.base.camera.set_z(0.5)
         return task.cont
 
     def mount_action(self):
@@ -1142,8 +1182,6 @@ class PlayerActions:
                     # with these animations in my game.
                     mounting_pos = Vec3(0.6, -0.16, 1.45)
                     saddle_pos = Vec3(0, -0.32, 1)
-                    # mounting_pos = Vec3(0.6, -0.16, -0.41)
-                    # saddle_pos = Vec3(0, -0.32, 0.35)
 
                     mount_action_seq = player.actor_interval(anim_names.a_anim_horse_mounting,
                                                              playRate=self.base.actor_play_rate)
@@ -1154,6 +1192,7 @@ class PlayerActions:
                                 "player_mount_helper_task",
                                 extraArgs=[child, player,  parent_rb_np, saddle_pos],
                                 appendTask=True)
+                    taskMgr.add(self.base.game_instance["mouse_cls"].cam_zoom_out_task, "cam_zoom_out_task")
 
                     Sequence(Func(self.state.set_action_state, "is_using", True),
                              Func(physics_attr.remove_character_controller_node, child),
@@ -1200,6 +1239,8 @@ class PlayerActions:
             horse_near_pos = Vec3(parent_rb_np.get_x(), parent_rb_np.get_y(),
                                   parent_rb_np.get_z()) + Vec3(0.6, -0.16, 0)
             base.game_instance['player_using_horse'] = ''
+
+            taskMgr.add(self.base.game_instance["mouse_cls"].cam_zoom_in_task, "cam_zoom_in_task")
 
             Sequence(Func(self.base.game_instance['player_ref'].set_python_tag, "is_on_horse", False),
                      Func(self.state.set_action_state, "is_using", True),

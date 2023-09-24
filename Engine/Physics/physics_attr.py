@@ -54,6 +54,7 @@ class PhysicsAttr:
         self.spine_bones = {}
         self.actor_parents = {}
         self.info = None
+        self.item_bs = None
 
     def _get_character_controller_nodepath(self, shape, node_name, mask):
         rigid_body_node = BulletCharacterControllerNode(shape,
@@ -76,7 +77,7 @@ class PhysicsAttr:
         else:
             rigid_body_np = self.world_nodepath.attach_new_node(rigid_body_node)
         rigid_body_np.set_collide_mask(mask)
-        self.world.attach_rigid_body(rigid_body_np.node())
+        self.world.attach(rigid_body_np.node())
         return rigid_body_np
 
     def set_character_controller_nodepath_with_shape(self, actor, rigid_body_np):
@@ -105,7 +106,14 @@ class PhysicsAttr:
             rigid_body_node.add_shape(shape)
             rigid_body_np.attach_new_node(rigid_body_node)
             rigid_body_np.set_collide_mask(self.mask)
-            self.world.attach_rigid_body(rigid_body_np.node())
+
+            # Removed rigid body added before
+            if len(self.world.get_rigid_bodies()) > 0:
+                for body in self.world.get_rigid_bodies():
+                    if body.name == rigid_body_np.get_name():
+                        self.world.remove(rigid_body_np.node())
+
+            self.world.attach(rigid_body_np.node())
 
     def set_character_controller_nodepath_half_height_shape(self, actor, rigid_body_np):
         if actor and rigid_body_np:
@@ -133,7 +141,7 @@ class PhysicsAttr:
             rigid_body_node.add_shape(shape)
             rigid_body_np.attach_new_node(rigid_body_node)
             rigid_body_np.set_collide_mask(self.mask)
-            self.world.attach_rigid_body(rigid_body_np.node())
+            self.world.attach(rigid_body_np.node())
 
     def remove_character_controller_node(self, rigid_body_np):
         if rigid_body_np:
@@ -152,7 +160,7 @@ class PhysicsAttr:
         crouch_rb_np.node().add_shape(rectangle_shape)
         crouch_rb_np.node().set_mass(9999)
         crouch_rb_np.set_collide_mask(mask)
-        self.world.attach_rigid_body(crouch_rb_np.node())
+        self.world.attach(crouch_rb_np.node())
         crouch_rb_np.node().set_kinematic(True)
         crouch_rb_np.set_scale(0.5)
         crouch_rb_np.set_pos(0, -0.1, -0.5)
@@ -161,7 +169,7 @@ class PhysicsAttr:
     def _set_player_rigidbody(self, actor, shape, col_name, mask):
         actor_rb_np = self._get_rigid_body_nodepath(shape=shape,
                                                     node_name=col_name,
-                                                    mass=9999,
+                                                    mass=10,
                                                     mask=mask)
         self.base.game_instance['player_controller'] = actor_rb_np.node()
 
@@ -177,7 +185,7 @@ class PhysicsAttr:
         # keep collision name and mass
         actor.set_python_tag("col_name", col_name)
 
-        actor.set_python_tag("col_mass", 9999)
+        actor.set_python_tag("col_mass", 10)
 
         # Set actor down to make it
         # at the same point as bullet shape
@@ -202,6 +210,9 @@ class PhysicsAttr:
                                                            mask=mask)
         self.base.game_instance["player_crouch_bs_np"] = crouch_rb_np
         self.base.game_instance["player_crouch_bs_np_mask"] = self.mask0"""
+
+        actor_rb_np.node().set_linear_damping(0.5)  # Linear damping for smoother acceleration
+        actor_rb_np.node().set_deactivation_enabled(False)
 
         # Setup for soft bodies
         # self._set_cloth_physics(actor)
@@ -232,6 +243,8 @@ class PhysicsAttr:
         self.base.game_instance["player_trigger_cls"] = self.player_trigger
         self.player_trigger.set_ghost_trigger(actor, self.world)
 
+        # self.make_cloth()
+
     def _set_npc_rigidbody(self, actor, shape, col_name, mask):
         actor_rb_np = self._get_rigid_body_nodepath(shape=shape,
                                                     node_name=col_name,
@@ -253,6 +266,7 @@ class PhysicsAttr:
         # Set the bullet shape position same as actor position
         actor_rb_np.set_x(0)
         actor_rb_np.set_y(0)
+        actor_rb_np.node().set_deactivation_enabled(True)
         # reload actor if it's dynamic
         actor_rb_np.set_z(4)
 
@@ -308,7 +322,7 @@ class PhysicsAttr:
         shape = self.bullet_solids.get_bs_capsule(width=0.5, height=1.1, geometry=None)
         actor_rb_np = self._get_rigid_body_nodepath(shape=shape,
                                                     node_name=col_name,
-                                                    mass=9999,
+                                                    mass=10,
                                                     mask=mask)
         actor.reparent_to(actor_rb_np)
 
@@ -329,6 +343,8 @@ class PhysicsAttr:
 
         # reparent bullet-shaped actor to LOD node
         actor_rb_np.reparent_to(self.base.game_instance['lod_np'])
+        actor_rb_np.node().set_linear_damping(0.5)  # Linear damping for smoother acceleration
+        actor_rb_np.node().set_deactivation_enabled(True)
 
         # LOD quality preset
         for lod_qk in self.base.game_instance["lod_quality"]:
@@ -494,7 +510,7 @@ class PhysicsAttr:
         node.add_shape(shape)
 
         terrain_bs_np = terrain_master_np.attach_new_node(node)
-        self.world.attach_rigid_body(node)
+        self.world.attach(node)
         terrain_bs_np.set_pos(0, 0, 0)
 
         # ShaderTerrainMesh and BulletHeightfieldShape have different origins.
@@ -525,7 +541,7 @@ class PhysicsAttr:
             self.landscape_rb_np = landscape.attach_new_node(BulletRigidBodyNode("Landscape_BN"))
             self.landscape_rb_np.node().add_shape(shape)
             self.landscape_rb_np.set_collide_mask(self.mask)
-            self.world.attach_rigid_body(self.landscape_rb_np.node())
+            self.world.attach(self.landscape_rb_np.node())
             self.landscape_rb_np.set_pos(0, 0, 0)
 
     def waiting_for_landscape_task(self, name, task):
@@ -568,11 +584,16 @@ class PhysicsAttr:
 
                 # Do update RigidBodyNode parent node's position for every frame
                 if hasattr(base, "close_item_name"):
-                    name = base.close_item_name
-                    if not render.find("**/{0}".format(name)).is_empty():
-                        item = render.find("**/{0}".format(name))
-                        if 'BS' in item.get_parent().get_name():
-                            item.get_parent().node().set_transform_dirty()
+                    if self.item_bs is not None:
+                        self.item_bs.node().set_transform_dirty()
+
+                    elif self.item_bs is None:
+                        name = base.close_item_name
+                        if not render.find("**/{0}".format(name)).is_empty():
+                            item = render.find("**/{0}".format(name))
+                            if 'BS' in item.get_parent().get_name():
+                                item.get_parent().node().set_transform_dirty()
+                                self.item_bs = item.get_parent()
         return task.cont
 
     def update_soft_physics_task(self, task):
@@ -590,17 +611,13 @@ class PhysicsAttr:
             if self.soft_world:
                 # Get the time that elapsed since last frame.
                 dt = globalClock.getDt()
-                self.soft_world.do_physics(dt, 5, 1. / 180)
+                self.soft_world.do_physics(dt, 5, 1.0/60.0)
 
                 # Update clothes pin
                 if self.cloth_pins:
                     for name in self.cloth_pins:
                         if self.cloth_pins.get(name) and self.spine_bones.get(name):
-                            self.cloth_pins[name].set_pos(render, self.actor_parents[name].get_pos(render))
-                            self.cloth_pins[name].set_hpr(render, self.actor_parents[name].get_hpr(render))
-
-                            self.cloth_pins[name].set_y(self.spine_bones[name].get_y())
-                            self.cloth_pins[name].set_z(self.spine_bones[name].get_z() + -1)
+                            self.cloth_pins[name].set_z(self.spine_bones[name].get_z() + 2.9)
 
         return task.cont
 
@@ -639,7 +656,7 @@ class PhysicsAttr:
             self.ground_rb_np.node().add_shape(ground_shape)
             self.ground_rb_np.set_pos(0, 0, 0)
             self.ground_rb_np.set_collide_mask(self.mask)
-            self.world.attach_rigid_body(self.ground_rb_np.node())
+            self.world.attach(self.ground_rb_np.node())
 
             # Set Landscape Collision
             # Wait until landscape is loaded
@@ -655,7 +672,7 @@ class PhysicsAttr:
             node.add_shape(shape)
             np = render.attach_new_node(node)
             np.set_pos(3, 2, 0)
-            self.world.attach_rigid_body(node)
+            self.world.attach(node)
             assets = self.base.assets_collector()
             model = base.loader.load_model(assets['Box'])
             model.reparent_to(np)
@@ -667,6 +684,7 @@ class PhysicsAttr:
 
             self.base.game_instance['physics_is_activated'] = 1
 
+            self.item_bs = None
             taskMgr.add(self.update_rigid_physics_task,
                         "update_rigid_physics_task",
                         appendTask=True)
@@ -721,6 +739,19 @@ class PhysicsAttr:
         input_egg.close()
         return found_list
 
+    def make_cloth(self):
+        player_np = self.base.game_instance["player_ref"]
+        for name in self.base.game_instance["actors_clothes"]:
+            clothes = self.base.game_instance["actors_clothes"][name]
+            for cloth in clothes:
+                soft_body_node = BulletSoftBodyNode.makeTriMesh(self.info, cloth.node().modifyGeom(0))
+                soft_body_node.setTotalMass(0.5)  # Set the total mass of the soft body
+                soft_body_node.appendAnchor(1, self.base.game_instance["player_np"].node())  # Attach the soft body to a specific node (e.g., the mesh)
+                player_np.attach_new_node(soft_body_node)
+
+                # Add the soft body to the Bullet world
+                self.world.attachSoftBody(soft_body_node)
+
     def _set_cloth_physics(self, actor):
         if self.soft_world and actor:
             for name in self.base.game_instance["actors_clothes"]:
@@ -730,8 +761,7 @@ class PhysicsAttr:
                     for cloth in clothes:
                         if cloth:
                             geom = cloth.find_all_matches('**/+GeomNode').getPath(0).node().modifyGeom(0)
-                            geom_node = GeomNode('')
-                            geom_node.addGeom(geom)
+                            geom_node = cloth.find_all_matches('**/+GeomNode').getPath(0).node()
                             node = BulletSoftBodyNode.makeTriMesh(self.info, geom)
                             node.linkGeom(geom_node.modifyGeom(0))
 
@@ -750,7 +780,7 @@ class PhysicsAttr:
                             # node.getCfg().setKineticContactsHardness(0.2)
                             # node.getCfg().setLiftCoefficient(0.0)
                             # node.getCfg().setMaxvolume(0.2)
-                            node.getCfg().setPoseMatchingCoefficient(0.2)
+                            node.getCfg().setPoseMatchingCoefficient(0.7)
                             # node.getCfg().setPositionsSolverIterations(0.2)
                             # node.getCfg().setPressureCoefficient(0.0)
                             # node.getCfg().setRigidContactsHardness(0.2)
@@ -760,35 +790,25 @@ class PhysicsAttr:
                             # node.getCfg().setSoftVsRigidHardness(0.2)
                             # node.getCfg().setSoftVsRigidImpulseSplit(0.2)
                             # node.getCfg().setSoftVsSoftHardness(0.2)
-                            # node.getCfg().setSoftVsSoftImpulseSplit(0.2)
+                            node.getCfg().setSoftVsSoftImpulseSplit(0)
                             # node.getCfg().setTimescale(0.2)
                             # node.getCfg().setVelocitiesCorrectionFactor(0.0)
                             # node.getCfg().setVelocitiesSolverIterations(0.2)
                             # node.getCfg().setVolumeConversationCoefficient(0.0)
-                            # node.getCfg().setCollisionFlag(BulletSoftBodyConfig.CFVertexFaceSoftSoft, True)
+                            node.getCfg().setCollisionFlag(BulletSoftBodyConfig.CFVertexFaceSoftSoft, False)
                             node.setPose(False, False)
                             # node.setTotalDensity(1.0)
                             node.setTotalMass(10)
                             # node.getShape(0).setMargin(0.5)
                             # node.setVolumeDensity(1.0)
                             # node.setVolumeMass(100)
-                            # node.set_into_collide_mask(BitMask32.allOff())
+
+                            base.nodesoft = node
 
                             soft_np = self.world_nodepath.attachNewNode(node)
                             self.soft_world.attachSoftBody(node)
                             geom_np = soft_np.attachNewNode(geom_node)
-                            geom_np.set_two_sided(True)
-
-                            for tex in cloth.find_all_textures():
-                                rp = self.base.game_instance['renderpipeline_np']
-                                if rp:
-                                    rp.set_effect(soft_np, "{0}/Engine/Renderer"
-                                                           "/effects/cloth.yaml".format(self.game_dir),
-                                                           {"render_gbuffer": True,
-                                                            "render_shadow": False,
-                                                            "alpha_testing": True,
-                                                            "normal_mapping": True})
-                                    soft_np.set_shader_input("cloak_tex", tex)
+                            # geom_np.set_two_sided(True)
 
                             # Pin the cloak down
                             spine_bone = actor.expose_joint(None, 'modelRoot', 'Korlan:Spine2')
@@ -802,13 +822,14 @@ class PhysicsAttr:
                             self.cloth_pins[name] = pin
 
                             # Append fixed (non-movable) part of the cloak to the pin node (egg file)
-                            cloth_path = cloth_path[:-4]
+                            # cloth_path = cloth_path[:-4]
                             pin_verts = self.find_all_cloth_pin_vertexes(cloth_path,
-                                                                         '<RGBA> { 1 0 0 1 }')
+                                                                         '<RGBA> { 1 1 1 1 }')
+
                             pins = json.dumps(pin_verts)
                             for vertex in json.loads(pins):
                                 soft_np.node().append_anchor(
-                                    soft_np.node().get_closest_node_index(Vec3(*vertex), True), pin.node())
+                                    soft_np.node().get_closest_node_index(Vec3(*vertex), True), pin.node(), False)
 
     def set_problemus_room_physics(self):
         if not self.ground_rb_np:
@@ -817,7 +838,7 @@ class PhysicsAttr:
             self.ground_rb_np.node().add_shape(ground_shape)
             self.ground_rb_np.set_pos(0, 0, 0)
             self.ground_rb_np.set_collide_mask(self.mask)
-            self.world.attach_rigid_body(self.ground_rb_np.node())
+            self.world.attach(self.ground_rb_np.node())
 
         if self.landscape_rb_np:
             self.world.remove_rigid_body(self.landscape_rb_np.node())
@@ -852,7 +873,7 @@ class PhysicsAttr:
                 self.landscape_rb_np = landscape.attach_new_node(BulletRigidBodyNode("Landscape_BN"))
                 self.landscape_rb_np.node().add_shape(shape)
                 self.landscape_rb_np.set_collide_mask(self.mask)
-                self.world.attach_rigid_body(self.landscape_rb_np.node())
+                self.world.attach(self.landscape_rb_np.node())
                 self.landscape_rb_np.set_pos(0, 0, 0)
 
         # Reparent actors back to World nodepath if they done with complex tasks

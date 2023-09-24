@@ -159,18 +159,16 @@ class MenuSettings:
 
             Output      : None
 
-            Return      : String or None
+            Return      : Boolean
         """
         if isinstance(data, str) and len(data) == 1:
             only_key_values = [v for x, v in loaded_settings['Keymap'].items()]
-            n = 1
-            for x in only_key_values:
-                if x is data:
-                    n = n + 1
-            if n == 2:
-                return None
-            elif n == 1:
-                return data
+
+            for key in only_key_values:
+                if data == key:
+                    return True
+
+        return False
 
     def load_settings(self):
         """ Function    : load_settings

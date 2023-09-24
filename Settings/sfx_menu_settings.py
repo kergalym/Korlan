@@ -4,6 +4,7 @@ from Settings.menu_settings import MenuSettings
 class Sound(MenuSettings):
     def __init__(self):
         MenuSettings.__init__(self)
+        self.loaded_settings = self.load_settings()
 
     def set_default_snd(self):
         """ Function    : set_default_snd
@@ -17,7 +18,7 @@ class Sound(MenuSettings):
             Return      : None
         """
         if self.load_settings():
-            loaded_settings = self.load_settings()
+            loaded_settings = self.loaded_settings
             loaded_settings['Main']['sound'] = 'on'
             loaded_settings['Main']['music'] = 'on'
             loaded_settings['Main']['sfx'] = 'on'
@@ -25,7 +26,7 @@ class Sound(MenuSettings):
                 loaded_settings.write(cfg_file)
 
     def get_sound_value(self):
-        loaded_settings = self.load_settings()
+        loaded_settings = self.loaded_settings
         if loaded_settings['Main']['sound'] == 'on':
             base.enable_all_audio()
             return 1
@@ -38,7 +39,7 @@ class Sound(MenuSettings):
         return sound_stat
 
     def get_music_value(self):
-        loaded_settings = self.load_settings()
+        loaded_settings = self.loaded_settings
         if loaded_settings['Main']['music'] == 'on':
             base.enable_music(True)
             return 1
@@ -51,7 +52,7 @@ class Sound(MenuSettings):
         return music_stat
 
     def get_sfx_value(self):
-        loaded_settings = self.load_settings()
+        loaded_settings = self.loaded_settings
         if loaded_settings['Main']['sfx'] == 'on':
             base.enable_sound_effects(True)
             return 1
@@ -64,21 +65,21 @@ class Sound(MenuSettings):
         return sfx_stat
 
     def save_sound_value(self, data):
-        loaded_settings = self.load_settings()
+        loaded_settings = self.loaded_settings
         if isinstance(data, str):
             loaded_settings['Main']['sound'] = data.lower()
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
 
     def save_music_value(self, data):
-        loaded_settings = self.load_settings()
+        loaded_settings = self.loaded_settings
         if isinstance(data, str):
             loaded_settings['Main']['music'] = data.lower()
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
 
     def save_sfx_value(self, data):
-        loaded_settings = self.load_settings()
+        loaded_settings = self.loaded_settings
         if isinstance(data, str):
             loaded_settings['Main']['sfx'] = data.lower()
             with open(self.cfg_path, "w") as cfg_file:

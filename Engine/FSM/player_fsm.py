@@ -49,6 +49,7 @@ class PlayerFSM(FSM):
                     else:
                         action = anim_names.a_anim_damage_rider
 
+                    self.base.sound.play_female_hurting()
                     any_action = actor.get_anim_control(action)
                     any_action_seq = actor.actor_interval(action)
                     if any_action and not any_action.is_playing():
@@ -86,6 +87,7 @@ class PlayerFSM(FSM):
                     if actor_bs:
                         if hasattr(actor_bs, "set_collision_response"):
                             actor_bs.node().set_collision_response(False)
+                    self.base.sound.play_female_dying()
                     any_action_seq = actor.actor_interval(action)
                     Sequence(Func(self.fsm_state_wrapper, "is_alive", False),
                              Func(self.fsm_state_wrapper, "is_busy", True),

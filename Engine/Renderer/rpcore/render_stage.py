@@ -94,7 +94,7 @@ class RenderStage(RPObject):
     @active.setter
     def active(self, state):
         """ Enables or disables this stage. In case the stage is disabled, it will
-        not get updated anymore, and all stages are distabled """
+        not get updated anymore, and all stages are disabled """
         if self._active != state:
             self._active = state
             for target in itervalues(self._targets):

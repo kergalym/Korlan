@@ -130,19 +130,14 @@ class Archery:
     def bow_shoot(self):
         if (self.arrow_brb_in_use
                 and self.arrow_ref):
-            # Calculate initial velocity
-            # velocity = self.target_pos - self.arrow_brb_in_use.get_pos()
-            # velocity = self.target_pos - self.bow.get_pos()
-            # velocity.normalize()
-            # velocity *= 100.0
-
             # Get Bullet Rigid Body wrapped arrow
             self.arrow_brb_in_use.node().set_kinematic(False)
             self.arrow_brb_in_use.set_collide_mask(BitMask32.bit(0))
             self.arrow_ref.set_python_tag("shot", 1)
             self.arrow_brb_in_use.wrt_reparent_to(render)
 
-            # self.arrow_brb_in_use.node().setLinearVelocity(velocity)
+            self.arrow_brb_in_use.node().apply_central_force(Vec3(0, 1, 0))
+            self.arrow_brb_in_use.node().set_angular_velocity(Vec3(0, -0.4, 0))
 
             # We record arrows which have been shot
             self.dropped_arrows.append(self.arrow_brb_in_use)
@@ -185,12 +180,6 @@ class Archery:
                     self.raytest_result = hit
                     break
 
-            """if self.base.game_settings['Debug']['set_debug_mode'] == 'YES':
-                if self.target_test_ui.is_hidden():
-                    self.target_test_ui.show()
-                if self.raytest_result:
-                    self.target_test_ui.setText(self.raytest_result.get_node().get_name())"""
-
         return task.cont
 
     def arrow_hit_check_task(self, task):
@@ -229,7 +218,7 @@ class Archery:
     def _on_contact_attach_arrow(self):
         physics_world_np = self.base.game_instance['physics_world_np']
         result = physics_world_np.contact_test_pair(self.arrow_brb_in_use.node(), self.target_np.node())
-        for contact in result.getContacts():
+        for contact in result.get_contacts():
             if ("NPC" not in contact.getNode1().name
                     and "Player" not in contact.getNode1().name):
                 self.arrow_brb_in_use.set_collide_mask(BitMask32.allOff())
@@ -257,6 +246,7 @@ class Archery:
                 self.target_np = render.find("**/{0}".format(name_bs))
 
                 if self.target_np:
+                    self.base.sound.play_arrow_hit()
                     self._on_contact_attach_arrow()
 
     def reset_arrow_charge(self):

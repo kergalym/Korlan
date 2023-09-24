@@ -25,6 +25,7 @@ class PlayerController:
         self.taskMgr = taskMgr
         self.kbd = Keyboard()
         self.mouse = Mouse()
+        self.base.game_instance["mouse_cls"] = self.mouse
         self.fsm_player = PlayerFSM()
         self.base.game_instance["player_fsm_cls"] = self.fsm_player
         self.sheet = None
@@ -40,6 +41,7 @@ class PlayerController:
         if (any_action.is_playing() is False
                 # and base.player_states['is_idle']
                 and base.player_states['is_attacked'] is False
+                and base.player_states["is_blocking"] is False
                 and base.player_states['is_busy'] is False
                 and base.player_states['is_using'] is False
                 and base.player_states['is_turning'] is False
@@ -95,6 +97,7 @@ class PlayerController:
         if (any_action.is_playing() is False
                 # and base.player_states['is_idle']
                 and base.player_states['is_attacked'] is False
+                and base.player_states["is_blocking"] is False
                 and base.player_states['is_busy'] is False
                 and base.player_states['is_using'] is False
                 and base.player_states['is_turning'] is False
@@ -163,9 +166,15 @@ class PlayerController:
             self.actions.player_block_action(player, "block", anims, anim_names.a_anim_blocking)
 
     def _regular_equip_actions(self, player, anims):
-        self.actions.player_get_sword_action(player, "sword", anims,
-                                             anim_names.a_anim_arm_sword)
-        self.actions.player_get_bow_action(player, "bow", anims, anim_names.a_anim_arm_bow)
+        if not self.base.game_instance["is_player_laying"]:
+            self.actions.player_get_sword_action(player, "sword", anims,
+                                                 anim_names.a_anim_arm_sword)
+            self.actions.player_get_bow_action(player, "bow", anims, anim_names.a_anim_arm_bow)
+
+        elif not self.base.game_instance["is_player_sitting"]:
+            self.actions.player_get_sword_action(player, "sword", anims,
+                                                 anim_names.a_anim_arm_sword)
+            self.actions.player_get_bow_action(player, "bow", anims, anim_names.a_anim_arm_bow)
 
     def _battle_actions(self, player, anims):
         if base.player_states['has_sword'] and not base.player_states['has_bow']:
@@ -244,7 +253,8 @@ class PlayerController:
             for key in base.player_states:
                 if key != "is_alive":
                     base.player_states[key] = False
-
+                else:
+                    base.player_states[key] = True
             self.base.game_instance['player_actions_init_is_activated'] = 0
             if self.game_settings['Debug']['set_editor_mode'] == 'YES':
                 self.player = player
@@ -261,6 +271,9 @@ class PlayerController:
                                                                joint_name="Korlan:Spine1"))
 
             elif self.game_settings['Debug']['set_editor_mode'] == 'NO':
+                # Set the field of view
+                self.base.game_instance["lens"].set_fov(self.base.game_instance["fov_indoor"])
+
                 self.player = player
                 self.kbd.keymap_init()
                 self.kbd.keymap_init_released()

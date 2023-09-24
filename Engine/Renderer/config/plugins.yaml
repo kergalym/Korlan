@@ -12,6 +12,8 @@ enabled:
 - clouds
 - env_probes
 - fxaa
+# - volumetrics
+# - vxgi
 overrides:
   ao:
     alchemy_max_distance: 5.86
@@ -40,9 +42,9 @@ overrides:
     ue4ao_sample_sequence: halton_2D_8
   bloom:
     bloom_strength: 0.8003
-    lens_dirt_factor: 0.0
+    lens_dirt_factor: 0.5
     num_mipmaps: 6
-    remove_fireflies: false
+    remove_fireflies: true
   clouds:
     raymarch_steps: 160
   color_correction:

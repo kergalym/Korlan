@@ -20,6 +20,13 @@ class PlayerDamages:
             physics_world_np = self.base.game_instance['physics_world_np']
             result = physics_world_np.contact_test_pair(parent_np.node(), hitbox_np.node())
             for contact in result.getContacts():
+
+                if base.player_states['has_sword']:
+                    self.base.sound.play_melee()
+
+                elif not base.player_states['has_sword']:
+                    self.base.sound.play_kicking()
+
                 hitbox_np.set_collide_mask(BitMask32.allOff())
                 if self.base.game_instance['hud_np']:
                     # Player gets damage if he has health point

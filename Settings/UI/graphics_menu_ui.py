@@ -717,6 +717,18 @@ class GraphicsMenuUI(Graphics):
         if not self.base.frame_int_gfx:
             return
 
+        # Write changes to disk
+        with open(self.cfg_path, "w") as cfg_file:
+            self.loaded_settings.write(cfg_file)
+
+        # Set resolution
+        data = self.loaded_settings['Main']['disp_res']
+        width, height = data.lower().split("x")
+        base.win_props.set_size(int(width), int(height))
+        base.win.request_properties(base.win_props)
+
+        self.base.game_instance["renderpipeline_np"].reload_shaders()
+
         if self.base.game_instance['current_active_frame']:
             self.base.game_instance['current_active_frame'].destroy()
 

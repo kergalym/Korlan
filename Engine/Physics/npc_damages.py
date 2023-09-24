@@ -36,6 +36,12 @@ class NpcDamages:
                                     actor.set_python_tag("enemy_npc_bs", npc_rb_np)
 
                 for contact in result.getContacts():
+
+                    if actor.get_python_tag("human_states")['has_sword']:
+                        self.base.sound.play_melee()
+                    elif not actor.get_python_tag("human_states")['has_sword']:
+                        self.base.sound.play_kicking()
+
                     hitbox_np.set_collide_mask(BitMask32.allOff())
                     if (actor.get_python_tag("health_np")
                             and not actor.get_python_tag("generic_states")['is_blocking']):

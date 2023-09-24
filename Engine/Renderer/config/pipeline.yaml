@@ -80,5 +80,5 @@ shadows:
     max_updates: 8
 
     # Sets the maximum distance until which shadows are updated. If a shadow
-    # source is further away, it will no longer recieve updates
+    # source is further away, it will no longer receive updates
     max_update_distance: 150.0

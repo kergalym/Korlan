@@ -9,6 +9,7 @@ class Graphics(MenuSettings):
         self.state_renderpipeline = 'OFF'
         self.game_dir = str(Path.cwd())
         MenuSettings.__init__(self)
+        self.loaded_settings = self.load_settings()
 
     def set_default_gfx(self):
         """ Function    : set_default_gfx
@@ -21,8 +22,8 @@ class Graphics(MenuSettings):
 
             Return      : None
         """
-        if self.load_settings():
-            loaded_settings = self.load_settings()
+        if self.loaded_settings:
+            loaded_settings = self.loaded_settings
             loaded_settings['Main']['dis_res'] = '1920x1080'
             loaded_settings['Main']['fullscreen'] = 'off'
             loaded_settings['Main']['antialiasing'] = 'on'
@@ -31,6 +32,9 @@ class Graphics(MenuSettings):
             loaded_settings['Main']['shadows'] = 'on'
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
+
+            base.win_props.set_size(1920, 1080)
+            base.win.request_properties(base.win_props)
 
     def load_disp_res(self):
         di = base.pipe.getDisplayInformation()
@@ -46,7 +50,7 @@ class Graphics(MenuSettings):
             return len(disp_res_count)
 
     def get_disp_res_value(self):
-        loaded_settings = self.load_settings()
+        loaded_settings = self.loaded_settings
         disp_res_dict = self.load_disp_res()
         num = 0
         for index in disp_res_dict:
@@ -59,7 +63,7 @@ class Graphics(MenuSettings):
         return details_stat
 
     def get_details_value(self):
-        loaded_settings = self.load_settings()
+        loaded_settings = self.loaded_settings
         if loaded_settings['Main']['details'] == 'low':
             return 1
         elif loaded_settings['Main']['details'] == 'medium':
@@ -72,7 +76,7 @@ class Graphics(MenuSettings):
         return textures_stat
 
     def get_texcomp_value(self):
-        loaded_settings = self.load_settings()
+        loaded_settings = self.loaded_settings
         if loaded_settings['Main']['texture_compression'] == 'default':
             return 1
         elif loaded_settings['Main']['texture_compression'] == 'inactive':
@@ -85,7 +89,7 @@ class Graphics(MenuSettings):
         return shadows_stat
 
     def get_shadows_value(self):
-        loaded_settings = self.load_settings()
+        loaded_settings = self.loaded_settings
         if loaded_settings['Main']['shadows'] == 'off':
             return 1
         elif loaded_settings['Main']['shadows'] == 'on':
@@ -96,7 +100,7 @@ class Graphics(MenuSettings):
         return antial_stat
 
     def get_antial_value(self):
-        loaded_settings = self.load_settings()
+        loaded_settings = self.loaded_settings
         if loaded_settings['Main']['antialiasing'] == 'off':
             return 1
         elif loaded_settings['Main']['antialiasing'] == 'on':
@@ -268,39 +272,31 @@ class Graphics(MenuSettings):
                 return 1
 
     def save_disp_res_value(self, data):
-        loaded_settings = self.load_settings()
+        loaded_settings = self.loaded_settings
         if isinstance(data, str):
             loaded_settings['Main']['disp_res'] = data.lower()
-            with open(self.cfg_path, "w") as cfg_file:
-                loaded_settings.write(cfg_file)
 
     def save_details_value(self, data):
-        loaded_settings = self.load_settings()
+        loaded_settings = self.loaded_settings
         if isinstance(data, str):
             loaded_settings['Main']['details'] = data.lower()
             with open(self.cfg_path, "w") as cfg_file:
                 loaded_settings.write(cfg_file)
 
     def save_texcomp_value(self, data):
-        loaded_settings = self.load_settings()
+        loaded_settings = self.loaded_settings
         if isinstance(data, str):
             loaded_settings['Main']['texture_compression'] = data.lower()
-            with open(self.cfg_path, "w") as cfg_file:
-                loaded_settings.write(cfg_file)
 
     def save_shadows_value(self, data):
-        loaded_settings = self.load_settings()
+        loaded_settings = self.loaded_settings
         if isinstance(data, str):
             loaded_settings['Main']['shadows'] = data.lower()
-            with open(self.cfg_path, "w") as cfg_file:
-                loaded_settings.write(cfg_file)
 
     def save_antial_value(self, data):
-        loaded_settings = self.load_settings()
+        loaded_settings = self.loaded_settings
         if isinstance(data, str):
             loaded_settings['Main']['antialiasing'] = data.lower()
-            with open(self.cfg_path, "w") as cfg_file:
-                loaded_settings.write(cfg_file)
 
     def save_ao_value(self, data):
         if data and isinstance(data, str):

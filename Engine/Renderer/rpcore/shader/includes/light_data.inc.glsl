@@ -50,7 +50,7 @@ bool get_casts_shadows(LightData data) {
     return get_shadow_source_index(data) >= 0;
 }
 
-// Extracts the light render_attr space position
+// Extracts the light world space position
 vec3 get_light_position(LightData data) {
     return vec3(data.Data0.w, data.Data1.xy);
 }

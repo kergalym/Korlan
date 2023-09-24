@@ -29,11 +29,6 @@
 // Main configuration file, included by all shaders, provides generic defines
 // and functions.
 
-// Leads to some compilation issues
-#ifndef NO_FAST_PRECISION
-#pragma optionNV (fastprecision on)
-#endif
-
 #pragma include "/$$rptemp/$$pipeline_shader_config.inc.glsl"
 
 // Optionally unroll *all* loops, this might be faster, but might also be
@@ -71,7 +66,7 @@
 #define GET_ENUM_VALUE(PLUGIN_NAME, SETTING_NAME, ENUM_KEY) (enum_ ##PLUGIN_NAME ## _ ## SETTING_NAME ## _ ## ENUM_KEY)
 #define ENUM_V_ACTIVE(PLUGIN_NAME, SETTING_NAME, ENUM_KEY) (HAVE_PLUGIN(PLUGIN_NAME) && GET_SETTING(PLUGIN_NAME, SETTING_NAME) && GET_SETTING(PLUGIN_NAME, SETTING_NAME) == GET_ENUM_VALUE(PLUGIN_NAME, SETTING_NAME, ENUM_KEY))
 
-// Renderer mode functions
+// Render mode functions
 #define DEBUG_MODE ANY_DEBUG_MODE
 #define MODE_ACTIVE(MODE_ID) (DEBUG_MODE && (_RM_ ## MODE_ID))
 #define SPECIAL_MODE_ACTIVE(MODE_ID) (_RM_ ## MODE_ID)

@@ -159,15 +159,17 @@ class PlayerMovement:
                 Sequence(Parallel(Func(seq_turning_wrapper, actor, anims, "left_turn", 'loop'),
                                   Func(self.state.set_action_state, "is_turning", True)),
                          ).start()
+                self.base.sound.play_turning()
+
             if (not self.kbd.keymap["forward"]
                     and not self.kbd.keymap["run"]
                     and self.kbd.keymap["right"]):
                 Sequence(Parallel(Func(seq_turning_wrapper, actor, anims, "right_turn", 'loop'),
                                   Func(self.state.set_action_state, "is_turning", True)),
                          ).start()
+                self.base.sound.play_turning()
 
         # Stop turning in place
-
         if (not self.kbd.keymap["forward"]
                 and not self.kbd.keymap["run"]
                 and not self.kbd.keymap["left"]):
@@ -175,6 +177,8 @@ class PlayerMovement:
                 Sequence(Parallel(Func(seq_turning_wrapper, actor, anims, "left_turn", 'stop'),
                                   Func(self.state.set_action_state, "is_turning", False)),
                          ).start()
+                self.base.sound.stop_turning()
+
         if (not self.kbd.keymap["forward"]
                 and not self.kbd.keymap["run"]
                 and not self.kbd.keymap["right"]):
@@ -182,6 +186,7 @@ class PlayerMovement:
                 Sequence(Parallel(Func(seq_turning_wrapper, actor, anims, "right_turn", 'stop'),
                                   Func(self.state.set_action_state, "is_turning", False)),
                          ).start()
+                self.base.sound.stop_turning()
 
     def decrement_stamina_while_running(self, player, move_unit):
         # Get the time that elapsed since last frame
@@ -212,13 +217,13 @@ class PlayerMovement:
                 and not self.kbd.keymap["attack"]
                 and not self.kbd.keymap["block"]):
             # If a move-key is pressed, move the player in the specified direction.
-            speed = Vec3(0, 0, 0)
+            force = Vec3(0, 0, 0)
+            torque = Vec3(0, 0, 0)
             omega = 0.0
-            move_unit = 2
+            speed = 2
 
             # Get the time that elapsed since last frame
             dt = globalClock.getDt()
-
             self.turning_in_place(player, anims, self.seq_turning_wrapper)
 
             # Forward walk
@@ -231,9 +236,16 @@ class PlayerMovement:
                 if base.input_state.is_set('forward'):
                     if str(self.base.game_instance['player_controller'].type) != "BulletCharacterControllerNode":
                         player_rb_np = self.base.game_instance["player_np"]
-                        player_rb_np.set_y(player_rb_np, -move_unit * dt)
+                        player_rb_np.set_y(player_rb_np, -speed * dt)
+                        force.set_y(-speed)
+                        force *= 10
                     else:
-                        speed.set_y(-move_unit)
+                        force.set_y(-speed)
+                else:
+                    player_rb_np = self.base.game_instance["player_np"]
+                    lin_vec_z = player_rb_np.node().get_linear_velocity()[2]
+                    player_rb_np.node().set_active(True)
+                    player_rb_np.node().set_linear_velocity(Vec3(0, 0, lin_vec_z))
 
             # Backward
             if (self.kbd.keymap["backward"]
@@ -246,9 +258,16 @@ class PlayerMovement:
                 if base.input_state.is_set('reverse'):
                     if str(self.base.game_instance['player_controller'].type) != "BulletCharacterControllerNode":
                         player_rb_np = self.base.game_instance["player_np"]
-                        player_rb_np.set_y(player_rb_np, move_unit * dt)
+                        player_rb_np.set_y(player_rb_np, speed * dt)
+                        force.set_y(speed)
+                        force *= 30
                     else:
-                        speed.set_y(move_unit)
+                        force.set_y(speed)
+                else:
+                    player_rb_np = self.base.game_instance["player_np"]
+                    lin_vec_z = player_rb_np.node().get_linear_velocity()[2]
+                    player_rb_np.node().set_active(True)
+                    player_rb_np.node().set_linear_velocity(Vec3(0, 0, lin_vec_z))
 
             # Forward crouch walk
             if (self.kbd.keymap["forward"]
@@ -258,13 +277,26 @@ class PlayerMovement:
                 if base.input_state.is_set('forward'):
                     if str(self.base.game_instance['player_controller'].type) != "BulletCharacterControllerNode":
                         player_rb_np = self.base.game_instance["player_np"]
-                        player_rb_np.set_y(player_rb_np, -move_unit * dt)
+                        player_rb_np.set_y(player_rb_np, -speed * dt)
+                        force.set_y(-speed)
+                        force *= 10
                     else:
-                        speed.set_y(-move_unit)
+                        force.set_y(-speed)
+                else:
+                    player_rb_np = self.base.game_instance["player_np"]
+                    lin_vec_z = player_rb_np.node().get_linear_velocity()[2]
+                    player_rb_np.node().set_active(True)
+                    player_rb_np.node().set_linear_velocity(Vec3(0, 0, lin_vec_z))
+
+            player_rb_np = self.base.game_instance["player_np"]
+            force = render.getRelativeVector(player_rb_np, force)
+            player_rb_np.node().set_active(True)
+            player_rb_np.node().apply_central_force(force)
+            player_rb_np.node().apply_torque(torque)
 
             if self.base.game_instance['player_controller']:
                 if str(self.base.game_instance['player_controller'].type) == "BulletCharacterControllerNode":
-                    self.base.game_instance['player_controller'].set_linear_movement(speed, True)
+                    self.base.game_instance['player_controller'].set_linear_movement(force, True)
                     self.base.game_instance['player_controller'].set_angular_movement(omega)
 
             # If the player does action, loop the animation through messenger.
@@ -279,12 +311,14 @@ class PlayerMovement:
                     Sequence(Parallel(Func(self.seq_move_wrapper, player, anims, 'loop'),
                                       Func(self.state.set_action_state, "is_moving", True)),
                              ).start()
+                    self.base.sound.play_walking()
             else:
                 # Stop animation
                 if base.player_states['is_moving']:
                     Sequence(Func(self.seq_move_wrapper, player, anims, 'stop'),
                              Func(self.state.set_action_state, "is_moving", False)
                              ).start()
+                    self.base.sound.stop_walking()
 
             if base.player_states['is_crouch_moving']:
                 if (self.kbd.keymap["forward"]
@@ -296,9 +330,11 @@ class PlayerMovement:
                     if not base.player_states['is_idle']:
                         Sequence(Func(self.seq_crouch_move_wrapper, player, anims, 'loop')
                                  ).start()
+                        self.base.sound.play_walking()
                 else:
                     if base.player_states['is_crouch_moving']:
                         Sequence(Func(self.seq_crouch_move_wrapper, player, anims, 'stop')).start()
+                        self.base.sound.stop_walking()
 
     def player_run_action(self, player, anims):
         if player:
@@ -307,22 +343,36 @@ class PlayerMovement:
                     and not self.kbd.keymap["backward"]
                     and self.kbd.keymap["run"]
                     and player.get_python_tag('stamina') <= 10):
-                speed = Vec3(0, 0, 0)
+                force = Vec3(0, 0, 0)
+                torque = Vec3(0, 0, 0)
                 omega = 0.0
-                move_unit = 2
+                speed = 2
 
                 if base.input_state.is_set('forward'):
                     if str(self.base.game_instance['player_controller'].type) != "BulletCharacterControllerNode":
                         # Get the time that elapsed since last frame
                         dt = globalClock.getDt()
                         player_rb_np = self.base.game_instance["player_np"]
-                        player_rb_np.set_y(player_rb_np, -move_unit * dt)
+                        player_rb_np.set_y(player_rb_np, -speed * dt)
+                        force *= 10
+                        force.set_y(-speed)
                     else:
-                        speed.set_y(-move_unit)
+                        force.set_y(-speed)
+                else:
+                    player_rb_np = self.base.game_instance["player_np"]
+                    lin_vec_z = player_rb_np.node().get_linear_velocity()[2]
+                    player_rb_np.node().set_active(True)
+                    player_rb_np.node().set_linear_velocity(Vec3(0, 0, lin_vec_z))
+
                 if self.base.game_instance['player_controller']:
                     if str(player.node().type) == "BulletCharacterControllerNode":
-                        self.base.game_instance['player_controller'].set_linear_movement(speed, True)
+                        self.base.game_instance['player_controller'].set_linear_movement(force, True)
                         self.base.game_instance['player_controller'].set_angular_movement(omega)
+
+                player_rb_np = self.base.game_instance["player_np"]
+                player_rb_np.node().set_active(True)
+                player_rb_np.node().apply_central_force(force)
+                player_rb_np.node().apply_torque(torque)
 
                 Sequence(Func(self.seq_move_wrapper, player, anims, 'loop')
                          ).start()
@@ -346,10 +396,11 @@ class PlayerMovement:
                         and not self.kbd.keymap["attack"]
                         and not self.kbd.keymap["block"]):
                     # If a move-key is pressed, move the player in the specified direction.
-                    speed = Vec3(0, 0, 0)
-                    move_unit = 5
+                    force = Vec3(0, 0, 0)
+                    torque = Vec3(0, 0, 0)
+                    speed = 5
 
-                    self.decrement_stamina_while_running(player, move_unit)
+                    self.decrement_stamina_while_running(player, speed)
 
                     if (self.kbd.keymap["forward"]
                             and not self.kbd.keymap["backward"]
@@ -359,13 +410,26 @@ class PlayerMovement:
                                 # Get the time that elapsed since last frame
                                 dt = globalClock.getDt()
                                 player_rb_np = self.base.game_instance["player_np"]
-                                player_rb_np.set_y(player_rb_np, -move_unit * dt)
+                                # player_rb_np.set_y(player_rb_np, -speed * dt)
+                                force *= 10
+                                force.set_y(-speed)
                             else:
-                                speed.set_y(-move_unit)
+                                force.set_y(-speed)
 
                             if self.base.game_instance['player_controller']:
                                 if str(self.base.game_instance['player_controller'].type) == "BulletCharacterControllerNode":
-                                    self.base.game_instance['player_controller'].set_linear_movement(speed, True)
+                                    self.base.game_instance['player_controller'].set_linear_movement(force, True)
+                        else:
+                            player_rb_np = self.base.game_instance["player_np"]
+                            lin_vec_z = player_rb_np.node().get_linear_velocity()[2]
+                            player_rb_np.node().set_active(True)
+                            player_rb_np.node().set_linear_velocity(Vec3(0, 0, lin_vec_z))
+
+                    player_rb_np = self.base.game_instance["player_np"]
+                    force = render.getRelativeVector(player_rb_np, force)
+                    player_rb_np.node().set_active(True)
+                    player_rb_np.node().apply_central_force(force)
+                    player_rb_np.node().apply_torque(torque)
 
                     # If the player does action, loop the animation.
                     # If it is standing still, stop the animation.
@@ -381,6 +445,8 @@ class PlayerMovement:
                                 and player.get_python_tag('stamina') > 3):
                             Sequence(Func(self.seq_run_wrapper, player, anims, 'loop')
                                      ).start()
+
+                            self.base.sound.play_running()
                     else:
                         # Stop animation
                         if (base.player_states['is_running']
@@ -390,11 +456,13 @@ class PlayerMovement:
                             Sequence(Func(self.seq_run_wrapper, player, anims, 'stop'),
                                      Func(self.state.set_action_state, "is_running", False)
                                      ).start()
+                            self.base.sound.stop_running()
 
                         if not self.kbd.keymap["run"] and player.get_python_tag('stamina') < 2:
                             Sequence(Func(self.seq_run_wrapper, player, anims, 'stop'),
                                      Func(self.state.set_action_state, "is_running", False)
                                      ).start()
+                            self.base.sound.stop_running()
 
     def horse_riding_movement_action(self, anims):
         if (isinstance(anims, dict)
@@ -410,7 +478,9 @@ class PlayerMovement:
                 player = self.base.game_instance['actors_ref'][horse_name]
                 horse_rb_np = render.find("**/{0}:BS".format(horse_name))
 
-                move_unit = 2
+                force = Vec3(0, 0, 0)
+                torque = Vec3(0, 0, 0)
+                speed = 2
 
                 # Get the time that elapsed since last frame
                 dt = globalClock.getDt()
@@ -429,11 +499,29 @@ class PlayerMovement:
                         and not self.kbd.keymap["backward"]
                         and self.kbd.keymap["run"] is False):
                     if base.input_state.is_set('forward'):
-                        horse_rb_np.set_y(horse_rb_np, -move_unit * dt)
+                        horse_rb_np.set_y(horse_rb_np, -speed * dt)
+                        force.set_y(-speed)
+                        force *= 10
+                    else:
+                        lin_vec_z = horse_rb_np.node().get_linear_velocity()[2]
+                        horse_rb_np.node().set_active(True)
+                        horse_rb_np.node().set_linear_velocity(Vec3(0, 0, lin_vec_z))
+
                 if (self.kbd.keymap["backward"]
                         and self.kbd.keymap["run"] is False):
                     if base.input_state.is_set('reverse'):
-                        horse_rb_np.set_y(horse_rb_np, move_unit * dt)
+                        horse_rb_np.set_y(horse_rb_np, speed * dt)
+                        force.set_y(-speed)
+                        force *= 10
+                    else:
+                        lin_vec_z = horse_rb_np.node().get_linear_velocity()[2]
+                        horse_rb_np.node().set_active(True)
+                        horse_rb_np.node().set_linear_velocity(Vec3(0, 0, lin_vec_z))
+
+                horse_rb_np.node().set_active(True)
+                force = render.getRelativeVector(horse_rb_np, force)
+                horse_rb_np.node().apply_central_force(force)
+                horse_rb_np.node().apply_torque(torque)
 
                 # If the player does action, loop the animation through messenger.
                 if (self.kbd.keymap["forward"]
@@ -491,9 +579,11 @@ class PlayerMovement:
                 player = self.base.game_instance['actors_ref'][horse_name]
                 horse_rb_np = render.find("**/{0}:BS".format(horse_name))
 
-                move_unit = 7
+                force = Vec3(0, 0, 0)
+                torque = Vec3(0, 0, 0)
+                speed = 7
 
-                self.decrement_stamina_while_running(player, move_unit)
+                self.decrement_stamina_while_running(player, speed)
 
                 # Get the time that elapsed since last frame
                 dt = globalClock.getDt()
@@ -502,7 +592,18 @@ class PlayerMovement:
                         and not self.kbd.keymap["backward"]
                         and self.kbd.keymap["run"]):
                     if base.input_state.is_set('forward'):
-                        horse_rb_np.set_y(horse_rb_np, -move_unit * dt)
+                        horse_rb_np.set_y(horse_rb_np, -speed * dt)
+                        force.set_y(-speed)
+                        force *= 10
+                    else:
+                        lin_vec_z = horse_rb_np.node().get_linear_velocity()[2]
+                        horse_rb_np.node().set_active(True)
+                        horse_rb_np.node().set_linear_velocity(Vec3(0, 0, lin_vec_z))
+
+                horse_rb_np.node().set_active(True)
+                force = render.getRelativeVector(horse_rb_np, force)
+                horse_rb_np.node().apply_central_force(force)
+                horse_rb_np.node().apply_torque(torque)
 
                 # If the player does action, loop the animation.
                 # If it is standing still, stop the animation.

@@ -1,7 +1,7 @@
 from direct.gui.DirectLabel import DirectLabel
 from direct.gui.OnscreenImage import OnscreenImage
 from direct.gui.OnscreenText import OnscreenText
-from panda3d.core import TransparencyAttrib, TextNode, FontPool
+from panda3d.core import TransparencyAttrib, TextNode, FontPool, PandaNode, NodePath
 from direct.gui.DirectGui import DirectWaitBar
 from direct.gui.DirectGui import DirectFrame
 
@@ -61,6 +61,8 @@ class HUD:
         self.crosshair_ui.set_pos(self.crosshair_ui_pos)
         self.crosshair_ui.set_transparency(TransparencyAttrib.MAlpha)
         self.crosshair_ui.set_scale(self.crosshair_ui_scale)
+        self.crosshair_ui.setDepthTest(False)
+        self.crosshair_ui.setBin('fixed', 0)
         self.crosshair_ui.hide()
         self.base.game_instance['crosshair_ui'] = self.crosshair_ui
 

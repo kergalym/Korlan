@@ -66,6 +66,7 @@ class NpcFSM(FSM):
             any_action = actor.get_anim_control(action)
             actor.set_play_rate(self.base.game_instance["current_play_rate"], action)
 
+            self.base.sound.stop_walking()
             if isinstance(task, str):
                 if task == "play":
                     if not any_action.is_playing():
@@ -74,11 +75,18 @@ class NpcFSM(FSM):
                     if not any_action.is_playing():
                         actor.loop(action)
 
+    def filterWalk(self, request, args):
+        if request not in ['Walk']:
+            return (request,) + args
+        else:
+            return None
+
     def enterWalk(self, actor, action, task):
         if actor and action and task:
             any_action = actor.get_anim_control(action)
             actor.set_play_rate(self.base.game_instance["current_play_rate"], action)
 
+            self.base.sound.play_walking()
             if isinstance(task, str):
                 if task == "play":
                     if not any_action.is_playing():
@@ -89,6 +97,8 @@ class NpcFSM(FSM):
 
     def enterTurn(self, actor, action, task):
         if actor and action and task:
+
+            self.base.sound.play_walking()
             if isinstance(task, str):
                 if task == "play":
                     any_action_seq = actor.actor_interval(action, playRate=self.base.game_instance["current_play_rate"])
@@ -106,6 +116,8 @@ class NpcFSM(FSM):
                         self.archery.start_archery_helper_tasks(),
 
                     if not any_action.is_playing():
+
+                        self.base.sound.play_picking()
                         has_weapon = "has_{0}".format(weapon_name)
                         any_action_seq = actor.actor_interval(action, 
                                                               playRate=self.base.game_instance["current_play_rate"])
@@ -126,6 +138,8 @@ class NpcFSM(FSM):
                         self.archery.stop_archery_helper_tasks(),
 
                     if not any_action.is_playing():
+
+                        self.base.sound.play_picking()
                         has_weapon = "has_{0}".format(weapon_name)
                         any_action_seq = actor.actor_interval(action, 
                                                               playRate=self.base.game_instance["current_play_rate"])
@@ -245,11 +259,11 @@ class NpcFSM(FSM):
                 # revert rider collider back
                 reparent_to_render = Func(child.reparent_to, render)
                 set_rigid_body = Func(physics_attr.set_rigid_body_nodepath_with_shape, actor, child)
-                # Set player near of previous state
+                # Set npc near of previous state
                 set_near_pos = Parallel(Func(child.set_x, horse_near_pos[0]),
                                         Func(child.set_y, horse_near_pos[1]),
                                         Func(actor.set_z, mesh_default_z_pos),
-                                        Func(child.set_z, parent_rb_np.get_z()+2))
+                                        Func(child.set_z, parent_rb_np.get_z()))
                 # Finalize unmounting
                 set_unmounting_states = Parallel(
                     Func(self.fsm_state_wrapper, actor, "generic_states", "is_using", False),
@@ -257,7 +271,8 @@ class NpcFSM(FSM):
                     Func(self.fsm_state_wrapper, actor, "human_states", "is_on_horse", False),
                     Func(parent_rb_np.get_child(0).set_python_tag, "is_mounted", False),
                     Func(actor.set_python_tag, "current_task", None),
-                    Func(actor.set_python_tag, "mounted_horse", None))
+                    Func(actor.set_python_tag, "mounted_horse", None),
+                    Func(actor.set_z, -0.9))
 
                 self.unmount_sequence[actor_name].append(set_use_false)
                 self.unmount_sequence[actor_name].append(play_unmount_anim)
@@ -295,7 +310,7 @@ class NpcFSM(FSM):
             if isinstance(task, str):
                 if task == "play":
                     if not any_action.is_playing():
-                        any_action_seq = actor.actor_interval(action, 
+                        any_action_seq = actor.actor_interval(action,
                                                               playRate=self.base.game_instance["current_play_rate"])
                         Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", True),
                                  Func(hitbox_np.set_collide_mask, BitMask32.bit(1)),
@@ -367,17 +382,7 @@ class NpcFSM(FSM):
                              any_action_seq,
                              Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", False)).start()
 
-    def enterForwardStep(self, actor, action, task):
-        if actor and action and task:
-            if isinstance(task, str):
-                if task == "play":
-                    any_action_seq = actor.actor_interval(action,
-                                                          playRate=self.base.game_instance["current_play_rate"])
-                    Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", True),
-                             any_action_seq,
-                             Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", False)).start()
-
-    def enterBackwardStep(self, actor, action, task):
+    def enterCounterAttack(self, actor, action, task):
         if actor and action and task:
             if isinstance(task, str):
                 if task == "play":
@@ -391,6 +396,9 @@ class NpcFSM(FSM):
         if actor and action and task and isinstance(action, str):
             if isinstance(task, str):
                 if task == "play":
+
+                    self.base.sound.play_kicking()
+
                     any_action_seq = actor.actor_interval(action,
                                                           playRate=self.base.game_instance["current_play_rate"])
                     Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", True),
@@ -401,6 +409,9 @@ class NpcFSM(FSM):
         if actor and action and task and isinstance(action, str):
             if isinstance(task, str):
                 if task == "play":
+
+                    self.base.sound.play_punching()
+
                     any_action_seq = actor.actor_interval(action,
                                                           playRate=self.base.game_instance["current_play_rate"])
                     Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_busy", True),
@@ -465,6 +476,7 @@ class NpcFSM(FSM):
                         action = name
 
                     if action != '':
+                        self.base.sound.play_male_hurting()
                         any_action_seq = actor.actor_interval(action,
                                                               playRate=self.base.game_instance["current_play_rate"])
                         Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_attacked", True),
@@ -485,6 +497,7 @@ class NpcFSM(FSM):
         if actor and action and task:
             if isinstance(task, str):
                 if task == "play":
+                    self.base.sound.play_male_dying()
                     actor.get_parent().set_collide_mask(BitMask32.bit(0))
                     any_action_seq = actor.actor_interval(action,
                                                           playRate=self.base.game_instance["current_play_rate"])
@@ -566,6 +579,7 @@ class NpcFSM(FSM):
         if actor and action and task and isinstance(action, str):
             if isinstance(task, str):
                 if task == "play":
+                    self.base.sound.play_jump()
                     any_action_seq = actor.actor_interval(action,
                                                           playRate=self.base.game_instance["current_play_rate"])
                     Sequence(Func(self.fsm_state_wrapper, actor, "generic_states", "is_jumping", True),

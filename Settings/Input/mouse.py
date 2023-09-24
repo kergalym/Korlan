@@ -23,6 +23,7 @@ class Mouse:
         self.last = 0
         self.cam_y_back_pos = -4.6
         self.cam_y_back_pos_close = -1
+        self.cam_y_back_pos_rider_close = -3.5
         self.cam_y_back_pos_current = 0
         self.base.game_instance["mouse_y_cam"] = self.cam_y_back_pos
         self.keymap = {
@@ -296,7 +297,9 @@ class Mouse:
                     if not self.base.game_instance['is_aiming']:
                         self.reset_rotated_player_joints()
                         self.on_mouse_look_around_player(x, y)
-                        self.on_mouse_rotate_player(x, y)
+
+                        if self.base.player_states['is_alive']:
+                            self.on_mouse_rotate_player(x, y)
 
                     elif self.base.game_instance['is_aiming']:
                         if self.base.game_instance['arrow_count'] > 1:
@@ -324,8 +327,12 @@ class Mouse:
         if (not self.base.game_instance['ui_mode']
                 and not self.base.game_instance["item_menu_mode"]
                 and not self.base.game_instance['menu_mode']):
-            if not self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
-                if int(base.camera.get_y()) != self.cam_y_back_pos_close:
+            if self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
+                if abs(int(base.camera.get_y())) > abs(self.cam_y_back_pos_rider_close):
+                    self.cam_y_back_pos_current = base.camera.get_y() + 0.5
+                    base.camera.set_y(self.cam_y_back_pos_current)
+            else:
+                if abs(int(base.camera.get_y())) > abs(self.cam_y_back_pos_close):
                     self.cam_y_back_pos_current = base.camera.get_y() + 0.5
                     base.camera.set_y(self.cam_y_back_pos_current)
 
@@ -333,10 +340,48 @@ class Mouse:
         if (not self.base.game_instance['ui_mode']
                 and not self.base.game_instance["item_menu_mode"]
                 and not self.base.game_instance['menu_mode']):
-            if not self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
-                if round(base.camera.get_y(), 1) != self.cam_y_back_pos:
+            if self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
+                if abs(round(base.camera.get_y(), 1)) < abs(self.cam_y_back_pos):
                     self.cam_y_back_pos_current = base.camera.get_y() - 0.5
                     base.camera.set_y(self.cam_y_back_pos_current)
+            else:
+                if abs(round(base.camera.get_y(), 1)) < abs(self.cam_y_back_pos):
+                    self.cam_y_back_pos_current = base.camera.get_y() - 0.5
+                    base.camera.set_y(self.cam_y_back_pos_current)
+
+    def cam_zoom_in_task(self, task):
+        if self.base.game_instance['menu_mode']:
+            return task.done
+
+        if (not self.base.game_instance['ui_mode']
+                and not self.base.game_instance["item_menu_mode"]
+                and not self.base.game_instance['menu_mode']):
+            dt = globalClock.getDt()
+
+            if self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
+                if abs(int(base.camera.get_y())) > abs(self.cam_y_back_pos_rider_close)//1.2:
+                    base.camera.set_y(base.camera, 3*dt)
+                else:
+                    return task.done
+
+        return task.cont
+
+    def cam_zoom_out_task(self, task):
+        if self.base.game_instance['menu_mode']:
+            return task.done
+
+        if (not self.base.game_instance['ui_mode']
+                and not self.base.game_instance["item_menu_mode"]
+                and not self.base.game_instance['menu_mode']):
+            dt = globalClock.getDt()
+
+            if self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
+                if abs(round(base.camera.get_y(), 1)) < abs(self.cam_y_back_pos)//1.2:
+                    base.camera.set_y(base.camera, -3*dt)
+                else:
+                    return task.done
+
+        return task.cont
 
     def set_mouse_mode(self, mode):
         """ Function    : set_mouse_mode
