@@ -48,6 +48,22 @@ class NpcTriggers:
 
         actor_rb_np.node().set_restitution(0.01)
 
+    def _clear_forces_mounted_animal(self, actor_rb_np):
+        # Keep Player from being hardly pushed if it has stayed
+        ang_vec_z = actor_rb_np.node().get_angular_velocity()[2]
+        imp_z_vec = actor_rb_np.node().get_total_torque()[2]
+        actor_rb_np.node().apply_central_impulse(Vec3(0, 0, imp_z_vec))
+        actor_rb_np.node().set_angular_velocity(Vec3(0, 0, ang_vec_z))
+
+        # Disabling movement and rotation forces
+        actor_rb_np.node().set_angular_factor(Vec3(0, 1, 0))  # disables rotation
+
+        actor_rb_np.node().set_angular_damping(0.2)  # stop sliding vertically
+        actor_rb_np.node().set_linear_damping(0.2)  # stop sliding horizontally
+
+        actor_rb_np.node().set_restitution(0.001)
+        # actor_rb_np.node().set_friction(0.010)
+
     def mountable_animal_area_trigger_task(self, animal_actor, task):
         if self.base.game_instance['menu_mode']:
             if animal_actor and animal_actor.get_python_tag("npc_hud_np"):
@@ -75,7 +91,10 @@ class NpcTriggers:
 
                 # Keep NPC from being hardly pushed if it has stayed
                 if str(actor_rb_np.node().type) != "BulletCharacterControllerNode":
-                    self._clear_forces(actor_rb_np)
+                    if animal_actor.get_python_tag("is_mounted"):
+                        self._clear_forces_mounted_animal(actor_rb_np)
+                    elif not animal_actor.get_python_tag("is_mounted"):
+                        self._clear_forces(actor_rb_np)
 
                 for node in trigger.get_overlapping_nodes():
                     # ignore trigger itself and ground both

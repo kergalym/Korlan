@@ -35,31 +35,20 @@ class PlayerTrigger:
         if self.base.game_instance['menu_mode']:
             return task.done
 
-        # Keep NPC from being hardly pushed if it has stayed
-        force_z_vec = actor_rb_np.node().get_total_force()[2]
-        imp_z_vec = actor_rb_np.node().get_total_torque()[2]
-        lin_vec_z = actor_rb_np.node().get_linear_velocity()[2]
+        # Keep Player from being hardly pushed if it has stayed
         ang_vec_z = actor_rb_np.node().get_angular_velocity()[2]
-
-        actor_rb_np.node().apply_central_force(Vec3(0, 0, force_z_vec))
+        imp_z_vec = actor_rb_np.node().get_total_torque()[2]
         actor_rb_np.node().apply_central_impulse(Vec3(0, 0, imp_z_vec))
-        actor_rb_np.node().apply_torque_impulse(Vec3(0, 0, imp_z_vec))
-        actor_rb_np.node().set_linear_velocity(Vec3(0, 0, lin_vec_z))
         actor_rb_np.node().set_angular_velocity(Vec3(0, 0, ang_vec_z))
 
         # Disabling movement and rotation forces
         actor_rb_np.node().set_angular_factor(Vec3(0, 1, 0))  # disables rotation
-        actor_rb_np.node().set_linear_factor(Vec3(1, 0, 1))  # disables rotation
 
-        actor_rb_np.node().apply_torque(Vec3(0, 0, 0))
-        actor_rb_np.node().clearForces()
-        actor_rb_np.node().set_angular_damping(0)  # stop sliding vertically
-        actor_rb_np.node().set_linear_damping(0)  # stop sliding horizontally
-        actor_rb_np.node().set_linear_sleep_threshold(0)
-        actor_rb_np.node().set_angular_sleep_threshold(0)
-        actor_rb_np.node().set_deactivation_time(0.01)
+        actor_rb_np.node().set_angular_damping(0.2)  # stop sliding vertically
+        actor_rb_np.node().set_linear_damping(0.2)  # stop sliding horizontally
 
-        actor_rb_np.node().set_restitution(0.01)
+        actor_rb_np.node().set_restitution(0.001)
+        # actor_rb_np.node().set_friction(0.010)
 
         # Disable shape pitching and rotating
         actor_rb_np.set_p(0)

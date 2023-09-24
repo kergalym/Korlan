@@ -175,9 +175,9 @@ class PlayerArchery:
         if self.base.game_instance['physics_world_np']:
             mouse_watch = base.mouseWatcherNode
             if mouse_watch.has_mouse():
-                pos_mouse = base.mouseWatcherNode.get_mouse()
-                self.pos_from = Point3()
-                self.pos_to = Point3()
+                # pos_mouse = base.mouseWatcherNode.get_mouse()
+                self.pos_from = Point3(0, -4, 0.5)
+                self.pos_to = self.pos_from + Vec3(0, 1, 0.5) * 99999
                 # Convert local position into world one
                 base.camLens.extrude(Point2(0, 0), self.pos_from, self.pos_to)
                 self.pos_from = self.render.get_relative_point(base.cam, self.pos_from)

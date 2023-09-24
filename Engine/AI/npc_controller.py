@@ -430,14 +430,15 @@ class NpcController:
             if self.walking_sequence.get(actor.get_name()):
                 if actor.get_python_tag("generic_states")['is_moving']:
                     self.walking_sequence[actor.get_name()].finish()
-            actor.get_python_tag("generic_states")['is_moving'] = False
-            actor.get_python_tag("generic_states")['is_idle'] = True
+                    actor.get_python_tag("generic_states")['is_moving'] = False
+                    actor.get_python_tag("generic_states")['is_idle'] = True
 
     def npc_in_walking_rd_logic(self, actor, actor_rb_np, target, request):
         if actor and actor_rb_np and target and request:
             self._toggle_crouch_collision(actor, actor_rb_np)
-            actor.get_python_tag("generic_states")['is_idle'] = False
-            actor.get_python_tag("generic_states")['is_moving'] = True
+            if actor.get_python_tag("generic_states")['is_idle']:
+                actor.get_python_tag("generic_states")['is_idle'] = False
+                actor.get_python_tag("generic_states")['is_moving'] = True
 
             if "1.11" in PandaSystem.get_version_string():
                 self.do_walking_sequence_once(actor, actor_rb_np, target, request)

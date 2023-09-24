@@ -169,7 +169,7 @@ class PhysicsAttr:
     def _set_player_rigidbody(self, actor, shape, col_name, mask):
         actor_rb_np = self._get_rigid_body_nodepath(shape=shape,
                                                     node_name=col_name,
-                                                    mass=9999,
+                                                    mass=10,
                                                     mask=mask)
         self.base.game_instance['player_controller'] = actor_rb_np.node()
 
@@ -185,7 +185,7 @@ class PhysicsAttr:
         # keep collision name and mass
         actor.set_python_tag("col_name", col_name)
 
-        actor.set_python_tag("col_mass", 9999)
+        actor.set_python_tag("col_mass", 10)
 
         # Set actor down to make it
         # at the same point as bullet shape
@@ -212,7 +212,7 @@ class PhysicsAttr:
         self.base.game_instance["player_crouch_bs_np_mask"] = self.mask0"""
 
         actor_rb_np.node().set_linear_damping(0.5)  # Linear damping for smoother acceleration
-        actor_rb_np.node().set_deactivation_enabled(True)
+        actor_rb_np.node().set_deactivation_enabled(False)
 
         # Setup for soft bodies
         # self._set_cloth_physics(actor)
@@ -322,7 +322,7 @@ class PhysicsAttr:
         shape = self.bullet_solids.get_bs_capsule(width=0.5, height=1.1, geometry=None)
         actor_rb_np = self._get_rigid_body_nodepath(shape=shape,
                                                     node_name=col_name,
-                                                    mass=9999,
+                                                    mass=10,
                                                     mask=mask)
         actor.reparent_to(actor_rb_np)
 

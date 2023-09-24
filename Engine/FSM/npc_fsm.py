@@ -259,11 +259,11 @@ class NpcFSM(FSM):
                 # revert rider collider back
                 reparent_to_render = Func(child.reparent_to, render)
                 set_rigid_body = Func(physics_attr.set_rigid_body_nodepath_with_shape, actor, child)
-                # Set player near of previous state
+                # Set npc near of previous state
                 set_near_pos = Parallel(Func(child.set_x, horse_near_pos[0]),
                                         Func(child.set_y, horse_near_pos[1]),
                                         Func(actor.set_z, mesh_default_z_pos),
-                                        Func(child.set_z, parent_rb_np.get_z()+2))
+                                        Func(child.set_z, parent_rb_np.get_z()))
                 # Finalize unmounting
                 set_unmounting_states = Parallel(
                     Func(self.fsm_state_wrapper, actor, "generic_states", "is_using", False),

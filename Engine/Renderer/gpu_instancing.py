@@ -11,6 +11,7 @@ from panda3d.bullet import ZUp
 from panda3d.core import NodePath
 from panda3d.core import LODNode
 from panda3d.core import Texture, GeomEnums, OmniBoundingVolume
+from panda3d.navigation import NavObstacleCylinderNode
 
 
 class GPUInstancing:
@@ -88,6 +89,9 @@ class GPUInstancing:
             buffer_texture = self._allocate_texture_storage(matrices, floats)
             self._visualize(prefab, matrices, buffer_texture)
 
+            # Add a tracked obstacle.
+            self.base.game_instance["navmesh"].add_obstacles(render)
+
     def populate_instances_with_brush(self, prefab, pos, count, density):
         if self.base.game_settings['Main']['pbr_renderer'] == 'on':
             matrices = []
@@ -127,6 +131,12 @@ class GPUInstancing:
                 physics_world_np.attach(node_path_rb.node())
                 node_path.set_pos(0, 0, -1)
                 node_path_rb.set_collide_mask(1)
+
+                # Create a navmesh obstacle cylinder and parent it 
+                obstacle_node = NavObstacleCylinderNode(4, 5, "{0}_Obstacle".format(node_path_rb.get_name()))
+                obstacle_np = node_path_rb.attach_new_node(obstacle_node)
+                obstacle_np.set_scale(1 / 0.05)
+                # obstacle_np.show()
 
     def add_collider(self, prefab, node_path):
         # calculate trunk's width and height

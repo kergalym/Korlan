@@ -201,6 +201,7 @@ class PlayerActions:
         if (player and isinstance(anims, dict)
                 and isinstance(action, str)
                 and isinstance(key, str)
+                and not self.base.game_instance["is_indoor"]
                 and not base.player_states['is_using']
                 and not base.player_states['is_attacked']
                 and not base.player_states['is_busy']
