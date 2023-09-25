@@ -84,11 +84,11 @@ class PlayerActions:
         player_rb_np = self.base.game_instance["player_np"]
         player = self.base.game_instance["player_ref"]
         if base.player_states["is_crouch_moving"]:
-            ph_.remove_character_controller_node(player_rb_np)
-            ph_.set_character_controller_nodepath_half_height_shape(player, player_rb_np)
+            ph_.remove_rigid_body_node(player_rb_np)
+            ph_.set_rigid_body_nodepath_half_height_shape(player, player_rb_np)
         if not base.player_states["is_crouch_moving"]:
-            ph_.remove_character_controller_node(player_rb_np)
-            ph_.set_character_controller_nodepath_with_shape(player, player_rb_np)
+            ph_.remove_rigid_body_node(player_rb_np)
+            ph_.set_rigid_body_nodepath_with_shape(player, player_rb_np)
 
     def ground_water_action_switch_task(self, task):
         if self.base.game_instance['menu_mode']:
@@ -357,6 +357,7 @@ class PlayerActions:
 
     def player_forwardroll_action(self, player, anims):
         if (player and isinstance(anims, dict)
+                and not self.base.game_instance["is_indoor"]
                 and not base.player_states['is_using']
                 and not base.player_states['is_attacked']
                 and not base.player_states['is_busy']

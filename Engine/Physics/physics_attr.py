@@ -204,14 +204,6 @@ class PhysicsAttr:
         # reload actor if it's dynamic
         actor_rb_np.set_z(4)
 
-        # Box rigid body for using in crouch state
-        """crouch_rb_np = self._get_crouch_rigidbody_nodepath(actor_rb_np=actor_rb_np,
-                                                           shape=shape,
-                                                           mask=mask)
-        self.base.game_instance["player_crouch_bs_np"] = crouch_rb_np
-        self.base.game_instance["player_crouch_bs_np_mask"] = self.mask0"""
-
-        actor_rb_np.node().set_linear_damping(0.5)  # Linear damping for smoother acceleration
         actor_rb_np.node().set_deactivation_enabled(False)
 
         # Setup for soft bodies
@@ -266,7 +258,6 @@ class PhysicsAttr:
         # Set the bullet shape position same as actor position
         actor_rb_np.set_x(0)
         actor_rb_np.set_y(0)
-        actor_rb_np.node().set_deactivation_enabled(True)
         # reload actor if it's dynamic
         actor_rb_np.set_z(4)
 
@@ -277,12 +268,7 @@ class PhysicsAttr:
         actor.set_x(0)
         actor.set_z(-0.9)
 
-        # Box rigid body for using in crouch state
-        """crouch_rb_np = self._get_crouch_rigidbody_nodepath(actor_rb_np=actor_rb_np,
-                                                           shape=shape,
-                                                           mask=mask)
-        self.base.game_instance["actors_crouch_bs_np"][col_name] = crouch_rb_np
-        self.base.game_instance["actors_crouch_bs_np_mask"][col_name] = self.mask0"""
+        actor_rb_np.node().set_deactivation_enabled(False)
 
         # Setup for soft bodies
         # self._set_cloth_physics(actor)
@@ -343,8 +329,8 @@ class PhysicsAttr:
 
         # reparent bullet-shaped actor to LOD node
         actor_rb_np.reparent_to(self.base.game_instance['lod_np'])
-        actor_rb_np.node().set_linear_damping(0.5)  # Linear damping for smoother acceleration
-        actor_rb_np.node().set_deactivation_enabled(True)
+
+        actor_rb_np.node().set_deactivation_enabled(False)
 
         # LOD quality preset
         for lod_qk in self.base.game_instance["lod_quality"]:
