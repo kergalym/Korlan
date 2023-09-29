@@ -1238,6 +1238,8 @@ class PlayerActions:
                     and len(self.archery.arrows) > 0
                     and self.archery.arrow_ref.get_python_tag("ready") == 0):
 
+                # Set the field of view
+                self.base.game_instance["mouse_cls"].on_fov_charge()
                 if self.archery.arrow_ref and self.archery.arrow_is_prepared:
                     if self.archery.target_test_ui:
                         self.archery.target_test_ui.show()
@@ -1263,6 +1265,9 @@ class PlayerActions:
                     and self.archery.arrow_ref.get_python_tag("ready") == 0
                     and self.archery.arrow_ref.get_python_tag("shot") == 0
                     and self.archery.arrow_ref.get_python_tag("power") > 0):
+
+                # Set the field of view
+                self.base.game_instance["mouse_cls"].on_fov_game()
 
                 if (self.archery.arrow_ref
                         and self.archery.arrow_is_prepared

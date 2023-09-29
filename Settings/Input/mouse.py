@@ -321,6 +321,20 @@ class Mouse:
             self.mouse_control()
         return task.cont
 
+    def on_fov_charge(self):
+        if (not self.base.game_instance['ui_mode']
+                and not self.base.game_instance["item_menu_mode"]
+                and not self.base.game_instance['menu_mode']):
+            # Set the field of view
+            self.base.game_instance["lens"].set_fov(self.base.game_instance["fov_charge"])
+
+    def on_fov_game(self):
+        if (not self.base.game_instance['ui_mode']
+                and not self.base.game_instance["item_menu_mode"]
+                and not self.base.game_instance['menu_mode']):
+            # Set the field of view
+            self.base.game_instance["lens"].set_fov(self.base.game_instance["fov_game"])
+
     def cam_zoom_in_task(self, task):
         if self.base.game_instance['menu_mode']:
             return task.done

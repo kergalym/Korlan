@@ -580,7 +580,7 @@ class Sheet(Inventory):
     def prepare_character(self):
         self.base.game_instance['inv_mode'] = True
         if self.base.is_inventory_active:
-            self.base.game_instance["lens"].set_fov(self.base.game_instance["fov_outdoor"])
+            self.base.game_instance["lens"].set_fov(self.base.game_instance["fov_default"])
 
             # Hide world from inventory
             if render.find("**/World"):
@@ -631,7 +631,7 @@ class Sheet(Inventory):
 
     def revert_character(self):
         self.base.game_instance['inv_mode'] = False
-        self.base.game_instance["lens"].set_fov(self.base.game_instance["fov_indoor"])
+        self.base.game_instance["lens"].set_fov(self.base.game_instance["fov_game"])
 
         # Revert character view
         player_rb_np = self.base.game_instance["player_np"]

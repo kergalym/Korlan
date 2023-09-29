@@ -440,8 +440,9 @@ class Main(ShowBase):
                 "medium": Vec2(1000.0, 50.0),
                 "high": Vec2(500.0, 0.0)
             },
-            "fov_indoor": LVecBase2f(75, 46),
-            "fov_outdoor": LVecBase2f(40, 23.1409),
+            "fov_game": LVecBase2f(75, 46),
+            "fov_charge": LVecBase2f(25, 25),
+            "fov_default": LVecBase2f(40, 23.1409),
             "lens": base.cam.node().get_lens(),
             "rp_lights": rp_lights,
             "scene_np": None,

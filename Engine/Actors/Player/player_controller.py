@@ -288,7 +288,7 @@ class PlayerController:
 
             elif self.game_settings['Debug']['set_editor_mode'] == 'NO':
                 # Set the field of view
-                self.base.game_instance["lens"].set_fov(self.base.game_instance["fov_indoor"])
+                self.base.game_instance["lens"].set_fov(self.base.game_instance["fov_game"])
 
                 self.player = player
                 self.anims = anims
