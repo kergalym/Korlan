@@ -86,7 +86,7 @@ class QuestLogic:
             if "Player" in actor.get_name():
                 self.base.game_instance["is_player_sitting"] = False
                 self.base.camera.set_z(0.0)
-                self.base.camera.set_y(-1)
+                self.base.camera.set_y(-1.5)
 
                 # Reverse play for standing_to_sit animation
                 any_action_seq = actor.actor_interval(anim, loop=0, playRate=-1.0)
@@ -221,7 +221,7 @@ class QuestLogic:
                 self.base.game_instance["is_player_laying"] = False
                 self.base.camera.set_z(0.0)
                 self.base.camera.set_p(self.cam_p)
-                self.base.camera.set_y(-1)
+                self.base.camera.set_y(-1.5)
                 actor.set_z(self.actor_geom_pos_z)
                 # Reverse play for standing_to_sit animation
                 any_action_seq = actor.actor_interval(anim, loop=0, playRate=-1.0)

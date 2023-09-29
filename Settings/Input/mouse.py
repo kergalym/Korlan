@@ -15,17 +15,15 @@ class Mouse:
         self.cam_area = None
         self.pos_z = 0.6
         # Set the current viewing target
-        self.focus = LVector3(0, 0, 0)
         self.heading = 180
         self.pitch = 0
         self.rotation = 0
         self.mouse_sens = 0.2
-        self.last = 0
-        self.cam_y_back_pos = -4.6
-        self.cam_y_back_pos_close = -1
-        self.cam_y_back_pos_rider_close = -3.5
+        self.cam_pos = -4.6
+        self.cam_pos_close_delta = 1.15
+        self.cam_pos_rider_close = -3.5
         self.cam_y_back_pos_current = 0
-        self.base.game_instance["mouse_y_cam"] = self.cam_y_back_pos
+        self.base.game_instance["mouse_y_cam"] = self.cam_pos
         self.keymap = {
             'wheel_up': False,
             'wheel_down': False
@@ -51,8 +49,8 @@ class Mouse:
 
     def mouse_wheel_init(self):
         # Zooming Logic
-        self.base.accept("wheel_up", self.on_camera_zoom_out)
-        self.base.accept("wheel_down", self.on_camera_zoom_in)
+        self.base.accept("wheel_up", self.base.game_instance["player_controller_cls"].weapon_selector_up)
+        self.base.accept("wheel_down", self.base.game_instance["player_controller_cls"].weapon_selector_down)
 
     def set_floater(self, player):
         """ Function    : set_floater
@@ -93,7 +91,7 @@ class Mouse:
             player.set_y(0)
             # camera setup
             base.camera.reparent_to(self.pivot)
-            base.camera.set_pos(0, self.cam_y_back_pos, 0)
+            base.camera.set_pos(0, self.cam_pos, 0)
 
     def rotate_player_joint(self, heading, pitch):
         if isinstance(heading, float) and isinstance(pitch, float):
@@ -323,32 +321,6 @@ class Mouse:
             self.mouse_control()
         return task.cont
 
-    def on_camera_zoom_in(self):
-        if (not self.base.game_instance['ui_mode']
-                and not self.base.game_instance["item_menu_mode"]
-                and not self.base.game_instance['menu_mode']):
-            if self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
-                if abs(int(base.camera.get_y())) > abs(self.cam_y_back_pos_rider_close):
-                    self.cam_y_back_pos_current = base.camera.get_y() + 0.5
-                    base.camera.set_y(self.cam_y_back_pos_current)
-            else:
-                if abs(int(base.camera.get_y())) > abs(self.cam_y_back_pos_close):
-                    self.cam_y_back_pos_current = base.camera.get_y() + 0.5
-                    base.camera.set_y(self.cam_y_back_pos_current)
-
-    def on_camera_zoom_out(self):
-        if (not self.base.game_instance['ui_mode']
-                and not self.base.game_instance["item_menu_mode"]
-                and not self.base.game_instance['menu_mode']):
-            if self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
-                if abs(round(base.camera.get_y(), 1)) < abs(self.cam_y_back_pos):
-                    self.cam_y_back_pos_current = base.camera.get_y() - 0.5
-                    base.camera.set_y(self.cam_y_back_pos_current)
-            else:
-                if abs(round(base.camera.get_y(), 1)) < abs(self.cam_y_back_pos):
-                    self.cam_y_back_pos_current = base.camera.get_y() - 0.5
-                    base.camera.set_y(self.cam_y_back_pos_current)
-
     def cam_zoom_in_task(self, task):
         if self.base.game_instance['menu_mode']:
             return task.done
@@ -359,7 +331,7 @@ class Mouse:
             dt = globalClock.getDt()
 
             if self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
-                if abs(int(base.camera.get_y())) > abs(self.cam_y_back_pos_rider_close)//1.2:
+                if abs(int(base.camera.get_y())) > abs(self.cam_pos_rider_close)//self.cam_pos_close_delta:
                     base.camera.set_y(base.camera, 3*dt)
                 else:
                     return task.done
@@ -376,7 +348,7 @@ class Mouse:
             dt = globalClock.getDt()
 
             if self.base.game_instance['player_ref'].get_python_tag("is_on_horse"):
-                if abs(round(base.camera.get_y(), 1)) < abs(self.cam_y_back_pos)//1.2:
+                if abs(round(base.camera.get_y(), 1)) < abs(self.cam_pos)//self.cam_pos_close_delta:
                     base.camera.set_y(base.camera, -3*dt)
                 else:
                     return task.done

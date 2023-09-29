@@ -413,6 +413,7 @@ class Main(ShowBase):
             "current_play_rate": 1.0,
             "render_attr_cls": None,
             "renderpipeline_np": None,
+            "player_controller_cls": None,
             "menu_mode": False,
             "ui_mode": False,
             "chest_ui_mode": False,

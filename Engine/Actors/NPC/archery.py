@@ -61,24 +61,25 @@ class Archery:
 
     def return_arrow_back(self, joint_name):
         if self.arrow_ref and joint_name:
-            if self.arrow_ref.get_python_tag("ready") == 0:
-                actor_ref = self.base.game_instance['actors_ref'][self.actor_name]
-                joint = actor_ref.expose_joint(None, "modelRoot", joint_name)
-                if joint:
-                    self.arrow_ref.reparent_to(joint)
-                    self.arrow_ref.set_pos(-10, 7, -12)
-                    self.arrow_ref.set_hpr(91.55, 0, 0)
-                    self.arrow_ref.set_scale(100)
+            actor_ref = self.base.game_instance['actors_ref'][self.actor_name]
+            joint = actor_ref.expose_joint(None, "modelRoot", joint_name)
+            if joint:
+                self.arrow_ref.reparent_to(joint)
+                self.arrow_ref.set_pos(-10, 7, -12)
+                self.arrow_ref.set_hpr(91.55, 0, 0)
+                self.arrow_ref.set_scale(100)
 
-                    self.arrow_ref.set_python_tag("power", 0)
-                    self.arrow_ref.set_python_tag("ready", 0)
-                    self.arrow_ref.set_python_tag("shot", 0)
-                    self.arrows.append(self.arrow_ref)
-                    actor_ref.set_python_tag("arrow_count", len(self.arrows))
+                self.arrow_ref.set_python_tag("power", 0)
+                self.arrow_ref.set_python_tag("ready", 0)
+                self.arrow_ref.set_python_tag("shot", 0)
+                self.arrows.append(self.arrow_ref)
+                actor_ref.set_python_tag("arrow_count", len(self.arrows))
 
         if self.base.game_instance['physics_world_np'] and self.arrow_brb_in_use:
             self.base.game_instance['physics_world_np'].remove_rigid_body(self.arrow_brb_in_use.node())
             self.arrow_brb_in_use.remove_node()
+
+        self.arrow_is_prepared = False
 
     def prepare_arrow_for_shoot(self, bow_name):
         if self.arrow_is_prepared:
