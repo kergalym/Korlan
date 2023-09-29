@@ -84,11 +84,11 @@ class PlayerActions:
         player_rb_np = self.base.game_instance["player_np"]
         player = self.base.game_instance["player_ref"]
         if base.player_states["is_crouch_moving"]:
-            ph_.remove_character_controller_node(player_rb_np)
-            ph_.set_character_controller_nodepath_half_height_shape(player, player_rb_np)
+            ph_.remove_rigid_body_node(player_rb_np)
+            ph_.set_rigid_body_nodepath_half_height_shape(player, player_rb_np)
         if not base.player_states["is_crouch_moving"]:
-            ph_.remove_character_controller_node(player_rb_np)
-            ph_.set_character_controller_nodepath_with_shape(player, player_rb_np)
+            ph_.remove_rigid_body_node(player_rb_np)
+            ph_.set_rigid_body_nodepath_with_shape(player, player_rb_np)
 
     def ground_water_action_switch_task(self, task):
         if self.base.game_instance['menu_mode']:
@@ -357,6 +357,7 @@ class PlayerActions:
 
     def player_forwardroll_action(self, player, anims):
         if (player and isinstance(anims, dict)
+                and not self.base.game_instance["is_indoor"]
                 and not base.player_states['is_using']
                 and not base.player_states['is_attacked']
                 and not base.player_states['is_busy']
@@ -695,6 +696,88 @@ class PlayerActions:
                              Func(self.state.set_do_once_key, key, False),
                              ).start()
 
+    def player_get_sword_action_wheel(self, player, key, anims, action):
+        if (player and isinstance(anims, dict)
+                and isinstance(action, str)
+                and isinstance(key, str)
+                and not base.player_states['is_using']
+                and not base.player_states['is_attacked']
+                and not base.player_states['is_busy']
+                and not self.base.game_instance['is_aiming']):
+            if not base.do_key_once[key]:
+                crouched_to_standing = player.get_anim_control(anims[anim_names.a_anim_crouching_stand])
+                self.state.set_do_once_key(key, True)
+                base.player_states['is_idle'] = False
+                if (base.player_states['has_sword'] is False
+                        and crouched_to_standing.is_playing() is False
+                        and base.player_states['is_crouch_moving']):
+                    # Do an animation sequence if player is crouched.
+                    if self.base.game_instance['hud_np']:
+                        self.base.game_instance['hud_np'].toggle_weapon_state(weapon_name="sword")
+                    crouch_to_stand_seq = player.actor_interval(anims[anim_names.a_anim_crouching_stand],
+                                                                playRate=self.base.actor_play_rate)
+                    any_action_seq = player.actor_interval(anims[action],
+                                                           playRate=self.base.actor_play_rate)
+                    Sequence(crouch_to_stand_seq,
+                             Func(self.state.get_weapon, player, "sword", "Korlan:LeftHand"),
+                             Func(self.state.set_action_state, "has_sword", True),
+                             Func(self.state.set_action_state, "is_using", True),
+                             Func(self.base.sound.play_picking),
+                             any_action_seq,
+                             Func(self.state.set_action_state, "is_using", False),
+                             Func(self.state.set_do_once_key, key, False),
+                             ).start()
+
+                elif (base.player_states['has_sword'] is False
+                      and crouched_to_standing.is_playing() is False
+                      and base.player_states['is_crouch_moving'] is False):
+                    if self.base.game_instance['hud_np']:
+                        self.base.game_instance['hud_np'].toggle_weapon_state(weapon_name="sword")
+                    any_action_seq = player.actor_interval(anims[action],
+                                                           playRate=self.base.actor_play_rate)
+                    Sequence(Func(self.state.get_weapon, player, "sword", "Korlan:LeftHand"),
+                             Func(self.state.set_action_state, "has_sword", True),
+                             Func(self.state.set_action_state, "is_using", True),
+                             Func(self.base.sound.play_picking),
+                             any_action_seq,
+                             Func(self.state.set_action_state, "is_using", False),
+                             Func(self.state.set_do_once_key, key, False),
+                             ).start()
+
+                elif (base.player_states['has_sword']
+                      and crouched_to_standing.is_playing() is False
+                      and base.player_states['is_crouch_moving']):
+                    if self.base.game_instance['hud_np']:
+                        self.base.game_instance['hud_np'].toggle_weapon_state(weapon_name="hands")
+                    # Do an animation sequence if player is crouched.
+                    crouch_to_stand_seq = player.actor_interval(anims[anim_names.a_anim_crouching_stand],
+                                                                playRate=self.base.actor_play_rate)
+                    any_action_seq = player.actor_interval(anims[action],
+                                                           playRate=-self.base.actor_play_rate)
+                    Sequence(crouch_to_stand_seq,
+                             Func(self.state.set_action_state, "is_using", True),
+                             any_action_seq,
+                             Func(self.state.set_action_state, "is_using", False),
+                             Func(self.state.remove_weapon, player, "sword", "Korlan:Spine1"),
+                             Func(self.state.set_action_state, "has_sword", False),
+                             Func(self.state.set_do_once_key, key, False),
+                             ).start()
+
+                elif (base.player_states['has_sword']
+                      and crouched_to_standing.is_playing() is False
+                      and base.player_states['is_crouch_moving'] is False):
+                    if self.base.game_instance['hud_np']:
+                        self.base.game_instance['hud_np'].toggle_weapon_state(weapon_name="hands")
+                    any_action_seq = player.actor_interval(anims[action],
+                                                           playRate=-self.base.actor_play_rate)
+                    Sequence(Func(self.state.set_action_state, "is_using", True),
+                             any_action_seq,
+                             Func(self.state.set_action_state, "is_using", False),
+                             Func(self.state.remove_weapon, player, "sword", "Korlan:Spine1"),
+                             Func(self.state.set_action_state, "has_sword", False),
+                             Func(self.state.set_do_once_key, key, False),
+                             ).start()
+
     def player_get_bow_action(self, player, key, anims, action):
         if (player and isinstance(anims, dict)
                 and not base.player_states['is_using']
@@ -703,6 +786,95 @@ class PlayerActions:
                 and isinstance(action, str)
                 and isinstance(key, str)):
             if self.kbd.keymap[key] and not base.do_key_once[key]:
+                self.state.set_do_once_key(key, True)
+                crouched_to_standing = player.get_anim_control(anims[anim_names.a_anim_crouching_stand])
+                base.player_states['is_idle'] = False
+                # TODO: Use blending for smooth transition between animations
+
+                if (base.player_states['has_bow'] is False
+                        and crouched_to_standing.is_playing() is False
+                        and base.player_states['is_crouch_moving']):
+                    if self.base.game_instance['hud_np']:
+                        self.base.game_instance['hud_np'].toggle_weapon_state(weapon_name="bow")
+                    # Do an animation sequence if player is crouched.
+                    crouch_to_stand_seq = player.actor_interval(anims[anim_names.a_anim_crouching_stand],
+                                                                playRate=self.base.actor_play_rate)
+                    any_action_seq = player.actor_interval(anims[action],
+                                                           playRate=self.base.actor_play_rate)
+                    Sequence(crouch_to_stand_seq,
+                             Func(self.state.get_weapon, player, "bow_kazakh", "Korlan:LeftHand"),
+                             Func(self.archery.prepare_arrow_for_shoot, "bow_kazakh"),
+                             Func(self.state.set_action_state, "has_bow", True),
+                             Func(self.state.set_action_state, "is_using", True),
+                             any_action_seq,
+                             Func(self.state.set_action_state, "is_using", False),
+                             Func(self.state.set_do_once_key, "bow", False),
+                             Func(self.archery.start_archery_helper_tasks),
+                             ).start()
+
+                elif (base.player_states['has_bow'] is False
+                      and crouched_to_standing.is_playing() is False
+                      and base.player_states['is_crouch_moving'] is False):
+                    if self.base.game_instance['hud_np']:
+                        self.base.game_instance['hud_np'].toggle_weapon_state(weapon_name="bow")
+                    any_action_seq = player.actor_interval(anims[action],
+                                                           playRate=self.base.actor_play_rate)
+                    Sequence(Func(self.state.get_weapon, player, "bow_kazakh", "Korlan:LeftHand"),
+                             Func(self.archery.prepare_arrow_for_shoot, "bow_kazakh"),
+                             Func(self.state.set_action_state, "has_bow", True),
+                             Func(self.state.set_action_state, "is_using", True),
+                             any_action_seq,
+                             Func(self.state.set_action_state, "is_using", False),
+                             Func(self.state.set_do_once_key, "bow", False),
+                             Func(self.archery.start_archery_helper_tasks),
+                             ).start()
+
+                elif (base.player_states['has_bow']
+                      and crouched_to_standing.is_playing() is False
+                      and base.player_states['is_crouch_moving']):
+                    if self.base.game_instance['hud_np']:
+                        self.base.game_instance['hud_np'].toggle_weapon_state(weapon_name="hands")
+                    # Do an animation sequence if player is crouched.
+                    crouch_to_stand_seq = player.actor_interval(anims[anim_names.a_anim_crouching_stand],
+                                                                playRate=self.base.actor_play_rate)
+                    any_action_seq = player.actor_interval(anims[action],
+                                                           playRate=self.base.actor_play_rate)
+                    Sequence(crouch_to_stand_seq,
+                             Func(self.state.set_action_state, "is_using", True),
+                             any_action_seq,
+                             Func(self.state.set_action_state, "is_using", False),
+                             Func(self.state.remove_weapon, player, "bow_kazakh", "Korlan:Spine1"),
+                             Func(self.archery.return_arrow_back, "Korlan:Spine1"),
+                             Func(self.state.set_action_state, "has_bow", False),
+                             Func(self.state.set_do_once_key, "bow", False),
+                             Func(self.archery.stop_archery_helper_tasks),
+                             ).start()
+
+                elif (base.player_states['has_bow']
+                      and crouched_to_standing.is_playing() is False
+                      and base.player_states['is_crouch_moving'] is False):
+                    if self.base.game_instance['hud_np']:
+                        self.base.game_instance['hud_np'].toggle_weapon_state(weapon_name="hands")
+                    any_action_seq = player.actor_interval(anims[action],
+                                                           playRate=self.base.actor_play_rate)
+                    Sequence(Func(self.state.set_action_state, "is_using", True),
+                             any_action_seq,
+                             Func(self.state.set_action_state, "is_using", False),
+                             Func(self.state.remove_weapon, player, "bow_kazakh", "Korlan:Spine1"),
+                             Func(self.archery.return_arrow_back, "Korlan:Spine1"),
+                             Func(self.state.set_action_state, "has_bow", False),
+                             Func(self.state.set_do_once_key, "bow", False),
+                             Func(self.archery.stop_archery_helper_tasks),
+                             ).start()
+
+    def player_get_bow_action_wheel(self, player, key, anims, action):
+        if (player and isinstance(anims, dict)
+                and not base.player_states['is_using']
+                and not base.player_states['is_attacked']
+                and not base.player_states['is_busy']
+                and isinstance(action, str)
+                and isinstance(key, str)):
+            if not base.do_key_once[key]:
                 self.state.set_do_once_key(key, True)
                 crouched_to_standing = player.get_anim_control(anims[anim_names.a_anim_crouching_stand])
                 base.player_states['is_idle'] = False
@@ -828,6 +1000,50 @@ class PlayerActions:
                         Func(self.state.set_do_once_key, key, False),
                     ).start()
 
+    def player_horse_riding_get_sword_action_wheel(self, player, key, anims, action):
+        if (player and isinstance(anims, dict)
+                and isinstance(action, str)
+                and isinstance(key, str)
+                and not base.player_states['is_using']
+                and not base.player_states['is_attacked']
+                and not base.player_states['is_busy']
+                and not self.base.game_instance['is_aiming']):
+            if not base.do_key_once[key]:
+                crouched_to_standing = player.get_anim_control(anims[anim_names.a_anim_crouching_stand])
+                self.state.set_do_once_key(key, True)
+                base.player_states['is_idle'] = False
+
+                if (base.player_states['has_sword'] is False
+                        and crouched_to_standing.is_playing() is False
+                        and base.player_states['is_crouch_moving'] is False):
+                    if self.base.game_instance['hud_np']:
+                        self.base.game_instance['hud_np'].toggle_weapon_state(weapon_name="sword")
+                    any_action_seq = player.actor_interval(anims[action],
+                                                           playRate=self.base.actor_play_rate)
+                    Sequence(Func(self.state.get_weapon, player, "sword", "Korlan:LeftHand"),
+                             Func(self.state.set_horse_riding_weapon_state, "has_sword", True),
+                             Func(self.state.set_action_state, "is_using", True),
+                             any_action_seq,
+                             Func(self.state.set_action_state, "is_using", False),
+                             Func(self.state.set_do_once_key, key, False),
+                             ).start()
+
+                elif (base.player_states['has_sword']
+                      and crouched_to_standing.is_playing() is False
+                      and base.player_states['is_crouch_moving'] is False):
+                    if self.base.game_instance['hud_np']:
+                        self.base.game_instance['hud_np'].toggle_weapon_state(weapon_name="hands")
+                    any_action_seq = player.actor_interval(anims[action],
+                                                           playRate=-self.base.actor_play_rate)
+                    Sequence(
+                        Func(self.state.set_action_state, "is_using", True),
+                        any_action_seq,
+                        Func(self.state.set_action_state, "is_using", False),
+                        Func(self.state.remove_weapon, player, "sword", "Korlan:Spine1"),
+                        Func(self.state.set_horse_riding_weapon_state, "has_sword", False),
+                        Func(self.state.set_do_once_key, key, False),
+                    ).start()
+
     def player_horse_riding_get_bow_action(self, player, key, anims, action):
         if (player and isinstance(anims, dict)
                 and not base.player_states['is_using']
@@ -836,6 +1052,53 @@ class PlayerActions:
                 and isinstance(action, str)
                 and isinstance(key, str)):
             if self.kbd.keymap[key] and not base.do_key_once[key]:
+                self.state.set_do_once_key(key, True)
+                crouched_to_standing = player.get_anim_control(anims[anim_names.a_anim_crouching_stand])
+                base.player_states['is_idle'] = False
+                # TODO: Use blending for smooth transition between animations
+
+                if (base.player_states['has_bow'] is False
+                        and crouched_to_standing.is_playing() is False
+                        and base.player_states['is_crouch_moving'] is False):
+                    if self.base.game_instance['hud_np']:
+                        self.base.game_instance['hud_np'].toggle_weapon_state(weapon_name="bow")
+                    any_action_seq = player.actor_interval(anims[action],
+                                                           playRate=self.base.actor_play_rate)
+                    Sequence(Func(self.state.get_weapon, player, "bow_kazakh", "Korlan:LeftHand"),
+                             Func(self.archery.prepare_arrow_for_shoot, "bow_kazakh"),
+                             Func(self.state.set_horse_riding_weapon_state, "has_bow", True),
+                             Func(self.state.set_action_state, "is_using", True),
+                             any_action_seq,
+                             Func(self.state.set_action_state, "is_using", False),
+                             Func(self.state.set_do_once_key, "bow", False),
+                             Func(self.archery.start_archery_helper_tasks),
+                             ).start()
+
+                elif (base.player_states['has_bow']
+                      and crouched_to_standing.is_playing() is False
+                      and base.player_states['is_crouch_moving'] is False):
+                    if self.base.game_instance['hud_np']:
+                        self.base.game_instance['hud_np'].toggle_weapon_state(weapon_name="hands")
+                    any_action_seq = player.actor_interval(anims[action],
+                                                           playRate=self.base.actor_play_rate)
+                    Sequence(Func(self.state.set_action_state, "is_using", True),
+                             any_action_seq,
+                             Func(self.state.set_action_state, "is_using", False),
+                             Func(self.state.remove_weapon, player, "bow_kazakh", "Korlan:Spine1"),
+                             Func(self.archery.return_arrow_back, "Korlan:Spine1"),
+                             Func(self.state.set_horse_riding_weapon_state, "has_bow", False),
+                             Func(self.state.set_do_once_key, "bow", False),
+                             Func(self.archery.stop_archery_helper_tasks),
+                             ).start()
+
+    def player_horse_riding_get_bow_action_wheel(self, player, key, anims, action):
+        if (player and isinstance(anims, dict)
+                and not base.player_states['is_using']
+                and not base.player_states['is_attacked']
+                and not base.player_states['is_busy']
+                and isinstance(action, str)
+                and isinstance(key, str)):
+            if not base.do_key_once[key]:
                 self.state.set_do_once_key(key, True)
                 crouched_to_standing = player.get_anim_control(anims[anim_names.a_anim_crouching_stand])
                 base.player_states['is_idle'] = False
@@ -975,6 +1238,8 @@ class PlayerActions:
                     and len(self.archery.arrows) > 0
                     and self.archery.arrow_ref.get_python_tag("ready") == 0):
 
+                # Set the field of view
+                self.base.game_instance["mouse_cls"].on_fov_charge()
                 if self.archery.arrow_ref and self.archery.arrow_is_prepared:
                     if self.archery.target_test_ui:
                         self.archery.target_test_ui.show()
@@ -1000,6 +1265,9 @@ class PlayerActions:
                     and self.archery.arrow_ref.get_python_tag("ready") == 0
                     and self.archery.arrow_ref.get_python_tag("shot") == 0
                     and self.archery.arrow_ref.get_python_tag("power") > 0):
+
+                # Set the field of view
+                self.base.game_instance["mouse_cls"].on_fov_game()
 
                 if (self.archery.arrow_ref
                         and self.archery.arrow_is_prepared

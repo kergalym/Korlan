@@ -141,6 +141,20 @@ class LevelOne:
             # Remove all lights
             base.render_attr.clear_lighting()
 
+            # Remove WaterNodePath
+            if not render.find("**/WaterNodePath").is_empty():
+                for i in range(render.find("**/WaterNodePath").get_num_nodes()):
+                    if not render.find("**/WaterNodePath").is_empty():
+                        render.find("**/WaterNodePath").remove_node()
+                        render.find("**/WaterNodePath").clear()
+
+            # Remove StateInitializer
+            if not render.find("**/StateInitializer").is_empty():
+                for i in range(render.find("**/StateInitializer").get_num_nodes()):
+                    if not render.find("**/StateInitializer").is_empty():
+                        render.find("**/StateInitializer").remove_node()
+                        render.find("**/StateInitializer").clear()
+
             # Remove Collisions
             if not render.find("**/Collisions").is_empty():
                 for i in range(render.find("**/Collisions").get_num_nodes()):

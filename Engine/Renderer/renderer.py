@@ -5,6 +5,8 @@ from direct.gui.DirectGui import OnscreenText
 from direct.task.TaskManagerGlobal import taskMgr
 from panda3d.core import *
 from panda3d.core import FontPool, TextNode
+
+from Engine.Renderer.lightmanager import LightManager
 from Engine.Renderer.rpcore import PointLight as RP_PointLight
 from Engine.Renderer.rpcore import SpotLight as RP_SpotLight
 from direct.particles.ParticleEffect import ParticleEffect
@@ -41,6 +43,11 @@ class RenderAttr:
         self.particles = {}
 
         # Water and grass
+        self.water_np = None
+        self.water_camera = None
+        self.water_buffer = None
+        self.offset = 0.0
+        self.ground_mesh = None
         self.proj_water = None
         self.grass_np = None
 
@@ -152,6 +159,134 @@ class RenderAttr:
                             self.base.game_instance['hud_np'].toggle_day_hud(time="off")
 
         return task.cont
+
+    def update_water_reflections(self, water_plane_np, task):
+        render.setShaderInput("camera_pos", base.cam.getPos(render))
+        if self.base.game_instance['menu_mode']:
+            return task.done
+
+        if self.water_camera and self.water_np:
+            if self.water_np.get_z() > 0.0:
+                ref_mat = base.cam.get_mat(render) * water_plane_np.get_reflection_mat()
+                self.water_camera.set_mat(ref_mat)
+
+                print(ref_mat)
+        return task.cont
+
+    def set_water(self, water_lvl, adv_render):
+        MASK_WATER = BitMask32.bit(1)
+        MASK_SHADOW = BitMask32.bit(2)
+
+        if not adv_render:
+            base.setBackgroundColor(1, 1, 1)
+
+            self.light_manager = LightManager()
+            self.light_manager.add_light(pos=(0, 0, 200.0), color=(0.9, 0.9, 0.9), radius=10000.0)
+            render.setShaderInput('daytime', 12.0)
+
+            # ambient light
+            self.light_manager.ambient_light(0.15, 0.15, 0.2)
+
+        light = None
+        if render.find("**/plight"):
+            light = render.find("**/plight")
+
+        if render.find("**/Ground"):
+            self.ground_mesh = render.find("**/Ground")
+        world = render.find("**/World")
+        if world:
+            if water_lvl > 0.0 and not render.find("**/water_plane").is_empty():
+                textures = self.base.textures_collector("{0}/Engine/Shaders/".format(self.game_dir))
+                self.water_np = render.find("**/water_plane")
+                self.water_np.set_transparency(True)
+                self.water_np.setTransparency(TransparencyAttrib.MAlpha)
+                self.water_np.flattenLight()
+                self.water_np.reparent_to(world)
+                self.water_np.set_pos(0, 0, -2.0)
+
+                # Add a buffer and camera that will render the reflection texture
+                self.water_buffer = base.win.make_texture_buffer("water", 512, 512)
+                self.water_buffer.setClearColorActive(True)
+                self.water_buffer.set_clear_color(base.win.get_clear_color())
+                self.water_buffer.set_sort(-1)
+                self.water_camera = base.make_camera(self.water_buffer)
+                self.water_camera.reparent_to(render)
+                self.water_camera.node().set_lens(base.camLens)
+                self.water_camera.node().set_camera_mask(MASK_WATER)
+
+                # Create this texture and apply settings
+                water_texture = self.water_buffer.get_texture()
+                water_texture.set_wrap_u(Texture.WMClamp)
+                water_texture.set_wrap_v(Texture.WMClamp)
+                water_texture.setMinfilter(Texture.FTLinearMipmapLinear)
+
+                # Create plane for clipping and for reflection matrix
+                water_plane = Plane(Vec3(0, 0, 1), Point3(0, 0, water_lvl))
+                water_plane_np = world.attach_new_node(PlaneNode("WaterNodePath", water_plane))
+
+                state_init = NodePath("StateInitializer")
+                state_init.set_clip_plane(water_plane_np)
+                state_init.setAttrib(CullFaceAttrib.makeReverse())
+                self.water_camera.node().set_initial_state(state_init.getState())
+
+                # reflect UV generated on the shader - faster(?)
+                self.water_np.set_shader_input('camera', self.water_camera)
+                self.water_np.set_shader_input("reflection", water_texture)
+
+                if not adv_render:
+                    self.water_np.set_shader(Shader.load(Shader.SL_GLSL,
+                                                         vertex="{0}/Engine/Shaders/Water/water_vert.glsl".format(
+                                                             self.game_dir),
+                                                         fragment="{0}/Engine/Shaders/Water/water_frag.glsl".format(
+                                                             self.game_dir)))
+                else:
+                    self.base.game_instance["renderpipeline_np"].set_effect(self.water_np,
+                                                                            "{0}/Engine/Renderer/effects/lake_water.yaml".format(
+                                                                                self.game_dir),
+                                                                            {"render_gbuffer": False,
+                                                                             "render_forward": True,
+                                                                             "render_shadow": False,
+                                                                             "alpha_testing": True,
+                                                                             "normal_mapping": False}
+                                                                            )
+
+                self.water_np.set_shader_input("water_norm",
+                                               self.base.loader.load_texture(textures["water"]))
+                self.water_np.set_shader_input("water_height",
+                                               self.base.loader.load_texture(textures["ocean"]))
+                texture = Texture()
+                img_text = PNMImage(512, 512, 4)
+                texture.store(img_text)
+                self.water_np.set_shader_input("height",
+                                               texture)
+                self.water_np.set_shader_input("tile", 20.0)
+                self.water_np.set_shader_input("water_level", water_lvl)
+                self.water_np.set_shader_input("speed", 0.01)
+                self.water_np.set_shader_input("wave", Vec4(0.005, 0.002, 6, 1))
+                self.water_np.set_two_sided(True)
+
+                # self.water_np.set_shader_input("trans_model_to_clip_of_camera", self.water_camera)
+                self.water_np.set_shader_input("camera_pos", self.water_camera.get_pos())
+
+                self.water_np.set_shader_input("light_color", Vec4(0, 0, 0, 1.0))
+                self.water_np.set_shader_input("light_pos", self.water_np.get_pos())
+                self.water_np.set_shader_input("num_lights", 8)
+
+                self.ground_mesh.set_shader_input("water_level", water_lvl)
+                render.set_shader_input("fog", Vec4(0.3, 0.3, 0.3, 0.002))  # check!
+                render.set_shader_input("z_scale", 100.0)
+                self.ground_mesh.set_shader_input("tex_scale", 30.0)
+                render.set_shader_input("ambient", Vec4(.001, .001, .001, 1))  # check!
+
+                taskMgr.add(self.update_water_reflections,
+                            "update_water_reflections",
+                            extraArgs=[water_plane], appendTask=True)
+
+    def clear_water(self):
+        self.water_np.hide()
+        self.water_np.set_bin("transparent", 31)
+        self.water_buffer.set_active(False)
+        self.ground_mesh.set_shader_input("water_level", -1.0)
 
     def set_projected_water(self, bool_):
         if self.base.game_instance["renderpipeline_np"] and bool_:

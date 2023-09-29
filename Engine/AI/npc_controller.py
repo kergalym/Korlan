@@ -702,6 +702,8 @@ class NpcController:
                     unmount_func = Func(request.request, "HorseUnmount",
                                         actor, actor_npc_rb)
                     self.unmounting_sequence[name].append(unmount_func)
+                    # Wait for 1 second
+                    self.unmounting_sequence[name].append(Wait(1.3))
                     self.unmounting_sequence[name].start()
 
     def npc_get_weapon(self, actor, request, weapon_name, bone_name):

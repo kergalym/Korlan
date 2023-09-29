@@ -594,7 +594,7 @@ class PlayerMovement:
                     if base.input_state.is_set('forward'):
                         horse_rb_np.set_y(horse_rb_np, -speed * dt)
                         force.set_y(-speed)
-                        force *= 10
+                        force *= 20
                     else:
                         lin_vec_z = horse_rb_np.node().get_linear_velocity()[2]
                         horse_rb_np.node().set_active(True)
