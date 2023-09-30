@@ -1188,8 +1188,9 @@ class Main(ShowBase):
                 self.game_instance['menu_mode'] = True
                 self.menu.load_main_menu()
                 # Disable the camera trackball controls.
-                self.win_props.set_cursor_hidden(False)
-                self.win.request_properties(self.win_props)
+                # self.win_props.set_cursor_hidden(False)
+                # self.win.request_properties(self.win_props)
+                base.cursor.show()
                 self.load_video(file="MENU_SCENE_VID", type="menu_scene")
                 return task.done
 

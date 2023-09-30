@@ -82,8 +82,9 @@ class ChestUI(ChestInventory):
                     self.sheet._hide_sheet_slots()
                     self.sheet._hide_sheet_items()
 
-                    self.base.win_props.set_cursor_hidden(False)
-                    self.base.win.request_properties(self.base.win_props)
+                    # self.base.win_props.set_cursor_hidden(False)
+                    # self.base.win.request_properties(self.base.win_props)
+                    base.cursor.show()
 
                     self.base.game_instance['ui_mode'] = True
                     self.base.game_instance['chest_ui_mode'] = True
@@ -117,8 +118,9 @@ class ChestUI(ChestInventory):
 
         self.toggle()
 
-        self.base.win_props.set_cursor_hidden(True)
-        self.base.win.request_properties(self.base.win_props)
+        # self.base.win_props.set_cursor_hidden(True)
+        # self.base.win.request_properties(self.base.win_props)
+        base.cursor.hide()
         self.base.game_instance['ui_mode'] = False
         self.base.game_instance['chest_ui_mode'] = False
 

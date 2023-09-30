@@ -23,6 +23,7 @@ from Settings.UI.loading_ui import LoadingUI
 
 from Settings.UI.dev_menu_ui import DevMenuUI
 from Settings.UI.options_menu_ui import OptionsMenuUI
+from direct.task.TaskManagerGlobal import taskMgr
 
 
 class MenuUI(MenuSettings):
@@ -104,6 +105,7 @@ class MenuUI(MenuSettings):
         self.menu_font = self.fonts['OpenSans-Regular']
         self.menu_font_color = (0.8, 0.4, 0, 1)
 
+        self.cursor = None
         self.btn_new_game = None
         self.btn_load_game = None
         self.btn_save_game = None
@@ -111,6 +113,13 @@ class MenuUI(MenuSettings):
         self.btn_credits = None
         self.btn_dev_mode = None
         self.btn_exit = None
+
+    def _update_mouse_cursor(self, task):
+        if base.mouseWatcherNode.has_mouse():
+            mpos = base.mouseWatcherNode.get_mouse()
+            pos2d = Point3(mpos.get_x(), 0, mpos.get_y())
+            self.cursor.set_pos(pixel2d.get_relative_point(render2d, pos2d))
+        return task.again
 
     def load_main_menu(self):
         """ Function    : load_main_menu
@@ -130,6 +139,18 @@ class MenuUI(MenuSettings):
         geoms = (maps.find('**/button_any'),
                  maps.find('**/button_pressed'),
                  maps.find('**/button_rollover'))
+
+        self.cursor = DirectFrame(frameSize=(-64, 0, 0, 64),
+                                  frameColor=(1, 1, 1, 1),
+                                  frameTexture=self.images['cursor_mouse'],
+                                  parent=pixel2d)
+        self.cursor.set_pos(21, 0, -22)
+        self.cursor.flatten_light()
+        self.cursor.set_bin("gui-popup", 50)
+        self.cursor.set_transparency(TransparencyAttrib.MDual)
+        self.base.cursor = self.cursor
+
+        taskMgr.add(self._update_mouse_cursor, "update_mouse_cursor")
 
         self.base.frame = DirectFrame(frameColor=(0, 0, 0, self.frm_opacity),
                                       frameSize=self.base.frame_size)

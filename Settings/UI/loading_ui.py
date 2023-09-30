@@ -72,8 +72,9 @@ class LoadingUI:
         self.pre_fadeout_delay_sequence = Sequence()
         self.pre_fadeout_sequence_is_done = False
         self.fadeout_sequence_is_done = False
-        self.base.win_props.set_cursor_hidden(True)
-        self.base.win.request_properties(self.base.win_props)
+        # self.base.win_props.set_cursor_hidden(True)
+        # self.base.win.request_properties(self.base.win_props)
+        base.cursor.hide()
 
         # Enable game overlay
         if self.game_settings['Debug']['set_debug_mode'] == 'NO':
