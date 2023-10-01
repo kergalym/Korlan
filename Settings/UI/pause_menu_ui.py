@@ -132,8 +132,9 @@ class PauseMenuUI(MenuSettings):
             self.base.game_instance['ui_mode'] = True
             self.pause_mode = 1
             self.base.game_instance['esc_mode'] = True
-            self.base.win_props.set_cursor_hidden(False)
-            self.base.win.request_properties(self.base.win_props)
+            # self.base.win_props.set_cursor_hidden(False)
+            # self.base.win.request_properties(self.base.win_props)
+            base.cursor.show()
 
             self.logo = OnscreenImage(image=self.images['korlan_logo_tengri'],
                                       pos=self.logo_pos)
@@ -271,20 +272,24 @@ class PauseMenuUI(MenuSettings):
         self.ornament_left.destroy()
         self.ornament_right.destroy()
 
-        self.base.win_props.set_cursor_hidden(True)
-        self.base.win.request_properties(self.base.win_props)
+        # self.base.win_props.set_cursor_hidden(True)
+        # self.base.win.request_properties(self.base.win_props)
+        base.cursor.hide()
 
         if self.base.game_instance['dev_ui_mode']:
-            self.base.win_props.set_cursor_hidden(False)
-            self.base.win.request_properties(self.base.win_props)
+            # self.base.win_props.set_cursor_hidden(False)
+            # self.base.win.request_properties(self.base.win_props)
+            base.cursor.show()
             self.base.game_instance['ui_mode'] = True
         elif self.base.game_settings['Debug']['set_editor_mode'] == 'YES':
-            self.base.win_props.set_cursor_hidden(False)
-            self.base.win.request_properties(self.base.win_props)
+            # self.base.win_props.set_cursor_hidden(False)
+            # self.base.win.request_properties(self.base.win_props)
+            base.cursor.show()
             self.base.game_instance['ui_mode'] = True
         else:
-            self.base.win_props.set_cursor_hidden(True)
-            self.base.win.request_properties(self.base.win_props)
+            # self.base.win_props.set_cursor_hidden(True)
+            # self.base.win.request_properties(self.base.win_props)
+            base.cursor.hide()
             self.base.game_instance['ui_mode'] = False
 
         self.pause_mode = 0
