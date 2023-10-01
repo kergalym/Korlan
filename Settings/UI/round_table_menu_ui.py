@@ -422,8 +422,9 @@ class RoundTableMenu:
         # Zoom in the camera and show item menu
         self._camera_zoom_in()
         self.base.game_instance["item_menu_mode"] = True
-        self.base.win_props.set_cursor_hidden(False)
-        self.base.win.request_properties(self.base.win_props)
+        # self.base.win_props.set_cursor_hidden(False)
+        # self.base.win.request_properties(self.base.win_props)
+        base.cursor.show()
 
         # Hide player we want to see item which we can choose
         player = self.base.game_instance["player_ref"]

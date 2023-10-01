@@ -386,6 +386,7 @@ class Mouse:
             if mode == "relative":
                 self.win_prop.set_mouse_mode(WindowProperties.M_relative)
             self.base.game_instance['mouse_mode'] = mode
-            self.base.win_props.set_cursor_hidden(True)
+            # self.base.win_props.set_cursor_hidden(True)
+            # self.base.win.request_properties(self.base.win_props)
             self.cursor_is_hidden = True
-            self.base.win.request_properties(self.base.win_props)
+            base.cursor.hide()
