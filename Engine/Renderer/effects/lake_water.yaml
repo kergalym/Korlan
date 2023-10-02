@@ -2,10 +2,15 @@
 
 vertex:
     inout: |
-        in vec3 p3d_Binormal;
-        in vec3 p3d_Tangent;
-
-        uniform sampler2D water_height;
+        //uniform mat4 p3d_ModelViewProjectionMatrix;
+        //in vec4 p3d_Vertex;
+        //in vec2 p3d_MultiTexCoord0;
+        out vec2 texCoord0;
+        out vec2 texCoord1;
+        out vec2 texCoord2;
+        out vec4 texCoord3;
+        out vec4 texCoord4;
+        uniform mat4 trans_model_to_world;
         uniform mat4 trans_model_to_clip_of_camera;
         uniform mat4 p3d_ModelViewMatrix;
         uniform vec4 fog;
@@ -18,159 +23,166 @@ vertex:
 
         out vec4 vpos;
         out float blend;
-        out vec2 uv0;
-        out vec2 uv1;
-        out vec2 uv2;
-        out vec4 uv3;
-        out vec2 uv;
+        out float height_scale;
 
-        out vec4 world_pos;
+        uniform sampler2D water_height;
 
+        uniform float num_lights;
+        uniform vec4 light_pos[10];
+        out vec4 pointLight [10];
         uniform mat4 p3d_ViewMatrix;
 
     transform: |
-        uv=(p3d_MultiTexCoord0+vec2(osg_FrameTime*wave.x, osg_FrameTime*wave.y))*wave.z;
+        vec2 uv=(p3d_MultiTexCoord0.xy+vec2(osg_FrameTime*wave.x, osg_FrameTime*wave.y))*wave.z;
         blend=(sin(osg_FrameTime*0.5)+1.0)*0.5;
         vec4 h_tex=textureLod(water_height, uv, 0.0);
         float h= mix(h_tex.b, h_tex.a, blend)*wave.w;
         vec4 vert=p3d_Vertex;
-        vert.z+=(h*5.0);
+        vert.z=(h*4.0);
+        height_scale=vert.z*15.0;
         gl_Position = p3d_ModelViewProjectionMatrix * vert;
 
-        uv0 = p3d_MultiTexCoord0*tile+osg_FrameTime*speed;
-        uv1 = p3d_MultiTexCoord0*tile*-0.5+osg_FrameTime*speed*0.5;
-        uv2 = p3d_MultiTexCoord0;
+        texCoord0 = p3d_MultiTexCoord0*tile+osg_FrameTime*speed;
+        texCoord1 = p3d_MultiTexCoord0*tile*1.77-osg_FrameTime*speed*1.77;
+        texCoord2 = p3d_MultiTexCoord0;
+        texCoord4 = vec4(uv.xy, 1.0, 1.0);
 
-        vpos = p3d_ModelViewMatrix * p3d_Vertex;
-        world_pos=p3d_ModelMatrix* vert;
+        vpos = p3d_ModelViewMatrix * vert;
+        vec4 wpos=trans_model_to_world * vert;
 
-        float distToEdge=clamp(pow(distance(vert.xy, vec2(256.0, 256.0))*0.004, 8.0), 0.0, 1.0);
+        float distToEdge=clamp(pow(distance(wpos.xy, vec2(256.0, 256.0))/256.0, 4.0), 0.0, 1.0);
         float distToCamera =clamp(-vpos.z*fog.a-0.5, 0.0, 1.0);
         fog_factor=clamp(distToCamera+distToEdge, 0.0, 1.0);
 
+        //point lights
+        int iNumLights = int(num_lights);
+        for (int i=0; i<iNumLights; ++i)
+            {
+            pointLight[i]=p3d_ViewMatrix*vec4(light_pos[i].xyz, 1.0);
+            pointLight[i].w=light_pos[i].w;
+            }
 
-        vec4 camclip = trans_model_to_clip_of_camera * vert;
-        uv3 = camclip * vec4(0.5,0.5,0.5,1.0) + camclip.w * vec4(0.5,0.5,0.5,0.0);
+        vec4 camclip = trans_model_to_clip_of_camera* vert;
+        texCoord3 = camclip * vec4(0.5,0.5,0.5,1.0) + camclip.w * vec4(0.5,0.5,0.5,0.0);
 
 fragment:
     inout: |
+        uniform mat3 p3d_NormalMatrix;
         uniform sampler2D reflection;
         uniform sampler2D water_norm;
         uniform sampler2D height;
         uniform sampler2D water_height;
-        //uniform sampler2D water_foam;
+        in vec2 texCoord0;
+        in vec2 texCoord1;
+        in vec2 texCoord2;
+        in vec4 texCoord3;
+        in vec4 texCoord4;
         uniform float water_level;
-        uniform vec3 ambient;
+        uniform vec4 ambient;
         uniform vec4 fog;
-        uniform mat3 p3d_NormalMatrix;
+        uniform vec3 wave;
 
         in float fog_factor;
         in vec4 vpos;
-        in vec2 uv;
-        in vec2 uv0;
-        in vec2 uv1;
-        in vec2 uv2;
-        in vec4 uv3;
+
         in float blend;
-        in vec4 world_pos;
+        in float height_scale;
 
-        uniform vec4 light_color[100];
-        uniform vec4 light_pos[100];
-        uniform int num_lights;
-
+        in vec4 pointLight [10];
+        uniform vec4 light_color[10];
+        uniform float num_lights;
         uniform float z_scale;
-        uniform vec4 wave;
-        uniform vec3 camera_pos;
-        out  vec4 p3d_Color;
-
+        //out vec4 fragColor[2];
     material: |
-        vec3 V = normalize(world_pos.xyz - camera_pos);
         vec4 fog_color=vec4(fog.rgb, 1.0);
-        vec4 distortion =texture(water_norm, uv0);
-             distortion +=texture(water_norm, uv1);
-        vec3 normalmap=normalize((texture(water_norm, uv0).rgb)*2.0-1.0)
-                    +normalize((texture(water_norm, uv1).rgb)*2.0-1.0);
-        normalmap=normalize(normalmap);
+        vec4 distortion1 = normalize(texture2D(water_norm, texCoord0.xy));
+        vec4 distortion2 = normalize(texture2D(water_norm, texCoord1.xy));
+        vec4 normalmap=distortion1+distortion2;
 
-        //TBN
-        vec3 N=vec3(0.0,0.0,1.0);
+        vec3 normal=vec3(0.0,0.0,1.0);
         const vec3 vLeft=vec3(1.0,0.0,0.0);
         const float pixel=0.00390625;//=1.0/256.0;
-        //vec2 texUV=gl_TexCoord[4].xy;
+        vec2 texUV=texCoord4.xy;
         //normal vector...
-        vec4 me_tex=texture(water_height, uv);
-        vec4 n_tex=texture(water_height, vec2(uv.x,uv.y+pixel));
-        vec4 s_tex=texture(water_height, vec2(uv.x,uv.y-pixel));
-        vec4 e_tex=texture(water_height, vec2(uv.x+pixel,uv.y));
-        vec4 w_tex=texture(water_height, vec2(uv.x-pixel,uv.y));
-        float me=mix(me_tex.r, me_tex.g, blend)+(distortion.a*0.2);
+        vec4 me_tex=texture2D(water_height, texUV);
+        vec4 n_tex=texture2D(water_height, vec2(texUV.x,texUV.y+pixel));
+        vec4 s_tex=texture2D(water_height, vec2(texUV.x,texUV.y-pixel));
+        vec4 e_tex=texture2D(water_height, vec2(texUV.x+pixel,texUV.y));
+        vec4 w_tex=texture2D(water_height, vec2(texUV.x-pixel,texUV.y));
+        float me=mix(me_tex.r, me_tex.g, blend)+normalmap.a*0.5;
         float n=mix(n_tex.r, n_tex.g, blend);
         float s=mix(s_tex.r, s_tex.g, blend);
         float e=mix(e_tex.r, e_tex.g, blend);
         float w=mix(w_tex.r, w_tex.g, blend);
 
         //find perpendicular vector to norm:
-        vec3 temp = N; //a temporary vector that is not parallel to norm
+        vec3 temp = normal; //a temporary vector that is not parallel to norm
         temp.x+=0.5;
         //form a basis with norm being one of the axes:
-        vec3 perp1 = normalize(cross(N,temp));
-        vec3 perp2 = normalize(cross(N,perp1));
+        vec3 perp1 = normalize(cross(normal,temp));
+        vec3 perp2 = normalize(cross(normal,perp1));
         //use the basis to move the normal in its own space by the offset
-        vec3 normalOffset = -5.0*wave.w*(((n-me)-(s-me))*perp1 - ((e-me)-(w-me))*perp2);
-        N += normalOffset;
-        N = normalize(N);
+        vec3 normalOffset = -height_scale*(((n-me)-(s-me))*perp1 - ((e-me)-(w-me))*perp2);
+        normal += normalOffset;
+        normal = normalize(p3d_NormalMatrix * normal);
 
-        // TBN
-        vec3 T=   cross(N, vLeft);
-        vec3 B= cross(N, T);
+        //TBN
+        vec3 tangent=  p3d_NormalMatrix * cross(normal, vLeft);
+        vec3 binormal= p3d_NormalMatrix * cross(normal, tangent);
 
-        float h_map=texture(height, uv2).r;
-        if (h_map*z_scale>water_level+3.0)
+        float h_map=texture2D(height, texCoord2.xy).r;
+        if (h_map*z_scale>water_level+2.0)
             discard;
-        float foam=clamp(h_map*z_scale-(water_level-2.0), 0.0, 4.0)*0.2;
-        foam+=clamp((me-0.5)*4.0, 0.0, 1.0)*wave.w;//*0.04;
-        foam*=distortion.a;
-        foam=clamp(foam, 0.0, 1.0);
+        float foam=clamp(h_map*z_scale-(water_level-4.0), 0.0, 4.0)*0.25;
+        foam+=clamp((me-0.5)*4.0, 0.0, 1.0)*height_scale*0.04;
+        foam=clamp(foam*normalmap.a, 0.0, 1.0);
+        float facing = 1.0 -max(dot(normalize(-vpos.xyz), normalize(normal.xyz)), 0.0);
 
-
-        //float facing =clamp(max(1.0 -dot(N,-V), 0.0)-0.2, 0.0, 1.0);
-        float facing = clamp(pow(max(1.0 -dot(N,-V), 0.0), 5.0), 0.0, 1.0);
-        //float facing = clamp( 0.27 + (1.0 - 0.27)*pow(max(1.0 -dot(N,-V), 0.0), 5.0), 0.0, 1.0);
-        N*= normalmap.z;
-        N += T * normalmap.x;
-        N -= B * normalmap.y;
-        N = normalize(N);
-
-        // Do lights
-        vec3 color =vec3(0.01, 0.01, 0.0);
+        vec3 tsnormal = (normalize(normalmap.xyz) * 2.0) - 1.0;
+        vec3 N=normal.xyz;
+        N.xyz *= tsnormal.z;
+        N.xyz += tangent * tsnormal.x;
+        N.xyz -= binormal * tsnormal.y;
+        N.xyz = normalize(N.xyz);
+        //do lights
+        vec4 color =ambient;//+vec4(0.0, 0.135, 0.195, 1.0)*me;
+        //directional =sun
         vec3 L;
-        vec3 R;
+        float NdotL,  specular = 0.0;
+        //point lights
+        float EdotR;
         float att;
-        float specular = 0.0;
-        for (int i=0; i<num_lights; ++i)
+        float dist;
+        float light_spec;
+        int iNumLights = int(num_lights);
+        for (int i=0; i<iNumLights; ++i)
             {
-            //diffuse
-            L = normalize(light_pos[i].xyz-world_pos.xyz);
-            att=pow(distance(world_pos.xyz, light_pos[i].xyz), 2.0);
-            att =clamp(1.0 - att/(light_pos[i].w), 0.0, 1.0);
-            color+=light_color[i].rgb*max(dot(N,L), 0.3)*att;
-            //specular
-            R=reflect(L,N)*att;
-            specular +=pow(max(dot(R, V), 0.0), 50.0)*light_color[i].a;
+            dist=dist=distance(vpos.xyz, pointLight[i].xyz);
+            dist*=dist;
+            att = clamp(1.0 - dist/(pointLight[i].w), 0.0, 1.0);
+            if (att>0.0)
+                {
+                L = normalize(pointLight[i].xyz-vpos.xyz);
+                NdotL = max(dot(N,L),0.0);
+                EdotR=max(dot(reflect(-L.xyz, N.xyz), normalize(-vpos.xyz)), 0.0);
+                light_spec=dot(light_color[i].rgb, vec3(0.2, 0.2, 0.2))+0.05;
+                specular+=(pow(EdotR,150.0)+pow(EdotR,10.0)*0.2)*(1.0-foam)*light_spec*att;
+                color += light_color[i]*att;
+                }
             }
+        specular*=(1.0-fog_factor);
+        vec4 refl=texture2DProj(reflection, texCoord3+distortion1*distortion2*4.0);
+        vec4 final=refl*facing;
+        final= mix(final, vec4(0.01, 0.01, 0.02, 1.0), 0.6);
+        final+=foam*((color*0.5)+0.2);
+        final+=specular*color;
+        float displace=(facing)+(foam);
+        final.a=clamp(facing+specular, 0.9, 1.0);
+        vec4 fragColor[2];
+        fragColor[0]=final;
+        fragColor[1] =vec4(fog_factor, 1.0,specular,0.4+(1.0-displace)*0.5);//(fog, shadow, glare, displace)
 
-        float ff=fog_factor*fog_factor;
-        foam*=(1.0-ff);
-        specular*=(1.0-ff);
-        specular*=(1.0-foam);
-        vec3 refl=textureProj(reflection, uv3+vec4(N, 0.0)).rgb;
-
-        vec3 water_color=min(color*vec3(0.05, 0.1, 0.15), color);
-
-        vec4 final = vec4((refl*facing)+foam*color, clamp(0.85+facing, 0.0, 1.0));
-        final.rgb+=water_color*0.5;
-        final+=specular;
-
-        m.basecolor = final.rgb;
-        m.shading_model = 0; // transparency 3
+        m.basecolor = fragColor[0].rgb;
+        m.basecolor += fragColor[1].rgb;
+        //m.shading_model = 0; // transparency 3
 

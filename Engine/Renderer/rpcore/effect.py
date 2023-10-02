@@ -264,7 +264,7 @@ class Effect(RPObject):
                     if len(insertions) > 0:
 
                         # When we are in the main function, we have to make sure we
-                        # use a seperate scope, so there are no conflicts with variable
+                        # use a separate scope, so there are no conflicts with variable
                         # declarations
                         header = indent + "/* Hook: " + hook_name + " */" + (" {" if in_main else "")  # noqa # pylint: disable=line-too-long
                         addline(header)
@@ -278,7 +278,7 @@ class Effect(RPObject):
                                 self.warn("Invalid line type: ", line_to_insert)
                                 continue
 
-                            # Dont indent defines and pragmas
+                            # Don't indent defines and pragmas
                             if line_to_insert.startswith("#"):
                                 addline(line_to_insert)
                             else:
@@ -300,7 +300,6 @@ class Effect(RPObject):
         # Write the constructed shader and load it back
         shader_content = "\n".join(parsed_lines)
         temp_path = "/$$rptemp/$$effect-" + cache_key + ".glsl"
-
         with open(temp_path, "w") as handle:
             handle.write(shader_content)
 
