@@ -140,6 +140,10 @@ class MenuUI(MenuSettings):
                  maps.find('**/button_pressed'),
                  maps.find('**/button_rollover'))
 
+        # Hide default cursor and show customised one
+        self.base.win_props.set_cursor_hidden(True)
+        self.base.win.request_properties(self.base.win_props)
+
         self.cursor = DirectFrame(frameSize=(-64, 0, 0, 64),
                                   frameColor=(1, 1, 1, 1),
                                   frameTexture=self.images['cursor_mouse'],

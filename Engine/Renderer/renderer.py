@@ -246,7 +246,7 @@ class RenderAttr:
                                                                             {"render_gbuffer": False,
                                                                              "render_forward": True,
                                                                              "render_shadow": False,
-                                                                             "alpha_testing": True,
+                                                                             "alpha_testing": False,
                                                                              "normal_mapping": False}
                                                                             )
 
